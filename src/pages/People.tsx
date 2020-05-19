@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {useSelector} from 'react-redux';
 import { NextPageContext } from "next";
 import { myGet } from "../defs/myGet";

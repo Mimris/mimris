@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
+import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col } from 'reactstrap';
 // import { TabContent, TabPane, Nav, NavItem, NavLink, Card, Button, CardTitle, CardText, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import Help from '../components/Help'
@@ -8,8 +8,8 @@ const TasksHelp = () => {
 
   const [activeTab, setActiveTab] = useState('2');
   const toggleTab = tab => {if (activeTab !== tab) setActiveTab(tab);}
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const toggleTip = () => setTooltipOpen(!tooltipOpen);
+  // const [tooltipOpen, setTooltipOpen] = useState(false);
+  // const toggleTip = () => setTooltipOpen(!tooltipOpen);
 
   const [visibleTasks, setVisibleTasks] = useState(true)
   function toggleTasks() {
@@ -61,12 +61,12 @@ const TasksHelp = () => {
           <Help />
         </TabPane>
       </TabContent>
-      <div className="tooltip">
+      {/* <div className="tooltip">
         <p>Somewhere in here is a <span style={{ textDecoration: "underline", color: "blue" }} href="#" id="TooltipExample">!</span>.</p>
         <Tooltip placement="right" isOpen={tooltipOpen} target="TooltipExample" toggle={toggleTip}>
           Tooltip test!
         </Tooltip>
-      </div>
+      </div> */}
     </div>
   )
 

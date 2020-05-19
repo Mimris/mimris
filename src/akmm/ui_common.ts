@@ -1,3 +1,4 @@
+// @ts-nocheck
 /*
     Functions used by the GoJS modellers
 */

@@ -1,0 +1,397 @@
+// @ts-nocheck
+/*
+*  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
+*/
+
+import * as go from 'gojs';
+import { ReactDiagram } from 'gojs-react';
+import * as React from 'react';
+//import {onTextEdited} from '../../../Server/src/akmm/ui_common';
+
+import { GuidedDraggingTool } from '../GuidedDraggingTool';
+//import { stringify } from 'querystring';
+
+// import './Diagram.css';
+
+interface DiagramProps {
+  nodeDataArray: Array<go.ObjectData>;
+  linkDataArray: Array<go.ObjectData>;
+  modelData: go.ObjectData;
+  skipsDiagramUpdate: boolean;
+  onDiagramEvent: (e: go.DiagramEvent) => void;
+  onModelChange: (e: go.IncrementalData) => void;
+}
+
+export class DiagramWrapper extends React.Component<DiagramProps, {}> {
+  /**
+   * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
+   */
+  private diagramRef: React.RefObject<ReactDiagram>;
+  /** @internal */
+  constructor(props: DiagramProps) {
+    super(props);
+    this.diagramRef = React.createRef();
+  }
+
+
+  /**
+   * Get the diagram reference and add any desired diagram listeners.
+   * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
+   */
+  public componentDidMount() {
+    if (!this.diagramRef.current) return;
+    const diagram = this.diagramRef.current.getDiagram();
+    if (diagram instanceof go.Diagram) {
+      diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
+    }
+  }
+
+  /**
+   * Get the diagram reference and remove listeners that were added during mounting.
+   */
+  public componentWillUnmount() {
+    if (!this.diagramRef.current) return;
+    const diagram = this.diagramRef.current.getDiagram();
+    if (diagram instanceof go.Diagram) {
+      diagram.removeDiagramListener('TextEdited', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
+    }
+  }
+
+  /**
+   * Diagram initialization method, which is passed to the ReactDiagram component.
+   * This method is responsible for making the diagram and initializing the model, any templates,
+   * and maybe doing other initialization tasks like customizing tools.
+   * The model's data should not be set here, as the ReactDiagram component handles that.
+   */
+  private initDiagram(): go.Diagram {
+    const $ = go.GraphObject.make;
+    // define myDiagram
+    let myDiagram;
+    if (true) {
+      myDiagram =
+        $(go.Diagram,
+          {
+            initialContentAlignment: go.Spot.Center,       // center the content
+            "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+            "scrollMode": go.Diagram.InfiniteScroll,
+            initialAutoScale: go.Diagram.UniformToFill,
+            'undoManager.isEnabled': false,  // must be set to allow for model change listening
+            'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
+            'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightyellow' },
+            draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
+            'draggingTool.horizontalGuidelineColor': 'blue',
+            'draggingTool.verticalGuidelineColor': 'blue',
+            'draggingTool.centerGuidelineColor': 'green',
+            'draggingTool.guidelineWidth': 1,
+            "draggingTool.dragsLink": true,
+            "draggingTool.isGridSnapEnabled": true,
+            "linkingTool.isUnconnectedLinkValid": false,
+            "linkingTool.portGravity": 20,
+            "relinkingTool.isUnconnectedLinkValid": false,
+            "relinkingTool.portGravity": 20,
+            "relinkingTool.fromHandleArchetype":
+              $(go.Shape, "Diamond", { segmentIndex: 0, cursor: "pointer", desiredSize: new go.Size(8, 8), fill: "tomato", stroke: "darkred" }),
+            "relinkingTool.toHandleArchetype":
+              $(go.Shape, "Diamond", { segmentIndex: -1, cursor: "pointer", desiredSize: new go.Size(8, 8), fill: "darkred", stroke: "tomato" }),
+            "linkReshapingTool.handleArchetype":
+              $(go.Shape, "Diamond", { desiredSize: new go.Size(7, 7), fill: "lightblue", stroke: "deepskyblue" }),
+            allowDrop: true,  // must be true to accept drops from the Palette
+            grid: $(go.Panel, "Grid",
+              $(go.Shape, "LineH", { stroke: "lightgray", strokeWidth: 0.5 }),
+              $(go.Shape, "LineH", { stroke: "gray", strokeWidth: 0.5, interval: 10 }),
+              $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5 }),
+              $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
+            ),
+            model: $(go.GraphLinksModel,
+              {
+                linkKeyProperty: 'key'
+              })
+          }
+        );
+    }
+    console.log('94 myDiagram', this);
+
+    //myDiagram.layout = $(go.CircularLayout); 
+    myDiagram.layout.isInitial = false;
+    myDiagram.layout.isOngoing = false;
+    myDiagram.groupTemplate =
+      $(go.Group, "Vertical",
+        $(go.Panel, "Auto",
+          $(go.Shape, "RoundedRectangle",  // surrounds the Placeholder
+            {
+              parameter1: 14,
+              fill: "rgba(128,128,128,0.33)"
+            }),
+          $(go.Placeholder,    // represents the area of all member parts,
+            { padding: 5 })  // with some extra padding around them
+        ),
+        $(go.TextBlock,         // group title
+          { alignment: go.Spot.Right, font: "Bold 12pt Sans-Serif" },
+          new go.Binding("text", "name"))
+      );
+    // }
+
+    // define a Node template
+    let nodeTemplate;
+    if (true) {
+      nodeTemplate =
+        $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+          new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+          $(go.Shape, 'RoundedRectangle',
+            {
+              name: 'SHAPE', fill: 'lightyellow', stroke: "black",
+              // set the port properties:
+              portId: "", cursor: "pointer",
+              fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+            },
+            // Shape.fill is bound to Node.data.color
+            new go.Binding('fill', 'fillcolor')),
+          $(go.Panel, "Table",
+            { defaultAlignment: go.Spot.Left, margin: 4 },
+            $(go.RowColumnDefinition, { column: 1, width: 4 }),
+            $(go.Panel, "Horizontal",
+              $(go.Picture,                   // the image
+                {
+                  name: "Picture",
+                  desiredSize: new go.Size(35, 40),
+                  margin: new go.Margin(4, 5, 4, 5),
+                },
+                new go.Binding("source", "icon", findImage)
+              ),
+              // define the panel where the text will appear
+              $(go.Panel, "Table",
+                {
+                  defaultRowSeparatorStroke: "black",
+                  maxSize: new go.Size(150, 999),
+                  margin: new go.Margin(6, 10, 0, 3),
+                  defaultAlignment: go.Spot.Left
+                },
+                $(go.RowColumnDefinition, { column: 2, width: 4 }
+                ),
+                // content
+                $(go.TextBlock, textStyle(),  // the name
+                  {
+                    row: 0, column: 0, columnSpan: 5,
+                    font: "12pt Segoe UI,sans-serif",
+                    editable: true, isMultiline: false,
+                    minSize: new go.Size(10, 16),
+                    name: "name"
+                  },
+                  new go.Binding("text", "name").makeTwoWay()),
+
+                $(go.TextBlock, textStyle(), // the typename
+                  {
+                    row: 1, column: 1, columnSpan: 6,
+                    editable: false, isMultiline: false,
+                    minSize: new go.Size(10, 14),
+                    margin: new go.Margin(0, 0, 0, 3)
+                  },
+                  new go.Binding("text", "typename")
+                ),
+              ),
+            ),
+          ),
+        );
+    }
+    // dwfine a link template
+    let linkTemplate;
+    if (true) {
+      linkTemplate =
+        $(go.Link,
+          new go.Binding('relinkableFrom', 'canRelink').ofModel(),
+          new go.Binding('relinkableTo', 'canRelink').ofModel(),
+          {
+            routing: go.Link.AvoidsNodes,
+            corner: 10
+          },  // link route should avoid nodes
+          new go.Binding("points").makeTwoWay(),
+          $(go.Shape, new go.Binding("stroke", "strokecolor")),
+          $(go.TextBlock,     // this is a Link label
+            {
+              isMultiline: false,  // don't allow newlines in text
+              editable: true  // allow in-place editing by user
+            }),
+          //$(go.Shape, new go.Binding("strokewidth", "strokewidth")),
+          //$(go.Shape, new go.Binding("toArrow", "toArrow")),
+          $(go.Shape, { toArrow: "Standard", stroke: null }),
+          $(go.TextBlock,     // this is a Link label
+            {
+              isMultiline: false,  // don't allow newlines in text
+              editable: true  // allow in-place editing by user
+            },
+            new go.Binding("text", "name").makeTwoWay(),
+          ),
+          $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
+          $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
+        );
+    }
+    // Define the group template
+    // let groupTemplate;
+    if (false) {
+      //   groupTemplate =
+      //   $(go.Group, "Auto",
+      //   new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+      //   new go.Binding("visible"),
+      //   //  { contextMenu: partContextMenu },
+      //     {
+      //       selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
+      //       locationObjectName:  "SHAPE",
+      //       resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+      //     },
+      //     {
+      //       background: "transparent",
+      //       ungroupable: true,
+      //       // highlight when dragging into the Group
+      //       //mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
+      //       //mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
+      //       computesBoundsAfterDrag: true,
+      //       // when the selection is dropped into a Group, add the selected Parts into that Group;
+      //       // if it fails, cancel the tool, rolling back any changes
+      //       //mouseDrop: finishDrop,
+      //       handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+      //       // Groups containing Nodes lay out their members vertically
+      //       //layout: $(go.TreeLayout)
+      //     },
+      //       //new go.Binding("layout", "groupLayout"),
+      //       new go.Binding("background", "isHighlighted", 
+      //                 function(h) { 
+      //                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
+      //                 }).ofObject(),
+      //   $(go.Shape, "RoundedRectangle", // surrounds everything
+      //       { fill: "white", 
+      //         minSize: new go.Size(100, 50)
+      //       },
+      //       /*
+      //       { parameter1: 10, 
+      //         fill: "rgba(128,128,128,0.33)",
+      //       },
+      //       */
+      //       {
+      //       portId: "", cursor: "pointer",
+      //       fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+      //       toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+      //       }),
+      //     $(go.Panel, "Vertical",  // position header above the subgraph
+      //       { 
+      //         name: "HEADER", 
+      //         defaultAlignment: go.Spot.TopLeft 
+      //       },
+      //       $(go.Panel, "Horizontal",  // the header
+      //         { defaultAlignment: go.Spot.Top },
+      //         $("SubGraphExpanderButton"),  // this Panel acts as a Button
+      //         $(go.TextBlock,     // group title near top, next to button
+      //           { font: "Bold 12pt Sans-Serif", 
+      //             editable: true, isMultiline: false,
+      //           },
+      //           new go.Binding("fill", "fillcolor"),
+      //           new go.Binding("text", "name").makeTwoWay()
+      //         ),
+      //       ), // End Horizontal Panel
+
+      //       $(go.Shape,  // using a Shape instead of a Placeholder
+      //         { name: "SHAPE", fill: "lightyellow", 
+      //           minSize: new go.Size(100, 50)
+      //         },
+      //         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)                                
+      //       )
+      //     )
+      //   )
+      //   // Define group template map
+      //   let groupTemplateMap = new go.Map<string, go.Group>();
+      //   groupTemplateMap.add("", groupTemplate);
+
+      // } else {
+      //     groupTemplate =
+      //     $(go.Group, "Vertical",
+      //       $(go.Panel, "Auto",
+      //         $(go.Shape, "RoundedRectangle",  // surrounds the Placeholder
+      //           { parameter1: 14,
+      //             fill: "rgba(128,128,128,0.33)" }),
+      //         $(go.Placeholder,    // represents the area of all member parts,
+      //           { padding: 5})  // with some extra padding around them
+      //       ),
+      //       $(go.TextBlock,         // group title
+      //         { alignment: go.Spot.Right, font: "Bold 12pt Sans-Serif" },
+      //         new go.Binding("text", "key"))
+      //     );
+      //     // Define group template map
+      //     let groupTemplateMap = new go.Map<string, go.Group>();
+      //     groupTemplateMap.add("", groupTemplate);
+    }
+    // define template maps
+    if (true) {
+      // Define node template map
+      let nodeTemplateMap = new go.Map<string, go.Part>();
+      nodeTemplateMap.add("", nodeTemplate);
+      //nodeTemplateMap.add("", defaultNodeTemplate);
+
+      // Define link template map
+      let linkTemplateMap = new go.Map<string, go.Link>();
+      linkTemplateMap.add("", linkTemplate);
+
+      // Set the diagram template maps
+      myDiagram.nodeTemplateMap = nodeTemplateMap;
+      myDiagram.linkTemplateMap = linkTemplateMap;
+      //myDiagram.groupTemplateMap = groupTemplateMap;
+    }
+    return myDiagram;
+
+    // Function to identify images related to an image id
+    function findImage(image: string) {
+      if (image) {
+        return "./../images/" + image;
+      }
+      return "";
+    }
+
+    // Function to specify default text style
+    function textStyle() {
+      return { font: "9pt  Segoe UI,sans-serif", stroke: "black" };
+    }
+  }
+
+  public render() {
+    // console.log('403', this.props.layout);
+    // $(go.Diagram.layout = $(go.GridLayout));
+    // go.Diagram.layout = $(go.GridLayout);
+    // const layout = this.props.layout
+    // const initDiagram = this.initDiagram
+    // console.log('407 initdiagram', initDiagram);
+    // if  ((this.props) && this.props.layout === 'GridLayout') {
+    //     myDiagram.layout = $(go.GridLayout);
+    // } else 
+    // {
+    // myDiagram.layout = $(go.CircularLayout);
+
+    // }
+    return (
+      <ReactDiagram
+        ref={this.diagramRef}
+        divClassName='diagram-component'
+        // initDiagram         = {initDiagram}
+        initDiagram={this.initDiagram}
+        nodeDataArray={this.props.nodeDataArray}
+        linkDataArray={this.props.linkDataArray}
+        modelData={this.props.modelData}
+        onModelChange={this.props.onModelChange}
+        // onSelectionChange   = {this.props.onModelChange}
+        // onTextEdited        = {this.props.onModelChange}
+        // onPartResized       = {this.props.onModelChange}
+        // onMouseDrop         = {this.props.onModelChange}
+        skipsDiagramUpdate={this.props.skipsDiagramUpdate}
+      />
+    );
+  }
+}
+

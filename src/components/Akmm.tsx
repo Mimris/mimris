@@ -12,7 +12,7 @@ import genGojsModel from './GenGojsModel'
 
 const page = (props: any) => {
 
-  console.log('12', props);
+  // console.log('12', props);
   const dispatch = useDispatch()
 
   /**  * Get the state from the store  */

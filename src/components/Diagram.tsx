@@ -14,7 +14,7 @@ import genGojsModel from './GenGojsModel'
 
 const page = (props:any) => {
 
-  console.log('12', props);
+  // console.log('12', props);
   const dispatch = useDispatch()
   
   /**  * Get the state from the store  */
@@ -26,7 +26,7 @@ const page = (props:any) => {
   let myMetis = props.phMymetis?.myMetis
 
 
-  console.log('24 Diagram', gojsmetamodel ); 
+  // console.log('24 Diagram', gojsmetamodel ); 
 
   useEffect(() => {
     genGojsModel(state, dispatch);
@@ -61,12 +61,13 @@ const page = (props:any) => {
           </NavLink>
         </NavItem>
       </Nav>
-      <TabContent  activeTab={activeTab}>
+      {/* Metamodelling */}
+      <TabContent  activeTab={activeTab}>  
         <TabPane  tabId="1">
           <div className="workpad p-1 bg-light">
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-                <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "200px", height: "80vh", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
+              <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "200px", minHeight: "40vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
                   <Palette
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
@@ -91,11 +92,12 @@ const page = (props:any) => {
             </Row>
           </div>         
         </TabPane>
+        {/* Modelling */}
         <TabPane tabId="2">
           <div className="workpad p-1 bg-light">
             <Row >
             <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-              <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", height: "100%", marginRight: "2px", border: "solid 1px black" }}>
+              <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "40vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}>
                 <Palette
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}

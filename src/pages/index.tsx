@@ -132,6 +132,7 @@ const page = (props: any) => {
   )
 }
 
-export default Page(connect(state => state)(page));
+export default Page;
+// export default Page(connect(state => state)(page));
 // export default authenticated(Page(connect(state => state)(page)));
 

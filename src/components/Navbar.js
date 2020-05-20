@@ -62,9 +62,9 @@ const Navbar = (props) => (
 							<a className="dropdown-item" href="/signup">Sign-up</a>
 						</div>
 					</li> */}
-					<li className="nav-item">
+					{/* <li className="nav-item">
 						<Link href="/about"><a className="nav-link">About</a></Link>
-					</li>
+					</li> */}
 				</ul>
 			</div>
 			<div className='buttons' aria-expanded="false">

@@ -38,17 +38,17 @@ const page = (props: any) => {
         <div id="index" >
           <div className="wrapper">
             <div className="header">
-              {/* <Header title='eaderTitle' /> */}
+              <Header title='eaderTitle' />
             </div>
             <div className="workplace">
               <div className="contextarea">
-                {setContextDiv}
+                {/* {setContextDiv} */}
               </div>
               <div className="tasksarea">
-                <TasksHelp />
+                {/* <TasksHelp /> */}
               </div>
               <div className="workarea">
-                <Index />
+                {/* <Index /> */}
               </div>
             </div>
             <div className="footer">

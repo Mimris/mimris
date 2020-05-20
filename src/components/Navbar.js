@@ -51,21 +51,20 @@ const Navbar = (props) => (
 					{/* <li className="nav-item">
 						<Link href="/settings"><a className="nav-link">Settings</a></Link>
 					</li> */}
-					<li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
+					{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
 						<a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="false">
 							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} />
-							{/* <i className="fas FaBeer"></i> */}
 							<span className="username"> {props?.user?.name}</span> </a>
 						<div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
 							<a className="dropdown-item" href="/settings">Settings</a>
 							<a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
 						</div>
-					</li>
-					{/* <li className="nav-item">
-						<Link href="/about"><a className="nav-link">About</a></Link>
 					</li> */}
+					<li className="nav-item">
+						<Link href="/about"><a className="nav-link">About</a></Link>
+					</li>
 				</ul>
 			</div>
 			<div className='buttons' aria-expanded="false">

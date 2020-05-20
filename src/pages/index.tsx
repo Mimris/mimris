@@ -1,40 +1,41 @@
 //@ts-nocheck
 import React, { useState } from "react";
+import { connect } from 'react-redux';
 // import { connect, useSelector, useDispatch } from 'react-redux';
-import { connect, useSelector, useDispatch } from 'react-redux';
-import { loadData } from '../actions/actions'
+// import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
-import Index from '../components/Index';
-import SetContext from '../defs/SetContext'
-import TasksHelp from '../components/TasksHelp'
+// import Index from '../components/Index';
+// import SetContext from '../defs/SetContext'
+// import TasksHelp from '../components/TasksHelp'
 
 const page = (props: any) => {
   // console.log(props)
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
 
-  if (!props.phData) {
-    dispatch(loadData())
-  }
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
 
-  const state = useSelector(state => state)
-  const metis = (state.phData) && state.phData.metis
+  // const state = useSelector(state => state)
+  // const metis = (state.phData) && state.phData.metis
 
-  const [visibleTasks, setVisibleTasks] = useState(true)
-  function toggleTasks() {
-    setVisibleTasks(!visibleTasks);
-  }
+  // const [visibleTasks, setVisibleTasks] = useState(true)
+  // function toggleTasks() {
+  //   setVisibleTasks(!visibleTasks);
+  // }
 
  // /**
 // * Set up the Context items and link to select Context modal,
 // */
-  const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+  // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
   
   return (
     <div>
-      <Layout  user={state.phUser.focusUser} >
+      <Layout   >
+      {/* <Layout  user={state.phUser.focusUser} > */}
         <div id="index" >
           <div className="wrapper">
             <div className="header">

@@ -14,7 +14,7 @@ const Navbar = (props) => (
 				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
 			</a>
 			{/* <span ><strong>OrgEngine Teambuilder</strong> */}
-			<span ><strong> AKMM</strong></span>
+			<span style={{ fontsize: "bigger"}}><strong> AKMM</strong></span>
 			<div className="collapse navbar-collapse" id="nav-toggler-metis">
 				<ul className="navbar-nav ml-auto mr-3">
 					<li className="nav-item">

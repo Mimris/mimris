@@ -26,20 +26,18 @@ const Navbar = (props) => (
 					{/* <li className="nav-item">
 							<Link href="/akmm"><a className="nav-link">AKMM</a></Link>
 					</li>						 */}
-					<li className="nav-item">
+					{/* <li className="nav-item">
 						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
-					</li>
-					<li className="nav-item dropdown">
+					</li> */}
+					{/* <li className="nav-item dropdown">
 						<a className="nav-link dropdown-toggle" href="/other" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More
             </a>
 						<div className="dropdown-menu" aria-labelledby="navbarDropdown">
 							<a className="dropdown-item" href="/login">Login</a>
-							{/* <a className="dropdown-item" href="/akmm-modelling">Modelling</a> */}
 							<a className="dropdown-item" href="/signup">Sign-up</a>
 							<a className="dropdown-item" href="/people">Brukere</a>
 							<a className="dropdown-item" href="/settings">Settings</a>
-							{/* <a className="dropdown-item" href="/akmm-metamodelling">Metamodelling</a> */}
 							<a className="dropdown-item" href="/akmm-graphql">JSON export</a>
 							<a className="dropdown-item" href="/genGqlSchema">Gen Gql Schema</a>
 							<a className="dropdown-item" href="/api/graphql" target="_blank" >GrapQL test</a>
@@ -49,7 +47,7 @@ const Navbar = (props) => (
 								<button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 							</form>
 						</div>
-					</li>
+					</li> */}
 					{/* <li className="nav-item">
 						<Link href="/settings"><a className="nav-link">Settings</a></Link>
 					</li> */}

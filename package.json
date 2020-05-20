@@ -15,7 +15,11 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.28",
     "@fortawesome/free-solid-svg-icons": "^5.13.0",
     "@types/reactstrap": "^8.4.2",
-    "apollo-server-micro": "^2.13.0",
+
+    "es6-promise": "4.1.1",
+
+    "heroku": "^7.41.1",
+
     "isomorphic-unfetch": "^3.0.0",
     "jsonwebtoken": "8.5.1",
     "micro-cors": "^0.1.1",

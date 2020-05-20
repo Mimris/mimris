@@ -1,6 +1,6 @@
 //@ts-nocheck
 import React, { useState } from "react";
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 // import { connect, useSelector, useDispatch } from 'react-redux';
 // import { loadData } from '../actions/actions'
 import Page from '../components/page';

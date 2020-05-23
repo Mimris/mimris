@@ -14,15 +14,16 @@ function * loadDataSaga() {
   try {
     let res = ''
     // res = yield fetch('http://localhost:8080/metismodels')
-    res = yield fetch('http://localhost:4000/akmmodels')
+    res = yield fetch('http://localhost:4000/akmmodels',
     // res = yield fetch('https://akmserver.herokuapp.com/',
-    // {
-    //   headers: {
-    //     'mode': 'cors',
-    //       'Accept': 'application/json',
-    //         'Content-Type': 'application/json'
-    //   }
-    // })
+    {
+      // mode: 'no-cors',
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
 
     const metis = yield res.json()
     // const totdata = { model }

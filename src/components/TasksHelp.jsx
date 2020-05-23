@@ -7,7 +7,7 @@ import Help from '../components/Help'
 const TasksHelp = () => {
 
   const [activeTab, setActiveTab] = useState('2');
-  const toggleTab = tab => {if (activeTab !== tab) setActiveTab(tab);}
+  const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
   // const [tooltipOpen, setTooltipOpen] = useState(false);
   // const toggleTip = () => setTooltipOpen(!tooltipOpen);
 
@@ -22,13 +22,13 @@ const TasksHelp = () => {
         <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '0' })}
-            onClick={ toggleTasks }
+            onClick={toggleTasks}
           >
             &lt;
           </NavLink>
-        </NavItem> 
-       <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px"  }}
+        </NavItem>
+        <NavItem >
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); }}
           >
@@ -75,20 +75,20 @@ const TasksHelp = () => {
       <span onClick={toggleTasks}>{visibleTasks
         ? <div></div>
         // ? <><span style={{ paddingLeft: "5px" }}> Tasks</span> <span style={{ float: "left" }} > &lt;  </span></>
-        : <div className="btn-vertical m-0 pr-1" style={{ backgroundColor: "#aaa", paddingLeft: "2px", minWidth: "10px", maxWidth: "10px", maxHeight: "100%", fontSize: "90%"}}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}
+        : <div className="btn-vertical m-0 pr-1" style={{ backgroundColor: "#aaa", paddingLeft: "2px", minWidth: "10px", maxWidth: "10px", maxHeight: "100%", fontSize: "90%" }}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}
       </span>
       <div className="toggleTasks">
         {visibleTasks
           ? tabs
           : <> </>}
-          {/* : <div style= {{maxWidth: "6px", paddingLeft: "0px" }}> </div>} */}
+        {/* : <div style= {{maxWidth: "6px", paddingLeft: "0px" }}> </div>} */}
       </div>
     </>
 
   return (
-    <div className="taskhelp" style={{backgroundColor: "#eee"}}>
+    <div className="taskhelp" style={{ backgroundColor: "#eee" }}>
       {taskstabs}
-    <style jsx>{`
+      <style jsx>{`
       .nav-item {
         margin-bottom: -4px; 
         margin-top: -4px; 
@@ -106,7 +106,7 @@ const TasksHelp = () => {
         padding-top: -4px;
       }
     `}</style>
-  </div >
+    </div >
   )
 }
 

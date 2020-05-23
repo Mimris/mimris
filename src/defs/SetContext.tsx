@@ -14,13 +14,8 @@ const SetContext = (props: any) =>  {
       Proj:<strong>{phF?.focusProj?.name}</strong> |
       Role:<strong>{phF?.focusRole?.name}</strong> |
       Task:<strong>{phF?.focusTask?.name}</strong> |
-      <SelectContext className='button ContextModal' buttonLabel='Set Context' /> 
+      <SelectContext buttonLabel='Set Context' className='ContextModal' /> 
     </div>
-      <style jsx>{`
-        .button{
-          font-weight: bold;
-        }
-       `}</style>
     </>
     )
 }

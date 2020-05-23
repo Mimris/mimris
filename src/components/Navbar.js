@@ -14,7 +14,7 @@ const Navbar = (props) => (
 				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
 			</a>
 			{/* <span ><strong>OrgEngine Teambuilder</strong> */}
-			<span ><strong> AKMM</strong></span>
+			<span style={{ fontsize: "bigger"}}><strong> AKMM</strong></span>
 			<div className="collapse navbar-collapse" id="nav-toggler-metis">
 				<ul className="navbar-nav ml-auto mr-3">
 					<li className="nav-item">
@@ -26,20 +26,18 @@ const Navbar = (props) => (
 					{/* <li className="nav-item">
 							<Link href="/akmm"><a className="nav-link">AKMM</a></Link>
 					</li>						 */}
-					<li className="nav-item">
+					{/* <li className="nav-item">
 						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
-					</li>
-					<li className="nav-item dropdown">
+					</li> */}
+					{/* <li className="nav-item dropdown">
 						<a className="nav-link dropdown-toggle" href="/other" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More
             </a>
 						<div className="dropdown-menu" aria-labelledby="navbarDropdown">
 							<a className="dropdown-item" href="/login">Login</a>
-							{/* <a className="dropdown-item" href="/akmm-modelling">Modelling</a> */}
 							<a className="dropdown-item" href="/signup">Sign-up</a>
 							<a className="dropdown-item" href="/people">Brukere</a>
 							<a className="dropdown-item" href="/settings">Settings</a>
-							{/* <a className="dropdown-item" href="/akmm-metamodelling">Metamodelling</a> */}
 							<a className="dropdown-item" href="/akmm-graphql">JSON export</a>
 							<a className="dropdown-item" href="/genGqlSchema">Gen Gql Schema</a>
 							<a className="dropdown-item" href="/api/graphql" target="_blank" >GrapQL test</a>
@@ -49,22 +47,21 @@ const Navbar = (props) => (
 								<button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 							</form>
 						</div>
-					</li>
+					</li> */}
 					{/* <li className="nav-item">
 						<Link href="/settings"><a className="nav-link">Settings</a></Link>
 					</li> */}
-					<li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
+					{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
 						<a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="false">
 							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} />
-							{/* <i className="fas FaBeer"></i> */}
 							<span className="username"> {props?.user?.name}</span> </a>
 						<div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
 							<a className="dropdown-item" href="/settings">Settings</a>
 							<a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
 						</div>
-					</li>
+					</li> */}
 					{/* <li className="nav-item">
 						<Link href="/about"><a className="nav-link">About</a></Link>
 					</li> */}

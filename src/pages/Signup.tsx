@@ -6,7 +6,7 @@ import Layout from '../components/Layout';
 import Link from 'next/link';
 
 export default function Signup() {
-  const user = useSelector(state => state.phUser.focusUser)
+  const user = useSelector(state => state.phUser?.focusUser)
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passRef = useRef<HTMLInputElement>(null);

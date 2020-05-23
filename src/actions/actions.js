@@ -1,6 +1,24 @@
 import { 
-  FAILURE, LOAD_DATA, LOAD_DATA_SUCCESS, SET_FOCUS_USER, SET_FOCUS_MODEL, SET_FOCUS_PHFOCUS, SET_GOJS_MODEL, 
-  SET_FOCUS_OBJECT, SET_FOCUS_PROJ, SET_FOCUS_ORG, SET_FOCUS_ROLE, SET_FOCUS_COLLECTION, SET_FOCUS_TASK, SET_FOCUS_SOURCE 
+  FAILURE, 
+  LOAD_DATA, 
+  LOAD_DATA_SUCCESS, 
+  SET_FOCUS_PHFOCUS, 
+  SET_FOCUS_USER, 
+  SET_FOCUS_OBJECT, 
+  SET_MYMETIS_MODEL,
+  SET_MY_GOMODEL,
+  SET_FOCUS_MODEL, 
+  SET_GOJS_MODEL, 
+  SET_GOJS_METAMODEL,
+  SET_FOCUS_MODELVIEW,
+  SET_FOCUS_PROJ, 
+  SET_FOCUS_ORG, 
+  SET_FOCUS_ROLE, 
+  SET_FOCUS_COLLECTION, 
+  SET_FOCUS_TASK, 
+  SET_FOCUS_SOURCE, 
+  EDIT_OBJECT_PROPERTIES,
+  UPDATE_OBJECTVIEW_NAME
 } from './types';
 export const failure = (error) => {
   return {
@@ -45,6 +63,13 @@ export const setMymetisModel = (data) => {
   console.log('21---myMetis', data);
   return {
     type: SET_MYMETIS_MODEL,
+    data: JSON.parse(data.value)
+  }
+}
+export const setMyGoModel = (data) => {
+  console.log('21---myMetis', data);
+  return {
+    type: SET_MY_GOMODEL,
     data: JSON.parse(data.value)
   }
 }
@@ -121,6 +146,13 @@ export const edit_object_properties = (data) => {
   // console.log('76 action-object-edit-data', data.payload);
   return {
     type: EDIT_OBJECT_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_objectview_name = (data) => {
+  // console.log('76 action-object-edit-data', data.payload);
+  return {
+    type: UPDATE_OBJECTVIEW_NAME,
     data: JSON.parse(data.value)
   }
 }

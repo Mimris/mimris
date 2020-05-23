@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts -nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -33,6 +33,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     this.diagramRef = React.createRef();
   }
 
+  private modelChangedListener: ((e: go.ChangedEvent) => void) | null = null;
 
   /**
    * Get the diagram reference and add any desired diagram listeners.
@@ -64,6 +65,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
+
+      if (this.modelChangedListener !== null) {
+        diagram.removeModelChangedListener(this.modelChangedListener);
+        this.modelChangedListener = null;
+      }
     }
   }
 
@@ -361,34 +367,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
   }
 
-  public render() {
-    // console.log('403', this.props.layout);
-    // $(go.Diagram.layout = $(go.GridLayout));
-    // go.Diagram.layout = $(go.GridLayout);
-    // const layout = this.props.layout
-    // const initDiagram = this.initDiagram
-    // console.log('407 initdiagram', initDiagram);
-    // if  ((this.props) && this.props.layout === 'GridLayout') {
-    //     myDiagram.layout = $(go.GridLayout);
-    // } else 
-    // {
-    // myDiagram.layout = $(go.CircularLayout);
+  // private handleModelChange(obj) {
+  //   alert('GoJS model changed!');
+  //   console.log(obj);
+  // }
 
-    // }
+
+  public render() {
     return (
       <ReactDiagram
         ref={this.diagramRef}
         divClassName='diagram-component'
-        // initDiagram         = {initDiagram}
         initDiagram={this.initDiagram}
         nodeDataArray={this.props.nodeDataArray}
         linkDataArray={this.props.linkDataArray}
         modelData={this.props.modelData}
         onModelChange={this.props.onModelChange}
-        // onSelectionChange   = {this.props.onModelChange}
-        // onTextEdited        = {this.props.onModelChange}
-        // onPartResized       = {this.props.onModelChange}
-        // onMouseDrop         = {this.props.onModelChange}
         skipsDiagramUpdate={this.props.skipsDiagramUpdate}
       />
     );

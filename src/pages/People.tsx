@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export default function People({people} : any) {
     // console.log('7 people', people);
-    const user = useSelector(state => state.phUser.focusUser)
+    const user = useSelector(state => state.phUser?.focusUser)
     return (
         <>
             <Layout user={user} >

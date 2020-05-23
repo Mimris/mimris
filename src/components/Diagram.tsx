@@ -24,6 +24,8 @@ const page = (props:any) => {
   let gojsmetamodel =  state.phFocus.gojsMetamodel 
   let metis = state.phData?.metis
   let myMetis = props.phMymetis?.myMetis
+  let myGoModel = props.phMyGoModel?.myGoModel
+  let phFocus = props.phFocus;
 
 
   // console.log('24 Diagram', gojsmetamodel ); 
@@ -72,7 +74,9 @@ const page = (props:any) => {
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
+                    myGoModel={myGoModel}
                     metis={metis}
+                    phFocus={phFocus}
                     dispatch={dispatch}
                   />
 
@@ -81,10 +85,12 @@ const page = (props:any) => {
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
               <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}>
                   <Modeller
-                    gojsModel={gojsmodel} // Her skal det være metamodell modelview
-                    gojsMetamodel={gojsmetamodel}  // metametamodel
+                    gojsModel={gojsmodel}
+                    gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
+                    myGoModel={myGoModel}
                     metis={metis}
+                    phFocus={phFocus}
                     dispatch={dispatch}
                   />
                 </div>
@@ -102,9 +108,11 @@ const page = (props:any) => {
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
                   myMetis={myMetis}
+                  myGoModel={myGoModel}
                   metis={metis}
+                  phFocus={phFocus}
                   dispatch={dispatch}
-                  />
+                />
                 {/* <div className="instances"> area for all instance or result of query */}
                 {/* {instances} */}
                 {/* </div> */}
@@ -116,9 +124,11 @@ const page = (props:any) => {
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
+                    myGoModel={myGoModel}
                     metis={metis}
+                    phFocus={phFocus}
                     dispatch={dispatch}
-                    />
+                  />
                 </div>
               </Col>
             </Row>

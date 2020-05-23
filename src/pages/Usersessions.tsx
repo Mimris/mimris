@@ -24,7 +24,7 @@ export default function Usersessions({ usersessions }: any, ctx: NextPageContext
 
   return (
     <>
-      <Layout user={state.phUser.focusUser}>
+      <Layout user={state.phUser?.focusUser}>
         <Link href="/settings">
         <a>Back </a>
         </Link>

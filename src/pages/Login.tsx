@@ -9,7 +9,7 @@ import fetch from 'isomorphic-unfetch'
 const page = (props: any) => {
   // export default function Login() {
   console.log('10 Login',
-    props.phUser.focusUser
+    props.phUser?.focusUser
   );
   const dispatch = useDispatch()
 
@@ -18,7 +18,7 @@ const page = (props: any) => {
   }
   
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
-  // const focusUser = useSelector(focusUser => state.phUser.focusUser)
+  // const focusUser = useSelector(focusUser => state.phUser?.focusUser)
   // const state = useSelector(state => state)
   // const metis = (state.phData) && state.phData.metis
   // console.log('21 Login', state);
@@ -102,12 +102,12 @@ const page = (props: any) => {
           <a>Settings</a>
         </Link>)
       </div>
-  console.log('110', props.phUser.focusUser);
+  console.log('110', props.phUser?.focusUser);
   
   
   return ((!message) 
-    ? <><Layout user={props.phUser.focusUser} > {loginDiv}</Layout></>
-    : <><Layout user={props.phUser.focusUser} > {signupDiv}</Layout></> );
+    ? <><Layout user={props.phUser?.focusUser} > {loginDiv}</Layout></>
+    : <><Layout user={props.phUser?.focusUser} > {signupDiv}</Layout></> );
 }
 
 export default Page(connect(state => state)(page));

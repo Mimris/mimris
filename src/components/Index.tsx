@@ -47,8 +47,8 @@ const page = (props) => {
                 <CardText className="bg-light p-4">
                   
                   AKM Modeller is the tool for building Aktive Knowledge Models, a modellingtool with integrated Modelling and Metamodelling capabilities.
-                <hr /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
-                <hr />Start modelling by select "Metamodelling" or "Modelling" in the main menu above. <br />You can also access it from the help menu to the left.
+                <br/> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
+                <br/>Start modelling by select "Metamodelling" or "Modelling" in the main menu above. <br />You can also access it from the help menu to the left.
                 (The task menu can be minimized by clickin on the &lt;-sign)
                 </CardText>
               </CardBody>
@@ -67,7 +67,7 @@ const page = (props) => {
                     Modern open-source web technology has now reached a maturity level that enables cost efficient large scale usage. 
                     <br /><br />The AKM novelty comes from how the relationships between roles, 
                     tasks and information is captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment. 
-                    <hr /><br />The effects from deploying AKM based solutions are many. 
+                    <br /><br />The effects from deploying AKM based solutions are many. 
                     <br /><br />Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. 
                     I.e. supporting  design parameter balancing, and that task execution is in line with applicable regulations and policies. 
                     <br /><br />Secondly, execution of a task might create new tasks with other roles, and as such make AKM make collaboration more transparent, effective and precise, with direct impact on safety and security.​

@@ -62,7 +62,7 @@ const page = (props: any) => {
 
   return (
     <div>
-      <Layout  user={state.phUser.focusUser} >
+      <Layout  user={state.phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper" >
             <div className="workplace" >

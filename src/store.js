@@ -24,6 +24,8 @@ function configureStore(initialState=InitialState) {
     bindMiddleware([sagaMiddleware])
   )
   store.sagaTask = sagaMiddleware.run(rootSaga)
+  // console.log('27', store.sagaTask);
+  
   return store
 }
 

@@ -14,12 +14,11 @@ Classes:
 Functions:      None
 */
 
-// import * as utils  from  './utilities';
-// import * as glb from './akm_globals';
-// import * as constants from './constants';
 const utils = require('./utilities');
 const glb = require('./akm_globals');
 const constants = require('./constants');
+
+import * as gjs from './ui_gojs';
 
 // cxMetis
 
@@ -41,6 +40,7 @@ export class cxMetis {
     relships: cxRelationship[] | null = null;
     objectviews: cxObjectView[] | null = null;
     relshipviews: cxRelationshipView[] | null = null;
+    gojsModel: gjs.goModel | null = null;
     // Constructor
     constructor() {
     }
@@ -706,6 +706,12 @@ export class cxMetis {
             if (!this.findRelationshipView(relview.id))
                 this.relshipviews.push(relview);
         }
+    }
+    setGojsModel(model: gjs.goModel) {
+        this.gojsModel = model;
+    }
+    getGojsModel() {
+        return this.gojsModel;
     }
     getMetamodels() {
         return this.metamodels;

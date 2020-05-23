@@ -11,11 +11,11 @@ import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
 
 import './GoJSApp.css';
-import glb from '../../Server/src/akmm/akm_globals';
-import * as utils from '../../Server/src/akmm/utilities';
-import * as akm from '../../Server/src/akmm/metamodeller';
-import * as gjs from '../../Server/src/akmm/ui_gojs';
-import * as uic from '../../Server/src/akmm/ui_common';
+import glb from '../../akmm/akm_globals';
+import * as utils from '../../akmm/utilities';
+import * as akm from '../../akmm/metamodeller';
+import * as gjs from '../../akmm/ui_gojs';
+import * as uic from '../../akmm/ui_common';
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -29,7 +29,9 @@ interface AppState {
   selectedData: go.ObjectData | null;
   skipsDiagramUpdate: boolean;
   metis: any;
-  myMetis: any;
+  myMetis: akm.cxMetis;
+  myGoModel: gjs.goModel;
+  phFocus: any;
   dispatch: any;
 }
 
@@ -52,6 +54,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       skipsDiagramUpdate: false,
       metis: this.props.metis,
       myMetis: this.props.myMetis,
+      myGoModel: this.props.myGoModel,
+      phFocus: this.props.phFocus,
       dispatch: this.props.dispatch
     };
     // init maps
@@ -88,6 +92,20 @@ class GoJSApp extends React.Component<{}, AppState> {
     });
   }
 
+  private getNode(goModel: any, key: string) {
+    const nodes = goModel.nodes;
+    if (nodes) {
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        if (node) {
+          if (node.key === key)
+            return node;
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
@@ -95,27 +113,48 @@ class GoJSApp extends React.Component<{}, AppState> {
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
     const name = e.name;
+    const myDiagram = e.diagram;
+    const myMetis = this.state.myMetis;
+    const myModel = myMetis.findModel(this.state.phFocus.focusModel.id);
+    const myModelview = myMetis.findModelView(this.state.phFocus.focusModelview.id);
+    const myMetamodel = myModel?.getMetamodel();
+    const myGoModel = myMetis?.getGojsModel();
+    //const myGoModel = this.state.myGoModel;
+    // const myGojsModel = new gjs.goModel(utils.createGuid(), myModelview?.name, myModelview);
+    // myGojsModel.nodes = this.state.phFocus.gojsModel.nodeDataArray;
+    // myGojsModel.links = this.state.phFocus.gojsModel.linkDataArray;
+    let done = false;
+    const context = {
+      "myMetis": myMetis,
+      "myMetamodel": myMetamodel,
+      "myModel": myModel,
+      "myModelview": myModelview,
+      "myGoModel": myGoModel,
+      "myDiagram": myDiagram,
+      "done": done
+    }
     switch (name) {
       case 'TextEdited': {
         const sel = e.subject.part;
+        const field = e.subject.name;
         this.setState(
           produce((draft: AppState) => {
-            console.log('101 myMetis, metis', this.state.myMetis, this.state.metis);
             if (sel) {
               if (sel instanceof go.Node) {
-                  const myNode = sel.data;
-                  const field = sel.name;
-                  const text = sel.text;
-                  console.log('90 GoJSApp event, myNode:', myNode );
-                  // context = ??
-                  const context = null;
-                  //uic.updateObject(myNode, field, text, context);
+                const key = sel.data.key;
+                const text = sel.data.name;
+                const myNode = this.getNode(context.myGoModel, key);
+                if (myNode) {
+                  myNode.name = text;
+                  uic.updateObject(myNode, field, text, context);
+                  console.log('90 GoJSApp event, myNode:', myNode);
+                }
               }
             }
           })
         )
       }
-      break;
+        break;
       case 'ChangedSelection': {
         const sel = e.subject.first();
         this.setState(
@@ -126,15 +165,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (idx !== undefined && idx >= 0) {
                   const nd = draft.nodeDataArray[idx];
                   draft.selectedData = nd;
-                  console.log('98 GoJSApp.tsx: node = ',nd);
+                  console.log('98 GoJSApp.tsx: node = ', nd);
                 }
               } else if (sel instanceof go.Link) {
-                console.log('101 GoJSApp.tsx: sel = ',sel);
+                console.log('101 GoJSApp.tsx: sel = ', sel);
                 const idx = this.mapLinkKeyIdx.get(sel.data.key);
                 if (idx !== undefined && idx >= 0) {
                   const ld = draft.linkDataArray[idx];
                   draft.selectedData = ld;
-                  console.log('105 GoJSApp.tsx: link = ',ld);
+                  console.log('105 GoJSApp.tsx: link = ', ld);
                 }
               }
             } else {
@@ -144,31 +183,28 @@ class GoJSApp extends React.Component<{}, AppState> {
         );
         break;
       }
-      break;
+        break;
       case 'ExternalObjectsDropped': {
-        const obj = e.subject;
-        console.log('143 ExternalObjectsDropped', obj);
-        const sel = e.subject.first();
-        const part = e.subject.part;
-        this.setState(
-          produce((draft: AppState) => {
-            if (sel) {
-              if (sel instanceof go.Node) {
-                console.log('148 GoJSApp.tsx: sel = ',sel);
-              }
-            }
-            if (part) {
-              if (part instanceof go.Node) {
-                console.log('153 GoJSApp.tsx: part = ',part);
-              }
-            }
-          })
-        )
+        const nodes = e.subject;
+        console.log('172 ExternalObjectsDropped', nodes.first());
+        const part = nodes.first().data;
+        uic.createObject(part, context);
+
+        // context.done = false;
+        // this.setState(
+        //   produce((draft: AppState) => {
+        //     if (!context.done && part) {
+        //       context.done = true;
+        //       console.log('177 GoJSApp.tsx: part = ',part);
+        //       uic.createObject(part, context);
+        //     }
+        //   })
+        // )
       }
-      break;
-      default: 
-          console.log('146 GoJSApp event name: ', name);
-      break;
+        break;
+      default:
+        console.log('146 GoJSApp event name: ', name);
+        break;
     }
   }
 
@@ -178,14 +214,15 @@ class GoJSApp extends React.Component<{}, AppState> {
    * @param obj a JSON-formatted string
    */
   public handleModelChange(obj: go.IncrementalData) {
-    const insertedNodeKeys  = obj.insertedNodeKeys;
-    const modifiedNodeData  = obj.modifiedNodeData;
-    const removedNodeKeys   = obj.removedNodeKeys;
-    const insertedLinkKeys  = obj.insertedLinkKeys;
-    const modifiedLinkData  = obj.modifiedLinkData;
-    const removedLinkKeys   = obj.removedLinkKeys;
+    const insertedNodeKeys = obj.insertedNodeKeys;
+    const modifiedNodeData = obj.modifiedNodeData;
+    const removedNodeKeys = obj.removedNodeKeys;
+    const insertedLinkKeys = obj.insertedLinkKeys;
+    const modifiedLinkData = obj.modifiedLinkData;
+    const removedLinkKeys = obj.removedLinkKeys;
     const modifiedModelData = obj.modelData;
 
+    console.log('211 handleModelChange', obj);
     // maintain maps of modified data so insertions don't need slow lookups
     const modifiedNodeMap = new Map<go.Key, go.ObjectData>();
     const modifiedLinkMap = new Map<go.Key, go.ObjectData>();
@@ -318,18 +355,19 @@ class GoJSApp extends React.Component<{}, AppState> {
     let inspector;
     if (selectedData !== null) {
       inspector = <>
-                    <p>Selected Object Properties:</p>
-                    <SelectionInspector
-                      selectedData={this.state.selectedData}
-                      onInputChange={this.handleInputChange}
-                    />;
-                  </>
+        <p>Selected Object Properties:</p>
+        <SelectionInspector
+          selectedData={this.state.selectedData}
+          onInputChange={this.handleInputChange}
+        />;
+      </>
     }
     console.log('280 nodeDataArray', this.state.nodeDataArray);
     console.log('281 linkDataArray', this.state.linkDataArray);
 
     return (
       <div>
+
         <DiagramWrapper
           nodeDataArray={this.state.nodeDataArray}
           linkDataArray={this.state.linkDataArray}

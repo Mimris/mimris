@@ -57,7 +57,7 @@ const page = (props: any) => {
 
   return (
     <>
-      <Layout user={state.phUser.focusUser} >
+      <Layout user={state.phUser?.focusUser} >
         <div className="wrapper">
           <div className="workplace" >
             <div className="contextarea" >

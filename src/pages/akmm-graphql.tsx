@@ -44,7 +44,7 @@ const page = (props: any) => {
 
   return (
     <div>
-      <Layout user={state.phUser.focusUser}>
+      <Layout user={state.phUser?.focusUser}>
         <div>
           <h4>GraphQL Page </h4>
           

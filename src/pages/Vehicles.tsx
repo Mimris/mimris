@@ -6,7 +6,7 @@ import Layout from '../components/Layout';
 import Link from 'next/link';
 
 export default function Vehicles({ vehicles }: any, ctx: NextPageContext) {
-    const user = useSelector(state => state.phUser.focusUser)
+    const user = useSelector(state => state.phUser?.focusUser)
     return (
         <>
             <Layout user={user} >

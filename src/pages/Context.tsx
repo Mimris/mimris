@@ -29,7 +29,7 @@ const page = (props: any) => {
     console.log('45', focus);
     const updatefocususer = ({
         focusUser: {
-          ...props.phUser.focusUser,
+          ...props.phUser?.focusUser,
             session: {
               phFocus: focus
             }
@@ -44,7 +44,7 @@ const page = (props: any) => {
 
   return (
     <>
-      <Layout user={props.phUser.focusUser} >
+      <Layout user={props.phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper" >
             <div className="workplace" >

@@ -34,7 +34,7 @@ const page = (props: any) => {
   
   return (
     <div>
-      <Layout  user={state.phUser.focusUser} >
+      <Layout  user={state.phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper">
             <div className="header">
@@ -45,10 +45,10 @@ const page = (props: any) => {
                 {setContextDiv}
               </div>
               <div className="tasksarea">
-                <TasksHelp />
+                {/* <TasksHelp /> */}
               </div>
               <div className="workarea">
-                <Index />
+                {/* <Index /> */}
               </div>
             </div>
             <div className="footer">

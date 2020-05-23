@@ -510,7 +510,7 @@ export class gqlModel {
                 const cnt = objectviews.length;
                 for (let j = 0; j < cnt; j++) {
                     const objectview = objectviews[j];
-                    mv.addObjectView(objectview);
+                    gModelView.addObjectView(objectview);
                 }
             }
             // And then handle the relshipviews
@@ -519,7 +519,7 @@ export class gqlModel {
                 const cnt = relshipviews.length;
                 for (let j = 0; j < cnt; j++) {
                     const relshipview = relshipviews[j];
-                    mv.addRelationshipView(relshipview);
+                    gModelView.addRelshipView(relshipview);
                 }
             }
         }
@@ -865,7 +865,7 @@ export class gqlImportMetis {
         const metamodels = importedData.metamodels;
         if (utils.objExists(metamodels) && (metamodels.length > 0)) {
             metamodels.forEach(function (this: gqlImportMetis, metamodel: akm.cxMetaModel) {
-                console.log('834 importMetamodel', metamodel);
+                // console.log('834 importMetamodel', metamodel);
                 this?.importMetamodel(metamodel);
             });
         }

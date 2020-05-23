@@ -1,4 +1,4 @@
-// @ts-nocheck
+//  @ts- nocheck
 // akm_globals.js
 
 'use strict';

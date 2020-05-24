@@ -1,7 +1,7 @@
 // @ts-nocheck
 // akm_globals.js
 
-'use strict';
+// 'use strict';
 
 // import {cxMetis} from './metamodeller';
 // import go  from './ui_gojs';

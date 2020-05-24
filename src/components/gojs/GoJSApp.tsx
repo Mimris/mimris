@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -189,17 +189,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         console.log('172 ExternalObjectsDropped', nodes.first());
         const part = nodes.first().data;
         uic.createObject(part, context);
-
-        // context.done = false;
-        // this.setState(
-        //   produce((draft: AppState) => {
-        //     if (!context.done && part) {
-        //       context.done = true;
-        //       console.log('177 GoJSApp.tsx: part = ',part);
-        //       uic.createObject(part, context);
-        //     }
-        //   })
-        // )
+      }
+        break;
+      case 'LinkDrawn': {
+        const link = e.subject;
+        console.log('172 LinkDrawn', link);
+        uic.onLinkDrawn(link, context);
       }
         break;
       default:
@@ -207,6 +202,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
     }
   }
+
 
   /**
    * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
@@ -362,8 +358,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         />;
       </>
     }
-    console.log('280 nodeDataArray', this.state.nodeDataArray);
-    console.log('281 linkDataArray', this.state.linkDataArray);
+    console.log('360 this.state.nodeDataArray', this.state.nodeDataArray);
+    console.log('361 this.state.linkDataArray', this.state.linkDataArray);
+    console.log('362 this.state.myGoModel', this.state.myGoModel);
 
     return (
       <div>

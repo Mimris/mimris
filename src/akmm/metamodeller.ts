@@ -15,7 +15,7 @@ Functions:      None
 */
 
 const utils = require('./utilities');
-const glb = require('./akm_globals');
+//const glb 	    = require('./akm_globals');
 const constants = require('./constants');
 
 import * as gjs from './ui_gojs';
@@ -576,6 +576,7 @@ export class cxMetis {
     }
     addMetamodel(metamodel: cxMetaModel) {
         if (metamodel.class === "cxMetaModel") {
+            metamodel.metis = this;
             if (this.metamodels == null)
                 this.metamodels = new Array();
             if (!this.findMetamodel(metamodel.id))
@@ -584,6 +585,7 @@ export class cxMetis {
     }
     addModel(model: cxModel) {
         if (model.class === "cxModel") {
+            model.setMetis(this);
             if (this.models == null)
                 this.models = new Array();
             if (!this.findModel(model.id))
@@ -592,6 +594,7 @@ export class cxMetis {
     }
     addModelView(modelview: cxModelView) {
         if (modelview.class === "cxModelView") {
+            modelview.setMetis(this);
             if (this.modelviews == null)
                 this.modelviews = new Array();
             if (!this.findModelView(modelview.id))
@@ -600,6 +603,7 @@ export class cxMetis {
     }
     addDatatype(dtype: cxDatatype) {
         if (dtype.class === "cxDatatype") {
+            dtype.setMetis(this);
             if (this.datatypes == null)
                 this.datatypes = new Array();
             if (!this.findDatatype(dtype.id))
@@ -608,6 +612,7 @@ export class cxMetis {
     }
     addEnumeration(enumval: cxEnumeration) {
         if (enumval.class === "cxEnumeration") {
+            enumval.setMetis(this);
             if (this.enumerations == null)
                 this.enumerations = new Array();
             this.enumerations.push(enumval);
@@ -615,6 +620,7 @@ export class cxMetis {
     }
     addUnit(unit: cxUnit) {
         if (unit.class === "cxUnit") {
+            unit.setMetis(this);
             if (this.units == null)
                 this.units = new Array();
             this.units.push(unit);
@@ -622,6 +628,7 @@ export class cxMetis {
     }
     addUnitCategory(cat: cxUnitCategory) {
         if (cat.class === "cxUnitCategory") {
+            cat.setMetis(this);
             if (this.categories == null)
                 this.categories = new Array();
             this.categories.push(cat);
@@ -629,6 +636,7 @@ export class cxMetis {
     }
     addProperty(prop: cxProperty) {
         if (prop.class === "cxProperty") {
+            prop.setMetis(this);
             if (this.properties == null)
                 this.properties = new Array();
             if (!this.findProperty(prop.id))
@@ -637,6 +645,7 @@ export class cxMetis {
     }
     addObjectType(objtype: cxObjectType) {
         if (objtype.class === "cxObjectType") {
+            objtype.setMetis(this);
             if (this.objecttypes == null)
                 this.objecttypes = new Array();
             if (!this.findObjectType(objtype.id))
@@ -645,6 +654,7 @@ export class cxMetis {
     }
     addRelationshipType(reltype: cxRelationshipType) {
         if (reltype.class === "cxRelationshipType") {
+            reltype.setMetis(this);
             if (this.relshiptypes == null)
                 this.relshiptypes = new Array();
             if (!this.findRelationshipType(reltype.id))
@@ -653,6 +663,7 @@ export class cxMetis {
     }
     addObjectTypeView(objtypeview: cxObjectTypeView) {
         if (objtypeview.class === "cxObjectTypeView") {
+            objtypeview.setMetis(this);
             if (this.objecttypeviews == null)
                 this.objecttypeviews = new Array();
             if (!this.findObjectTypeView(objtypeview.id))
@@ -661,6 +672,7 @@ export class cxMetis {
     }
     addRelationshipTypeView(reltypeview: cxRelationshipTypeView) {
         if (reltypeview.class === "cxRelationshipTypeView") {
+            reltypeview.setMetis(this);
             if (this.relshiptypeviews == null)
                 this.relshiptypeviews = new Array();
             if (!this.findRelationshipTypeView(reltypeview.id))
@@ -669,6 +681,7 @@ export class cxMetis {
     }
     addObjtypeGeo(objtypegeo: cxObjtypeGeo) {
         if (objtypegeo.class === "cxObjtypeGeo") {
+            objtypegeo.setMetis(this);
             if (this.objtypegeos == null)
                 this.objtypegeos = new Array();
             if (!this.findObjtypeGeo(objtypegeo.id))
@@ -677,6 +690,7 @@ export class cxMetis {
     }
     addObject(obj: cxObject) {
         if (obj.class === "cxObject") {
+            obj.setMetis(this);
             if (this.objects == null)
                 this.objects = new Array();
             if (!this.findObject(obj.id))
@@ -685,6 +699,7 @@ export class cxMetis {
     }
     addRelationship(rel: cxRelationship) {
         if (rel.class === "cxRelationship") {
+            rel.setMetis(this);
             if (this.relships == null)
                 this.relships = new Array();
             if (!this.findRelationship(rel.id))
@@ -693,6 +708,7 @@ export class cxMetis {
     }
     addObjectView(objview: cxObjectView) {
         if (objview.class === "cxObjectView") {
+            objview.setMetis(this);
             if (this.objectviews == null)
                 this.objectviews = new Array();
             if (!this.findObjectView(objview.id))
@@ -701,6 +717,7 @@ export class cxMetis {
     }
     addRelationshipView(relview: cxRelationshipView) {
         if (relview.class === "cxRelationshipView") {
+            relview.setMetis(this);
             if (this.relshipviews == null)
                 this.relshipviews = new Array();
             if (!this.findRelationshipView(relview.id))
@@ -1422,6 +1439,7 @@ export class cxMetis {
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
 
 export class cxMetaObject {
+    metis: cxMetis;
     id: string;
     name: string;
     nameId: string;
@@ -1433,6 +1451,7 @@ export class cxMetaObject {
     fs_collection: string;
     // Constructor
     constructor(id: string, name: string, description: string) {
+        this.metis = new cxMetis();
         this.class = this.constructor.name;
         this.fs_collection = "";  // Firestore collection
         this.id = id;
@@ -1446,6 +1465,12 @@ export class cxMetaObject {
         if (description == null) this.description = "";
     }
     // Methods
+    setMetis(metis: cxMetis) {
+        this.metis = metis;
+    }
+    getMetis(): cxMetis {
+        return this.metis;
+    }
     getNameId(): string {
         let txt = this.name;
         txt.replace(/ /g, '_').replace(/./g, '_');
@@ -2612,8 +2637,8 @@ export class cxObjectType extends cxType {
     }
     addReferencedItem(ref: any, id: string) {
         if (ref === 'typeviewRef') {
-            const typeview = glb.metis?.findObjectTypeView(id);
-            if (utils.objExists(typeview)) {
+            const typeview = this.metis?.findObjectTypeView(id);
+            if (typeview) {
                 this.setDefaultTypeView(typeview);
                 typeview.setType(this);
                 typeview.setAbstract(this.getAbstract());
@@ -2685,20 +2710,22 @@ export class cxObjectType extends cxType {
     }
     findRelatedObjectTypes(relkind: string) {
         const objtypes = new Array();
-        const types = glb.metis?.getRelationshipTypes();
-        if (utils.isArrayEmpty(types)) {
+        const types = this.metis?.getRelationshipTypes();
+        if (!types) {
             return null;
         } else {
             let i = 0;
             let reltype = null;
             while (i < types.length) {
                 reltype = types[i];
-                if (reltype.getRelshipKind() === relkind) {
-                    const objtype = reltype.getFromObjType();
-                    if (objtype) {
-                        if (reltype.getFromObjType().id === this.id) {
-                            const toType = reltype.getToObjType();
-                            objtypes.push(toType);
+                if (reltype) {
+                    if (reltype.getRelshipKind() === relkind) {
+                        const objtype = reltype.getFromObjType();
+                        if (objtype) {
+                            if (reltype.getFromObjType().id === this.id) {
+                                const toType = reltype.getToObjType();
+                                objtypes.push(toType);
+                            }
                         }
                     }
                 }
@@ -2740,7 +2767,7 @@ export class cxObjectType extends cxType {
         return rtype;
     }
     findRelshipTypeByKind1(relkind: string, objtype: cxObjectType): cxRelationshipType | null {
-        const types = glb.metis?.getRelationshipTypes();
+        const types = this.metis?.getRelationshipTypes();
         if (utils.isArrayEmpty(types)) {
             return null;
         } else {
@@ -2842,7 +2869,7 @@ export class cxObjtypeGeo extends cxMetaObject {
     }
     setMetamodel(metamodel: cxMetaModel) {
         if (utils.objExists(metamodel)) {
-            // let mmodel = glb.metis?.findMetamodel(metamodel.id);
+            // let mmodel = this.metis?.findMetamodel(metamodel.id);
             // if (utils.objExists(mmodel))
             this.metamodel = metamodel;
         }
@@ -2852,7 +2879,7 @@ export class cxObjtypeGeo extends cxMetaObject {
     }
     setType(type: cxObjectType) {
         if (utils.objExists(type)) {
-            let otype = glb.metis?.findObjectType(type.id);
+            let otype = this.metis?.findObjectType(type.id);
             if (utils.objExists(otype))
                 this.type = otype;
         }
@@ -2894,7 +2921,7 @@ export class cxRelationshipType extends cxObjectType {
     // Methods
     addReferencedItem(ref: any, id: string) {
         if (ref === 'typeviewRef') {
-            const typeview = glb.metis?.findRelationshipTypeView(id);
+            const typeview = this.metis?.findRelationshipTypeView(id);
             if (utils.objExists(typeview)) {
                 this.setDefaultTypeView(typeview);
                 typeview.setType(this);
@@ -2903,13 +2930,13 @@ export class cxRelationshipType extends cxObjectType {
             }
         }
         else if (ref === 'fromObjTypeRef') {
-            const objtype = glb.metis?.findObjectType(id);
+            const objtype = this.metis?.findObjectType(id);
             if (utils.objExists(objtype)) {
                 this.setFromObjectType(objtype);
             }
         }
         else if (ref === 'toObjTypeRef') {
-            const objtype = glb.metis?.findObjectType(id);
+            const objtype = this.metis?.findObjectType(id);
             if (utils.objExists(objtype)) {
                 this.setToObjectType(objtype);
             }
@@ -2995,7 +3022,7 @@ export class cxProperty extends cxMetaObject {
     // Methods
     addReferencedItem(ref: any, id: string) {
         if (ref === 'datatypeRef') {
-            const dtype = glb.metis?.findDatatype(id);
+            const dtype = this.metis?.findDatatype(id);
             if (utils.objExists(dtype)) {
                 this.setDatatype(dtype);
             }
@@ -3088,7 +3115,7 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     addReferencedItem(ref: any, id: string) {
         if (ref === 'objecttypeRef') {
-            const objtype = glb.metis?.findObjectType(id);
+            const objtype = this.metis?.findObjectType(id);
             if (utils.objExists(objtype)) {
                 this.setType(objtype);
             }
@@ -3214,7 +3241,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     // Methods
     addReferencedItem(ref: any, id: string) {
         if (ref === 'relshiptypeRef') {
-            const reltype = glb.metis?.findRelationshipType(id);
+            const reltype = this.metis?.findRelationshipType(id);
             if (utils.objExists(reltype)) {
                 this.setType(reltype);
             }
@@ -3401,7 +3428,7 @@ export class cxModel extends cxMetaObject {
     //     //    If (!object)
     //                 if (!obj0) {
     //                     console.log('Object not found in model:', objid);
-    //                     let obj1 = glb.metis.findObject(objid);
+    //                     let obj1 = this.metis.findObject(objid);
     //                     if (obj1) {
     //                         this.addObject(obj1);
     //                     } 
@@ -3419,7 +3446,7 @@ export class cxModel extends cxMetaObject {
     //                                     objview.setObject(obj2);
     //     //        Add object to metis and model
     //                                     this.addObject(obj2);
-    //                                     glb.metis.addObject(obj2);
+    //                                     this.metis.addObject(obj2);
     //                                 }
     //                             }
     //                         }
@@ -3434,7 +3461,7 @@ export class cxModel extends cxMetaObject {
     // }
     addReferencedItem(ref: any, id: string) {
         if (ref === 'metamodelRef') {
-            const metamodel = glb.metis?.findMetamodel(id);
+            const metamodel = this.metis?.findMetamodel(id);
             if (utils.objExists(metamodel)) {
                 this.setMetamodel(metamodel);
             }
@@ -3497,7 +3524,7 @@ export class cxModel extends cxMetaObject {
         // Check if input is of correct class and not already in list (TBD)
         if (this.submodels == null)
             this.submodels = new Array();
-        if (!glb.metis?.findModel(model.id))
+        if (!this.metis?.findModel(model.id))
             this.submodels.push(model);
     }
     addModelView(modelview: cxModelView) {
@@ -3762,7 +3789,6 @@ export class cxInstance extends cxMetaObject {
 
         // Initiate the properties
         if (this.type) {
-
             const properties = this.type.getProperties(true);
             if (properties) {
                 const noProperties = properties.length;
@@ -3771,7 +3797,7 @@ export class cxInstance extends cxMetaObject {
                     while (i < noProperties) {
                         const p = properties[i];
                         if (utils.objExists(p)) {
-                            const prop = glb.metis?.findProperty(p.id);
+                            const prop = this.metis?.findProperty(p.id);
                             if (utils.objExists(prop)) {
                                 const value = prop.getDefaultValue();
                                 const propval = new cxPropertyValue(prop, value);
@@ -3972,7 +3998,7 @@ export class cxInstance extends cxMetaObject {
     addJsonValue(item_key: string, item_value: cxValue) {
         if (!this.valueset)
             this.valueset = new Array();
-        const prop = glb.metis?.findProperty(item_key);
+        const prop = this.metis?.findProperty(item_key);
         if (utils.objExists(prop)) {
             const val = new cxPropertyValue(prop, item_value);
             if (val) {

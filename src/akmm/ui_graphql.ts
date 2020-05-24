@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const utils = require('./utilities');
 const glb = require('./akm_globals');
 import * as akm from './metamodeller';

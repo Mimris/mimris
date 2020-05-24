@@ -6,6 +6,8 @@
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
+import * as utils from '../../../akmm/utilities';
+import * as constants from '../../../akmm/constants';
 //import {onTextEdited} from '../../../Server/src/akmm/ui_common';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
@@ -33,8 +35,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     this.diagramRef = React.createRef();
   }
 
-  private modelChangedListener: ((e: go.ChangedEvent) => void) | null = null;
-
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
@@ -49,6 +49,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
+      diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
     }
   }
 
@@ -65,11 +66,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
-
-      if (this.modelChangedListener !== null) {
-        diagram.removeModelChangedListener(this.modelChangedListener);
-        this.modelChangedListener = null;
-      }
+      diagram.removeDiagramListener('LinkDrawn', this.props.onDiagramEvent);
     }
   }
 
@@ -93,7 +90,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             initialAutoScale: go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
             'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
-            'clickCreatingTool.archetypeNodeData': { text: 'new node', color: 'lightyellow' },
             draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
             'draggingTool.horizontalGuidelineColor': 'blue',
             'draggingTool.verticalGuidelineColor': 'blue',
@@ -101,8 +97,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             'draggingTool.guidelineWidth': 1,
             "draggingTool.dragsLink": true,
             "draggingTool.isGridSnapEnabled": true,
+            "linkingTool.portGravity": 0,  // no snapping while drawing new links
+            "linkingTool.archetypeLinkData": {
+              "key": utils.createGuid(),
+              "category": "Relationship",
+              "type": "Generic relationship",
+              "name": "",
+              "description": "",
+              "relshipkind": constants.relkinds.REL
+            },
+            "clickCreatingTool.archetypeNodeData": {
+              "key": utils.createGuid(),
+              "category": "Object",
+              "name": "Generic object",
+              "description": "",
+              "fillcolor": "pink",
+              "icon": "default.png"
+            },
             "linkingTool.isUnconnectedLinkValid": false,
-            "linkingTool.portGravity": 20,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,
             "relinkingTool.fromHandleArchetype":

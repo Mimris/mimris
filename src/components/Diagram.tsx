@@ -113,9 +113,9 @@ const page = (props:any) => {
                   phFocus={phFocus}
                   dispatch={dispatch}
                 />
-                {/* <div className="instances"> area for all instance or result of query */}
-                {/* {instances} */}
-                {/* </div> */}
+                {/* <div className="instances"> area for all instance or result of query 
+                {instances}
+                 </div> */}
               </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px"}}>

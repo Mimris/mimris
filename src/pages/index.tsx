@@ -1,6 +1,6 @@
 //@ts-nocheck
 import React, { useState } from "react";
-// import { connect, useSelector, useDispatch } from 'react-redux';
+// import { connect } from 'react-redux';
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { loadData } from '../actions/actions'
 import Page from '../components/page';
@@ -12,7 +12,7 @@ import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 
 const page = (props: any) => {
-  // console.log(props)
+  console.log(props)
   const dispatch = useDispatch()
 
   if (!props.phData) {
@@ -38,22 +38,23 @@ const page = (props: any) => {
         <div id="index" >
           <div className="wrapper">
             <div className="header">
-              {/* <Header title='eaderTitle' /> */}
+              <Header title='eaderTitle' />
             </div>
             <div className="workplace">
               <div className="contextarea">
                 {setContextDiv}
               </div>
               <div className="tasksarea">
-                {/* <TasksHelp /> */}
+                <TasksHelp />
               </div>
               <div className="workarea">
-                {/* <Index /> */}
+                <Index />
               </div>
             </div>
             <div className="footer">
               <Footer />
-            </div>
+            </div>y
+            
           </div>
         </div>
       </Layout>
@@ -131,6 +132,7 @@ const page = (props: any) => {
   )
 }
 
+// export default Page;
 export default Page(connect(state => state)(page));
 // export default authenticated(Page(connect(state => state)(page)));
 

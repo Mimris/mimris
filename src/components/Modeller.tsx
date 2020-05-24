@@ -5,20 +5,21 @@ import GoJSApp from "./gojs/GoJSApp";
 const Modeller = (props) => {
 
   let gojsmodel = props.gojsModel;
+  let myMetis = props.myMetis;
 
   const [refresh, setRefresh] = useState(true)
   function toggleRefresh() { setRefresh(!refresh); }
   console.log('11 Modeller', props);
 
-  const gojsapp = (gojsmodel) &&
+  const gojsapp = (gojsmodel && myMetis) &&
     < GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
-      metis={props.metis}
-      myMetis={props.myMetis}
-      myGoModel={props.myGoModel}
-      phFocus={props.phFocus}
-      dispatch={props.dispatch}
+      // metis={props.metis}
+      // myMetis={props.myMetis}
+      // myGoModel={props.myGoModel}
+      // phFocus={props.phFocus}
+      // dispatch={props.dispatch}
     />
 
   return (

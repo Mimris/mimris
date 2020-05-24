@@ -25,7 +25,7 @@ const Modeller = (props) => {
     <>
       <span style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
       <span style={{ paddingLeft: "2px" }} > Model</span>
-      {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
+      {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
     </>
   )
 }

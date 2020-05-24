@@ -46,14 +46,14 @@ const page = (props:any) => {
 
   const modellingtabs = (<>
       <Nav tabs >
-        {/* <NavItem >
+        <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); }}
           >
             Metamodelling
           </NavLink>
-        </NavItem> */}
+        </NavItem>
         <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '2' })}
@@ -65,7 +65,7 @@ const page = (props:any) => {
       </Nav>
       {/* Metamodelling */}
       <TabContent  activeTab={activeTab}>  
-        {/* <TabPane  tabId="1">
+        <TabPane  tabId="1">
           <div className="workpad p-1 bg-light">
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
@@ -97,13 +97,13 @@ const page = (props:any) => {
               </Col>
             </Row>
           </div>         
-        </TabPane> */}
+        </TabPane>
         {/* Modelling */}
         <TabPane tabId="2">
           <div className="workpad p-1 bg-light">
             <Row >
             <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-              {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "40vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}>
+              <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "40vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}>
                 <Palette
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
@@ -113,10 +113,10 @@ const page = (props:any) => {
                   phFocus={phFocus}
                   dispatch={dispatch}
                 />
-                <div className="instances"> area for all instance or result of query 
+                {/* <div className="instances"> area for all instance or result of query 
                 {instances}
-                 </div>
-              </div> */}
+                 </div> */}
+              </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px"}}>
                 <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}>

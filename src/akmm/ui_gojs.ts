@@ -65,15 +65,18 @@ export class goModel {
             }
             oldNodes.push(node as goObjectNode);
             this.nodes = oldNodes;
-
         }
     }
     addLink(link: goLink) {
         // Check if input is of correct class and not already in list (TBD)
         if ((link.class === "goRelshipLink") || (link.class === "goRelshipTypeLink")) {
-            if (this.links == null)
-                this.links = new Array();
-            this.links.push(link);
+            let oldLinks: goLink[] = new Array();
+            for (let i = 0; i < this.links.length; i++) {
+                let l = this.links[i] as goLink;
+                oldLinks.push(l);
+            }
+            oldLinks.push(link as goLink);
+            this.links = oldLinks;
         }
     }
     findNodeByViewId(objviewId: string): goObjectNode | null {

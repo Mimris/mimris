@@ -7,15 +7,10 @@ import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';
 
-import { DiagramWrapper } from './components/Diagram';
+import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
 
 import './GoJSApp.css';
-import glb from '../../akmm/akm_globals';
-import * as utils from '../../akmm/utilities';
-import * as akm from '../../akmm/metamodeller';
-import * as gjs from '../../akmm/ui_gojs';
-import * as uic from '../../akmm/ui_common';
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -28,19 +23,14 @@ interface AppState {
   modelData: go.ObjectData;
   selectedData: go.ObjectData | null;
   skipsDiagramUpdate: boolean;
-  metis: any;
-  myMetis: akm.cxMetis;
-  myGoModel: gjs.goModel;
-  phFocus: any;
-  dispatch: any;
 }
 
-class GoJSApp extends React.Component<{}, AppState> {
+class GoJSPaletteApp extends React.Component<{}, AppState> {
   // Maps to store key -> arr index for quick lookups
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
 
-
+  
   constructor(props: object) {
     super(props);
     // console.log('34',props.nodeDataArray);
@@ -51,12 +41,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         canRelink: true
       },
       selectedData: null,
-      skipsDiagramUpdate: false,
-      metis: this.props.metis,
-      myMetis: this.props.myMetis,
-      myGoModel: this.props.myGoModel,
-      phFocus: this.props.phFocus,
-      dispatch: this.props.dispatch
+      skipsDiagramUpdate: false
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -64,13 +49,12 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.refreshNodeIndex(this.state.nodeDataArray);
     this.refreshLinkIndex(this.state.linkDataArray);
     // bind handler methods
+
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    this.handleModelChange = this.handleModelChange.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleRelinkChange = this.handleRelinkChange.bind(this);
+    // this.handleModelChange = this.handleModelChange.bind(this);
+    // this.handleInputChange = this.handleInputChange.bind(this);
+    // this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
-
-
 
   /**
    * Update map of node keys to their index in the array.
@@ -92,20 +76,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     });
   }
 
-  private getNode(goModel: any, key: string) {
-    const nodes = goModel.nodes;
-    if (nodes) {
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        if (node) {
-          if (node.key === key)
-            return node;
-        }
-      }
-    }
-    return null;
-  }
-
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
@@ -113,48 +83,7 @@ class GoJSApp extends React.Component<{}, AppState> {
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
     const name = e.name;
-    const myDiagram = e.diagram;
-    const myMetis = this.state.myMetis;
-    const myModel = myMetis.findModel(this.state.phFocus.focusModel.id);
-    const myModelview = myMetis.findModelView(this.state.phFocus.focusModelview.id);
-    const myMetamodel = myModel?.getMetamodel();
-    const myGoModel = myMetis?.getGojsModel();
-    //const myGoModel = this.state.myGoModel;
-    // const myGojsModel = new gjs.goModel(utils.createGuid(), myModelview?.name, myModelview);
-    // myGojsModel.nodes = this.state.phFocus.gojsModel.nodeDataArray;
-    // myGojsModel.links = this.state.phFocus.gojsModel.linkDataArray;
-    let done = false;
-    const context = {
-      "myMetis": myMetis,
-      "myMetamodel": myMetamodel,
-      "myModel": myModel,
-      "myModelview": myModelview,
-      "myGoModel": myGoModel,
-      "myDiagram": myDiagram,
-      "done": done
-    }
     switch (name) {
-      case 'TextEdited': {
-        const sel = e.subject.part;
-        const field = e.subject.name;
-        this.setState(
-          produce((draft: AppState) => {
-            if (sel) {
-              if (sel instanceof go.Node) {
-                const key = sel.data.key;
-                const text = sel.data.name;
-                const myNode = this.getNode(context.myGoModel, key);
-                if (myNode) {
-                  myNode.name = text;
-                  uic.updateObject(myNode, field, text, context);
-                  console.log('90 GoJSApp event, myNode:', myNode);
-                }
-              }
-            }
-          })
-        )
-      }
-        break;
       case 'ChangedSelection': {
         const sel = e.subject.first();
         this.setState(
@@ -165,15 +94,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (idx !== undefined && idx >= 0) {
                   const nd = draft.nodeDataArray[idx];
                   draft.selectedData = nd;
-                  console.log('98 GoJSApp.tsx: node = ', nd);
                 }
               } else if (sel instanceof go.Link) {
-                console.log('101 GoJSApp.tsx: sel = ', sel);
-                const idx = this.mapLinkKeyIdx.get(sel.data.key);
+                const idx = this.mapLinkKeyIdx.get(sel.key);
                 if (idx !== undefined && idx >= 0) {
                   const ld = draft.linkDataArray[idx];
                   draft.selectedData = ld;
-                  console.log('105 GoJSApp.tsx: link = ', ld);
                 }
               }
             } else {
@@ -183,26 +109,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         );
         break;
       }
-        break;
-      case 'ExternalObjectsDropped': {
-        const nodes = e.subject;
-        console.log('172 ExternalObjectsDropped', nodes.first());
-        const part = nodes.first().data;
-        uic.createObject(part, context);
-      }
-        break;
-      case 'LinkDrawn': {
-        const link = e.subject;
-        console.log('172 LinkDrawn', link);
-        uic.onLinkDrawn(link, context);
-      }
-        break;
-      default:
-        console.log('146 GoJSApp event name: ', name);
-        break;
+      default: break;
     }
   }
-
 
   /**
    * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
@@ -218,7 +127,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     const removedLinkKeys = obj.removedLinkKeys;
     const modifiedModelData = obj.modelData;
 
-    console.log('211 handleModelChange', obj);
     // maintain maps of modified data so insertions don't need slow lookups
     const modifiedNodeMap = new Map<go.Key, go.ObjectData>();
     const modifiedLinkMap = new Map<go.Key, go.ObjectData>();
@@ -244,7 +152,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (nd && idx === undefined) {
               this.mapNodeKeyIdx.set(nd.key, narr.length);
               narr.push(nd);
-              console.log(nd);
             }
           });
         }
@@ -295,7 +202,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         // handle model data changes, for now just replacing with the supplied object
         if (modifiedModelData) {
           draft.modelData = modifiedModelData;
-          console.log('256 GoJSApp modelData', draft.modelData);
         }
         draft.skipsDiagramUpdate = true;  // the GoJS model already knows about these updates
       })
@@ -331,7 +237,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       })
     );
-    console.log('247 input: ', value);
   }
 
   /**
@@ -342,7 +247,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     const target = e.target;
     const value = target.checked;
     this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
-    console.log('257 relink: ', value);
   }
 
   public render() {
@@ -351,27 +255,26 @@ class GoJSApp extends React.Component<{}, AppState> {
     let inspector;
     if (selectedData !== null) {
       inspector = <>
-        <p>Selected Object Properties:</p>
-        <SelectionInspector
-          selectedData={this.state.selectedData}
-          onInputChange={this.handleInputChange}
-        />;
-      </>
+                    {/* <p>Selected Object Properties:</p>
+                    <SelectionInspector
+                      selectedData={this.state.selectedData}
+                      onInputChange={this.handleInputChange}
+                    />; */}
+                  </>
     }
-    console.log('360 this.state.nodeDataArray', this.state.nodeDataArray);
-    console.log('361 this.state.linkDataArray', this.state.linkDataArray);
-    console.log('362 this.state.myGoModel', this.state.myGoModel);
+    console.log('266 nodeDataArray', this.state.nodeDataArray);
+    console.log('267 linkDataArray', this.state.linkDataArray);
 
     return (
       <div>
 
-        <DiagramWrapper
-          nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={this.state.linkDataArray}
-          modelData={this.state.modelData}
+        <PaletteWrapper
+          nodeDataArray     ={this.state.nodeDataArray}
+          linkDataArray     ={this.state.linkDataArray}
+          modelData         ={this.state.modelData}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-          onDiagramEvent={this.handleDiagramEvent}
-          onModelChange={this.handleModelChange}
+          onDiagramEvent    ={this.handleDiagramEvent}
+          onModelChange     ={this.handleModelChange}
         />
         <label>
           Allow Relinking?
@@ -387,7 +290,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 }
 
-export default GoJSApp;
+export default GoJSPaletteApp;
 
 
 

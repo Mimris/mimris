@@ -24,16 +24,16 @@ const Palette = (props) => {
   console.log('12 Palette', gojstypes.nodeDataArray);
   console.log('13 Palette', gojstypes.linkDataArray);
   
-  // const gojsapp = (gojstypes) &&
-    // < GoJSPaletteApp
-    //   nodeDataArray={gojstypes.nodeDataArray}
-    //   linkDataArray={gojstypes.linkDataArray}
-    //   metis={props.metis}
-    //   myMetis={props.myMetis}
-    //   myGoModel={props.myGoModel}
-    //   phFocus={props.phFocus}
-    //   dispatch={props.dispatch}
-    // />
+  const gojsapp = (gojstypes) &&
+    < GoJSPaletteApp
+      nodeDataArray={gojstypes.nodeDataArray}
+      linkDataArray={gojstypes.linkDataArray}
+      metis={props.metis}
+      myMetis={props.myMetis}
+      myGoModel={props.myGoModel}
+      phFocus={props.phFocus}
+      dispatch={props.dispatch}
+    />
 
   const palette =
     <> 
@@ -47,18 +47,18 @@ const Palette = (props) => {
         </div> */}
          {/* <div  style={{paddingLeft: "2px"}} onClick={togglePalette}>{visiblePalette ? 'Palette <' :  'Palette >' } </div> */}
         <div className="togglePalette" >
-          {/* {visiblePalette ? <> {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}</> : <><span style={{ width: "100%", minHeight: "100px", minWidth: "290"}}></span></> } */}
+          {visiblePalette ? <> {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}</> : <><span style={{ width: "100%", minHeight: "100px", minWidth: "290"}}></span></> }
         </div>
     </>  
   
   return (
     <>
       {palette}
-      <style jsx>{`
+      {/* <style jsx>{`
         .diagram-component {
           height: 100%;
         }
-       `}</style>
+       `}</style> */}
     </>
   )
 }

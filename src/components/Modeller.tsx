@@ -15,11 +15,11 @@ const Modeller = (props) => {
     < GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
-      // metis={props.metis}
-      // myMetis={props.myMetis}
-      // myGoModel={props.myGoModel}
-      // phFocus={props.phFocus}
-      // dispatch={props.dispatch}
+      metis={props.metis}
+      myMetis={props.myMetis}
+      myGoModel={props.myGoModel}
+      phFocus={props.phFocus}
+      dispatch={props.dispatch}
     />
 
   return (
@@ -27,6 +27,11 @@ const Modeller = (props) => {
       <span style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
       <span style={{ paddingLeft: "2px" }} > Model</span>
       {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
+      <style jsx>{`
+        .diagram-component {
+          height: 100%;
+        }
+       `}</style>
     </>
   )
 }

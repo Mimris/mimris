@@ -21,13 +21,13 @@
     "cookie": "0.4.0",
     "dataloader": "^2.0.0",
     "es6-promise": "4.1.1",
-
+    "gojs": "^2.1.17",
+    "gojs-react": "^1.0.5",
     "heroku": "^7.41.1",
     "immer": "^6.0.8",
     "install": "^0.12.2",
     "isomorphic-unfetch": "^3.0.0",
     "jsonwebtoken": "8.5.1",
-    "micro-cors": "^0.1.1",
     "next": "^9.4.2",
     "next-redux-saga": "4.0.0",
     "next-redux-wrapper": "2.0.0",
@@ -43,6 +43,7 @@
     "redux-saga": "1.0.1",
     "redux-saga-restart": "^1.0.0",
     "request": "^2.88.2",
+    "sqlite": "^3.0.6",
     "typescript-fsa": "^3.0.0-beta-2",
     "typescript-fsa-reducers": "^1.2.1"
   },

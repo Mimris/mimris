@@ -23,17 +23,18 @@ export default function Signup() {
         password: passRef.current?.value
       })
     });
-    const json = await resp.json();
+    const json = await resp?.json();
     setMessage(json);
   }
-
+  console.log('29 message', message);
+  
   return (
     (!message) 
     ?     
     <><Layout user={user} >
       <div>
         <h1>Create a new user!!</h1>
-        {JSON.stringify(message)}<br />
+        {JSON?.stringify(message)}<br />
         <input type="name" placeholder="name" ref={nameRef} />
         <input type="text" placeholder="email" ref={emailRef} />
         <input type="password" placeholder="password" ref={passRef} />

@@ -26,7 +26,14 @@ export const InitialState = {
   phData: null,
   phMymetis: null,
   phMyGoModel: null,
-  phUser: null,
+  phUser: {
+    focusUser: {
+      id: 1,
+      name: 'Not logged in',
+      email: '',
+      session: null
+    }
+  },
   phFocus: {
     gojsModel: null,
     // {

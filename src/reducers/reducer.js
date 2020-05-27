@@ -2,6 +2,7 @@ import {
   FAILURE,
   LOAD_DATA,
   LOAD_DATA_SUCCESS,
+  SET_FOCUS_PHDATA,
   SET_FOCUS_PHFOCUS,
   SET_FOCUS_USER,
   SET_FOCUS_OBJECT,
@@ -158,6 +159,13 @@ function reducer(state = InitialState, action) {
       return {
         ...state,
         phFocus: action.data
+      }
+    case SET_FOCUS_PHDATA:
+      console.log('121 red', action.data);
+      // Object.assign(state, action);    
+      return {
+        ...state,
+        phData: action.data
       }
     case SET_FOCUS_USER:
       console.log('121 red', action.data);

@@ -3,6 +3,7 @@ import {
   LOAD_DATA, 
   LOAD_DATA_SUCCESS, 
   SET_FOCUS_PHFOCUS, 
+  SET_FOCUS_PHDATA, 
   SET_FOCUS_USER, 
   SET_FOCUS_OBJECT, 
   SET_MYMETIS_MODEL,
@@ -20,6 +21,7 @@ import {
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
 } from './types';
+
 export const failure = (error) => {
   return {
     type: FAILURE,
@@ -35,6 +37,14 @@ export const loadDataSuccess = (data) => {
   return {
     type: LOAD_DATA_SUCCESS,
     data
+  }
+}
+
+export const setFocusPhdata = (data) => {
+  console.log('21---actions |', data);
+  return {
+    type: SET_FOCUS_PHDATA,
+    data: JSON.parse(data.value)
   }
 }
 

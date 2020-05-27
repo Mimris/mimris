@@ -1,6 +1,7 @@
 export const FAILURE = 'FAILURE';
 export const LOAD_DATA = 'LOAD_DATA';
 export const LOAD_DATA_SUCCESS = 'LOAD_DATA_SUCCESS';
+export const SET_FOCUS_PHDATA = 'SET_FOCUS_PHDATA';
 export const SET_FOCUS_PHFOCUS = 'SET_FOCUS_PHFOCUS';
 export const SET_FOCUS_USER = 'SET_FOCUS_USER';
 export const SET_FOCUS_OBJECT = 'SET_FOCUS_OBJECT';

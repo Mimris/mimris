@@ -98,14 +98,22 @@ const SelectContext = (props: any) => {
     // console.log('91', testsession, usession);
 
     // console.log('79', session);
-      function handleSetSession() {
-        const data = phFocus.phFocus
-        // console.log('87', data);
-    
-        dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
-      }
+    function handleSetSession() {
+      const data = phFocus.phFocus
+      // console.log('87', data);
+  
+      dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+    }
+
+    function handleLocalStore() {
+      const data = phFocus.phFocus
+      // console.log('87', data);
+  
+      // dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+    }
 
   const buttonDiv =  <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
+  const buttonLocalStoreDiv =  <button className="float-left bg-light" onClick={handleLocalStore} > Load Context </button >
 
   const optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m:any) => <option key={ m.id } value = { JSON.stringify(m) } > { m.name } </option> )]
   const model = models?.find((m: any) => m?.id === focusModel?.id)
@@ -135,14 +143,19 @@ const SelectContext = (props: any) => {
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody className="pt-0">
           <div className="edit bg-light pt-2 ">
-             <div className="select" style={{ paddingTop: "4px" }}>
-              {buttonDiv}
-                {/* <select className="list-obj bg-link float-right" defaultValue="Select Session ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-                  onChange={(event) => handleSessionChange({ value: event.target.value })} name="Session">
-                  {optionSession}
-                </select> */}
+            <div className="localstore pb-4 mb-2">
+              <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
+              <h6>Local Store </h6>
+              <div className="select" style={{ paddingTop: "4px" }}>
+                {buttonDiv}{buttonLocalStoreDiv}
+                  {/* <select className="list-obj bg-link float-right" defaultValue="Select Session ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+                    onChange={(event) => handleSessionChange({ value: event.target.value })} name="Session">
+                    {optionSession}
+                  </select> */}
+              </div>
             </div>
-            <hr />
+            <hr style={{ borderTop: "1px solid #8c8b8" , backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
+            <h6>Model repository (Firebase) </h6>
              <div className="select" style={{ paddingTop: "4px" }}>Model: 
                 <select className="list-obj bg-link float-right" defaultValue="Select Model ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
                   onChange={(event) => handleModelChange({ value: event.target.value })} name="Focus Model">

@@ -119,6 +119,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     const myModelview = myMetis.findModelView(this.state.phFocus.focusModelview.id);
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = myMetis?.getGojsModel();
+    const gojsModel = {
+      nodeDataArray: myGoModel.nodes,
+      linkDataArray: myGoModel.links
+    }
     //const myGoModel = this.state.myGoModel;
     // const myGojsModel = new gjs.goModel(utils.createGuid(), myModelview?.name, myModelview);
     // myGojsModel.nodes = this.state.phFocus.gojsModel.nodeDataArray;
@@ -135,8 +139,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     switch (name) {
       case 'TextEdited': {
-        const sel = e.subject.part;
-        const field = e.subject.name;
+        let sel = e.subject.part;
+        let field = e.subject.name;
         this.setState(
           produce((draft: AppState) => {
             if (sel) {
@@ -147,12 +151,74 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (myNode) {
                   myNode.name = text;
                   uic.updateObject(myNode, field, text, context);
-                  console.log('90 GoJSApp event, myNode:', myNode);
+                  console.log('153 GoJSApp event, myNode:', myNode);
                 }
               }
             }
           })
         )
+      }
+        break;
+      case "SelectionMoved": {
+        let selection = e.subject;
+        for (let it = selection.iterator; it.next();) {
+          let sel = it.value.data;
+          if (sel.class === "goObjectNode") {
+            let node = myGoModel?.findNode(sel.key);
+            if (node) {
+              node.loc = sel.loc;
+              node.size = sel.size;
+              const objview = node.objectview;
+              objview.loc = sel.loc;
+              objview.size = sel.size;
+            }
+          }
+        }
+      }
+        break;
+      case "SelectionDeleted": {
+        let deleted = e.subject;
+        for (let it = deleted.iterator; it.next();) {
+          let del: any = it.value.data;  // n is now a Node or a Group
+          if (del.class === "goObjectNode") {
+            let nd = myGoModel?.findNode(del.key) as gjs.goObjectNode;
+            if (nd) {
+              let d_objview = nd.objectview;
+              if (d_objview) {
+                const d_object = d_objview?.object;
+                d_objview.deleted = true;
+                d_object.deleted = true;
+              }
+              let nodes = new Array();
+              for (let i = 0; i < myGoModel?.nodes.length; i++) {
+                let n = myGoModel.nodes[i];
+                if (n.key !== nd.key) {
+                  nodes.push(n);
+                }
+              }
+              myGoModel.nodes = nodes;
+            }
+          }
+          else if (del.class === "goRelshipLink") {
+            const ld = myGoModel?.findLink(del.key);
+            if (ld) {
+              const relview = ld.relshipview;
+              if (relview) {
+                const relship = relview.relship;
+                relview.deleted = true;
+                relship.deleted = true;
+              }
+              let links = new Array();
+              for (let i = 0; i < myGoModel?.links.length; i++) {
+                let l = myGoModel.links[i];
+                if (l.key !== ld.key) {
+                  links.push(l);
+                }
+              }
+              myGoModel.links = links;
+            }
+          }
+        }
       }
         break;
       case 'ChangedSelection': {
@@ -168,12 +234,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   console.log('98 GoJSApp.tsx: node = ', nd);
                 }
               } else if (sel instanceof go.Link) {
-                console.log('101 GoJSApp.tsx: sel = ', sel);
+                console.log('174 GoJSApp.tsx: sel = ', sel);
                 const idx = this.mapLinkKeyIdx.get(sel.data.key);
                 if (idx !== undefined && idx >= 0) {
                   const ld = draft.linkDataArray[idx];
                   draft.selectedData = ld;
-                  console.log('105 GoJSApp.tsx: link = ', ld);
+                  console.log('178 GoJSApp.tsx: link = ', ld);
                 }
               }
             } else {
@@ -186,21 +252,41 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case 'ExternalObjectsDropped': {
         const nodes = e.subject;
-        console.log('172 ExternalObjectsDropped', nodes.first());
+        console.log('192 ExternalObjectsDropped', nodes.first());
+        const part = nodes.first().data;
+        uic.createObject(part, context);
+      }
+        break;
+      case 'ClipboardChanged': {
+        const nodes = e.subject;
+        console.log('nodes', nodes);
+      }
+        break;
+      case 'ClipboardPasted': {
+        const nodes = e.subject;
+        console.log('192 ExternalObjectsDropped', nodes.first());
         const part = nodes.first().data;
         uic.createObject(part, context);
       }
         break;
       case 'LinkDrawn': {
         const link = e.subject;
-        console.log('172 LinkDrawn', link);
+        console.log('199 LinkDrawn', link);
         uic.onLinkDrawn(link, context);
+      }
+        break;
+      case "LinkRelinked": {
+        const newLink = e.subject.data;
+        console.log('207 LinkRelinked', newLink);
+        uic.onLinkRelinked(newLink, context.myGoModel);
       }
         break;
       default:
         console.log('146 GoJSApp event name: ', name);
         break;
     }
+    this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+    console.log('208 gojsModel', gojsModel);
   }
 
 

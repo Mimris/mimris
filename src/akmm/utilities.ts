@@ -2,7 +2,7 @@
 
 export let isArrayEmpty = (array: any) => {
     let retval = false;
-    if(array == null)
+    if (array == null)
         retval = true;
     else if (array.length == 0)
         retval = true;
@@ -29,22 +29,23 @@ export let objExists = (obj: any) => {
 }
 
 export let S4 = () => {
-    return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
 }
 
 export let createGuid = () => {
-   return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+    return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
 }
 
 export let removeElementFromArray = (arr: any[], id: string) => {
-    for( let i = 0; i < arr.length; i++){
+    for (let i = 0; i < arr.length; i++) {
         const element = arr[i];
         if (objExists(element)) {
-            const element_id = element.getId();
-            if ( element_id === id) {
+            let element_id = element?.id;
+            if (!element_id) element_id = element?.key;
+            if (element_id === id) {
                 arr.splice(i, 1);
                 break;
-           }
+            }
         }
     }
 }
@@ -56,8 +57,8 @@ export let readKeyValueArrays = (myArray: any[]) => {
     const items = myArray;
     if (isArrayEmpty(items))
         return;
-    items.forEach(function(item) {
-        Object.keys(item).forEach(function(key) {
+    items.forEach(function (item) {
+        Object.keys(item).forEach(function (key) {
             console.log("key: " + key + " value " + item[key]);
             const propkey = key;
             const propval = item[key];

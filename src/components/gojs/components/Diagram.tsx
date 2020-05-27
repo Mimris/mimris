@@ -1,4 +1,4 @@
-// @ts -nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -8,7 +8,7 @@ import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-//import {onTextEdited} from '../../../Server/src/akmm/ui_common';
+//import {onTextEdited} from '../../../akmm/ui_common';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 //import { stringify } from 'querystring';
@@ -50,6 +50,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
+      diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
     }
   }
 
@@ -67,6 +72,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkDrawn', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('LinkRelinked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
     }
   }
 
@@ -158,6 +168,87 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           new go.Binding("text", "name"))
       );
     // }
+    // A Context Menu is an Adornment with a bunch of buttons in them
+    // Parts context menu
+    if (true) {
+      var partContextMenu =
+        $(go.Adornment, "Vertical",
+          makeButton("Cut",
+            function (e, obj) { e.diagram.commandHandler.cutSelection(); },
+            function (o) { return o.diagram.commandHandler.canCutSelection(); }),
+          makeButton("Copy",
+            function (e, obj) { e.diagram.commandHandler.copySelection(); },
+            function (o) { return o.diagram.commandHandler.canCopySelection(); }),
+          makeButton("Paste",
+            function (e, obj) {
+              //pasteViewsOnly = false;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            },
+            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+          makeButton("Paste View",
+            function (e, obj) {
+              // Ask user if only views
+              //pasteViewsOnly = true;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              //pasteViewsOnly = false;
+            },
+            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+          makeButton("Delete",
+            function (e, obj) {
+              //deleteViewsOnly = false;
+              e.diagram.commandHandler.deleteSelection();
+            },
+            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+          makeButton("Delete View",
+            function (e, obj) {
+              //deleteViewsOnly = true;
+              e.diagram.commandHandler.deleteSelection();
+              //deleteViewsOnly = false;
+            },
+            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+          makeButton("Undo",
+            function (e, obj) { e.diagram.commandHandler.undo(); },
+            function (o) { return o.diagram.commandHandler.canUndo(); }),
+          makeButton("Redo",
+            function (e, obj) { e.diagram.commandHandler.redo(); },
+            function (o) { return o.diagram.commandHandler.canRedo(); }),
+          makeButton("Group",
+            function (e, obj) { e.diagram.commandHandler.groupSelection(); },
+            function (o) { return o.diagram.commandHandler.canGroupSelection(); }),
+          makeButton("Ungroup",
+            function (e, obj) { e.diagram.commandHandler.ungroupSelection(); },
+            function (o) { return o.diagram.commandHandler.canUngroupSelection(); })
+        );
+    }
+
+    // provide a context menu for the background of the Diagram, when not over any Part
+    if (true) {
+      myDiagram.contextMenu =
+        $(go.Adornment, "Vertical",
+          makeButton("Paste",
+            function (e, obj) {
+              //pasteViewsOnly = false;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            },
+            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+          makeButton("Paste View",
+            function (e, obj) {
+              // Ask user if only views
+              //pasteViewsOnly = true;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              //pasteViewsOnly = false;
+            },
+            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+          makeButton("Undo",
+            function (e, obj) { e.diagram.commandHandler.undo(); },
+            function (o) { return o.diagram.commandHandler.canUndo(); }),
+          makeButton("Redo",
+            function (e, obj) { e.diagram.commandHandler.redo(); },
+            function (o) { return o.diagram.commandHandler.canRedo(); })
+        );
+    }
+
+
 
     // define a Node template
     let nodeTemplate;
@@ -173,6 +264,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
               toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
             },
+            { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor')),
           $(go.Panel, "Table",
@@ -363,6 +455,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       myDiagram.linkTemplateMap = linkTemplateMap;
       //myDiagram.groupTemplateMap = groupTemplateMap;
     }
+
+    // ---  Define the CONTEXT Menu -----------------
+    // To simplify this code we define a function for creating a context menu button:       
+    function makeButton(text: string, action: any, visiblePredicate: any) {
+      return $("ContextMenuButton",
+        $(go.TextBlock, text),
+        { click: action },
+        // don't bother with binding GraphObject.visible if there's no predicate
+        visiblePredicate ? new go.Binding("visible", "",
+          function (o, e) {
+            return o.diagram ? visiblePredicate(o, e) : false;
+          }).ofObject() : {}
+      );
+    }
+
     return myDiagram;
 
     // Function to identify images related to an image id

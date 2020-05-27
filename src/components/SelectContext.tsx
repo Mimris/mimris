@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
+// import { useLocalStorage } from "@rehooks/local-storage"
 import { FaJoint } from 'react-icons/fa';
 
 const SelectContext = (props: any) => {
@@ -107,9 +108,18 @@ const SelectContext = (props: any) => {
 
     function handleLocalStore() {
       const data = phFocus.phFocus
-      // console.log('87', data);
-  
-      // dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+      console.log('87', data);
+      // const [name, setName, deleteName] = useLocalStorage("name")
+
+      return (
+        <div>
+          {/* <div>Key: "name" | Value: "{name}"</div>
+          <div>
+            <button onClick={() => setName("nnamdi")}>Set Name</button>
+            <button onClick={deleteName}>Delete Value</button>
+          </div> */}
+        </div>
+      )
     }
 
   const buttonDiv =  <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >

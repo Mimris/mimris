@@ -16,9 +16,9 @@ const page = (props: any) => {
 
   const dispatch = useDispatch();
 
-  if (!props.phData) {
-    dispatch(loadData())
-  }
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
 
   let focus = props?.phFocus
   const focusModelId = props.phFocus.focusModel.id

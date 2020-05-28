@@ -11,7 +11,7 @@ export default async function getAllContextsByPersonId(req: NextApiRequest, res:
   )
   
   const allContexts =  JSON.parse(propsStore).props.initialState
-  console.log('12', JSON.parse(propsStore).props);
+  console.log('14 context', JSON.parse(propsStore).props);
   res.json(allContexts)
 } 
 

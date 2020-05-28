@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import GoJSApp from "./gojs/GoJSApp";
 
+
+
+
 const Modeller = (props) => {
 
   let gojsmodel = props.gojsModel;
@@ -9,9 +12,9 @@ const Modeller = (props) => {
 
   const [refresh, setRefresh] = useState(true)
   function toggleRefresh() { setRefresh(!refresh); }
-  console.log('11 Modeller', props);
+  // console.log('11 Modeller', props.gojsModel.nodeDataArray);
 
-  const gojsapp = (gojsmodel && myMetis) &&
+  const gojsapp = (gojsmodel) &&
     < GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}

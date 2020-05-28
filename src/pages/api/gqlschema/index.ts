@@ -8,9 +8,9 @@ export default async function getSchemaById(
 
   
   if (req.method === 'PUT') { 
-    console.log('11', req.query.id);
+    console.log('11 index', req.query.id);
     if (req.query.id == 'current') {
-        console.log('12', req.body);
+        //console.log('12 index', req.body);
         
           fs.writeFileSync(`./public/gql/typeDefs.ts`, req.body.gql.typeDefs)
           fs.writeFileSync(`./public/gql/resolvers.ts`, req.body.gql.resolvers)

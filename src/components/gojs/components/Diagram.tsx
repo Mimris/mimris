@@ -147,7 +147,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }
         );
     }
-    console.log('94 myDiagram', this);
+    // console.log('94 myDiagram', this);
 
     //myDiagram.layout = $(go.CircularLayout); 
     myDiagram.layout.isInitial = false;

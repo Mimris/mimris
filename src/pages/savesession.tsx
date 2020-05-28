@@ -58,9 +58,10 @@ const page = (props: any) => {
 
   const tasks =
     <div>
-      <btn className="btn-default bg-light btn-sm btn-block" onClick={toggleTasks}>{visibleTasks
+      <button className="btn-default bg-light btn-sm btn-block" onClick={toggleTasks}>{visibleTasks
         ? <><span style={{ paddingLeft: "5px" }}> Tasks - Help</span> <span style={{ float: "left" }} > &lt;  </span>
-        </> : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "6px", paddingLeft: "0px" }}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}</btn>
+        </> : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "6px", paddingLeft: "0px" }}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}
+      </button>
       <div className="toggleTasks">
         {visibleTasks
           ? <Help />

@@ -14,14 +14,14 @@ import genGojsModel from './GenGojsModel'
 
 const page = (props:any) => {
 
-  console.log('12', props);
+  // console.log('17 Diagram', props);
   const dispatch = useDispatch()
   
   /**  * Get the state from the store  */
   const state = useSelector((state: any) => state) // Selecting the whole redux store
-  const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview) 
-  let gojsmodel =  state.phFocus.gojsModel 
-  let gojsmetamodel =  state.phFocus.gojsMetamodel 
+  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview) 
+  let gojsmodel =  state.phGojs.gojsModel 
+  let gojsmetamodel =  state.phGojs.gojsMetamodel 
   let metis = state.phData?.metis
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
@@ -69,8 +69,8 @@ const page = (props:any) => {
           <div className="workpad p-1 bg-light">
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-             <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
-               {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
+                <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
+                  {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
@@ -106,7 +106,7 @@ const page = (props:any) => {
             <Row >
             <Col xs="auto ml-3 mr-0 pr-0 pl-0">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-                    <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
+              <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}

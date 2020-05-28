@@ -12,12 +12,13 @@ import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 
 const page = (props: any) => {
+
   console.log(props)
   const dispatch = useDispatch()
 
-  if (!props.phData) {
-    dispatch(loadData())
-  }
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
 
   const state = useSelector(state => state)
   const metis = (state.phData) && state.phData.metis
@@ -31,7 +32,7 @@ const page = (props: any) => {
 // * Set up the Context items and link to select Context modal,
 // */
   const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
-  
+
   return (
     <div>
       <Layout  user={state.phUser?.focusUser} >

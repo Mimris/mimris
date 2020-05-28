@@ -26,20 +26,20 @@ const GenGojsModel = (state: any, dispatch: any) => {
     myMetis.importData(metis);
     // console.log('27 myMetis', myMetis);
 
-    const focusModel = (state.phFocus) && state.phFocus.focusModel
-    const focusModelview = (state.phFocus) && state.phFocus.focusModelview
-    const curmod = (models && focusModel.id) && models.find((m: any) => m.id === focusModel.id)
-    const curmodview = (curmod && focusModelview.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
+    const focusModel = (state.phFocus) && state.phFocus?.focusModel
+    const focusModelview = (state.phFocus) && state.phFocus?.focusModelview
+    const curmod = (models && focusModel?.id) && models?.find((m: any) => m.id === focusModel.id)
+    const curmodview = (curmod && focusModelview.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
 
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
       const myMetamodel = myModel?.metamodel;
       const myPalette = buildGoPalette(myMetamodel);
-      console.log('40 myPalette', myPalette);
+      // console.log('40 myPalette', myPalette);
 
       const myModelView = myMetis?.findModelView(curmodview.id);
       const myGoModel = buildGoModel(myModel, myModelView);
-      console.log('43 myGoModel', myGoModel);
+      // console.log('43 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
 
       const nodedataarray = (curmodview)
@@ -53,7 +53,7 @@ const GenGojsModel = (state: any, dispatch: any) => {
         nodeDataArray: myGoModel.nodes,
         linkDataArray: myGoModel.links
       }
-      console.log('58 gojsModel', gojsModel);
+      // console.log('58 gojsModel', gojsModel);
 
 
       // /** metamodel */
@@ -69,8 +69,8 @@ const GenGojsModel = (state: any, dispatch: any) => {
         linkDataArray: []
       }
 
-      console.log('71', gojsMetamodel);
-      console.log('73', myMetis);
+      // console.log('71', gojsMetamodel);
+      // console.log('73', myMetis);
 
       // update the Gojs arrays in the store
       dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
@@ -82,7 +82,7 @@ const GenGojsModel = (state: any, dispatch: any) => {
   }
 
   function buildGoPalette(metamodel: akm.cxMetaModel): gjs.goModel {
-    console.log('74 buildGoPalette', metamodel);
+    // console.log('74 buildGoPalette', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     const objecttypes: akm.cxObjectType[] = metamodel.objecttypes;
     if (objecttypes) {
@@ -109,7 +109,7 @@ const GenGojsModel = (state: any, dispatch: any) => {
   function buildGoModel(model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview.getObjectViews();
-    console.log('103 modelview', modelview);
+    // console.log('103 modelview', modelview);
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
         let objview = objviews[i];
@@ -120,10 +120,10 @@ const GenGojsModel = (state: any, dispatch: any) => {
         }
       }
     }
-    console.log('114 buildGoModel', myGoModel);
+    // console.log('114 buildGoModel', myGoModel);
     // load relship views
     let relviews = modelview.getRelationshipViews();
-    console.log('117 relviews', relviews);
+    // console.log('117 relviews', relviews);
     let l = (relviews && relviews.length);
     for (let i = 0; i < l; i++) {
       let relview = relviews[i];

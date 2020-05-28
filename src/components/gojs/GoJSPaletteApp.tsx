@@ -262,8 +262,8 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
                     />; */}
                   </>
     }
-    console.log('266 nodeDataArray', this.state.nodeDataArray);
-    console.log('267 linkDataArray', this.state.linkDataArray);
+    // console.log('266 nodeDataArray', this.state.nodeDataArray);
+    // console.log('267 linkDataArray', this.state.linkDataArray);
 
     return (
       <div>

@@ -20,12 +20,12 @@ const page = (props: any) => {
 
   // console.log('17', props.phData);
   const [ loaded, setLoaded] = useState(false);
-  if (!props.phData) {
-    if (!loaded) {
-      dispatch(loadData())
-      setLoaded(true)
-    }
-  }
+  // if (!props.phData) {
+  //   if (!loaded) {
+  //     dispatch(loadData())
+  //     setLoaded(true)
+  //   }
+  // }
   // const metis = (props.phData) && props.phData.metis
   // const model = (metis) && metis.models[0]
   const state = useSelector((state:any) => state)

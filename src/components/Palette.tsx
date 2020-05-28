@@ -18,11 +18,11 @@ const Palette = (props) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   /**  * Get the state and metie from the store,  */
-  // const gojstypes = props.phFocus.gojsMetamodel
-  // console.log('18 Palette', gojstypes, props);
-  console.log('11 Palette', gojstypes);
-  console.log('12 Palette', gojstypes.nodeDataArray);
-  console.log('13 Palette', gojstypes.linkDataArray);
+    // const gojstypes = props.phFocus.gojsMetamodel
+    // console.log('18 Palette', gojstypes, props);
+    // console.log('11 Palette', gojstypes);
+    // console.log('12 Palette', gojstypes.nodeDataArray);
+    // console.log('13 Palette', gojstypes.linkDataArray);
   
   const gojsapp = (gojstypes) &&
     < GoJSPaletteApp
@@ -37,7 +37,7 @@ const Palette = (props) => {
 
   const palette =
     <> 
-      <btn id="lighten" className="btn-xs bg-secondary mt-1" onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} </btn>
+      <button id="lighten" className="btn-xs bg-secondary mt-1" onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} </button>
         {visiblePalette 
         ? <span id="lighten" className="btn-link btn-sm pl-2 pr-0 " onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
         : <div id="lighten" className="btn-vertical m-0 p-0  " style={{ maxWidth: "4px", paddingLeft: "0px" }}><span> . P a l e t t e</span> 

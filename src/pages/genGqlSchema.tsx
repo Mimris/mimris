@@ -15,12 +15,12 @@ const page = (props: any) => {
 
   // console.log('17', props.phData);
   const [ loaded, setLoaded] = useState(false);
-  if (!props.phData) {
-    if (!loaded) {
-      dispatch(loadData())
-      setLoaded(true)
-    }
-  }
+  // if (!props.phData) {
+  //   if (!loaded) {
+  //     dispatch(loadData())
+  //     setLoaded(true)
+  //   }
+  // }
   const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
 
   const state = useSelector(state => state)
@@ -41,10 +41,10 @@ const page = (props: any) => {
   }
   const tasks =
     <div>
-      <btn className="btn-default bg-light btn-sm btn-block" onClick={toggleTasks}>{visibleTasks
+      <button className="btn-default bg-light btn-sm btn-block" onClick={toggleTasks}>{visibleTasks
         ? <><span style={{ paddingLeft: "5px" }}> Tasks - Help</span> <span style={{ float: "left" }} > &lt;  </span>
         </> : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "6px", paddingLeft: "0px" }}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}
-      </btn>
+      </button>
       <div className="toggleTasks">
         {visibleTasks
           ? <Help />
@@ -58,7 +58,7 @@ const page = (props: any) => {
   }
   const schemalink = <a href="/gql/schemas/typeDefs.ts" download>typeDefs.ts</a>
   const resolverlink = <a href="/gql/schemas/resolvers.ts" download>resolvers.ts</a>
-  const buttonDiv = <btn className="btn btn-info" onClick={handleGenGqlSchema} > Generate GraphQl Schema and Resolver</btn>
+  const buttonDiv = <button className="btn btn-info" onClick={handleGenGqlSchema} > Generate GraphQl Schema and Resolver</button>
 
   return (
     <div>

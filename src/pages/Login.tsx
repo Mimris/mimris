@@ -13,9 +13,9 @@ const page = (props: any) => {
   );
   const dispatch = useDispatch()
 
-  if (!props.phData) {
-      dispatch(loadData())
-  }
+  // if (!props.phData) {
+  //     dispatch(loadData())
+  // }
   
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
   // const focusUser = useSelector(focusUser => state.phUser?.focusUser)

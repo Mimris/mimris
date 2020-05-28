@@ -16,9 +16,9 @@ const page = (props: any) => {
   console.log(props)
   const dispatch = useDispatch()
 
-  if (!props.phData) {
-    dispatch(loadData())
-  }
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
 
   const state = useSelector(state => state)
   const metis = (state.phData) && state.phData.metis

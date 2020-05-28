@@ -65,7 +65,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
       const $ = go.GraphObject.make;
       // define myPalette
       let myPalette;
-      console.log('68 myPalette', this);      
+      // console.log('68 myPalette', this);      
       // define myPalette
       if (true) {
           myPalette =

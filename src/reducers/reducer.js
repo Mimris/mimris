@@ -3,6 +3,7 @@ import {
   LOAD_DATA,
   LOAD_DATA_SUCCESS,
   SET_FOCUS_PHDATA,
+  SET_FOCUS_PHSOURCE,
   SET_FOCUS_PHFOCUS,
   SET_FOCUS_USER,
   SET_FOCUS_OBJECT,
@@ -21,9 +22,9 @@ import {
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
 } from '../actions/types';
-// import EditModal from '../components/EditModal';
 
 export const InitialState = {
+  phSource: '',
   phData: null,
   phMymetis: null,
   phMyGoModel: null,
@@ -35,17 +36,23 @@ export const InitialState = {
       session: null
     }
   },
-  phFocus: {
-    gojsModel: null,
-    // {
-    // nodeDataArray: [
-    //   { key: 0, text: 'AKM', color: 'lightblue', loc: '0 0' },
-    //   { key: 1, text: 'AMAP', color: 'lightgreen', loc: '0 -50' },
-    // ],
-    // linkDataArray: [
-    //   { key: -1, from: 0, to: 1 },
-    // ],
+  phGojs: {
+    // gojsModel: {
+    //   nodeDataArray: [
+    //     { key: 0, text: 'AKM', color: 'lightblue', loc: '0 0' },
+    //     { key: 1, text: 'AMAP', color: 'lightgreen', loc: '0 -50' },
+    //   ],
+    //   linkDataArray: [
+    //     { key: -1, from: 0, to: 1 },
+    //   ],
     // },
+    gojsModel: {
+      nodeDataArray: [
+        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+        { key: 1, text: 'AMAP Type', color: 'lightred', loc: '0 -80' },
+      ],
+      linkDataArray: [],
+    },
     gojsMetamodel: {
       nodeDataArray: [
         { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
@@ -53,6 +60,8 @@ export const InitialState = {
       ],
       linkDataArray: [],
     },
+  },
+  phFocus: {
     focusModel: {
       id: 'null',
       name: 'null'
@@ -95,7 +104,6 @@ export const InitialState = {
         focusCollection: []
       }
     },
-
     // focusTask: {
     //   id: 'UUID4_A07E7E67-102D-43A4-84E1-89E40DCCCD22',
     //   name: 'Calculate NPV',
@@ -132,6 +140,7 @@ export const InitialState = {
     }
   }
 }
+
 let focusTask
 let focusSource
 let focusModelview
@@ -148,34 +157,44 @@ function reducer(state = InitialState, action) {
         ...state,
         ...{ error: action.error }
       }
+
     case LOAD_DATA_SUCCESS:
+      console.log('160 LOAD_DATA_SUCCESS', action);
       return {
         ...state,
-        ...{ phData: action.data }
-      }
-    case SET_FOCUS_PHFOCUS:
-      console.log('121 red', action.data);
-      // Object.assign(state, action);    
-      return {
-        ...state,
-        phFocus: action.data
+        phData: action.data,   
+        sourceFlag: 'server'
       }
     case SET_FOCUS_PHDATA:
-      console.log('121 red', action.data);
+      console.log('169 SET_FOCUS_PHDATA', action);
       // Object.assign(state, action);    
       return {
         ...state,
         phData: action.data
       }
+    case SET_FOCUS_PHSOURCE:
+      console.log('176 SET_FOCUS_SOURCE', action.data);
+      // Object.assign(state, action);    
+      return {
+        ...state,
+        phSource: action.data
+      }
+    case SET_FOCUS_PHFOCUS:
+      console.log('183 SET_FOCUS_PHFOCUS', action.data);
+      // Object.assign(state, action);    
+      return {
+        ...state,
+        phFocus: action.data
+      }
     case SET_FOCUS_USER:
-      console.log('121 red', action.data);
+      console.log('190 SET_FOCUS_USER', action.data);
       // Object.assign(state, action);    
       return {
         ...state,
         phUser: {
           ...state.phUser,
-          focusUser: action.data
-        }
+        },
+        focusUser: action.data
       } 
     case SET_FOCUS_MODEL:
       // console.log('121 red', state, action.data); 
@@ -188,16 +207,25 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_MODEL:
-      console.log('149 reducer', action);
+      console.log('210 SET_GOJS_MODEL', action);
       return {
         ...state,
-        phFocus: {
-          ...state.phFocus,
+        phGojs: {
+          ...state.phGojs,
           gojsModel: action.gojsModel
         }
       }
+    case SET_GOJS_METAMODEL:
+      console.log('219 SET_GOJS_METAMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsMetamodel: action.gojsMetamodel
+        }
+      }
     case SET_MYMETIS_MODEL:
-      console.log('149 reducer', action);
+      console.log('228 SET_MYMETIS_MODEL', action);
       return {
         ...state,
         phMymetis: {
@@ -206,7 +234,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_MY_GOMODEL:
-      console.log('149 reducer', action);
+      console.log('220 SET_MY_GOMODEL', action);
       return {
         ...state,
         phMyGoModel: {
@@ -214,17 +242,8 @@ function reducer(state = InitialState, action) {
           myGoModel: action.myGoModel
         }
       }
-    case SET_GOJS_METAMODEL:
-      console.log('157 reducer', action);
-      return {
-        ...state,
-        phFocus: {
-          ...state.phFocus,
-          gojsMetamodel: action.gojsMetamodel
-        }
-      }
     case SET_FOCUS_OBJECT:
-      console.log('157 red', state, action.data);
+      console.log('229 SET_FOCUS_OBJECT', state, action.data);
       focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
         focusSource: {
           id: action.data.focusSource.id,

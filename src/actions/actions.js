@@ -2,8 +2,9 @@ import {
   FAILURE, 
   LOAD_DATA, 
   LOAD_DATA_SUCCESS, 
-  SET_FOCUS_PHFOCUS, 
   SET_FOCUS_PHDATA, 
+  SET_FOCUS_PHSOURCE,
+  SET_FOCUS_PHFOCUS, 
   SET_FOCUS_USER, 
   SET_FOCUS_OBJECT, 
   SET_MYMETIS_MODEL,
@@ -34,12 +35,20 @@ export const loadData = () => {
 }
 
 export const loadDataSuccess = (data) => {
+  console.log('37 --loadDataSuccess ', data);
   return {
     type: LOAD_DATA_SUCCESS,
     data
   }
 }
 
+export const setFocusPhsource = (data) => {
+  console.log('21---actions |', data);
+  return {
+    type: SET_FOCUS_PHSOURCE,
+    data: JSON.parse(data.value)
+  }
+}
 export const setFocusPhdata = (data) => {
   console.log('21---actions |', data);
   return {

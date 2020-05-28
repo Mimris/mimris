@@ -2,7 +2,9 @@ import SelectContext from '../components/SelectContext'
 
 const SetContext = (props: any) =>  {
 
-  const phF = props.phF;
+  const phF = props.phFocus;
+  console.log('6', phF);
+  
   
   return (
     <>
@@ -14,7 +16,7 @@ const SetContext = (props: any) =>  {
       Proj:<strong>{phF?.focusProj?.name}</strong> |
       Role:<strong>{phF?.focusRole?.name}</strong> |
       Task:<strong>{phF?.focusTask?.name}</strong> |
-      <SelectContext buttonLabel='Set Context' className='ContextModal' /> 
+      <SelectContext buttonLabel='Set Context' className='ContextModal' phFocus={phF}  /> 
     </div>
     </>
     )

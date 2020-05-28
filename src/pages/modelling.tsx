@@ -1,5 +1,5 @@
 //@ts-nocheck
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { loadData } from '../actions/actions'
 import Page from '../components/page';
@@ -9,14 +9,36 @@ import Footer from "../components/Footer"
 import Diagram from "../components/Diagram";
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
+import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
-
+  
   // console.log('16 diagram',props)
   const dispatch = useDispatch()
+  let setContextDiv =  <SetContext phFocus={props.phFocus} />
 
   if (!props.phData) {
-    dispatch(loadData())
+    const locState = loadState()
+    console.log('27 modelling', locState);
+    if (loadState().status) {
+      const phData = locState.phData
+      console.log('25 modelling', phData);
+      const phFocus = locState.phFocus
+      const phUser = locState.phUser
+      const phSource = locState.sourceFlag
+      if (phData && phFocus && phUser && phSource) {
+        let data = phData
+        dispatch({ type: 'SET_FOCUS_PHDATA', data })
+        data = phFocus
+        dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+        data = phUser
+        dispatch({ type: 'SET_FOCUS_PHUSER', data })
+        data = phSource
+        dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
+      } 
+    } else {
+      dispatch(loadData())
+    }
   }
 
   const state = useSelector(state => state)
@@ -31,15 +53,20 @@ const page = (props:any) => {
 // /**
 // * Set up the Context items and link to select Context modal,
 // */
-  const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
-  
+  // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+  // useEffect(() => {
+  //   return () => {
+  //     <SetContext phFocus={props.phFocus} />
+  //   };
+  // }, [props.phData])
+
   return (
     <div>
       <Layout user={state.phUser?.focusUser} >
         <div id="index" >
         <div className="wrapper" >
           <div className="header" >
-            {/* <Header title='headerTitle' /> */}
+            <Header title={props.phUser?.focusUser.name} />
           </div>
           <div className="workplace" >
             <div className="contextarea" >

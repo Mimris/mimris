@@ -20,7 +20,7 @@ const page = (props:any) => {
   if (!props.phData) {
     const locState = loadState()
     console.log('27 modelling', locState);
-    if (loadState().status) {
+    if (locState?.state) {
       const phData = locState.phData
       console.log('25 modelling', phData);
       const phFocus = locState.phFocus

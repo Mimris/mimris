@@ -23,28 +23,30 @@ const Palette = (props) => {
     // console.log('11 Palette', gojstypes);
     // console.log('12 Palette', gojstypes.nodeDataArray);
     // console.log('13 Palette', gojstypes.linkDataArray);
-  
-  const gojsapp = (gojstypes) &&
+    
+    const gojsapp = (gojstypes) &&
     < GoJSPaletteApp
-      nodeDataArray={gojstypes.nodeDataArray}
-      linkDataArray={gojstypes.linkDataArray}
-      metis={props.metis}
-      myMetis={props.myMetis}
-      myGoModel={props.myGoModel}
-      phFocus={props.phFocus}
-      dispatch={props.dispatch}
+    nodeDataArray={gojstypes.nodeDataArray}
+    linkDataArray={gojstypes.linkDataArray}
+    metis={props.metis}
+    myMetis={props.myMetis}
+    myGoModel={props.myGoModel}
+    phFocus={props.phFocus}
+    dispatch={props.dispatch}
     />
-
-  const palette =
+    
+    const palette =
     <> 
-      <button id="lighten" className="btn-xs bg-secondary mt-1" onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} </button>
+        <button id="lighten" className="btn-sm bg-secondary pt-0 pb-0 b-0 mt-0" style={{ outline: "0", borderStyle: "none"}}
+        onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} 
+      </button>
         {visiblePalette 
-        ? <span id="lighten" className="btn-link btn-sm pl-2 pr-0 " onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
+          ? <span id="lighten" className="btn-link btn-sm pl-2 pr-0 " style={{ color: "lightblue" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
         : <div id="lighten" className="btn-vertical m-0 p-0  " style={{ maxWidth: "4px", paddingLeft: "0px" }}><span> . P a l e t t e</span> 
         </div>}
         {/* ? 'Palette <' 
         :  'Palette >' } 
-        </div> */}
+      </div> */}
          {/* <div  style={{paddingLeft: "2px"}} onClick={togglePalette}>{visiblePalette ? 'Palette <' :  'Palette >' } </div> */}
         <div className="togglePalette" >
           {visiblePalette ? <> {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}</> : <><span style={{ width: "100%", minHeight: "100px", minWidth: "290"}}></span></> }
@@ -54,27 +56,13 @@ const Palette = (props) => {
   return (
     <>
       {palette}
-      {/* <style jsx>{`
-        .diagram-component {
-          height: 100%;
-        }
-       `}</style> */}
+      <style jsx>{`
+        // .diagram-component {
+        //   height: 100%;
+        // }
+       `}</style>
     </>
   )
 }
 
 export default Palette;
-// export default Page(connect(state => state)(page));
-
-{/* // toggle classNames
-<div className={"palette" + (visiblePalette ? "view" : "bar")}>
-</div>
-<style jsx>{`
-      .paletteview {
-        width: 800px;
-      }
-      .palettebar {
-        backgroundColor: red;
-        maxWidth: 10px;
-      }
-             `}</style> */}

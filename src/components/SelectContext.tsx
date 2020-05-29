@@ -14,7 +14,7 @@ const SelectContext = (props: any) => {
   // const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
   
   // const [model, setModel] = useState(focusModel)
-  console.log('16 Sel', models, focusModel, state);
+  // console.log('16 Sel', models, focusModel, state);
 
   const dispatch = useDispatch()
   // const { register, handleSubmit, errors } = useForm()
@@ -120,7 +120,7 @@ const SelectContext = (props: any) => {
     // console.log('114', loadState());
     
     function handleSaveLocalStore() {
-      console.log('119 SelectContext', state);
+      // console.log('119 SelectContext', state);
       
       const data = {
         phData: state.phData,
@@ -128,7 +128,7 @@ const SelectContext = (props: any) => {
         phUser: state.phUser,
         phSource: 'localStore'
       }
-      console.log('131', data);
+      // console.log('131', data);
       
       saveState(data)
     }
@@ -139,7 +139,7 @@ const SelectContext = (props: any) => {
       const phFocus = locState.phFocus
       const phUser = locState.phUser
       const phSource = 'localStore' //locState.sourceFlag
-      console.log('142', phData);   
+      // console.log('142', phData);   
       if (locState.phData) {
         let data = phData
         dispatch({ type: 'SET_FOCUS_PHDATA', data })
@@ -150,7 +150,7 @@ const SelectContext = (props: any) => {
         data = phSource
         dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
       } 
-      console.log('130', props.phFocus);
+      // console.log('130', props.phFocus);
       // optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m: any) => <option key={m.id} value={JSON.stringify(m)} > {m.name} </option>)]
       
     }

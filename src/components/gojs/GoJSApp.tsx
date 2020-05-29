@@ -43,7 +43,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   constructor(props: object) {
     super(props);
-    // console.log('34',props.nodeDataArray);
+    console.log('46 GoJSApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props.nodeDataArray,
       linkDataArray: this.props.linkDataArray,
@@ -285,7 +285,25 @@ class GoJSApp extends React.Component<{}, AppState> {
         console.log('146 GoJSApp event name: ', name);
         break;
     }
+
+
+    //###########################################################
+    const data = { 
+      id: "3164396b-b9ad-4dfe-b87a-5f9cb9e08fdf",
+      name: "number11111",
+      description: "This is the number",
+      objectRef: "c78b9435-3f16-4d8f-2c9a-f1aedb7d369f",
+      typeviewRef: "43628d9d-e276-4ccb-379a-f495c7976544",
+      group: "",
+      isGroup: false,
+      loc: "10 550",
+      size: ""
+    }
+
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+
+    this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+
     console.log('208 gojsModel', gojsModel);
   }
 

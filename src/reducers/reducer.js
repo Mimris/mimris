@@ -19,6 +19,7 @@ import {
   SET_FOCUS_COLLECTION,
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
+  UPDATE_OBJECTVIEW_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
 } from '../actions/types';
@@ -49,14 +50,14 @@ export const InitialState = {
     gojsModel: {
       nodeDataArray: [
         { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AMAP Type', color: 'lightred', loc: '0 -80' },
+        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
       ],
       linkDataArray: [],
     },
     gojsMetamodel: {
       nodeDataArray: [
         { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AMAP Type', color: 'lightred', loc: '0 -80' },
+        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
       ],
       linkDataArray: [],
     },
@@ -159,35 +160,35 @@ function reducer(state = InitialState, action) {
       }
 
     case LOAD_DATA_SUCCESS:
-      console.log('160 LOAD_DATA_SUCCESS', action);
+      // console.log('160 LOAD_DATA_SUCCESS', action);
       return {
         ...state,
         phData: action.data,   
-        sourceFlag: 'server'
+        phSource: 'server'
       }
     case SET_FOCUS_PHDATA:
-      console.log('169 SET_FOCUS_PHDATA', action);
+      // console.log('169 SET_FOCUS_PHDATA', action);
       // Object.assign(state, action);    
       return {
         ...state,
         phData: action.data
       }
     case SET_FOCUS_PHSOURCE:
-      console.log('176 SET_FOCUS_SOURCE', action.data);
+      // console.log('176 SET_FOCUS_SOURCE', action.data);
       // Object.assign(state, action);    
       return {
         ...state,
         phSource: action.data
       }
     case SET_FOCUS_PHFOCUS:
-      console.log('183 SET_FOCUS_PHFOCUS', action.data);
+      // console.log('183 SET_FOCUS_PHFOCUS', action.data);
       // Object.assign(state, action);    
       return {
         ...state,
         phFocus: action.data
       }
     case SET_FOCUS_USER:
-      console.log('190 SET_FOCUS_USER', action.data);
+      // console.log('190 SET_FOCUS_USER', action.data);
       // Object.assign(state, action);    
       return {
         ...state,
@@ -207,7 +208,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_MODEL:
-      console.log('210 SET_GOJS_MODEL', action);
+      // console.log('210 SET_GOJS_MODEL', action);
       return {
         ...state,
         phGojs: {
@@ -216,7 +217,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_METAMODEL:
-      console.log('219 SET_GOJS_METAMODEL', action);
+      // console.log('219 SET_GOJS_METAMODEL', action);
       return {
         ...state,
         phGojs: {
@@ -225,7 +226,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_MYMETIS_MODEL:
-      console.log('228 SET_MYMETIS_MODEL', action);
+      // console.log('228 SET_MYMETIS_MODEL', action);
       return {
         ...state,
         phMymetis: {
@@ -234,7 +235,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_MY_GOMODEL:
-      console.log('220 SET_MY_GOMODEL', action);
+      // console.log('220 SET_MY_GOMODEL', action);
       return {
         ...state,
         phMyGoModel: {
@@ -243,7 +244,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_OBJECT:
-      console.log('229 SET_FOCUS_OBJECT', state, action.data);
+      // console.log('229 SET_FOCUS_OBJECT', state, action.data);
       focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
         focusSource: {
           id: action.data.focusSource.id,
@@ -360,6 +361,127 @@ function reducer(state = InitialState, action) {
         }
       }
 
+
+    case UPDATE_OBJECTVIEW_PROPERTIES:
+      console.log('229 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      const curm     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+      const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id)
+      const curmv  = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id)
+      const curmvindex  = curm?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id)
+      console.log('371 curmindex', curmindex);
+      console.log('372 curmvindex', curmvindex);
+      
+      const curov  = curmv?.objectviews?.find(ov => ov.id === action?.data?.id)
+      const ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov.id)
+      console.log('376 ovindex', ovindex);
+      const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
+      const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
+      console.log('275 reducer', 
+      {
+        ...state,
+          phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models.slice(0, curmindex),
+                {
+                  ...state.phData.metis.models[curmindex],
+                  modelviews: [
+                    ...curm.modelviews.slice(0, curmvindex),
+                    {
+                      ...curm.modelviews[curmvindex],
+                      objectviews: [
+                        ...curmv.objectviews.slice(0, ovindex),
+                        {
+                          ...curmv.objectviews[ovindex],
+                          name: action.data.name,
+                          description: action.data.desctription,
+                          objectRef: action.data.objectRef,
+                          // typeviewRef: action.data.typeviewRef,
+                          // group: action.data.group,
+                          // isGroup: action.data.isGroup,
+                          loc: action.data.loc,
+                          size: action.data.size
+                        },
+                        ...curmv.objectviews.slice(ovindex + 1)
+                      ]
+                    },
+                    ...curm.modelviews.slice(curmvindex + 1),
+                  ],
+                  // objects: [
+                  //   ...curm.objects.slice(0, curoindex),
+                  //   {
+                  //     ...curo,                 
+                  //     name: action.data.name,
+                  //     description: action.data.desctription,
+                  //     typeRef: action.data.typeviewRef,
+                  //     // ...curopropertyValues: [
+                  //     //   ...curo.propertyValues
+                  //     // ]
+                  //   },
+                  //   ...curm.objects.slice(curoindex + 1)  
+                  // ]
+                },
+                ...state.phData.metis.models.slice(curmindex + 1),
+              ]
+          },
+        },
+      }
+      )
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models.slice(0,curmindex),
+                {
+                  ...state.phData.metis.models[curmindex],
+                  modelviews: [
+                    ...curm.modelviews.slice(0, curmvindex),
+                    {
+                      ...curm.modelviews[curmvindex],
+                      objectviews: [
+                        ...curmv.objectviews.slice(0, ovindex),
+                        {
+                          ...curmv.objectviews[ovindex],  
+                          id: action.data.id,           
+                          name: action.data.name,
+                          description: action.data.description,
+                          objectRef: action.data.objectRef,
+                          typeviewRef: action.data.typeviewRef,
+                          group: action.data.group,
+                          isGroup: action.data.isGroup,
+                          loc: action.data.loc,
+                          size: action.data.size
+                        },
+                        ...curmv.objectviews.slice(ovindex + 1)
+                      ]
+                    },
+                    ...curm.modelviews.slice(curmvindex + 1),
+                  ],
+                  // objects: [
+                  //   ...curm.objects.slice(0, curoindex),
+                  //   {
+                  //     ...curo,                 
+                  //     name: action.data.name,
+                  //     description: action.data.desctription,
+                  //     typeRef: action.data.typeviewRef,
+                  //     // ...curopropertyValues: [
+                  //     //   ...curo.propertyValues
+                  //     // ]
+                  //   },
+                  //   ...curm.objects.slice(curoindex + 1)  
+                  // ]
+                },
+                ...state.phData.metis.models.slice(curmindex + 1),
+              ]
+            },
+          },
+        }
+      
 
     case EDIT_OBJECT_PROPERTIES:
       // console.log('236', action);

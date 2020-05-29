@@ -23,6 +23,11 @@ interface AppState {
   modelData: go.ObjectData;
   selectedData: go.ObjectData | null;
   skipsDiagramUpdate: boolean;
+  metis: any;
+  myMetis: akm.cxMetis;
+  myGoModel: gjs.goModel;
+  phFocus: any;
+  dispatch: any;
 }
 
 class GoJSPaletteApp extends React.Component<{}, AppState> {
@@ -33,7 +38,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   
   constructor(props: object) {
     super(props);
-    // console.log('34',props.nodeDataArray);
+    console.log('36 GoJSPaletteApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props.nodeDataArray,
       linkDataArray: this.props.linkDataArray,
@@ -41,7 +46,12 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         canRelink: true
       },
       selectedData: null,
-      skipsDiagramUpdate: false
+      skipsDiagramUpdate: false,
+      metis: this.props.metis,
+      myMetis: this.props.myMetis,
+      myGoModel: this.props.myGoModel,
+      phFocus: this.props.phFocus,
+      dispatch: this.props.dispatch
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -51,9 +61,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     // bind handler methods
 
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    // this.handleModelChange = this.handleModelChange.bind(this);
-    // this.handleInputChange = this.handleInputChange.bind(this);
-    // this.handleRelinkChange = this.handleRelinkChange.bind(this);
+    this.handleModelChange = this.handleModelChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
 
   /**
@@ -255,15 +265,15 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     let inspector;
     if (selectedData !== null) {
       inspector = <>
-                    {/* <p>Selected Object Properties:</p>
-                    <SelectionInspector
-                      selectedData={this.state.selectedData}
-                      onInputChange={this.handleInputChange}
-                    />; */}
-                  </>
+        <p>Selected Object Properties:</p>
+        <SelectionInspector
+          selectedData={this.state.selectedData}
+          onInputChange={this.handleInputChange}
+        />;
+      </>
     }
-    // console.log('266 nodeDataArray', this.state.nodeDataArray);
-    // console.log('267 linkDataArray', this.state.linkDataArray);
+    console.log('266 nodeDataArray', this.state.nodeDataArray);
+    console.log('267 linkDataArray', this.state.linkDataArray);
 
     return (
       <div>

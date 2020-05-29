@@ -3,9 +3,7 @@ import SelectContext from '../components/SelectContext'
 const SetContext = (props: any) =>  {
 
   const phF = props.phFocus;
-  console.log('6', phF);
-  
-  
+  // console.log('6', phF);
   return (
     <>
     <div className="context-list border-bottom border-dark">Context :

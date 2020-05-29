@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { loadState, saveState } from './utils/LocalStorage'
 import { FaJoint } from 'react-icons/fa';
 
-const SelectContext = (props: any) => {
+const SelectSource = (props: any) => {
   // console.log('8 8', props.modal);
   let state = useSelector((state: any) => state) // Selecting the whole redux store
   const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
@@ -21,59 +21,59 @@ const SelectContext = (props: any) => {
 
   let optionModel
 
-  const handlePhDataChange = (event: any) => {
-    // const id = JSON.parse(event.value).id
-    // const name = JSON.parse(event.value).name
-    // console.log('25 selcon', id, name);
-    const phData = JSON.parse(event.value)
-    const data = phData
-      // console.log('38 sel', data);
-      (data) && dispatch({ type: 'SET_FOCUS_PHDATA', data })
-  }
-  const handleSessionChange = (event: any) => {
-    const id = JSON.parse(event.value).id
-    const name = JSON.parse(event.value).name
-    // console.log('25 selcon', id, name);
+  // const handlePhDataChange = (event: any) => {
+  //   // const id = JSON.parse(event.value).id
+  //   // const name = JSON.parse(event.value).name
+  //   // console.log('25 selcon', id, name);
+  //   const phData = JSON.parse(event.value)
+  //   const data = phData
+  //     // console.log('38 sel', data);
+  //     (data) && dispatch({ type: 'SET_FOCUS_PHDATA', data })
+  // }
+  // const handleSessionChange = (event: any) => {
+  //   const id = JSON.parse(event.value).id
+  //   const name = JSON.parse(event.value).name
+  //   // console.log('25 selcon', id, name);
 
-    const focusSession = { id: id, name: name }
-    const data = focusSession
-      // console.log('38 sel', data);
-      (data) && dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
-  }
-  const handleModelChange = (event: any) => {
-    const id = JSON.parse(event.value).id
-    const name = JSON.parse(event.value).name
-    const focusModel = { id: id, name: name }
-    const data = focusModel
-    // console.log('38 sel', data);
-    dispatch({ type: 'SET_FOCUS_MODEL', data })
-  }
-  const handleModelviewChange = (event: any) => {
-    const id = JSON.parse(event.value).id
-    const name = JSON.parse(event.value).name
-    const focusModelview = { id: id, name: name }
-    const data = focusModelview
-    // console.log('62 sel', data);
-    dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
-  }
-  const handleObjectChange = (event: any) => {
-    const id = JSON.parse(event.value).id
-    const name = JSON.parse(event.value).name
-    const data = { focusObject: { id: id, name: name } }
-    dispatch({ type: 'SET_FOCUS_OBJECT', data })
-  }
-  const handleOrgChange = (event: any) => {
-    const id = JSON.parse(event.value).id
-    const name = JSON.parse(event.value).name
-    const data = { focusObject: { id: id, name: name } }
-    dispatch({ type: 'SET_FOCUS_ORG', data })
-  }
-  const handleProjChange = (event: any) => {
-    const id = JSON.parse(event.value).id
-    const name = JSON.parse(event.value).name
-    const data = { focusProj: { id: id, name: name } }
-    dispatch({ type: 'SET_FOCUS_PROJ', data })
-  }
+  //   const focusSession = { id: id, name: name }
+  //   const data = focusSession
+  //     // console.log('38 sel', data);
+  //     (data) && dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+  // }
+  // const handleModelChange = (event: any) => {
+  //   const id = JSON.parse(event.value).id
+  //   const name = JSON.parse(event.value).name
+  //   const focusModel = { id: id, name: name }
+  //   const data = focusModel
+  //   // console.log('38 sel', data);
+  //   dispatch({ type: 'SET_FOCUS_MODEL', data })
+  // }
+  // const handleModelviewChange = (event: any) => {
+  //   const id = JSON.parse(event.value).id
+  //   const name = JSON.parse(event.value).name
+  //   const focusModelview = { id: id, name: name }
+  //   const data = focusModelview
+  //   // console.log('62 sel', data);
+  //   dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
+  // }
+  // const handleObjectChange = (event: any) => {
+  //   const id = JSON.parse(event.value).id
+  //   const name = JSON.parse(event.value).name
+  //   const data = { focusObject: { id: id, name: name } }
+  //   dispatch({ type: 'SET_FOCUS_OBJECT', data })
+  // }
+  // const handleOrgChange = (event: any) => {
+  //   const id = JSON.parse(event.value).id
+  //   const name = JSON.parse(event.value).name
+  //   const data = { focusObject: { id: id, name: name } }
+  //   dispatch({ type: 'SET_FOCUS_ORG', data })
+  // }
+  // const handleProjChange = (event: any) => {
+  //   const id = JSON.parse(event.value).id
+  //   const name = JSON.parse(event.value).name
+  //   const data = { focusProj: { id: id, name: name } }
+  //   dispatch({ type: 'SET_FOCUS_PROJ', data })
+  // }
   let usession, testsession
 
   useEffect(() => {
@@ -156,7 +156,7 @@ const SelectContext = (props: any) => {
 
   }
 
-  const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
+  // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
   const buttonSaveLocalStoreDiv = <button className="float-left bg-light" onClick={handleSaveLocalStore} > Save to localStore </button >
   const buttonLoadLocalStoreDiv = <button className="float-left bg-light" onClick={handleLoadLocalStore} > Load from localStore </button >
 
@@ -185,14 +185,14 @@ const SelectContext = (props: any) => {
       <button className="btn-context btn-link float-right mb-0 pr-2" size="sm" color="link" onClick={toggle}>{buttonLabel}
       </button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
+        <ModalHeader toggle={toggle}>Model Source: </ModalHeader>
         <ModalBody className="pt-0">
           <div className="edit bg-light pt-2 ">
             <div className="localstore pb-4 mb-2">
               <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
               <h6>Local Store </h6>
               <div className="select" style={{ paddingTop: "4px" }}>
-                {buttonDiv}{buttonSaveLocalStoreDiv}{buttonLoadLocalStoreDiv}
+                {buttonSaveLocalStoreDiv} | {buttonLoadLocalStoreDiv}
                 {/* <select className="list-obj bg-link float-right" defaultValue="Select Session ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
                     onChange={(event) => handleSessionChange({ value: event.target.value })} name="Session">
                     {optionSession}
@@ -239,8 +239,8 @@ const SelectContext = (props: any) => {
 
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={toggle}>Set</Button>{' '}
-          <Button color="secondary" onClick={toggle}>Cancel</Button>
+          {/* <Button color="primary" onClick={toggle}>Set</Button>{' '}
+          <Button color="secondary" onClick={toggle}>Cancel</Button> */}
         </ModalFooter>
       </Modal>
 
@@ -328,5 +328,5 @@ const SelectContext = (props: any) => {
   )
 }
 
-export default SelectContext
-{
+export default SelectSource
+

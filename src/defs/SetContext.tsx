@@ -1,4 +1,5 @@
 import SelectContext from '../components/SelectContext'
+import SelectSource from '../components/SelectSource'
 
 const SetContext = (props: any) =>  {
 
@@ -15,6 +16,7 @@ const SetContext = (props: any) =>  {
       Role:<strong>{phF?.focusRole?.name}</strong> |
       Task:<strong>{phF?.focusTask?.name}</strong> |
       <SelectContext buttonLabel='Set Context' className='ContextModal' phFocus={phF}  /> 
+      <SelectSource buttonLabel='Save / Load' className='ContextModal' phFocus={phF}  /> 
     </div>
     </>
     )

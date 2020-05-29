@@ -19,6 +19,7 @@ import {
   SET_FOCUS_COLLECTION, 
   SET_FOCUS_TASK, 
   SET_FOCUS_SOURCE, 
+  UPDATE_OBJECTVIEW_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
 } from './types';
@@ -35,7 +36,7 @@ export const loadData = () => {
 }
 
 export const loadDataSuccess = (data) => {
-  console.log('37 --loadDataSuccess ', data);
+  // console.log('37 --loadDataSuccess ', data);
   return {
     type: LOAD_DATA_SUCCESS,
     data
@@ -43,14 +44,14 @@ export const loadDataSuccess = (data) => {
 }
 
 export const setFocusPhsource = (data) => {
-  console.log('21---actions |', data);
+  // console.log('46---actions |setFocusPhsource ', data);
   return {
     type: SET_FOCUS_PHSOURCE,
     data: JSON.parse(data.value)
   }
 }
 export const setFocusPhdata = (data) => {
-  console.log('21---actions |', data);
+  // console.log('21---actions | setFocusPhdata ', data);
   return {
     type: SET_FOCUS_PHDATA,
     data: JSON.parse(data.value)
@@ -58,7 +59,7 @@ export const setFocusPhdata = (data) => {
 }
 
 export const setFocusPhfocus = (data) => {
-  console.log('21---actions |', data);
+  // console.log('21---actions | setFocusPhfocus ', data);
   return {
     type: SET_FOCUS_PHFOCUS,
     data: JSON.parse(data.value)
@@ -165,6 +166,13 @@ export const edit_object_properties = (data) => {
   // console.log('76 action-object-edit-data', data.payload);
   return {
     type: EDIT_OBJECT_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_objectview_properties = (data) => {
+  console.log('76 actions update_objectview_properties', data.payload);
+  return {
+    type: UPDATE_OBJECTVIEW_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

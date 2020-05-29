@@ -19,10 +19,10 @@ const page = (props:any) => {
 
   if (!props.phData) {
     const locState = loadState()
-    console.log('27 modelling', locState);
+    // console.log('27 modelling', locState);
     if (locState?.state) {
       const phData = locState.phData
-      console.log('25 modelling', phData);
+      // console.log('25 modelling', phData);
       const phFocus = locState.phFocus
       const phUser = locState.phUser
       const phSource = locState.sourceFlag
@@ -45,7 +45,7 @@ const page = (props:any) => {
 
   const [visible,setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
-  const [visibleTasks,setVisibleTasks] = useState(true)
+  const [visibleTasks, setVisibleTasks] = useState(true)
   function toggleTasks() {
     setVisibleTasks(!visibleTasks);
   }

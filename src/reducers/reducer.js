@@ -25,7 +25,7 @@ import {
 } from '../actions/types';
 
 export const InitialState = {
-  phSource: '',
+  phSource: 'no source loaded',
   phData: null,
   phMymetis: null,
   phMyGoModel: null,
@@ -164,7 +164,7 @@ function reducer(state = InitialState, action) {
       return {
         ...state,
         phData: action.data,   
-        phSource: 'server'
+        phSource: 'Model server'
       }
     case SET_FOCUS_PHDATA:
       // console.log('169 SET_FOCUS_PHDATA', action);
@@ -188,14 +188,14 @@ function reducer(state = InitialState, action) {
         phFocus: action.data
       }
     case SET_FOCUS_USER:
-      // console.log('190 SET_FOCUS_USER', action.data);
+      console.log('190 SET_FOCUS_USER', action.data);
       // Object.assign(state, action);    
       return {
         ...state,
         phUser: {
           ...state.phUser,
+          focusUser: action.data
         },
-        focusUser: action.data
       } 
     case SET_FOCUS_MODEL:
       // console.log('121 red', state, action.data); 

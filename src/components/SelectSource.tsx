@@ -1,9 +1,10 @@
-// @ts-nocheck
+// @ts- snocheck
 import { useEffect, useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
+import { loadData } from '../actions/actions'
 import { loadState, saveState } from './utils/LocalStorage'
-import { FaJoint } from 'react-icons/fa';
+// import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
   // console.log('8 8', props.modal);
@@ -21,59 +22,7 @@ const SelectSource = (props: any) => {
 
   let optionModel
 
-  // const handlePhDataChange = (event: any) => {
-  //   // const id = JSON.parse(event.value).id
-  //   // const name = JSON.parse(event.value).name
-  //   // console.log('25 selcon', id, name);
-  //   const phData = JSON.parse(event.value)
-  //   const data = phData
-  //     // console.log('38 sel', data);
-  //     (data) && dispatch({ type: 'SET_FOCUS_PHDATA', data })
-  // }
-  // const handleSessionChange = (event: any) => {
-  //   const id = JSON.parse(event.value).id
-  //   const name = JSON.parse(event.value).name
-  //   // console.log('25 selcon', id, name);
 
-  //   const focusSession = { id: id, name: name }
-  //   const data = focusSession
-  //     // console.log('38 sel', data);
-  //     (data) && dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
-  // }
-  // const handleModelChange = (event: any) => {
-  //   const id = JSON.parse(event.value).id
-  //   const name = JSON.parse(event.value).name
-  //   const focusModel = { id: id, name: name }
-  //   const data = focusModel
-  //   // console.log('38 sel', data);
-  //   dispatch({ type: 'SET_FOCUS_MODEL', data })
-  // }
-  // const handleModelviewChange = (event: any) => {
-  //   const id = JSON.parse(event.value).id
-  //   const name = JSON.parse(event.value).name
-  //   const focusModelview = { id: id, name: name }
-  //   const data = focusModelview
-  //   // console.log('62 sel', data);
-  //   dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
-  // }
-  // const handleObjectChange = (event: any) => {
-  //   const id = JSON.parse(event.value).id
-  //   const name = JSON.parse(event.value).name
-  //   const data = { focusObject: { id: id, name: name } }
-  //   dispatch({ type: 'SET_FOCUS_OBJECT', data })
-  // }
-  // const handleOrgChange = (event: any) => {
-  //   const id = JSON.parse(event.value).id
-  //   const name = JSON.parse(event.value).name
-  //   const data = { focusObject: { id: id, name: name } }
-  //   dispatch({ type: 'SET_FOCUS_ORG', data })
-  // }
-  // const handleProjChange = (event: any) => {
-  //   const id = JSON.parse(event.value).id
-  //   const name = JSON.parse(event.value).name
-  //   const data = { focusProj: { id: id, name: name } }
-  //   dispatch({ type: 'SET_FOCUS_PROJ', data })
-  // }
   let usession, testsession
 
   useEffect(() => {
@@ -111,17 +60,10 @@ const SelectSource = (props: any) => {
   // console.log('91', testsession, usession);
 
   // console.log('79', session);
-  function handleSetSession() {
-    const data = phFocus.phFocus
-    // console.log('87', data);
-    dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
-    dispatch({ type: 'SET_FOCUS_PHSOURCE', sourceFlag })
-
-  }
   // console.log('114', loadState());
 
   function handleSaveLocalStore() {
-    // console.log('119 SelectContext', state);
+    console.log('72 SelectSource', state);
 
     const data = {
       phData: state.phData,
@@ -130,18 +72,18 @@ const SelectSource = (props: any) => {
       phSource: 'localStore'
     }
     // console.log('131', data);
-
     saveState(data)
   }
 
   function handleLoadLocalStore() {
+    console.log('86 SelectSource', loadState());   
     const locState = loadState()
-    const phData = locState.phData
-    const phFocus = locState.phFocus
-    const phUser = locState.phUser
+    const phData = locState?.phData
+    const phFocus = locState?.phFocus
+    const phUser = locState?.phUser
     const phSource = 'localStore' //locState.sourceFlag
-    // console.log('142', phData);   
-    if (locState.phData) {
+    if (locState) {
+      console.log('91 SelectSource', locState);   
       let data = phData
       dispatch({ type: 'SET_FOCUS_PHDATA', data })
       data = phFocus
@@ -151,99 +93,77 @@ const SelectSource = (props: any) => {
       data = phSource
       dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
     }
-    // console.log('130', props.phFocus);
-    // optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m: any) => <option key={m.id} value={JSON.stringify(m)} > {m.name} </option>)]
+  }
+
+  function handleSaveModelStore() {
+    console.log('72 SelectSource', state);
+    alert('Save ModelStore not implemented yet');
 
   }
 
+  function handleLoadModelStore() {
+    console.log('111 SelectSource');   
+      dispatch(loadData())
+    
+  }
+
+  function handleSaveToFile() {
+    console.log('72 SelectSource', state);
+    alert('Save ModelStore not implemented yet');
+
+  }
+
+  function handleLoadFromFile() {
+    console.log('111 SelectSource');   
+      dispatch(loadData())
+    
+  }
+
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveLocalStoreDiv = <button className="float-left bg-light" onClick={handleSaveLocalStore} > Save to localStore </button >
-  const buttonLoadLocalStoreDiv = <button className="float-left bg-light" onClick={handleLoadLocalStore} > Load from localStore </button >
-
-  // optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m: any) => <option key={m.id} value={JSON.stringify(m)} > {m.name} </option>)]
-  // const model = models?.find((m: any) => m?.id === focusModel?.id)
-  // console.log('79', modelviews);
-
-  // const modelviews = (model) && model.modelviews.map((o: any) => o)
-  // const optionModelviews = modelviews && [<option key={991012} value='Select Modelview ...'  > Select Modelview ...</option>, ...modelviews.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > {m.name} </option>)]
-
-  // const objects = (model) && model.objects.map((o: any) => o)
-  // const optionObject = (objects) && [<option key={991013} value='Select Object ...' disabled > Select Objects ...</option>, ...objects.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > {m.name} </option>)]
-
-  // const orgs = (model) && model.objects.map((o: any) => o)
-  // const optionOrg = (objects) && [<option key={991014} value='Select Organization ...' disabled > Select Organization ...</option>, ...orgs.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > {m.name} </option>)]
-
-  // const projs = (model) && model.objects.map((o: any) => o)
-  // const optionProj = (objects) && [<option key={991015} value='Select Project ...' disabled > Select Project ...</option>, ...projs.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > {m.name} </option>)]
-
+  const buttonSaveLocalStoreDiv = <button className="bg-light ml-1" onClick={handleSaveLocalStore} > Save </button >
+  const buttonLoadLocalStoreDiv = <button className="bg-light mr-1 float-right " onClick={handleLoadLocalStore} > Load </button >
+  
+  const buttonSaveModelStoreDiv = <button className="bg-light ml-1" onClick={handleSaveModelStore} > Save (not working yet)</button >
+  const buttonLoadModelStoreDiv = <button className="bg-light mr-1 float-right" onClick={handleLoadModelStore} > Load </button >
+  
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+  
+// console.log('131', state);
+
 
   return (
     <>
-      <button className="btn-context btn-link float-right mb-0 pr-2" size="sm" color="link" onClick={toggle}>{buttonLabel}
-      </button>
+      <button className="btn-context btn-link float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={toggle}>Model Source: </ModalHeader>
         <ModalBody className="pt-0">
-          <div className="edit bg-light pt-2 ">
-            <div className="localstore pb-4 mb-2">
-              <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
+          <div>Current Source:  {state.phSource}</div>
+          <div className="source bg-light pt-2 ">
+            <div className="localstore pb-1 mb-0">
+              <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
               <h6>Local Store </h6>
               <div className="select" style={{ paddingTop: "4px" }}>
-                {buttonSaveLocalStoreDiv} | {buttonLoadLocalStoreDiv}
-                {/* <select className="list-obj bg-link float-right" defaultValue="Select Session ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-                    onChange={(event) => handleSessionChange({ value: event.target.value })} name="Session">
-                    {optionSession}
-                  </select> */}
+                {buttonSaveLocalStoreDiv} {buttonLoadLocalStoreDiv}
               </div>
             </div>
-            <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
+            <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <h6>Model repository (Firebase) </h6>
-            {/* <div className="select" style={{ paddingTop: "4px" }}>Model:
-                <select className="list-obj bg-link float-right" defaultValue="Select Model ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-                onChange={(event) => handleModelChange({ value: event.target.value })} name="Focus Model">
-                {optionModel}
-              </select>
-            </div>
-            <div className="select" style={{ paddingTop: "4px" }}>Modelview:
-              <select className="list-obj bg-link float-right" defaultValue="Select Modelview ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-                onChange={(event) => handleModelviewChange({ value: event.target.value })} name="Focus Modelview ...">
-                {optionModelviews}
-              </select>
-            </div>
-
-            <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
-
-            <div className="select" style={{ paddingTop: "4px" }}>Object:
-              <select className="list-obj float-right" defaultValue="Select Fccusobject..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-                onChange={(event) => handleObjectChange({ value: event.target.value })} name="Focus Object">
-                {optionObject}
-              </select>
-            </div>
-            <div className="select" style={{ paddingTop: "4px" }}>Organization:
-                  <select className="list-obj float-right" defaultValue="Select Organization ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-                onChange={(event) => handleOrgChange({ value: event.target.value })} name="Focus Organization">
-                {optionOrg}
-              </select>
-            </div>
-            <div className="select" style={{ paddingTop: "4px" }}>Project:
-                  <select className="list-obj float-right" defaultValue="Select Project ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-                onChange={(event) => handleProjChange({ value: event.target.value })} name="Focus Project ">
-                {optionProj}
-              </select>
-            </div> */}
+            {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
           </div>
-
-
         </ModalBody>
         <ModalFooter>
-          {/* <Button color="primary" onClick={toggle}>Set</Button>{' '}
-          <Button color="secondary" onClick={toggle}>Cancel</Button> */}
+          <div>
+            <p>Clicking "Load" will load the models into the "memory" (Redux Store) and overwrite current memory store</p>
+            (To save latest changes please "Save" to Local Store before "Load" from Model Store)
+            <p></p>
+            <p></p>
+          </div>
+            {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
+          <Button className="modal-footer m-0 py-1 px-2" color="secondary" onClick={toggle}>Exit</Button>
         </ModalFooter>
       </Modal>
-
 
       <style jsx>{`
             .list-obj {

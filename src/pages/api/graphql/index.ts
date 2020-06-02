@@ -5,14 +5,11 @@ import Cors from "micro-cors";
 import typeDefs from '../../../../public/gql/typeDefs'
 import * as models  from '../../../components/gql/models';
 
-
 const resolvers = {
   Query: {
     allUsers: (parent: any, args: any, { models }: any) => {
       const objs = models.type("User")
       return objs 
-
-  
       // return (
       //   [{
       //     id: '1',
@@ -24,7 +21,6 @@ const resolvers = {
       // name: (user, args, _context) => 'snorre'
 }
 };
-
 
 const cors = Cors({
   allowMethods: ["GET", "POST", "OPTIONS"]

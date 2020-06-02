@@ -1,9 +1,5 @@
 export default { 
   Query: { 
-   alladdresses: (parent:any, args:any, { models }:any) => { 
-       const objs = models.type("address") 
-       return objs 
-   }, 
    allRoles: (parent:any, args:any, { models }:any) => { 
        const objs = models.type("Role") 
        return objs 
@@ -12,20 +8,52 @@ export default {
        const objs = models.type("Task") 
        return objs 
    }, 
-   allUsers: (parent:any, args:any, { models }:any) => { 
-       const objs = models.type("User") 
+   allPersons: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Person") 
        return objs 
    }, 
-   allTrajectories: (parent:any, args:any, { models }:any) => { 
-       const objs = models.type("Trajectory") 
+   allValues: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Value") 
+       return objs 
+   }, 
+   allRules: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Rule") 
+       return objs 
+   }, 
+   allInformations: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Information") 
        return objs 
    }, 
    allProperties: (parent:any, args:any, { models }:any) => { 
        const objs = models.type("Property") 
        return objs 
    }, 
-   allWells: (parent:any, args:any, { models }:any) => { 
-       const objs = models.type("Well") 
+   allEvents: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Event") 
+       return objs 
+   }, 
+   allEKA_Objects: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("EKA_Object") 
+       return objs 
+   }, 
+   allDatatypes: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Datatype") 
+       return objs 
+   }, 
+   allDecisions: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Decision") 
+       return objs 
+   }, 
+   allEKA_Spaces: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("EKA_Space") 
+       return objs 
+   }, 
+   allEKA_Elements: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("EKA_Element") 
+       return objs 
+   }, 
+   allUnittypes: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Unittype") 
        return objs 
    }, 
   }, 

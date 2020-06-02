@@ -58,7 +58,7 @@ const page = (props: any) => {
   }
   const schemalink = <a href="/gql/schemas/typeDefs.ts" download>typeDefs.ts</a>
   const resolverlink = <a href="/gql/schemas/resolvers.ts" download>resolvers.ts</a>
-  const buttonDiv = <button className="btn btn-info" onClick={handleGenGqlSchema} > Generate GraphQl Schema and Resolver</button>
+  const buttonDiv = (state) && <button className="btn btn-info" onClick={handleGenGqlSchema} > Generate GraphQl Schema and Resolver</button>
 
   return (
     <div>

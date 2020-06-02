@@ -33,9 +33,9 @@ export default async function getSchemaById(
           //   hour: '2-digit',
           //   minute: '2-digit',
           // })
-          console.log('35', nowtime);
+          console.log('35', defs);
 
-          // fs.writeFileSync(`public/gql/schemas/current-typeDefs.js`, result)
+          fs.writeFileSync(`public/gql/schemas/current-typeDefs.js`, defs)
           fs.writeFileSync(`./public/gql/schemas/typeDefs-${nowtime}-${mmName}-v${version}.js`, defs)
       }
     }

@@ -27,8 +27,12 @@ const Modeller = (props) => {
 
   return (
     <>
-      <span id="lighten" className="btn-link btn-sm " style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
-      <span style={{ paddingLeft: "2px" }} > Model</span>
+      <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
+      <span style={{ paddingLeft: "2px" }} > Model 
+        <strong style={{ paddingLeft: "2px", color: "#a00", fontSize: "90%" }} > {props.phFocus.focusModel.name} </strong> 
+        <span style={{ paddingLeft: "2px", fontSize: "90%" }} >Modelview:</span> 
+        <strong style={{ paddingLeft: "2px", color: "#a00", fontSize: "90%" }}>  {props.phFocus.focusModelview.name} </strong>
+      </span> 
       {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
       <style jsx>{`
         .diagram-component {

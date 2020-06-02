@@ -64,10 +64,10 @@ const page = (props:any) => {
         </NavItem>
       </Nav>
       {/* Metamodelling */}
-      <TabContent  activeTab={activeTab}>  
+      <TabContent  activeTab={activeTab} >  
         <TabPane  tabId="1">
-          <div className="workpad p-1 bg-light">
-            <Row >
+          <div className="workpad p-1 pt-2 bg-white" >
+            <Row style={{ paddingTop: "4px", paddingBottom: "0px" }}>
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
                 <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
@@ -102,7 +102,7 @@ const page = (props:any) => {
         </TabPane>
         {/* Modelling */}
         <TabPane tabId="2">
-          <div className="workpad p-1 bg-light">
+          <div className="workpad p-1 pt-2 bg-white">
             <Row >
             <Col xs="auto ml-3 mr-0 pr-0 pl-0">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
@@ -123,7 +123,7 @@ const page = (props:any) => {
               </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px"}}>
-                <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", border: "solid 1px black" }}>
+              <div className="myModeller m-0 pl-1 pr-1" style={{ backgroundColor: "#eee", width: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmodel}
@@ -148,6 +148,7 @@ const page = (props:any) => {
 
       <div className="diagramtabs" >
         <div className="modellingContent" style={{ minWidth: "200px" }} >
+        <div className="sourceName float-right" style={{ fontSize: "80%", fontWeight: "bolder", marginTop: "4px", marginRight: "4px" }}>Current source:  {state.phSource}</div>
           {modellingtabs}
         </div>
       <style jsx>{`

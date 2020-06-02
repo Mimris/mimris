@@ -119,45 +119,45 @@ const SelectContext = (props: any) => {
     }
     // console.log('114', loadState());
     
-    function handleSaveLocalStore() {
-      // console.log('119 SelectContext', state);
+    // function handleSaveLocalStore() {
+    //   // console.log('119 SelectContext', state);
       
-      const data = {
-        phData: state.phData,
-        phFocus: state.phFocus,
-        phUser: state.phUser,
-        phSource: 'localStore'
-      }
-      // console.log('131', data);
+    //   const data = {
+    //     phData: state.phData,
+    //     phFocus: state.phFocus,
+    //     phUser: state.phUser,
+    //     phSource: 'localStore'
+    //   }
+    //   // console.log('131', data);
       
-      saveState(data)
-    }
+    //   saveState(data)
+    // }
 
-    function handleLoadLocalStore() {
-      const locState = loadState()
-      const phData = locState.phData
-      const phFocus = locState.phFocus
-      const phUser = locState.phUser
-      const phSource = 'localStore' //locState.sourceFlag
-      // console.log('142', phData);   
-      if (locState.phData) {
-        let data = phData
-        dispatch({ type: 'SET_FOCUS_PHDATA', data })
-        data = phFocus
-        dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
-        data = phUser
-        dispatch({ type: 'SET_FOCUS_PHUSER', data })
-        data = phSource
-        dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
-      } 
-      // console.log('130', props.phFocus);
-      // optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m: any) => <option key={m.id} value={JSON.stringify(m)} > {m.name} </option>)]
+    // function handleLoadLocalStore() {
+    //   const locState = loadState()
+    //   const phData = locState.phData
+    //   const phFocus = locState.phFocus
+    //   const phUser = locState.phUser
+    //   const phSource = 'localStore' //locState.sourceFlag
+    //   // console.log('142', phData);   
+    //   if (locState.phData) {
+    //     let data = phData
+    //     dispatch({ type: 'SET_FOCUS_PHDATA', data })
+    //     data = phFocus
+    //     dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+    //     data = phUser
+    //     dispatch({ type: 'SET_FOCUS_PHUSER', data })
+    //     data = phSource
+    //     dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
+    //   } 
+    //   // console.log('130', props.phFocus);
+    //   // optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m: any) => <option key={m.id} value={JSON.stringify(m)} > {m.name} </option>)]
       
-    }
+    // }
 
-  const buttonDiv =  <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveLocalStoreDiv =  <button className="float-left bg-light" onClick={handleSaveLocalStore} > Save to localStore </button >
-  const buttonLoadLocalStoreDiv =  <button className="float-left bg-light" onClick={handleLoadLocalStore} > Load from localStore </button >
+  // const buttonDiv =  <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
+  // const buttonSaveLocalStoreDiv =  <button className="float-left bg-light" onClick={handleSaveLocalStore} > Save to localStore </button >
+  // const buttonLoadLocalStoreDiv =  <button className="float-left bg-light" onClick={handleLoadLocalStore} > Load from localStore </button >
 
   optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m:any) => <option key={ m.id } value = { JSON.stringify(m) } > { m.name } </option> )]
   const model = models?.find((m: any) => m?.id === focusModel?.id)
@@ -187,18 +187,8 @@ const SelectContext = (props: any) => {
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody className="pt-0">
           <div className="edit bg-light pt-2 ">
-            <div className="localstore pb-4 mb-2">
-              <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
-              <h6>Local Store </h6>
-              <div className="select" style={{ paddingTop: "4px" }}>
-                {buttonDiv}{buttonSaveLocalStoreDiv}{buttonLoadLocalStoreDiv}
-                  {/* <select className="list-obj bg-link float-right" defaultValue="Select Session ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-                    onChange={(event) => handleSessionChange({ value: event.target.value })} name="Session">
-                    {optionSession}
-                  </select> */}
-              </div>
-            </div>
-            <hr style={{ borderTop: "1px solid #8c8b8" , backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
+    
+            {/* <hr style={{ borderTop: "1px solid #8c8b8" , backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
             <h6>Model repository (Firebase) </h6>
              <div className="select" style={{ paddingTop: "4px" }}>Model: 
                 <select className="list-obj bg-link float-right" defaultValue="Select Model ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
@@ -239,7 +229,7 @@ const SelectContext = (props: any) => {
         </ModalBody>
         <ModalFooter>
           <Button color="primary" onClick={toggle}>Set</Button>{' '}
-          <Button color="secondary" onClick={toggle}>Cancel</Button>
+          <Button color="secondary" onClick={toggle}>Exit</Button>
         </ModalFooter>
       </Modal>
     
@@ -328,7 +318,7 @@ const SelectContext = (props: any) => {
 }
     
 export default SelectContext
-{/*  */}
+
 
 
 

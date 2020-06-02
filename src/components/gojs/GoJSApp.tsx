@@ -15,6 +15,7 @@ import glb from '../../akmm/akm_globals';
 import * as utils from '../../akmm/utilities';
 import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
+import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
 
 /**
@@ -43,7 +44,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   constructor(props: object) {
     super(props);
-    console.log('46 GoJSApp',props.nodeDataArray);
+    // console.log('34',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props.nodeDataArray,
       linkDataArray: this.props.linkDataArray,
@@ -123,6 +124,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodeDataArray: myGoModel.nodes,
       linkDataArray: myGoModel.links
     }
+    const modifiedNodes = new Array();
     //const myGoModel = this.state.myGoModel;
     // const myGojsModel = new gjs.goModel(utils.createGuid(), myModelview?.name, myModelview);
     // myGojsModel.nodes = this.state.phFocus.gojsModel.nodeDataArray;
@@ -152,6 +154,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                   myNode.name = text;
                   uic.updateObject(myNode, field, text, context);
                   console.log('153 GoJSApp event, myNode:', myNode);
+
+                  const modNode = new gql.gqlObjectView(myNode.objectview);
+                  modifiedNodes.push(modNode);
                 }
               }
             }
@@ -171,7 +176,10 @@ class GoJSApp extends React.Component<{}, AppState> {
               const objview = node.objectview;
               objview.loc = sel.loc;
               objview.size = sel.size;
+              const modNode = new gql.gqlObjectView(objview);
+              modifiedNodes.push(modNode);
             }
+            console.log('176 GoJsApp modified nodes', modifiedNodes);
           }
         }
       }
@@ -263,10 +271,22 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
         break;
       case 'ClipboardPasted': {
-        const nodes = e.subject;
-        console.log('192 ExternalObjectsDropped', nodes.first());
-        const part = nodes.first().data;
-        uic.createObject(part, context);
+        const selected = e.subject;
+        uic.onClipboardPasted(selected);
+
+        // for (let it = selected.iterator; it.next(); ) {
+        //   let csel = it.value.data;
+        //   if (csel.class === "goObjectNode") {
+        //       uic.createObject(csel, context);
+        //   }
+        // }
+        // for (let it = selected.iterator; it.next(); ) {
+        //   let csel = it.value.data;
+        //   if (csel.class === "goRelshipLink") {
+        //       uic.createLink(csel, context);
+        //   }
+        //   console.log(csel);
+        // }
       }
         break;
       case 'LinkDrawn': {
@@ -285,26 +305,34 @@ class GoJSApp extends React.Component<{}, AppState> {
         console.log('146 GoJSApp event name: ', name);
         break;
     }
+    this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+    console.log('305 modifiedNodes', modifiedNodes);
+    modifiedNodes.map(mn => {
+        let data = mn
+        this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      }
+    )
+
+
 
 
     //###########################################################
-    const data = { 
-      id: "3164396b-b9ad-4dfe-b87a-5f9cb9e08fdf",
-      name: "number11111",
-      description: "This is the number",
-      objectRef: "c78b9435-3f16-4d8f-2c9a-f1aedb7d369f",
-      typeviewRef: "43628d9d-e276-4ccb-379a-f495c7976544",
-      group: "",
-      isGroup: false,
-      loc: "10 550",
-      size: ""
-    }
+    // const data = 
+    // {
+    //   id: "3164396b-b9ad-4dfe-b87a-5f9cb9e08fdf",
+    //   name: "number11111",
+    //   description: "This is the number",
+    //   objectRef: "c78b9435-3f16-4d8f-2c9a-f1aedb7d369f",
+    //   typeviewRef: "43628d9d-e276-4ccb-379a-f495c7976544",
+    //   group: "",
+    //   isGroup: false,
+    //   loc: "10 550",
+    //   size: ""
+    // }
 
-    this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
 
-    this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
 
-    console.log('208 gojsModel', gojsModel);
+
   }
 
 

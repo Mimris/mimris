@@ -1,17 +1,21 @@
 import { useRef, useState, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { loadData } from '../actions/actions'
+// import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+// import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Link from 'next/link';
 import fetch from 'isomorphic-unfetch'
 
 const page = (props: any) => {
-  // export default function Login() {
-  console.log('10 Login',
-    props.phUser?.focusUser
-  );
+
+  // console.log('10 Login', props.phUser?.focusUser);
+
   const dispatch = useDispatch()
+
+  const { buttonLabel, className } = props;
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
 
   // if (!props.phData) {
   //     dispatch(loadData())
@@ -69,10 +73,10 @@ const page = (props: any) => {
         }
       }
     ) 
-    console.log('77', phuser);
+    // console.log('77', phuser);
     
     const data = phuser?.focusUser;
-    console.log('80', data);
+    // console.log('80', data);
     (data) && dispatch({ type: 'SET_FOCUS_USER', data  })
   }, [(session && message)]);
 
@@ -102,19 +106,34 @@ const page = (props: any) => {
           <a>Settings</a>
         </Link>)
       </div>
-  console.log('110', props.phUser?.focusUser);
-  
-  
+
+  // console.log('110', props.phUser);
+
   return ((!message) 
     ? <><Layout user={props.phUser?.focusUser} > {loginDiv}</Layout></>
-    : <><Layout user={props.phUser?.focusUser} > {signupDiv}</Layout></> );
+    : <><Layout user={props.phUser?.focusUser} > {signupDiv}</Layout></> ); 
 }
 
 export default Page(connect(state => state)(page));
 
 
-
-
+// const formsDiv = (!message) ? { loginDiv } : { signupDiv }
+// return (
+//   <>
+//     {/* <button className = "btn-context btn-link float-right mb-0 pr-2" size = "sm" color = "link" onClick = { toggle } > { buttonLabel }
+//       </button > */}
+//     <Modal isOpen={modal} toggle={toggle} className={className} >
+//       <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
+//       <ModalBody className="pt-0">
+//         {formsDiv}
+//       </ModalBody>
+//       <ModalFooter>
+//         <Button color="primary" onClick={toggle}>Set</Button>{' '}
+//         <Button color="secondary" onClick={toggle}>Exit</Button>
+//       </ModalFooter>
+//     </Modal>
+//   </>
+// ) 
 
 
   // function handleSetSession() {

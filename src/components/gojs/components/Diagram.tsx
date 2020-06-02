@@ -147,27 +147,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }
         );
     }
-    // console.log('94 myDiagram', this);
+    console.log('94 myDiagram', this);
 
     //myDiagram.layout = $(go.CircularLayout); 
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
-    myDiagram.groupTemplate =
-      $(go.Group, "Vertical",
-        $(go.Panel, "Auto",
-          $(go.Shape, "RoundedRectangle",  // surrounds the Placeholder
-            {
-              parameter1: 14,
-              fill: "rgba(128,128,128,0.33)"
-            }),
-          $(go.Placeholder,    // represents the area of all member parts,
-            { padding: 5 })  // with some extra padding around them
-        ),
-        $(go.TextBlock,         // group title
-          { alignment: go.Spot.Right, font: "Bold 12pt Sans-Serif" },
-          new go.Binding("text", "name"))
-      );
-    // }
+    if (false) {
+      //     myDiagram.groupTemplate =
+      //     $(go.Group, "Vertical",
+      //       $(go.Panel, "Auto",
+      //         $(go.Shape, "RoundedRectangle",  // surrounds the Placeholder
+      //           { parameter1: 14,
+      //             fill: "rgba(128,128,128,0.33)" }),
+      //         $(go.Placeholder,    // represents the area of all member parts,
+      //           { padding: 5})  // with some extra padding around them
+      //       ),
+      //       $(go.TextBlock,         // group title
+      //         { alignment: go.Spot.Right, font: "Bold 12pt Sans-Serif" },
+      //         new go.Binding("text", "name"))
+      //     );
+    }
     // A Context Menu is an Adornment with a bunch of buttons in them
     // Parts context menu
     if (true) {
@@ -346,99 +345,86 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
         );
     }
-    // Define the group template
-    // let groupTemplate;
-    if (false) {
-      //   groupTemplate =
-      //   $(go.Group, "Auto",
-      //   new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-      //   new go.Binding("visible"),
-      //   //  { contextMenu: partContextMenu },
-      //     {
-      //       selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
-      //       locationObjectName:  "SHAPE",
-      //       resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-      //     },
-      //     {
-      //       background: "transparent",
-      //       ungroupable: true,
-      //       // highlight when dragging into the Group
-      //       //mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
-      //       //mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
-      //       computesBoundsAfterDrag: true,
-      //       // when the selection is dropped into a Group, add the selected Parts into that Group;
-      //       // if it fails, cancel the tool, rolling back any changes
-      //       //mouseDrop: finishDrop,
-      //       handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
-      //       // Groups containing Nodes lay out their members vertically
-      //       //layout: $(go.TreeLayout)
-      //     },
-      //       //new go.Binding("layout", "groupLayout"),
-      //       new go.Binding("background", "isHighlighted", 
-      //                 function(h) { 
-      //                     return h ? "rgba(255,0,0,0.2)" : "transparent"; 
-      //                 }).ofObject(),
-      //   $(go.Shape, "RoundedRectangle", // surrounds everything
-      //       { fill: "white", 
-      //         minSize: new go.Size(100, 50)
-      //       },
-      //       /*
-      //       { parameter1: 10, 
-      //         fill: "rgba(128,128,128,0.33)",
-      //       },
-      //       */
-      //       {
-      //       portId: "", cursor: "pointer",
-      //       fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-      //       toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-      //       }),
-      //     $(go.Panel, "Vertical",  // position header above the subgraph
-      //       { 
-      //         name: "HEADER", 
-      //         defaultAlignment: go.Spot.TopLeft 
-      //       },
-      //       $(go.Panel, "Horizontal",  // the header
-      //         { defaultAlignment: go.Spot.Top },
-      //         $("SubGraphExpanderButton"),  // this Panel acts as a Button
-      //         $(go.TextBlock,     // group title near top, next to button
-      //           { font: "Bold 12pt Sans-Serif", 
-      //             editable: true, isMultiline: false,
-      //           },
-      //           new go.Binding("fill", "fillcolor"),
-      //           new go.Binding("text", "name").makeTwoWay()
-      //         ),
-      //       ), // End Horizontal Panel
 
-      //       $(go.Shape,  // using a Shape instead of a Placeholder
-      //         { name: "SHAPE", fill: "lightyellow", 
-      //           minSize: new go.Size(100, 50)
-      //         },
-      //         new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)                                
-      //       )
-      //     )
-      //   )
-      //   // Define group template map
-      //   let groupTemplateMap = new go.Map<string, go.Group>();
-      //   groupTemplateMap.add("", groupTemplate);
+    // Define the group template with fixed size containers
+    if (true) {
+      var groupTemplate =
+        $(go.Group, "Auto",
+          new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+          new go.Binding("visible"),
+          { contextMenu: partContextMenu },
+          {
+            selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
+            locationObjectName: "SHAPE",
+            resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+          },
+          {
+            background: "transparent",
+            ungroupable: true,
+            // highlight when dragging into the Group
+            mouseDragEnter: function (e, grp, prev) { highlightGroup(e, grp, true); },
+            mouseDragLeave: function (e, grp, next) { highlightGroup(e, grp, false); },
+            computesBoundsAfterDrag: true,
+            // when the selection is dropped into a Group, add the selected Parts into that Group;
+            // if it fails, cancel the tool, rolling back any changes
+            // mouseDrop: finishDrop,
+            handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+            // Groups containing Nodes lay out their members vertically
+            //layout: $(go.TreeLayout)
+          },
+          //new go.Binding("layout", "groupLayout"),
+          new go.Binding("background", "isHighlighted",
+            function (h) {
+              return h ? "rgba(255,0,0,0.2)" : "transparent";
+            }).ofObject(),
+          $(go.Shape, "RoundedRectangle", // surrounds everything
+            {
+              fill: "white",
+              minSize: new go.Size(100, 50)
+            },
+            /*
+            { parameter1: 10, 
+              fill: "rgba(128,128,128,0.33)",
+            },
+            */
+            {
+              portId: "", cursor: "pointer",
+              fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+            }),
+          $(go.Panel, "Vertical",  // position header above the subgraph
+            {
+              name: "HEADER",
+              defaultAlignment: go.Spot.TopLeft
+            },
+            $(go.Panel, "Horizontal",  // the header
+              { defaultAlignment: go.Spot.Top },
+              $("SubGraphExpanderButton"),  // this Panel acts as a Button
+              $(go.TextBlock,     // group title near top, next to button
+                {
+                  font: "Bold 12pt Sans-Serif",
+                  editable: true, isMultiline: false,
+                },
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("text", "name").makeTwoWay()
+              ),
+            ), // End Horizontal Panel
 
-      // } else {
-      //     groupTemplate =
-      //     $(go.Group, "Vertical",
-      //       $(go.Panel, "Auto",
-      //         $(go.Shape, "RoundedRectangle",  // surrounds the Placeholder
-      //           { parameter1: 14,
-      //             fill: "rgba(128,128,128,0.33)" }),
-      //         $(go.Placeholder,    // represents the area of all member parts,
-      //           { padding: 5})  // with some extra padding around them
-      //       ),
-      //       $(go.TextBlock,         // group title
-      //         { alignment: go.Spot.Right, font: "Bold 12pt Sans-Serif" },
-      //         new go.Binding("text", "key"))
-      //     );
-      //     // Define group template map
-      //     let groupTemplateMap = new go.Map<string, go.Group>();
-      //     groupTemplateMap.add("", groupTemplate);
+            $(go.Shape,  // using a Shape instead of a Placeholder
+              {
+                name: "SHAPE", fill: "lightyellow",
+                minSize: new go.Size(100, 50)
+              },
+              new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)
+            )
+          )
+        )
     }
+
+    //     // Define group template map
+    let groupTemplateMap = new go.Map<string, go.Group>();
+    groupTemplateMap.add("", groupTemplate);
+
     // define template maps
     if (true) {
       // Define node template map
@@ -453,7 +439,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       // Set the diagram template maps
       myDiagram.nodeTemplateMap = nodeTemplateMap;
       myDiagram.linkTemplateMap = linkTemplateMap;
-      //myDiagram.groupTemplateMap = groupTemplateMap;
+      myDiagram.groupTemplateMap = groupTemplateMap;
     }
 
     // ---  Define the CONTEXT Menu -----------------
@@ -483,6 +469,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // Function to specify default text style
     function textStyle() {
       return { font: "9pt  Segoe UI,sans-serif", stroke: "black" };
+    }
+
+
+    // Function to highlight group
+    function highlightGroup(e: any, grp: any, show: boolean) {
+      if (!grp) return;
+      e.handled = true;
+      if (show) {
+        // cannot depend on the grp.diagram.selection in the case of external drag-and-drops;
+        // instead depend on the DraggingTool.draggedParts or .copiedParts
+        var tool = grp.diagram.toolManager.draggingTool;
+        var map = tool.draggedParts || tool.copiedParts;  // this is a Map
+        // now we can check to see if the Group will accept membership of the dragged Parts
+        if (grp.canAddMembers(map.toKeySet())) {
+          grp.isHighlighted = true;
+          return;
+        }
+      }
+      grp.isHighlighted = false;
     }
   }
 

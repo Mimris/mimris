@@ -10,7 +10,7 @@
     "build-ts": "tsc --downlevelIteration & next build",
     "dev": "tsc --downlevelIteration & node ./database-test.js & next -p 4050",
     "dev2": "react-scripts start & next -p 4050",
-    "start": "node ./database-test.js & next -p ${PORT}"
+    "start": "node ./database-test.js & next -p process.env.PORT || 4050"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.28",

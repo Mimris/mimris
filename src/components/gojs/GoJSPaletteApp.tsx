@@ -10,7 +10,7 @@ import * as React from 'react';
 import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
 
-import './GoJSApp.css';
+// import './GoJSApp.css';
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,

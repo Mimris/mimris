@@ -7,7 +7,7 @@ import * as React from 'react';
 
 import { InspectorRow } from './InspectorRow';
 
-import './Inspector.css';
+// import './Inspector.css';
 
 interface SelectionInspectorProps {
   selectedData: any;

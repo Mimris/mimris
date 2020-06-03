@@ -10,7 +10,7 @@ import * as React from 'react';
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
 
-import './GoJSApp.css';
+// import './GoJSApp.css';
 import glb from '../../akmm/akm_globals';
 import * as utils from '../../akmm/utilities';
 import * as akm from '../../akmm/metamodeller';

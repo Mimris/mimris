@@ -67,7 +67,7 @@ const Navbar = (props) => (
 					</li>
 				</ul>
 			</div>
-			<div className='buttons' aria-expanded="false">
+			{/* <div className='buttons' aria-expanded="false">
 				<button className="navbar-toggler navbar-light"
 					type="button"
 					data-toggle="collapse"
@@ -78,7 +78,7 @@ const Navbar = (props) => (
 				>
 					<span className="navbar-toggler-icon float-right"></span>
 				</button>
-			</div>
+			</div> */}
 		</div>
 	</nav>
 );

@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
@@ -202,15 +202,17 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
         let nodeObj = node.object;
         if (nodeObj) {
             let nodeObjview = node.objectview;
-            nodeObjview.setGroup("");
+            nodeObjview?.setGroup("");
             let rels = nodeObj.findInputRelships(myModel, constants.RELKINDS.COMP);
-            for (let i = 0; i < rels.length; i++) {
-                let rel = rels[i];
-                if (rel) {
-                    let fromObj = rel.getFromObject();
-                    if (fromObj.getType().getViewKind() === constants.VIEWKINDS.CONT) {
-                        rel.setModified();
-                        rel.setDeleted(true);
+            if (rels) { // sf
+                for (let i = 0; i < rels.length; i++) {
+                    let rel = rels[i];
+                    if (rel) {
+                        let fromObj = rel.getFromObject();
+                        if (fromObj.getType().getViewKind() === constants.VIEWKINDS.CONT) {
+                            rel.setModified();
+                            rel.setDeleted(true);
+                        }
                     }
                 }
             }
@@ -264,8 +266,8 @@ function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, t
     if (reltype && fromObj && toObj) {
         let fromType = reltype.getFromObjType();
         let toType = reltype.getToObjType();
-        if (fromObj.getType().inherits(fromType)) {
-            if (toObj.getType().inherits(toType)) {
+        if (fromObj.getType()?.inherits(fromType)) {
+            if (toObj.getType()?.inherits(toType)) {
                 return true;
             }
         }
@@ -335,7 +337,7 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
 
         const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
         let relview = link.relshipview;    // cxRelationshipView
-        let rel = relview.relship;    // cxRelationship                
+        let rel = relview?.relship;    // cxRelationship                
         let fromNode = myGoModel.findNode(lnk.from);
         if (fromNode) {
             link.setFromNode = lnk.from;

@@ -4,12 +4,13 @@
   "main": "dist/index.js",
   "license": "CC0-1.0",
   "scripts": {
+    "prestart": "next build",
     "heroku-postbuild": "next build",
     "build": "tsc & next build",
     "build-ts": "tsc --downlevelIteration & next build",
     "dev": "tsc --downlevelIteration & node ./database-test.js & next -p 4050",
     "dev2": "react-scripts start & next -p 4050",
-    "start": "tsc --downlevelIteration & node ./database-test.js & next -p process.env.PORT"
+    "start": "tsc --downlevelIteration & node ./database-test.js & NODE_OPTIONS=\"-r esm\" next start -p ${PORT}"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.28",

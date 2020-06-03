@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { loadData } from '../actions/actions'
+// import { loadData } from '../actions/actions'
 // import { NextPageContext } from "next";
 // import { myGet } from "../defs/myGet";
 import Page from '../components/page';

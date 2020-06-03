@@ -13,9 +13,9 @@ const page = (props: any) => {
 
   const dispatch = useDispatch()
 
-  const { buttonLabel, className } = props;
-  const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
+  // const { buttonLabel, className } = props;
+  // const [modal, setModal] = useState(false);
+  // const toggle = () => setModal(!modal);
 
   // if (!props.phData) {
   //     dispatch(loadData())

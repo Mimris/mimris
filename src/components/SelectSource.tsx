@@ -1,5 +1,5 @@
-// @ts- snocheck
-import { useEffect, useState } from 'react';
+// @ts-snocheck
+import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
@@ -9,9 +9,9 @@ import { loadState, saveState } from './utils/LocalStorage'
 const SelectSource = (props: any) => {
   // console.log('8 8', props.modal);
   let state = useSelector((state: any) => state) // Selecting the whole redux store
-  const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
-  const focusModel = useSelector(focusModel => state.phFocus?.focusModel)
-  const focusUser = useSelector(focusUser => state.phUser?.focusUser)
+  // const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
+  // const focusModel = useSelector(focusModel => state.phFocus?.focusModel)
+  // const focusUser = useSelector(focusUser => state.phUser?.focusUser)
   // const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
 
   // const [model, setModel] = useState(focusModel)
@@ -20,25 +20,25 @@ const SelectSource = (props: any) => {
   const dispatch = useDispatch()
   // const { register, handleSubmit, errors } = useForm()
 
-  let optionModel
+  // let optionModel
 
 
-  let usession, testsession
+  // let usession, testsession
 
-  useEffect(() => {
-    const fU = async () => await focusUser;
-    testsession = fU().session;
-    // console.log('69', focusUser, testsession);
-    try {
-      usession = (testsession) && JSON.parse(testsession);
-      // console.log('71', usession);
+  // useEffect(() => {
+  //   const fU = async () => await focusUser;
+  //   testsession = fU().session;
+  //   // console.log('69', focusUser, testsession);
+  //   try {
+  //     usession = (testsession) && JSON.parse(testsession);
+  //     // console.log('71', usession);
 
-    } catch (error) {
-      {
-        console.error('parserror');
-      }
-    }
-  }, [focusUser])
+  //   } catch (error) {
+  //     {
+  //       console.error('parserror');
+  //     }
+  //   }
+  // }, [focusUser])
 
   // /**
   // * Build the selection options for all context (focus) objects,
@@ -49,14 +49,14 @@ const SelectSource = (props: any) => {
 
   // const defaultSession = {focusUser: {id: 1, name: 'Snorre', email: 'sf@sf.com', session: '{\"id\": 1, \"name\": \"2nd Session\", \"focus\": \"{\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"},\"ownerId\": 1]}}}'
   // }}
-  const defaultSession = '{\"session\": {\"id\": 1, \"name\": \"2nd Session\", \"focus\": {\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"}},\"ownerId\": 1}}'
+  // const defaultSession = '{\"session\": {\"id\": 1, \"name\": \"2nd Session\", \"focus\": {\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"}},\"ownerId\": 1}}'
 
   // const focuser = (focusUser.name !== 'Not logged in') ? focusUser?.session : defaultSession
 
-  const focuser = defaultSession
-  const session0 = JSON.parse(focuser)
-  const session = session0.session.focus
-  const phFocus = { phFocus: session }
+  // const focuser = defaultSession
+  // const session0 = JSON.parse(focuser)
+  // const ses|||||||||||sion = session0.session.focus
+  // const phFocus = { phFocus: session }
   // console.log('91', testsession, usession);
 
   // console.log('79', session);

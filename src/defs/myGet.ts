@@ -19,7 +19,7 @@ export async function myGet(url: string, ctx: NextPageContext) {
 
     if(resp.status === 401 && ctx.req) {
         ctx.res?.writeHead(302, {
-            Location: 'http://localhost:4050/login'
+            Location: 'http://localhost:3000/login'
         });
         ctx.res?.end();
         return;

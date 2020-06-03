@@ -276,7 +276,7 @@ export class GuidedDraggingTool extends go.DraggingTool {
     // compares with parts within narrow vertical area
     const area = objBounds.copy();
     area.inflate(distance, marginOfError + 1);
-    const otherObjs = this.diagram.findObjectsIn(area,
+    let otherObjs = this.diagram.findObjectsIn(area,
       (obj) => obj.part as go.Part,
       (p) => p instanceof go.Part && !p.isSelected && !(p instanceof go.Link) && p.isTopLevel && p.layer !== null && !p.layer.isTemporary,
       true) as go.Set<go.Part>;
@@ -390,7 +390,7 @@ export class GuidedDraggingTool extends go.DraggingTool {
     // compares with parts within narrow vertical area
     const area = objBounds.copy();
     area.inflate(marginOfError + 1, distance);
-    const otherObjs = this.diagram?.findObjectsIn(area,
+    let otherObjs = this.diagram.findObjectsIn(area,
       (obj) => obj.part as go.Part,
       (p) => p instanceof go.Part && !p.isSelected && !(p instanceof go.Link) && p.isTopLevel && p.layer !== null && !p.layer.isTemporary,
       true) as go.Set<go.Part>;

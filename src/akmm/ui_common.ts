@@ -3,9 +3,10 @@
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
+import * as gql from './ui_graphql';
 const constants = require('./constants');
 
-import * as go from 'gojs';
+//import * as go from 'gojs';
 
 export function updateObject(data: any, name: string, value: string, context: any) {
     if ((data === null) || (name !== "name") || (!data.object)) {
@@ -38,10 +39,11 @@ export function updateObject(data: any, name: string, value: string, context: an
         diagram.model.setDataProperty(data, "name", value);
     }
 }
-export function createObject(data: any, context: any) {
+export function createObject(data: any, context: any): akm.cxObjectView | OnErrorEventHandlerNonNull {
     if (data === null) {
-        return;
+        return null;
     } else {
+        let objview: akm.cxObjectView;
         data.key = utils.createGuid();
         data.category = constants.C_OBJECT;
         data.class = "goObjectNode";
@@ -63,10 +65,11 @@ export function createObject(data: any, context: any) {
             myMetis.addObject(obj);
             console.log('59 createObject', obj, myModel);
             // Create the corresponding object view
-            let objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
+            objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
             if (objview) {
                 data.objectview = objview;
                 objview.setIsGroup(objtype.isContainer());
+                objview.setLoc(data.loc);
                 objview.setSize(data.size);
                 // Include the object view in the current model view
                 myModelview.addObjectView(objview);
@@ -84,18 +87,20 @@ export function createObject(data: any, context: any) {
                     objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
                 }
                 if (objtypeView) {
-                    objtypeView.setIsGroup(data.viewkind);
+                    objtypeView.setIsGroup1(data.isGroup);
                     objview.setTypeView(objtypeView);
                     let node = new gjs.goObjectNode(data.key, objview);
                     myGoModel.addNode(node);
                     updateNode(node, objtypeView, myDiagram);
                     node.loc = data.loc;
                     node.size = data.size;
-                    console.log('91 uic', myGoModel);
+                    console.log('95 uic', myGoModel);
+                    return objview;
                 }
             }
         }
     }
+    return null;
 }
 function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
     if (objtypeView) {
@@ -106,6 +111,25 @@ function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) 
                 diagram.model.setDataProperty(data, prop, viewdata[prop])
         }
         console.log('updateNode', data);
+    }
+}
+export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
+    goModel: gjs.goModel,
+    nodes: any[]) {
+    if (sel.class === "goObjectNode") {
+        let node = goModel?.findNode(sel.key);
+        if (node) {
+            node.loc = sel.loc;
+            node.size = sel.size;
+            const objview = node.objectview;
+            if (objview) {
+                objview.loc = sel.loc;
+                objview.size = sel.size;
+                const modNode = new gql.gqlObjectView(objview);
+                nodes.push(modNode);
+            }
+        }
+        console.log('176 GoJsApp resized nodes', nodes);
     }
 }
 
@@ -152,9 +176,34 @@ export function onClipboardPasted(selection: any) {
     }
 }
 
-
-
 // Function to connect node object to group object
+export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjectNode | null {
+    const nodes = model.nodes;
+    for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        if (node.isGroup) {
+            const nodeLoc = loc.split(" ");
+            const grpLoc = node.loc.split(" ");
+            const grpSize = node.size.split(" ");
+            const nx = parseInt(nodeLoc[0]);
+            const ny = parseInt(nodeLoc[1]);
+            const gx = parseInt(grpLoc[0]);
+            const gy = parseInt(grpLoc[1]);
+            const gw = parseInt(grpSize[0]);
+            const gh = parseInt(grpSize[1]);
+
+            if (
+                (nx > gx) && (nx < gx + gw) &&
+                (ny > gy) && (ny < gy + gh)
+            ) {
+                console.log(node);
+                return node;
+            }
+        }
+    }
+    return null;
+}
+
 export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObjectNode, context: any) {
     const myMetis = context.myMetis;
     const myModel = context.myModel;
@@ -202,17 +251,15 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
         let nodeObj = node.object;
         if (nodeObj) {
             let nodeObjview = node.objectview;
-            nodeObjview?.setGroup("");
+            nodeObjview.setGroup("");
             let rels = nodeObj.findInputRelships(myModel, constants.RELKINDS.COMP);
-            if (rels) { // sf
-                for (let i = 0; i < rels.length; i++) {
-                    let rel = rels[i];
-                    if (rel) {
-                        let fromObj = rel.getFromObject();
-                        if (fromObj.getType().getViewKind() === constants.VIEWKINDS.CONT) {
-                            rel.setModified();
-                            rel.setDeleted(true);
-                        }
+            for (let i = 0; i < rels.length; i++) {
+                let rel = rels[i];
+                if (rel) {
+                    let fromObj = rel.getFromObject();
+                    if (fromObj.getType().getViewKind() === constants.VIEWKINDS.CONT) {
+                        rel.setModified();
+                        rel.setDeleted(true);
                     }
                 }
             }
@@ -220,8 +267,8 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
     }
 }
 
-
-export function onLinkDrawn(e: go.DiagramEvent, context: any) {
+// functions to handle links
+export function onLinkDrawn(e: go.DiagramEvent, context: any): akm.cxRelationshipView {
     const myGoModel = context.myGoModel;
     const diagram = context.myDiagram;
     const myMetis = context.myMetis;
@@ -232,8 +279,12 @@ export function onLinkDrawn(e: go.DiagramEvent, context: any) {
     if (data.category === 'Relationship') {
         //link.data.key = utils.createGuid();
         let fromNode = myGoModel.findNode(link.data.from);
-        let fromType = fromNode.object?.getType();
+        if (!fromNode)
+            return;
         let toNode = myGoModel.findNode(link.data.to);
+        if (!toNode)
+            return;
+        let fromType = fromNode.object?.getType();
         let toType = toNode.object?.getType();
         var typename = prompt("Enter type name");
         // let types = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
@@ -245,8 +296,7 @@ export function onLinkDrawn(e: go.DiagramEvent, context: any) {
         //     alert("Relationship is not allowed!");
         //     diagram.model.removeLinkData(data); 
         //     return;
-        // }
-
+        // }            
         let reltype = myMetamodel.findRelationshipTypeByName(typename);
         if (!reltype) {
             alert("Relationship type given does not exist!")
@@ -259,15 +309,15 @@ export function onLinkDrawn(e: go.DiagramEvent, context: any) {
             return;
         }
         diagram.model.setDataProperty(link.data, "name", typename);
-        createLink(link.data, context);
+        return createLink(link.data, context);
     }
 }
 function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, toObj: akm.cxObject) {
     if (reltype && fromObj && toObj) {
         let fromType = reltype.getFromObjType();
         let toType = reltype.getToObjType();
-        if (fromObj.getType()?.inherits(fromType)) {
-            if (toObj.getType()?.inherits(toType)) {
+        if (fromObj.getType().inherits(fromType)) {
+            if (toObj.getType().inherits(toType)) {
                 return true;
             }
         }
@@ -327,17 +377,19 @@ export function createLink(data: any, context: any) {
                     myMetis.addRelationshipView(relshipview);
                     let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
                     console.log(linkData);
+                    return relshipview;
                 }
             }
         }
     }
+    return null;
 }
 export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
     if (lnk.class === 'goRelshipLink') {
 
         const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
         let relview = link.relshipview;    // cxRelationshipView
-        let rel = relview?.relship;    // cxRelationship                
+        let rel = relview.relship;    // cxRelationship                
         let fromNode = myGoModel.findNode(lnk.from);
         if (fromNode) {
             link.setFromNode = lnk.from;
@@ -356,6 +408,74 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
         rel.modified = true;
     }
 }
+
+// // Function to call when a node has been deleted
+// function deleteNode(data, deletedFlag) {
+//     // To be done
+//     if (data.category === C_OBJECTTYPE) {
+//         //let typeid = data.objecttype;
+//         let typename = data.name;
+//         let objtype = myMetamodel.findObjectTypeByName(typename);
+//         if (objtype) {
+//             objtype.deleted = deletedFlag;
+//             let objtypeview = objtype.getDefaultTypeView();
+//             if (objtypeview) {
+//                 objtypeview.deleted = deletedFlag;
+//             }
+//         }
+//     } else if (data.category === C_OBJECT) {
+//         // Modelling
+//         let objview = data.objectview;
+//         if (objview) {
+//             objview.deleted = deletedFlag;
+//             if (!deleteViewsOnly) {
+//                 let obj = objview.getObject();
+//                 if (obj) {
+//                     obj.deleted = deletedFlag;
+//                     const objviews = metis.getObjectViewsByObject(obj.id);
+//                     for (let i=0; i<objviews.length; i++) {
+//                         const ov = objviews[i];
+//                         ov.deleted = true;
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+// // Function to call when a link has been deleted
+// function deleteLink(data, deletedFlag) {
+//    if (data.category === C_RELSHIPTYPE) {
+//         // To be done
+//         let typename = data.name;
+//         let reltype = data.reltype;
+//         if (reltype) {
+//             reltype.deleted = deletedFlag;
+//             let reltypeview = data.typeview;
+//             if (reltypeview) {
+//                 reltypeview.deleted = deletedFlag;
+//             }
+//         }
+//     } else if (data.category === C_RELATIONSHIP) {
+//         // Modelling
+//         let relview = data.relshipview;
+//         if (relview) {
+//             relview.deleted = deletedFlag;
+//             if (!deleteViewsOnly) {
+//            let rel = data.relship;
+//                 if (rel) {
+//                     rel.deleted = deletedFlag;
+//                     const relviews = metis.getRelationshipViewsByRelship(rel.id);
+//                     for (let i=0; i<relviews.length; i++) {
+//                         const rv = relviews[i];
+//                         rv.deleted = true;
+//                     }
+//                 }                        
+//             }
+//         }
+//     }
+// }
+
 
 // Function to call when a link has been drawn
 function buildLinkFromRelview(model: gsj.goModel, relview: akm.cxRelationshipView, relship: akm.cxRelationship, data: any, diagram: any) {

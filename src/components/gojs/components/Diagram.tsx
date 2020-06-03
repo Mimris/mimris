@@ -8,12 +8,14 @@ import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-//import {onTextEdited} from '../../../akmm/ui_common';
+import * as uic from '../../../akmm/ui_common';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 //import { stringify } from 'querystring';
 
-import './Diagram.css';
+// import './Diagram.css';
+
+let AllowTopLevel = true;
 
 interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;
@@ -55,6 +57,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
+      diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
+
+      // diagram.addModelChangedListener(function(evt) {
+      //   // ignore unimportant Transaction events
+      //   if (!evt.isTransactionFinished) return;
+      //   var txn = evt.object;  // a Transaction
+      //   if (txn === null) return;
+      //   // iterate over all of the actual ChangedEvents of the Transaction
+      //   txn.changes?.each(function(e) {
+      //       return onModelChanged(e, evt, myDiagram);  
+      //   });
+      // });  
     }
   }
 
@@ -77,8 +92,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('PartResized', this.props.onDiagramEvent);
     }
   }
+
+  // public onModelChanged(e, evt, diagram) {
+  //   console.log('onModelChanged called!');
+  // } 
+
+
 
   /**
    * Diagram initialization method, which is passed to the ReactDiagram component.
@@ -86,6 +109,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
    * and maybe doing other initialization tasks like customizing tools.
    * The model's data should not be set here, as the ReactDiagram component handles that.
    */
+
+
   private initDiagram(): go.Diagram {
     const $ = go.GraphObject.make;
     // define myDiagram
@@ -149,9 +174,47 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
     console.log('94 myDiagram', this);
 
-    //myDiagram.layout = $(go.CircularLayout); 
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
+
+    // provide a tooltip for the background of the Diagram, when not over any Part
+    myDiagram.toolTip =
+      $("ToolTip",
+        $(go.TextBlock, { margin: 4 },
+          // use a converter to display information about the diagram model
+          new go.Binding("text", "", diagramInfo))
+      );
+
+    // Tooltip functions
+    function nodeInfo(d) {  // Tooltip info for a node data object
+      var str = "Node: " + d.name + "\n";
+      if (d.group)
+        str += "member of " + d.group;
+      else
+        str += "Type: " + d.type;
+      return str;
+    }
+
+    function linkInfo(d: any) {  // Tooltip info for a link data object
+      let reltype = myMetamodel.findRelationshipTypeByName(d.name);
+
+      let fromObjtype = reltype.getFromObjType();
+      let toObjtype = reltype.getToObjType();
+
+      let str = "Link: " + d.name + "\n";
+      str += "from: " + fromObjtype.name + "\n";
+      str += "to: " + toObjtype.name;
+      return str;
+    }
+
+    function diagramInfo(model: any) {  // Tooltip info for the diagram's model
+      var str = "Model:\n";
+      str += model.nodeDataArray.length + " nodes, ";
+      str += model.linkDataArray.length + " links";
+      return str;
+    }
+
+
     if (false) {
       //     myDiagram.groupTemplate =
       //     $(go.Group, "Vertical",
@@ -173,50 +236,50 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       var partContextMenu =
         $(go.Adornment, "Vertical",
           makeButton("Cut",
-            function (e, obj) { e.diagram.commandHandler.cutSelection(); },
-            function (o) { return o.diagram.commandHandler.canCutSelection(); }),
+            function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
+            function (o: any) { return o.diagram.commandHandler.canCutSelection(); }),
           makeButton("Copy",
-            function (e, obj) { e.diagram.commandHandler.copySelection(); },
-            function (o) { return o.diagram.commandHandler.canCopySelection(); }),
+            function (e: any, obj: any) { e.diagram.commandHandler.copySelection(); },
+            function (o: any) { return o.diagram.commandHandler.canCopySelection(); }),
           makeButton("Paste",
-            function (e, obj) {
+            function (e: any, obj: any) {
               //pasteViewsOnly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
-            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+            function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
-            function (e, obj) {
+            function (e: any, obj: any) {
               // Ask user if only views
               //pasteViewsOnly = true;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
               //pasteViewsOnly = false;
             },
-            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+            function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
-            function (e, obj) {
+            function (e: any, obj: any) {
               //deleteViewsOnly = false;
               e.diagram.commandHandler.deleteSelection();
             },
-            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
-            function (e, obj) {
+            function (e: any, obj: any) {
               //deleteViewsOnly = true;
               e.diagram.commandHandler.deleteSelection();
               //deleteViewsOnly = false;
             },
-            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Undo",
-            function (e, obj) { e.diagram.commandHandler.undo(); },
-            function (o) { return o.diagram.commandHandler.canUndo(); }),
+            function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
+            function (o: any) { return o.diagram.commandHandler.canUndo(); }),
           makeButton("Redo",
-            function (e, obj) { e.diagram.commandHandler.redo(); },
-            function (o) { return o.diagram.commandHandler.canRedo(); }),
+            function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
+            function (o: any) { return o.diagram.commandHandler.canRedo(); }),
           makeButton("Group",
-            function (e, obj) { e.diagram.commandHandler.groupSelection(); },
-            function (o) { return o.diagram.commandHandler.canGroupSelection(); }),
+            function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
+            function (o: any) { return o.diagram.commandHandler.canGroupSelection(); }),
           makeButton("Ungroup",
-            function (e, obj) { e.diagram.commandHandler.ungroupSelection(); },
-            function (o) { return o.diagram.commandHandler.canUngroupSelection(); })
+            function (e: any, obj: any) { e.diagram.commandHandler.ungroupSelection(); },
+            function (o: any) { return o.diagram.commandHandler.canUngroupSelection(); })
         );
     }
 
@@ -225,29 +288,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
           makeButton("Paste",
-            function (e, obj) {
+            function (e: any, obj: any) {
               //pasteViewsOnly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
-            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+            function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
-            function (e, obj) {
+            function (e: any, obj: any) {
               // Ask user if only views
               //pasteViewsOnly = true;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
               //pasteViewsOnly = false;
             },
-            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+            function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Undo",
-            function (e, obj) { e.diagram.commandHandler.undo(); },
-            function (o) { return o.diagram.commandHandler.canUndo(); }),
+            function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
+            function (o: any) { return o.diagram.commandHandler.canUndo(); }),
           makeButton("Redo",
-            function (e, obj) { e.diagram.commandHandler.redo(); },
-            function (o) { return o.diagram.commandHandler.canRedo(); })
+            function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
+            function (o: any) { return o.diagram.commandHandler.canRedo(); })
         );
     }
-
-
 
     // define a Node template
     let nodeTemplate;
@@ -343,6 +404,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           ),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
+          { // this tooltip Adornment is shared by all links
+            toolTip:
+              $(go.Adornment, "Auto",
+                $(go.Shape, { fill: "#FFFFCC" }),
+                $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling linkInfo(data)
+                  new go.Binding("text", "", linkInfo))
+              )
+          }
         );
     }
 
@@ -442,6 +511,97 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       myDiagram.groupTemplateMap = groupTemplateMap;
     }
 
+    // Palette group template 1
+    if (true) {
+      var paletteGroupTemplate1 =
+        $(go.Group, "Auto",
+          // for sorting, have the Node.text be the data.name
+          new go.Binding("text", "name"),
+
+          // define the node's outer shape
+          $(go.Shape, "Rectangle",
+            {
+              name: "SHAPE", fill: "lightyellow", stroke: "black",
+              //desiredSize: new go.Size(100, 20),
+              //margin: new go.Margin(100, 0, 0, 0),
+            },
+            new go.Binding("fill", "fillcolor"),
+            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("strokeWidth", "strokewidth")
+          ),
+
+          $(go.Panel, "Vertical",
+            // define the panel where the text will appear
+            $(go.Panel, "Table",
+              {
+                defaultRowSeparatorStroke: "black",
+                maxSize: new go.Size(150, 999),
+                margin: new go.Margin(6, 10, 0, 3),
+                defaultAlignment: go.Spot.Left
+              },
+              $(go.RowColumnDefinition, { column: 2, width: 4 }
+              ),
+              // content
+              $(go.TextBlock, textStyle(),  // the name
+                {
+                  row: 0, column: 0, columnSpan: 6,
+                  font: "12pt Segoe UI,sans-serif",
+                  editable: true, isMultiline: false,
+                  minSize: new go.Size(10, 16),
+                  name: "name"
+                },
+                new go.Binding("text", "name").makeTwoWay()),
+            ),
+          )
+        );
+    }
+
+    // Define node template map
+    // let paletteNodeTemplateMap = new go.Map();
+    // paletteNodeTemplateMap.add("", paletteNodeTemplate);
+
+    // myPalette.nodeTemplateMap = paletteNodeTemplateMap;
+
+    // // Define group template map
+    // let paletteGroupTemplateMap = new go.Map();
+    // paletteGroupTemplateMap.add("typeitem", paletteGroupTemplate1);
+
+    // myPalette.groupTemplateMap = paletteGroupTemplateMap;
+
+    //  // what to do when a drag-drop occurs in the Diagram's background
+    //  myDiagram.mouseDragOver = function(e) {
+    //   if (!AllowTopLevel) {
+    //     // OK to drop a group anywhere or any Node that is a member of a dragged Group
+    //     var tool = e.diagram.toolManager.draggingTool;
+    //     if (!tool.draggingParts.all(function(p) {
+    //       return p instanceof go.Group || (!p.isTopLevel && tool.draggingParts.contains(p.containingGroup));
+    //     })) {
+    //       e.diagram.currentCursor = "not-allowed";
+    //     } else {
+    //       e.diagram.currentCursor = "";
+    //     }
+    //   }
+    // };
+
+    // myDiagram.mouseDrop = function(e) {
+    //   if (AllowTopLevel) {
+    //     // when the selection is dropped in the diagram's background,
+    //     // make sure the selected Parts no longer belong to any Group
+    //     if (!e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true)) {
+    //       e.diagram.currentTool.doCancel();
+    //     }
+    //   } else {
+    //     // disallow dropping any regular nodes onto the background, but allow dropping "racks",
+    //     // including any selected member nodes
+    //     if (!e.diagram.selection.all(function(p) {
+    //       return p instanceof go.Group || (!p.isTopLevel && p.containingGroup.isSelected);
+    //     })) {
+    //       e.diagram.currentTool.doCancel();
+    //     }
+    //   }
+    // };
+
+
     // ---  Define the CONTEXT Menu -----------------
     // To simplify this code we define a function for creating a context menu button:       
     function makeButton(text: string, action: any, visiblePredicate: any) {
@@ -490,12 +650,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       grp.isHighlighted = false;
     }
   }
-
-  // private handleModelChange(obj) {
-  //   alert('GoJS model changed!');
-  //   console.log(obj);
-  // }
-
 
   public render() {
     return (

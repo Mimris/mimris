@@ -87,7 +87,7 @@ const GenGqlSchemas = (ph) => {
   //   res: NextApiResponse
   // ) {
 
-  const url = `http://localhost:4050/api/gqlschema/current`
+  const url = `/api/gqlschema/current`
      fetch(url, {
       method: 'PUT',
       headers: {

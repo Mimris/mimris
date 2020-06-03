@@ -34,7 +34,7 @@ const page = (props: any) => {
 
   // const [usersess, setUsersess] = useState(null)
   async function handleLogin() {
-    const resp = await fetch('http://localhost:4050/api/login', {
+    const resp = await fetch('/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -49,7 +49,7 @@ const page = (props: any) => {
   }
   
   async function loadSessions() {
-    const res = await fetch('http://localhost:4050/api/usersession/1'); // take the 1st session and dispatch to phFocus
+    const res = await fetch('/api/usersession/1'); // take the 1st session and dispatch to phFocus
     const resuss = res.json
     // console.log('54 response ', resuss);
     // setUsersess(resus)

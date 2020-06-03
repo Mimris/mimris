@@ -8,7 +8,7 @@ import glb from '../akmm/akm_globals';
 import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
-//import {gqlImportMetis} from '../akmm/ui_graphql'
+//import {gqlImportMetis} from '../Server/src/akmm/ui_graphql'
 const constants = require('../akmm/constants');
 
 
@@ -26,22 +26,24 @@ const GenGojsModel = (state: any, dispatch: any) => {
     myMetis.importData(metis);
     // console.log('27 myMetis', myMetis);
 
-    const focusModel = (state.phFocus) && state.phFocus?.focusModel
-    const focusModelview = (state.phFocus) && state.phFocus?.focusModelview
-    const curmod = (models && focusModel?.id) && models?.find((m: any) => m.id === focusModel.id)
-    const curmodview = (curmod && focusModelview.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
+    const focusModel = (state.phFocus) && state.phFocus.focusModel
+    const focusModelview = (state.phFocus) && state.phFocus.focusModelview
+    const curmod = (models && focusModel.id) && models.find((m: any) => m.id === focusModel.id)
+    const curmodview = (curmod && focusModelview.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
+    let curGomodel = state.phMyGoModel?.myGoModel;
 
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
+      console.log('38 myMetamodel', myModel);
       const myMetamodel = myModel?.metamodel;
-      const myPalette = buildGoPalette(myMetamodel);
-      // console.log('40 myPalette', myPalette);
+      
+      const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
+      console.log('40 myPalette', myPalette);
 
       const myModelView = myMetis?.findModelView(curmodview.id);
       const myGoModel = buildGoModel(myModel, myModelView);
-      // console.log('43 myGoModel', myGoModel);
+      console.log('43 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
-
       const nodedataarray = (curmodview)
         ? curmodview.objectviews.map((mv: any, index: any) =>
           ({ key: mv.id, text: mv.name, color: 'orange', loc: `${mv.loc ? mv.loc.split(' ')[0] + ' ' + mv.loc.split(' ')[1] : {}}` }))
@@ -49,17 +51,22 @@ const GenGojsModel = (state: any, dispatch: any) => {
       const linkdataarray = (curmodview)
         ? curmodview.relshipviews.map((rv: any, index: any) => ((rv) && { key: rv.id, from: rv.fromobjviewRef, to: rv.toobjviewRef }))
         : []
-      const gojsModel = {
-        nodeDataArray: myGoModel.nodes,
-        linkDataArray: myGoModel.links
-      }
-      // console.log('58 gojsModel', gojsModel);
+      const gojsModel = (curGomodel) ?
+        {
+          nodeDataArray: curGomodel.nodes,
+          linkDataArray: curGomodel.links
+        } :
+        {
+          nodeDataArray: myGoModel.nodes,
+          linkDataArray: myGoModel.links
+        }
+      console.log('58 gojsModel', gojsModel);
 
 
       // /** metamodel */
       const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => mm.id === curmod.metamodelRef)
       const nodemetadataarray = (metamodel)
-        ? metamodel.objecttypes.map((ot: any, index: any) =>
+        ? metamodel?.objecttypes.map((ot: any, index: any) =>
           ({ key: ot.id, text: ot.name, color: 'lightyellow', loc: `0 ${index * (-40)}` }))
         : []
       //console.log('54', nodemetadataarray);
@@ -69,8 +76,8 @@ const GenGojsModel = (state: any, dispatch: any) => {
         linkDataArray: []
       }
 
-      // console.log('71', gojsMetamodel);
-      // console.log('73', myMetis);
+      console.log('71', gojsMetamodel);
+      console.log('73', myMetis);
 
       // update the Gojs arrays in the store
       dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
@@ -82,9 +89,9 @@ const GenGojsModel = (state: any, dispatch: any) => {
   }
 
   function buildGoPalette(metamodel: akm.cxMetaModel): gjs.goModel {
-    // console.log('74 buildGoPalette', metamodel);
+    console.log('74 buildGoPalette', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
-    const objecttypes: akm.cxObjectType[] = metamodel.objecttypes;
+    const objecttypes: akm.cxObjectType[] = metamodel?.objecttypes;
     if (objecttypes) {
       for (let i = 0; i < objecttypes.length; i++) {
         let objtype: akm.cxObjectType = objecttypes[i];
@@ -109,21 +116,25 @@ const GenGojsModel = (state: any, dispatch: any) => {
   function buildGoModel(model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview.getObjectViews();
-    // console.log('103 modelview', modelview);
+    console.log('103 modelview', modelview);
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
         let objview = objviews[i];
         if (!objview.deleted) {
           let node = new gjs.goObjectNode(utils.createGuid(), objview);
-          node.loadNodeContent(myGoModel);
           myGoModel.addNode(node);
         }
       }
+      const nodes = myGoModel.nodes;
+      for (let i = 0; i < nodes.length; i++) {
+        let node = nodes[i];
+        node.loadNodeContent(myGoModel);
+      }
     }
-    // console.log('114 buildGoModel', myGoModel);
+    console.log('114 buildGoModel', myGoModel);
     // load relship views
     let relviews = modelview.getRelationshipViews();
-    // console.log('117 relviews', relviews);
+    console.log('117 relviews', relviews);
     let l = (relviews && relviews.length);
     for (let i = 0; i < l; i++) {
       let relview = relviews[i];

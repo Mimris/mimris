@@ -41,6 +41,7 @@ const SelectContext = (props: any) => {
     (data) && dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
   }
   const handleModelChange = (event:any) => {
+    console.log('52 selectcontext', event);
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const focusModel = {id: id, name: name}
@@ -49,11 +50,12 @@ const SelectContext = (props: any) => {
     dispatch({ type: 'SET_FOCUS_MODEL', data })
   }
   const handleModelviewChange = (event: any) => {
+    
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const focusModelview = { id: id, name: name }
     const data = focusModelview
-    // console.log('62 sel', data);
+    console.log('56 sel', data);
     dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
   }
   const handleObjectChange = (event: any) => {

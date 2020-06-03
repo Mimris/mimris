@@ -324,14 +324,26 @@ export class goObjectNode extends goNode {
             const typeview: akm.cxObjectTypeView = this.typeview;
             const viewdata: any = typeview.getData();
             this.addData(viewdata);
-            //console.log('305 viewdata', viewdata);
             if (this.objectview) {
+                const objviewId = this.objectview.group;
+                if (objviewId !== "") {
+                    const groupId: string = this.getGroupFromObjviewId(objviewId, model);
+                    if (groupId !== "") {
+                        this.group = groupId;
+                    }
+                }
+                if (this.objectview.isGroup) {
+                    this.isGroup = true;
+                }
+                // if (model && groupId.length>0) {
+                //     const group: goNode | null  = model.findGroup(groupId);
+                //     if (utils.objExists(group))
+                //         this.group = (group) ? group.key : "";
+                // }
                 //console.log('312 objectview', this.objectview);
                 this.setName(this.objectview.getName());
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
-                this.group = this.objectview.getGroup();
-                this.isGroup = this.objectview.getIsGroup();
                 //console.log('315 goObjectNode', this);
                 return true;
             }
@@ -348,6 +360,20 @@ export class goObjectNode extends goNode {
                     diagram.model.setDataProperty(data, prop, data[prop]);
             }
         }
+    }
+    getGroupFromObjviewId(objviewId: string, model: goModel): string {
+        // Loop through nodes to find object view
+        const nodes = model.nodes;
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i] as goObjectNode;
+            let objview = node.objectview;
+            if (objview) {
+                if (objview.id === objviewId) {
+                    return node.key;
+                }
+            }
+        }
+        return "";
     }
 }
 

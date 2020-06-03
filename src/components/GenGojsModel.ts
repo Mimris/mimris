@@ -34,7 +34,7 @@ const GenGojsModel = (state: any, dispatch: any) => {
 
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
-      console.log('38 myMetamodel', myModel);
+      console.log('38 myMetamodel', myMetamodel);
       const myMetamodel = myModel?.metamodel;
       
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);

@@ -22,6 +22,6 @@ export default function People({people} : any) {
 }
 
 People.getInitialProps = async (ctx: NextPageContext) => {
-    const json = await myGet('http://localhost:4050/api/people', ctx);
+    const json = await myGet('/api/people', ctx);
     return {people: json};
 }

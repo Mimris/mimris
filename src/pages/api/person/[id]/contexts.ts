@@ -4,7 +4,7 @@ import cheerio from 'cheerio'
 
 export default async function getAllContextsByPersonId(req: NextApiRequest, res: NextApiResponse) {
   // getting phFocus from the store via index html file
-  const propsStore = await fetch('http://localhost:4050/index')
+  const propsStore = await fetch('/index')
     .then(res => res.text())
     .then(data => 
     cheerio.load(data)("script")?.get()[1].children[0].data

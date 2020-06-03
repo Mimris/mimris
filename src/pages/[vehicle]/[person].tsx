@@ -20,7 +20,7 @@ export default function Person({ ownersList }: PersonProps) {
   useEffect(() => {
     async function loadData() {
       const response = await fetch(
-        'http://localhost:4050/vehicles?ownerName=' +
+        '/vehicles?ownerName=' +
         router.query.person +
         '&vehicle=' +
         router.query.vehicle
@@ -50,7 +50,7 @@ export default function Person({ ownersList }: PersonProps) {
     }
 
     const response = await fetch(
-      'http://localhost:4050/vehicles?ownerName=' +
+      '/vehicles?ownerName=' +
         query.person +
         '&vehicle=' +
         query.vehicle

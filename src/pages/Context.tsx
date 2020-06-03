@@ -70,7 +70,7 @@ const page = (props: any) => {
 }
 
 // Contexts.getInitialProps = async (ctx: NextPageContext) => {
-//   const json = await myGet('http://localhost:4050/api/person/1/contexts', ctx);
+//   const json = await myGet('/api/person/1/contexts', ctx);
 //   return { contexts: json };
 // }
 
@@ -104,6 +104,6 @@ export default Page(connect(state => state)(page));
 // }
 
 // Contexts.getInitialProps = async (ctx: NextPageContext) => {
-//   const json = await myGet('http://localhost:4050/api/person/1/contexts', ctx);
+//   const json = await myGet('/api/person/1/contexts', ctx);
 //   return { contexts: json };
 // }

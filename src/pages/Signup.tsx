@@ -12,7 +12,7 @@ export default function Signup() {
   const passRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState<any>(null);
   async function handleSignup() {
-    const resp = await fetch('http://localhost:4050/api/signup', {
+    const resp = await fetch('/api/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

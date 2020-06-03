@@ -7,7 +7,7 @@ const resolvers = {
 //   Query: {
 //     allPeople: async (_, args, context) => {
 //       console.log('7 resolvers', _, args, context);
-//       const response = await fetch('http://localhost:4050/api/people')
+//       const response = await fetch('/api/people')
 //       const people = await response.json()
 //       console.log('15', people);
 //       // return [{ "id": 1, "email": "snorre@fossland.net", "name": "Snorre", "session": null }] 

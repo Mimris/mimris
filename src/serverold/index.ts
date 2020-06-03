@@ -2,7 +2,7 @@
 import express from 'express'
 import next from 'next'
 import bodyParser from 'body-parser'
-const PORT = process.env.PORT || 4050
+const PORT = process.env.PORT || 3000
 const dev = process.env.NODE_DEV !== 'production' //true false
 const nextApp = next({ dev })
 const handle = nextApp.getRequestHandler() //part of next config

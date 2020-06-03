@@ -1,11 +1,11 @@
-// @ts- nocheck
+// @ts-nocheck
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 const constants = require('./constants');
 
-//import * as go from 'gojs';
+import * as go from 'gojs';
 
 export function updateObject(data: any, name: string, value: string, context: any) {
     if ((data === null) || (name !== "name") || (!data.object)) {

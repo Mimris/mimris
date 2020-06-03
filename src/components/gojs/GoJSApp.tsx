@@ -495,26 +495,29 @@ class GoJSApp extends React.Component<{}, AppState> {
     // console.log('362 this.state.myGoModel', this.state.myGoModel);
 
     return (
-      <div>
+ 
+        <div>
 
-        <DiagramWrapper
-          nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={this.state.linkDataArray}
-          modelData={this.state.modelData}
-          skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-          onDiagramEvent={this.handleDiagramEvent}
-          onModelChange={this.handleModelChange}
-        />
-        <label>
-          Allow Relinking?
-          <input
-            type='checkbox'
-            id='relink'
-            checked={this.state.modelData.canRelink}
-            onChange={this.handleRelinkChange} />
-        </label>
-        {inspector}
+          <DiagramWrapper
+            nodeDataArray={this.state.nodeDataArray}
+            linkDataArray={this.state.linkDataArray}
+            modelData={this.state.modelData}
+            skipsDiagramUpdate={this.state.skipsDiagramUpdate}
+            onDiagramEvent={this.handleDiagramEvent}
+            onModelChange={this.handleModelChange}
+          />
+          <label className="gojslabel">
+            Allow Relinking?
+            <input
+              type='checkbox'
+              id='relink'
+              checked={this.state.modelData.canRelink}
+              onChange={this.handleRelinkChange} />
+          </label>
+          {inspector}
+
       </div>
+      
     );
   }
 }

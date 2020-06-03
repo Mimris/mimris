@@ -13,7 +13,7 @@ import * as constants from '../../../akmm/constants';
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 //import { stringify } from 'querystring';
 
-// import './Diagram.css';
+import './Diagram.css';
 
 interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;

@@ -1,4 +1,4 @@
-//@ts- nocheck
+//@ts-nocheck
 // import React, { useState } from "react";
 // import { connect } from 'react-redux';
 import { connect } from 'react-redux';

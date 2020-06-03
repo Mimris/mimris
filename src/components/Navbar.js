@@ -20,16 +20,10 @@ const Navbar = (props) => (
 					<li className="nav-item">
 						<Link href="/"><a className="nav-link active">Home</a></Link>
 					</li>			
-					{/* <li className="nav-item">
-						<Link href="/metamodelling"><a className="nav-link">Metamodelling</a></Link>
-					</li> */}
-					{/* <li className="nav-item">
-							<Link href="/akmm"><a className="nav-link">AKMM</a></Link>
-					</li>						 */}
-					{/* <li className="nav-item">
+					<li className="nav-item">
 						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
-					</li> */}
-					{/* <li className="nav-item dropdown">
+					</li>
+					<li className="nav-item dropdown">
 						<a className="nav-link dropdown-toggle" href="/other" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More
             </a>
@@ -47,11 +41,8 @@ const Navbar = (props) => (
 								<button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 							</form>
 						</div>
-					</li> */}
-					{/* <li className="nav-item">
-						<Link href="/settings"><a className="nav-link">Settings</a></Link>
-					</li> */}
-					{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
+					</li>
+					<li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
 						<a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="false">
 							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} />
@@ -61,13 +52,13 @@ const Navbar = (props) => (
 							<a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
 						</div>
-					</li> */}
+					</li>
 					<li className="nav-item">
 						<Link href="/about"><a className="nav-link">About</a></Link>
 					</li>
 				</ul>
 			</div>
-			{/* <div className='buttons' aria-expanded="false">
+			<div className='buttons' aria-expanded="false">
 				<button className="navbar-toggler navbar-light"
 					type="button"
 					data-toggle="collapse"
@@ -78,7 +69,7 @@ const Navbar = (props) => (
 				>
 					<span className="navbar-toggler-icon float-right"></span>
 				</button>
-			</div> */}
+			</div>
 		</div>
 	</nav>
 );

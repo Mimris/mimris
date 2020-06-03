@@ -107,17 +107,17 @@ const SelectSource = (props: any) => {
     
   }
 
-  function handleSaveToFile() {
-    console.log('72 SelectSource', state);
-    alert('Save ModelStore not implemented yet');
+  // function handleSaveToFile() {
+  //   console.log('72 SelectSource', state);
+  //   alert('Save ModelStore not implemented yet');
 
-  }
+  // }
 
-  function handleLoadFromFile() {
-    console.log('111 SelectSource');   
-      dispatch(loadData())
+  // function handleLoadFromFile() {
+  //   console.log('111 SelectSource');   
+  //     dispatch(loadData())
     
-  }
+  // }
 
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
   const buttonSaveLocalStoreDiv = <button className="bg-light ml-1" onClick={handleSaveLocalStore} > Save </button >

@@ -1,8 +1,8 @@
 //@ts-nocheck
 // import React, { useState } from "react";
 // import { connect } from 'react-redux';
-import { connect } from 'react-redux';
-// import { loadData } from '../actions/actions'
+import { connect, useDispatch }  from 'react-redux';
+import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -14,11 +14,11 @@ import TasksHelp from '../components/TasksHelp'
 const page = (props: any) => {
 
   // console.log(props)
-  // const dispatch = useDispatch()
+  const dispatch = useDispatch()
 
-  // if (!props.phData) {
-  //   dispatch(loadData())
-  // }
+  if (!props.phData) {
+    dispatch(loadData())
+  }
 
   // const state = useSelector(state => state)
 

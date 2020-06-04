@@ -6,10 +6,11 @@
   "scripts": {
     "heroku-postbuild": "next build",
     "build": "tsc & next build",
-    "build-ts": "tsc --downlevelIteration & next build",
+    "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
     "dev": "tsc --downlevelIteration & node ./database-test.js & next -p ${PORT}",
     "dev2": "react-scripts start & next -p 3000",
-    "start": "tsc --downlevelIteration & node ./database-test.js & next start -p ${PORT}"
+    "start2": "tsc --downlevelIteration & node ./database-test.js & next start -p ${PORT}",
+    "start": "next start -p ${PORT}"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.28",

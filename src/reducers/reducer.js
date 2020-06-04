@@ -12,6 +12,8 @@ import {
   SET_FOCUS_MODEL,
   SET_GOJS_MODEL,
   SET_GOJS_METAMODEL,
+  SET_GOJS_METAMODELPALETTE,
+  SET_GOJS_METAMODELMODEL,
   SET_FOCUS_MODELVIEW,
   SET_FOCUS_PROJ,
   SET_FOCUS_ORG,
@@ -55,6 +57,20 @@ export const InitialState = {
       linkDataArray: [],
     },
     gojsMetamodel: {
+      nodeDataArray: [
+        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+      ],
+      linkDataArray: [],
+    },
+    gojsMetamodelPalette: {
+      nodeDataArray: [
+        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+      ],
+      linkDataArray: [],
+    },
+    gojsMetamodelModel: {
       nodeDataArray: [
         { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
         { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
@@ -207,13 +223,22 @@ function reducer(state = InitialState, action) {
           focusModel: action.data
         }
       }
-    case SET_GOJS_MODEL:
+    case SET_GOJS_METAMODELPALETTE:
+      // console.log('219 SET_GOJS_METAMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsMetamodelPalette: action.gojsMetamodelPalette
+        }
+      }
+    case SET_GOJS_METAMODELMODEL:
       // console.log('210 SET_GOJS_MODEL', action);
       return {
         ...state,
         phGojs: {
           ...state.phGojs,
-          gojsModel: action.gojsModel
+          gojsMetamodelModel: action.gojsMetamodelModel
         }
       }
     case SET_GOJS_METAMODEL:
@@ -223,6 +248,15 @@ function reducer(state = InitialState, action) {
         phGojs: {
           ...state.phGojs,
           gojsMetamodel: action.gojsMetamodel
+        }
+      }
+    case SET_GOJS_MODEL:
+      // console.log('210 SET_GOJS_MODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsModel: action.gojsModel
         }
       }
     case SET_MYMETIS_MODEL:

@@ -142,6 +142,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myModelview": myModelview,
       "myGoModel": myGoModel,
       "myDiagram": myDiagram,
+      "pasteviewsonly": false,
+      "deleteViewsOnly": false,
       "done": done
     }
     switch (name) {
@@ -183,6 +185,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objview.group = group.objectview.id;
                   const myNode = myGoModel?.findNode(sel.key);
                   myNode.group = group.key;
+                } else {
+                  objview.group = "";
+                  const myNode = myGoModel?.findNode(sel.key);
+                  myNode.group = "";
                 }
               }
             }

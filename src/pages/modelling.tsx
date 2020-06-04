@@ -16,6 +16,10 @@ const page = (props:any) => {
   // console.log('16 diagram',props)
   const dispatch = useDispatch()
 
+  if (!props.phData) {
+    dispatch(loadData())
+  }
+
   const [refresh, setRefresh] = useState(false)
   function toggleRefresh() { setRefresh(!refresh); }
   

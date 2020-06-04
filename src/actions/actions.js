@@ -12,6 +12,8 @@ import {
   SET_FOCUS_MODEL, 
   SET_GOJS_MODEL, 
   SET_GOJS_METAMODEL,
+  SET_GOJS_METAMODELPALETTE, 
+  SET_GOJS_METAMODELMODEL,
   SET_FOCUS_MODELVIEW,
   SET_FOCUS_PROJ, 
   SET_FOCUS_ORG, 
@@ -93,10 +95,17 @@ export const setMyGoModel = (data) => {
     data: JSON.parse(data.value)
   }
 }
-export const setGojsModel = (data) => {
+export const setGojsMetamodelPalette = (data) => {
   // console.log('21---', data);
   return {
-    type: SET_GOJS_MODEL,
+    type: SET_GOJS_METAMODELPALETTE,
+    data: JSON.parse(data.value)
+  }
+}
+export const setGojsMetamodelModel = (data) => {
+  // console.log('21---', data);
+  return {
+    type: SET_GOJS_METAMODELMODEL,
     data: JSON.parse(data.value)
   }
 }
@@ -104,6 +113,13 @@ export const setGojsMetamodel = (data) => {
   // console.log('21---', data);
   return {
     type: SET_GOJS_METAMODEL,
+    data: JSON.parse(data.value)
+  }
+}
+export const setGojsModel = (data) => {
+  // console.log('21---', data);
+  return {
+    type: SET_GOJS_MODEL,
     data: JSON.parse(data.value)
   }
 }

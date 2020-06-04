@@ -20,6 +20,8 @@ const page = (props:any) => {
   /**  * Get the state from the store  */
   const state = useSelector((state: any) => state) // Selecting the whole redux store
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview) 
+  let gojsmetamodelpalette =  state.phGojs.gojsMetamodelPalette 
+  let gojsmetamodelmodel =  state.phGojs.gojsMetamodelModel 
   let gojsmodel =  state.phGojs.gojsModel 
   let gojsmetamodel =  state.phGojs.gojsMetamodel 
   let metis = state.phData?.metis
@@ -72,8 +74,8 @@ const page = (props:any) => {
                 <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
+                    gojsModel={gojsmetamodelmodel}
+                    gojsMetamodel={gojsmetamodelpalette}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     metis={metis}
@@ -87,8 +89,8 @@ const page = (props:any) => {
               <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", border: "solid 1px black" }}>
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
+                    gojsModel={gojsmetamodelmodel}
+                    gojsMetamodel={gojsmetamodelpalette}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     metis={metis}

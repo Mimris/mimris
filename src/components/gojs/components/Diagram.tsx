@@ -8,7 +8,9 @@ import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-import * as uic from '../../../akmm/ui_common';
+const glb = require('../../../akmm/akm_globals');
+
+//import * as uic from '../../../Server/src/akmm/ui_common';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 //import { stringify } from 'querystring';
@@ -215,21 +217,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
 
 
-    if (false) {
-      //     myDiagram.groupTemplate =
-      //     $(go.Group, "Vertical",
-      //       $(go.Panel, "Auto",
-      //         $(go.Shape, "RoundedRectangle",  // surrounds the Placeholder
-      //           { parameter1: 14,
-      //             fill: "rgba(128,128,128,0.33)" }),
-      //         $(go.Placeholder,    // represents the area of all member parts,
-      //           { padding: 5})  // with some extra padding around them
-      //       ),
-      //       $(go.TextBlock,         // group title
-      //         { alignment: go.Spot.Right, font: "Bold 12pt Sans-Serif" },
-      //         new go.Binding("text", "name"))
-      //     );
-    }
     // A Context Menu is an Adornment with a bunch of buttons in them
     // Parts context menu
     if (true) {
@@ -243,29 +230,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { return o.diagram.commandHandler.canCopySelection(); }),
           makeButton("Paste",
             function (e: any, obj: any) {
-              //pasteViewsOnly = false;
+              glb.pasteviewsonly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              //pasteViewsOnly = true;
+              glb.pasteviewsonly = true;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              //pasteViewsOnly = false;
+              glb.pasteviewsonly = false;
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              //deleteViewsOnly = false;
+              glb.deleteViewsOnly = false;
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              //deleteViewsOnly = true;
+              glb.deleteViewsOnly = true;
               e.diagram.commandHandler.deleteSelection();
-              //deleteViewsOnly = false;
+              glb.deleteViewsOnly = false;
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Undo",
@@ -289,16 +276,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         $(go.Adornment, "Vertical",
           makeButton("Paste",
             function (e: any, obj: any) {
-              //pasteViewsOnly = false;
+              glb.pasteviewsonly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              //pasteViewsOnly = true;
+              glb.pasteviewsonly = true;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              //pasteViewsOnly = false;
+              glb.pasteviewsonly = false;
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Undo",

@@ -10,8 +10,8 @@ function * loadDataSaga() {
   try {
     let res = ''
     // res = yield fetch('http://localhost:8080/metismodels')
-    res = yield fetch('http://localhost:4000/akmmodels',
-    // res = yield fetch('https://akmserver.herokuapp.com/',
+    // res = yield fetch('http://localhost:4000/akmmodels',
+    res = yield fetch('https://akmserver.herokuapp.com/akmmodels',
     {
       // mode: 'no-cors',
       headers: {
@@ -25,7 +25,7 @@ function * loadDataSaga() {
     // console.log('21', yield metis); 
     yield put(loadDataSuccess({ metis }))
   } catch (err) {
-    console.log('32', feilure(err));  
+    console.log('32', failure(err));  
     yield put(failure(err))
   }
 }

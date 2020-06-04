@@ -12,7 +12,7 @@ import * as gjs from '../akmm/ui_gojs';
 const constants = require('../akmm/constants');
 
 
-const GenGojsModel = (state: any, dispatch: any) => {
+const GenGojsModel = async (state: any, dispatch: any) =>  {
 
   const metis = (state.phData) && state.phData.metis
   const models = (metis) && metis.models
@@ -33,15 +33,15 @@ const GenGojsModel = (state: any, dispatch: any) => {
     let curGomodel = state.phMyGoModel?.myGoModel;
 
     if (curmod && curmod.id) {
-      const myModel = myMetis?.findModel(curmod.id);
+      const myModel = await myMetis?.findModel(curmod.id);
       const myMetamodel = myModel?.metamodel;
 
-      const myMetamodelPalette = buildGoMetaPalette(myMetamodel);
+      const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       console.log('40 myMetamodelPalette', myMetamodelPalette);
       const myMetamodelModel = buildGoMetaModel(myMetamodel);
       console.log('42 myGoMetaModel', myMetamodelModel);
 
-      const myPalette = buildGoPalette(myMetamodel);
+      const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       console.log('44 myPalette', myPalette);
       const myModelView = myMetis?.findModelView(curmodview.id);
       const myGoModel = buildGoModel(myModel, myModelView);
@@ -49,37 +49,43 @@ const GenGojsModel = (state: any, dispatch: any) => {
 
       myMetis?.setGojsModel(myGoModel);
 
-      const nodedataarray = (curmodview)
+      const nodedataarray = await (curmodview)
         ? curmodview.objectviews.map((mv: any, index: any) =>
           ({ key: mv.id, text: mv.name, color: 'orange', loc: `${mv.loc ? mv.loc.split(' ')[0] + ' ' + mv.loc.split(' ')[1] : {}}` }))
         : []
-      const linkdataarray = (curmodview)
+      const linkdataarray = await (curmodview)
         ? curmodview.relshipviews.map((rv: any, index: any) => ((rv) && { key: rv.id, from: rv.fromobjviewRef, to: rv.toobjviewRef }))
         : []
 
-      const gojsMetamodelPalette = {
+      const gojsMetamodelPalette = (myMetamodelPalette) && {
         nodeDataArray: myMetamodelPalette.nodes,
         linkDataArray: []
       }
-      const gojsMetamodelModel = (curGomodel) ?
-        {
-          nodeDataArray: curGomodel.nodes,
-          linkDataArray: curGomodel.links
-        } :
-        {
+      const gojsMetamodelModel = 
+        // await (curGomodel) ?
+        // {
+        //   nodeDataArray: curGomodel.nodes,
+        //   linkDataArray: curGomodel.links
+        // } 
+        // : 
+        (myMetamodelModel) && 
+        { 
           nodeDataArray: myMetamodelModel.nodes,
           linkDataArray: myMetamodelModel.links
         }
 
-      const gojsMetamodel = {
+      const gojsMetamodel =  (myPalette) && {
         nodeDataArray: myPalette.nodes,
         linkDataArray: []
       }
-      const gojsModel = (curGomodel) ?
-        {
-          nodeDataArray: curGomodel.nodes,
-          linkDataArray: curGomodel.links
-        } :
+
+      const gojsModel = 
+      // await (curGomodel) ?
+      //   {
+      //     nodeDataArray: curGomodel.nodes,
+      //     linkDataArray: curGomodel.links
+      //   } : 
+        (myGoModel) &&
         {
           nodeDataArray: myGoModel.nodes,
           linkDataArray: myGoModel.links
@@ -99,12 +105,18 @@ const GenGojsModel = (state: any, dispatch: any) => {
       //console.log('54', nodemetadataarray);
       
       // update the Gojs arrays in the store
-      dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
-      dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
-      dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
-      dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-      dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
-      dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
+          // (gojsMetamodelPalette) && await dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
+          // (gojsMetamodelModel) && await dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
+          // (gojsMetamodel) && await dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+          // (gojsModel) &&  await dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+          // (myMetis) && await dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis })
+          // (myGoModel) && await dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
+          dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
+          dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
+          dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+          dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+          dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis })
+          dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
     }
     // return myMetis; 
   }
@@ -112,7 +124,7 @@ const GenGojsModel = (state: any, dispatch: any) => {
   function buildGoPalette(metamodel: akm.cxMetaModel): gjs.goModel {
     console.log('74 buildGoPalette', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
-    const objecttypes: akm.cxObjectType[] | null = metamodel.objecttypes;
+    const objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
     if (objecttypes) {
       for (let i = 0; i < objecttypes.length; i++) {
         const objtype: akm.cxObjectType = objecttypes[i];
@@ -137,7 +149,7 @@ const GenGojsModel = (state: any, dispatch: any) => {
 
   function buildGoModel(model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
-    let objviews = modelview.getObjectViews();
+    let objviews = modelview?.getObjectViews();
     console.log('103 modelview', modelview);
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
@@ -155,7 +167,7 @@ const GenGojsModel = (state: any, dispatch: any) => {
     }
     console.log('114 buildGoModel', myGoModel);
     // load relship views
-    let relviews = modelview.getRelationshipViews();
+    let relviews = (modelview) && modelview.getRelationshipViews();
     console.log('117 relviews', relviews);
     if (relviews) {
       let l = relviews.length;
@@ -191,9 +203,9 @@ const GenGojsModel = (state: any, dispatch: any) => {
 }
 
 function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
-  if (metamodel.objecttypes) {
+  if (metamodel?.objecttypes) {
     let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
-    const objtypes = metamodel.getObjectTypes();
+    const objtypes = metamodel?.getObjectTypes();
     if (objtypes) {
       for (let i = 0; i < objtypes.length; i++) {
         const objtype = objtypes[i];

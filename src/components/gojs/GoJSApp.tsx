@@ -209,7 +209,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (d_objview) {
                     const d_object = d_objview?.object;
                     if (d_object) {
-                      const oviews = context.myMetis.getObjectViewsByObject(d_object.id);
+                      const oviews = context?.myMetis?.getObjectViewsByObject(d_object.id);
                       if (oviews) {
                         for (let i = 0; i < oviews.length; i++) {
                           const oview = oviews[i];
@@ -242,7 +242,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const d_relship = d_relview.relship;
 
                     if (d_relship) {
-                      const rviews = context.myMetis.getRelationshipViewsByRelship(d_relship.id);
+                      const rviews = context?.myMetis?.getRelationshipViewsByRelship(d_relship.id);
                       if (rviews) {
                         for (let i = 0; i < rviews.length; i++) {
                           const rview = oviews[i];

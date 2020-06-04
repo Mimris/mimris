@@ -512,7 +512,7 @@ export class gqlModel {
             const gModelView = new gqlModelView(mv);
             this.modelviews.push(gModelView);
             // Then handle the objectviews
-            const objectviews = mv.getObjectViews();
+            const objectviews = mv?.getObjectViews();
             if (objectviews) {
                 const cnt = objectviews.length;
                 for (let j = 0; j < cnt; j++) {
@@ -761,7 +761,7 @@ export class gqlModelView {
         this.objectviews = [];
         this.relshipviews = [];
         // Code
-        const objviews = mv.getObjectViews();
+        const objviews = mv?.getObjectViews();
         if (objviews) {
             const cnt = objviews.length;
             for (let i = 0; i < cnt; i++) {

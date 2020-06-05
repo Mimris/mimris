@@ -393,9 +393,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     console.log('324 deletedLinks', deletedLinks);
     console.log('394 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
-      let data = mn
-      this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-    }
+        let data = mn
+        this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      }
     )
   }
 

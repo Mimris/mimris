@@ -90,7 +90,7 @@ const page = (props:any) => {
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmetamodelmodel}
-                    gojsMetamodel={gojsmetamodelpalette}
+                    gojsMetamodel={gojsmetamodelpalette}z
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     metis={metis}

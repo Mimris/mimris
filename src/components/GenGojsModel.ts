@@ -33,7 +33,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
     let curGomodel = state.phMyGoModel?.myGoModel;
 
     if (curmod && curmod.id) {
-      const myModel = await myMetis?.findModel(curmod.id);
+      const myModel = myMetis?.findModel(curmod.id);
       const myMetamodel = myModel?.metamodel;
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
@@ -105,12 +105,6 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       //console.log('54', nodemetadataarray);
       
       // update the Gojs arrays in the store
-          // (gojsMetamodelPalette) && await dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
-          // (gojsMetamodelModel) && await dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
-          // (gojsMetamodel) && await dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
-          // (gojsModel) &&  await dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-          // (myMetis) && await dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis })
-          // (myGoModel) && await dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
           dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
           dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
           dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })

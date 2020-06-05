@@ -10,7 +10,7 @@ const Modeller = (props) => {
 
   const [refresh, setRefresh] = useState(true)
   function toggleRefresh() { setRefresh(!refresh); }
-  // console.log('11 Modeller', props.gojsModel?.nodeDataArray);
+  console.log('11 Modeller', props.gojsModel?.nodeDataArray);
 
   const gojsapp = (gojsmodel) &&
     < GoJSApp

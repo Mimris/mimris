@@ -521,7 +521,7 @@ export class gqlModel {
                 }
             }
             // And then handle the relshipviews
-            const relshipviews = mv.getRelationshipViews();
+            const relshipviews = mv?.getRelationshipViews();
             if (relshipviews) {
                 const cnt = relshipviews.length;
                 for (let j = 0; j < cnt; j++) {
@@ -769,7 +769,7 @@ export class gqlModelView {
                 this.addObjectView(objview);
             }
         }
-        const relviews = mv.getRelationshipViews();
+        const relviews = mv?.getRelationshipViews();
         if (relviews) {
             const cnt = relviews.length;
             for (let i = 0; i < cnt; i++) {

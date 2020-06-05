@@ -387,11 +387,16 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     console.log('319 addedNodes', addedNodes);
-    console.log('320 modifiedNodes', modifiedNodes);
     console.log('321 deletedNodes', deletedNodes);
     console.log('322 addedLinks', addedLinks);
     console.log('323 modifiedLinks', modifiedLinks);
     console.log('324 deletedLinks', deletedLinks);
+    console.log('394 modifiedNodes', modifiedNodes);
+    modifiedNodes.map(mn => {
+      let data = mn
+      this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    }
+    )
   }
 
   /**

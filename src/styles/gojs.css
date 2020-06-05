@@ -1,0 +1,47 @@
+label {
+  font: 300 1rem Roboto, helvetica, sans-serif;
+  color: #212121; /* Grey 900 */
+  display: block;
+  padding: 2px;
+}
+
+p {
+  font: 300 1rem Roboto, helvetica, sans-serif;
+  color: #212121; /* Grey 900 */
+} 
+
+.diagram-component {
+  /* min-width: 300px; */
+  min-height: 110px;
+  height: 79vh;
+  /* width: 100%;
+  height: 300px; */
+  border: solid 1px black;
+  background-color: white;
+}
+.inspector {
+  font: 500 1rem Roboto, helvetica, sans-serif;
+  color: #212121; /* Grey 900 */
+  cursor: default;
+  margin-top: 2px;
+  width: 250px;
+  background-color: #DDDDDD;
+}
+
+.inspector td, th {
+  padding: 2px;
+}
+
+.inspector input {
+  font: 300 1rem Roboto, helvetica, sans-serif;
+  border: 0;
+  outline: none;
+  border-bottom: 1px solid #212121; /* Grey 900 */
+  padding: 2px;
+}
+
+.inspector input:disabled {
+  background-color: #EEEEEE; /* Grey 400 */
+  color: #616161; /* Grey 700 */
+  border-bottom: 1px solid #BDBDBD; /* Grey 900 */
+}

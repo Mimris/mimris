@@ -3,7 +3,7 @@
 */
 
 import * as React from 'react';
-import './Inspector.css';
+// import './Inspector.css';
 
 interface InspectorRowProps {
   id: string;

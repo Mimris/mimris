@@ -1,4 +1,5 @@
-// @ts- nocheck
+// @ts-nocheck
+
 const utils = require('./utilities');
 const glb = require('./akm_globals');
 import * as akm from './metamodeller';
@@ -219,12 +220,14 @@ export class gqlObjectType {
     name: string;
     description: string;
     abstract: boolean;
+    viewkind: string;
     typeviewRef: string;
     properties: gqlProperty[];
     constructor(objtype: akm.cxObjectType, includeViews: boolean) {
         this.id = objtype.id;
         this.name = objtype.name;
         this.abstract = objtype.abstract;
+        this.viewkind = objtype.viewkind;
         this.typeviewRef = objtype.typeview ? objtype.typeview.id : "";
         // Code
         this.description = (objtype.description) ? objtype.description : "";
@@ -361,6 +364,8 @@ export class gqlObjectTypeView {
     description: string;
     typeRef: string;
     viewkind: string;
+    isGroup: boolean;
+    group: string;
     figure: string;
     fillcolor: string;
     strokecolor: string;
@@ -373,6 +378,8 @@ export class gqlObjectTypeView {
         if (objtypeview.description)
             this.description = objtypeview.description;
         this.typeRef = objtypeview.getType()?.getId();
+        this.isGroup = objtypeview.getIsGroup();
+        this.group = objtypeview.getGroup();
         this.viewkind = objtypeview.getViewKind();
         this.figure = objtypeview.getFigure();
         this.fillcolor = objtypeview.getFillcolor();
@@ -505,7 +512,7 @@ export class gqlModel {
             const gModelView = new gqlModelView(mv);
             this.modelviews.push(gModelView);
             // Then handle the objectviews
-            const objectviews = mv.getObjectViews();
+            const objectviews = mv?.getObjectViews();
             if (objectviews) {
                 const cnt = objectviews.length;
                 for (let j = 0; j < cnt; j++) {
@@ -514,7 +521,7 @@ export class gqlModel {
                 }
             }
             // And then handle the relshipviews
-            const relshipviews = mv.getRelationshipViews();
+            const relshipviews = mv?.getRelationshipViews();
             if (relshipviews) {
                 const cnt = relshipviews.length;
                 for (let j = 0; j < cnt; j++) {
@@ -754,7 +761,7 @@ export class gqlModelView {
         this.objectviews = [];
         this.relshipviews = [];
         // Code
-        const objviews = mv.getObjectViews();
+        const objviews = mv?.getObjectViews();
         if (objviews) {
             const cnt = objviews.length;
             for (let i = 0; i < cnt; i++) {
@@ -762,7 +769,7 @@ export class gqlModelView {
                 this.addObjectView(objview);
             }
         }
-        const relviews = mv.getRelationshipViews();
+        const relviews = mv?.getRelationshipViews();
         if (relviews) {
             const cnt = relviews.length;
             for (let i = 0; i < cnt; i++) {

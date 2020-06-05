@@ -10,8 +10,9 @@ p {
   color: #212121; /* Grey 900 */
 }
   .diagram-component {
-    min-width: 300px;
-    min-height: 420px;
+    /* min-width: 300px; */
+    min-height: 120px;
+    height: 69vh;
     /* width: 100%;
     height: 300px; */
     border: solid 1px black;

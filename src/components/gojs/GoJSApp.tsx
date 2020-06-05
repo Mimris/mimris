@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -10,11 +10,12 @@ import * as React from 'react';
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
 
-import './GoJSApp.css';
+// import './GoJSApp.css';
 import glb from '../../akmm/akm_globals';
 import * as utils from '../../akmm/utilities';
 import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
+import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
 
 /**
@@ -65,7 +66,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.refreshLinkIndex(this.state.linkDataArray);
     // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    this.handleModelChange = this.handleModelChange.bind(this);
+    //this.handleModelChange = this.handleModelChange.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
@@ -119,6 +120,16 @@ class GoJSApp extends React.Component<{}, AppState> {
     const myModelview = myMetis.findModelView(this.state.phFocus.focusModelview.id);
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = myMetis?.getGojsModel();
+    const gojsModel = {
+      nodeDataArray: myGoModel.nodes,
+      linkDataArray: myGoModel.links
+    }
+    const addedNodes = new Array();
+    const modifiedNodes = new Array();
+    const deletedNodes = new Array();
+    const addedLinks = new Array();
+    const modifiedLinks = new Array();
+    const deletedLinks = new Array();
     //const myGoModel = this.state.myGoModel;
     // const myGojsModel = new gjs.goModel(utils.createGuid(), myModelview?.name, myModelview);
     // myGojsModel.nodes = this.state.phFocus.gojsModel.nodeDataArray;
@@ -131,12 +142,14 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myModelview": myModelview,
       "myGoModel": myGoModel,
       "myDiagram": myDiagram,
+      "pasteviewsonly": false,
+      "deleteViewsOnly": false,
       "done": done
     }
     switch (name) {
       case 'TextEdited': {
-        const sel = e.subject.part;
-        const field = e.subject.name;
+        let sel = e.subject.part;
+        let field = e.subject.name;
         this.setState(
           produce((draft: AppState) => {
             if (sel) {
@@ -147,7 +160,109 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (myNode) {
                   myNode.name = text;
                   uic.updateObject(myNode, field, text, context);
-                  console.log('90 GoJSApp event, myNode:', myNode);
+                  console.log('153 GoJSApp event, myNode:', myNode);
+                  const modNode = new gql.gqlObjectView(myNode.objectview);
+                  modifiedNodes.push(modNode);
+                }
+              }
+            }
+          })
+        )
+      }
+        break;
+      case "SelectionMoved": {
+        let selection = e.subject;
+        this.setState(
+          produce((draft: AppState) => {
+            for (let it = selection.iterator; it.next();) {
+              const sel = it.value.data;
+              uic.changeNodeSizeAndPos(sel, myGoModel, modifiedNodes);
+              const objview = sel.objectview;
+              if (objview) {
+                // Check if inside a group
+                const group = uic.getGroupByLocation(myGoModel, objview.loc);
+                if (group) {
+                  objview.group = group.objectview.id;
+                  const myNode = myGoModel?.findNode(sel.key);
+                  myNode.group = group.key;
+                } else {
+                  objview.group = "";
+                  const myNode = myGoModel?.findNode(sel.key);
+                  myNode.group = "";
+                }
+              }
+            }
+          })
+        )
+      }
+        break;
+      case "SelectionDeleted": {
+        let deleted = e.subject;
+        this.setState(
+          produce((draft: AppState) => {
+            for (let it = deleted.iterator; it.next();) {
+              let del: any = it.value.data;  // n is now a Node or a Group
+              if (del.class === "goObjectNode") {
+                let nd = myGoModel?.findNode(del.key) as gjs.goObjectNode;
+                if (nd) {
+                  let d_objview = nd.objectview;
+                  if (d_objview) {
+                    const d_object = d_objview?.object;
+                    if (d_object) {
+                      const oviews = context?.myMetis?.getObjectViewsByObject(d_object.id);
+                      if (oviews) {
+                        for (let i = 0; i < oviews.length; i++) {
+                          const oview = oviews[i];
+                          oview.deleted = true;
+                        }
+                      }
+                    }
+                    d_objview.deleted = true;
+                    d_object.deleted = true;
+                    const delNode = new gql.gqlObjectView(d_objview);
+                    deletedNodes.push(delNode);
+                  }
+                  let nodes = new Array();
+                  if (myGoModel) {
+                    for (let i = 0; i < myGoModel?.nodes.length; i++) {
+                      let n = myGoModel.nodes[i];
+                      if (n.key !== nd.key) {
+                        nodes.push(n);
+                      }
+                    }
+                    myGoModel.nodes = nodes;
+                  }
+                }
+              }
+              else if (del.class === "goRelshipLink") {
+                const ld = myGoModel?.findLink(del.key);
+                if (ld) {
+                  const d_relview = ld.relshipview;
+                  if (d_relview) {
+                    const d_relship = d_relview.relship;
+
+                    if (d_relship) {
+                      const rviews = context?.myMetis?.getRelationshipViewsByRelship(d_relship.id);
+                      if (rviews) {
+                        for (let i = 0; i < rviews.length; i++) {
+                          const rview = oviews[i];
+                          rview.deleted = true;
+                        }
+                      }
+                      d_relview.deleted = true;
+                      d_relship.deleted = true;
+                      const delLink = new gql.gqlRelshipView(d_relview);
+                      deletedNodes.push(delLink);
+                    }
+                    let links = new Array();
+                    for (let i = 0; i < myGoModel?.links.length; i++) {
+                      let l = myGoModel.links[i];
+                      if (l.key !== ld.key) {
+                        links.push(l);
+                      }
+                    }
+                    myGoModel.links = links;
+                  }
                 }
               }
             }
@@ -168,12 +283,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   console.log('98 GoJSApp.tsx: node = ', nd);
                 }
               } else if (sel instanceof go.Link) {
-                console.log('101 GoJSApp.tsx: sel = ', sel);
+                console.log('174 GoJSApp.tsx: sel = ', sel);
                 const idx = this.mapLinkKeyIdx.get(sel.data.key);
                 if (idx !== undefined && idx >= 0) {
                   const ld = draft.linkDataArray[idx];
                   draft.selectedData = ld;
-                  console.log('105 GoJSApp.tsx: link = ', ld);
+                  console.log('178 GoJSApp.tsx: link = ', ld);
                 }
               }
             } else {
@@ -186,23 +301,103 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case 'ExternalObjectsDropped': {
         const nodes = e.subject;
-        console.log('172 ExternalObjectsDropped', nodes.first());
-        const part = nodes.first().data;
-        uic.createObject(part, context);
+        console.log('192 ExternalObjectsDropped', nodes.first());
+        this.setState(
+          produce((draft: AppState) => {
+            const nn = nodes.first();
+            const part = nodes.first().data;
+            const objview = uic.createObject(part, context);
+            if (objview) {
+              // Check if inside a group
+              const group = uic.getGroupByLocation(myGoModel, objview.loc);
+              if (group) {
+                objview.group = group.objectview.id;
+                const myNode = myGoModel?.findNode(part.key);
+                myNode.group = group.key;
+              }
+              const addNode = new gql.gqlObjectView(objview);
+              addedNodes.push(addNode);
+            }
+          })
+        )
+      }
+        break;
+      case "ObjectSingleClicked": {
+        console.log(e.subject);
+        this.setState(
+          produce((draft: AppState) => {
+          })
+        )
+      }
+        break;
+      case "PartResized": {
+        const sel = e.subject.part.data;
+        this.setState(
+          produce((draft: AppState) => {
+            uic.changeNodeSizeAndPos(sel, myGoModel, modifiedNodes);
+          })
+        )
+      }
+        break;
+      case 'ClipboardChanged': {
+        const nodes = e.subject;
+        console.log('nodes', nodes);
+        this.setState(
+          produce((draft: AppState) => {
+          })
+        )
+      }
+        break;
+      case 'ClipboardPasted': {
+        const selected = e.subject;
+        this.setState(
+          produce((draft: AppState) => {
+            uic.onClipboardPasted(selected);
+          })
+        )
       }
         break;
       case 'LinkDrawn': {
         const link = e.subject;
-        console.log('172 LinkDrawn', link);
-        uic.onLinkDrawn(link, context);
+        console.log('199 LinkDrawn', link);
+        this.setState(
+          produce((draft: AppState) => {
+            const relview = uic.onLinkDrawn(link, context);
+            if (relview) {
+              const addLink = new gql.gqlRelshipView(relview);
+              addedLinks.push(addLink);
+            }
+          })
+        )
+      }
+        break;
+      case "LinkRelinked": {
+        const newLink = e.subject.data;
+        console.log('207 LinkRelinked', newLink);
+        this.setState(
+          produce((draft: AppState) => {
+            uic.onLinkRelinked(newLink, context.myGoModel);
+          })
+        )
       }
         break;
       default:
         console.log('146 GoJSApp event name: ', name);
         break;
     }
+    this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+    console.log('319 addedNodes', addedNodes);
+    console.log('321 deletedNodes', deletedNodes);
+    console.log('322 addedLinks', addedLinks);
+    console.log('323 modifiedLinks', modifiedLinks);
+    console.log('324 deletedLinks', deletedLinks);
+    console.log('394 modifiedNodes', modifiedNodes);
+    modifiedNodes.map(mn => {
+        let data = mn
+        this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      }
+    )
   }
-
 
   /**
    * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
@@ -388,16 +583,3 @@ class GoJSApp extends React.Component<{}, AppState> {
 }
 
 export default GoJSApp;
-
-
-
-
-{/* <p>
-          Try moving around nodes, editing text, relinking, undoing (Ctrl-Z), etc. within the diagram
-          and you'll notice the changes are reflected in the inspector area. You'll also notice that changes
-          made in the inspector are reflected in the diagram. If you use the React dev tools,
-          you can inspect the React state and see it updated as changes happen.
-        </p>
-        <p>
-          Check out the <a href='https://gojs.net/latest/intro/react.html' target='_blank' rel='noopener noreferrer'>Intro page on using GoJS with React</a> for more information.
-        </p> */}

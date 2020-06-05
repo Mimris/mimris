@@ -1,11 +1,11 @@
 /// @ts- nocheck
-import React, { useState } from "react";
+// import React, { useState } from "react";
 // import { connect, useSelector, useDispatch } from 'react-redux';
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import Page from '../components/page';
 import Layout from '../components/Layout';
 // import Index from '../components/Index';
-import { loadData } from '../actions/actions'
+// import { loadData } from '../actions/actions'
 // import gqlSchemas from '../components/gql/GenGqlSchemas'
 
     
@@ -16,16 +16,16 @@ import { loadData } from '../actions/actions'
 
 const page = (props: any) => {
   // console.log(props)
-  const dispatch = useDispatch()
+  // const dispatch = useDispatch()
 
   // console.log('17', props.phData);
-  const [ loaded, setLoaded] = useState(false);
-  if (!props.phData) {
-    if (!loaded) {
-      dispatch(loadData())
-      setLoaded(true)
-    }
-  }
+  // const [ loaded, setLoaded] = useState(false);
+  // if (!props.phData) {
+  //   if (!loaded) {
+  //     dispatch(loadData())
+  //     setLoaded(true)
+  //   }
+  // }
   // const metis = (props.phData) && props.phData.metis
   // const model = (metis) && metis.models[0]
   const state = useSelector((state:any) => state)

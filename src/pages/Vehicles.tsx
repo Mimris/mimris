@@ -21,6 +21,6 @@ export default function Vehicles({ vehicles }: any, ctx: NextPageContext) {
 }
 
 Vehicles.getInitialProps = async (ctx: NextPageContext) => {
-  const json = await myGet('http://localhost:4050/api/vehicles', ctx);
+  const json = await myGet('/api/vehicles', ctx);
   return {vehicles: json };
 }

@@ -12,7 +12,7 @@ export default function Usersessions({ usersessions }: any, ctx: NextPageContext
 
   useEffect(() => {
     async function loadData() {
-      const response = await myGet('http://localhost:4050/api/usersessions', ctx);
+      const response = await myGet('/api/usersessions', ctx);
       console.log('19 response ', response);
       setUsersess(response)
     }
@@ -45,6 +45,6 @@ export default function Usersessions({ usersessions }: any, ctx: NextPageContext
 }
 
 Usersessions.getInitialProps = async (ctx: NextPageContext) => {
-  const json = await myGet('http://localhost:4050/api/usersessions', ctx);
+  const json = await myGet('/api/usersessions', ctx);
   return { usersessions: json };
 }

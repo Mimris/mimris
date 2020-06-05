@@ -3,8 +3,7 @@
 // Event handlers like onClick can't be added to this file
 
 import Document, { Html, Head, Main, NextScript } from 'next/document'
-import "../styles/styles.css"
-import "../styles/styles-grid.css"
+
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
     const initialProps = await Document.getInitialProps(ctx)

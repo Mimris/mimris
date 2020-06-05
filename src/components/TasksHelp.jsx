@@ -11,7 +11,7 @@ const TasksHelp = () => {
   // const [tooltipOpen, setTooltipOpen] = useState(false);
   // const toggleTip = () => setTooltipOpen(!tooltipOpen);
 
-  const [visibleTasks, setVisibleTasks] = useState(true)
+  const [visibleTasks, setVisibleTasks] = useState(false)
   function toggleTasks() {
     setVisibleTasks(!visibleTasks);
   }

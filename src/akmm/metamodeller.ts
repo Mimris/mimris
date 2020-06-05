@@ -865,8 +865,34 @@ export class cxMetis {
     getObjectViews() {
         return this.objectviews;
     }
+    getObjectViewsByObject(objid: string) {
+        const objectviews = this.objectviews;
+        const objviews = new Array();
+        for (let i = 0; i < objectviews.length; i++) {
+            const objview = objectviews[i];
+            if (objview) {
+                const obj = objview.object;
+                if (obj.id === objid)
+                    objviews.push(objview);
+            }
+        }
+        return objviews;
+    }
     getRelationshipViews() {
         return this.relshipviews;
+    }
+    getRelationshipViewsByRelship(relid: string) {
+        const relshipviews = this.relshipviews;
+        const relviews = new Array();
+        for (let i = 0; i < relshipviews.length; i++) {
+            const relview = relshipviews[i];
+            if (relview) {
+                const rel = relview.relship;
+                if (rel.id === relid)
+                    relviews.push(relview);
+            }
+        }
+        return relviews;
     }
     findItem(coll: string, id: string) {
         let retval = null;
@@ -3150,6 +3176,9 @@ export class cxObjectTypeView extends cxMetaObject {
     getAbstract() {
         return this.data.abstract;
     }
+    setIsGroup1(flag: boolean) {
+        this.data.isGroup = flag;
+    }
     setIsGroup(viewkind: string) {
         if (viewkind == constants.viewkinds.CONT) {
             this.data.isGroup = true;
@@ -3758,6 +3787,19 @@ export class cxModel extends cxMetaObject {
             }
         }
         return relationships;
+    }
+    deleteObjectViewsWithoutObjects() {
+        // Get modelviews
+        const mviews = this.modelviews;
+        for (let i = 0; i < mviews.length; i++) {
+            const mview = mviews[i];
+            const oviews = mview.objectviews;
+            for (let j = 0; j < oviews.length; j++) {
+                const oview = oviews[j];
+                if (!oview.object)
+                    oview.deleted = true;
+            }
+        }
     }
 }
 

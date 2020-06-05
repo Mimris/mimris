@@ -7,7 +7,7 @@ import * as React from 'react';
 
 import { InspectorRow } from './InspectorRow';
 
-import './Inspector.css';
+// import './Inspector.css';
 
 interface SelectionInspectorProps {
   selectedData: any;
@@ -34,6 +34,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
+    console.log('37', dets);
+    
     return dets;
   }
 

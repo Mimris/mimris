@@ -1,5 +1,5 @@
 //@ts-nocheck
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { loadData } from '../actions/actions'
 import Page from '../components/page';
@@ -9,9 +9,10 @@ import Footer from "../components/Footer"
 import Diagram from "../components/Diagram";
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
+import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
-
+  
   // console.log('16 diagram',props)
   const dispatch = useDispatch()
 
@@ -19,27 +20,40 @@ const page = (props:any) => {
     dispatch(loadData())
   }
 
+  const [refresh, setRefresh] = useState(false)
+  function toggleRefresh() { setRefresh(!refresh); }
+  
   const state = useSelector(state => state)
-
+  
   const [visible,setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
-  const [visibleTasks,setVisibleTasks] = useState(true)
+  const [visibleTasks, setVisibleTasks] = useState(true)
   function toggleTasks() {
     setVisibleTasks(!visibleTasks);
   }
   
-// /**
-// * Set up the Context items and link to select Context modal,
-// */
-  const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+  // /**
+  // * Set up the Context items and link to select Context modal,
+  // */
+  const setContextDiv =  <SetContext phFocus={props.phFocus} />
+  const setWorkareaDiv =  <Diagram />
+  // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+  // useEffect(() => {
+  //   return () => {
+  //     <SetContext phFocus={props.phFocus} />
+  //   };
+  // }, [props.phData])
+  console.log('42 modelling', state.phUser);
   
+
   return (
     <div>
       <Layout user={state.phUser?.focusUser} >
         <div id="index" >
         <div className="wrapper" >
           <div className="header" >
-            {/* <Header title='headerTitle' /> */}
+            {/* <Header title={props.phUser?.focusUser.name} />  */}
+              {/* <span id="lighten" className="btn-link btn-sm " style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
           </div>
           <div className="workplace" >
             <div className="contextarea" >
@@ -49,6 +63,7 @@ const page = (props:any) => {
               <TasksHelp />
             </div>
             <div className="workarea">
+                {/* {refresh ? <> {setWorkareaDiv} </> : <>  {setWorkareaDiv}  </>} */}
               <Diagram />
             </div>
           </div>

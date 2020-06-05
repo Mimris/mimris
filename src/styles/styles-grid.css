@@ -42,7 +42,7 @@
   
 .wrapper {
   display: grid;
-  background-color: #e00; 
+  /* background-color: #e00;  */
   color: #444; 
   white-space: wrap;
   grid-template-columns:  auto;

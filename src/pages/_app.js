@@ -6,7 +6,8 @@ import withReduxSaga from 'next-redux-saga'
 import createStore from '../store'
 
 import "../styles/styles.css"
-
+import "../styles/styles-grid.css"
+import "../styles/gojs.css"
 
 class MyApp extends App {
   static async getInitialProps ({ Component, ctx }) {

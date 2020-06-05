@@ -10,7 +10,7 @@ const Navbar = (props) => (
 	<nav className="navbar navbar-expand-sm bg-light py-1">
 		<div className="container mx-0 ">
 			<a className="navbar-brand nabar-left mr-2" href="#">
-				{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
+				<img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/>
 				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
 			</a>
 			{/* <span ><strong>OrgEngine Teambuilder</strong> */}
@@ -20,23 +20,17 @@ const Navbar = (props) => (
 					<li className="nav-item">
 						<Link href="/"><a className="nav-link active">Home</a></Link>
 					</li>			
-					{/* <li className="nav-item">
-						<Link href="/metamodelling"><a className="nav-link">Metamodelling</a></Link>
-					</li> */}
-					{/* <li className="nav-item">
-							<Link href="/akmm"><a className="nav-link">AKMM</a></Link>
-					</li>						 */}
-					{/* <li className="nav-item">
+					<li className="nav-item">
 						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
-					</li> */}
-					{/* <li className="nav-item dropdown">
+					</li>
+					<li className="nav-item dropdown">
 						<a className="nav-link dropdown-toggle" href="/other" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More
             </a>
 						<div className="dropdown-menu" aria-labelledby="navbarDropdown">
 							<a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
-							<a className="dropdown-item" href="/people">Brukere</a>
+							<a className="dropdown-item" href="/people">Users</a>
 							<a className="dropdown-item" href="/settings">Settings</a>
 							<a className="dropdown-item" href="/akmm-graphql">JSON export</a>
 							<a className="dropdown-item" href="/genGqlSchema">Gen Gql Schema</a>
@@ -47,24 +41,21 @@ const Navbar = (props) => (
 								<button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 							</form>
 						</div>
-					</li> */}
-					{/* <li className="nav-item">
-						<Link href="/settings"><a className="nav-link">Settings</a></Link>
-					</li> */}
-					{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
+					</li>
+					<li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
 						<a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="false">
 							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} />
 							<span className="username"> {props?.user?.name}</span> </a>
 						<div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
-							<a className="dropdown-item" href="/settings">Settings</a>
 							<a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
+							<a className="dropdown-item" href="/settings">Settings</a>
 						</div>
-					</li> */}
-					{/* <li className="nav-item">
+					</li>
+					<li className="nav-item">
 						<Link href="/about"><a className="nav-link">About</a></Link>
-					</li> */}
+					</li>
 				</ul>
 			</div>
 			<div className='buttons' aria-expanded="false">

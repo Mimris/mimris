@@ -14,14 +14,16 @@ import genGojsModel from './GenGojsModel'
 
 const page = (props:any) => {
 
-  console.log('12', props);
+  // console.log('17 Diagram', props);
   const dispatch = useDispatch()
   
   /**  * Get the state from the store  */
   const state = useSelector((state: any) => state) // Selecting the whole redux store
-  const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview) 
-  let gojsmodel =  state.phFocus.gojsModel 
-  let gojsmetamodel =  state.phFocus.gojsMetamodel 
+  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview) 
+  let gojsmetamodelpalette =  state.phGojs.gojsMetamodelPalette 
+  let gojsmetamodelmodel =  state.phGojs.gojsMetamodelModel 
+  let gojsmodel =  state.phGojs.gojsModel 
+  let gojsmetamodel =  state.phGojs.gojsMetamodel 
   let metis = state.phData?.metis
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
@@ -64,35 +66,37 @@ const page = (props:any) => {
         </NavItem>
       </Nav>
       {/* Metamodelling */}
-      <TabContent  activeTab={activeTab}>  
+      <TabContent  activeTab={activeTab} >  
         <TabPane  tabId="1">
-          <div className="workpad p-1 bg-light">
-            <Row >
+          <div className="workpad p-1 pt-2 bg-white" >
+            <Row style={{ paddingTop: "4px", paddingBottom: "0px" }}>
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-              <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "200px", minHeight: "40vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
+                <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
+                  {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
+                    gojsModel={gojsmetamodelmodel}
+                    gojsMetamodel={gojsmetamodelpalette}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                  />
+                    />
 
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
-              <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}>
+              <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", border: "solid 1px black" }}>
+              {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
+                    gojsModel={gojsmetamodelmodel}
+                    gojsMetamodel={gojsmetamodelpalette}z
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                  />
+                    />
                 </div>
               </Col>
             </Row>
@@ -100,10 +104,12 @@ const page = (props:any) => {
         </TabPane>
         {/* Modelling */}
         <TabPane tabId="2">
-          <div className="workpad p-1 bg-light">
+          <div className="workpad p-1 pt-2 bg-white">
             <Row >
             <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-              <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "40vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}>
+              {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
+              <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
+              {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
@@ -119,7 +125,8 @@ const page = (props:any) => {
               </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px"}}>
-                <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}>
+              <div className="myModeller m-0 pl-1 pr-1" style={{ backgroundColor: "#eee", width: "100%", border: "solid 1px black" }}>
+                {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
@@ -143,6 +150,7 @@ const page = (props:any) => {
 
       <div className="diagramtabs" >
         <div className="modellingContent" style={{ minWidth: "200px" }} >
+        <div className="sourceName float-right" style={{ fontSize: "80%", fontWeight: "bolder", marginTop: "4px", marginRight: "4px" }}>Current source:  {state.phSource}</div>
           {modellingtabs}
         </div>
       <style jsx>{`

@@ -24,10 +24,10 @@ const page = (props) => {
   const metamodels = (metis) && metis.metamodels
   // console.log('26 dia',  metis);
 
-  const focusModel = useSelector(focusModel => state.phFocus.focusModel)
-  const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
+  const focusModel = useSelector(focusModel => state.phFocus?.focusModel)
+  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
 
-  let gojsmodel = state.phFocus.gojsModel
+  let gojsmodel = state.phFocus?.gojsModel
 
   // useEffect(() => {
   //   // console.log('39', gojsmodel);

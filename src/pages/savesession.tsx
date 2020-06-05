@@ -27,7 +27,7 @@ const page = (props: any) => {
       res: NextApiResponse
     ) {
 
-    const response = await fetch('http://localhost:4050/api/usersession/1', {
+    const response = await fetch('/api/usersession/1', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ const page = (props: any) => {
       body: JSON.stringify({ name: '2nd Session', focus: '{'+JSON.stringify(props.phFocus)+'}' })
       // body: JSON.stringify({ name: '2nd Session', focus: '{"phData": "snorres test3"}' })
     });
-    const response2 = await fetch('http://localhost:4050/api/people/1', {
+    const response2 = await fetch('/api/people/1', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -58,9 +58,10 @@ const page = (props: any) => {
 
   const tasks =
     <div>
-      <btn className="btn-default bg-light btn-sm btn-block" onClick={toggleTasks}>{visibleTasks
+      <button className="btn-default bg-light btn-sm btn-block" onClick={toggleTasks}>{visibleTasks
         ? <><span style={{ paddingLeft: "5px" }}> Tasks - Help</span> <span style={{ float: "left" }} > &lt;  </span>
-        </> : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "6px", paddingLeft: "0px" }}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}</btn>
+        </> : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "6px", paddingLeft: "0px" }}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}
+      </button>
       <div className="toggleTasks">
         {visibleTasks
           ? <Help />

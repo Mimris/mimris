@@ -1,4 +1,5 @@
 import SelectContext from './SelectContext'
+import SelectSource from './SelectSource'
 import Link from 'next/link';
 
 const Help = () => {
@@ -6,15 +7,28 @@ const Help = () => {
     <div style={{ paddingTop: "4px", backgroundColor: "white" }}>
       <div style={{ fontSize: "80%", backgroundColor: "#bbb", border: "2px", margin: "1px", padding: "3px" }}> Start Modelling
         <div className="task-link bg-light" >
-          <a className="btn btn-link btn-sm" ><SelectContext className='button ContextModal' buttonLabel='Set Context' /> </a>
-          <a className="btn btn-sm btn-link float-right" data-toggle="collapse" href="#context"><span >? </span></a>
-          {/* <a className="btn btn-link btn-sm" >Set context <SelectContext className='button ContextModal' buttonLabel='Set Context' /> </a> <a className="btn btn-sm btn-link float-right" data-toggle="collapse" href="#context"><span >? </span></a> */}
-          <div className="collapse bg-light p-1 b-1" id="context" style={{ backgroundColor: "#fefefe", }}>
-            <a> Click on "Set context" above or link in the upper right corner. </a>
-            <a> In Popup "Set Context Form": Select Model and Modelview.</a>
+          <a className="btn btn-sm btn-link float-right" data-toggle="collapse" href="#source"><span >? </span></a>
+          <a className="btn btn-link btn-sm" ><SelectSource className='button ContextModal' buttonLabel='Save/Load Model' /></a>
+          <div className="collapse bg-light p-1 b-1" id="source" style={{ backgroundColor: "#fefefe", }}>
+            <a> Click on "Save/Load" above to save current models or load from local storage. </a>
+            <a style={{ maxWidth: "50px", float: "right" }} data-toggle="collapse" href="#insert-more"><span >(more...)</span></a>
+            <div className="collapse bg-transparent p-1" id="insert-more" style={{ backgroundColor: "#fefefe" }}>
+              Temporary copy/backup: RightClick here and select Inspect (Ctrl-Alt-I) Select the Application Tab, and then "Storage", then state.
+              RightClick the state "value" and select "Edit value". Press Ctrl-C to copy the store and paste it in a Notepad document.
+              If you want to reuse the copied store just copy from Notepad and "Edit value" again, and press Ctrl-V to paste the store back to localStorage state.
+            </div>
           </div>
         </div>
 
+        <div className="task-item bg-light" >
+            <a className="btn btn-sm btn-link float-right" data-toggle="collapse" href="#context"><span >? </span></a>
+            <a className="btn btn-link btn-sm" ><SelectContext className='button ContextModal' buttonLabel='Set Context' /></a>
+            <div className="collapse bg-light p-1 b-1" id="context" style={{ backgroundColor: "#fefefe", }}>  
+              <a> Click on "Set context" above or link in the upper right corner. </a>
+              <a> In Popup "Set Context Form": Select Model and Modelview.</a>
+            </div>
+        
+        </div>
         <div className="task-item bg-light" >
           <div className="btn btn-link btn-sm" >
             {/* <Link href="/diagram"><a className="nav-link">Modelling</a></Link> */}

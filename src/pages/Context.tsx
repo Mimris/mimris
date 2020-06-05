@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
-import { loadData } from '../actions/actions'
+// import { loadData } from '../actions/actions'
 // import { NextPageContext } from "next";
 // import { myGet } from "../defs/myGet";
 import Page from '../components/page';
@@ -16,9 +16,9 @@ const page = (props: any) => {
 
   const dispatch = useDispatch();
 
-  if (!props.phData) {
-    dispatch(loadData())
-  }
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
 
   let focus = props?.phFocus
   const focusModelId = props.phFocus.focusModel.id
@@ -70,7 +70,7 @@ const page = (props: any) => {
 }
 
 // Contexts.getInitialProps = async (ctx: NextPageContext) => {
-//   const json = await myGet('http://localhost:4050/api/person/1/contexts', ctx);
+//   const json = await myGet('/api/person/1/contexts', ctx);
 //   return { contexts: json };
 // }
 
@@ -104,6 +104,6 @@ export default Page(connect(state => state)(page));
 // }
 
 // Contexts.getInitialProps = async (ctx: NextPageContext) => {
-//   const json = await myGet('http://localhost:4050/api/person/1/contexts', ctx);
+//   const json = await myGet('/api/person/1/contexts', ctx);
 //   return { contexts: json };
 // }

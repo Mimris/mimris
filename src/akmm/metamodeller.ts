@@ -2607,8 +2607,8 @@ export class cxObjectType extends cxType {
     }
     // Methods
     getLoc(metamodel: cxMetaModel) {
-        if (utils.objExists(this.objtypegeos)) {
-            let geos = this.objtypegeos;
+        if (metamodel.objtypegeos) {
+            let geos = metamodel.objtypegeos;
             if (geos) {
                 for (let i = 0; i < geos.length; i++) {
                     let geo = geos[i];
@@ -2629,8 +2629,8 @@ export class cxObjectType extends cxType {
         return "";
     }
     getSize(metamodel: cxMetaModel) {
-        if (utils.objExists(this.objtypegeos)) {
-            let geos = this.objtypegeos;
+        if (metamodel.objtypegeos) {
+            let geos = metamodel.objtypegeos;
             if (geos) {
                 for (let i = 0; i < geos.length; i++) {
                     let geo = geos[i];
@@ -2904,10 +2904,8 @@ export class cxObjtypeGeo extends cxMetaObject {
         return this.type;
     }
     setType(type: cxObjectType) {
-        if (utils.objExists(type)) {
-            let otype = this.metis?.findObjectType(type.id);
-            if (utils.objExists(otype))
-                this.type = otype;
+        if (type) {
+            this.type = type;
         }
     }
     getLoc() {

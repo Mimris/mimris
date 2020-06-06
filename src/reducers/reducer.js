@@ -406,63 +406,14 @@ function reducer(state = InitialState, action) {
       console.log('372 curmvindex', curmvindex);
       
       const curov  = curmv?.objectviews?.find(ov => ov.id === action?.data?.id)
-      const ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov.id)
-      console.log('376 ovindex', ovindex);
+      console.log('409 curov', curov);
+      const ovlength = curmv?.objectviews.length
+      let ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov?.id)
+      if (ovindex < 0) {ovindex = ovlength} 
+      console.log('411 ovindex', ovindex, ovlength);
       const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
-      console.log('275 reducer', 
-      {
-        ...state,
-          phData: {
-          ...state.phData,
-            metis: {
-              ...state.phData.metis,
-              models: [
-                ...state.phData.metis.models.slice(0, curmindex),
-                {
-                  ...state.phData.metis.models[curmindex],
-                  modelviews: [
-                    ...curm.modelviews.slice(0, curmvindex),
-                    {
-                      ...curm.modelviews[curmvindex],
-                      objectviews: [
-                        ...curmv.objectviews.slice(0, ovindex),
-                        {
-                          ...curmv.objectviews[ovindex],
-                          name: action.data.name,
-                          description: action.data.desctription,
-                          objectRef: action.data.objectRef,
-                          // typeviewRef: action.data.typeviewRef,
-                          // group: action.data.group,
-                          // isGroup: action.data.isGroup,
-                          loc: action.data.loc,
-                          size: action.data.size
-                        },
-                        ...curmv.objectviews.slice(ovindex + 1)
-                      ]
-                    },
-                    ...curm.modelviews.slice(curmvindex + 1),
-                  ],
-                  // objects: [
-                  //   ...curm.objects.slice(0, curoindex),
-                  //   {
-                  //     ...curo,                 
-                  //     name: action.data.name,
-                  //     description: action.data.desctription,
-                  //     typeRef: action.data.typeviewRef,
-                  //     // ...curopropertyValues: [
-                  //     //   ...curo.propertyValues
-                  //     // ]
-                  //   },
-                  //   ...curm.objects.slice(curoindex + 1)  
-                  // ]
-                },
-                ...state.phData.metis.models.slice(curmindex + 1),
-              ]
-          },
-        },
-      }
-      )
+ 
       return {
         ...state,
         phData: {

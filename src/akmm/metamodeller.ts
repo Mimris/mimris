@@ -2904,10 +2904,8 @@ export class cxObjtypeGeo extends cxMetaObject {
         return this.type;
     }
     setType(type: cxObjectType) {
-        if (utils.objExists(type)) {
-            let otype = this.metis?.findObjectType(type.id);
-            if (utils.objExists(otype))
-                this.type = otype;
+        if (type) {
+            this.type = type;
         }
     }
     getLoc() {

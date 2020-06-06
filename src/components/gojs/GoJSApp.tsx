@@ -306,6 +306,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
+            console.log('309 gojsapp', part);
+            
             const objview = uic.createObject(part, context);
             if (objview) {
               // Check if inside a group

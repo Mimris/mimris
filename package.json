@@ -6,10 +6,10 @@
   "scripts": {
     "heroku-postbuild": "next build",
     "build": "tsc & next build",
-    "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
-    "dev": "tsc --downlevelIteration & node ./database-test.js & next -p ${PORT}",
-    "dev2": "react-scripts start & next -p 3000",
-    "start2": "tsc --downlevelIteration & node ./database-test.js & next start -p ${PORT}",
+    "build-ts": "tsc --downlevelIteration & node ./database-test.js  & NODE_OPTIONS='--inspect'& next build",
+    "dev": "tsc --downlevelIteration & node ./database-test.js & NODE_OPTIONS='--inspect' & next -p ${PORT}",
+    "dev2": "react-scripts start  & NODE_OPTIONS='--inspect'& next -p 3000",
+    "start2": "tsc --downlevelIteration & node ./database-test.js  & NODE_OPTIONS='--inspect'& next start -p ${PORT}",
     "start": "next start -p ${PORT}"
   },
   "dependencies": {

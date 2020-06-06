@@ -205,7 +205,8 @@ function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
         const objtype = objtypes[i];
         if (objtype && !objtype.deleted) {
           const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
-          node.loadNodeContent();
+          console.log('208 buildGoMetaModel', metamodel);
+          node.loadNodeContent(metamodel);
           myGoMetaModel.addNode(node);
         }
       }

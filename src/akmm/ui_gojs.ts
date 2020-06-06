@@ -380,11 +380,13 @@ export class goObjectNode extends goNode {
 export class goObjectTypeNode extends goNode {
     objtype: akm.cxObjectType | null;
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
+    typename: string;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.category = goc.C_OBJECTTYPE;
         this.objtype = objtype;
         this.typeview = null;
+        this.typename = this.name;
         // this.isGroup    = false;
 
         if (utils.objExists(objtype)) {
@@ -404,7 +406,7 @@ export class goObjectTypeNode extends goNode {
         else
             return "";
     }
-    loadNodeContent() {
+    loadNodeContent(metamodel: akm.cxMetaModel | null) {
         if (this.objtype) {
             const objtype = this.objtype;
             if (!objtype.deleted) {
@@ -414,8 +416,11 @@ export class goObjectTypeNode extends goNode {
                     this.addData(data);
                     this.setName(objtype.getName());
                     this.setType(goc.C_OBJECTTYPE);
-                    let model = this.parentModel;
-                    let metamodel = model ? model.metamodel : null;
+                    this.typename = this.name;
+                    if (!metamodel) {
+                        let model = this.parentModel;
+                        metamodel = model ? model.metamodel : null;
+                    }
                     if (metamodel) {
                         let loc = objtype.getLoc(metamodel)
                         this.setLoc(loc);
@@ -567,17 +572,21 @@ export class goRelshipLink extends goLink {
 }
 
 export class goRelshipTypeLink extends goLink {
-    reltype: akm.cxRelationshipType | null;
-    typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
-    fromNode: goNode | null;
-    toNode: goNode | null;
+    reltype:    akm.cxRelationshipType | null;
+    typeview:   akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
+    fromNode:   goNode | null;
+    toNode:     goNode | null;
+    from:       string | undefined;
+    to:         string | undefined;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
-        this.category = goc.C_RELSHIPTYPE;
-        this.reltype = reltype;
-        this.typeview = null;
-        this.fromNode = null;
-        this.toNode = null;
+        this.category   = goc.C_RELSHIPTYPE;
+        this.reltype    = reltype;
+        this.typeview   = null;
+        this.fromNode   = null;
+        this.toNode     = null;
+        this.from       = "";
+        this.to         = "";
 
         if (reltype) {
             this.setName(reltype.getName());
@@ -589,9 +598,11 @@ export class goRelshipTypeLink extends goLink {
                 const fromObjtype: akm.cxObjectType | null = reltype.getFromObjType();
                 if (fromObjtype) {
                     this.fromNode = model.findTypeNode(fromObjtype.getId());
+                    this.from = this.fromNode?.key;
                     const toObjtype: akm.cxObjectType | null = reltype.getToObjType();
                     if (toObjtype) {
                         this.toNode = model.findTypeNode(toObjtype.getId());
+                        this.to = this.toNode?.key;
                     }
                 }
             }

@@ -38,12 +38,12 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       // console.log('40 GengojsModel :', myMetis, curmod.id ,myModel);
       
       const myMetamodel = myModel?.metamodel;
-      // console.log('43 GengojsModel myMetamodel :', myMetamodel);
+      console.log('43 GengojsModel myMetamodel :', myMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
-      // console.log('40 myMetamodelPalette', myMetamodelPalette);
-      const myMetamodelModel = buildGoMetaModel(myMetamodel);
-      // console.log('42 myGoMetaModel', myMetamodelModel);
+      console.log('40 myMetamodelPalette', myMetamodelPalette);
+      const myGoMetamodel = buildGoMetaModel(myMetamodel);
+      console.log('42 myGoMetaModel', myGoMetamodel);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('44 myPalette', myPalette);
@@ -71,10 +71,18 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       const gojsMetamodelPalette =  {
         nodeDataArray: myMetamodelPalette?.nodes,
         linkDataArray: []
-       }
-      const gojsMetamodelModel =  { 
-          nodeDataArray: myMetamodelModel?.nodes,
-          linkDataArray: myMetamodelModel?.links
+      }
+      const gojsMetamodelModel = 
+        // await (curGomodel) ?
+        // {
+        //   nodeDataArray: curGomodel.nodes,
+        //   linkDataArray: curGomodel.links
+        // } 
+        // : 
+        (myGoMetamodel) && 
+        { 
+          nodeDataArray: myGoMetamodel.nodes,
+          linkDataArray: myGoMetamodel.links
         }
 
       const gojsMetamodel = {
@@ -98,12 +106,13 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       
       console.log('105 GenGojsModel', myGoModel, gojsModel);
       // update the Gojs arrays in the store
-      dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
-      dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-      dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
-      dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
-      dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
-      dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
+          dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
+          dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
+          dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+          dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+          dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis })
+          dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
+          dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
     }
     // return myMetis; 
   }

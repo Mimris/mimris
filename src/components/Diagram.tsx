@@ -122,7 +122,7 @@ const page = (props:any) => {
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
                 <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-                  {/* <Palette
+                  <Palette
                     gojsModel={gojsmetamodelmodel}
                     gojsMetamodel={gojsmetamodelpalette}
                     myMetis={myMetis}
@@ -130,14 +130,14 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                    /> */}
+                    />
 
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
               <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", border: "solid 1px black" }}>
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
-                  {/* <Modeller
+                  <Modeller
                     gojsModel={gojsmetamodelmodel}
                     gojsMetamodel={gojsmetamodelpalette}z
                     myMetis={myMetis}
@@ -145,7 +145,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                    /> */}
+                    />
                 </div>
               </Col>
             </Row>
@@ -159,7 +159,7 @@ const page = (props:any) => {
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
               <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
-                {/* <Palette
+                <Palette
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
                   myMetis={myMetis}
@@ -167,7 +167,7 @@ const page = (props:any) => {
                   metis={metis}
                   phFocus={phFocus}
                   dispatch={dispatch}
-                /> */}
+                />
                 {/* <div className="instances"> area for all instance or result of query 
                 {instances}
                  </div> */}
@@ -176,7 +176,7 @@ const page = (props:any) => {
               <Col style={{ paddingLeft: "1px", marginLeft: "1px"}}>
               <div className="myModeller m-0 pl-1 pr-1" style={{ backgroundColor: "#eee", width: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
-                  {/* <Modeller
+                  <Modeller
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
@@ -184,7 +184,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                  /> */}
+                  />
                   {modellerDiv}
                 </div>
               </Col>

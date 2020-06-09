@@ -9,6 +9,7 @@ import {
   SET_FOCUS_OBJECT,
   SET_MYMETIS_MODEL,
   SET_MY_GOMODEL,
+  SET_MY_GOMETAMODEL,
   SET_FOCUS_MODEL,
   SET_GOJS_MODEL,
   SET_GOJS_METAMODEL,
@@ -31,6 +32,7 @@ export const InitialState = {
   phData: null,
   phMymetis: null,
   phMyGoModel: null,
+  phMyGoMetamodel: null,
   phUser: {
     focusUser: {
       id: 1,
@@ -275,6 +277,15 @@ function reducer(state = InitialState, action) {
         phMyGoModel: {
           ...state.phMyGoModel,
           myGoModel: action.myGoModel
+        }
+      }
+    case SET_MY_GOMETAMODEL:
+      // console.log('220 SET_MY_GOMODEL', action);
+      return {
+        ...state,
+        phMyGoMetamodel: {
+          ...state.phMyGoMetamodel,
+          myGoMetamodel: action.myGoMetamodel
         }
       }
     case SET_FOCUS_OBJECT:

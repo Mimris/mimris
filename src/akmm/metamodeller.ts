@@ -441,7 +441,6 @@ export class cxMetis {
                 }
             }
         }
-        // console.log('444, metamodeller:', model);
         
     }
     importObject(item: any, model: cxModel | null) {

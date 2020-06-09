@@ -306,19 +306,25 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
-            console.log('309 gojsapp', part);
-            
-            const objview = uic.createObject(part, context);
-            if (objview) {
-              // Check if inside a group
-              const group = uic.getGroupByLocation(myGoModel, objview.loc);
-              if (group) {
-                objview.group = group.objectview.id;
-                const myNode = myGoModel?.findNode(part.key);
-                myNode.group = group.key;
+            console.log('309 GoJSApp', part);
+            if (part.type === 'objecttype') {
+               alert('Create new object type');
+               const otype = uic.createObjectType(part, context);
+               const addNode = new gql.gqlObjectType(otype);
+               console.log('314 ExternalObjectsDropped', otype);
+            } else {
+              const objview = uic.createObject(part, context);
+              if (objview) {
+                // Check if inside a group
+                const group = uic.getGroupByLocation(myGoModel, objview.loc);
+                if (group) {
+                  objview.group = group.objectview.id;
+                  const myNode = myGoModel?.findNode(part.key);
+                  myNode.group = group.key;
+                }
+                const addNode = new gql.gqlObjectView(objview);
+                addedNodes.push(addNode);
               }
-              const addNode = new gql.gqlObjectView(objview);
-              addedNodes.push(addNode);
             }
           })
         )

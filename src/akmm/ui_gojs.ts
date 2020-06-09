@@ -1,7 +1,8 @@
 // Application code
 
 //const glb 	= require('./akm_globals');
-const goc = require('./gojs_constants');
+const constants = require('./constants');
+//const goc = require('./gojs_constants');
 const vkc = require('./viewkinds');
 
 import * as utils from './utilities';
@@ -36,6 +37,8 @@ export class goModel {
         this.metamodel = (modelView)
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;
+
+        console.log('41 constants', constants);
     }
     // Methods
     getModelView() {
@@ -169,7 +172,7 @@ export class goModel {
                         if (utils.objExists(objtype)) {
                             if (!objtype.getDeleted()) {
                                 const node = new goObjectTypeNode(utils.createGuid(), objtype);
-                                node.loadNodeContent(metamodel); //sf
+                                node.loadNodeContent(metamodel);
                                 gMetamodel.addNode(node);
                             }
                         }
@@ -283,7 +286,7 @@ export class goObjectNode extends goNode {
     parent: string;
     constructor(key: string, objview: akm.cxObjectView) {
         super(key, null);
-        this.category = goc.C_OBJECT;
+        this.category = constants.gojs.C_OBJECT;
         this.objectview = objview;
         this.object = null;
         this.objecttype = null;
@@ -383,15 +386,15 @@ export class goObjectTypeNode extends goNode {
     typename: string;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
-        this.category = goc.C_OBJECTTYPE;
+        this.category = constants.gojs.C_OBJECTTYPE;
         this.objtype = objtype;
         this.typeview = null;
-        this.typename = this.name;
+        this.typename = constants.gojs.C_OBJECTTYPE;
         // this.isGroup    = false;
 
         if (utils.objExists(objtype)) {
             this.setName(objtype.getName());
-            this.setType(goc.C_OBJECTTYPE);
+            this.setType(constants.gojs.C_OBJECTTYPE);
             const typeview = objtype.getDefaultTypeView();
             if (utils.objExists(typeview)) {
                 this.typeview = typeview;
@@ -415,8 +418,7 @@ export class goObjectTypeNode extends goNode {
                     const data = typeview.getData();
                     this.addData(data);
                     this.setName(objtype.getName());
-                    this.setType(goc.C_OBJECTTYPE);
-                    this.typename = this.name;
+                    this.setType(constants.gojs.C_OBJECTTYPE);
                     if (!metamodel) {
                         let model = this.parentModel;
                         metamodel = model ? model.metamodel : null;
@@ -467,7 +469,7 @@ export class goRelshipLink extends goLink {
     to: string;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
-        this.category = goc.C_RELATIONSHIP;
+        this.category = constants.gojs.C_RELATIONSHIP;
         this.relshipview = relview;
         this.relship = null;
         this.relshiptype = null;
@@ -544,7 +546,7 @@ export class goRelshipLink extends goLink {
             }
         } else if (relview) {
             const relship: akm.cxRelationship | null = relview.relship;
-            if (relship && (relship.category === goc.C_OBJECT)) {
+            if (relship && (relship.category === constants.gojs.C_OBJECT)) {
                 if (relship.viewkind === vkc.VIEWKINDS.REL) {
                     const reltype = relship.type;
                     if (reltype) {
@@ -580,7 +582,7 @@ export class goRelshipTypeLink extends goLink {
     to:         string | undefined;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
-        this.category   = goc.C_RELSHIPTYPE;
+        this.category   = constants.gojs.C_RELSHIPTYPE;
         this.reltype    = reltype;
         this.typeview   = null;
         this.fromNode   = null;
@@ -590,7 +592,7 @@ export class goRelshipTypeLink extends goLink {
 
         if (reltype) {
             this.setName(reltype.getName());
-            this.setType(goc.C_RELSHIPTYPE);
+            this.setType(constants.gojs.C_RELSHIPTYPE);
             const typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null
                 = reltype.getDefaultTypeView();
             if (typeview) {

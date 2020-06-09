@@ -45,7 +45,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
    */
   public componentDidMount() {
     if (!this.diagramRef.current) return;
-    const diagram = this.diagramRef.current.getDiagram();
+    const diagram = this.diagramRef?.current?.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
@@ -182,7 +182,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }
         );
     }
-    console.log('94 myDiagram', this);
+    // console.log('94 myDiagram', this);
 
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
@@ -653,7 +653,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         divClassName='diagram-component'
         initDiagram={this.initDiagram}
         nodeDataArray={this.props.nodeDataArray}
-        linkDataArray={this.props.linkDataArray}
+        linkDataArray={this.props?.linkDataArray}
         modelData={this.props.modelData}
         onModelChange={this.props.onModelChange}
         skipsDiagramUpdate={this.props.skipsDiagramUpdate}

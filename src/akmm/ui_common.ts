@@ -1,4 +1,4 @@
-// @ts -nocheck
+// @ts-nocheck
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
@@ -111,7 +111,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
         console.log('53 createObject', data);
-        const otypeId = data.objecttype.id;
+        const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         console.log('48 createObject', objtype);
         let guid = utils.createGuid();

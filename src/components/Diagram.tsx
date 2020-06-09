@@ -14,37 +14,86 @@ import genGojsModel from './GenGojsModel'
 
 const page = (props:any) => {
 
-  // console.log('17 Diagram', props);
+  console.log('17 Diagram', props);
   const dispatch = useDispatch()
   
   /**  * Get the state from the store  */
   const state = useSelector((state: any) => state) // Selecting the whole redux store
+  const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview) 
+
+  
   let gojsmetamodelpalette =  state.phGojs.gojsMetamodelPalette 
   let gojsmetamodelmodel =  state.phGojs.gojsMetamodelModel 
   let gojsmodel =  state.phGojs.gojsModel 
   let gojsmetamodel =  state.phGojs.gojsMetamodel 
   let metis = state.phData?.metis
-  let myMetis = props.phMymetis?.myMetis
-  let myGoModel = props.phMyGoModel?.myGoModel
-  let phFocus = props.phFocus;
+  let myMetis = state.phMymetis?.myMetis
+  let myGoModel = state.phMyGoModel?.myGoModel
+  let phFocus = state.phFocus;
 
-
-  // console.log('24 Diagram', gojsmetamodel ); 
+  // console.log('25 Diagram props state : ', props.phGojs, state.phGojs);
+  // console.log('42 Diagram', gojsmodel ); 
+  
+  // useEffect(() => {
+    //     // genGojsModel(state, dispatch);
+    //   gojsmodel = useSelector(gojsmodel => state.phFocus?.gojsModel) 
+    // }, [focusModelview.id])
+    
+    // useEffect(() => {
+    //   genGojsModel(state, dispatch);
+    // }, [])
+    
+    useEffect(() => {
+      console.log('38 Diagram state', state ); 
+      genGojsModel(state, dispatch);
+    }, [focusModel.id])
+    
+    useEffect(() => {
+      console.log('42 Diagram state', state ); 
+      genGojsModel(state, dispatch);
+    }, [focusModelview.id])
+    
+    
+    
+    const [activeTab, setActiveTab] = useState('2');
+    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
+    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const toggleTip = () => setTooltipOpen(!tooltipOpen);
+    
+    const [visibleTasks, setVisibleTasks] = useState(true)
+    function toggleTasks() {
+      setVisibleTasks(!visibleTasks);
+    }
+    
+    let modellerDiv = 
+      <>
+        <Modeller
+          gojsModel={gojsmodel}
+          gojsMetamodel={gojsmetamodel}
+          myMetis={myMetis}
+          myGoModel={myGoModel}
+          metis={metis}
+          phFocus={phFocus}
+          dispatch={dispatch}
+        />
+      </>
+  
+  console.log('57 Diagram', state.phData, focusModel, focusModelview, gojsmodel);
 
   useEffect(() => {
-    genGojsModel(state, dispatch);
-  }, [focusModelview])
-
-  const [activeTab, setActiveTab] = useState('2');
-  const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const toggleTip = () => setTooltipOpen(!tooltipOpen);
-
-  const [visibleTasks, setVisibleTasks] = useState(true)
-  function toggleTasks() {
-    setVisibleTasks(!visibleTasks);
-  }
+    console.log('62 Diagram', state.phGojs.gojsModel);
+    modellerDiv = <Modeller
+      gojsModel={gojsmodel}
+      gojsMetamodel={gojsmetamodel}
+      myMetis={myMetis}
+      myGoModel={myGoModel}
+      metis={metis}
+      phFocus={phFocus}
+      dispatch={dispatch}
+    />
+  }, [state.phData, focusModelview.id])
+  // }, [state.phData, focusModelview.id, gojsmodel?.nodeDataArray.length > 0])
 
   const modellingtabs = (<>
       <Nav tabs >
@@ -136,6 +185,7 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                   />
+                  {modellerDiv}
                 </div>
               </Col>
             </Row>

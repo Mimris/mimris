@@ -9,6 +9,7 @@ import {
   SET_FOCUS_OBJECT,
   SET_MYMETIS_MODEL,
   SET_MY_GOMODEL,
+  SET_MY_GOMETAMODEL,
   SET_FOCUS_MODEL,
   SET_GOJS_MODEL,
   SET_GOJS_METAMODEL,
@@ -31,6 +32,7 @@ export const InitialState = {
   phData: null,
   phMymetis: null,
   phMyGoModel: null,
+  phMyGoMetamodel: null,
   phUser: {
     focusUser: {
       id: 1,
@@ -80,43 +82,43 @@ export const InitialState = {
   },
   phFocus: {
     focusModel: {
-      id: 'null',
-      name: 'null'
+      id: null,
+      name: null
     },
     focusObject: {
-      id: 'UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656',
-      name: 'Default',
-      sourceName: 'test',
+      id: null,
+      name: '',
+      sourceName: '',
       status: null
     },
     focusModelview: {
-      id: 'UUID4_BFE65BE1-77D3-42CF-B622-3B6F2B58A386',
-      name: 'WP'
+      id: null,
+      name: ''
     },
     focusOrg: {
-      id: 0,
-      name: 'Default'
+      id: null,
+      name: ''
     },
     focusProj: {
-      id: 0,
-      name: 'Default'
+      id: null,
+      name: ''
     },
     focusRole: {
-      id: 'UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF',
-      name: 'Default'
+      id: null,
+      name: ''
     },
     focusCollection: null,
     focusTask: {
-      id: "UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656",
-      name: "Default",
+      id: null,
+      name: "",
       focus: {
         focusObject: {
-          id: "UUID4_A416FE57-F1A3-4D56-A534-E43C87508465",
-          name: "Default"
+          id: null,
+          name: ""
         },
         focusSource: {
-          id: 999,
-          name: "traversed"
+          id: null,
+          name: ""
         },
         focusCollection: []
       }
@@ -148,8 +150,8 @@ export const InitialState = {
     //   },
     // },
     focusSource: {
-      id: 8,
-      name: 'objectviews'
+      id: null,
+      name: ''
     },
     focusModelview: {
       id: null,
@@ -277,6 +279,15 @@ function reducer(state = InitialState, action) {
           myGoModel: action.myGoModel
         }
       }
+    case SET_MY_GOMETAMODEL:
+      // console.log('220 SET_MY_GOMODEL', action);
+      return {
+        ...state,
+        phMyGoMetamodel: {
+          ...state.phMyGoMetamodel,
+          myGoMetamodel: action.myGoMetamodel
+        }
+      }
     case SET_FOCUS_OBJECT:
       // console.log('229 SET_FOCUS_OBJECT', state, action.data);
       focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
@@ -353,16 +364,16 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_TASK:
-      // console.log('104', action.data);
+      console.log('104', action.data);
 
       focusTask = action.data.focusTask
-      focusObject = (action.data.focusTask.focus.focusObject) ? action.data.focusTask.focus.focusObject : state.phFocus.focusObject
-      focusSource = (action.data.focusTask.focus.focusSource) ? action.data.focusTask.focus.focusSource : state.phFocus.focusSource
-      focusModelview = (action.data.focusTask.focus.focusModelview) ? action.data.focusTask.focus.focusModelview : state.phFocus.focusModelview
-      focusOrg = (action.data.focusTask.focus.focusOrg) ? action.data.focusTask.focus.focusOrg : state.phFocus.focusOrg
-      focusProj = (action.data.focusTask.focus.focusProj) ? action.data.focusTask.focus.focusProj : state.phFocus.focusProj
-      focusRole = (action.data.focusTask.focus.focusRole) ? action.data.focusTask.focus.focusRole : state.phFocus.focusRole
-      focusCollection = (action.data.focusTask.focus.focusCollection) ? action.data.focusTask.focus.focusCollection : state.phFocus.focusCollection
+      focusObject = (action.data.focusTask?.focus.focusObject) ? action.data.focusTask.focus.focusObject : state.phFocus.focusObject
+      focusSource = (action.data.focusTask?.focus.focusSource) ? action.data.focusTask.focus.focusSource : state.phFocus.focusSource
+      focusModelview = (action.data.focusTask?.focus.focusModelview) ? action.data.focusTask.focus.focusModelview : state.phFocus.focusModelview
+      focusOrg = (action.data.focusTask?.focus.focusOrg) ? action.data.focusTask.focus.focusOrg : state.phFocus.focusOrg
+      focusProj = (action.data.focusTask?.focus.focusProj) ? action.data.focusTask.focus.focusProj : state.phFocus.focusProj
+      focusRole = (action.data.focusTask?.focus.focusRole) ? action.data.focusTask.focus.focusRole : state.phFocus.focusRole
+      focusCollection = (action.data.focusTask?.focus.focusCollection) ? action.data.focusTask.focus.focusCollection : state.phFocus.focusCollection
 
       return {
         ...state,
@@ -406,63 +417,14 @@ function reducer(state = InitialState, action) {
       console.log('372 curmvindex', curmvindex);
       
       const curov  = curmv?.objectviews?.find(ov => ov.id === action?.data?.id)
-      const ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov?.id)
-      console.log('376 ovindex', ovindex);
+      console.log('409 curov', curov);
+      const ovlength = curmv?.objectviews.length
+      let ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov?.id)
+      if (ovindex < 0) {ovindex = ovlength} 
+      console.log('411 ovindex', ovindex, ovlength);
       const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
-      console.log('275 reducer', 
-      {
-        ...state,
-          phData: {
-          ...state.phData,
-            metis: {
-              ...state.phData.metis,
-              models: [
-                ...state.phData.metis.models.slice(0, curmindex),
-                {
-                  ...state.phData.metis.models[curmindex],
-                  modelviews: [
-                    ...curm.modelviews.slice(0, curmvindex),
-                    {
-                      ...curm.modelviews[curmvindex],
-                      objectviews: [
-                        ...curmv.objectviews.slice(0, ovindex),
-                        {
-                          ...curmv.objectviews[ovindex],
-                          name: action.data.name,
-                          description: action.data.desctription,
-                          objectRef: action.data.objectRef,
-                          // typeviewRef: action.data.typeviewRef,
-                          // group: action.data.group,
-                          // isGroup: action.data.isGroup,
-                          loc: action.data.loc,
-                          size: action.data.size
-                        },
-                        ...curmv.objectviews.slice(ovindex + 1)
-                      ]
-                    },
-                    ...curm.modelviews.slice(curmvindex + 1),
-                  ],
-                  // objects: [
-                  //   ...curm.objects.slice(0, curoindex),
-                  //   {
-                  //     ...curo,                 
-                  //     name: action.data.name,
-                  //     description: action.data.desctription,
-                  //     typeRef: action.data.typeviewRef,
-                  //     // ...curopropertyValues: [
-                  //     //   ...curo.propertyValues
-                  //     // ]
-                  //   },
-                  //   ...curm.objects.slice(curoindex + 1)  
-                  // ]
-                },
-                ...state.phData.metis.models.slice(curmindex + 1),
-              ]
-          },
-        },
-      }
-      )
+ 
       return {
         ...state,
         phData: {

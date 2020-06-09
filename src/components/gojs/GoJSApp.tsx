@@ -46,8 +46,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     super(props);
     // console.log('34',props.nodeDataArray);
     this.state = {
-      nodeDataArray: this.props.nodeDataArray,
-      linkDataArray: this.props.linkDataArray,
+      nodeDataArray: this.props?.nodeDataArray,
+      linkDataArray: this.props?.linkDataArray,
       modelData: {
         canRelink: true
       },
@@ -388,12 +388,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
     }
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-    console.log('319 addedNodes', addedNodes);
-    console.log('321 deletedNodes', deletedNodes);
-    console.log('322 addedLinks', addedLinks);
-    console.log('323 modifiedLinks', modifiedLinks);
-    console.log('324 deletedLinks', deletedLinks);
-    console.log('394 modifiedNodes', modifiedNodes);
+    // console.log('319 addedNodes', addedNodes);
+    // console.log('321 deletedNodes', deletedNodes);
+    // console.log('322 addedLinks', addedLinks);
+    // console.log('323 modifiedLinks', modifiedLinks);
+    // console.log('324 deletedLinks', deletedLinks);
+    // console.log('394 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
         let data = mn
         this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
@@ -415,7 +415,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const removedLinkKeys = obj.removedLinkKeys;
     const modifiedModelData = obj.modelData;
 
-    console.log('211 handleModelChange', obj);
+    // console.log('211 handleModelChange', obj);
     // maintain maps of modified data so insertions don't need slow lookups
     const modifiedNodeMap = new Map<go.Key, go.ObjectData>();
     const modifiedLinkMap = new Map<go.Key, go.ObjectData>();
@@ -492,7 +492,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         // handle model data changes, for now just replacing with the supplied object
         if (modifiedModelData) {
           draft.modelData = modifiedModelData;
-          console.log('256 GoJSApp modelData', draft.modelData);
+          // console.log('256 GoJSApp modelData', draft.modelData);
         }
         draft.skipsDiagramUpdate = true;  // the GoJS model already knows about these updates
       })
@@ -528,7 +528,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       })
     );
-    console.log('247 input: ', value);
+    // console.log('247 input: ', value);
   }
 
   /**
@@ -539,10 +539,11 @@ class GoJSApp extends React.Component<{}, AppState> {
     const target = e.target;
     const value = target.checked;
     this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
-    console.log('257 relink: ', value);
+    // console.log('257 relink: ', value);
   }
 
   public render() {
+    // console.log('360 props', this.state.nodeDataArray);
 
     const selectedData = this.state.selectedData;
     let inspector;
@@ -555,9 +556,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         />;
       </>
     }
-    console.log('360 this.state.nodeDataArray', this.state.nodeDataArray);
-    console.log('361 this.state.linkDataArray', this.state.linkDataArray);
-    console.log('362 this.state.myGoModel', this.state.myGoModel);
+    
+    // console.log('360 this.state.nodeDataArray', this.state.nodeDataArray);
+    // console.log('361 this.state.linkDataArray', this.state.linkDataArray);
+    // console.log('362 this.state.myMetis', this.state.myMetis);
+    // console.log('362 this.state.myGoModel', this.state.myGoModel);
 
     return (
       <div>

@@ -174,8 +174,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           ref={this.diagramRef}
           divClassName        = 'diagram-component'
           initDiagram         = {this.initPalette}
-          nodeDataArray       = {this.props.nodeDataArray}
-          linkDataArray       = {this.props.linkDataArray}
+          nodeDataArray       = {this.props?.nodeDataArray}
+          linkDataArray       = {this.props?.linkDataArray}
           modelData           = {this.props.modelData}
           onModelChange       = {this.props.onModelChange}
         //   onSelectionChange   = {this.props.onModelChange}

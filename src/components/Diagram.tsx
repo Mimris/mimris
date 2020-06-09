@@ -14,37 +14,86 @@ import genGojsModel from './GenGojsModel'
 
 const page = (props:any) => {
 
-  // console.log('17 Diagram', props);
+  console.log('17 Diagram', props);
   const dispatch = useDispatch()
   
   /**  * Get the state from the store  */
   const state = useSelector((state: any) => state) // Selecting the whole redux store
+  const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview) 
+
+  
   let gojsmetamodelpalette =  state.phGojs.gojsMetamodelPalette 
   let gojsmetamodelmodel =  state.phGojs.gojsMetamodelModel 
   let gojsmodel =  state.phGojs.gojsModel 
   let gojsmetamodel =  state.phGojs.gojsMetamodel 
   let metis = state.phData?.metis
-  let myMetis = props.phMymetis?.myMetis
-  let myGoModel = props.phMyGoModel?.myGoModel
-  let phFocus = props.phFocus;
+  let myMetis = state.phMymetis?.myMetis
+  let myGoModel = state.phMyGoModel?.myGoModel
+  let phFocus = state.phFocus;
 
-
-  // console.log('24 Diagram', gojsmetamodel ); 
+  // console.log('25 Diagram props state : ', props.phGojs, state.phGojs);
+  // console.log('42 Diagram', gojsmodel ); 
+  
+  // useEffect(() => {
+    //     // genGojsModel(state, dispatch);
+    //   gojsmodel = useSelector(gojsmodel => state.phFocus?.gojsModel) 
+    // }, [focusModelview.id])
+    
+    // useEffect(() => {
+    //   genGojsModel(state, dispatch);
+    // }, [])
+    
+    useEffect(() => {
+      console.log('38 Diagram state', state ); 
+      genGojsModel(state, dispatch);
+    }, [focusModel.id])
+    
+    useEffect(() => {
+      console.log('42 Diagram state', state ); 
+      genGojsModel(state, dispatch);
+    }, [focusModelview.id])
+    
+    
+    
+    const [activeTab, setActiveTab] = useState('2');
+    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
+    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const toggleTip = () => setTooltipOpen(!tooltipOpen);
+    
+    const [visibleTasks, setVisibleTasks] = useState(true)
+    function toggleTasks() {
+      setVisibleTasks(!visibleTasks);
+    }
+    
+    let modellerDiv = 
+      <>
+        <Modeller
+          gojsModel={gojsmodel}
+          gojsMetamodel={gojsmetamodel}
+          myMetis={myMetis}
+          myGoModel={myGoModel}
+          metis={metis}
+          phFocus={phFocus}
+          dispatch={dispatch}
+        />
+      </>
+  
+  console.log('57 Diagram', state.phData, focusModel, focusModelview, gojsmodel);
 
   useEffect(() => {
-    genGojsModel(state, dispatch);
-  }, [focusModelview])
-
-  const [activeTab, setActiveTab] = useState('2');
-  const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const toggleTip = () => setTooltipOpen(!tooltipOpen);
-
-  const [visibleTasks, setVisibleTasks] = useState(true)
-  function toggleTasks() {
-    setVisibleTasks(!visibleTasks);
-  }
+    console.log('62 Diagram', state.phGojs.gojsModel);
+    modellerDiv = <Modeller
+      gojsModel={gojsmodel}
+      gojsMetamodel={gojsmetamodel}
+      myMetis={myMetis}
+      myGoModel={myGoModel}
+      metis={metis}
+      phFocus={phFocus}
+      dispatch={dispatch}
+    />
+  }, [state.phData, focusModelview.id])
+  // }, [state.phData, focusModelview.id, gojsmodel?.nodeDataArray.length > 0])
 
   const modellingtabs = (<>
       <Nav tabs >
@@ -73,7 +122,7 @@ const page = (props:any) => {
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
                 <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-                  <Palette
+                  {/* <Palette
                     gojsModel={gojsmetamodelmodel}
                     gojsMetamodel={gojsmetamodelpalette}
                     myMetis={myMetis}
@@ -81,14 +130,14 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                    />
+                    /> */}
 
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
               <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", border: "solid 1px black" }}>
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
-                  <Modeller
+                  {/* <Modeller
                     gojsModel={gojsmetamodelmodel}
                     gojsMetamodel={gojsmetamodelpalette}z
                     myMetis={myMetis}
@@ -96,7 +145,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                    />
+                    /> */}
                 </div>
               </Col>
             </Row>
@@ -110,7 +159,7 @@ const page = (props:any) => {
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
               <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "150px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
-                <Palette
+                {/* <Palette
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
                   myMetis={myMetis}
@@ -118,7 +167,7 @@ const page = (props:any) => {
                   metis={metis}
                   phFocus={phFocus}
                   dispatch={dispatch}
-                />
+                /> */}
                 {/* <div className="instances"> area for all instance or result of query 
                 {instances}
                  </div> */}
@@ -127,7 +176,7 @@ const page = (props:any) => {
               <Col style={{ paddingLeft: "1px", marginLeft: "1px"}}>
               <div className="myModeller m-0 pl-1 pr-1" style={{ backgroundColor: "#eee", width: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
-                  <Modeller
+                  {/* <Modeller
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
@@ -135,7 +184,8 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                  />
+                  /> */}
+                  {modellerDiv}
                 </div>
               </Col>
             </Row>

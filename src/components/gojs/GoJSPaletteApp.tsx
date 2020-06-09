@@ -40,8 +40,8 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     super(props);
     console.log('36 GoJSPaletteApp',props.nodeDataArray);
     this.state = {
-      nodeDataArray: this.props.nodeDataArray,
-      linkDataArray: this.props.linkDataArray,
+      nodeDataArray: this.props?.nodeDataArray,
+      linkDataArray: this.props?.linkDataArray,
       modelData: {
         canRelink: true
       },
@@ -272,8 +272,8 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         />;
       </>
     }
-    console.log('266 nodeDataArray', this.state.nodeDataArray);
-    console.log('267 linkDataArray', this.state.linkDataArray);
+    // console.log('266 nodeDataArray', this.state.nodeDataArray);
+    // console.log('267 linkDataArray', this.state.linkDataArray);
 
     return (
       <div>

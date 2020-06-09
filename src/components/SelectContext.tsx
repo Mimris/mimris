@@ -42,7 +42,9 @@ const SelectContext = (props: any) => {
   const selproperties = objectviews?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Property')
   const selInfo = objectviews?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Information')
 
-  let optionModel
+  
+
+  // let optionModel
   const handlePhDataChange = (event:any) => {
     // const id = JSON.parse(event.value).id
     // const name = JSON.parse(event.value).name
@@ -90,6 +92,23 @@ const SelectContext = (props: any) => {
     //   saveState(data)
     // }
 
+  const handleModelChange = (event: any) => {
+    const id = JSON.parse(event.value).id
+    const name = JSON.parse(event.value).name
+    const focusModel = { id: id, name: name }
+    const data = focusModel
+    // console.log('38 sel', data);
+    dispatch({ type: 'SET_FOCUS_MODEL', data })
+  }
+  const handleModelviewChange = (event: any) => {
+    const id = JSON.parse(event.value).id
+    const name = JSON.parse(event.value).name
+    const focusModelview = { id: id, name: name }
+    const data = focusModelview
+    // console.log('62 sel', data);
+    dispatch({ type: 'SET_FOCUS_MODELVIEW', data })
+  }
+
   let usession, testsession
     const defaultSession = '{\"session\": {\"id\": 1, \"name\": \"2nd Session\", \"focus\": {\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"}},\"ownerId\": 1}}'
     const focuser = defaultSession
@@ -106,13 +125,12 @@ const SelectContext = (props: any) => {
     // /**
     // * Build the selection options for all context (focus) objects,
   // */
-  // const optionObject = (objects) && [<option key={991013} value='Select Object ...' disabled > Select Objects ...</option>, ...objects.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > { m.name } </option> )]
-      
-  // const orgs = (curmodel) && curmodel.objects.map((o:any) => o)
-  // const optionOrg = (objects) && [<option key={991014} value='Select Organization ...' disabled > Select Organization ...</option>, ...orgs.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > { m.name } </option> )]
+  const optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m: any) => <option key={m.id} value={JSON.stringify(m)} > {m.name} </option>)]
+  const model = models?.find((m: any) => m?.id === focusModel?.id)
+  // console.log('79', modelviews);
 
-  // const projs = (curmodel) && curmodel.objects.map((o:any) => o)
-  // const optionProj = (objects) && [<option key={991015} value='Select Project ...' disabled > Select Project ...</option>, ...projs.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > { m.name } </option> )]
+  // const modelviews = (model) && model.modelviews.map((o: any) => o)
+  const optionModelviews = modelviews && [<option key={991012} value='Select Modelview ...'  > Select Modelview ...</option>, ...modelviews.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > {m.name} </option>)]
 
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
@@ -126,8 +144,20 @@ const SelectContext = (props: any) => {
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody className="pt-0">
           <div className="select bg-light pt-2 ">
-            <Selector type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' /><br />
+            <div className="select" style={{ paddingTop: "4px" }}>Model:
+                <select className="list-obj bg-link float-right" defaultValue="Select Model ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+                onChange={(event) => handleModelChange({ value: event.target.value })} name="Focus Model">
+                {optionModel}
+              </select>
+            </div>
+            <div className="select" style={{ paddingTop: "4px" }}>Modelview:
+              <select className="list-obj bg-link float-right" defaultValue="Select Modelview ..." style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+                onChange={(event) => handleModelviewChange({ value: event.target.value })} name="Focus Modelview ...">
+                {optionModelviews}
+              </select>
+            </div>
             <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' /><br />
+            <Selector type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' /><br />
             <Selector type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg' /><br />
             <Selector type='SET_FOCUS_PROJ' selArray={selprojs} selName='Projects' focustype='focusProj' /><br />
             {/* <Selector type='SET_FOCUS_PROJ' selArray={seloprojs} selName='Projects' focustype='focusProj' /><br /> */}

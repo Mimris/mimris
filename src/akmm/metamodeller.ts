@@ -62,12 +62,13 @@ export class cxMetis {
                     this.importModel(model);
             })
         }
+        
         // Handle objects 
         const objects: any[] = importedData.objects;
         if (objects && objects.length) {
             objects.forEach(obj => {
                 if (!obj.deleted)
-                    this.importObject(obj, null);
+                this.importObject(obj, null);
             })
         }
         // Handle relships 
@@ -75,9 +76,10 @@ export class cxMetis {
         if (relships && relships.length) {
             relships.forEach(rel => {
                 if (!rel.deleted)
-                    this.importRelship(rel, null);
+                this.importRelship(rel, null);
             })
         }
+        console.log('65 metamodeller :', this);
     }
 
     initImport(importedData: any) {
@@ -439,6 +441,8 @@ export class cxMetis {
                 }
             }
         }
+        // console.log('444, metamodeller:', model);
+        
     }
     importObject(item: any, model: cxModel | null) {
         const obj = this.findObject(item.id);

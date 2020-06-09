@@ -169,7 +169,7 @@ export class goModel {
                         if (utils.objExists(objtype)) {
                             if (!objtype.getDeleted()) {
                                 const node = new goObjectTypeNode(utils.createGuid(), objtype);
-                                node.loadNodeContent();
+                                node.loadNodeContent(metamodel); //sf
                                 gMetamodel.addNode(node);
                             }
                         }

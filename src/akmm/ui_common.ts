@@ -53,7 +53,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | OnErro
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
         console.log('53 createObject', data);
-        const otypeId = data.objecttype.id;
+        const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         console.log('48 createObject', objtype);
         let guid = utils.createGuid();

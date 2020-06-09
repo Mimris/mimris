@@ -80,43 +80,43 @@ export const InitialState = {
   },
   phFocus: {
     focusModel: {
-      id: 'null',
-      name: 'null'
+      id: null,
+      name: null
     },
     focusObject: {
-      id: 'UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656',
-      name: 'Default',
-      sourceName: 'test',
+      id: null,
+      name: '',
+      sourceName: '',
       status: null
     },
     focusModelview: {
-      id: 'UUID4_BFE65BE1-77D3-42CF-B622-3B6F2B58A386',
-      name: 'WP'
+      id: null,
+      name: ''
     },
     focusOrg: {
-      id: 0,
-      name: 'Default'
+      id: null,
+      name: ''
     },
     focusProj: {
-      id: 0,
-      name: 'Default'
+      id: null,
+      name: ''
     },
     focusRole: {
-      id: 'UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF',
-      name: 'Default'
+      id: null,
+      name: ''
     },
     focusCollection: null,
     focusTask: {
-      id: "UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656",
-      name: "Default",
+      id: null,
+      name: "",
       focus: {
         focusObject: {
-          id: "UUID4_A416FE57-F1A3-4D56-A534-E43C87508465",
-          name: "Default"
+          id: null,
+          name: ""
         },
         focusSource: {
-          id: 999,
-          name: "traversed"
+          id: null,
+          name: ""
         },
         focusCollection: []
       }
@@ -148,8 +148,8 @@ export const InitialState = {
     //   },
     // },
     focusSource: {
-      id: 8,
-      name: 'objectviews'
+      id: null,
+      name: ''
     },
     focusModelview: {
       id: null,
@@ -353,16 +353,16 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_TASK:
-      // console.log('104', action.data);
+      console.log('104', action.data);
 
       focusTask = action.data.focusTask
-      focusObject = (action.data.focusTask.focus.focusObject) ? action.data.focusTask.focus.focusObject : state.phFocus.focusObject
-      focusSource = (action.data.focusTask.focus.focusSource) ? action.data.focusTask.focus.focusSource : state.phFocus.focusSource
-      focusModelview = (action.data.focusTask.focus.focusModelview) ? action.data.focusTask.focus.focusModelview : state.phFocus.focusModelview
-      focusOrg = (action.data.focusTask.focus.focusOrg) ? action.data.focusTask.focus.focusOrg : state.phFocus.focusOrg
-      focusProj = (action.data.focusTask.focus.focusProj) ? action.data.focusTask.focus.focusProj : state.phFocus.focusProj
-      focusRole = (action.data.focusTask.focus.focusRole) ? action.data.focusTask.focus.focusRole : state.phFocus.focusRole
-      focusCollection = (action.data.focusTask.focus.focusCollection) ? action.data.focusTask.focus.focusCollection : state.phFocus.focusCollection
+      focusObject = (action.data.focusTask?.focus.focusObject) ? action.data.focusTask.focus.focusObject : state.phFocus.focusObject
+      focusSource = (action.data.focusTask?.focus.focusSource) ? action.data.focusTask.focus.focusSource : state.phFocus.focusSource
+      focusModelview = (action.data.focusTask?.focus.focusModelview) ? action.data.focusTask.focus.focusModelview : state.phFocus.focusModelview
+      focusOrg = (action.data.focusTask?.focus.focusOrg) ? action.data.focusTask.focus.focusOrg : state.phFocus.focusOrg
+      focusProj = (action.data.focusTask?.focus.focusProj) ? action.data.focusTask.focus.focusProj : state.phFocus.focusProj
+      focusRole = (action.data.focusTask?.focus.focusRole) ? action.data.focusTask.focus.focusRole : state.phFocus.focusRole
+      focusCollection = (action.data.focusTask?.focus.focusCollection) ? action.data.focusTask.focus.focusCollection : state.phFocus.focusCollection
 
       return {
         ...state,

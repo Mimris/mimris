@@ -79,7 +79,7 @@ export class cxMetis {
                 this.importRelship(rel, null);
             })
         }
-        console.log('65 metamodeller :', this);
+        // console.log('65 metamodeller :', this);
     }
 
     initImport(importedData: any) {

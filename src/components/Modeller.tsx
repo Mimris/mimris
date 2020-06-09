@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import GoJSApp from "./gojs/GoJSApp";
 import Selector from './utils/Selector'
 
-
-const Modeller = (props) => {
+const Modeller = (props: any) => {
   // console.log('8 Modeller', props);
   
   let gojsmodel = props.gojsModel;
@@ -24,47 +23,27 @@ const Modeller = (props) => {
   // console.log('23 Modeller', models);
   // console.log('23 Modeller myMetis', props.myMetis);
   
-  
   const gojsapp = (gojsmodel) &&
-  < GoJSApp
-  nodeDataArray={gojsmodel.nodeDataArray}
-  linkDataArray={gojsmodel.linkDataArray}
-  metis={props.metis}
-  myMetis={props.myMetis}
-  myGoModel={props.myGoModel}
-  phFocus={props.phFocus}
-  dispatch={props.dispatch}
-  />
+    < GoJSApp
+      nodeDataArray={gojsmodel.nodeDataArray}
+      linkDataArray={gojsmodel.linkDataArray}
+      metis={props.metis}
+      myMetis={props.myMetis}
+      myGoModel={props.myGoModel}
+      phFocus={props.phFocus}
+      dispatch={props.dispatch}
+    />
   
-  useEffect(() => {
-    console.log('39 modeller', gojsmodel);
-    return () => {
-      {gojsapp}
-    };
-  }, [gojsmodel])
-
-  useEffect(() => {
-    console.log('44 modeller', gojsmodel); 
-    return () => {
-      {gojsapp}
-    };
-  }, [])
-
   return (
     <>
       <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
-      <div style={{ margin: "4px", paddingLeft: "2px" }}>Modeller
-        <div className="modeller-heading float-right"  > 
-          {/* <strong style={{ paddingLeft: "2px", color: "#a00", fontSize: "90%" }} > {props.phFocus.focusModel.name} </strong>  */}
-          {/* <span style={{ paddingLeft: "2px", fontSize: "90%" }} >Modelview:</span>  */}
-          {/* <strong style={{ paddingLeft: "2px", color: "#a00", fontSize: "90%" }}>  {props.phFocus.focusModelview.name} </strong> */}
-          {/* <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' focusName={props.phFocus.focusModel.name} /> */}
-          {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' focusName={props.phFocus.focusModelview.name} /> */}
+      <div className="modeller-heading float-lwft" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+        <div className="modeller-selection float-right" > 
           <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel'/>
           <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' />
         </div> 
       </div>
-      {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
+        {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
       <style jsx>{`
         .diagram-component {
           height: 100%;
@@ -75,23 +54,3 @@ const Modeller = (props) => {
 }
 
 export default Modeller;
-
-
-// let gojsapp =
-//   < GoJSApp
-//     nodeDataArray={gojsmodel.nodeDataArray}
-//     linkDataArray={gojsmodel.linkDataArray}
-//     skipsDiagramUpdate={false}
-//   />
-
-// useEffect(() => {
-//   gojsmodel = props.gojsModel
-//   gojsapp =
-//     < GoJSApp
-//       nodeDataArray={gojsmodel.nodeDataArray}
-//       linkDataArray={gojsmodel.linkDataArray}
-//       skipsDiagramUpdate={false}
-//     />
-//   console.log('26', gojsapp);
-
-// }, [props])

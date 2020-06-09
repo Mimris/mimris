@@ -206,7 +206,7 @@ function reducer(state = InitialState, action) {
         phFocus: action.data
       }
     case SET_FOCUS_USER:
-      console.log('190 SET_FOCUS_USER', action.data);
+      // console.log('190 SET_FOCUS_USER', action.data);
       // Object.assign(state, action);    
       return {
         ...state,
@@ -289,44 +289,45 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_OBJECT:
-      // console.log('229 SET_FOCUS_OBJECT', state, action.data);
-      focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
-        focusSource: {
-          id: action.data.focusSource.id,
-          name: action.data.focusSource.name
-        }
-      }
-        : state.phFocus.focusSource
+      console.log('229 SET_FOCUS_OBJECT', state, action.data);
+      // focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
+      //   focusSource: {
+      //     id: action.data.focusSource.id,
+      //     name: action.data.focusSource.name
+      //   }
+      // }
+      //   : state.phFocus.focusSource
 
-      focusModelview = (action.data.focusObject && action.data.focusObject.focusModelview)
-        ? {
-          focusModelview: {
-            id: action.data.focusSource.id,
-            name: action.data.focusSource.name
-          }
-        }
-        : state.phFocus.focusModelview
+      // focusModelview = (action.data.focusObject && action.data.focusObject.focusModelview)
+      //   ? {
+      //     focusModelview: {
+      //       id: action.data.focusSource.id,
+      //       name: action.data.focusSource.name
+      //     }
+      //   }
+      //   : state.phFocus.focusModelview
       return {
         ...state,
         ...{
           phFocus: {
             ...state.phFocus,
-            focusObject: {
-              ...action.data.focusObject,
-              status: {
-                ...state.phFocus,
-                focusObject: {
-                  id: state.phFocus.focusObject.id,
-                  name: state.phFocus.focusObject.name
-                },
-                focusSource: {
-                  id: state.phFocus.focusSource.id,
-                  name: state.phFocus.focusSource.name
-                }
-              },
-              focusSource: focusSource,
-              focusModelview: focusModelview
-            },
+            focusObject: action.data
+            // focusObject: {
+            //   ...action.data.focusObject,
+            //   status: {
+            //     ...state.phFocus,
+            //     focusObject: {
+            //       id: state.phFocus.focusObject.id,
+            //       name: state.phFocus.focusObject.name
+            //     },
+            //     focusSource: {
+            //       id: state.phFocus.focusSource.id,
+            //       name: state.phFocus.focusSource.name
+            //     }
+            //   },
+            //   focusSource: focusSource,
+            //   focusModelview: focusModelview
+            // },
           }
         }
       }
@@ -347,7 +348,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_ROLE:
-      // console.log('150 role', action);   
+      console.log('350 role', action);   
       return {
         ...state,
         phFocus: {
@@ -364,29 +365,31 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_TASK:
-      console.log('104', action.data);
+      console.log('367 task', action);   
+      // console.log('104', action.data);
 
-      focusTask = action.data.focusTask
-      focusObject = (action.data.focusTask?.focus.focusObject) ? action.data.focusTask.focus.focusObject : state.phFocus.focusObject
-      focusSource = (action.data.focusTask?.focus.focusSource) ? action.data.focusTask.focus.focusSource : state.phFocus.focusSource
-      focusModelview = (action.data.focusTask?.focus.focusModelview) ? action.data.focusTask.focus.focusModelview : state.phFocus.focusModelview
-      focusOrg = (action.data.focusTask?.focus.focusOrg) ? action.data.focusTask.focus.focusOrg : state.phFocus.focusOrg
-      focusProj = (action.data.focusTask?.focus.focusProj) ? action.data.focusTask.focus.focusProj : state.phFocus.focusProj
-      focusRole = (action.data.focusTask?.focus.focusRole) ? action.data.focusTask.focus.focusRole : state.phFocus.focusRole
-      focusCollection = (action.data.focusTask?.focus.focusCollection) ? action.data.focusTask.focus.focusCollection : state.phFocus.focusCollection
+      // focusTask = action.data.focusTask
+      // focusObject = (action.data.focusTask?.focus.focusObject) ? action.data.focusTask.focus.focusObject : state.phFocus.focusObject
+      // focusSource = (action.data.focusTask?.focus.focusSource) ? action.data.focusTask.focus.focusSource : state.phFocus.focusSource
+      // focusModelview = (action.data.focusTask?.focus.focusModelview) ? action.data.focusTask.focus.focusModelview : state.phFocus.focusModelview
+      // focusOrg = (action.data.focusTask?.focus.focusOrg) ? action.data.focusTask.focus.focusOrg : state.phFocus.focusOrg
+      // focusProj = (action.data.focusTask?.focus.focusProj) ? action.data.focusTask.focus.focusProj : state.phFocus.focusProj
+      // focusRole = (action.data.focusTask?.focus.focusRole) ? action.data.focusTask.focus.focusRole : state.phFocus.focusRole
+      // focusCollection = (action.data.focusTask?.focus.focusCollection) ? action.data.focusTask.focus.focusCollection : state.phFocus.focusCollection
 
       return {
         ...state,
         phFocus: {
           ...state.phFocus,
-          focusTask: focusTask,
-          focusObject: focusObject,
-          focusSource: focusSource,
-          focusModelview: focusModelview,
-          focusOrg: focusOrg,
-          focusProj: focusProj,
-          focusRole: focusRole,
-          focusCollection: focusCollection
+          focusTask: action.data
+          // focusTask: focusTask,
+          // focusObject: focusObject,
+          // focusSource: focusSource,
+          // focusModelview: focusModelview,
+          // focusOrg: focusOrg,
+          // focusProj: focusProj,
+          // focusRole: focusRole,
+          // focusCollection: focusCollection
         }
       }
     case SET_FOCUS_MODELVIEW:
@@ -408,20 +411,20 @@ function reducer(state = InitialState, action) {
 
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      console.log('229 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      // console.log('229 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id)
       const curmv  = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id)
       const curmvindex  = curm?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id)
-      console.log('371 curmindex', curmindex);
-      console.log('372 curmvindex', curmvindex);
+      // console.log('371 curmindex', curmindex);
+      // console.log('372 curmvindex', curmvindex);
       
       const curov  = curmv?.objectviews?.find(ov => ov.id === action?.data?.id)
-      console.log('409 curov', curov);
+      // console.log('409 curov', curov);
       const ovlength = curmv?.objectviews.length
       let ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov?.id)
       if (ovindex < 0) {ovindex = ovlength} 
-      console.log('411 ovindex', ovindex, ovlength);
+      // console.log('411 ovindex', ovindex, ovlength);
       const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
  
@@ -542,10 +545,10 @@ function reducer(state = InitialState, action) {
     case UPDATE_OBJECTVIEW_NAME:
       // name and shortName
       let ovIndex, objvs3
-      console.log('299', action);
-      console.log('300',
-        state.phData.model.metis.models[0].model.objectviews.filter(ovs => ovs.objectRef === "#" + action.data.id)
-      );
+      // console.log('299', action);
+      // console.log('300',
+      //   state.phData.model.metis.models[0].model.objectviews.filter(ovs => ovs.objectRef === "#" + action.data.id)
+      // );
       const objvs = state.phData.model.metis.models[0].model.objectviews.filter(ovs => ovs.objectRef === "#" + action.data.id)
       let objvs2 = objvs
       const newOvs = objvs.map(ov => {
@@ -559,7 +562,7 @@ function reducer(state = InitialState, action) {
         objvs2 = objvs3
       })
 
-      console.log('316'.newOvs);
+      // console.log('316'.newOvs);
 
       return {
         //   ...state,

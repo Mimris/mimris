@@ -211,7 +211,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
                 nodes.push(modNode);
             }
         }
-        console.log('176 GoJsApp resized nodes', nodes);
+        // console.log('176 GoJsApp resized nodes :', nodes);
     }
 }
 

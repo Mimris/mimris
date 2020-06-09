@@ -280,15 +280,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (idx !== undefined && idx >= 0) {
                   const nd = draft.nodeDataArray[idx];
                   draft.selectedData = nd;
-                  console.log('98 GoJSApp.tsx: node = ', nd);
+                  // console.log('98 GoJSApp.tsx: node = ', nd);
                 }
               } else if (sel instanceof go.Link) {
-                console.log('174 GoJSApp.tsx: sel = ', sel);
+                // console.log('174 GoJSApp.tsx: sel = ', sel);
                 const idx = this.mapLinkKeyIdx.get(sel.data.key);
                 if (idx !== undefined && idx >= 0) {
                   const ld = draft.linkDataArray[idx];
                   draft.selectedData = ld;
-                  console.log('178 GoJSApp.tsx: link = ', ld);
+                  // console.log('178 GoJSApp.tsx: link = ', ld);
                 }
               }
             } else {
@@ -301,17 +301,17 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case 'ExternalObjectsDropped': {
         const nodes = e.subject;
-        console.log('192 ExternalObjectsDropped', nodes.first());
+        // console.log('192 ExternalObjectsDropped', nodes.first());
         this.setState(
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
-            console.log('309 GoJSApp', part);
+            // console.log('309 GoJSApp', part);
             if (part.type === 'objecttype') {
                alert('Create new object type');
                const otype = uic.createObjectType(part, context);
                const addNode = new gql.gqlObjectType(otype);
-               console.log('314 ExternalObjectsDropped', otype);
+              //  console.log('314 ExternalObjectsDropped', otype);
             } else {
               const objview = uic.createObject(part, context);
               if (objview) {
@@ -331,7 +331,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
         break;
       case "ObjectSingleClicked": {
-        console.log(e.subject);
+        console.log('334 GoJSApp :',e.subject);
         this.setState(
           produce((draft: AppState) => {
           })
@@ -381,7 +381,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case "LinkRelinked": {
         const newLink = e.subject.data;
-        console.log('207 LinkRelinked', newLink);
+        // console.log('207 LinkRelinked', newLink);
         this.setState(
           produce((draft: AppState) => {
             uic.onLinkRelinked(newLink, context.myGoModel);
@@ -390,7 +390,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
         break;
       default:
-        console.log('146 GoJSApp event name: ', name);
+        // console.log('146 GoJSApp event name: ', name);
         break;
     }
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
@@ -579,14 +579,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           onDiagramEvent={this.handleDiagramEvent}
           onModelChange={this.handleModelChange}
         />
-        <label>
+        {/* <label>
           Allow Relinking?
           <input
             type='checkbox'
             id='relink'
             checked={this.state.modelData.canRelink}
             onChange={this.handleRelinkChange} />
-        </label>
+        </label> */}
         {inspector}
       </div>
     );

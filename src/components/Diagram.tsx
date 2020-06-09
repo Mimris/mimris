@@ -14,7 +14,7 @@ import genGojsModel from './GenGojsModel'
 
 const page = (props:any) => {
 
-  console.log('17 Diagram', props);
+  // console.log('17 Diagram', props);
   const dispatch = useDispatch()
   
   /**  * Get the state from the store  */
@@ -45,12 +45,12 @@ const page = (props:any) => {
     // }, [])
     
     useEffect(() => {
-      console.log('38 Diagram state', state ); 
+      // console.log('38 Diagram state', state ); 
       genGojsModel(state, dispatch);
     }, [focusModel.id])
     
     useEffect(() => {
-      console.log('42 Diagram state', state ); 
+      // console.log('42 Diagram state', state ); 
       genGojsModel(state, dispatch);
     }, [focusModelview.id])
     
@@ -65,35 +65,6 @@ const page = (props:any) => {
     function toggleTasks() {
       setVisibleTasks(!visibleTasks);
     }
-    
-    let modellerDiv = 
-      <>
-        <Modeller
-          gojsModel={gojsmodel}
-          gojsMetamodel={gojsmetamodel}
-          myMetis={myMetis}
-          myGoModel={myGoModel}
-          metis={metis}
-          phFocus={phFocus}
-          dispatch={dispatch}
-        />
-      </>
-  
-  console.log('57 Diagram', state.phData, focusModel, focusModelview, gojsmodel);
-
-  useEffect(() => {
-    console.log('62 Diagram', state.phGojs.gojsModel);
-    modellerDiv = <Modeller
-      gojsModel={gojsmodel}
-      gojsMetamodel={gojsmetamodel}
-      myMetis={myMetis}
-      myGoModel={myGoModel}
-      metis={metis}
-      phFocus={phFocus}
-      dispatch={dispatch}
-    />
-  }, [state.phData, focusModelview.id])
-  // }, [state.phData, focusModelview.id, gojsmodel?.nodeDataArray.length > 0])
 
   const modellingtabs = (<>
       <Nav tabs >
@@ -135,7 +106,7 @@ const page = (props:any) => {
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
-              <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", border: "solid 1px black" }}>
+              <div className="myModeller m-0 pl-1 pr-1" style={{ minWidth: "200px", width: "100%",height: "100%", border: "solid 1px black" }}>
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmetamodelmodel}
@@ -185,7 +156,6 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                   />
-                  {modellerDiv}
                 </div>
               </Col>
             </Row>
@@ -204,78 +174,6 @@ const page = (props:any) => {
           {modellingtabs}
         </div>
       <style jsx>{`
-        // .diagramtabs { 
-        //   margin: 4px;
-        //   // background-color: red;
-        //   // grid-template-columns: auto;
-        //   // grid-template-areas:
-        //   // "modellingContent";         
-        // }
-        // .modellingContent {
-        //   grid-area: modellingContent;
-        //   display: grid;
-        //   margin: 4px;
-        //   padding: 4px;
-        //   background-color: white;
-        //   grid-template-columns: auto;
-        //   grid-template-areas:
-        //   "nav-tabs"
-        //   "tab-content";         
-        // }
-        // .nav-tabs {
-        //   grid-area: nav-tabs;   
-        // }
-        // .tab-content {
-        //   grid-area: tab-content;
-        //   display: grid;
-        //   margin: 4px;
-        //   padding: 4px;
-        //   background-color: white;
-        //   grid-template-columns: auto;
-        //   grid-template-areas:
-        //   "tab-pane active";         
-        // }
-        // .tab-pane active {
-        //   grid-area: tab-pane;
-        //   display: grid;
-        //   background-color: yellow;
-        //   grid-template-columns: auto;
-        //   grid-template-areas:      
-        //   "workpad";
-        // }
-        
-        // .workpad {
-        //   grid-area: workpad;
-        //   display: grid;
-        //   border-radius: 5px 5px 0px 0px;
-        //   // height: 100%;
-        //   // width: 100vh;
-        //   // min-width: 400px;
-        //   grid-template-columns: auto 1fr;
-        //   grid-template-areas: 
-        //   "myPalette myModeller";         
-        // }
-        // .myPalette {
-        //   grid-area: myPalette;
-        //   // margin: 2px;
-        //   // padding-right: 3px;
-        //   // height: 100%;
-        //   // // min-height: 50vh;
-        //   // border-radius: 5px 5px 0px 0px;
-        //   // background-color: #ddd; 
-        //   // // max-width: 200px;    
-        //   // // min-width: 400px;
-        // }
-        // .myModeller {
-        //   grid-area: myModeller;
-        //   // // height: 100%;
-        //   // margin: 2px;
-        //   // padding-right: 3px;
-        //   // border-radius: 5px 5px 0px 0px;
-        //   // background-color: #e0e;
-        //   // // width: 100%;
-        //   // max-width: 10hv;
-        // }
       `}</style>
     </div>
   )

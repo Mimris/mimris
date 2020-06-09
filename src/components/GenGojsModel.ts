@@ -23,7 +23,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
     let myMetis = new akm.cxMetis();
     glb.metis = myMetis;
     myMetis.importData(metis);
-    console.log('27 gengojsModel myMetis', metis, myMetis);
+    // console.log('27 gengojsModel myMetis', metis, myMetis);
 
     const focusModel = (state.phFocus) && state.phFocus.focusModel
     const focusModelview = (state.phFocus) && state.phFocus.focusModelview
@@ -38,12 +38,12 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       // console.log('40 GengojsModel :', myMetis, curmod.id ,myModel);
       
       const myMetamodel = myModel?.metamodel;
-      console.log('43 GengojsModel myMetamodel :', myMetamodel);
+      // console.log('43 GengojsModel myMetamodel :', myMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
-      console.log('40 myMetamodelPalette', myMetamodelPalette);
+      // console.log('40 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
-      console.log('42 myGoMetaModel', myGoMetamodel);
+      // console.log('42 myGoMetaModel', myGoMetamodel);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('44 myPalette', myPalette);
@@ -104,7 +104,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => mm.id === curmod.metamodelRef)
       
       
-      console.log('105 GenGojsModel', myGoModel, gojsModel);
+      // console.log('105 GenGojsModel', myGoModel, gojsModel);
       // update the Gojs arrays in the store
           dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
           dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
@@ -161,7 +161,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
         node.loadNodeContent(myGoModel);
       }
     }
-    console.log('114 buildGoModel', myGoModel);
+    // console.log('114 buildGoModel', myGoModel);
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
     // console.log('117 relviews', relviews);

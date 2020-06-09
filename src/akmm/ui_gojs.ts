@@ -38,7 +38,7 @@ export class goModel {
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;
 
-        console.log('41 constants', constants);
+        // console.log('41 constants', constants);
     }
     // Methods
     getModelView() {

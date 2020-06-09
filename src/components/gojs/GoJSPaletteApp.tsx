@@ -38,7 +38,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   
   constructor(props: object) {
     super(props);
-    console.log('36 GoJSPaletteApp',props.nodeDataArray);
+    // console.log('36 GoJSPaletteApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -286,14 +286,14 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}
         />
-        <label>
+        {/* <label>
           Allow Relinking?
           <input
             type='checkbox'
             id='relink'
             checked={this.state.modelData.canRelink}
             onChange={this.handleRelinkChange} />
-        </label>
+        </label> */}
         {inspector}
       </div>
     );

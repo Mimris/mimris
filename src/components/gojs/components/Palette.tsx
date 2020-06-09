@@ -85,7 +85,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     $(go.Shape, "LineH", { stroke: "gray", strokeWidth: 0.5, interval: 10 }),
                     $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5 }),
                     $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
-                  )
+                  ),
+              model: $(go.GraphLinksModel,
+                {
+                  linkKeyProperty: 'key'
+                })
             });
 
             let paletteNodeTemplate: any;

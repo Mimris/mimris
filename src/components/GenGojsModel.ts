@@ -38,8 +38,8 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       console.log('40 myMetamodelPalette', myMetamodelPalette);
-      const myMetamodelModel = buildGoMetaModel(myMetamodel);
-      console.log('42 myGoMetaModel', myMetamodelModel);
+      const myGoMetamodel = buildGoMetaModel(myMetamodel);
+      console.log('42 myGoMetaModel', myGoMetamodel);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       console.log('44 myPalette', myPalette);
@@ -68,10 +68,10 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
         //   linkDataArray: curGomodel.links
         // } 
         // : 
-        (myMetamodelModel) && 
+        (myGoMetamodel) && 
         { 
-          nodeDataArray: myMetamodelModel.nodes,
-          linkDataArray: myMetamodelModel.links
+          nodeDataArray: myGoMetamodel.nodes,
+          linkDataArray: myGoMetamodel.links
         }
 
       const gojsMetamodel =  (myPalette) && {
@@ -111,6 +111,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
           dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
           dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis })
           dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
+          dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
     }
     // return myMetis; 
   }

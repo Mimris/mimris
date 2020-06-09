@@ -39,7 +39,7 @@ export function updateObject(data: any, name: string, value: string, context: an
         diagram.model.setDataProperty(data, "name", value);
     }
 }
-export function createObject(data: any, context: any): akm.cxObjectView | OnErrorEventHandlerNonNull {
+export function createObject(data: any, context: any): akm.cxObjectView | null {
     if (data === null) {
         return null;
     } else {
@@ -102,6 +102,88 @@ export function createObject(data: any, context: any): akm.cxObjectView | OnErro
     }
     return null;
 }
+export function createObjectType(data: any, context: any): any {
+    const myMetamodel = context.myMetamodel;
+    const myMetis     = context.myMetis;
+    const myGoModel   = context.myGoModel;
+    const myDiagram   = context.myDiagram;
+    if (data.category === constants.gojs.C_OBJECTTYPE) {
+        data.class = "goObjectTypeNode";
+        const typeid   = data.type;
+        let typename = data.name;
+        let objtype;
+        if (typeid === constants.types.OBJECTTYPE_ID)  {
+            if ((typename !== constants.types.OBJECTTYPE_NAME) || (typename !== constants.types.CONTAINERTYPE_NAME)) {
+                // Metamodeling and existing type
+                objtype = myMetamodel.findObjectTypeByName(typename);
+                if (objtype) {
+                    let objtypeView = objtype.getDefaultTypeView();
+                    if (!objtypeView) {
+                        objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
+                        objtypeView.setModified();
+                        objtype.setDefaultTypeView(objtypeView);
+                        objtype.setModified();
+                        myMetamodel.setModified();
+                        myMetamodel.addObjectTypeView(objtypeView);
+                        myMetis.addObjectTypeView(objtypeView);
+                    }
+                    // Configure the node
+                    myDiagram.model.setDataProperty(data, "category", constants.gojs.C_OBJECTTYPE);
+                    myDiagram.model.setDataProperty(data, "objecttype", objtype);
+                    updateNode(data, objtypeView, myDiagram);                       
+                }
+                else {
+                    // Create type
+                    typename = "New Type";
+                    if (data.viewkind === constants.viewkinds.CONT)
+                        typename = "New Container";
+                    objtype = new akm.cxObjectType(utils.createGuid(), typename, "");
+                    if (objtype) {
+                        objtype.setModified();
+                        objtype.setViewKind(data.viewkind);
+                        myMetamodel.addObjectType(objtype);
+                        myMetamodel.setModified();
+                        myMetis.addObjectType(objtype);
+                        // Define the object typeview
+                        let objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
+                        if (objtypeView) {
+                            objtypeView.setModified();
+                            objtypeView.setViewKind(data.viewkind);
+                            let viewdata = objtypeView.getData();
+                            for (let prop in viewdata) {
+                                if (prop === "icon") continue;
+                                if (prop === "isGroup") continue;
+                                if (prop === "group") continue;
+                                viewdata[prop] = data[prop];                            
+                            }
+                            if (!myMetamodel.objtypegeos) 
+                                myMetamodel.objtypegeos = new Array();
+                            let objtypegeo = myMetamodel.findObjtypeGeoByType(objtype);
+                            if (!objtypegeo) {
+                                objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, data.loc, data.size);
+                                myMetamodel.objtypegeos.push(objtypegeo);
+                            }
+                            objtype.setDefaultTypeView(objtypeView);
+                            myMetamodel.addObjectTypeView(objtypeView);
+                            myMetamodel.setModified();
+                            myMetis.addObjectTypeView(objtypeView);
+                            // Update the node accordingly
+                            myDiagram.model.setDataProperty(data, "category", constants.gojs.C_OBJECTTYPE);
+                            myDiagram.model.setDataProperty(data, "objecttype", objtype);
+                            myDiagram.model.setDataProperty(data, "name", typename);
+                            let node = new gjs.goObjectTypeNode(data.key, objtype);
+                            myGoModel.addNode(node);
+                            updateNode(data, objtypeView, myDiagram);  
+                            console.log('177 createObjectType ', myGoModel);                                                          
+                        }
+                    }
+                }
+            }
+            return objtype;
+        }
+    } 
+}
+
 function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
     if (objtypeView) {
         let viewdata: any = objtypeView.getData();

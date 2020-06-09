@@ -115,7 +115,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
   private initDiagram(): go.Diagram {
     const $ = go.GraphObject.make;
-    // define myDiagram
+    go.GraphObject.fromLinkableDuplicates = true;
+    go.GraphObject.toLinkableDuplicates   = true;
+// define myDiagram
     let myDiagram;
     if (true) {
       myDiagram =
@@ -151,7 +153,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "fillcolor": "pink",
               "icon": "default.png"
             },
-            "linkingTool.isUnconnectedLinkValid": false,
+            // allow Ctrl-G to call groupSelection()
+            "commandHandler.archetypeGroupData": { 
+              text: "Group", 
+              isGroup: true, 
+              color: "blue" 
+          },
+          "linkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,
             "relinkingTool.fromHandleArchetype":

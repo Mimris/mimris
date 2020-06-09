@@ -67,8 +67,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     //this.handleModelChange = this.handleModelChange.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleRelinkChange = this.handleRelinkChange.bind(this);
+    //this.handleInputChange = this.handleInputChange.bind(this);
+    //this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
 
 
@@ -136,15 +136,16 @@ class GoJSApp extends React.Component<{}, AppState> {
     // myGojsModel.links = this.state.phFocus.gojsModel.linkDataArray;
     let done = false;
     const context = {
-      "myMetis": myMetis,
-      "myMetamodel": myMetamodel,
-      "myModel": myModel,
-      "myModelview": myModelview,
-      "myGoModel": myGoModel,
-      "myDiagram": myDiagram,
-      "pasteviewsonly": false,
-      "deleteViewsOnly": false,
-      "done": done
+      "myMetis"         : myMetis,
+      "myMetamodel"     : myMetamodel,
+      "myModel"         : myModel,
+      "myModelview"     : myModelview,
+      "myGoModel"       : myGoModel,
+      "myGoMetamodel"   : myGoModel, // myGoMetamodel
+      "myDiagram"       : myDiagram,
+      "pasteviewsonly"  : false,
+      "deleteViewsOnly" : false,
+      "done"            : done
     }
     switch (name) {
       case 'TextEdited': {
@@ -156,13 +157,25 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (sel instanceof go.Node) {
                 const key = sel.data.key;
                 const text = sel.data.name;
-                const myNode = this.getNode(context.myGoModel, key);
-                if (myNode) {
-                  myNode.name = text;
-                  uic.updateObject(myNode, field, text, context);
-                  console.log('153 GoJSApp event, myNode:', myNode);
-                  const modNode = new gql.gqlObjectView(myNode.objectview);
-                  modifiedNodes.push(modNode);
+
+                if (sel.type === 'objecttype') {
+                  const myNode = this.getNode(context.myGoMetamodel, key);
+                  if (myNode) {
+                    myNode.name = text;
+                    uic.updateObjectType(myNode, field, text, context);
+                    console.log('153 GoJSApp event, myNode:', myNode);
+                    // ?? const modNode = new gql.gqlObjectView(myNode.objectview);
+                    // ?? modifiedNodes.push(modNode);
+                  }
+                } else {
+                  const myNode = this.getNode(context.myGoModel, key);
+                  if (myNode) {
+                    myNode.name = text;
+                    uic.updateObject(myNode, field, text, context);
+                    console.log('153 GoJSApp event, myNode:', myNode);
+                    const modNode = new gql.gqlObjectView(myNode.objectview);
+                    modifiedNodes.push(modNode);
+                  }
                 }
               }
             }
@@ -203,67 +216,10 @@ class GoJSApp extends React.Component<{}, AppState> {
             for (let it = deleted.iterator; it.next();) {
               let del: any = it.value.data;  // n is now a Node or a Group
               if (del.class === "goObjectNode") {
-                let nd = myGoModel?.findNode(del.key) as gjs.goObjectNode;
-                if (nd) {
-                  let d_objview = nd.objectview;
-                  if (d_objview) {
-                    const d_object = d_objview?.object;
-                    if (d_object) {
-                      const oviews = context?.myMetis?.getObjectViewsByObject(d_object.id);
-                      if (oviews) {
-                        for (let i = 0; i < oviews.length; i++) {
-                          const oview = oviews[i];
-                          oview.deleted = true;
-                        }
-                      }
-                    }
-                    d_objview.deleted = true;
-                    d_object.deleted = true;
-                    const delNode = new gql.gqlObjectView(d_objview);
-                    deletedNodes.push(delNode);
-                  }
-                  let nodes = new Array();
-                  if (myGoModel) {
-                    for (let i = 0; i < myGoModel?.nodes.length; i++) {
-                      let n = myGoModel.nodes[i];
-                      if (n.key !== nd.key) {
-                        nodes.push(n);
-                      }
-                    }
-                    myGoModel.nodes = nodes;
-                  }
-                }
+                  uic.deleteNode(del, deletedNodes, context);
               }
               else if (del.class === "goRelshipLink") {
-                const ld = myGoModel?.findLink(del.key);
-                if (ld) {
-                  const d_relview = ld.relshipview;
-                  if (d_relview) {
-                    const d_relship = d_relview.relship;
-
-                    if (d_relship) {
-                      const rviews = context?.myMetis?.getRelationshipViewsByRelship(d_relship.id);
-                      if (rviews) {
-                        for (let i = 0; i < rviews.length; i++) {
-                          const rview = oviews[i];
-                          rview.deleted = true;
-                        }
-                      }
-                      d_relview.deleted = true;
-                      d_relship.deleted = true;
-                      const delLink = new gql.gqlRelshipView(d_relview);
-                      deletedNodes.push(delLink);
-                    }
-                    let links = new Array();
-                    for (let i = 0; i < myGoModel?.links.length; i++) {
-                      let l = myGoModel.links[i];
-                      if (l.key !== ld.key) {
-                        links.push(l);
-                      }
-                    }
-                    myGoModel.links = links;
-                  }
-                }
+                uic.deleteLink(del, deletedLinks, context);
               }
             }
           })
@@ -320,6 +276,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (group) {
                   objview.group = group.objectview.id;
                   const myNode = myGoModel?.findNode(part.key);
+                  console.log('322 myNode', myNode, group);
                   myNode.group = group.key;
                 }
                 const addNode = new gql.gqlObjectView(objview);

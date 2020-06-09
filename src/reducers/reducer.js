@@ -406,7 +406,7 @@ function reducer(state = InitialState, action) {
       console.log('372 curmvindex', curmvindex);
       
       const curov  = curmv?.objectviews?.find(ov => ov.id === action?.data?.id)
-      const ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov.id)
+      const ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov?.id)
       console.log('376 ovindex', ovindex);
       const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)

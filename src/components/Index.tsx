@@ -46,7 +46,7 @@ const page = (props) => {
                             {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
                 <CardText className="bg-light p-4">
                   
-                  AKM Modeller is the tool for building Aktive Knowledge Models, a modellingtool with integrated Modelling and Metamodelling capabilities.
+                  AKM Modeller is the tool for building Aktive Knowledge Models, a modelling tool with integrated Modelling and Metamodelling capabilities.
                 <br/> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
                 <br/>Start modelling by select "Metamodelling" or "Modelling" in the main menu above. <br />You can also access it from the help menu to the left.
                 (The task menu can be minimized by clickin on the &lt;-sign)

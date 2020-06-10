@@ -20,6 +20,8 @@ const page = (props:any) => {
     dispatch(loadData())
   }
 
+  // console.log('23 modelling', props.phData);
+  
   const [refresh, setRefresh] = useState(false)
   function toggleRefresh() { setRefresh(!refresh); }
   
@@ -43,7 +45,7 @@ const page = (props:any) => {
   //     <SetContext phFocus={props.phFocus} />
   //   };
   // }, [props.phData])
-  console.log('42 modelling', state.phUser);
+  // console.log('42 modelling', state.phUser);
   
 
   return (

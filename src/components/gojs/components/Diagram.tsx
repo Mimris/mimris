@@ -45,7 +45,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
    */
   public componentDidMount() {
     if (!this.diagramRef.current) return;
-    const diagram = this.diagramRef.current.getDiagram();
+    const diagram = this.diagramRef?.current?.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
@@ -115,7 +115,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
   private initDiagram(): go.Diagram {
     const $ = go.GraphObject.make;
-    // define myDiagram
+    go.GraphObject.fromLinkableDuplicates = true;
+    go.GraphObject.toLinkableDuplicates   = true;
+// define myDiagram
     let myDiagram;
     if (true) {
       myDiagram =
@@ -151,7 +153,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "fillcolor": "pink",
               "icon": "default.png"
             },
-            "linkingTool.isUnconnectedLinkValid": false,
+            // allow Ctrl-G to call groupSelection()
+            "commandHandler.archetypeGroupData": { 
+              text: "Group", 
+              isGroup: true, 
+              color: "blue" 
+          },
+          "linkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,
             "relinkingTool.fromHandleArchetype":
@@ -174,7 +182,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }
         );
     }
-    console.log('94 myDiagram', this);
+    // console.log('94 myDiagram', this);
 
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
@@ -645,7 +653,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         divClassName='diagram-component'
         initDiagram={this.initDiagram}
         nodeDataArray={this.props.nodeDataArray}
-        linkDataArray={this.props.linkDataArray}
+        linkDataArray={this.props?.linkDataArray}
         modelData={this.props.modelData}
         onModelChange={this.props.onModelChange}
         skipsDiagramUpdate={this.props.skipsDiagramUpdate}

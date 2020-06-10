@@ -3,6 +3,7 @@ import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col } from 'reactstrap
 // import { TabContent, TabPane, Nav, NavItem, NavLink, Card, Button, CardTitle, CardText, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import Help from '../components/Help'
+import Tasks from '../components/Tasks'
 
 const TasksHelp = () => {
 
@@ -32,7 +33,7 @@ const TasksHelp = () => {
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); }}
           >
-            Task
+            Tasks
           </NavLink>
         </NavItem>
         <NavItem >
@@ -46,16 +47,18 @@ const TasksHelp = () => {
       </Nav>
       <TabContent activeTab={activeTab}>
         <TabPane tabId="1">
-          <Row>
+          {/* <Row>
             <Col sm="1">
             </Col>
-            <Col sm="10">
-              <br /> <br />
-              <a>Here the generated tasks in context for current role and user will appear.</a>
-            </Col>
+            <Col sm="10"> */}
+              <br /> 
+              <div>Tasks from the model:</div>
+              <br />
+              <Tasks />
+            {/* </Col>
             <Col sm="1">
             </Col>
-          </Row>
+          </Row> */}
         </TabPane>
         <TabPane tabId="2">
           <Help />

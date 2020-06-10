@@ -34,7 +34,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    console.log('37', dets);
+    // console.log('37 SelectionInspector ', dets);
     
     return dets;
   }

@@ -15,7 +15,8 @@ const Layout = (props) => {
       <link rel="icon" href="" />
     </Head>
     <TopMenu user={props.user}/>
-    <div className="container-fluid ml-1 pl-0 pr-2 mr-0">
+    {/* <div className="container-fluid ml-1 pl-0 pr-2 mr-0"> */}
+    <div className="container-fluid ">
       <div>
         {props.children}
       </div>

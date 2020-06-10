@@ -48,9 +48,9 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('44 myPalette', myPalette);
       const myModelView = (curmodview) && myMetis?.findModelView(curmodview.id);
-      // console.log('48 GenGojsModel  myModel', myModel, myModelView);
+      console.log('51 GenGojsModel  myModel', myModel, myModelView);
       const myGoModel = buildGoModel(myModel, myModelView);
-      
+      console.log('53 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
       
       // console.log('53 GenGojsModel  myMetis', myMetis);
@@ -146,7 +146,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
   function buildGoModel(model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
-    // console.log('103 modelview', modelview);
+    console.log('149 buildGoModel', objviews);
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
         let objview = objviews[i];
@@ -161,10 +161,10 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
         node.loadNodeContent(myGoModel);
       }
     }
-    console.log('114 buildGoModel', myGoModel);
+    console.log('164 buildGoModel', myGoModel);
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
-    // console.log('117 relviews', relviews);
+    console.log('167 buildGoModel', relviews);
     if (relviews) {
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
@@ -176,6 +176,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
           //console.log('125 relviews - link', link, myGoModel);
         }
       }
+      console.log('179 buildGoModel', myGoModel);
     }
     return myGoModel;
   }

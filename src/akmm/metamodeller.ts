@@ -45,9 +45,7 @@ export class cxMetis {
     constructor() {
     }
     importData(importedData: any) {
-        console.log('48 importData', importedData);
         this.initImport(importedData);
-        console.log('49 importData', this);
 
         const metamodels = importedData.metamodels;
         if (metamodels && metamodels.length) {
@@ -82,20 +80,16 @@ export class cxMetis {
                 this.importRelship(rel, null);
             })
         }
-        console.log('65 metamodeller :', this);
     }
 
     initImport(importedData: any) {
         // Import metamodels
         let metamodels = importedData.metamodels;
-        console.log('92 initImport :', metamodels);
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const item = metamodels[i];
-                console.log('96 initImport :', item);
                 const metamodel = new cxMetaModel(item.id, item.name, item.description);
                 this.addMetamodel(metamodel);
-                console.log('99 initImport :', metamodel);
                 // Metamodel content
                 let items = item.datatypes;
                 if (items && items.length) {
@@ -105,7 +99,6 @@ export class cxMetis {
                         //dtype.class = "cxDatatype";
                         metamodel.addDatatype(dtype);
                         this.addDatatype(dtype);
-                        console.log('108 initImport - datatype:', dtype,  metamodel);
                     }
                 }
                 items = item.properties;
@@ -117,16 +110,13 @@ export class cxMetis {
                     }
                 }
                 items = item.objecttypes;
-                console.log('119 initImport-objecttypes :', items);
                 if (items && items.length) {
                     for (let i = 0; i < items.length; i++) {
                         const item = items[i];
                         const otype = new cxObjectType(item.id, item.name, item.description);
                         metamodel.addObjectType(otype);
                         this.addObjectType(otype);
-                        console.log('127 initImport-objtype :', otype);
                     }
-                    console.log('129 initImport-metamodel :', metamodel);
                 }
                 items = item.objtypegeos;
                 if (items && items.length) {
@@ -1501,7 +1491,7 @@ export class cxMetaObject {
         this.description = description;
         this.deleted = false;
         this.modified = false;
-        if (name == null) name = id;
+        if (name == null) this.name = id;
         if (description == null) this.description = "";
     }
     // Methods

@@ -255,6 +255,7 @@ export class goNode extends goMetaObject {
     size: string;
     constructor(key: string, model: goModel | null) {
         super(key);
+        this.class = 'goNode';
         this.parentModel = model;  // goModel
         this.loc = "";
         this.size = "";
@@ -286,6 +287,7 @@ export class goObjectNode extends goNode {
     parent: string;
     constructor(key: string, objview: akm.cxObjectView) {
         super(key, null);
+        this.class = 'goObjectNode';
         this.category = constants.gojs.C_OBJECT;
         this.objectview = objview;
         this.object = null;
@@ -386,6 +388,7 @@ export class goObjectTypeNode extends goNode {
     typename: string;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
+        this.class = 'goObjectTypeNode';
         this.category = constants.gojs.C_OBJECTTYPE;
         this.objtype = objtype;
         this.typeview = null;
@@ -452,6 +455,7 @@ export class goLink extends goMetaObject {
     parentModel: goModel;
     constructor(key: string, model: goModel) {
         super(key);
+        this.class = 'goLink';
         this.parentModel = model;  // goModel
     }
     // Methods
@@ -469,6 +473,7 @@ export class goRelshipLink extends goLink {
     to: string;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
+        this.class = 'goRelshipLink';
         this.category = constants.gojs.C_RELATIONSHIP;
         this.relshipview = relview;
         this.relship = null;
@@ -582,6 +587,7 @@ export class goRelshipTypeLink extends goLink {
     to:         string | undefined;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
+        this.class = 'goRelshipTypeLink';
         this.category   = constants.gojs.C_RELSHIPTYPE;
         this.reltype    = reltype;
         this.typeview   = null;

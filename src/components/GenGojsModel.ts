@@ -146,7 +146,6 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
   function buildGoModel(model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
-    console.log('149 buildGoModel', objviews);
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
         let objview = objviews[i];
@@ -161,10 +160,8 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
         node.loadNodeContent(myGoModel);
       }
     }
-    console.log('164 buildGoModel', myGoModel);
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
-    console.log('167 buildGoModel', relviews);
     if (relviews) {
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
@@ -176,7 +173,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
           //console.log('125 relviews - link', link, myGoModel);
         }
       }
-      console.log('179 buildGoModel', myGoModel);
+      console.log('179 myGoModel', myGoModel);
     }
     return myGoModel;
   }

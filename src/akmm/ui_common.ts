@@ -4,6 +4,7 @@ import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
+import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
 
 //import * as go from 'gojs';
@@ -12,34 +13,91 @@ export function updateObject(data: any, name: string, value: string, context: an
     if ((data === null) || (name !== "name") || (!data.object)) {
         return;
     } else {
-        // const myMetis     = context.metis;
-        // const myMetamodel = context.metamodel;
-        // const myModel     = context.model;
-        // const myModelView = context.modelview;
-        // const myDiagram   = context.diagram; 
-
-        let currentObject = data.object as akm.cxObject;
-        let currentObjectView = data.objectview as akm.cxObjectView;
-        let otype = data.objecttype as akm.cxObjectType;
-        if (otype.getName() === constants.AKM_DATATYPE) {
-            // Special handling of datatypes
-            value = value.toLowerCase();
-            let dtype = context.myMetis.findDatatypeByName(value);
-            if (!dtype) {
-                // Create new datatype
-                dtype = new akm.cxDatatype(utils.createGuid(), value, constants.AKM_DATATYPE + ": " + value);
-                context.myMetis.addDatatype(dtype);
-            }
+        const metis           = context.myMetis;
+        const myModel         = context.myModel;
+        const myModelView     = context.myModelView;
+        const myDiagram       = context.myDiagram;
+        let currentObject     = data.object;
+        let currentObjectView = data.objectview;
+        let otype             = data.objecttype;
+        if (currentObject.getName() === otype.getName()) {
+            // This is a new object - check if the new name already exists
+            let obj = metis.findObjectByTypeAndName(otype, data.name);
+            if (obj) {
+                // Existing object
+                utils.removeElementFromArray(myModel.getObjects(), currentObject.getId());
+                currentObject = obj;
+                currentObjectView.setObject(currentObject);
+                myModelView.addObjectView(currentObjectView);
+            } 
         }
         currentObject.setName(value);
         currentObject.setModified();
         currentObjectView.setName(value);
         currentObjectView.setModified();
-        const diagram = context.myDiagram;
-        diagram.model.setDataProperty(data, "name", value);
+        myDiagram.model.setDataProperty(data, "name", value);
     }
 }
-export function createObject(data: any, context: any): akm.cxObjectView | OnErrorEventHandlerNonNull {
+
+export function updateObjectType(data: any, name: string, value: string, context: any) {
+    if ((data === null) || (name !== "name")) {
+        return;
+    }  else {
+        const metis = context.myMetis;
+        const myMetamodel = context.myMetamodel;
+        // Check if this is a type change
+        let objtype = data.objecttype;            
+        const typename = data.name;
+        if (objtype) {
+            if  (
+                (objtype.getName() === "New Type") 
+                ||
+                (objtype.getName() === "New Container") 
+                ) {
+                // This is a new type that gets a new name 
+                // Check if the new name already exists
+                let otype = metis.findObjectTypeByName(typename);
+                if (otype) {
+                    // Existing type - the new name already exists
+                    let typeid = objtype.getId();
+                    objtype = otype;
+                    utils.removeElementFromArray(myMetamodel.getObjectTypes(), typeid);
+                    myMetamodel.addObjectType(objtype);
+                    utils.removeElementFromArray(metis.getObjectTypes(), typeid);
+                    metis.addObjectType(objtype);
+                } else {
+                    objtype.setName(typename);
+                    objtype.setModified();
+                    myMetamodel.setModified();
+                }
+            } else {
+                // This is an existing type that gets a new name
+                objtype.setName(typename);
+                objtype.setModified();
+                myMetamodel.setModified();
+            }
+            // Get object typeview
+            let objtypeView = objtype.getDefaultTypeView();
+            if (!objtypeView) {
+                objtypeView = new akm.cxObjectTypeView(utils.createGuid(), typename, objtype, "");
+                objtypeView.setModified();
+                objtype.setDefaultTypeView(objtypeView);
+                objtype.setModified();
+                myMetamodel.setModified();
+                myMetamodel.addObjectTypeView(objtypeView);
+                metis.addObjectTypeView(objtypeView);
+            } else {
+                objtype.setName(typename);
+                objtype.setModified();
+                myMetamodel.setModified();
+                objtypeView.setName(typename);
+                objtypeView.setModified();
+            }                
+        }
+    }
+}
+
+export function createObject(data: any, context: any): akm.cxObjectView | null {
     if (data === null) {
         return null;
     } else {
@@ -53,7 +111,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | OnErro
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
         console.log('53 createObject', data);
-        const otypeId = data.objecttype.id;
+        const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         console.log('48 createObject', objtype);
         let guid = utils.createGuid();
@@ -102,6 +160,201 @@ export function createObject(data: any, context: any): akm.cxObjectView | OnErro
     }
     return null;
 }
+export function createObjectType(data: any, context: any): any {
+    const myMetamodel = context.myMetamodel;
+    const myMetis     = context.myMetis;
+    const myGoModel   = context.myGoMetamodel;
+    const myDiagram   = context.myDiagram;
+    if (data.category === constants.gojs.C_OBJECTTYPE) {
+        data.class = "goObjectTypeNode";
+        const typeid   = data.type;
+        let typename = data.name;
+        let objtype;
+        if (typeid === constants.types.OBJECTTYPE_ID)  {
+            if ((typename !== constants.types.OBJECTTYPE_NAME) || (typename !== constants.types.CONTAINERTYPE_NAME)) {
+                // Metamodeling and existing type
+                objtype = myMetamodel.findObjectTypeByName(typename);
+                if (objtype) {
+                    let objtypeView = objtype.getDefaultTypeView();
+                    if (!objtypeView) {
+                        objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
+                        objtypeView.setModified();
+                        objtype.setDefaultTypeView(objtypeView);
+                        objtype.setModified();
+                        myMetamodel.setModified();
+                        myMetamodel.addObjectTypeView(objtypeView);
+                        myMetis.addObjectTypeView(objtypeView);
+                    }
+                    // Configure the node
+                    myDiagram.model.setDataProperty(data, "category", constants.gojs.C_OBJECTTYPE);
+                    myDiagram.model.setDataProperty(data, "objecttype", objtype);
+                    updateNode(data, objtypeView, myDiagram);                       
+                }
+                else {
+                    // Create type
+                    typename = "New Type";
+                    if (data.viewkind === constants.viewkinds.CONT)
+                        typename = "New Container";
+                    objtype = new akm.cxObjectType(utils.createGuid(), typename, "");
+                    if (objtype) {
+                        objtype.setModified();
+                        objtype.setViewKind(data.viewkind);
+                        myMetamodel.addObjectType(objtype);
+                        myMetamodel.setModified();
+                        myMetis.addObjectType(objtype);
+                        // Define the object typeview
+                        let objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
+                        if (objtypeView) {
+                            objtypeView.setModified();
+                            objtypeView.setViewKind(data.viewkind);
+                            let viewdata = objtypeView.getData();
+                            for (let prop in viewdata) {
+                                if (prop === "icon") continue;
+                                if (prop === "isGroup") continue;
+                                if (prop === "group") continue;
+                                viewdata[prop] = data[prop];                            
+                            }
+                            if (!myMetamodel.objtypegeos) 
+                                myMetamodel.objtypegeos = new Array();
+                            let objtypegeo = myMetamodel.findObjtypeGeoByType(objtype);
+                            if (!objtypegeo) {
+                                objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myMetamodel, objtype, data.loc, data.size);
+                                myMetamodel.objtypegeos.push(objtypegeo);
+                            }
+                            objtype.setDefaultTypeView(objtypeView);
+                            myMetamodel.addObjectTypeView(objtypeView);
+                            myMetamodel.setModified();
+                            myMetis.addObjectTypeView(objtypeView);
+                            // Update the node accordingly
+                            myDiagram.model.setDataProperty(data, "category", constants.gojs.C_OBJECTTYPE);
+                            myDiagram.model.setDataProperty(data, "objecttype", objtype);
+                            myDiagram.model.setDataProperty(data, "name", typename);
+                            let node = new gjs.goObjectTypeNode(data.key, objtype);
+                            myGoModel.addNode(node);
+                            updateNode(data, objtypeView, myDiagram);  
+                            console.log('177 createObjectType ', myGoModel);                                                          
+                        }
+                    }
+                }
+            }
+            return objtype;
+        }
+    } 
+}
+
+export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, context: any) {
+    const metis     = context.myMetis;
+    const myMetamodel = context.myMetamodel;
+    if (data.category === constants.gojs.C_OBJECTTYPE) {
+        const myGoMetamodel = context.myGoMetamodel;
+        let node = myGoMetamodel?.findNode(data.key) as gjs.goObjectNode;
+        if (node) {
+            //let typeid = data.objecttype;
+            let typename = data.name;
+            let objtype = myMetamodel.findObjectTypeByName(typename);
+            if (objtype) {
+                objtype.deleted = deletedFlag;
+                let objtypeview = objtype.getDefaultTypeView();
+                if (objtypeview) {
+                    objtypeview.deleted = deletedFlag;
+                }
+                // Register change in gql
+                const delNode = new gql.gqlObjectType(objtype, false);
+                deletedNodes.push(delNode); // Correct ????
+
+                // Replace myGoModel.nodes with a new array
+                let nodes = new Array();
+                if (myGoMetamodel) {
+                    for (let i = 0; i < myGoMetamodel.nodes?.length; i++) {
+                        let n = myGoMetamodel.nodes[i];
+                        if (n.key !== node.key) {
+                            nodes.push(n);
+                        }
+                    }
+                    myGoMetamodel.nodes = nodes;
+                }
+            }
+        }
+    } else 
+    if (data.category === constants.gojs.C_OBJECT) {
+        const myGoModel = context.myGoModel;
+        let node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
+        if (node) {
+            let objview = node.objectview;
+            if (objview) {
+                const object = objview.object;
+                if (object) {
+                    const oviews = metis.getObjectViewsByObject(object.id);
+                    if (oviews) {
+                        for (let i = 0; i < oviews.length; i++) {
+                            const oview = oviews[i];
+                            oview.deleted = true;
+                        }           
+                        objview.deleted = true;
+                        object.deleted  = true;
+                        // Register change in gql
+                        const delNode = new gql.gqlObjectView(objview);
+                        deletedNodes.push(delNode);
+                    }
+                }
+            }
+            // Replace myGoModel.nodes with a new array
+            let nodes = new Array();
+            if (myGoModel) {
+                for (let i = 0; i < myGoModel.nodes?.length; i++) {
+                    let n = myGoModel.nodes[i];
+                    if (n.key !== node.key) {
+                        nodes.push(n);
+                    }
+                }
+                myGoModel.nodes = nodes;
+            }
+        }
+    }
+}
+
+export function deleteLink(data: any, deletedLinks: any[], context: any) {
+    //const myMetamodel = context.myMetamodel;
+    const myMetis     = context.myMetis;
+    const myGoModel   = context.myGoMetamodel;
+    //const myDiagram   = context.myDiagram;
+
+    const link = myGoModel?.findLink(data.key);
+    if (link) {
+      const relview = link.relshipview;
+      if (relview) {
+        const relship = relview.relship;
+
+        if (relship) {
+          const rviews = myMetis?.getRelationshipViewsByRelship(d_relship.id);
+          if (rviews) {
+            for (let i = 0; i < rviews.length; i++) {
+              const rview = rviews[i];
+              rview.deleted = true;
+            }
+          }
+          relview.deleted = true;
+          relship.deleted = true;
+          const delLink = new gql.gqlRelshipView(relview);
+          deletedLinks.push(delLink);
+        }
+        let links = new Array();
+        for (let i = 0; i < myGoModel?.links.length; i++) {
+          let l = myGoModel.links[i];
+          if (l.key !== ld.key) {
+            links.push(l);
+          }
+        }
+        myGoModel.links = links;
+      }
+    }
+
+}
+
+export function deleteObjectType(data: any, context: any) {
+    
+}
+
 function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
     if (objtypeView) {
         let viewdata: any = objtypeView.getData();
@@ -129,7 +382,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
                 nodes.push(modNode);
             }
         }
-        console.log('176 GoJsApp resized nodes', nodes);
+        // console.log('176 GoJsApp resized nodes :', nodes);
     }
 }
 
@@ -179,6 +432,8 @@ export function onClipboardPasted(selection: any) {
 // Function to connect node object to group object
 export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjectNode | null {
     const nodes = model.nodes;
+    
+    const groups = new Array();
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
         if (node.isGroup) {
@@ -191,17 +446,30 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
             const gy = parseInt(grpLoc[1]);
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
-
+            const size = Math.sqrt(gw * gw + gh * gh);
             if (
                 (nx > gx) && (nx < gx + gw) &&
                 (ny > gy) && (ny < gy + gh)
             ) {
-                console.log(node);
-                return node;
+                let grp = {"node": node, "size": size};
+                console.log('285 group', grp);
+                groups.push(grp);
             }
         }
     }
-    return null;
+    console.log('290 groups', groups);
+    if (groups.length > 0) {
+        let group = groups[0].node;
+        let size  = groups[0].size;
+        for (let i=0; i<groups.length; i++) {
+            const s = groups[i].size;
+            if (s < size) {
+                group = groups[i].node; 
+            } 
+        }
+        return group;
+    } else
+        return null;
 }
 
 export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObjectNode, context: any) {

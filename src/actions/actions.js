@@ -9,6 +9,7 @@ import {
   SET_FOCUS_OBJECT, 
   SET_MYMETIS_MODEL,
   SET_MY_GOMODEL,
+  SET_MY_GOMETAMODEL,
   SET_FOCUS_MODEL, 
   SET_GOJS_MODEL, 
   SET_GOJS_METAMODEL,
@@ -92,6 +93,13 @@ export const setMyGoModel = (data) => {
   console.log('21---myMetis', data);
   return {
     type: SET_MY_GOMODEL,
+    data: JSON.parse(data.value)
+  }
+}
+export const setMyGoMetamodel = (data) => {
+  console.log('100---myGoMetamodel', data);
+  return {
+    type: SET_MY_GOMETAMODEL,
     data: JSON.parse(data.value)
   }
 }

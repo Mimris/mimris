@@ -1,5 +1,5 @@
 // @ts-nocheck
-const fetch = require('node-fetch');
+const fetch = require('node-fetch').default;
 
 export const type = async (otype: any) => {
   

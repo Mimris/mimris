@@ -52,6 +52,7 @@ export class cxMetis {
             for (let i = 0; i < metamodels.length; i++) {
                 const metamodel = metamodels[i];
                 this.importMetamodel(metamodel);
+                console.log('55 importData', this);
             }
         }
         // Handle models next
@@ -62,12 +63,13 @@ export class cxMetis {
                     this.importModel(model);
             })
         }
+        
         // Handle objects 
         const objects: any[] = importedData.objects;
         if (objects && objects.length) {
             objects.forEach(obj => {
                 if (!obj.deleted)
-                    this.importObject(obj, null);
+                this.importObject(obj, null);
             })
         }
         // Handle relships 
@@ -75,7 +77,7 @@ export class cxMetis {
         if (relships && relships.length) {
             relships.forEach(rel => {
                 if (!rel.deleted)
-                    this.importRelship(rel, null);
+                this.importRelship(rel, null);
             })
         }
     }
@@ -94,6 +96,7 @@ export class cxMetis {
                     for (let i = 0; i < items.length; i++) {
                         const item = items[i];
                         const dtype = new cxDatatype(item.id, item.name, item.description);
+                        //dtype.class = "cxDatatype";
                         metamodel.addDatatype(dtype);
                         this.addDatatype(dtype);
                     }
@@ -439,6 +442,7 @@ export class cxMetis {
                 }
             }
         }
+        
     }
     importObject(item: any, model: cxModel | null) {
         const obj = this.findObject(item.id);
@@ -1487,7 +1491,7 @@ export class cxMetaObject {
         this.description = description;
         this.deleted = false;
         this.modified = false;
-        if (name == null) name = id;
+        if (name == null) this.name = id;
         if (description == null) this.description = "";
     }
     // Methods
@@ -1572,6 +1576,7 @@ export class cxDatatype extends cxMetaObject {
     defaultValue: string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
+        this.class = 'cxDatatype';
         this.fs_collection = constants.fs.FS_C_DATATYPES;  // Firestore collection
         this.category = constants.gojs.C_DATATYPE;
         this.isOfDatatype = null;
@@ -1612,6 +1617,7 @@ export class cxUnitCategory extends cxMetaObject {
     units: cxUnit[] | null;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
+        this.class = 'cxUnitCategory';
         this.fs_collection = constants.fs.FS_C_CATEGORIES;  // Firestore collection
         this.category = constants.gojs.C_UNITCATEGORY;
         this.units = null;
@@ -1631,6 +1637,7 @@ export class cxUnit extends cxMetaObject {
     unitCategory: cxUnitCategory | null;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
+        this.class = 'cxUnit';
         this.fs_collection = constants.fs.FS_C_UNITS;  // Firestore collection
         this.unitCategory = null;
     }
@@ -1651,6 +1658,7 @@ export class cxEnumeration extends cxMetaObject {
     enumvalues: any // array of enum values
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
+        this.class = 'cxEnumeration';
         this.fs_collection = constants.fs.FS_C_ENUMERATIONS;  // Firestore collection
         this.category = constants.gojs.C_ENUMERATION;
         this.enumvalues = null;
@@ -1699,6 +1707,7 @@ export class cxMetaModel extends cxMetaObject {
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_METAMODELS;  // Firestore collection
+        this.class = 'cxMetaModel';
         this.category = constants.gojs.C_METAMODEL;
         this.metamodels = null;
         this.objecttypes = null;
@@ -2422,6 +2431,7 @@ export class cxType extends cxMetaObject {
     // Constructor
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
+        this.class = 'cxType';
         this.abstract = false;
         this.supertypes = null;
         this.fs_collection = "types"; // Firestore collection
@@ -2594,6 +2604,7 @@ export class cxObjectType extends cxType {
     objtypegeos: cxObjtypeGeo[] | null;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
+        this.class = 'cxObjectType';
         this.fs_collection = constants.fs.FS_C_OBJECTTYPES;  // Firestore collection
         this.category = constants.gojs.C_OBJECTTYPE;
         this.typeid = constants.types.OBJECTTYPE_ID;
@@ -2607,8 +2618,8 @@ export class cxObjectType extends cxType {
     }
     // Methods
     getLoc(metamodel: cxMetaModel) {
-        if (utils.objExists(this.objtypegeos)) {
-            let geos = this.objtypegeos;
+        if (metamodel.objtypegeos) {
+            let geos = metamodel.objtypegeos;
             if (geos) {
                 for (let i = 0; i < geos.length; i++) {
                     let geo = geos[i];
@@ -2629,8 +2640,8 @@ export class cxObjectType extends cxType {
         return "";
     }
     getSize(metamodel: cxMetaModel) {
-        if (utils.objExists(this.objtypegeos)) {
-            let geos = this.objtypegeos;
+        if (metamodel.objtypegeos) {
+            let geos = metamodel.objtypegeos;
             if (geos) {
                 for (let i = 0; i < geos.length; i++) {
                     let geo = geos[i];
@@ -2904,10 +2915,8 @@ export class cxObjtypeGeo extends cxMetaObject {
         return this.type;
     }
     setType(type: cxObjectType) {
-        if (utils.objExists(type)) {
-            let otype = this.metis?.findObjectType(type.id);
-            if (utils.objExists(otype))
-                this.type = otype;
+        if (type) {
+            this.type = type;
         }
     }
     getLoc() {
@@ -2936,6 +2945,7 @@ export class cxRelationshipType extends cxObjectType {
     viewkind: string;
     constructor(id: string, name: string, fromObjtype: cxObjectType | null, toObjtype: cxObjectType | null, description: string) {
         super(id, name, description);
+        this.class = 'cxRelationshipType';
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPES;     // Firestore collection
         this.category = constants.gojs.C_RELSHIPTYPE;
         this.typeid = constants.types.RELATIONSHIPTYPE_ID;
@@ -3038,6 +3048,7 @@ export class cxProperty extends cxMetaObject {
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_PROPERTIES;  // Firestore collection
+        this.class = 'cxProperty';
         this.category = constants.gojs.C_PROPERTY;
         this.datatype = null;
         this.datatypeRef = "";            // Neccessary ???
@@ -3096,6 +3107,7 @@ export class cxObjtypeviewData {
     strokewidth: string;
     icon: string;
     constructor() {
+        this.class = 'cxObjtypeviewData';
         this.abstract = false;
         this.isGroup = false;              // Container behaviour
         this.group = "";                // Parent group
@@ -3114,6 +3126,7 @@ export class cxObjectTypeView extends cxMetaObject {
     data: cxObjtypeviewData;
     constructor(id: string, name: string, type: cxType | null, description: string) {
         super(id, name, description);
+        this.class = 'cxObjectTypeView';
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
         this.category = constants.gojs.C_OBJECTTYPEVIEW;
         this.type = type;
@@ -3243,6 +3256,7 @@ export class cxReltypeviewData {
     fromArrowColor: string;
     toArrowColor: string;
     constructor() {
+        this.class = 'cxReltypeviewData';
         this.abstract = false;
         this.relshipkind = constants.relkinds.REL;
         this.strokecolor = "black";
@@ -3261,6 +3275,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     data: cxReltypeviewData;
     constructor(id: string, name: string, type: cxRelationshipType | null, description: string) {
         super(id, name, description);
+        this.class = 'cxRelationshipTypeView';
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPEVIEWS;  // Firestore collection
         this.category = constants.gojs.C_RELSHIPTYPEVIEW;
         this.type = type;
@@ -3423,6 +3438,7 @@ export class cxModel extends cxMetaObject {
     modelviews: cxModelView[] | null;
     constructor(id: string, name: string, metamodel: cxMetaModel | null, description: string) {
         super(id, name, description);
+        this.class = 'cxModel';
         this.fs_collection = constants.fs.FS_C_MODELS;  // Firestore collection
         this.category = constants.gojs.C_MODEL;
         this.metamodel = metamodel;
@@ -4054,6 +4070,7 @@ export class cxInstance extends cxMetaObject {
 export class cxObject extends cxInstance {
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, type, description);
+        this.class = 'cxObject';
         this.fs_collection = constants.fs.FS_C_OBJECTS;    // Firestore collection
         this.category = constants.gojs.C_OBJECT;
     }
@@ -4070,6 +4087,7 @@ export class cxRelationship extends cxInstance {
     toobjectRef: string;
     constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, name: string, description: string) {
         super(id, name, type, description);
+        this.class = 'cxRelationship';
         this.fs_collection = constants.fs.FS_C_RELATIONSHIPS;  // Firestore collection
         this.category = constants.gojs.C_RELATIONSHIP;
         this.fromObject = fromObj;
@@ -4105,7 +4123,7 @@ export class cxValue {
     constructor(id: string, dtype: cxDatatype, value: any, unit: cxUnit) {
         this.id = id;
         this.fs_collection = constants.fs.FS_C_VALUES;  // Firestore collection
-        this.class = this.constructor.name;
+        this.class = 'cxValue';
         this.value = value;
         this.datatype = dtype;
         this.unit = unit;
@@ -4152,6 +4170,7 @@ export class cxModelView extends cxMetaObject {
     diagrams: cxDiagram[] | null;
     constructor(id: string, name: string, model: cxModel | null, description: string) {
         super(id, name, description);
+        this.class = 'cxModelView';
         this.fs_collection = constants.fs.FS_C_MODELVIEWS;  // Firestore collection
         // this.category         = constants.gojs.C_MODELVIEW;    // This gives an error, why ??
         this.model = model;
@@ -4334,6 +4353,7 @@ export class cxObjectView extends cxMetaObject {
     constructor(id: string, name: string, object: cxObject | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTVIEWS;  // Firestore collection
+        this.class = 'cxObjectView';
         this.category = constants.gojs.C_OBJECTVIEW;
         this.object = object;
         this.objectRef = "";
@@ -4454,6 +4474,7 @@ export class cxRelationshipView extends cxMetaObject {
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection
+        this.class = 'cxRelationshipView';
         this.category = constants.gojs.C_RELSHIPVIEW;
         this.relship = relship;
         this.typeview = null;                 // Override default type view

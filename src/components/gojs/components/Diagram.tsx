@@ -330,16 +330,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 {
                   name: "Picture",
                   desiredSize: new go.Size(35, 40),
-                  margin: new go.Margin(4, 5, 4, 5),
+                  margin: new go.Margin(4, 0, 4, 5),
                 },
                 new go.Binding("source", "icon", findImage)
               ),
+              
               // define the panel where the text will appear
               $(go.Panel, "Table",
                 {
                   defaultRowSeparatorStroke: "black",
                   maxSize: new go.Size(150, 999),
-                  margin: new go.Margin(6, 10, 0, 3),
+                  margin: new go.Margin(6, 10, 0, 0),
                   defaultAlignment: go.Spot.Left
                 },
                 $(go.RowColumnDefinition, { column: 2, width: 4 }
@@ -347,10 +348,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 // content
                 $(go.TextBlock, textStyle(),  // the name
                   {
-                    row: 0, column: 0, columnSpan: 5,
+                    row: 0, column: 0, columnSpan: 6,
                     font: "12pt Segoe UI,sans-serif",
                     editable: true, isMultiline: false,
                     minSize: new go.Size(10, 16),
+                    height: 40,
+                    verticalAlignment: go.Spot.Center,
                     name: "name"
                   },
                   new go.Binding("text", "name").makeTwoWay()),
@@ -359,7 +362,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   {
                     row: 1, column: 1, columnSpan: 6,
                     editable: false, isMultiline: false,
-                    minSize: new go.Size(10, 14),
+                    minSize: new go.Size(10, 16),
                     margin: new go.Margin(0, 0, 0, 3)
                   },
                   new go.Binding("text", "typename")
@@ -485,7 +488,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         )
     }
 
-    //     // Define group template map
+    // Define group template map
     let groupTemplateMap = new go.Map<string, go.Group>();
     groupTemplateMap.add("", groupTemplate);
 

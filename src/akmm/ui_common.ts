@@ -46,7 +46,7 @@ export function updateObjectType(data: any, name: string, value: string, context
         const metis = context.myMetis;
         const myMetamodel = context.myMetamodel;
         // Check if this is a type change
-        let objtype = data.objecttype;            
+        let objtype = data.objtype;            
         const typename = data.name;
         if (objtype) {
             if  (
@@ -175,6 +175,7 @@ export function createObjectType(data: any, context: any): any {
                 // Metamodeling and existing type
                 objtype = myMetamodel.findObjectTypeByName(typename);
                 if (objtype) {
+                    console.log('180 createObjectType - type exists', objtype);
                     let objtypeView = objtype.getDefaultTypeView();
                     if (!objtypeView) {
                         objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");

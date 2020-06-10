@@ -157,13 +157,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (sel instanceof go.Node) {
                 const key = sel.data.key;
                 const text = sel.data.name;
-
-                if (sel.type === 'objecttype') {
+                const typename = sel.data.type;
+                console.log('160 GoJSApp', typename);
+                if (typename === 'objecttype') {
                   const myNode = this.getNode(context.myGoMetamodel, key);
                   if (myNode) {
                     myNode.name = text;
                     uic.updateObjectType(myNode, field, text, context);
-                    console.log('153 GoJSApp event, myNode:', myNode);
+                    console.log('166 GoJSApp', field, text, myNode);
                     // ?? const modNode = new gql.gqlObjectView(myNode.objectview);
                     // ?? modifiedNodes.push(modNode);
                   }
@@ -172,7 +173,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (myNode) {
                     myNode.name = text;
                     uic.updateObject(myNode, field, text, context);
-                    console.log('153 GoJSApp event, myNode:', myNode);
+                    console.log('175 GoJSApp', field, text, myNode);
                     const modNode = new gql.gqlObjectView(myNode.objectview);
                     modifiedNodes.push(modNode);
                   }
@@ -264,10 +265,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             const part = nodes.first().data;
             // console.log('309 GoJSApp', part);
             if (part.type === 'objecttype') {
-               alert('Create new object type');
-               const otype = uic.createObjectType(part, context);
-               const addNode = new gql.gqlObjectType(otype);
-              //  console.log('314 ExternalObjectsDropped', otype);
+              const otype = uic.createObjectType(part, context);
+              console.log('268 ExternalObjectsDropped - otype', otype);
+              const addNode = new gql.gqlObjectType(otype);
             } else {
               const objview = uic.createObject(part, context);
               if (objview) {

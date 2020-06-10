@@ -816,8 +816,8 @@ export class gqlObjectView {
         this.loc = objview?.loc;
         this.size = objview?.size;
         // Code
-        if (objview.description)
-            this.description = objview.description;
+        if (objview?.description)
+            this.description = objview?.description;
         const obj = objview?.getObject();
         if (obj)
             this.objectRef = obj?.getId();

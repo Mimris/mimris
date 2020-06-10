@@ -143,16 +143,55 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
             );
           
             // Define node template map
-            let paletteNodeTemplateMap = new go.Map<string, go.Part>();
-            paletteNodeTemplateMap.add("", paletteNodeTemplate);
-  
+            const paletteNodeTemplateMap = new go.Map<string, go.Part>();
+            paletteNodeTemplateMap.add("", paletteNodeTemplate);  
             myPalette.nodeTemplateMap = paletteNodeTemplateMap;
     
+            const groupTemplate =
+            $(go.Group, "Auto",
+              // for sorting, have the Node.text be the data.name
+              new go.Binding("text", "name"),
+    
+              // define the node's outer shape
+              $(go.Shape, "Rectangle",
+                {
+                  name: "SHAPE", fill: "lightyellow", stroke: "black",
+                  //desiredSize: new go.Size(100, 20),
+                  //margin: new go.Margin(100, 0, 0, 0),
+                },
+                new go.Binding("fill", "fillcolor"),
+                new go.Binding("stroke", "strokecolor"),
+                new go.Binding("strokeWidth", "strokewidth")
+              ),
+    
+              $(go.Panel, "Vertical",
+                // define the panel where the text will appear
+                $(go.Panel, "Table",
+                  {
+                    defaultRowSeparatorStroke: "black",
+                    maxSize: new go.Size(150, 999),
+                    margin: new go.Margin(6, 10, 0, 3),
+                    defaultAlignment: go.Spot.Left
+                  },
+                  $(go.RowColumnDefinition, { column: 2, width: 4 }
+                  ),
+                  // content
+                  $(go.TextBlock, textStyle(),  // the name
+                    {
+                      row: 0, column: 0, columnSpan: 6,
+                      font: "12pt Segoe UI,sans-serif",
+                      editable: true, isMultiline: false,
+                      minSize: new go.Size(10, 16),
+                      name: "name"
+                    },
+                    new go.Binding("text", "name").makeTwoWay()),
+                ),
+              )
+            );
             // Define group template map
-            // let paletteGroupTemplateMap = new go.Map();
-            // paletteGroupTemplateMap.add("typeitem", paletteGroupTemplate1);
-          
-            // myPalette.groupTemplateMap = paletteGroupTemplateMap;
+            let groupTemplateMap = new go.Map<string, go.Group>();
+            groupTemplateMap.add("", groupTemplate);
+            myPalette.groupTemplateMap = groupTemplateMap;
   
       }
       return myPalette;

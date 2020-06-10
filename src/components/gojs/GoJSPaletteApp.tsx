@@ -43,7 +43,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
       modelData: {
-        canRelink: true
+        canRelink: false
       },
       selectedData: null,
       skipsDiagramUpdate: false,
@@ -61,9 +61,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     // bind handler methods
 
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    this.handleModelChange = this.handleModelChange.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleRelinkChange = this.handleRelinkChange.bind(this);
+    //this.handleModelChange = this.handleModelChange.bind(this);
+    //this.handleInputChange = this.handleInputChange.bind(this);
+    //this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
 
   /**

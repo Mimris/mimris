@@ -1,4 +1,5 @@
-import { connect, useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
+// import { connect, useSelector, useDispatch } from 'react-redux';
 import Selector from './utils/Selector'
 
 const Tasks = () => {

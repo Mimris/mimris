@@ -39,9 +39,9 @@ const page = (props: any) => {
       <Layout user={ props.phUser?.focusUser } >
         <div id="index" >
           <div className="wrapper">
-            <div className="header">
+            {/* <div className="header">
               <Header title='eaderTitle' />
-            </div>
+            </div> */}
             <div className="workplace">
               <div className="contextarea">
                 {setContextDiv}
@@ -55,7 +55,7 @@ const page = (props: any) => {
             </div>
             <div className="footer">
               <Footer />
-            </div>y
+            </div>
             
           </div>
         </div>

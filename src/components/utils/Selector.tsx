@@ -13,12 +13,12 @@ const Selector = ( props: any ) => {
     console.log('13 selector', data, type);
     dispatch({ type: type, data })
   }
-  // console.log('15 selector', props);
+  console.log('15 selector', props);
 
   const options = props.selArray && [
       <option 
         key={'Select ...'} 
-        value={`Select ${props.selName} ...`} 
+        value={(props.focusname) && `${props.focusname}`}//  : `Select ${props.selName} ...`} 
       > 
         Select {props.selName}...
       </option>,

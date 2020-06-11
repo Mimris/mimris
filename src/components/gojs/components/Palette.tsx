@@ -105,6 +105,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                   fill: "lightyellow", 
                   stroke: "black",
                 },
+                
                   new go.Binding("fill", "fillcolor"),
                   new go.Binding("stroke", "strokecolor"),
                   new go.Binding("strokeWidth", "strokewidth")
@@ -115,10 +116,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     {
                       name: "Picture",
                       desiredSize: new go.Size(20, 20),
+                      margin: new go.Margin(0, 0, 0, 3),
                     },
                     new go.Binding("source", "icon", findImage)
                   ),
-            // define the panel where the text will appear
+                  // define the panel where the text will appear
                   $(go.Panel, "Table",
                     { 
                       defaultRowSeparatorStroke: "black",
@@ -133,7 +135,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     {
                       row: 0, column: 0, columnSpan: 6,
                       font: "12pt Segoe UI,sans-serif",
-                      editable: false, isMultiline: false,
+                      editable: false, isMultiline: true,
                       minSize: new go.Size(10, 16),
                       name: "name"
                     },

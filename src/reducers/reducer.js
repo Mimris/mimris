@@ -27,138 +27,153 @@ import {
   UPDATE_OBJECTVIEW_NAME
 } from '../actions/types';
 
+import InitStateJson from './Initialstate.json'
+console.log('31', JSON.parse(JSON.stringify(InitStateJson)));
+
+const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
+
 export const InitialState = {
-  phSource: 'no source loaded',
-  phData: null,
+  phData: InitState.phData,
+  phFocus: InitState.phFocus,
+  phGojs: null,
   phMymetis: null,
   phMyGoModel: null,
   phMyGoMetamodel: null,
-  phUser: {
-    focusUser: {
-      id: 1,
-      name: 'Not logged in',
-      email: '',
-      session: null
-    }
-  },
-  phGojs: {
-    // gojsModel: {
-    //   nodeDataArray: [
-    //     { key: 0, text: 'AKM', color: 'lightblue', loc: '0 0' },
-    //     { key: 1, text: 'AMAP', color: 'lightgreen', loc: '0 -50' },
-    //   ],
-    //   linkDataArray: [
-    //     { key: -1, from: 0, to: 1 },
-    //   ],
-    // },
-    gojsModel: {
-      nodeDataArray: [
-        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
-      ],
-      linkDataArray: [],
-    },
-    gojsMetamodel: {
-      nodeDataArray: [
-        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
-      ],
-      linkDataArray: [],
-    },
-    gojsMetamodelPalette: {
-      nodeDataArray: [
-        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
-      ],
-      linkDataArray: [],
-    },
-    gojsMetamodelModel: {
-      nodeDataArray: [
-        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
-      ],
-      linkDataArray: [],
-    },
-  },
-  phFocus: {
-    focusModel: {
-      id: null,
-      name: null
-    },
-    focusObject: {
-      id: null,
-      name: '',
-      sourceName: '',
-      status: null
-    },
-    focusModelview: {
-      id: null,
-      name: ''
-    },
-    focusOrg: {
-      id: null,
-      name: ''
-    },
-    focusProj: {
-      id: null,
-      name: ''
-    },
-    focusRole: {
-      id: null,
-      name: ''
-    },
-    focusCollection: null,
-    focusTask: {
-      id: null,
-      name: "",
-      focus: {
-        focusObject: {
-          id: null,
-          name: ""
-        },
-        focusSource: {
-          id: null,
-          name: ""
-        },
-        focusCollection: []
-      }
-    },
-    // focusTask: {
-    //   id: 'UUID4_A07E7E67-102D-43A4-84E1-89E40DCCCD22',
-    //   name: 'Calculate NPV',
-    //   role: 'test',
-    //   focus: {
-    //     focusSource: {
-    //       id: 4,
-    //       name: 'modelviews'
-    //     },
-    //     focusOrg: 'Equinor',
-    //     focusProj: 'AMAP',
-    //     focusRole: 'PTEC',
-    //     focusModelview: {
-    //       id: 'UUID4_308887A7-44B7-4973-A7EF-60AC766A598E',
-    //       name: 'Workplace'
-    //     },
-    //     focusObject: {
-    //       id: 'UUID4_49FFA121-7644-40C5-9468-4B14DD975748',
-    //       name: 'Reservoir Evaluation'
-    //     }
-    //   },
-    //   worksOn: {
-    //     focusSource: 1,
-    //     focusObject: 1
-    //   },
-    // },
-    focusSource: {
-      id: null,
-      name: ''
-    },
-    focusModelview: {
-      id: null,
-      name: null
-    }
-  }
+  phUser: InitState.phUser,
+  phSource: InitState.phSource
+
 }
+  // phSource: 'no source loaded',
+  // phData: null,
+  // phMymetis: null,
+  // phMyGoModel: null,
+  // phMyGoMetamodel: null,
+  // phUser: {
+  //   focusUser: {
+  //     id: 1,
+  //     name: 'Not logged in',
+  //     email: '',
+  //     session: null
+  //   }
+  // },
+  // phGojs: {
+  //   // gojsModel: {
+  //   //   nodeDataArray: [
+  //   //     { key: 0, text: 'AKM', color: 'lightblue', loc: '0 0' },
+  //   //     { key: 1, text: 'AMAP', color: 'lightgreen', loc: '0 -50' },
+  //   //   ],
+  //   //   linkDataArray: [
+  //   //     { key: -1, from: 0, to: 1 },
+  //   //   ],
+  //   // },
+  //   gojsModel: {
+  //     nodeDataArray: [
+  //       { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+  //       { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+  //     ],
+  //     linkDataArray: [],
+  //   },
+  //   gojsMetamodel: {
+  //     nodeDataArray: [
+  //       { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+  //       { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+  //     ],
+  //     linkDataArray: [],
+  //   },
+  //   gojsMetamodelPalette: {
+  //     nodeDataArray: [
+  //       { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+  //       { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+  //     ],
+  //     linkDataArray: [],
+  //   },
+  //   gojsMetamodelModel: {
+  //     nodeDataArray: [
+  //       { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+  //       { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+  //     ],
+  //     linkDataArray: [],
+  //   },
+  // },
+  // phFocus: {
+  //   focusModel: {
+  //     id: null,
+  //     name: null
+  //   },
+  //   focusObject: {
+  //     id: null,
+  //     name: '',
+  //     sourceName: '',
+  //     status: null
+  //   },
+  //   focusModelview: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusOrg: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusProj: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusRole: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusCollection: null,
+  //   focusTask: {
+  //     id: null,
+  //     name: "",
+  //     focus: {
+  //       focusObject: {
+  //         id: null,
+  //         name: ""
+  //       },
+  //       focusSource: {
+  //         id: null,
+  //         name: ""
+  //       },
+  //       focusCollection: []
+  //     }
+  //   },
+  //   // focusTask: {
+  //   //   id: 'UUID4_A07E7E67-102D-43A4-84E1-89E40DCCCD22',
+  //   //   name: 'Calculate NPV',
+  //   //   role: 'test',
+  //   //   focus: {
+  //   //     focusSource: {
+  //   //       id: 4,
+  //   //       name: 'modelviews'
+  //   //     },
+  //   //     focusOrg: 'Equinor',
+  //   //     focusProj: 'AMAP',
+  //   //     focusRole: 'PTEC',
+  //   //     focusModelview: {
+  //   //       id: 'UUID4_308887A7-44B7-4973-A7EF-60AC766A598E',
+  //   //       name: 'Workplace'
+  //   //     },
+  //   //     focusObject: {
+  //   //       id: 'UUID4_49FFA121-7644-40C5-9468-4B14DD975748',
+  //   //       name: 'Reservoir Evaluation'
+  //   //     }
+  //   //   },
+  //   //   worksOn: {
+  //   //     focusSource: 1,
+  //   //     focusObject: 1
+  //   //   },
+  //   // },
+  //   focusSource: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusModelview: {
+  //     id: null,
+  //     name: null
+  //   }
+  // }
+// }
 
 let focusTask
 let focusSource

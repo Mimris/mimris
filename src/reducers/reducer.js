@@ -23,6 +23,7 @@ import {
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
   UPDATE_OBJECTVIEW_PROPERTIES,
+  UPDATE_OBJECTTYPE_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
 } from '../actions/types';
@@ -496,6 +497,65 @@ function reducer(state = InitialState, action) {
           },
         }
       
+    case UPDATE_OBJECTTYPE_PROPERTIES:
+      console.log('501 UPDATE_OBJECTTYPE_PROPERTIES', action);
+      const curmod     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+      const curmm     = state.phData?.metis?.metamodels?.find(m => m.id === curmod.metamodelRef)
+      const curmmindex = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmod.metamodelRef)
+      
+      const curot  = curmm?.objtypegeos?.find(ot => ot.id === action?.data?.id)
+      console.log('506 curmm', curmm);
+      const otlength = curmm?.objtypegeos.length
+      let otindex = curmm?.objtypegeos?.findIndex(ot => ot.id === curov?.id)
+      if (otindex < 0) {ovindex = ovlength} 
+      // console.log('411 ovindex', ovindex, ovlength);
+      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
+      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
+ 
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              metamodels: [
+                ...state.phData.metis.metamodels.slice(0,curmmindex),
+                {
+                  ...state.phData.metis.metamodels[curmmindex],
+                  objtypegeos: [
+                    ...curmm?.objtypegeos.slice(0, otindex),
+                    {
+                      ...curmm?.objtypegeos[otindex],  
+                      id: action.data.id,           
+                      name: action.data.name,
+                      description: action.data.description,
+                      typeRef: action.data.typeRef,
+                      metamodelRef: action.data.metamodelRef,
+                      loc: action.data.loc,
+                      size: action.data.size
+                    },
+                    ...curmm?.objtypegeos.slice(otindex + 1)
+                  ]
+                  // objects: [
+                  //   ...curm.objects.slice(0, curoindex),
+                  //   {
+                  //     ...curo,                 
+                  //     name: action.data.name,
+                  //     description: action.data.desctription,
+                  //     typeRef: action.data.typeviewRef,
+                  //     // ...curopropertyValues: [
+                  //     //   ...curo.propertyValues
+                  //     // ]
+                  //   },
+                  //   ...curm.objects.slice(curoindex + 1)  
+                  // ]
+                },
+                ...state.phData.metis.metamodels.slice(curmindex + 1),
+              ]
+            },
+         },
+        
+      }
 
     case EDIT_OBJECT_PROPERTIES:
       // console.log('236', action);

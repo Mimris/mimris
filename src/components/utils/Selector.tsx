@@ -5,20 +5,20 @@ const Selector = ( props: any ) => {
   const dispatch = useDispatch()
   const type = props.type
   const handleChange = (event: any) => {
-    console.log('8 selector', event); 
+    // console.log('8 selector', event); 
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const focustype = { id: id, name: name }
     const data = focustype
-    console.log('13 selector', data, type);
+    // console.log('13 selector', data, type);
     dispatch({ type: type, data })
   }
-  console.log('15 selector', props);
+  // console.log('15 selector', props);
 
   const options = props.selArray && [
       <option 
         key={'Select ...'} 
-        value={(props.focusname) && `${props.focusname}`}//  : `Select ${props.selName} ...`} 
+        value={`Select ${props.selName} ...`} 
       > 
         Select {props.selName}...
       </option>,

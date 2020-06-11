@@ -12,10 +12,10 @@ export interface PersonProps {
 export default function Person({ ownersList }: PersonProps) {
 
   const router = useRouter();
-  console.log('16 person', router.query.person);
+  // console.log('16 person', router.query.person);
 
   const [owners, setOwners] = useState(ownersList);
-  console.log('18 person', owners);
+  // console.log('18 person', owners);
 
   useEffect(() => {
     async function loadData() {
@@ -35,7 +35,7 @@ export default function Person({ ownersList }: PersonProps) {
 
     }, []);
     
-    console.log('38 owners', owners);
+    // console.log('38 owners', owners);
     if (!owners?.[0]) {
       return <div>loading...</div>;
     }
@@ -55,7 +55,7 @@ export default function Person({ ownersList }: PersonProps) {
         '&vehicle=' +
         query.vehicle
     );
-    console.log('56 response', response);
+    // console.log('56 response', response);
     const ownersList: VehiclePerson[] | undefined = await response.json();
     return { ownersList: ownersList };
   };

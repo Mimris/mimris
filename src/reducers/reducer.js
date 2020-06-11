@@ -29,7 +29,7 @@ import {
 } from '../actions/types';
 
 import InitStateJson from './Initialstate.json'
-console.log('31', JSON.parse(JSON.stringify(InitStateJson)));
+// console.log('31', JSON.parse(JSON.stringify(InitStateJson)));
 
 const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
 

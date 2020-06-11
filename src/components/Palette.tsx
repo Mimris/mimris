@@ -43,7 +43,7 @@ const Palette = (props) => {
         {visiblePalette 
           ? <span className="btn-link btn-sm pl-2 pr-0 " style={{ color: "white" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
           : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e</span> 
-        </div>}
+            </div>}
         {/* ? 'Palette <' 
         :  'Palette >' } 
       </div> */}

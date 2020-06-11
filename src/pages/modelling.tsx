@@ -60,10 +60,10 @@ const page = (props:any) => {
             <div className="contextarea" >
               {setContextDiv}
             </div>
-            <div className="tasksarea"  >
+              <div className="tasksarea" style={{ backgroundColor: "#ffe" }} >
               <TasksHelp />
             </div>
-            <div className="workarea">
+              <div className="workarea px-1" style={{ backgroundColor: "#eee" }}>
               <Modelling />
             </div>
           </div>
@@ -125,7 +125,7 @@ const page = (props:any) => {
         border-radius: 5px 5px 5px 5px;
         border-width: 2px;
         // border-color: #000;
-        // background-color: #e00;
+        background-color: #ffe;
         max-width: 220px;
         // font-size: 100%;
       }

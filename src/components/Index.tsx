@@ -41,49 +41,60 @@ const page = (props) => {
         <div className="homepage1 bg-light ">
           <div>
             <CardColumns>
+              <Card className="card bg-secondary p-0 mb-2" >
+                <CardBody className="homepage2 p-1" style={{backgroundColor: "#cef"}}>
+                  {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
+                              <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
+                  <CardText className="bg-light p-3">
+                    - Select Modelling in the top menu.
+                    <br />- For help: Click "Task / Help" bar to the left!
+                  </CardText>
+                </CardBody>
+              </Card>
 
                 <Card className="card bg-secondary p-0 mb-2" >
-                  <CardBody id="lighten" className="homepage2 bg-secondary p-2" >
+                  <CardBody id="lighten" className="homepage2 bg-secondary p-1" >
                     <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
                                 {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
-                    <CardText className="bg-light p-4">
+                    <CardText className="bg-light p-3">
                       
-                      AKM Modeller is the tool for building Aktive Knowledge Models, a modelling tool with integrated Modelling and Metamodelling capabilities.
-                    <br/> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
-                    <br/>Start modelling by select "Metamodelling" or "Modelling" in the main menu above. <br />You can also access it from the help menu to the left.
-                    (The task menu can be minimized by clickin on the &lt;-sign)
+                    AKM Modeller is the tool for building Aktive Knowledge Models, a modelling tool with integrated Modelling and Metamodelling capabilities.
+                    <br /><br />(Not working on Heroku yet!)
+                    <br /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
+                    <br /><br />Start modelling by select "Metamodelling" or "Modelling" in the main menu above. <br />You can also access it from the help menu to the left.
+                    (The task menu can be minimized by clickin on the &lt; -sign)
                     </CardText>
                   </CardBody>
                 </Card>
-              <Card body outline color="warning">
-                <CardHeader>Aktive Knowledge Modelling</CardHeader>
-                <CardBody className="akm-intro" >
-                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
-                  <CardText>
-                    Active Knowledge Modelling (AKM) is a innovative and disruptive way to capture and use enterprise knowledge from practical work with  positive effects on productivity, safety,
-                    collaboration and learning.
-                   
-                  </CardText>
-                </CardBody>
-                {/* </Card> */}
-                {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
-                {/* <Card> */}
-              </Card>
+                <Card body outline color="warning">
+                  <CardHeader>Aktive Knowledge Modelling</CardHeader>
+                  <CardBody className="akm-intro" >
+                    {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
+                    <CardText>
+                      Active Knowledge Modelling (AKM) is a innovative and disruptive way to capture and use enterprise knowledge from practical work with  positive effects on productivity, safety,
+                      collaboration and learning. (more in the About page ....)
+                    
+                    </CardText>
+                  </CardBody>
+                  {/* </Card> */}
+                  {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
+                  {/* <Card> */}
+                </Card>
      
                 <Card className="bg-warning" body outline color="primary" >
-                <CardHeader>Blog </CardHeader>
-                <CardBody className="homepage1 bg-light" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.06 06</CardTitle>
-                  <CardText>
-                  1st version of AKMM awailable on Heroku! sf  
-                  </CardText>
-                </CardBody>
-                <CardBody className="homepage1 bg-light" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.06.11</CardTitle>
-                  <CardText>
-                    1st version of AKMM with Metamodellin on Heroku! sf  
-                  </CardText>
-                </CardBody>
+                  <CardHeader>Blog </CardHeader>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.06 06</CardTitle>
+                    <CardText>
+                    1st version of AKMM awailable on Heroku! sf  
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.06.11</CardTitle>
+                    <CardText>
+                      1st version of AKMM with Metamodellin on Heroku! sf  
+                    </CardText>
+                  </CardBody>
                 </Card>
 
             </CardColumns>

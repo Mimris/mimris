@@ -43,7 +43,6 @@ const page = (props) => {
             {/* <Card className="card bg-secondary p-0 mb-2" >
               <CardBody id="lighten" className="homepage2 bg-secondary p-2" >
                 <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
-  
                 <CardText className="bg-light p-4">
                 </CardText>
               </CardBody>
@@ -65,8 +64,9 @@ const page = (props) => {
                     <br /><br />The effects from deploying AKM based solutions are many.
                     <br /><br />Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness.
                     I.e. supporting  design parameter balancing, and that task execution is in line with applicable regulations and policies.
-                    <br /><br />Secondly, execution of a task might create new tasks with other roles, and as such make AKM make collaboration more transparent, effective and precise, with direct impact on safety and security.
-                  </CardText>
+                    <br /><br />Secondly, execution of a task can create new tasks with other roles, and as such make AKM models for collaboration more transparent, effective and precise, with direct impact on safety and security.
+                    <br /><br />Integration of systems by adaptive APIs, Interaction with system repositories and databases, Interpretation of complex dependencies by Interaction with shared property objects., eg Markers.
+                </CardText>
                 </CardBody>
                 {/* </Card> */}
                 {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
@@ -94,7 +94,7 @@ const page = (props) => {
                     <strong>View’s </strong> defines how information is presented to roles and managed to ease task (work) execution.
                   </CardText>
                   <CardText>
-                    Modelling and executing tasks extends the values and principles of product, process and organisation design
+                    Modelling and executing tasks extends the values and principles of product, process and organisation design.
                     Work execution and management is improved by capturing context as well as contents in workspace models.
                     Collaboration is enhanced by sharing views of situations and solutions.
                     Creating fine-grained executable models and views of products, organisations, processes and systems and ICT platforms.
@@ -129,10 +129,10 @@ const page = (props) => {
               <CardBody className="hompage3">
                 <CardTitle style={{ fontWeight: "bolder" }}>Product design, engineering and life-cycle services </CardTitle>
                 <CardText>
-                  Functions for control of capabilities and properties
-                  Components for controlling shape and features
-                  Part structures for engineering  parameter control
-                  Manufacturing structures for adaptation to the machining
+                  Functions for control of capabilities and properties.
+                  Components for controlling shape and features.
+                  Part structures for engineering  parameter control.
+                  Manufacturing structures for adaptation to the machining.
                   Assembly structures for controlling the assemblying of parts.
                     </CardText>
               </CardBody>
@@ -149,18 +149,20 @@ const page = (props) => {
                 <CardTitle style={{ fontWeight: "bolder" }}>System design, building and operation</CardTitle>
                 <CardText>
                   System design, building and operation are currently performed in isolated expert silos, that are not able to support early design,
-                  nor role-oriented emergent teams and their practical workspaces
+                  nor role-oriented emergent teams and their practical workspaces.
+                  Integration of systems by adaptive APIs, Interaction with system repositories and databases, Interpretation of complex dependencies by Interaction with shared property objects., eg Markers.
                   </CardText>
               </CardBody>
               <CardBody>
-                <CardTitle style={{ fontWeight: "bolder" }}>Process design , engineering and execution</CardTitle>
+                <CardTitle style={{ fontWeight: "bolder" }}>Process design, engineering and execution</CardTitle>
                 <CardText>
                   are currently based on:
-                    <br />- Activity decomposition and disjoint flows – business and project
-                    <br />- Jobs are defined by tasks needed, no context is captured
-                    <br />- Separate progress reporting and communication from processes
-                    <br />- No balancing of parameters and valuesacross disciplines and roles
+                    <br />- Activity decomposition and disjoint flows – business and project.
+                    <br />- Jobs are defined by tasks needed, no context is captured.
+                    <br />- Separate progress reporting and communication from processes.
+                    <br />- No balancing of parameters and valuesacross disciplines and roles.
                     <br />- No capture of practical dependencies and settings.
+                    <br />- Early phase design of workspaces driven by values and  properties, providing bottom up tasks and parameter views, and rich contexts.
                   </CardText>
               </CardBody>
               <Link href="/">
@@ -177,7 +179,7 @@ const page = (props) => {
                 <CardText>
                   AKM is used to create Visual Collaboration Arena (VCA) that provide role-holder’s with contextualized workspaces and workplaces.
                     <br />Workspaces captures the dynamic interdependencies between roles, tasks, views and information.
-                    <br />Workplaces is the instantiation of a workspace for a specific type of end user, supporting end user equipment for workspace interaction
+                    <br />Workplaces is the instantiation of a workspace for a specific type of end user, supporting end user equipment for workspace interaction.
                     <br />Role holders can be humans or software agents (bots) or a combination of the two that are accountable for the execution of tasks in line with the rules that apply for the task.
                     <br /><br />The VCA can be understood as an “intelligent agent” that runs tasks observing an environment and execute actions to change the environment.
                     <br />The environment will be a digital representation of the enterprise aka its digital twin.

@@ -43,10 +43,10 @@ const page = (props: any) => {
               <Header title='eaderTitle' />
             </div> */}
             <div className="workplace">
-              <div className="contextarea">
+              <div className="contextarea"  >
                 {setContextDiv}
               </div>
-              <div className="tasksarea">
+              <div className="tasksarea" style={{ backgroundColor: "#ffe" }}>
                 <TasksHelp />
               </div>
               <div className="workarea">

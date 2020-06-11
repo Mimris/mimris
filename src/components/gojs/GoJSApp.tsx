@@ -32,6 +32,7 @@ interface AppState {
   metis: any;
   myMetis: akm.cxMetis;
   myGoModel: gjs.goModel;
+  myGoMetamodel: gjs.goModel;
   phFocus: any;
   dispatch: any;
 }
@@ -46,18 +47,19 @@ class GoJSApp extends React.Component<{}, AppState> {
     super(props);
     // console.log('34',props.nodeDataArray);
     this.state = {
-      nodeDataArray: this.props?.nodeDataArray,
-      linkDataArray: this.props?.linkDataArray,
+      nodeDataArray:      this.props?.nodeDataArray,
+      linkDataArray:      this.props?.linkDataArray,
       modelData: {
         canRelink: true
       },
-      selectedData: null,
+      selectedData:       null,
       skipsDiagramUpdate: false,
-      metis: this.props.metis,
-      myMetis: this.props.myMetis,
-      myGoModel: this.props.myGoModel,
-      phFocus: this.props.phFocus,
-      dispatch: this.props.dispatch
+      metis:              this.props.metis,
+      myMetis:            this.props.myMetis,
+      myGoModel:          this.props.myGoModel,
+      myGoMetamodel:      this.props.myGoMetamodel,
+      phFocus:            this.props.phFocus,
+      dispatch:           this.props.dispatch
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -114,15 +116,20 @@ class GoJSApp extends React.Component<{}, AppState> {
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
     const name = e.name;
-    const myDiagram = e.diagram;
-    const myMetis = this.state.myMetis;
-    const myModel = myMetis.findModel(this.state.phFocus.focusModel.id);
-    const myModelview = myMetis.findModelView(this.state.phFocus.focusModelview.id);
-    const myMetamodel = myModel?.getMetamodel();
-    const myGoModel = myMetis?.getGojsModel();
+    const myDiagram     = e.diagram;
+    const myMetis       = this.state.myMetis;
+    const myModel       = myMetis.findModel(this.state.phFocus.focusModel.id);
+    const myModelview   = myMetis.findModelView(this.state.phFocus.focusModelview.id);
+    const myMetamodel   = myModel?.getMetamodel();
+    const myGoModel     = this.state.myGoModel;
+    const myGoMetamodel = this.state.myGoMetamodel;
     const gojsModel = {
       nodeDataArray: myGoModel.nodes,
       linkDataArray: myGoModel.links
+    }
+    const gojsMetamodel = {
+      nodeDataArray: myGoMetamodel.nodes,
+      linkDataArray: myGoMetamodel.links
     }
     const addedNodes = new Array();
     const modifiedNodes = new Array();
@@ -130,6 +137,12 @@ class GoJSApp extends React.Component<{}, AppState> {
     const addedLinks = new Array();
     const modifiedLinks = new Array();
     const deletedLinks = new Array();
+    const addedTypeNodes = new Array();
+    const modifiedTypeNodes = new Array();
+    const deletedTypeNodes = new Array();
+    const addedTypeLinks = new Array();
+    const modifiedTypeLinks = new Array();
+    const deletedTypeLinks = new Array();
     //const myGoModel = this.state.myGoModel;
     // const myGojsModel = new gjs.goModel(utils.createGuid(), myModelview?.name, myModelview);
     // myGojsModel.nodes = this.state.phFocus.gojsModel.nodeDataArray;
@@ -141,12 +154,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myModel"         : myModel,
       "myModelview"     : myModelview,
       "myGoModel"       : myGoModel,
-      "myGoMetamodel"   : myGoModel, // myGoMetamodel
+      "myGoMetamodel"   : myGoMetamodel,
       "myDiagram"       : myDiagram,
       "pasteviewsonly"  : false,
       "deleteViewsOnly" : false,
       "done"            : done
     }
+    console.log('153 handleDiagramEvent - context', this.state, context);
     switch (name) {
       case 'TextEdited': {
         let sel = e.subject.part;
@@ -258,7 +272,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case 'ExternalObjectsDropped': {
         const nodes = e.subject;
-        // console.log('192 ExternalObjectsDropped', nodes.first());
         this.setState(
           produce((draft: AppState) => {
             const nn = nodes.first();
@@ -268,6 +281,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               const otype = uic.createObjectType(part, context);
               console.log('268 ExternalObjectsDropped - otype', otype);
               const addNode = new gql.gqlObjectType(otype);
+              addedTypeNodes.push(addNode);
+              console.log('285 addedTypeNodes', addedTypeNodes);
             } else {
               const objview = uic.createObject(part, context);
               if (objview) {
@@ -351,7 +366,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
     }
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-    // console.log('319 addedNodes', addedNodes);
+    this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+    console.log('370 addedTypeNodes', addedTypeNodes);
     // console.log('321 deletedNodes', deletedNodes);
     // console.log('322 addedLinks', addedLinks);
     // console.log('323 modifiedLinks', modifiedLinks);

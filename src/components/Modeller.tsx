@@ -30,6 +30,7 @@ const Modeller = (props: any) => {
       metis={props.metis}
       myMetis={props.myMetis}
       myGoModel={props.myGoModel}
+      myGoMetamodel={props.myGoMetamodel}
       phFocus={props.phFocus}
       dispatch={props.dispatch}
     />

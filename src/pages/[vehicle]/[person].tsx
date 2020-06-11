@@ -44,7 +44,7 @@ export default function Person({ ownersList }: PersonProps) {
   }
   
   Person.getInitialProps = async ({query, req}: NextPageContext) => {
-    console.log('50 req', req);
+    // console.log('50 req', req);
     if (!req) {
       return { ownersList: [] };
     }

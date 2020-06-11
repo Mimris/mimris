@@ -30,6 +30,7 @@ const page = (props:any) => {
   let metis = state.phData?.metis
   let myMetis = state.phMymetis?.myMetis
   let myGoModel = state.phMyGoModel?.myGoModel
+  let myGoMetamodel = state.phMyGoMetamodel?.myGoMetamodel
   let phFocus = state.phFocus;
 
   // console.log('25 Diagram props state : ', props.phGojs, state.phGojs);
@@ -98,6 +99,7 @@ const page = (props:any) => {
                     gojsMetamodel={gojsmetamodelpalette}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
+                    myGoMetamodel={myGoMetamodel}
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
@@ -113,6 +115,7 @@ const page = (props:any) => {
                     gojsMetamodel={gojsmetamodelpalette}z
                     myMetis={myMetis}
                     myGoModel={myGoModel}
+                    myGoMetamodel={myGoMetamodel}
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
@@ -135,6 +138,7 @@ const page = (props:any) => {
                   gojsMetamodel={gojsmetamodel}
                   myMetis={myMetis}
                   myGoModel={myGoModel}
+                  myGoMetamodel={myGoMetamodel}
                   metis={metis}
                   phFocus={phFocus}
                   dispatch={dispatch}
@@ -152,6 +156,7 @@ const page = (props:any) => {
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
+                    myGoMetamodel={myGoMetamodel}
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}

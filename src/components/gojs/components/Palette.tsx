@@ -122,8 +122,9 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                   $(go.Panel, "Table",
                     { 
                       defaultRowSeparatorStroke: "black",
-                      maxSize: new go.Size(150, 999),
-                      margin: new go.Margin(6, 10, 0, 3),
+                      //minSize: new go.Size(200, 50),
+                      maxSize: new go.Size(200, 999),
+                      margin: new go.Margin(6, 10, 0, 0),
                       defaultAlignment: go.Spot.Left
                     },
                     $(go.RowColumnDefinition, { column: 2, width: 4 }

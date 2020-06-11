@@ -46,8 +46,10 @@ const page = (props) => {
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
                               <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
                   <CardText className="bg-light p-3">
-                    - Select Modelling in the top menu.
-                    <br />- For help: Click "Task / Help" bar to the left!
+                    Select Modelling in the top menu 
+                    (An initial template model is loaded)
+                    <br /><br />Click the Save/Load Model button (upper right) to Load models from repository or LocalStore.
+                    <br /><br />For help: Click "Task / Help" bar to the left!
                   </CardText>
                 </CardBody>
               </Card>
@@ -90,9 +92,15 @@ const page = (props) => {
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.06.11</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.06.09</CardTitle>
                     <CardText>
-                      1st version of AKMM with Metamodellin on Heroku! sf  
+                      2st version of AKMM with Metamodellin on Heroku! sf  
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Beta Release 2020.06.11</CardTitle>
+                    <CardText>
+                      1st version of AKMM with Metamodellin on  akmclient-beta.heroku.com! sf  
                     </CardText>
                   </CardBody>
                 </Card>

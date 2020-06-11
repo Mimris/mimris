@@ -172,12 +172,13 @@ const page = (props:any) => {
 
   return (
       <div className="diagramtabs" >
-      <p className="sourceName float-right" style={{ transform: "scale(0.9)",  fontWeight: "bolder"}}>
-           Current source:  {state.phSource}
-         </p>
-        <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
-          {modellingtabs}
-        </div>
+      <span className="sourceName px-2 float-right mr-0 mt-1" 
+        style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
+        Current source: {state.phSource}
+      </span>
+      <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
+        {modellingtabs}
+      </div>
       <style jsx>{`
 
       `}</style>

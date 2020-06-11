@@ -78,7 +78,10 @@ const TasksHelp = () => {
       <span onClick={toggleTasks}>{visibleTasks
         ? <div></div>
         // ? <><span style={{ paddingLeft: "5px" }}> Tasks</span> <span style={{ float: "left" }} > &lt;  </span></>
-        : <div className="btn-vertical  m-0 pr-1" style={{ backgroundColor: "#ffe", paddingLeft: "2px", minWidth: "10px", maxWidth: "10px", maxHeight: "100%", fontSize: "90%" }}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}
+        : <div className="btn-vertical  m-0 pr-1" 
+            style={{ backgroundColor: "#ffe", paddingLeft: "2px", minWidth: "10px", maxWidth: "10px", maxHeight: "100%", fontSize: "90%" }}>
+            <span> &gt; </span><strong> T a s k s - H e l p</strong> 
+          </div>}
       </span>
       <div className="toggleTasks">
         {visibleTasks

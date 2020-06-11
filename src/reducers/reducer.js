@@ -28,7 +28,7 @@ import {
   UPDATE_OBJECTVIEW_NAME
 } from '../actions/types';
 
-import InitStateJson from './Initialstate'
+import InitStateJson from './InitialState.json'
 // console.log('31', JSON.parse(JSON.stringify(InitStateJson)));
 
 const InitState = JSON.parse(JSON.stringify(InitStateJson)) 

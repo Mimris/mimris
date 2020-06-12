@@ -23,142 +23,158 @@ import {
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
   UPDATE_OBJECTVIEW_PROPERTIES,
+  UPDATE_OBJECTTYPE_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
 } from '../actions/types';
 
+import InitStateJson from './InitialState.json'
+// console.log('31', JSON.parse(JSON.stringify(InitStateJson)));
+
+const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
+
 export const InitialState = {
-  phSource: 'no source loaded',
-  phData: null,
+  phData: InitState.phData,
+  phFocus: InitState.phFocus,
+  phGojs: null,
   phMymetis: null,
   phMyGoModel: null,
   phMyGoMetamodel: null,
-  phUser: {
-    focusUser: {
-      id: 1,
-      name: 'Not logged in',
-      email: '',
-      session: null
-    }
-  },
-  phGojs: {
-    // gojsModel: {
-    //   nodeDataArray: [
-    //     { key: 0, text: 'AKM', color: 'lightblue', loc: '0 0' },
-    //     { key: 1, text: 'AMAP', color: 'lightgreen', loc: '0 -50' },
-    //   ],
-    //   linkDataArray: [
-    //     { key: -1, from: 0, to: 1 },
-    //   ],
-    // },
-    gojsModel: {
-      nodeDataArray: [
-        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
-      ],
-      linkDataArray: [],
-    },
-    gojsMetamodel: {
-      nodeDataArray: [
-        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
-      ],
-      linkDataArray: [],
-    },
-    gojsMetamodelPalette: {
-      nodeDataArray: [
-        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
-      ],
-      linkDataArray: [],
-    },
-    gojsMetamodelModel: {
-      nodeDataArray: [
-        { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
-        { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
-      ],
-      linkDataArray: [],
-    },
-  },
-  phFocus: {
-    focusModel: {
-      id: null,
-      name: null
-    },
-    focusObject: {
-      id: null,
-      name: '',
-      sourceName: '',
-      status: null
-    },
-    focusModelview: {
-      id: null,
-      name: ''
-    },
-    focusOrg: {
-      id: null,
-      name: ''
-    },
-    focusProj: {
-      id: null,
-      name: ''
-    },
-    focusRole: {
-      id: null,
-      name: ''
-    },
-    focusCollection: null,
-    focusTask: {
-      id: null,
-      name: "",
-      focus: {
-        focusObject: {
-          id: null,
-          name: ""
-        },
-        focusSource: {
-          id: null,
-          name: ""
-        },
-        focusCollection: []
-      }
-    },
-    // focusTask: {
-    //   id: 'UUID4_A07E7E67-102D-43A4-84E1-89E40DCCCD22',
-    //   name: 'Calculate NPV',
-    //   role: 'test',
-    //   focus: {
-    //     focusSource: {
-    //       id: 4,
-    //       name: 'modelviews'
-    //     },
-    //     focusOrg: 'Equinor',
-    //     focusProj: 'AMAP',
-    //     focusRole: 'PTEC',
-    //     focusModelview: {
-    //       id: 'UUID4_308887A7-44B7-4973-A7EF-60AC766A598E',
-    //       name: 'Workplace'
-    //     },
-    //     focusObject: {
-    //       id: 'UUID4_49FFA121-7644-40C5-9468-4B14DD975748',
-    //       name: 'Reservoir Evaluation'
-    //     }
-    //   },
-    //   worksOn: {
-    //     focusSource: 1,
-    //     focusObject: 1
-    //   },
-    // },
-    focusSource: {
-      id: null,
-      name: ''
-    },
-    focusModelview: {
-      id: null,
-      name: null
-    }
-  }
+  phUser: InitState.phUser,
+  phSource: InitState.phSource
+
 }
+  // phSource: 'no source loaded',
+  // phData: null,
+  // phMymetis: null,
+  // phMyGoModel: null,
+  // phMyGoMetamodel: null,
+  // phUser: {
+  //   focusUser: {
+  //     id: 1,
+  //     name: 'Not logged in',
+  //     email: '',
+  //     session: null
+  //   }
+  // },
+  // phGojs: {
+  //   // gojsModel: {
+  //   //   nodeDataArray: [
+  //   //     { key: 0, text: 'AKM', color: 'lightblue', loc: '0 0' },
+  //   //     { key: 1, text: 'AMAP', color: 'lightgreen', loc: '0 -50' },
+  //   //   ],
+  //   //   linkDataArray: [
+  //   //     { key: -1, from: 0, to: 1 },
+  //   //   ],
+  //   // },
+  //   gojsModel: {
+  //     nodeDataArray: [
+  //       { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+  //       { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+  //     ],
+  //     linkDataArray: [],
+  //   },
+  //   gojsMetamodel: {
+  //     nodeDataArray: [
+  //       { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+  //       { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+  //     ],
+  //     linkDataArray: [],
+  //   },
+  //   gojsMetamodelPalette: {
+  //     nodeDataArray: [
+  //       { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+  //       { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+  //     ],
+  //     linkDataArray: [],
+  //   },
+  //   gojsMetamodelModel: {
+  //     nodeDataArray: [
+  //       { key: 0, text: 'IRTV Type', color: 'lightblue', loc: '0 0' },
+  //       { key: 1, text: 'AKM Type', color: 'lightred', loc: '0 -80' },
+  //     ],
+  //     linkDataArray: [],
+  //   },
+  // },
+  // phFocus: {
+  //   focusModel: {
+  //     id: null,
+  //     name: null
+  //   },
+  //   focusObject: {
+  //     id: null,
+  //     name: '',
+  //     sourceName: '',
+  //     status: null
+  //   },
+  //   focusModelview: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusOrg: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusProj: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusRole: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusCollection: null,
+  //   focusTask: {
+  //     id: null,
+  //     name: "",
+  //     focus: {
+  //       focusObject: {
+  //         id: null,
+  //         name: ""
+  //       },
+  //       focusSource: {
+  //         id: null,
+  //         name: ""
+  //       },
+  //       focusCollection: []
+  //     }
+  //   },
+  //   // focusTask: {
+  //   //   id: 'UUID4_A07E7E67-102D-43A4-84E1-89E40DCCCD22',
+  //   //   name: 'Calculate NPV',
+  //   //   role: 'test',
+  //   //   focus: {
+  //   //     focusSource: {
+  //   //       id: 4,
+  //   //       name: 'modelviews'
+  //   //     },
+  //   //     focusOrg: 'Equinor',
+  //   //     focusProj: 'AMAP',
+  //   //     focusRole: 'PTEC',
+  //   //     focusModelview: {
+  //   //       id: 'UUID4_308887A7-44B7-4973-A7EF-60AC766A598E',
+  //   //       name: 'Workplace'
+  //   //     },
+  //   //     focusObject: {
+  //   //       id: 'UUID4_49FFA121-7644-40C5-9468-4B14DD975748',
+  //   //       name: 'Reservoir Evaluation'
+  //   //     }
+  //   //   },
+  //   //   worksOn: {
+  //   //     focusSource: 1,
+  //   //     focusObject: 1
+  //   //   },
+  //   // },
+  //   focusSource: {
+  //     id: null,
+  //     name: ''
+  //   },
+  //   focusModelview: {
+  //     id: null,
+  //     name: null
+  //   }
+  // }
+// }
 
 let focusTask
 let focusSource
@@ -481,6 +497,65 @@ function reducer(state = InitialState, action) {
           },
         }
       
+    case UPDATE_OBJECTTYPE_PROPERTIES:
+      console.log('501 UPDATE_OBJECTTYPE_PROPERTIES', action);
+      const curmod     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+      const curmm     = state.phData?.metis?.metamodels?.find(m => m.id === curmod.metamodelRef)
+      const curmmindex = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmod.metamodelRef)
+      
+      const curot  = curmm?.objtypegeos?.find(ot => ot.id === action?.data?.id)
+      console.log('506 curmm', curmm);
+      const otlength = curmm?.objtypegeos.length
+      let otindex = curmm?.objtypegeos?.findIndex(ot => ot.id === curov?.id)
+      if (otindex < 0) {ovindex = ovlength} 
+      // console.log('411 ovindex', ovindex, ovlength);
+      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
+      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
+ 
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              metamodels: [
+                ...state.phData.metis.metamodels.slice(0,curmmindex),
+                {
+                  ...state.phData.metis.metamodels[curmmindex],
+                  objtypegeos: [
+                    ...curmm?.objtypegeos.slice(0, otindex),
+                    {
+                      ...curmm?.objtypegeos[otindex],  
+                      id: action.data.id,           
+                      name: action.data.name,
+                      description: action.data.description,
+                      typeRef: action.data.typeRef,
+                      metamodelRef: action.data.metamodelRef,
+                      loc: action.data.loc,
+                      size: action.data.size
+                    },
+                    ...curmm?.objtypegeos.slice(otindex + 1)
+                  ]
+                  // objects: [
+                  //   ...curm.objects.slice(0, curoindex),
+                  //   {
+                  //     ...curo,                 
+                  //     name: action.data.name,
+                  //     description: action.data.desctription,
+                  //     typeRef: action.data.typeviewRef,
+                  //     // ...curopropertyValues: [
+                  //     //   ...curo.propertyValues
+                  //     // ]
+                  //   },
+                  //   ...curm.objects.slice(curoindex + 1)  
+                  // ]
+                },
+                ...state.phData.metis.metamodels.slice(curmindex + 1),
+              ]
+            },
+         },
+        
+      }
 
     case EDIT_OBJECT_PROPERTIES:
       // console.log('236', action);

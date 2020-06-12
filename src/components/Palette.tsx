@@ -37,13 +37,13 @@ const Palette = (props) => {
     
     const palette =
     <> 
-        <button id="lighten" className="btn-sm bg-secondary pt-0 pb-0 b-0 mt-0" style={{ outline: "0", borderStyle: "none"}}
+      <button className="btn-sm pt-0 pb-0 b-0 mt-0" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
         onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} 
       </button>
         {visiblePalette 
-          ? <span id="lighten" className="btn-link btn-sm pl-2 pr-0 " style={{ color: "lightblue" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
-        : <div id="lighten" className="btn-vertical m-0 p-0  " style={{ maxWidth: "4px", paddingLeft: "0px" }}><span> . P a l e t t e</span> 
-        </div>}
+          ? <span className="btn-link btn-sm pl-2 pr-0 " style={{ color: "white" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
+          : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e</span> 
+            </div>}
         {/* ? 'Palette <' 
         :  'Palette >' } 
       </div> */}

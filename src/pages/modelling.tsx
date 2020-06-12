@@ -6,7 +6,7 @@ import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
-import Diagram from "../components/Diagram";
+import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 import { loadState, saveState } from '../components/utils/LocalStorage'
@@ -38,7 +38,6 @@ const page = (props:any) => {
   // * Set up the Context items and link to select Context modal,
   // */
   const setContextDiv =  <SetContext phFocus={props.phFocus} />
-  const setWorkareaDiv =  <Diagram />
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
   // useEffect(() => {
   //   return () => {
@@ -57,16 +56,15 @@ const page = (props:any) => {
             {/* <Header title={props.phUser?.focusUser.name} />  */}
               {/* <span id="lighten" className="btn-link btn-sm " style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
           </div>
-          <div className="workplace" >
+          <div className="workplace bg-white" >
             <div className="contextarea" >
               {setContextDiv}
             </div>
-            <div className="tasksarea"  >
+              <div className="tasksarea" style={{ backgroundColor: "#ffe" }} >
               <TasksHelp />
             </div>
-            <div className="workarea">
-                {/* {refresh ? <> {setWorkareaDiv} </> : <>  {setWorkareaDiv}  </>} */}
-              <Diagram />
+              <div className="workarea px-1" style={{ backgroundColor: "#eee" }}>
+              <Modelling />
             </div>
           </div>
           <div className="footer">
@@ -127,7 +125,7 @@ const page = (props:any) => {
         border-radius: 5px 5px 5px 5px;
         border-width: 2px;
         // border-color: #000;
-        // background-color: #e00;
+        background-color: #ffe;
         max-width: 220px;
         // font-size: 100%;
       }

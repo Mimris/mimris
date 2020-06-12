@@ -22,6 +22,7 @@ import {
   SET_FOCUS_COLLECTION, 
   SET_FOCUS_TASK, 
   SET_FOCUS_SOURCE, 
+  UPDATE_OBJECTTYPE_PROPERTIES,
   UPDATE_OBJECTVIEW_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
@@ -197,6 +198,13 @@ export const update_objectview_properties = (data) => {
   console.log('76 actions update_objectview_properties', data.payload);
   return {
     type: UPDATE_OBJECTVIEW_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_objecttype_properties = (data) => {
+  console.log('205 actions update_objecttype_properties', data.payload);
+  return {
+    type: UPDATE_OBJECTTYPE_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

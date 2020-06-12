@@ -340,7 +340,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 {
                   defaultRowSeparatorStroke: "black",
                   maxSize: new go.Size(150, 999),
-                  margin: new go.Margin(6, 10, 0, 0),
+                  margin: new go.Margin(2, 0, 0, 0),
                   defaultAlignment: go.Spot.Left
                 },
                 $(go.RowColumnDefinition, { column: 2, width: 4 }

@@ -42,6 +42,7 @@
   
 .wrapper {
   display: grid;
+  width: 100%;
   /* background-color: #e00;  */
   color: #444; 
   white-space: wrap;
@@ -61,17 +62,18 @@
   "contextarea contextarea"
   "tasksarea workarea";
 }
-/* // @media only screen and (max-width: 475px) {
-// .workplace {
-//     grid-area: workplace;
-//     display: grid ;
-//     background-color: #aaa;
-//     grid-template-columns: auto 2fr;
-//     grid-template-areas:
-//     "taskarea"
-//     "workarea";
-//   }
-// } */
+@media only screen and (max-width: 575px) {
+ .workplace {
+     grid-area: workplace;
+     display: grid ;
+     background-color: #aaa;
+     grid-template-columns: auto 2fr;
+     grid-template-areas:
+     "contextarea"
+     "taskarea"
+     "workarea";
+   }
+ }
 
 /* .workarea {
   grid-area: workarea;

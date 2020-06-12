@@ -572,13 +572,18 @@ export function onLinkDrawn(e: go.DiagramEvent, context: any): akm.cxRelationshi
             diagram.model.removeLinkData(data);
             return;
         }
+        console.log('575 onLinkDrawn', reltype);
         if (!isLinkAllowed(reltype, fromNode.object, toNode.object)) {
-            alert("Relationship given is not allowed!")
+            alert("Relationship given is not allowed!");
             diagram.model.removeLinkData(data);
             return;
         }
+        alert("Relationship given IS allowed!");
         diagram.model.setDataProperty(link.data, "name", typename);
-        return createLink(link.data, context);
+        createLink(link.data, context);
+        console.log('584 myGoModel', myGoModel);
+        //diagram.requestUpdate();
+        return;
     }
 }
 function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, toObj: akm.cxObject) {
@@ -597,61 +602,63 @@ export function createLink(data: any, context: any) {
     if (!data.key)
         data.key = utils.createGuid();
     const myMetis = context.myMetis;
-    // Identify  type   
-    let reltype = null;
-    data.class = "goRelshipLink";
-    reltype = myMetis.findRelationshipTypeByName(data.name);
-    if (reltype && reltype.isInstantiable()) {
-        // Create the relationship
-        const myGoModel = context.myGoModel;
-        let fromNode = myGoModel.findNode(data.from);
-        let toNode = myGoModel.findNode(data.to);
-        let fromObjView = fromNode?.objectview;
-        let toObjView = toNode?.objectview;
-        let fromObj = null;
-        if (fromObjView) {
-            fromObj = fromObjView.getObject();
-        }
-        let toObj = null;
-        if (toObjView) {
-            toObj = toObjView.getObject();
-        }
-        if (fromObj && toObj) {
-            // Find relationship if it already exists
-            const myModel = context.myModel;
-            let relship = myModel.findRelationship1(fromObj, toObj, reltype);
-            if (!relship) {
-                relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
-                if (relship) {
-                    relship.setModified();
-                    data.relship = relship;
-                    relship.setName(reltype.getName());
-                    myModel.addRelationship(relship);
-                    myMetis.addRelationship(relship);
-                }
+    if (data.category === constants.gojs.C_RELSHIPTYPE) {
+        let reltype = null;
+        data.class  = "goRelshipTypeLink";
+    } else if (data.category === constants.gojs.C_RELATIONSHIP){    
+        // Identify  type   
+        let reltype = null;
+        data.class = "goRelshipLink";
+        reltype = myMetis.findRelationshipTypeByName(data.name);
+        if (reltype && reltype.isInstantiable()) {
+            // Create the relationship
+            const myGoModel = context.myGoModel;
+            let fromNode = myGoModel.findNode(data.from);
+            let toNode = myGoModel.findNode(data.to);
+            let fromObjView = fromNode?.objectview;
+            let toObjView = toNode?.objectview;
+            let fromObj = null;
+            if (fromObjView) {
+                fromObj = fromObjView.getObject();
             }
-            if (relship) {
-                let typeview = reltype.getDefaultTypeView();
-                let relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.getName(), relship, "");
-                if (relshipview) {
-                    const myModelview = context.myModelview;
-                    const diagram = context.myDiagram;
-                    relshipview.setModified();
-                    data.relshipview = relshipview;
-                    relshipview.setName(relship.getName());
-                    relshipview.setTypeView(typeview);
-                    relshipview.setFromObjectView(fromObjView);
-                    relshipview.setToObjectView(toObjView);
-                    myModelview.addRelationshipView(relshipview);
-                    myMetis.addRelationshipView(relshipview);
-                    let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
-                    console.log(linkData);
-                    return relshipview;
+            let toObj = null;
+            if (toObjView) {
+                toObj = toObjView.getObject();
+            }
+            if (fromObj && toObj) {
+                // Find relationship if it already exists
+                const myModel = context.myModel;
+                let relship = myModel.findRelationship1(fromObj, toObj, reltype);
+                if (!relship) {
+                    relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
+                    if (relship) {
+                        relship.setModified();
+                        data.relship = relship;
+                        relship.setName(reltype.getName());
+                        myModel.addRelationship(relship);
+                        myMetis.addRelationship(relship);
+                    }
+                }
+                if (relship) {
+                    let typeview = reltype.getDefaultTypeView();
+                    let relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.getName(), relship, "");
+                    if (relshipview) {
+                        const myModelview = context.myModelview;
+                        const diagram = context.myDiagram;
+                        relshipview.setModified();
+                        data.relshipview = relshipview;
+                        relshipview.setName(relship.getName());
+                        relshipview.setTypeView(typeview);
+                        relshipview.setFromObjectView(fromObjView);
+                        relshipview.setToObjectView(toObjView);
+                        myModelview.addRelationshipView(relshipview);
+                        myMetis.addRelationshipView(relshipview);
+                        let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
+                    }
                 }
             }
         }
     }
-    return null;
 }
 export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
     if (lnk.class === 'goRelshipLink') {

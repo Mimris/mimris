@@ -51,43 +51,43 @@ const page = (props:any) => {
     <div>
       <Layout user={state.phUser?.focusUser} >
         <div id="index" >
-        <div className="wrapper" >
-          <div className="header" >
-            {/* <Header title={props.phUser?.focusUser.name} />  */}
-              {/* <span id="lighten" className="btn-link btn-sm " style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
-          </div>
-          <div className="workplace bg-white" >
-            <div className="contextarea" >
-              {setContextDiv}
-            </div>
-              <div className="tasksarea" style={{ backgroundColor: "#ffe" }} >
-              <TasksHelp />
-            </div>
+          <div className="wrapper" >
+            {/* <div className="header" >
+              <Header title={props.phUser?.focusUser.name} /> 
+            </div> */}
+            <div className="workplace bg-white" >
+              <div className="contextarea" >
+                {setContextDiv}
+              </div>
+                <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "2px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
+                <TasksHelp />
+              </div>
               <div className="workarea px-1" style={{ backgroundColor: "#eee" }}>
-              <Modelling />
+                <Modelling />
+              </div>
+            </div>
+            <div className="footer">
+              <Footer />
             </div>
           </div>
-          <div className="footer">
-            <Footer />
-          </div>
-        </div>
         </div>
       </Layout>
       <style jsx>{`
       .wrapper {
         display: grid;
+        height: 100%;
         // grid-template-columns: 1fr auto;
         // grid-template-rows:  auto;
         grid-gap: 0px;
         grid-template-areas:
-        "header"
         "workplace"
         "footer";
       }
       .workplace {
         grid-area: workplace;
         display: grid ;
-        // background-color: #;
+        height: 100%;
+        // background-color: #ddd;
         grid-template-columns: auto 1fr;
         grid-template-areas:
         "contextarea contextarea"
@@ -119,7 +119,7 @@ const page = (props:any) => {
       .tasksarea {
         grid-area: tasksarea;
         padding: 0px;
-        margin-right: 4px;
+        margin-right: 0px;
         padding-right: 3px;
         border: 2px;
         border-radius: 5px 5px 5px 5px;

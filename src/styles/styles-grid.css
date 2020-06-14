@@ -40,19 +40,6 @@
   .user-session { grid-area: user-session; }
   .list         { grid-area: list; }
   
-.wrapper {
-  display: grid;
-  width: 100%;
-  /* background-color: #e00;  */
-  color: #444; 
-  white-space: wrap;
-  grid-template-columns:  auto;
-  grid-gap: 0px;
-  grid-template-areas:
-  "header"
-  "workplace"
-  "footer";
-}
 .workplace {
   grid-area: workplace;
   display: grid ;
@@ -66,7 +53,7 @@
  .workplace {
      grid-area: workplace;
      display: grid ;
-     background-color: #aaa;
+     background-color: #aaf;
      grid-template-columns: auto 2fr;
      grid-template-areas:
      "contextarea"
@@ -75,6 +62,15 @@
    }
  }
 
+.workplace {
+  grid-area: workplace;
+  display: grid ;
+  /* // background-color: #00f; */
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+  "contextarea contextarea"
+  "tasksarea workarea";
+}
 /* .workarea {
   grid-area: workarea;
   display: grid ;

@@ -10,6 +10,7 @@ import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import genGojsModel from './GenGojsModel'
+import SelectSource from '../components/SelectSource'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
@@ -54,8 +55,6 @@ const page = (props:any) => {
       // console.log('42 Diagram state', state ); 
       genGojsModel(state, dispatch);
     }, [focusModelview.id])
-    
-    
     
     const [activeTab, setActiveTab] = useState('2');
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
@@ -104,7 +103,6 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     />
-
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
@@ -129,7 +127,7 @@ const page = (props:any) => {
         <TabPane tabId="2">
           <div className="workpad p-1 pt-2 bg-white">
             <Row >
-            <Col xs="auto ml-3 mr-0 pr-0 pl-0">
+            <Col xs="auto m-0 p-0 pl-3">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
               <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
@@ -171,11 +169,16 @@ const page = (props:any) => {
     )      
 
   return (
-      <div className="diagramtabs" >
-      <span className="sourceName px-2 float-right mr-0 mt-1" 
+    <div className="diagramtabs" >
+      <span className="sourceName pr-2 float-right mr-0 mt-1" 
         style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
-        Current source: {state.phSource}
-      </span>
+          Current source: {state.phSource}
+      </span> 
+        <span className="sourceName float-right" 
+          style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+          <SelectSource buttonLabel='Local' className='ContextModal' phFocus={phFocus} /> 
+          <SelectSource buttonLabel='Server' className='ContextModal' phFocus={phFocus} /> 
+      </span> 
       <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
         {modellingtabs}
       </div>

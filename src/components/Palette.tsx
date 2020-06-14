@@ -27,7 +27,8 @@ const Palette = (props) => {
     const gojsapp = (gojstypes) &&
     < GoJSPaletteApp
     nodeDataArray={gojstypes.nodeDataArray}
-    linkDataArray={gojstypes.linkDataArray}
+    linkDataArray={[]}
+    // linkDataArray={gojstypes.linkDataArray}
     metis={props.metis}
     myMetis={props.myMetis}
     myGoModel={props.myGoModel}
@@ -36,22 +37,22 @@ const Palette = (props) => {
     />
     
     const palette =
-    <> 
-      <button className="btn-sm pt-0 pb-0 b-0 mt-0" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
-        onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} 
-      </button>
-        {visiblePalette 
-          ? <span className="btn-link btn-sm pl-2 pr-0 " style={{ color: "white" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
-          : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e</span> 
-            </div>}
-        {/* ? 'Palette <' 
-        :  'Palette >' } 
-      </div> */}
-         {/* <div  style={{paddingLeft: "2px"}} onClick={togglePalette}>{visiblePalette ? 'Palette <' :  'Palette >' } </div> */}
-        <div className="togglePalette" >
-          {visiblePalette ? <> {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}</> : <><span style={{ width: "100%", minHeight: "100px", minWidth: "290"}}></span></> }
-        </div>
-    </>  
+      <> 
+        <button className="btn-sm pt-0 pb-0 b-0 mt-0 mr-2" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} 
+        </button>
+          {visiblePalette 
+            ? <span className="btn-link btn-sm pl-2 pr-0 " style={{ color: "white" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
+            : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e</span> 
+              </div>}
+          {/* ? 'Palette <' 
+          :  'Palette >' } 
+        </div> */}
+          {/* <div  style={{paddingLeft: "2px"}} onClick={togglePalette}>{visiblePalette ? 'Palette <' :  'Palette >' } </div> */}
+          <div className="togglePalette pr-1" >
+            {visiblePalette ? <> {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}</> : <><span style={{ width: "100%", minHeight: "100px", minWidth: "290"}}></span></> }
+          </div>
+      </>  
   
   return (
     <>

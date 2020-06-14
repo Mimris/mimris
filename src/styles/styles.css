@@ -17,6 +17,8 @@
 } */
 .wrapper {
   margin-top: 0px;
+  /* height: 100vh; */
+  background-color: #eee;
 }
 
 .header {
@@ -27,6 +29,7 @@
 }
 .workplace {
   background-color: #e6e9e9;
+  height: 100vh;
   /* margin-top: 2px; */
   padding: 0px;
   border-radius: 5px 5px 5px 5px;

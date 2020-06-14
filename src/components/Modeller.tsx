@@ -5,12 +5,26 @@ import Selector from './utils/Selector'
 
 const Modeller = (props: any) => {
   // console.log('8 Modeller', props);
-  
-  let gojsmodel = props.gojsModel;
+
+  let prevgojsmodel = null
+  let gojsmodel = {}
+  gojsmodel = props.gojsModel;
+
+  useEffect(() => {
+    setRefresh(!refresh)
+    prevgojsmodel = null
+    return () => {
+      prevgojsmodel
+    };
+  }, [gojsmodel !== prevgojsmodel])
+
+
   let myMetis = props.myMetis;
 
   const [refresh, setRefresh] = useState(true)
   function toggleRefresh() { setRefresh(!refresh); }
+
+
   // console.log('11 Modeller', gojsmodel?.nodeDataArray);
 
   const models = props.metis?.models
@@ -23,7 +37,7 @@ const Modeller = (props: any) => {
   // console.log('23 Modeller', models);
   // console.log('23 Modeller myMetis', props.myMetis);
   
-  const gojsapp = (gojsmodel) &&
+  const gojsapp = (gojsmodel && !prevgojsmodel) &&
     < GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
@@ -35,6 +49,7 @@ const Modeller = (props: any) => {
       dispatch={props.dispatch}
     />
   
+
   return (
     <>
       <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
@@ -46,9 +61,9 @@ const Modeller = (props: any) => {
       </div>
         {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
       <style jsx>{`
-        .diagram-component {
-          height: 100%;
-        }
+        // .diagram-component {
+        //   height: 80%;
+        // }
        `}</style>
     </>
   )

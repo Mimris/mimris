@@ -9,9 +9,7 @@ import { loadState, saveState } from './utils/LocalStorage'
 const SelectSource = (props: any) => {
   // console.log('8 8', props.modal);
   let state = useSelector((state: any) => state) // Selecting the whole redux store
-  // const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
-  // const focusModel = useSelector(focusModel => state.phFocus?.focusModel)
-  // const focusUser = useSelector(focusUser => state.phUser?.focusUser)
+
   // const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
 
   // const [model, setModel] = useState(focusModel)
@@ -19,48 +17,6 @@ const SelectSource = (props: any) => {
 
   const dispatch = useDispatch()
   // const { register, handleSubmit, errors } = useForm()
-
-  // let optionModel
-
-
-  // let usession, testsession
-
-  // useEffect(() => {
-  //   const fU = async () => await focusUser;
-  //   testsession = fU().session;
-  //   // console.log('69', focusUser, testsession);
-  //   try {
-  //     usession = (testsession) && JSON.parse(testsession);
-  //     // console.log('71', usession);
-
-  //   } catch (error) {
-  //     {
-  //       console.error('parserror');
-  //     }
-  //   }
-  // }, [focusUser])
-
-  // /**
-  // * Build the selection options for all context (focus) objects,
-  // */
-  // const optionSession = sessions && [<option key={991009} value='Select Session ...' disabled > Select Modelview ...</option>, <option key={991010} value={JSON.stringify(sessions)} > {focusUser.name} </option> ]
-  // console.log('72', optionSession);
-
-
-  // const defaultSession = {focusUser: {id: 1, name: 'Snorre', email: 'sf@sf.com', session: '{\"id\": 1, \"name\": \"2nd Session\", \"focus\": \"{\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"},\"ownerId\": 1]}}}'
-  // }}
-  // const defaultSession = '{\"session\": {\"id\": 1, \"name\": \"2nd Session\", \"focus\": {\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"}},\"ownerId\": 1}}'
-
-  // const focuser = (focusUser.name !== 'Not logged in') ? focusUser?.session : defaultSession
-
-  // const focuser = defaultSession
-  // const session0 = JSON.parse(focuser)
-  // const ses|||||||||||sion = session0.session.focus
-  // const phFocus = { phFocus: session }
-  // console.log('91', testsession, usession);
-
-  // console.log('79', session);
-  // console.log('114', loadState());
 
   function handleSaveLocalStore() {
     console.log('72 SelectSource', state);
@@ -104,33 +60,51 @@ const SelectSource = (props: any) => {
   function handleLoadModelStore() {
     console.log('111 SelectSource');   
       dispatch(loadData())
-    
   }
 
-  // function handleSaveToFile() {
-  //   console.log('72 SelectSource', state);
-  //   alert('Save ModelStore not implemented yet');
-
-  // }
-
-  // function handleLoadFromFile() {
-  //   console.log('111 SelectSource');   
-  //     dispatch(loadData())
-    
-  // }
-
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveLocalStoreDiv = <button className="bg-light ml-1" onClick={handleSaveLocalStore} > Save </button >
-  const buttonLoadLocalStoreDiv = <button className="bg-light mr-1 float-right " onClick={handleLoadLocalStore} > Load </button >
+  const buttonSaveLocalStoreDiv = <button className="btn-primary btn-sm ml-2" onClick={handleSaveLocalStore} > Save </button >
+  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 float-right " onClick={handleLoadLocalStore} > Load local </button >
   
-  const buttonSaveModelStoreDiv = <button className="bg-light ml-1" onClick={handleSaveModelStore} > Save (not working yet)</button >
-  const buttonLoadModelStoreDiv = <button className="bg-light mr-1 float-right" onClick={handleLoadModelStore} > Load </button >
+  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2" onClick={handleSaveModelStore} > Save (not working yet)</button >
+  const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2 float-right" onClick={handleLoadModelStore} > Load Server </button >
   
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
 // console.log('131', state);
+
+  const buttonDiv = (buttonLabel !== 'Save / Load Model') 
+    ? (buttonLabel === 'Server')
+      ?
+        <div className="select" style={{ paddingTop: "4px" }}>
+          {buttonLoadModelStoreDiv}
+        </div>   
+      :
+        <div className="select" style={{ paddingTop: "4px" }}>
+          {buttonLoadLocalStoreDiv}
+        </div>   
+    : <>
+      <td className="seldiv bg-light" style={{ width: "30%" }}>
+        <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
+        <div className="store-div pb-1 mb-0">
+          <h6>Local Store </h6>
+          <div className="select" style={{ paddingTop: "4px" }}>
+            {buttonSaveLocalStoreDiv} {buttonLoadLocalStoreDiv}
+          </div>
+        </div>
+      </td>
+      <td style={{ width: "60%" }}>
+        <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
+        <div className="store-div pb-1 mb-0">
+          <h6>Model repository (Firebase) </h6>
+          <div className="select" style={{ paddingTop: "4px" }}>
+            {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
+          </div>
+        </div>
+      </td>
+      </>
 
 
   return (
@@ -139,34 +113,26 @@ const SelectSource = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={toggle}>Model Source: </ModalHeader>
         <ModalBody className="pt-0">
-          <div>Current Source:  {state.phSource}</div>
+          {/* <strong>Current Source:  {state.phSource}</strong> */}
           <div className="source bg-light pt-2 ">
-            <div className="localstore pb-1 mb-0">
-              <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
-              <h6>Local Store </h6>
-              <div className="select" style={{ paddingTop: "4px" }}>
-                {buttonSaveLocalStoreDiv} {buttonLoadLocalStoreDiv}
-              </div>
-            </div>
-            <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
-            <h6>Model repository (Firebase) </h6>
-            {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
+            <table>
+              <tr>
+               {buttonDiv}
+              </tr>
+            </table>
           </div>
         </ModalBody>
         <ModalFooter>
-          <div>
-            <p>Clicking "Load" will load the models into the "memory" (Redux Store) and overwrite current memory store</p>
-            (To save latest changes please "Save" to Local Store before "Load" from Model Store)
-            <p></p>
-            <p></p>
+          <div style={{ fontSize: "smaller" }}>
+            NB! Clicking "Load" will overwrite current store (memory).
+            To keep current version, click "Save" to LocalStore before "Load" .
           </div>
-            {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="secondary" onClick={toggle}>Exit</Button>
+          {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
+          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={toggle}>Exit</Button>
         </ModalFooter>
       </Modal>
-
       <style jsx>{`
-            .list-obj {
+      .list-obj {
               min-Width: 90px;
             }
             /*******************************
@@ -250,3 +216,63 @@ const SelectSource = (props: any) => {
 
 export default SelectSource
 
+
+
+
+  // function handleSaveToFile() {
+  //   console.log('72 SelectSource', state);
+  //   alert('Save ModelStore not implemented yet');
+
+  // }
+
+  // function handleLoadFromFile() {
+  //   console.log('111 SelectSource');   
+  //     dispatch(loadData())
+
+  // }
+
+
+
+ // let optionModel
+  // const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
+  // const focusModel = useSelector(focusModel => state.phFocus?.focusModel)
+  // const focusUser = useSelector(focusUser => state.phUser?.focusUser)
+
+  // let usession, testsession
+
+  // useEffect(() => {
+  //   const fU = async () => await focusUser;
+  //   testsession = fU().session;
+  //   // console.log('69', focusUser, testsession);
+  //   try {
+  //     usession = (testsession) && JSON.parse(testsession);
+  //     // console.log('71', usession);
+
+  //   } catch (error) {
+  //     {
+  //       console.error('parserror');
+  //     }
+  //   }
+  // }, [focusUser])
+
+  // /**
+  // * Build the selection options for all context (focus) objects,
+  // */
+  // const optionSession = sessions && [<option key={991009} value='Select Session ...' disabled > Select Modelview ...</option>, <option key={991010} value={JSON.stringify(sessions)} > {focusUser.name} </option> ]
+  // console.log('72', optionSession);
+
+
+  // const defaultSession = {focusUser: {id: 1, name: 'Snorre', email: 'sf@sf.com', session: '{\"id\": 1, \"name\": \"2nd Session\", \"focus\": \"{\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"},\"ownerId\": 1]}}}'
+  // }}
+  // const defaultSession = '{\"session\": {\"id\": 1, \"name\": \"2nd Session\", \"focus\": {\"gojsModel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy StartObject 1\",\"color\":\"lightblue\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy StartObject 2\",\"color\":\"lightgreen\",\"loc\":\"0 -50\"}],\"linkDataArray\":[{\"key\":-1,\"from\":0,\"to\":1}]},\"gojsMetamodel\":{\"nodeDataArray\":[{\"key\":0,\"text\":\"Dummy Type 1\",\"color\":\"orange\",\"loc\":\"0 0\"},{\"key\":1,\"text\":\"Dummy Type 2\",\"color\":\"red\",\"loc\":\"0 -80\"}],\"linkDataArray\":[]},\"focusModel\":{\"id\":\"39177a38-73b1-421f-f7bf-b1597dcc73e8\",\"name\":\"SF test solution model\"},\"focusObject\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"sourceName\":\"test\",\"status\":null},\"focusModelview\":{\"id\":\"48913559-2476-4d8e-7faa-a4777553bb0b\",\"name\":\"Main\"},\"focusOrg\":{\"id\":0,\"name\":\"Default\"},\"focusProj\":{\"id\":0,\"name\":\"Default\"},\"focusRole\":{\"id\":\"UUID4_93ABC7D8-2840-41EE-90F5-042E4A7F9FFF\",\"name\":\"Default\"},\"focusCollection\":null,\"focusTask\":{\"id\":\"UUID4_8214CE30-3CD8-4EFB-BC6E-58DE68F97656\",\"name\":\"Default\",\"focus\":{\"focusObject\":{\"id\":\"UUID4_A416FE57-F1A3-4D56-A534-E43C87508465\",\"name\":\"Default\"},\"focusSource\":{\"id\":999,\"name\":\"traversed\"},\"focusCollection\":[]}},\"focusSource\":{\"id\":8,\"name\":\"objectviews\"}},\"ownerId\": 1}}'
+
+  // const focuser = (focusUser.name !== 'Not logged in') ? focusUser?.session : defaultSession
+
+  // const focuser = defaultSession
+  // const session0 = JSON.parse(focuser)
+  // const ses|||||||||||sion = session0.session.focus
+  // const phFocus = { phFocus: session }
+  // console.log('91', testsession, usession);
+
+  // console.log('79', session);
+  // console.log('114', loadState());

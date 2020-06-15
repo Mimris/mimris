@@ -396,11 +396,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
+
+
+
               // editable: true  // allow in-place editing by user
-              // ##################################
+// ##################################
               editable: true, choices: ['a','b','c','d']  // allow in-place editing by user
-              // ##################################
+// ##################################
             },
+
+
+
+
+
             new go.Binding("text", "name").makeTwoWay(),
           ),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
@@ -574,7 +582,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
       // this sample assumes textBlock.choices is not null
       var list = textBlock.choices;
-      for (var i = 0; i < list.length; i++) {
+      for (var i = 0; i < list?.length; i++) {
         var op = document.createElement("option");
         op.text = list[i];
         op.value = list[i];

@@ -396,7 +396,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
-              editable: true  // allow in-place editing by user
+              // editable: true  // allow in-place editing by user
+              // ##################################
+              editable: true, choices: ['a','b','c','d']  // allow in-place editing by user
+              // ##################################
             },
             new go.Binding("text", "name").makeTwoWay(),
           ),
@@ -553,6 +556,79 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           )
         );
     }
+
+
+
+
+
+//  sf added #####################################################
+    // Create an HTMLInfo and dynamically create some HTML to show/hide
+    var customEditor = new go.HTMLInfo();
+    var customSelectBox = document.createElement("select");
+
+    customEditor.show = function (textBlock, myDiagram, tool) {
+      if (!(textBlock instanceof go.TextBlock)) return;
+
+      // Populate the select box:
+      customSelectBox.innerHTML = "";
+
+      // this sample assumes textBlock.choices is not null
+      var list = textBlock.choices;
+      for (var i = 0; i < list.length; i++) {
+        var op = document.createElement("option");
+        op.text = list[i];
+        op.value = list[i];
+        customSelectBox.add(op, null);
+      }
+
+      // After the list is populated, set the value:
+      customSelectBox.value = textBlock.text;
+
+      // Do a few different things when a user presses a key
+      customSelectBox.addEventListener("keydown", function (e) {
+        var keynum = e.which;
+        if (keynum == 13) { // Accept on Enter
+          tool.acceptText(go.TextEditingTool.Enter);
+          return;
+        } else if (keynum == 9) { // Accept on Tab
+          tool.acceptText(go.TextEditingTool.Tab);
+          e.preventDefault();
+          return false;
+        } else if (keynum === 27) { // Cancel on Esc
+          tool.doCancel();
+          if (tool.diagram) tool.diagram.focus();
+        }
+      }, false);
+
+      var loc = textBlock.getDocumentPoint(go.Spot.TopLeft);
+      var pos = myDiagram.transformDocToView(loc);
+      customSelectBox.style.left = pos.x + "px";
+      customSelectBox.style.top = pos.y + "px";
+      customSelectBox.style.position = 'absolute';
+      customSelectBox.style.zIndex = 100; // place it in front of the Diagram
+
+      myDiagram.div.appendChild(customSelectBox);
+    }
+
+    customEditor.hide = function (diagram, tool) {
+      myDiagram.div.removeChild(customSelectBox);
+    }
+
+
+    // This is necessary for HTMLInfo instances that are used as text editors
+    customEditor.valueFunction = function () { return customSelectBox.value; }
+
+    // // Set the HTMLInfo:
+    myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
+
+//  sf added #####################################################
+
+
+
+
+
+
+
 
     // Define node template map
     // let paletteNodeTemplateMap = new go.Map();

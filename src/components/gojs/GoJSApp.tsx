@@ -161,6 +161,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "done"            : done
     }
     console.log('153 handleDiagramEvent - context', this.state, context);
+
     switch (name) {
       case 'TextEdited': {
         let sel = e.subject.part;
@@ -549,7 +550,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // console.log('362 this.state.myGoModel', this.state.myGoModel);
 
     return (
-      <div>
+      <div className="diagramwrapper">
 
         <DiagramWrapper
           nodeDataArray={this.state.nodeDataArray}

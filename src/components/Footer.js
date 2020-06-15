@@ -4,12 +4,10 @@ import { FaCrosshairs, FaGlobe, FaDharmachakra, FaBeer, FaClipboardList, FaEmpir
 
 const Footer = props => {
   return (
-    <div>
-      <div className="title">Footer: Copyright: Kavca AS 
-        <span className="iow float-right p6"> | Internet of Teams. IoTe 
-          <FaGlobe  style={{ padding: "1px", verticalAlign: 'baseline' }} />
-        </span>
-      </div>
+    <div className="title" style={{width: "99%"}}>Footer: Copyright: Kavca AS 
+      <span className="iow float-right mr-4"> | Internet of Teams. IoTe 
+        <FaGlobe  style={{ paddingLeft: "1px", verticalAlign: 'baseline' }} />
+      </span>
     </div>
   )
 }

@@ -39,14 +39,15 @@ const page = (props: any) => {
       <Layout user={ props.phUser?.focusUser } >
         <div id="index" >
           <div className="wrapper">
-            {/* <div className="header">
-              <Header title='eaderTitle' />
-            </div> */}
+            <div className="header">
+              {/* <Header title='HeaderTitle' /> */}
+              <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
+            </div>
             <div className="workplace">
-              <div className="contextarea"  >
+              <div className="contextarea">
                 {setContextDiv}
               </div>
-              <div className="tasksarea" style={{ backgroundColor: "#ffe" }}>
+              <div className="tasksarea">
                 <TasksHelp />
               </div>
               <div className="workarea">
@@ -63,6 +64,7 @@ const page = (props: any) => {
       <style jsx>{`
       .wrapper {
         display: grid;
+        // height: 100%;
         // grid-template-columns: auto auto;
         grid-gap: 0px;
         grid-template-areas:
@@ -73,6 +75,7 @@ const page = (props: any) => {
       .workplace {
         grid-area: workplace;
         display: grid ;
+        height: 100%;
         // background-color: #;
         grid-template-columns: auto 1fr;
         grid-template-areas:

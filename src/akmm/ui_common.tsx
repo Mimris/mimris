@@ -6,6 +6,7 @@ import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
 import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
+import { render } from 'react-dom';
 
 //import * as go from 'gojs';
 
@@ -556,6 +557,8 @@ export function onLinkDrawn(e: go.DiagramEvent, context: any): akm.cxRelationshi
         let fromType = fromNode.object?.getType();
         let toType = toNode.object?.getType();
         var typename = prompt("Enter type name");
+
+        
         // let types = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
         // if (types !== null && types.length>0) {
         //     addElementsToSelectList("selectType", types);
@@ -585,6 +588,7 @@ export function onLinkDrawn(e: go.DiagramEvent, context: any): akm.cxRelationshi
         //diagram.requestUpdate();
         return;
     }
+
 }
 function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, toObj: akm.cxObject) {
     if (reltype && fromObj && toObj) {

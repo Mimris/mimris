@@ -10,12 +10,16 @@ p {
   color: #212121; /* Grey 900 */
 } 
 
+.diagram-wrapper {
+  width: 100%;
+}
+
 .diagram-component {
   /* min-width: 300px; */
-  min-height: 110px;
-  height: 79vh;
-  /* width: 100%;
-  height: 300px; */
+  /* min-height: 82vh; */
+  height: 74vh;
+  width: 100%;
+  /* height: 100%; */
   border: solid 1px black;
   background-color: white;
 }

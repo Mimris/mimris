@@ -41,6 +41,8 @@ const Modeller = (props: any) => {
     < GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
+      // nodeDataArray={gojsmodel.nodes}
+      // linkDataArray={gojsmodel.links}
       metis={props.metis}
       myMetis={props.myMetis}
       myGoModel={props.myGoModel}

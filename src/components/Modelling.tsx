@@ -2,7 +2,7 @@
 // Diagram.tsx
 
 // import React from "react";
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
@@ -10,7 +10,9 @@ import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import genGojsModel from './GenGojsModel'
-import SelectSource from '../components/SelectSource'
+import LoadServer from '../components/LoadServer'
+import LoadLocal from '../components/LoadLocal'
+import {getLocalStorage} from './GetSetLocalStorage'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
@@ -22,7 +24,6 @@ const page = (props:any) => {
   const state = useSelector((state: any) => state) // Selecting the whole redux store
   const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview) 
-
   
   let gojsmetamodelpalette =  state.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  state.phGojs?.gojsMetamodelModel 
@@ -34,17 +35,6 @@ const page = (props:any) => {
   let myGoMetamodel = state.phMyGoMetamodel?.myGoMetamodel
   let phFocus = state.phFocus;
 
-  // console.log('25 Diagram props state : ', props.phGojs, state.phGojs);
-  // console.log('42 Diagram', gojsmodel ); 
-  
-  // useEffect(() => {
-    //     // genGojsModel(state, dispatch);
-    //   gojsmodel = useSelector(gojsmodel => state.phFocus?.gojsModel) 
-    // }, [focusModelview.id])
-    
-    // useEffect(() => {
-    //   genGojsModel(state, dispatch);
-    // }, [])
     
     useEffect(() => {
       // console.log('38 Diagram state', state ); 
@@ -168,6 +158,7 @@ const page = (props:any) => {
     </>
     )      
 
+
   return (
     <div className="diagramtabs" >
       <span className="sourceName pr-2 float-right mr-0 mt-1" 
@@ -176,8 +167,8 @@ const page = (props:any) => {
       </span> 
         <span className="sourceName float-right" 
           style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-          <SelectSource buttonLabel='Local' className='ContextModal' phFocus={phFocus} /> 
-          <SelectSource buttonLabel='Server' className='ContextModal' phFocus={phFocus} /> 
+          <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus} /> 
+          <LoadLocal buttonLabel='Local' className='ContextModal' ph={state} /> 
       </span> 
       <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
         {modellingtabs}

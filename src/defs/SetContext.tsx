@@ -1,10 +1,10 @@
+
 import SelectContext from '../components/SelectContext'
-import SelectSource from '../components/SelectSource'
+
 
 const SetContext = (props: any) =>  {
-
-  const phFocus = props.phFocus;
-  // console.log('6', phFocus);
+ 
+  const phFocus = props.mStore?.phFocus;
   return (
     <>
     <div className="context-list border-bottom border-dark">Context :
@@ -15,8 +15,7 @@ const SetContext = (props: any) =>  {
       Proj: <strong>{phFocus?.focusProj?.name}</strong> |
       Role: <strong>{phFocus?.focusRole?.name}</strong> |
       Task: <strong>{phFocus?.focusTask?.name}</strong> |
-      <SelectContext buttonLabel='Set Context' className='ContextModal' phFocusocus={phFocus} /> |
-      <SelectSource buttonLabel='Save / Load Model' className='ContextModal' phFocusocus={phFocus} /> 
+      <SelectContext buttonLabel='Set Context' className='ContextModal' phFocus={phFocus} /> |
     </div>
     </>
     )

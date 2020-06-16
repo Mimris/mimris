@@ -9,6 +9,7 @@ import * as React from 'react';
 
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
+import SaveLoadLocalStorage from '../utils/SaveLoadLocalStorage'
 
 // import './GoJSApp.css';
 import glb from '../../akmm/akm_globals';
@@ -115,6 +116,7 @@ class GoJSApp extends React.Component<{}, AppState> {
    * @param e a GoJS DiagramEvent
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
+    
     const name = e.name;
     const myDiagram     = e.diagram;
     const myMetis       = this.state.myMetis;
@@ -360,6 +362,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             uic.onLinkRelinked(newLink, context.myGoModel);
           })
         )
+      }
+        break;
+      case "LinkRelinked": {
+        const newLink = e.subject.data;
+        console.log('207 LinkRelinked', newLink);
+        uic.onLinkRelinked(newLink, context.myGoModel);
       }
         break;
       default:

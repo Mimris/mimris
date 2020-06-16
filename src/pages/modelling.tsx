@@ -9,7 +9,7 @@ import Footer from "../components/Footer"
 import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
-import { loadState, saveState } from '../components/utils/LocalStorage'
+// import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
   
@@ -37,7 +37,7 @@ const page = (props:any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
-  const setContextDiv =  <SetContext phFocus={props.phFocus} />
+  const setContextDiv =  <SetContext mStore={props} />
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
   // useEffect(() => {
   //   return () => {

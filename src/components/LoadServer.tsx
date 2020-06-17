@@ -40,6 +40,11 @@ const SelectSource = (props: any) => {
           <h6>Model repository (Firebase) </h6>
           <div className="select" style={{ paddingTop: "4px" }}>
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
+            <hr />
+          <p> Server access : </p>
+          <iframe style={{width:"60%", height:"100px"}} src="http://localhost:4000/profile" name="myFrame"></iframe>
+          {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
+          {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>
         </div>
       </>

@@ -9,7 +9,7 @@ function useLocalStorage(key, initialValue) {
       // Get from local storage by key
       const item = window?.localStorage.getItem(key);
       // Parse stored json or if none return initialValue
-      (item) && console.log('12 use-local-storage', JSON.parse(item));
+      // (item) && console.log('12 use-local-storage', JSON.parse(item));
       
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
@@ -28,7 +28,7 @@ function useLocalStorage(key, initialValue) {
         value instanceof Function ? value(storedValue) : value;
       // Save state
       setStoredValue(valueToStore);
-      console.log('29 use-local-storage', valueToStore);
+      // console.log('29 use-local-storage', valueToStore);
       
       // Save to local storage
       (window) && window.localStorage.setItem(key, JSON.stringify(valueToStore));

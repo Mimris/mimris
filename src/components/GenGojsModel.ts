@@ -7,7 +7,7 @@ import glb from '../akmm/akm_globals';
 import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
-//import {gqlImportMetis} from '../akmm/ui_graphql'
+//import {gqlImportMetis} from '../Server/src/akmm/ui_graphql'
 const constants = require('../akmm/constants');
 
 const GenGojsModel = async (state: any, dispatch: any) =>  {

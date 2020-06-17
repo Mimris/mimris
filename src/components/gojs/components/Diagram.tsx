@@ -372,6 +372,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           ),
         );
     }
+
+
+// sf ##################################
+    // A Context Menu is an Adornment with a bunch of buttons in them
+    // Parts context menu
+    // if (true) {
+    //   var linkContextMenu =
+    //     $(go.Adornment, "Vertical",
+    //       makeButton("SelReltype",
+    //         function (e: any, obj: any) { e.diagram.commandHandler.editTextBlock({choices: ['aaaa', 'bgggg', 'ccccc', 'aassffwe']}); }
+    //       )
+    //     );
+    // }
+    // sf ##################################
     // dwfine a link template
     let linkTemplate;
     if (true) {
@@ -393,6 +407,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           //$(go.Shape, new go.Binding("strokewidth", "strokewidth")),
           //$(go.Shape, new go.Binding("toArrow", "toArrow")),
           $(go.Shape, { toArrow: "Standard", stroke: null }),
+          // sf ##################################
+            // { contextMenu: linkContextMenu },
+          // sf ##################################
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
@@ -400,9 +417,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
 
               // editable: true  // allow in-place editing by user
-// ##################################
-              editable: true, choices: ['a','b','c','d']  // allow in-place editing by user
-// ##################################
+// sf ##################################
+              editable: true, 
+              // textEditor: window.TextEditorSelectBox,
+              choices: ['aaaa','bgggg','ccccc', 'aassffwe' ]  
+// sf ##################################
             },
 
 
@@ -410,6 +429,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
 
             new go.Binding("text", "name").makeTwoWay(),
+            new go.Binding("choices")
           ),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),

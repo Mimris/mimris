@@ -24,8 +24,8 @@ const SelectSource = (props: any) => {
       dispatch(loadData())
   }
  
-  const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2" onClick={handleSaveModelStore} > Save (not working yet)</button >
-  const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2 float-right" onClick={handleLoadModelStore} > Load Server </button >
+  const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
+  const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2 float-right" onClick={handleLoadModelStore} > Load from Server </button >
   
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
@@ -42,7 +42,7 @@ const SelectSource = (props: any) => {
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
           <p> Server access : </p>
-          <iframe style={{width:"60%", height:"100px"}} src="http://localhost:4000/profile" name="myFrame"></iframe>
+          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe>
           {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
           {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>
@@ -64,7 +64,7 @@ const SelectSource = (props: any) => {
         <ModalFooter>
           <div style={{ fontSize: "smaller" }}>
             NB! Clicking "Load" will overwrite current store (memory).
-            To keep current version, click "Save" to LocalStore before "Load" .
+            To keep current version, exit and go to "Local" then click "Save" to save to LocalStore.
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
           <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={toggle}>Exit</Button>

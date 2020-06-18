@@ -13,7 +13,7 @@ function * loadDataSaga() {
     res = yield fetch('http://localhost:4000/akmmodels',
     // res = yield fetch('https://akmserver.herokuapp.com/akmmodels',
     {
-      // mode: 'no-cors',
+      mode: 'no-cors',
       headers: {
         "Access-Control-Allow-Origin": "*",
         'Accept': 'application/json',

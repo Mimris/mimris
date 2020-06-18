@@ -93,8 +93,8 @@ const LoadLocal = (props: any) => {
         </ModalBody>
         <ModalFooter>
           <div style={{ fontSize: "smaller" }}>
-            NB! Clicking "Load" will overwrite current store (memory).
-            To keep current version, click "Save" to LocalStore before "Load" .
+            NB! Clicking "Load local" will overwrite current store (memory).
+            To keep current version, click "Save to Local" to save to LocalStore before "Load local" .
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
           <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={toggle}>Exit</Button>

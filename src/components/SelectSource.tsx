@@ -115,11 +115,11 @@ const SelectSource = (props: any) => {
         <ModalBody className="pt-0">
           {/* <strong>Current Source:  {state.phSource}</strong> */}
           <div className="source bg-light pt-2 ">
-            <table>
-              <tr>
+            {/* <table>
+              <tr> */}
                {buttonDiv}
-              </tr>
-            </table>
+              {/* </tr>
+            </table> */}
           </div>
         </ModalBody>
         <ModalFooter>

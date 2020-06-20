@@ -1302,14 +1302,16 @@ export class cxMetis {
             return null;
         } else if (types) {
             let i = 0;
-            let reltype = null;
+            let reltype;
             for (i = 0; i < types.length; i++) {
                 reltype = types[i];
-                if (reltype.isDeleted()) continue;
-                if (reltype.getRelshipKind() !== constants.RELKINDS.GEN) {
-                    if (reltype.isAllowedFromType(fromType)) {
-                        if (reltype.isAllowedToType(toType)) {
-                            reltypes.push(reltype);
+                    if (reltype) {
+                        if (reltype.isDeleted()) continue;
+                    if (reltype.getRelshipKind() !== constants.relkinds.GEN) {
+                        if (reltype.isAllowedFromType(fromType)) {
+                            if (reltype.isAllowedToType(toType)) {
+                                reltypes.push(reltype);
+                            }
                         }
                     }
                 }
@@ -2331,7 +2333,7 @@ export class cxMetaModel extends cxMetaObject {
                     }
                 }
             } else
-                if (reltype.getRelshipKind() !== constants.RELKINDS.GEN) {
+                if (reltype.getRelshipKind() !== constants.relkinds.GEN) {
                     if (reltype.isAllowedFromType(fromType)) {
                         if (reltype.isAllowedToType(toType)) {
                             reltypes.push(reltype);

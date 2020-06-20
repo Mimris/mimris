@@ -30,7 +30,9 @@ const akm_globals = {
     logged_in       : false,
     myPalette       : go.paletteNode,
     myMetaPalette   : go.paletteNode,
-    myPaletteModel  : ""
+    myPaletteModel  : "",
+    pasteViewsOnly  : false,
+    deleteViewsOnly : false
 
 }
 

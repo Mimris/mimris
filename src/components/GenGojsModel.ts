@@ -49,7 +49,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       // console.log('44 myPalette', myPalette);
       const myModelView = (curmodview) && myMetis?.findModelView(curmodview.id);
       console.log('51 GenGojsModel  myModel', myModel, myModelView);
-      const myGoModel = buildGoModel(myModel, myModelView);
+      const myGoModel = buildGoModel(myMetis, myModel, myModelView);
       console.log('53 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
       
@@ -143,8 +143,8 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
     return myGoPaletteModel;
   }
 
-  function buildGoModel(model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
+  function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
+    const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview, metis);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {

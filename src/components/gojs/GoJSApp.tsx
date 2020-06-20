@@ -9,7 +9,6 @@ import * as React from 'react';
 
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
-import SaveLoadLocalStorage from '../utils/SaveLoadLocalStorage'
 
 // import './GoJSApp.css';
 import glb from '../../akmm/akm_globals';

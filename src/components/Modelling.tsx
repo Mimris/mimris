@@ -157,7 +157,8 @@ const page = (props:any) => {
       </TabContent>
     </>
     )      
-
+  const loadserver =  <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus} /> 
+  const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={state} /> 
 
   return (
     <div className="diagramtabs" >
@@ -167,8 +168,7 @@ const page = (props:any) => {
       </span> 
         <span className="sourceName float-right" 
           style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-          <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus} /> 
-          <LoadLocal buttonLabel='Local' className='ContextModal' ph={state} /> 
+          {loadserver}  {loadlocal}
       </span> 
       <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
         {modellingtabs}

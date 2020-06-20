@@ -10,13 +10,13 @@ const Modeller = (props: any) => {
   let gojsmodel = {}
   gojsmodel = props.gojsModel;
 
-  useEffect(() => {
-    setRefresh(!refresh)
-    prevgojsmodel = null
-    return () => {
-      prevgojsmodel
-    };
-  }, [gojsmodel !== prevgojsmodel])
+  // useEffect(() => {
+  //   setRefresh(!refresh)
+  //   prevgojsmodel = null
+  //   return () => {
+  //     prevgojsmodel
+  //   };
+  // }, [gojsmodel !== prevgojsmodel])
 
 
   let myMetis = props.myMetis;

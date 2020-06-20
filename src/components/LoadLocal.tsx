@@ -6,45 +6,36 @@ import { useDispatch } from 'react-redux'
 // import { loadState, saveState } from './utils/LocalStorage'
 import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
+// import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 
 const LoadLocal = (props: any) => {
 
-  try {  
-    if (!window) return <> </>
-  } catch (error) {
-    return <> </>
-  }
+  const dispatch = useDispatch()  
 
-    const [state, setState] = useLocalStorage('state', {});
-    
-    const dispatch = useDispatch()
-    // const { register, handleSubmit, errors } = useForm()
-    
-    function handleSaveLocalStore() {
-      // console.log('72 SelectSource', state, props.ph);
-      const data = {
-        phData: props.ph.phData,
-        phFocus: props.ph.phFocus,
-        phUser: props.ph.phUser,
-        phSource: 'localStore'
-      }
-      // console.log('37', data);
-      setState(data)
-    }
-    
-    function handleLoadLocalStore() {
-      // console.log('42 LoadLocal', state);
-      // const locState = loadState()
-      const locState = state
-      const phData = locState?.phData
-      const phFocus = locState?.phFocus
-      const phUser = locState?.phUser
-      const phSource = 'localStore' //locState.sourceFlag
-      if (locState) {
-        console.log('91 SelectSource', locState);
-        let data = phData
-        dispatch({ type: 'SET_FOCUS_PHDATA', data })
-        data = phFocus
+  // try {  
+  //   if (!window){
+  //     console.log('14', props);
+  //     return <></>
+  //   }
+  // } catch (error) {
+  //   console.log('18 LoadLocal error', error);
+  //   return <> </>
+  // }
+
+  const [state, setState] = useLocalStorage('state',  window?.localStorage.getItem('state') || null);
+   
+  console.log('25', state);
+  function handleDispatchStoreFromLocal() {  // Set storeFromLocal
+    const locState = state
+    const phData = locState?.phData
+    const phFocus = locState?.phFocus
+    const phUser = locState?.phUser
+    const phSource = 'localStore' //locState.sourceFlag
+    if (locState) {
+      console.log('91 SelectSource', locState);
+      let data = phData
+      dispatch({ type: 'SET_FOCUS_PHDATA', data })
+      data = phFocus
       dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
       data = phUser
       dispatch({ type: 'SET_FOCUS_PHUSER', data })
@@ -52,12 +43,24 @@ const LoadLocal = (props: any) => {
       dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
     }
   }
-  
+
+  function handleSaveLocalStore() {
+    // const [state, setState] = useLocalStorage('state', {});
+    console.log('72 SelectSource', state, props.ph);
+    const data = {
+      phData:   props.ph.phData,
+      phFocus:  props.ph.phFocus,
+      phUser:   props.ph.phUser,
+      phSource: 'localStore'
+    }
+    // console.log('37', data);
+    setState(data)
+  }
   
   
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveLocalStoreDiv = <button className="btn-primary btn-sm ml-2" onClick={handleSaveLocalStore} > Save </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 float-right " onClick={handleLoadLocalStore} > Load local </button >
+  const buttonSaveLocalStoreDiv = <button className="btn-primary btn-sm ml-2" onClick={handleSaveLocalStore} > Save to localStorage </button >
+  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 float-right " onClick={handleDispatchStoreFromLocal} > Load from localStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -82,7 +85,7 @@ const LoadLocal = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={toggle}>LocalStorage: </ModalHeader>
         <ModalBody className="pt-0">
-          <strong>Current Source:  {state.phSource}</strong>
+          <strong>Current Source:  {props.phSource}</strong>
           <div className="source bg-light pt-2 ">
             {/* <table>
               <tr> */}
@@ -185,3 +188,37 @@ const LoadLocal = (props: any) => {
 
 export default LoadLocal
 
+
+
+// function handleSaveLocalStore() {
+//       // console.log('72 SelectSource', state, props.ph);
+//       const data = {
+//         phData: props.ph.phData,
+//         phFocus: props.ph.phFocus,
+//         phUser: props.ph.phUser,
+//         phSource: 'localStore'
+//       }
+//       // console.log('37', data);
+//       setState(data)
+//     }
+
+// function handleLoadLocalStore() {
+//       // console.log('42 LoadLocal', state);
+//       // const locState = loadState()
+//       const locState = state
+//       const phData = locState?.phData
+//       const phFocus = locState?.phFocus
+//       const phUser = locState?.phUser
+//       const phSource = 'localStore' //locState.sourceFlag
+//       if (locState) {
+//         console.log('91 SelectSource', locState);
+//         let data = phData
+//         dispatch({ type: 'SET_FOCUS_PHDATA', data })
+//         data = phFocus
+//       dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+//       data = phUser
+//       dispatch({ type: 'SET_FOCUS_PHUSER', data })
+//       data = phSource
+//       dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
+//     }
+//   }

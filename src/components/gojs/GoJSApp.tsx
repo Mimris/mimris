@@ -395,146 +395,146 @@ class GoJSApp extends React.Component<{}, AppState> {
     )
   }
 
-  /**
-   * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
-   * This method iterates over those changes and updates state to keep in sync with the GoJS model.
-   * @param obj a JSON-formatted string
-   */
-  public handleModelChange(obj: go.IncrementalData) {
-    const insertedNodeKeys = obj.insertedNodeKeys;
-    const modifiedNodeData = obj.modifiedNodeData;
-    const removedNodeKeys = obj.removedNodeKeys;
-    const insertedLinkKeys = obj.insertedLinkKeys;
-    const modifiedLinkData = obj.modifiedLinkData;
-    const removedLinkKeys = obj.removedLinkKeys;
-    const modifiedModelData = obj.modelData;
+  // /**
+  //  * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
+  //  * This method iterates over those changes and updates state to keep in sync with the GoJS model.
+  //  * @param obj a JSON-formatted string
+  //  */
+  // public handleModelChange(obj: go.IncrementalData) {
+  //   const insertedNodeKeys = obj.insertedNodeKeys;
+  //   const modifiedNodeData = obj.modifiedNodeData;
+  //   const removedNodeKeys = obj.removedNodeKeys;
+  //   const insertedLinkKeys = obj.insertedLinkKeys;
+  //   const modifiedLinkData = obj.modifiedLinkData;
+  //   const removedLinkKeys = obj.removedLinkKeys;
+  //   const modifiedModelData = obj.modelData;
 
-    // console.log('211 handleModelChange', obj);
-    // maintain maps of modified data so insertions don't need slow lookups
-    const modifiedNodeMap = new Map<go.Key, go.ObjectData>();
-    const modifiedLinkMap = new Map<go.Key, go.ObjectData>();
-    this.setState(
-      produce((draft: AppState) => {
-        let narr = draft.nodeDataArray;
-        if (modifiedNodeData) {
-          modifiedNodeData.forEach((nd: go.ObjectData) => {
-            modifiedNodeMap.set(nd.key, nd);
-            const idx = this.mapNodeKeyIdx.get(nd.key);
-            if (idx !== undefined && idx >= 0) {
-              narr[idx] = nd;
-              if (draft.selectedData && draft.selectedData.key === nd.key) {
-                draft.selectedData = nd;
-              }
-            }
-          });
-        }
-        if (insertedNodeKeys) {
-          insertedNodeKeys.forEach((key: go.Key) => {
-            const nd = modifiedNodeMap.get(key);
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (nd && idx === undefined) {
-              this.mapNodeKeyIdx.set(nd.key, narr.length);
-              narr.push(nd);
-              console.log(nd);
-            }
-          });
-        }
-        if (removedNodeKeys) {
-          narr = narr.filter((nd: go.ObjectData) => {
-            if (removedNodeKeys.includes(nd.key)) {
-              return false;
-            }
-            return true;
-          });
-          draft.nodeDataArray = narr;
-          this.refreshNodeIndex(narr);
-        }
+  //   // console.log('211 handleModelChange', obj);
+  //   // maintain maps of modified data so insertions don't need slow lookups
+  //   const modifiedNodeMap = new Map<go.Key, go.ObjectData>();
+  //   const modifiedLinkMap = new Map<go.Key, go.ObjectData>();
+  //   this.setState(
+  //     produce((draft: AppState) => {
+  //       let narr = draft.nodeDataArray;
+  //       if (modifiedNodeData) {
+  //         modifiedNodeData.forEach((nd: go.ObjectData) => {
+  //           modifiedNodeMap.set(nd.key, nd);
+  //           const idx = this.mapNodeKeyIdx.get(nd.key);
+  //           if (idx !== undefined && idx >= 0) {
+  //             narr[idx] = nd;
+  //             if (draft.selectedData && draft.selectedData.key === nd.key) {
+  //               draft.selectedData = nd;
+  //             }
+  //           }
+  //         });
+  //       }
+  //       if (insertedNodeKeys) {
+  //         insertedNodeKeys.forEach((key: go.Key) => {
+  //           const nd = modifiedNodeMap.get(key);
+  //           const idx = this.mapNodeKeyIdx.get(key);
+  //           if (nd && idx === undefined) {
+  //             this.mapNodeKeyIdx.set(nd.key, narr.length);
+  //             narr.push(nd);
+  //             console.log(nd);
+  //           }
+  //         });
+  //       }
+  //       if (removedNodeKeys) {
+  //         narr = narr.filter((nd: go.ObjectData) => {
+  //           if (removedNodeKeys.includes(nd.key)) {
+  //             return false;
+  //           }
+  //           return true;
+  //         });
+  //         draft.nodeDataArray = narr;
+  //         this.refreshNodeIndex(narr);
+  //       }
 
-        let larr = draft.linkDataArray;
-        if (modifiedLinkData) {
-          modifiedLinkData.forEach((ld: go.ObjectData) => {
-            modifiedLinkMap.set(ld.key, ld);
-            const idx = this.mapLinkKeyIdx.get(ld.key);
-            if (idx !== undefined && idx >= 0) {
-              larr[idx] = ld;
-              if (draft.selectedData && draft.selectedData.key === ld.key) {
-                draft.selectedData = ld;
-              }
-            }
-          });
-        }
-        if (insertedLinkKeys) {
-          insertedLinkKeys.forEach((key: go.Key) => {
-            const ld = modifiedLinkMap.get(key);
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (ld && idx === undefined) {
-              this.mapLinkKeyIdx.set(ld.key, larr.length);
-              larr.push(ld);
-            }
-          });
-        }
-        if (removedLinkKeys) {
-          larr = larr.filter((ld: go.ObjectData) => {
-            if (removedLinkKeys.includes(ld.key)) {
-              return false;
-            }
-            return true;
-          });
-          draft.linkDataArray = larr;
-          this.refreshLinkIndex(larr);
-        }
-        // handle model data changes, for now just replacing with the supplied object
-        if (modifiedModelData) {
-          draft.modelData = modifiedModelData;
-          // console.log('256 GoJSApp modelData', draft.modelData);
-        }
-        draft.skipsDiagramUpdate = true;  // the GoJS model already knows about these updates
-      })
-    );
-  }
+  //       let larr = draft.linkDataArray;
+  //       if (modifiedLinkData) {
+  //         modifiedLinkData.forEach((ld: go.ObjectData) => {
+  //           modifiedLinkMap.set(ld.key, ld);
+  //           const idx = this.mapLinkKeyIdx.get(ld.key);
+  //           if (idx !== undefined && idx >= 0) {
+  //             larr[idx] = ld;
+  //             if (draft.selectedData && draft.selectedData.key === ld.key) {
+  //               draft.selectedData = ld;
+  //             }
+  //           }
+  //         });
+  //       }
+  //       if (insertedLinkKeys) {
+  //         insertedLinkKeys.forEach((key: go.Key) => {
+  //           const ld = modifiedLinkMap.get(key);
+  //           const idx = this.mapLinkKeyIdx.get(key);
+  //           if (ld && idx === undefined) {
+  //             this.mapLinkKeyIdx.set(ld.key, larr.length);
+  //             larr.push(ld);
+  //           }
+  //         });
+  //       }
+  //       if (removedLinkKeys) {
+  //         larr = larr.filter((ld: go.ObjectData) => {
+  //           if (removedLinkKeys.includes(ld.key)) {
+  //             return false;
+  //           }
+  //           return true;
+  //         });
+  //         draft.linkDataArray = larr;
+  //         this.refreshLinkIndex(larr);
+  //       }
+  //       // handle model data changes, for now just replacing with the supplied object
+  //       if (modifiedModelData) {
+  //         draft.modelData = modifiedModelData;
+  //         // console.log('256 GoJSApp modelData', draft.modelData);
+  //       }
+  //       draft.skipsDiagramUpdate = true;  // the GoJS model already knows about these updates
+  //     })
+  //   );
+  // }
 
-  /**
-   * Handle inspector changes, and on input field blurs, update node/link data state.
-   * @param path the path to the property being modified
-   * @param value the new value of that property
-   * @param isBlur whether the input event was a blur, indicating the edit is complete
-   */
-  public handleInputChange(path: string, value: string, isBlur: boolean) {
-    this.setState(
-      produce((draft: AppState) => {
-        const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-        data[path] = value;
-        if (isBlur) {
-          const key = data.key;
-          if (key < 0) {  // negative keys are links
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined && idx >= 0) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          } else {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined && idx >= 0) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          }
-        }
-      })
-    );
-    // console.log('247 input: ', value);
-  }
+  // /**
+  //  * Handle inspector changes, and on input field blurs, update node/link data state.
+  //  * @param path the path to the property being modified
+  //  * @param value the new value of that property
+  //  * @param isBlur whether the input event was a blur, indicating the edit is complete
+  //  */
+  // public handleInputChange(path: string, value: string, isBlur: boolean) {
+  //   this.setState(
+  //     produce((draft: AppState) => {
+  //       const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
+  //       data[path] = value;
+  //       if (isBlur) {
+  //         const key = data.key;
+  //         if (key < 0) {  // negative keys are links
+  //           const idx = this.mapLinkKeyIdx.get(key);
+  //           if (idx !== undefined && idx >= 0) {
+  //             draft.linkDataArray[idx] = data;
+  //             draft.skipsDiagramUpdate = false;
+  //           }
+  //         } else {
+  //           const idx = this.mapNodeKeyIdx.get(key);
+  //           if (idx !== undefined && idx >= 0) {
+  //             draft.nodeDataArray[idx] = data;
+  //             draft.skipsDiagramUpdate = false;
+  //           }
+  //         }
+  //       }
+  //     })
+  //   );
+  //   // console.log('247 input: ', value);
+  // }
 
-  /**
-   * Handle changes to the checkbox on whether to allow relinking.
-   * @param e a change event from the checkbox
-   */
-  public handleRelinkChange(e: any) {
-    const target = e.target;
-    const value = target.checked;
-    this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
-    // console.log('257 relink: ', value);
-  }
+  // /**
+  //  * Handle changes to the checkbox on whether to allow relinking.
+  //  * @param e a change event from the checkbox
+  //  */
+  // public handleRelinkChange(e: any) {
+  //   const target = e.target;
+  //   const value = target.checked;
+  //   this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
+  //   // console.log('257 relink: ', value);
+  // }
 
   public render() {
     // console.log('360 props', this.state.nodeDataArray);

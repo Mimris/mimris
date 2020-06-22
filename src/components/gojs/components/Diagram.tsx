@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -6,6 +6,8 @@
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
+import * as akm from '../../../akmm/metamodeller';
+import * as uic from '../../../akmm/ui_common';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
 const glb = require('../../../akmm/akm_globals');
@@ -23,6 +25,7 @@ interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
   modelData: go.ObjectData;
+  myMetis: akm.cxMetis;
   skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
@@ -38,7 +41,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   constructor(props: DiagramProps) {
     super(props);
     this.diagramRef = React.createRef();
-    this.context = props.context;
+    //this.myMetis = props.myMetis;
   }
 
 
@@ -241,16 +244,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { return o.diagram.commandHandler.canCopySelection(); }),
           makeButton("Paste",
             function (e: any, obj: any) {
-              glb.pasteviewsonly = false;
+              glb.pasteViewsOnly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              glb.pasteviewsonly = true;
+              glb.pasteViewsOnly = true;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              glb.pasteviewsonly = false;
+              glb.pasteViewsOnly = false;
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
@@ -266,12 +269,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               glb.deleteViewsOnly = false;
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
-          makeButton("Undo",
-            function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
-            function (o: any) { return o.diagram.commandHandler.canUndo(); }),
-          makeButton("Redo",
-            function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
-            function (o: any) { return o.diagram.commandHandler.canRedo(); }),
+          // makeButton("Undo",
+          //   function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
+          //   function (o: any) { return o.diagram.commandHandler.canUndo(); }),
+          // makeButton("Redo",
+          //   function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
+          //   function (o: any) { return o.diagram.commandHandler.canRedo(); }),
           makeButton("Group",
             function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
             function (o: any) { return o.diagram.commandHandler.canGroupSelection(); }),
@@ -281,7 +284,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    // provide a context menu for the background of the Diagram, when not over any Part
+    // A Context menu for links    
+    if (true) {
+      var linkContextMenu =
+        $(go.Adornment, "Vertical",
+           makeButton("Set Relationship type",
+                       function(e, obj) { 
+                         console.log('287 SetReltype', obj.part);
+                         const link = e.diagram.selection.first().data;
+                         let reltype = prompt('Enter one of: ' + link.choices);
+                         console.log('293 SetReltype', link);
+                        //  const context = {
+                        //   "myMetis"         : myMetis,
+                        //   "myMetamodel"     : myMetamodel 
+                        //  }                   
+                        console.log('299 SetReltype', link.parentModel);                        
+                        //  uic.updateRelationshipType(link, 'typename', reltype, context);
+                       },
+                       function(o) { return true; }),
+           makeButton("Cut",
+                       function(e, obj) { e.diagram.commandHandler.cutSelection(); },
+                       function(o) { return o.diagram.commandHandler.canCutSelection(); }),
+            makeButton("Copy",
+                       function(e, obj) { e.diagram.commandHandler.copySelection(); },
+                       function(o) { return o.diagram.commandHandler.canCopySelection(); }),
+            makeButton("Paste",
+                       function(e, obj) { 
+                        glb.pasteViewsOnly = false;
+                        e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint); 
+                       },
+                       function(o) { return o.diagram.commandHandler.canPasteSelection(); }),
+            makeButton("Delete",
+                       function(e, obj) { 
+                          glb.deleteViewsOnly = false;
+                          e.diagram.commandHandler.deleteSelection(); 
+                        },
+                       function(o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            makeButton("Delete View",
+                       function(e, obj) { 
+                        glb.deleteViewsOnly = true;
+                        e.diagram.commandHandler.deleteSelection(); 
+                        glb.deleteViewsOnly = false;
+                      },
+                       function(o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            // makeButton("Undo",
+            //            function(e, obj) { e.diagram.commandHandler.undo(); },
+            //            function(o) { return o.diagram.commandHandler.canUndo(); }),
+            // makeButton("Redo",
+            //            function(e, obj) { e.diagram.commandHandler.redo(); },
+            //            function(o) { return o.diagram.commandHandler.canRedo(); })
+        );
+    }
+
+// provide a context menu for the background of the Diagram, when not over any Part
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
@@ -351,17 +406,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 // content
                 $(go.TextBlock, textStyle(),  // the name
                   {
+                    isMultiline: false,  // don't allow newlines in text
+                    editable: true,  // allow in-place editing by user
                     row: 0, column: 0, columnSpan: 6,
                     font: "12pt Segoe UI,sans-serif",
-                    editable: true, isMultiline: false,
                     minSize: new go.Size(10, 16),
                     height: 40,
                     verticalAlignment: go.Spot.Center,
                     name: "name"
                   },
                   new go.Binding("text", "name").makeTwoWay()),
-
-                $(go.TextBlock, textStyle(), // the typename
+                  new go.Binding("choices"),
+                  $(go.TextBlock, textStyle(), // the typename
                   {
                     row: 1, column: 1, columnSpan: 6,
                     editable: false, isMultiline: false,
@@ -369,6 +425,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     margin: new go.Margin(0, 0, 0, 3)
                   },
                   new go.Binding("text", "typename")
+                  //new go.Binding("text", "choices")
                 ),
               ),
             ),
@@ -400,12 +457,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             routing: go.Link.AvoidsNodes,
             corner: 10
           },  // link route should avoid nodes
+          { contextMenu: linkContextMenu },
           new go.Binding("points").makeTwoWay(),
           $(go.Shape, new go.Binding("stroke", "strokecolor")),
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
-              editable: true  // allow in-place editing by user
+              editable: true,  // allow in-place editing by user
             }),
           //$(go.Shape, new go.Binding("strokewidth", "strokewidth")),
           //$(go.Shape, new go.Binding("toArrow", "toArrow")),
@@ -416,26 +474,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
-
-        
-              
-
-              
-
-              // editable: true  // allow in-place editing by user
-// sf ##################################
-              editable: true, 
-              // textEditor: window.TextEditorSelectBox,
-              // choices: ['aaaa','bgggg','ccccc', 'aassffwe' ]  
-// sf ##################################
+              editable: true,  // allow in-place editing by user
+              //textEditor: customEditor,
             },
 
-
-
-
-
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("choices")
+            //new go.Binding("text", "choices"),
           ),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
@@ -607,6 +651,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       customSelectBox.innerHTML = "";
 
       // this sample assumes textBlock.choices is not null
+      if (!textBlock.choices) {
+        console.log('626 customEditor - No choices');
+        textBlock.choices = ['Edit name'];
+      }
       var list = textBlock.choices;
       for (var i = 0; i < list?.length; i++) {
         var op = document.createElement("option");
@@ -621,8 +669,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       // Do a few different things when a user presses a key
       customSelectBox.addEventListener("keydown", function (e) {
         var keynum = e.which;
+        console.log('597 Diagram.tsx', keynum);
         if (keynum == 13) { // Accept on Enter
-          tool.acceptText(go.TextEditingTool.Enter);
+          tool.acceptText(go.TextEditingTool.Tab);  // Hack
           return;
         } else if (keynum == 9) { // Accept on Tab
           tool.acceptText(go.TextEditingTool.Tab);
@@ -645,7 +694,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
 
     customEditor.hide = function (diagram, tool) {
-      myDiagram.div.removeChild(customSelectBox);
+      myDiagram.div?.removeChild(customSelectBox);
     }
 
 
@@ -653,7 +702,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     customEditor.valueFunction = function () { return customSelectBox.value; }
 
     // // Set the HTMLInfo:
-    myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
+    // myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
 
 //  sf added #####################################################
 
@@ -769,6 +818,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         initDiagram={this.initDiagram}
         nodeDataArray={this.props.nodeDataArray}
         linkDataArray={this.props?.linkDataArray}
+        myMetis={this.props.myMetis}
         modelData={this.props.modelData}
         onModelChange={this.props.onModelChange}
         skipsDiagramUpdate={this.props.skipsDiagramUpdate}

@@ -26,6 +26,7 @@ interface DiagramProps {
   skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
+  context: go.ObjectData;
 }
 
 export class DiagramWrapper extends React.Component<DiagramProps, {}> {
@@ -37,7 +38,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   constructor(props: DiagramProps) {
     super(props);
     this.diagramRef = React.createRef();
+    this.context = props.context;
   }
+
 
   /**
    * Get the diagram reference and add any desired diagram listeners.
@@ -414,13 +417,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             {
               isMultiline: false,  // don't allow newlines in text
 
+        
+              
 
+              
 
               // editable: true  // allow in-place editing by user
 // sf ##################################
               editable: true, 
               // textEditor: window.TextEditorSelectBox,
-              choices: ['aaaa','bgggg','ccccc', 'aassffwe' ]  
+              // choices: ['aaaa','bgggg','ccccc', 'aassffwe' ]  
 // sf ##################################
             },
 
@@ -754,6 +760,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   }
 
   public render() {
+    console.log('763', this.context);
+    
     return (
       <ReactDiagram
         ref={this.diagramRef}

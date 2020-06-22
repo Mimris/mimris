@@ -13,7 +13,7 @@ function * loadDataSaga() {
     res = yield fetch('http://localhost:4000/akmmodels',
     // res = yield fetch('https://akmserver.herokuapp.com/akmmodels',
     {
-      // mode: 'no-cors',
+      mode: 'no-cors',
       headers: {
         "Access-Control-Allow-Origin": "*",
         'Accept': 'application/json',
@@ -22,10 +22,10 @@ function * loadDataSaga() {
     })
     const metis = yield res.json()
     // const phData = yield {  metis  }
-    // console.log('21', yield metis); 
+    console.log('25 saga', yield metis); 
     yield put(loadDataSuccess({ metis }))
   } catch (err) {
-    console.log('32', failure(err));  
+    console.log('32 saga', failure(err));  
     yield put(failure(err))
   }
 }

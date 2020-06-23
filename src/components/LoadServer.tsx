@@ -20,7 +20,7 @@ const SelectSource = (props: any) => {
   }
 
   function handleLoadModelStore() {
-    console.log('111 SelectSource');   
+    // console.log('111 SelectSource');   
       dispatch(loadData())
   }
  

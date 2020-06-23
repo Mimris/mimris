@@ -48,9 +48,9 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('44 myPalette', myPalette);
       const myModelView = (curmodview) && myMetis?.findModelView(curmodview.id);
-      console.log('51 GenGojsModel  myModel', myModel, myModelView);
+      // console.log('51 GenGojsModel  myModel', myModel, myModelView);
       const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      console.log('53 myGoModel', myGoModel);
+      // console.log('53 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
       
       // console.log('53 GenGojsModel  myMetis', myMetis);

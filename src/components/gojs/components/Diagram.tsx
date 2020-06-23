@@ -809,7 +809,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   }
 
   public render() {
-    console.log('763', this.context);
+    // console.log('763', this.context);
     
     return (
       <ReactDiagram

@@ -24,7 +24,7 @@ const LoadLocal = (props: any) => {
 
   const [state, setState] = useLocalStorage('state',  window?.localStorage.getItem('state') || null);
    
-  console.log('25', state);
+  // console.log('25 LoadLocal', state);
   function handleDispatchStoreFromLocal() {  // Set storeFromLocal
     const locState = state
     const phData = locState?.phData
@@ -46,7 +46,7 @@ const LoadLocal = (props: any) => {
 
   function handleSaveLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});
-    console.log('72 SelectSource', state, props.ph);
+    // console.log('72 SelectSource', state, props.ph);
     const data = {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,

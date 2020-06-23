@@ -619,7 +619,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // console.log('361 this.state.linkDataArray', this.state.linkDataArray);
     // console.log('362 this.state.myMetis', this.state.myMetis);
     // console.log('362 this.state.myGoModel', this.state.myGoModel);
-    console.log('558 this.context', this.context);
+    // console.log('558 this.context', this.context);
 
     return (
       <div className="diagramwrapper">

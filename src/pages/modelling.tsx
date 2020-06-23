@@ -30,7 +30,7 @@ const page = (props:any) => {
   //   console.log('31 modelling', error);
   // }
   
-  console.log('33', props.phData);
+  // console.log('33 modelling', props.phData);
   
   if (!props.phData) {
     dispatch(loadData())

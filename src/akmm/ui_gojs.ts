@@ -318,7 +318,7 @@ export class goObjectNode extends goNode {
             }
             this.typeview = objview.getTypeView();
         }
-        console.log('322 goObjectNode', this);
+        // console.log('322 goObjectNode', this);
     }
     // Methods
     getObjectViewId(viewid: string): string {
@@ -534,7 +534,7 @@ export class goRelshipLink extends goLink {
                 }
             }
         }
-        console.log('538 goRelshipLink', this.choices);
+        // console.log('538 goRelshipLink', this.choices);
     }
     // Methods
     getRelshipView(): akm.cxRelationshipView | null {

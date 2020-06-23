@@ -1,4 +1,4 @@
-// @ts -nocheck
+// @ts-nocheck
 // this Kernel code
 
 //import akm_globals from "./akm_globals";

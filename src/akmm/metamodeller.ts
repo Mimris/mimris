@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts -nocheck
 // this Kernel code
 
 //import akm_globals from "./akm_globals";
@@ -41,6 +41,9 @@ export class cxMetis {
     objectviews: cxObjectView[] | null = null;
     relshipviews: cxRelationshipView[] | null = null;
     gojsModel: gjs.goModel | null = null;
+    currentModelview: cxModelView | null = null;
+    currentModel: cxModel | null = null;
+    currentMetamodel: cxMetaModel | null = null;
     // Constructor
     constructor() {
     }
@@ -1465,6 +1468,24 @@ export class cxMetis {
             }
         }
         return null;
+    }
+    setCurrentModelview(modelview: cxModelView) {
+        this.currentModelview = modelview;
+    }
+    getCurrentModelview(): cxModelView {
+        return this.currentModelview;
+    }
+    setCurrentModel(model: cxModel) {
+        this.currentModel = model;
+    }
+    getCurrentModel(): cxModel {
+        return this.currentModel;
+    }
+    setCurrentMetamodel(metamodel: cxMetaModel) {
+        this.currentMetamodel = metamodel;
+    }
+    getCurrentMetamodel(): cxMetaModel {
+        return this.currentMetamodel;
     }
 }
 
@@ -4334,6 +4355,18 @@ export class cxModelView extends cxMetaObject {
             i++;
         }
     }
+    getParentModel(): cxModel | null {
+        const models = this.metis.getModels();
+        if (models) {
+            for (let i=0; i<models?.length; i++) {
+                const mdl = models[i];
+                if (mdl?.findModelView(this.id))
+                    return mdl;
+            }
+        }
+        return null;
+    }
+
 }
 
 export class cxObjectView extends cxMetaObject {
@@ -4459,6 +4492,17 @@ export class cxObjectView extends cxMetaObject {
         if (utils.objExists(this.loc))
             return this.loc;
         return "";
+    }
+    getParentModelView(): cxModelView | null {
+        const modelviews = this.metis.getModelViews();
+        if (modelviews) {
+            for (let i=0; i<modelviews?.length; i++) {
+                const mv = modelviews[i];
+                if (mv?.findObjectView(this.id))
+                    return mv;
+            }
+        }
+        return null;
     }
 }
 

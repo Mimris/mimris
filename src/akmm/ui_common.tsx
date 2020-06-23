@@ -37,7 +37,10 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObjectView.setName(value);
         currentObjectView.setModified();
         myDiagram.model.setDataProperty(data, "name", value);
-    }
+
+        // const modNode = new gql.gqlObjectView(myNode.objectview);
+        // modifiedNodes.push(modNode);
+}
 }
 
 export function updateObjectType(data: any, name: string, value: string, context: any) {
@@ -95,7 +98,9 @@ export function updateObjectType(data: any, name: string, value: string, context
                 objtypeView.setModified();
             }                
             context.myDiagram.model.setDataProperty(data, "name", value);
-        }
+            // const modNode = new gql.gqlObjectType(myNode.objtype, true);
+            // modifiedTypeNodes.push(modNode);
+}
     }
 }
 
@@ -158,6 +163,10 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     return objview;
                 }
             }
+            // if (objview) {
+            //     const newNode = new gql.gqlObjectView(objview);
+            //     modifiedNodes.push(newNode);
+            // }
         }
     }
     return null;
@@ -243,7 +252,44 @@ export function createObjectType(data: any, context: any): any {
             }
             return objtype;
         }
+        // if (objtype) {
+        //     const modNode = new gql.gqlObjectType(objtype, true);
+        //     modifiedTypeNodes.push(modNode);
+        // }
     } 
+}
+
+export function setObjectType(data: any, typename: string, context: any) {
+    const myMetis     = context.myMetis;
+    // const myMetamodel = context.myMetamodel;
+    // const myModel     = context.myModel;
+    // const myModelView = context.myModelView;
+    const myDiagram   = context.myDiagram;
+    const objtype = myMetis.findObjectTypeByName(typename);
+    if (data.objecttype.name === typename) {
+        // No type change - do nothing
+        alert('The object type is unchanged');
+    } else if (!objtype) {
+        // Non-existent type 
+        alert('The object type given does not exist');
+        // Do nothing
+    } else {
+        const currentObject = myMetis.findObject(data.object.id);
+        const objtypeview = myMetis.findObjectTypeView(objtype.typeviewRef);
+        if (currentObject) {
+            currentObject.setType(objtype);
+            currentObject.setName(typename);
+            currentObject.setModified();
+            const currentObjectView = myMetis.findObjectView(data.objectview?.id);
+            if (currentObjectView) {
+                currentObjectView.setTypeView(objtypeview);
+                currentObjectView.setName(typename);
+                currentObjectView.setModified();
+                myDiagram.model.setDataProperty(data, "typename", typename);
+                updateNode(data, objtypeview, myDiagram);
+            }
+        }
+    }
 }
 
 export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, context: any) {
@@ -583,12 +629,13 @@ export function updateRelationshipType(data: any, name: string, value: string, c
     }  else {
         const metis = context.myMetis;
         const myMetamodel = context.myMetamodel;
-        // Check if this is a type change
-        let reltype = data.reltype;            
+        const myDiagram   = context.myDiagram;
         const typename = data.name;
+        // Check if this is a type change
+        let reltype = metis.findRelationshipType(data.relshiptype.id);            
         if (reltype) {
             if  (
-                (reltype.getName() === "New Type") 
+                (reltype.name === "New Type") 
                 ) {
                 // This is a new type that gets a new name 
                 // Check if the new name already exists
@@ -634,6 +681,43 @@ export function updateRelationshipType(data: any, name: string, value: string, c
     }
 }
 
+export function setRelationshipType(data: any, typename: string, context: any) {
+    const myMetis     = context.myMetis;
+    const myMetamodel = context.myMetamodel;
+    const myModel     = context.myModel;
+    const myModelView = context.myModelView;
+    const myDiagram   = context.myDiagram;
+
+    let rtype = myMetis.findRelationshipTypeByName(typename);
+    if (!rtype) {
+        // Non-existent type 
+        alert('The relationship given does not exist');
+        // Do nothing
+    } else {
+        const reltype = myMetis.findRelationshipTypeByName(typename);
+        if (reltype) {
+            const reltypeview = reltype.getDefaultTypeView();
+            const currentRelship = myMetis.findRelationship(data.relship.id);
+            if (currentRelship) {
+                const nameIsChanged = (currentRelship.name !== currentRelship.type.name);
+                currentRelship.setType(reltype);
+                currentRelship.setName(typename);
+                currentRelship.setModified();
+                const currentRelshipView = myMetis.findRelationshipView(data.relshipview.id);
+                if (currentRelshipView) {
+                    currentRelshipView.setTypeView(reltypeview);
+                    currentRelshipView.setName(typename);
+                    currentRelshipView.setModified();
+                    if (!nameIsChanged)
+                        myDiagram.model.setDataProperty(data, "name", typename);
+                    updateLink(data, reltypeview, myDiagram);
+                }
+            }
+        }
+    }
+
+}
+
 export function onLinkDrawn(e: go.DiagramEvent, context: any): any {
     const myGoModel = context.myGoModel;
     //const myGoMetamodel = context.myGoMetamodel;
@@ -653,7 +737,7 @@ console.log('645 LinkDrawn', e.subject);
             return;
         let typename = 'isRelatedTo' as string | null;
         let reltype;
-        //reltype = myMetamodel.findRelationshipTypeByName(typename);
+        reltype = myMetamodel.findRelationshipTypeByName(typename);
         if (!reltype) {
             const fromType = fromNode.objecttype;
             const toType   = toNode.objecttype;
@@ -676,23 +760,27 @@ console.log('645 LinkDrawn', e.subject);
             diagram.model.removeLinkData(data);
             return;
         }
-        console.log('661 onLinkDrawn', reltype);
+        console.log('714 onLinkDrawn', reltype);
         if (!isLinkAllowed(reltype, fromNode.object, toNode.object)) {
             alert("Relationship given is not allowed!");
             diagram.model.removeLinkData(data);
             return;
         }
         //alert("Relationship given IS allowed!");
+        const reltypeview = reltype.getDefaultTypeView();
         diagram.model.setDataProperty(data, "name", typename);
         const relshipview = createLink(link.data, context);
-        console.log('584 myGoModel', myGoModel);
-        //diagram.requestUpdate();
+        relshipview.setTypeView(reltypeview);
+        console.log('725 myGoModel', myGoModel);
+        diagram.requestUpdate();
+        // const modLink = new gql.gqlRelshipView(relshipview);
+        // modifiedLinks.push(modLink);
         return relshipview;
     }
     else if (data.category === constants.gojs.C_RELSHIPTYPE) {
         data.key = utils.createGuid();
         diagram.model.setDataProperty(data, "name", prompt("Enter type name:", "typename"));
-        console.log('681 onLinkDrawn', data);
+        console.log('732 onLinkDrawn', data);
         if (data.name == null) {
             diagram.model.removeLinkData(data); 
             return;
@@ -704,11 +792,11 @@ console.log('645 LinkDrawn', e.subject);
             let toNode   = link.data.to;
             let fromObjType = myMetamodel.findObjectTypeByName(fromNode.name);
             let toObjType   = myMetamodel.findObjectTypeByName(toNode.name);
-            console.log('693 onLinkDrawn', fromNode, toNode);
+            console.log('744 onLinkDrawn', fromNode, toNode);
             if (fromObjType && toObjType) {
                 let reltype   = myMetis.findRelationshipTypeByName(typename);
                 if (reltype) {                    
-                    console.log('697 onLinkDrawn', reltype);
+                    console.log('748 onLinkDrawn', reltype);
                     // Existing type - create a copy
                     let relkind = reltype.getRelshipKind();
                     let reltype2 = new akm.cxRelationshipType(utils.createGuid(), reltype.getName(), fromObjType, toObjType, "");
@@ -738,11 +826,11 @@ console.log('645 LinkDrawn', e.subject);
                     }
                 } else {
                     // New relationship type - create it
-                    console.log('727 onLinkDrawn', reltype);
+                    console.log('778 onLinkDrawn', reltype);
                     let typeid = utils.createGuid();
                     reltype = new akm.cxRelationshipType(typeid, data.name, null, null, "");
                     if (reltype) {
-                        console.log('727 onLinkDrawn', reltype);
+                        console.log('782 onLinkDrawn', reltype);
                         diagram.model.setDataProperty(data, "reltype", reltype);
                         diagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                         reltype.setModified();
@@ -760,7 +848,7 @@ console.log('645 LinkDrawn', e.subject);
                             myMetis.addRelationshipTypeView(reltypeView);
                             updateLink(data, reltypeView, diagram);
                             diagram.requestUpdate();
-                            console.log('744 onLinkDrawn', myMetamodel);
+                            console.log('800 onLinkDrawn', myMetamodel);
                         }
                     }
                 }

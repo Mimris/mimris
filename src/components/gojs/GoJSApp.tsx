@@ -341,9 +341,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (part.type === 'objecttype') {
               const otype = uic.createObjectType(part, context);
               console.log('268 ExternalObjectsDropped - otype', otype);
-              const addNode = new gql.gqlObjectType(otype, true);
-              addedTypeNodes.push(addNode);
-              console.log('285 addedTypeNodes', addedTypeNodes);
+              const modNode = new gql.gqlObjectType(otype, true);
+              modifiedTypeNodes.push(modNode);
+              console.log('285 addedTypeNodes', modifiedTypeNodes);
             } else {
               const objview = uic.createObject(part, context);
               if (objview) {
@@ -623,14 +623,16 @@ class GoJSApp extends React.Component<{}, AppState> {
       <div className="diagramwrapper">
 
         <DiagramWrapper
-          nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={this.state.linkDataArray}
-          modelData={this.state.modelData}
+          nodeDataArray     ={this.state.nodeDataArray}
+          linkDataArray     ={this.state.linkDataArray}
+          modelData         ={this.state.modelData}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-          onDiagramEvent={this.handleDiagramEvent}
-          onModelChange={this.handleModelChange}
-          myMetis={this.state.myMetis}
-        />
+          onDiagramEvent    ={this.handleDiagramEvent}
+          onModelChange     ={this.handleModelChange}
+          myMetis           ={this.state.myMetis}
+          myGoModel         = {this.state.myGoModel}
+          myGoMetamodel     = {this.state.myGoMetamodel}
+              />
         {/* <label>
           Allow Relinking?
           <input

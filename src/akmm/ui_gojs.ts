@@ -298,7 +298,7 @@ export class goObjectNode extends goNode {
         this.groupLayout = "Tree";
         this.group = objview.group;
         this.parent = "";
-        this.choices = ['Edit name'];
+        this.choices = [];
 
         if (objview) {
             const object = objview.getObject();
@@ -314,11 +314,23 @@ export class goObjectNode extends goNode {
                     this.typename = "";
                     this.type = "";
                 }
-
             }
             this.typeview = objview.getTypeView();
+            const modelView = objview.getParentModelView();
+            const model = modelView?.getParentModel();
+            const metamodel = model?.getMetamodel();
+
+            const objtypes = metamodel?.getObjectTypes();
+            if (objtypes) {
+                for (let i=0; i<objtypes.length; i++) {
+                    const objtype = objtypes[i];
+                    if (!objtype.isAbstract())
+                        this.choices.push(objtype.name);  
+                }
+                this.choices.sort();
+            }
         }
-        console.log('322 goObjectNode', this);
+        console.log('331 goObjectNode', this);
     }
     // Methods
     getObjectViewId(viewid: string): string {
@@ -527,6 +539,7 @@ export class goRelshipLink extends goLink {
                                         const reltype = reltypes[i];
                                         this.choices.push(reltype.name);  
                                     }
+                                    this.choices.sort();
                                 }
                             }
                         }                        

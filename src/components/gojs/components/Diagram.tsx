@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -7,6 +7,8 @@ import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
 import * as akm from '../../../akmm/metamodeller';
+import * as gjs from '../../../akmm/ui_gojs';
+import * as gql from '../../../akmm/ui_graphql';
 import * as uic from '../../../akmm/ui_common';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
@@ -40,7 +42,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   constructor(props: DiagramProps) {
     super(props);
     this.diagramRef = React.createRef();
-    //this.myMetis = props.myMetis;
   }
 
   /**
@@ -121,6 +122,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     const $ = go.GraphObject.make;
     go.GraphObject.fromLinkableDuplicates = true;
     go.GraphObject.toLinkableDuplicates   = true;
+
 // define myDiagram
     let myDiagram;
     if (true) {
@@ -186,12 +188,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }
         );
     }
-    // console.log('94 myDiagram', this);
-
+    console.log('190 myDiagram', this.myMetis);
+    console.log('191 myDiagram', this.myGoModel);
+    myDiagram.myMetis = this.myMetis;
+    myDiagram.myGoModel = this.myGoModel;
+    myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
-
     // provide a tooltip for the background of the Diagram, when not over any Part
+    console.log('198 myDiagram', myDiagram.myMetis);
+    console.log('199 myDiagram', myDiagram.myGoModel);
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -234,6 +240,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     if (true) {
       var partContextMenu =
         $(go.Adornment, "Vertical",
+        makeButton("Set Object type",
+        function(e, obj) { 
+          const node = e.diagram.selection.first().data;
+          console.log('245 partContextMenu', node);
+          let objtype = prompt('Enter one of: ' + node.choices);
+          const myMetis = e.diagram.myMetis;
+          const context = {
+           "myMetis"         : myMetis,
+           "myMetamodel"     : myMetis.currentMetamodel,
+           "myModel"         : myMetis.currentModel,
+           "myModelView"     : myMetis.currentModelview,
+           "myDiagram"       : e.diagram
+          }   
+          uic.setObjectType(node, objtype, context);
+          const modNode = new gql.gqlObjectView(node.objectview);
+          console.log('308 SetObjtype', node, modNode);
+          //modifiedNodes.push(modNode);
+         },
+        function(o) {
+          const node = o.part.data;
+          if (node.category === 'Object') {
+              return true;
+          } else {
+              return false; 
+          }
+}),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
             function (o: any) { return o.diagram.commandHandler.canCutSelection(); }),
@@ -288,18 +320,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         $(go.Adornment, "Vertical",
            makeButton("Set Relationship type",
                        function(e, obj) { 
-                         console.log('287 SetReltype', obj.part);
-                         const link = e.diagram.selection.first().data;
-                         let reltype = prompt('Enter one of: ' + link.choices);
-                         console.log('293 SetReltype', link);
-                        //  const context = {
-                        //   "myMetis"         : myMetis,
-                        //   "myMetamodel"     : myMetamodel 
-                        //  }                   
-                        console.log('299 SetReltype', link.parentModel);                        
-                        //  uic.updateRelationshipType(link, 'typename', reltype, context);
-                       },
-                       function(o) { return true; }),
+                          const link = e.diagram.selection.first().data;
+                          let reltype = prompt('Enter one of: ' + link.choices);
+                          const myMetis = e.diagram.myMetis;
+                          const context = {
+                            "myMetis"         : myMetis,
+                            "myMetamodel"     : myMetis.currentMetamodel,
+                            "myModel"         : myMetis.currentModel,
+                            "myModelView"     : myMetis.currentModelview,
+                            "myDiagram"       : e.diagram
+                          }   
+                          uic.setRelationshipType(link, reltype, context);
+                          const modLink = new gql.gqlRelshipView(link.relshipview);
+                          console.log('308 SetReltype', link, modLink);
+                          //modifiedLinks.push(modLink);
+                          },
+                       function(o) { 
+                          const link = o.part.data;
+                          if (link.category === 'Relationship') {
+                              return true;
+                          } else {
+                              return false; 
+                          }
+                        }),
            makeButton("Cut",
                        function(e, obj) { e.diagram.commandHandler.cutSelection(); },
                        function(o) { return o.diagram.commandHandler.canCutSelection(); }),

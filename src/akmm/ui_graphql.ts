@@ -816,14 +816,12 @@ export class gqlObjectView {
         this.loc = objview?.loc;
         this.size = objview?.size;
         // Code
-        if (objview?.description)
-            this.description = objview?.description;
-        const obj = objview?.getObject();
+        const obj = objview?.object;
         if (obj)
-            this.objectRef = obj?.getId();
-        const typeview = objview?.getTypeView();
+            this.objectRef = obj?.id;
+        const typeview = objview?.typeview;
         if (typeview)
-            this.typeviewRef = typeview?.getId();
+            this.typeviewRef = typeview?.id;
     }
 }
 export class gqlRelshipView {
@@ -840,17 +838,17 @@ export class gqlRelshipView {
         this.description = "";
         this.relshipRef = "";
         this.typeviewRef = "";
-        this.fromobjviewRef = relview && relview.fromObjview ? relview.fromObjview.getId() : "";
-        this.toobjviewRef = relview && relview.toObjview ? relview.toObjview.getId() : "";
+        this.fromobjviewRef = relview && relview.fromObjview ? relview.fromObjview.id : "";
+        this.toobjviewRef = relview && relview.toObjview ? relview.toObjview.id : "";
         // Code
         if (relview.description)
             this.description = relview.description;
-        const relship = relview.getRelationship();
+        const relship = relview.relship;
         if (relship)
-            this.relshipRef = relship.getId();
-        const typeview = relview.getTypeView();
+            this.relshipRef = relship.id;
+        const typeview = relview.typeview;
         if (typeview)
-            this.typeviewRef = typeview.getId();
+            this.typeviewRef = typeview.id;
     }
 }
 export class gqlImportMetis {

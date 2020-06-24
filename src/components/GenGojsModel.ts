@@ -52,6 +52,9 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       const myGoModel = buildGoModel(myMetis, myModel, myModelView);
       // console.log('53 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
+      myMetis?.setCurrentMetamodel(myMetamodel);
+      myMetis?.setCurrentModel(myModel);
+      myMetis?.setCurrentModelview(myModelView);
       
       // console.log('53 GenGojsModel  myMetis', myMetis);
       // const nodedataarray = await (curmodview)

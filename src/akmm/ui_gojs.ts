@@ -330,7 +330,7 @@ export class goObjectNode extends goNode {
                 this.choices.sort();
             }
         }
-        console.log('331 goObjectNode', this);
+        // console.log('331 goObjectNode', this);
     }
     // Methods
     getObjectViewId(viewid: string): string {

@@ -200,6 +200,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // provide a tooltip for the background of the Diagram, when not over any Part
     console.log('198 myDiagram', myDiagram.myMetis);
     console.log('199 myDiagram', myDiagram.myGoModel);
+
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -218,14 +219,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
 
     function linkInfo(d: any) {  // Tooltip info for a link data object
-      let reltype = myMetamodel.findRelationshipTypeByName(d.name);
+      // let reltype = myMetamodel?.findRelationshipTypeByName(d.name);
 
       let fromObjtype = reltype.getFromObjType();
       let toObjtype = reltype.getToObjType();
 
       let str = "Link: " + d.name + "\n";
       str += "from: " + fromObjtype.name + "\n";
-      str += "to: " + toObjtype.name;
+      str += "to: " + toObjtype.name + "\n";
+      str += "type: " + reltype.name + "\n";
+      console.log('230 Diagram', str);
+      
       return str;
     }
 
@@ -345,7 +349,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                               return false; 
                           }
                         }),
-           makeButton("Cut",
+            makeButton("Cut",
                        function(e, obj) { e.diagram.commandHandler.cutSelection(); },
                        function(o) { return o.diagram.commandHandler.canCutSelection(); }),
             makeButton("Copy",
@@ -498,6 +502,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           new go.Binding('relinkableTo', 'canRelink').ofModel(),
           {
             routing: go.Link.AvoidsNodes,
+            // routing: go.Link.Orthogonal,
+            routing: go.Link.Normal,
+            // curve: go.Link.JumpOver,
+            curve: go.Link.JumpGap,
             corner: 10
           },  // link route should avoid nodes
           { contextMenu: linkContextMenu },
@@ -528,10 +536,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
           { // this tooltip Adornment is shared by all links
             toolTip:
-              $(go.Adornment, "Auto",
+              $(go.Adornment, "Spot",
+              { background: "transparent" },  // avoid hiding tooltip when mouse moves
+              // $(go.Adornment, "Auto",
                 $(go.Shape, { fill: "#FFFFCC" }),
                 $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling linkInfo(data)
-                  new go.Binding("text", "", linkInfo))
+                  new go.Binding("text", "", linkInfo()))
               )
           }
         );

@@ -40,7 +40,7 @@ export function updateObject(data: any, name: string, value: string, context: an
 
         // const modNode = new gql.gqlObjectView(myNode.objectview);
         // modifiedNodes.push(modNode);
-}
+    }
 }
 
 export function updateObjectType(data: any, name: string, value: string, context: any) {
@@ -117,10 +117,10 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        console.log('53 createObject', data);
+        console.log('120 createObject', data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
-        console.log('48 createObject', objtype);
+        console.log('123 createObject', objtype);
         let guid = utils.createGuid();
         let obj = new akm.cxObject(guid, data.name, objtype, data.description);
         if (obj) {
@@ -128,7 +128,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             // Include the new object in the current model
             myModel?.addObject(obj);
             myMetis.addObject(obj);
-            console.log('59 createObject', obj, myModel);
+            console.log('131 createObject', obj, myModel);
             // Create the corresponding object view
             objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
             if (objview) {
@@ -159,7 +159,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     updateNode(node, objtypeView, myDiagram);
                     node.loc = data.loc;
                     node.size = data.size;
-                    console.log('95 uic', myGoModel);
+                    console.log('162 uic', myGoModel);
                     return objview;
                 }
             }
@@ -338,10 +338,10 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, c
                     if (oviews) {
                         for (let i = 0; i < oviews.length; i++) {
                             const oview = oviews[i];
-                            oview.deleted = true;
+                            oview.deleted = deletedFlag;
                         }           
-                        objview.deleted = true;
-                        object.deleted  = true;
+                        objview.deleted = deletedFlag;
+                        object.deleted  = deletedFlag;
                         // Register change in gql
                         const delNode = new gql.gqlObjectView(objview);
                         deletedNodes.push(delNode);
@@ -363,7 +363,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, c
     }
 }
 
-export function deleteLink(data: any, deletedLinks: any[], context: any) {
+export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[], context: any) {
     //const myMetamodel = context.myMetamodel;
     const myMetis     = context.myMetis;
     const myGoModel   = context.myGoMetamodel;
@@ -380,11 +380,11 @@ export function deleteLink(data: any, deletedLinks: any[], context: any) {
           if (rviews) {
             for (let i = 0; i < rviews.length; i++) {
               const rview = rviews[i];
-              rview.deleted = true;
+              rview.deleted = deletedFlag;
             }
           }
-          relview.deleted = true;
-          relship.deleted = true;
+          relview.deleted = deletedFlag;
+          relship.deleted = deletedFlag;
           const delLink = new gql.gqlRelshipView(relview);
           deletedLinks.push(delLink);
         }
@@ -708,8 +708,10 @@ export function setRelationshipType(data: any, typename: string, context: any) {
                     currentRelshipView.setTypeView(reltypeview);
                     currentRelshipView.setName(typename);
                     currentRelshipView.setModified();
+                    currentRelshipView.setRelationship(currentRelship);
                     if (!nameIsChanged)
                         myDiagram.model.setDataProperty(data, "name", typename);
+                    data.relshiptype = reltype;
                     updateLink(data, reltypeview, myDiagram);
                 }
             }

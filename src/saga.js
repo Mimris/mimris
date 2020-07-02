@@ -66,7 +66,7 @@ function * loadDataSaga() {
 
 function* rootSaga() {
   yield all([
-    console.log('45'),
+    // console.log('45'),
     
     takeLatest(LOAD_DATA, loadDataSaga)
     // take(LOAD_DATA, loadDataSaga)

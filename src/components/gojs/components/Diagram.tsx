@@ -21,7 +21,7 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 
 // import './Diagram.css';
 
-let AllowTopLevel = true;
+const AllowTopLevel = true;
 
 interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;
@@ -31,7 +31,6 @@ interface DiagramProps {
   skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
-  context: go.ObjectData;
 }
 
 export class DiagramWrapper extends React.Component<DiagramProps, {}> {
@@ -45,7 +44,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     this.diagramRef = React.createRef();
   }
 
-
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
@@ -55,7 +53,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     const diagram = this.diagramRef?.current?.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
-      diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      //diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
@@ -68,6 +66,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
+      diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
       // diagram.addModelChangedListener(function(evt) {
       //   // ignore unimportant Transaction events
@@ -90,7 +89,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.removeDiagramListener('TextEdited', this.props.onDiagramEvent);
-      diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      //diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
@@ -103,6 +102,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('PartResized', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
     }
   }
 
@@ -122,10 +122,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
   private initDiagram(): go.Diagram {
     const $ = go.GraphObject.make;
-    go.GraphObject.fromLinkableDuplicates = true;
-    go.GraphObject.toLinkableDuplicates   = true;
+    // go.GraphObject.fromLinkableDuplicates = true;
+    // go.GraphObject.toLinkableDuplicates   = true;
 
-// define myDiagram
+    // define myDiagram
     let myDiagram;
     if (true) {
       myDiagram =
@@ -148,7 +148,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
               "category": "Relationship",
-              "type": "Generic relationship",
+              "type": "isRelatedTo",
               "name": "",
               "description": "",
               "relshipkind": constants.relkinds.REL
@@ -156,18 +156,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             "clickCreatingTool.archetypeNodeData": {
               "key": utils.createGuid(),
               "category": "Object",
-              "name": "Generic object",
+              "name": "Generic Object",
               "description": "",
               "fillcolor": "pink",
               "icon": "default.png"
             },
             // allow Ctrl-G to call groupSelection()
-            "commandHandler.archetypeGroupData": { 
-              text: "Group", 
-              isGroup: true, 
-              color: "blue" 
-          },
-          "linkingTool.isUnconnectedLinkValid": false,
+            "commandHandler.archetypeGroupData": {
+              text: "Group",
+              isGroup: true,
+              color: "blue"
+            },
+            "linkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,
             "relinkingTool.fromHandleArchetype":
@@ -200,7 +200,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // provide a tooltip for the background of the Diagram, when not over any Part
     console.log('198 myDiagram', myDiagram.myMetis);
     console.log('199 myDiagram', myDiagram.myGoModel);
-
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -219,22 +218,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
 
     function linkInfo(d: any) {  // Tooltip info for a link data object
-      // let reltype = myMetamodel?.findRelationshipTypeByName(d.name);
-
-      let fromObjtype = reltype.getFromObjType();
-      let toObjtype = reltype.getToObjType();
-
-      let str = "Link: " + d.name + "\n";
-      str += "from: " + fromObjtype.name + "\n";
-      str += "to: " + toObjtype.name + "\n";
-      str += "type: " + reltype.name + "\n";
-      console.log('230 Diagram', str);
-      
+      const typename = d.relshiptype?.name;
+      const reltype = myDiagram.myMetis.findRelationshipTypeByName(typename);
+      const fromNode = d.fromNode;
+      const fromObj = fromNode?.object;
+      const fromObjtype = reltype.getFromObjType();
+      const toNode = d.toNode;
+      const toObj = toNode?.object;
+      const toObjtype = reltype.getToObjType();
+      console.log('229 linkInfo', d);
+      let str = "Link: ";
+      str += d.name + " (" + typename + ")\n";
+      str += "from: " + fromObj?.name + "\n";
+      str += "to: " + toObj?.name;
       return str;
     }
 
     function diagramInfo(model: any) {  // Tooltip info for the diagram's model
-      var str = "Model:\n";
+      console.log('231 diagramInfo', model);
+      let str = "Model:\n";
       str += model.nodeDataArray.length + " nodes, ";
       str += model.linkDataArray.length + " links";
       return str;
@@ -246,32 +248,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     if (true) {
       var partContextMenu =
         $(go.Adornment, "Vertical",
-        makeButton("Set Object type",
-        function(e, obj) { 
-          const node = e.diagram.selection.first().data;
-          console.log('245 partContextMenu', node);
-          let objtype = prompt('Enter one of: ' + node.choices);
-          const myMetis = e.diagram.myMetis;
-          const context = {
-           "myMetis"         : myMetis,
-           "myMetamodel"     : myMetis.currentMetamodel,
-           "myModel"         : myMetis.currentModel,
-           "myModelView"     : myMetis.currentModelview,
-           "myDiagram"       : e.diagram
-          }   
-          uic.setObjectType(node, objtype, context);
-          const modNode = new gql.gqlObjectView(node.objectview);
-          console.log('308 SetObjtype', node, modNode);
-          //modifiedNodes.push(modNode);
-         },
-        function(o) {
-          const node = o.part.data;
-          if (node.category === 'Object') {
-              return true;
-          } else {
-              return false; 
-          }
-}),
+          makeButton("Set Object type",
+            function (e, obj) {
+              const node = e.diagram.selection.first().data;
+              console.log('245 partContextMenu', node);
+              let objtype = prompt('Enter one of: ' + node.choices);
+              const myMetis = e.diagram.myMetis;
+              const context = {
+                "myMetis": myMetis,
+                "myMetamodel": myMetis.currentMetamodel,
+                "myModel": myMetis.currentModel,
+                "myModelView": myMetis.currentModelview,
+                "myDiagram": e.diagram
+              }
+              uic.setObjectType(node, objtype, context);
+              const modNode = new gql.gqlObjectView(node.objectview);
+              console.log('308 SetObjtype', node, modNode);
+              //modifiedNodes.push(modNode);
+            },
+            function (o) {
+              const node = o.part.data;
+              if (node.category === 'Object') {
+                return true;
+              } else {
+                return false;
+              }
+            }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
             function (o: any) { return o.diagram.commandHandler.canCutSelection(); }),
@@ -324,66 +326,66 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     if (true) {
       var linkContextMenu =
         $(go.Adornment, "Vertical",
-           makeButton("Set Relationship type",
-                       function(e, obj) { 
-                          const link = e.diagram.selection.first().data;
-                          let reltype = prompt('Enter one of: ' + link.choices);
-                          const myMetis = e.diagram.myMetis;
-                          const context = {
-                            "myMetis"         : myMetis,
-                            "myMetamodel"     : myMetis.currentMetamodel,
-                            "myModel"         : myMetis.currentModel,
-                            "myModelView"     : myMetis.currentModelview,
-                            "myDiagram"       : e.diagram
-                          }   
-                          uic.setRelationshipType(link, reltype, context);
-                          const modLink = new gql.gqlRelshipView(link.relshipview);
-                          console.log('308 SetReltype', link, modLink);
-                          //modifiedLinks.push(modLink);
-                          },
-                       function(o) { 
-                          const link = o.part.data;
-                          if (link.category === 'Relationship') {
-                              return true;
-                          } else {
-                              return false; 
-                          }
-                        }),
-            makeButton("Cut",
-                       function(e, obj) { e.diagram.commandHandler.cutSelection(); },
-                       function(o) { return o.diagram.commandHandler.canCutSelection(); }),
-            makeButton("Copy",
-                       function(e, obj) { e.diagram.commandHandler.copySelection(); },
-                       function(o) { return o.diagram.commandHandler.canCopySelection(); }),
-            makeButton("Paste",
-                       function(e, obj) { 
-                        glb.pasteViewsOnly = false;
-                        e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint); 
-                       },
-                       function(o) { return o.diagram.commandHandler.canPasteSelection(); }),
-            makeButton("Delete",
-                       function(e, obj) { 
-                          glb.deleteViewsOnly = false;
-                          e.diagram.commandHandler.deleteSelection(); 
-                        },
-                       function(o) { return o.diagram.commandHandler.canDeleteSelection(); }),
-            makeButton("Delete View",
-                       function(e, obj) { 
-                        glb.deleteViewsOnly = true;
-                        e.diagram.commandHandler.deleteSelection(); 
-                        glb.deleteViewsOnly = false;
-                      },
-                       function(o) { return o.diagram.commandHandler.canDeleteSelection(); }),
-            // makeButton("Undo",
-            //            function(e, obj) { e.diagram.commandHandler.undo(); },
-            //            function(o) { return o.diagram.commandHandler.canUndo(); }),
-            // makeButton("Redo",
-            //            function(e, obj) { e.diagram.commandHandler.redo(); },
-            //            function(o) { return o.diagram.commandHandler.canRedo(); })
+          makeButton("Set Relationship type",
+            function (e, obj) {
+              const link = e.diagram.selection.first().data;
+              let reltype = prompt('Enter one of: ' + link.choices);
+              const myMetis = e.diagram.myMetis;
+              const context = {
+                "myMetis": myMetis,
+                "myMetamodel": myMetis.currentMetamodel,
+                "myModel": myMetis.currentModel,
+                "myModelView": myMetis.currentModelview,
+                "myDiagram": e.diagram
+              }
+              uic.setRelationshipType(link, reltype, context);
+              const modLink = new gql.gqlRelshipView(link.relshipview);
+              console.log('308 SetReltype', link, modLink);
+              //modifiedLinks.push(modLink);
+            },
+            function (o) {
+              const link = o.part.data;
+              if (link.category === 'Relationship') {
+                return true;
+              } else {
+                return false;
+              }
+            }),
+          makeButton("Cut",
+            function (e, obj) { e.diagram.commandHandler.cutSelection(); },
+            function (o) { return o.diagram.commandHandler.canCutSelection(); }),
+          makeButton("Copy",
+            function (e, obj) { e.diagram.commandHandler.copySelection(); },
+            function (o) { return o.diagram.commandHandler.canCopySelection(); }),
+          makeButton("Paste",
+            function (e, obj) {
+              glb.pasteViewsOnly = false;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            },
+            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+          makeButton("Delete",
+            function (e, obj) {
+              glb.deleteViewsOnly = false;
+              e.diagram.commandHandler.deleteSelection();
+            },
+            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+          makeButton("Delete View",
+            function (e, obj) {
+              glb.deleteViewsOnly = true;
+              e.diagram.commandHandler.deleteSelection();
+              glb.deleteViewsOnly = false;
+            },
+            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+          // makeButton("Undo",
+          //            function(e, obj) { e.diagram.commandHandler.undo(); },
+          //            function(o) { return o.diagram.commandHandler.canUndo(); }),
+          // makeButton("Redo",
+          //            function(e, obj) { e.diagram.commandHandler.redo(); },
+          //            function(o) { return o.diagram.commandHandler.canRedo(); })
         );
     }
 
-// provide a context menu for the background of the Diagram, when not over any Part
+    // provide a context menu for the background of the Diagram, when not over any Part
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
@@ -416,9 +418,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+          {
+            toolTip:
+              $(go.Adornment, "Auto",
+                $(go.Shape, { fill: "#FFFFCC" }),
+                $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling nodeInfo(data)
+                  new go.Binding("text", "", nodeInfo))
+              )
+          },
           $(go.Shape, 'RoundedRectangle',
             {
               name: 'SHAPE', fill: 'lightyellow', stroke: "black",
+              // minSize: new go.Size(150, 50),
               // set the port properties:
               portId: "", cursor: "pointer",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
@@ -435,17 +446,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 {
                   name: "Picture",
                   desiredSize: new go.Size(35, 40),
-                  margin: new go.Margin(4, 0, 4, 5),
+                  margin: new go.Margin(4, 0, 4, 0),
                 },
                 new go.Binding("source", "icon", findImage)
               ),
-              
+
               // define the panel where the text will appear
               $(go.Panel, "Table",
                 {
                   defaultRowSeparatorStroke: "black",
                   maxSize: new go.Size(150, 999),
-                  margin: new go.Margin(2, 0, 0, 0),
+                  margin: new go.Margin(0, 0, 0, 0),
                   defaultAlignment: go.Spot.Left
                 },
                 $(go.RowColumnDefinition, { column: 2, width: 4 }
@@ -457,19 +468,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     editable: true,  // allow in-place editing by user
                     row: 0, column: 0, columnSpan: 6,
                     font: "12pt Segoe UI,sans-serif",
-                    minSize: new go.Size(10, 16),
+                    minSize: new go.Size(80, 16), //sf changed x min size to 100
+   
                     height: 40,
                     verticalAlignment: go.Spot.Center,
+                    margin: new go.Margin(0,0,4,0),
                     name: "name"
                   },
                   new go.Binding("text", "name").makeTwoWay()),
-                  new go.Binding("choices"),
-                  $(go.TextBlock, textStyle(), // the typename
+                new go.Binding("choices"),
+                $(go.TextBlock, textStyle(), // the typename
                   {
                     row: 1, column: 1, columnSpan: 6,
                     editable: false, isMultiline: false,
-                    minSize: new go.Size(10, 16),
-                    margin: new go.Margin(0, 0, 0, 3)
+                    minSize: new go.Size(10, 4),
+                    margin: new go.Margin(2, 0, 0, 0)
                   },
                   new go.Binding("text", "typename")
                   //new go.Binding("text", "choices")
@@ -479,20 +492,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           ),
         );
     }
-
-
-// sf ##################################
-    // A Context Menu is an Adornment with a bunch of buttons in them
-    // Parts context menu
-    // if (true) {
-    //   var linkContextMenu =
-    //     $(go.Adornment, "Vertical",
-    //       makeButton("SelReltype",
-    //         function (e: any, obj: any) { e.diagram.commandHandler.editTextBlock({choices: ['aaaa', 'bgggg', 'ccccc', 'aassffwe']}); }
-    //       )
-    //     );
-    // }
-    // sf ##################################
     // dwfine a link template
     let linkTemplate;
     if (true) {
@@ -500,6 +499,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         $(go.Link,
           new go.Binding('relinkableFrom', 'canRelink').ofModel(),
           new go.Binding('relinkableTo', 'canRelink').ofModel(),
+          {
+            toolTip:
+              $(go.Adornment, "Auto",
+                { background: "transparent" },  // avoid hiding tooltip when mouse moves
+                $(go.Shape, { fill: "#FFFFCC" }),
+                $(go.TextBlock, { margin: 4,  },  // the tooltip shows the result of calling linkInfo(data)
+                  new go.Binding("text", "", linkInfo))
+              )
+          },
           {
             routing: go.Link.AvoidsNodes,
             // routing: go.Link.Orthogonal,
@@ -519,9 +527,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           //$(go.Shape, new go.Binding("strokewidth", "strokewidth")),
           //$(go.Shape, new go.Binding("toArrow", "toArrow")),
           $(go.Shape, { toArrow: "Standard", stroke: null }),
-          // sf ##################################
-            // { contextMenu: linkContextMenu },
-          // sf ##################################
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
@@ -534,16 +539,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           ),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
-          { // this tooltip Adornment is shared by all links
-            toolTip:
-              $(go.Adornment, "Spot",
-              { background: "transparent" },  // avoid hiding tooltip when mouse moves
-              // $(go.Adornment, "Auto",
-                $(go.Shape, { fill: "#FFFFCC" }),
-                $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling linkInfo(data)
-                  new go.Binding("text", "", linkInfo()))
-              )
-          }
         );
     }
 
@@ -614,7 +609,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             $(go.Shape,  // using a Shape instead of a Placeholder
               {
                 name: "SHAPE", fill: "lightyellow",
-                minSize: new go.Size(100, 50)
+                minSize: new go.Size(300, 200) // sf changed to bigger container
               },
               new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)
             )
@@ -692,7 +687,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
 
 
-//  sf added #####################################################
+    //  sf added #####################################################
     // Create an HTMLInfo and dynamically create some HTML to show/hide
     var customEditor = new go.HTMLInfo();
     var customSelectBox = document.createElement("select");
@@ -724,10 +719,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         var keynum = e.which;
         console.log('597 Diagram.tsx', keynum);
         if (keynum == 13) { // Accept on Enter
-          tool.acceptText(go.TextEditingTool.Tab);  // Hack
+          //tool.acceptText(go.TextEditingTool.Tab);  // Hack
           return;
         } else if (keynum == 9) { // Accept on Tab
-          tool.acceptText(go.TextEditingTool.Tab);
+          //tool.acceptText(go.TextEditingTool.Tab);
           e.preventDefault();
           return false;
         } else if (keynum === 27) { // Cancel on Esc
@@ -741,9 +736,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       customSelectBox.style.left = pos.x + "px";
       customSelectBox.style.top = pos.y + "px";
       customSelectBox.style.position = 'absolute';
-      customSelectBox.style.zIndex = 100; // place it in front of the Diagram
+      customSelectBox.style.zIndex = '100'; // place it in front of the Diagram
 
-      myDiagram.div.appendChild(customSelectBox);
+      myDiagram.div?.appendChild(customSelectBox);
     }
 
     customEditor.hide = function (diagram, tool) {
@@ -757,59 +752,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // // Set the HTMLInfo:
     // myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
 
-//  sf added #####################################################
+    myDiagram.toolManager.hoverDelay = 400 //sf  setting the time the cursor need to be still before showing toolTip
 
-
-
-
-
-
-
-
-    // Define node template map
-    // let paletteNodeTemplateMap = new go.Map();
-    // paletteNodeTemplateMap.add("", paletteNodeTemplate);
-
-    // myPalette.nodeTemplateMap = paletteNodeTemplateMap;
-
-    // // Define group template map
-    // let paletteGroupTemplateMap = new go.Map();
-    // paletteGroupTemplateMap.add("typeitem", paletteGroupTemplate1);
-
-    // myPalette.groupTemplateMap = paletteGroupTemplateMap;
-
-    //  // what to do when a drag-drop occurs in the Diagram's background
-    //  myDiagram.mouseDragOver = function(e) {
-    //   if (!AllowTopLevel) {
-    //     // OK to drop a group anywhere or any Node that is a member of a dragged Group
-    //     var tool = e.diagram.toolManager.draggingTool;
-    //     if (!tool.draggingParts.all(function(p) {
-    //       return p instanceof go.Group || (!p.isTopLevel && tool.draggingParts.contains(p.containingGroup));
-    //     })) {
-    //       e.diagram.currentCursor = "not-allowed";
-    //     } else {
-    //       e.diagram.currentCursor = "";
-    //     }
-    //   }
-    // };
-
-    // myDiagram.mouseDrop = function(e) {
-    //   if (AllowTopLevel) {
-    //     // when the selection is dropped in the diagram's background,
-    //     // make sure the selected Parts no longer belong to any Group
-    //     if (!e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true)) {
-    //       e.diagram.currentTool.doCancel();
-    //     }
-    //   } else {
-    //     // disallow dropping any regular nodes onto the background, but allow dropping "racks",
-    //     // including any selected member nodes
-    //     if (!e.diagram.selection.all(function(p) {
-    //       return p instanceof go.Group || (!p.isTopLevel && p.containingGroup.isSelected);
-    //     })) {
-    //       e.diagram.currentTool.doCancel();
-    //     }
-    //   }
-    // };
+    //  sf added #####################################################
 
 
     // ---  Define the CONTEXT Menu -----------------
@@ -841,7 +786,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       return { font: "9pt  Segoe UI,sans-serif", stroke: "black" };
     }
 
-
     // Function to highlight group
     function highlightGroup(e: any, grp: any, show: boolean) {
       if (!grp) return;
@@ -862,8 +806,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   }
 
   public render() {
-    // console.log('763', this.context);
-    
     return (
       <ReactDiagram
         ref={this.diagramRef}

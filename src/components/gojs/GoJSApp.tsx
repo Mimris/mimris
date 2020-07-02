@@ -69,7 +69,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     //this.handleModelChange = this.handleModelChange.bind(this);
-    //this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
     //this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
 
@@ -146,22 +146,12 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodeDataArray: myGoMetamodel.nodes,
       linkDataArray: myGoMetamodel.links
     }
-    const addedNodes = new Array();
-    const modifiedNodes = new Array();
-    const deletedNodes = new Array();
-    const addedLinks = new Array();
-    const modifiedLinks = new Array();
-    const deletedLinks = new Array();
-    const addedTypeNodes = new Array();
+    const modifiedNodes     = new Array();
+    const modifiedLinks     = new Array();
     const modifiedTypeNodes = new Array();
-    const deletedTypeNodes = new Array();
-    const addedTypeLinks = new Array();
     const modifiedTypeLinks = new Array();
-    const deletedTypeLinks = new Array();
-    //const myGoModel = this.state.myGoModel;
-    // const myGojsModel = new gjs.goModel(utils.createGuid(), myModelview?.name, myModelview);
-    // myGojsModel.nodes = this.state.phFocus.gojsModel.nodeDataArray;
-    // myGojsModel.links = this.state.phFocus.gojsModel.linkDataArray;
+    const modifiedObjects   = new Array();
+    const modifiedRelships  = new Array();
     let done = false;
     const context = {
       "myMetis"         : myMetis,
@@ -175,7 +165,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "deleteViewsOnly" : false,
       "done"            : done
     }
-    console.log('153 handleDiagramEvent - context', this.state, context);
+    console.log('153 handleDiagramEvent - context', name, this.state, context);
 
     switch (name) {
       case 'TextEdited': {
@@ -287,16 +277,17 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "SelectionDeleted": {
-        let deleted = e.subject;
+        const deletedFlag = true;
+        const deleted = e.subject;
         this.setState(
           produce((draft: AppState) => {
             for (let it = deleted.iterator; it.next();) {
               let del: any = it.value.data;  // n is now a Node or a Group
               if (del.class === "goObjectNode") {
-                  uic.deleteNode(del, deletedNodes, context);
+                  uic.deleteNode(del, deletedFlag, deletedNodes, context);
               }
               else if (del.class === "goRelshipLink") {
-                uic.deleteLink(del, deletedLinks, context);
+                uic.deleteLink(del, deletedFlag, deletedLinks, context);
               }
             }
           })
@@ -344,7 +335,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               console.log('268 ExternalObjectsDropped - otype', otype);
               const modNode = new gql.gqlObjectType(otype, true);
               modifiedTypeNodes.push(modNode);
-              console.log('285 addedTypeNodes', modifiedTypeNodes);
+              console.log('285 modifiedTypeNodes', modifiedTypeNodes);
             } else {
               const objview = uic.createObject(part, context);
               if (objview) {
@@ -438,25 +429,51 @@ class GoJSApp extends React.Component<{}, AppState> {
         )
       }
       break;
+      case "BackgroundDoubleClicked": {
+        console.log('432 BackgroundDoubleClicked', e, e.diagram); 
+        break;
+      }
       default:
         // console.log('146 GoJSApp event name: ', name);
       break;
     }
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
-    console.log('422 modifiedNodes', modifiedNodes);
+    console.log('441 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-    }
-    )
+    })
     
-    console.log('429 modifiedTypeNodes', modifiedTypeNodes);
+    console.log('447 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
-      }
-    )
+    })
+
+    console.log('453 modifiedLinks', modifiedLinks);
+    modifiedLinks.map(mn => {
+      let data = mn
+      this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+    })
+    
+    console.log('459 modifiedTypeLinks', modifiedTypeLinks);
+    modifiedTypeLinks?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+    })
+
+    console.log('465 modifiedObjects', modifiedObjects);
+    modifiedObjects?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+    })
+
+    console.log('471 modifiedRelships', modifiedRelships);
+    modifiedRelships?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+    })
   }
 
   // /**
@@ -557,48 +574,48 @@ class GoJSApp extends React.Component<{}, AppState> {
   //   );
   // }
 
-  // /**
-  //  * Handle inspector changes, and on input field blurs, update node/link data state.
-  //  * @param path the path to the property being modified
-  //  * @param value the new value of that property
-  //  * @param isBlur whether the input event was a blur, indicating the edit is complete
-  //  */
-  // public handleInputChange(path: string, value: string, isBlur: boolean) {
-  //   this.setState(
-  //     produce((draft: AppState) => {
-  //       const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-  //       data[path] = value;
-  //       if (isBlur) {
-  //         const key = data.key;
-  //         if (key < 0) {  // negative keys are links
-  //           const idx = this.mapLinkKeyIdx.get(key);
-  //           if (idx !== undefined && idx >= 0) {
-  //             draft.linkDataArray[idx] = data;
-  //             draft.skipsDiagramUpdate = false;
-  //           }
-  //         } else {
-  //           const idx = this.mapNodeKeyIdx.get(key);
-  //           if (idx !== undefined && idx >= 0) {
-  //             draft.nodeDataArray[idx] = data;
-  //             draft.skipsDiagramUpdate = false;
-  //           }
-  //         }
-  //       }
-  //     })
-  //   );
-  //   // console.log('247 input: ', value);
-  // }
+  /**
+   * Handle inspector changes, and on input field blurs, update node/link data state.
+   * @param path the path to the property being modified
+   * @param value the new value of that property
+   * @param isBlur whether the input event was a blur, indicating the edit is complete
+   */
+  public handleInputChange(path: string, value: string, isBlur: boolean) {
+    this.setState(
+      produce((draft: AppState) => {
+        const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
+        data[path] = value;
+        if (isBlur) {
+          const key = data.key;
+          if (key < 0) {  // negative keys are links
+            const idx = this.mapLinkKeyIdx.get(key);
+            if (idx !== undefined && idx >= 0) {
+              draft.linkDataArray[idx] = data;
+              draft.skipsDiagramUpdate = false;
+            }
+          } else {
+            const idx = this.mapNodeKeyIdx.get(key);
+            if (idx !== undefined && idx >= 0) {
+              draft.nodeDataArray[idx] = data;
+              draft.skipsDiagramUpdate = false;
+            }
+          }
+        }
+      })
+    );
+    console.log('579 input: ', value);
+  }
 
-  // /**
-  //  * Handle changes to the checkbox on whether to allow relinking.
-  //  * @param e a change event from the checkbox
-  //  */
-  // public handleRelinkChange(e: any) {
-  //   const target = e.target;
-  //   const value = target.checked;
-  //   this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
-  //   // console.log('257 relink: ', value);
-  // }
+  /**
+   * Handle changes to the checkbox on whether to allow relinking.
+   * @param e a change event from the checkbox
+   */
+  public handleRelinkChange(e: any) {
+    const target = e.target;
+    const value = target.checked;
+    this.setState({ modelData: { canRelink: value }, skipsDiagramUpdate: false });
+    // console.log('257 relink: ', value);
+  }
 
   public render() {
     // console.log('360 props', this.state.nodeDataArray);

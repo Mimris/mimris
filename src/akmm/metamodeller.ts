@@ -879,8 +879,10 @@ export class cxMetis {
             const objview = objectviews[i];
             if (objview) {
                 const obj = objview.object;
-                if (obj.id === objid)
-                    objviews.push(objview);
+                if (obj) {
+                    if (obj.id === objid)
+                        objviews.push(objview);
+                }
             }
         }
         return objviews;

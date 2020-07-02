@@ -21,7 +21,7 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 
 // import './Diagram.css';
 
-let AllowTopLevel = true;
+const AllowTopLevel = true;
 
 interface DiagramProps {
   nodeDataArray: Array<go.ObjectData>;
@@ -53,7 +53,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     const diagram = this.diagramRef?.current?.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
-      diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      //diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
@@ -66,6 +66,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
+      diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
       // diagram.addModelChangedListener(function(evt) {
       //   // ignore unimportant Transaction events
@@ -88,7 +89,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.removeDiagramListener('TextEdited', this.props.onDiagramEvent);
-      diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
+      //diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
@@ -101,8 +102,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('PartResized', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
     }
-  }
+  } 
 
   // public onModelChanged(e, evt, diagram) {
   //   console.log('onModelChanged called!');
@@ -120,8 +122,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
   private initDiagram(): go.Diagram {
     const $ = go.GraphObject.make;
-    go.GraphObject.fromLinkableDuplicates = true;
-    go.GraphObject.toLinkableDuplicates   = true;
+    // go.GraphObject.fromLinkableDuplicates = true;
+    // go.GraphObject.toLinkableDuplicates   = true;
 
 // define myDiagram
     let myDiagram;
@@ -146,7 +148,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
               "category": "Relationship",
-              "type": "Generic relationship",
+              "type": "isRelatedTo",
               "name": "",
               "description": "",
               "relshipkind": constants.relkinds.REL
@@ -154,7 +156,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             "clickCreatingTool.archetypeNodeData": {
               "key": utils.createGuid(),
               "category": "Object",
-              "name": "Generic object",
+              "name": "Generic Object",
               "description": "",
               "fillcolor": "pink",
               "icon": "default.png"
@@ -165,7 +167,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               isGroup: true, 
               color: "blue" 
           },
-          "linkingTool.isUnconnectedLinkValid": false,
+            "linkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,
             "relinkingTool.fromHandleArchetype":
@@ -216,19 +218,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
 
     function linkInfo(d: any) {  // Tooltip info for a link data object
-      let reltype = myMetamodel.findRelationshipTypeByName(d.name);
-
-      let fromObjtype = reltype.getFromObjType();
-      let toObjtype = reltype.getToObjType();
-
-      let str = "Link: " + d.name + "\n";
-      str += "from: " + fromObjtype.name + "\n";
-      str += "to: " + toObjtype.name;
+      const typename = d.relshiptype?.name;
+      const reltype     = myDiagram.myMetis.findRelationshipTypeByName(typename);
+      const fromNode    = d.fromNode;
+      const fromObj     = fromNode?.object;
+      const fromObjtype = reltype.getFromObjType();
+      const toNode      = d.toNode;
+      const toObj       = toNode?.object;
+      const toObjtype   = reltype.getToObjType();
+      console.log('229 linkInfo', d);
+      let str = "Link: ";
+      str += d.name + " (" + typename + ")\n";
+      str += "from: " + fromObj?.name + "\n";
+      str += "to: " + toObj?.name;
       return str;
     }
 
     function diagramInfo(model: any) {  // Tooltip info for the diagram's model
-      var str = "Model:\n";
+      console.log('231 diagramInfo', model);
+      let str = "Model:\n";
       str += model.nodeDataArray.length + " nodes, ";
       str += model.linkDataArray.length + " links";
       return str;
@@ -410,6 +418,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+          {
+            toolTip:
+            $(go.Adornment, "Auto",
+              $(go.Shape, { fill: "#FFFFCC" }),
+              $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling nodeInfo(data)
+                new go.Binding("text", "", nodeInfo))
+            )
+          },
           $(go.Shape, 'RoundedRectangle',
             {
               name: 'SHAPE', fill: 'lightyellow', stroke: "black",
@@ -480,6 +496,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         $(go.Link,
           new go.Binding('relinkableFrom', 'canRelink').ofModel(),
           new go.Binding('relinkableTo', 'canRelink').ofModel(),
+          {
+            toolTip:
+            $(go.Adornment, "Auto",
+              $(go.Shape, { fill: "#FFFFCC" }),
+              $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling linkInfo(data)
+                new go.Binding("text", "", linkInfo))
+            )
+          },
           {
             routing: go.Link.AvoidsNodes,
             corner: 10
@@ -695,10 +719,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         var keynum = e.which;
         console.log('597 Diagram.tsx', keynum);
         if (keynum == 13) { // Accept on Enter
-          tool.acceptText(go.TextEditingTool.Tab);  // Hack
+          //tool.acceptText(go.TextEditingTool.Tab);  // Hack
           return;
         } else if (keynum == 9) { // Accept on Tab
-          tool.acceptText(go.TextEditingTool.Tab);
+          //tool.acceptText(go.TextEditingTool.Tab);
           e.preventDefault();
           return false;
         } else if (keynum === 27) { // Cancel on Esc
@@ -712,9 +736,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       customSelectBox.style.left = pos.x + "px";
       customSelectBox.style.top = pos.y + "px";
       customSelectBox.style.position = 'absolute';
-      customSelectBox.style.zIndex = 100; // place it in front of the Diagram
+      customSelectBox.style.zIndex = '100'; // place it in front of the Diagram
 
-      myDiagram.div.appendChild(customSelectBox);
+      myDiagram.div?.appendChild(customSelectBox);
     }
 
     customEditor.hide = function (diagram, tool) {
@@ -729,58 +753,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
 
 //  sf added #####################################################
-
-
-
-
-
-
-
-
-    // Define node template map
-    // let paletteNodeTemplateMap = new go.Map();
-    // paletteNodeTemplateMap.add("", paletteNodeTemplate);
-
-    // myPalette.nodeTemplateMap = paletteNodeTemplateMap;
-
-    // // Define group template map
-    // let paletteGroupTemplateMap = new go.Map();
-    // paletteGroupTemplateMap.add("typeitem", paletteGroupTemplate1);
-
-    // myPalette.groupTemplateMap = paletteGroupTemplateMap;
-
-    //  // what to do when a drag-drop occurs in the Diagram's background
-    //  myDiagram.mouseDragOver = function(e) {
-    //   if (!AllowTopLevel) {
-    //     // OK to drop a group anywhere or any Node that is a member of a dragged Group
-    //     var tool = e.diagram.toolManager.draggingTool;
-    //     if (!tool.draggingParts.all(function(p) {
-    //       return p instanceof go.Group || (!p.isTopLevel && tool.draggingParts.contains(p.containingGroup));
-    //     })) {
-    //       e.diagram.currentCursor = "not-allowed";
-    //     } else {
-    //       e.diagram.currentCursor = "";
-    //     }
-    //   }
-    // };
-
-    // myDiagram.mouseDrop = function(e) {
-    //   if (AllowTopLevel) {
-    //     // when the selection is dropped in the diagram's background,
-    //     // make sure the selected Parts no longer belong to any Group
-    //     if (!e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true)) {
-    //       e.diagram.currentTool.doCancel();
-    //     }
-    //   } else {
-    //     // disallow dropping any regular nodes onto the background, but allow dropping "racks",
-    //     // including any selected member nodes
-    //     if (!e.diagram.selection.all(function(p) {
-    //       return p instanceof go.Group || (!p.isTopLevel && p.containingGroup.isSelected);
-    //     })) {
-    //       e.diagram.currentTool.doCancel();
-    //     }
-    //   }
-    // };
 
 
     // ---  Define the CONTEXT Menu -----------------
@@ -811,7 +783,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     function textStyle() {
       return { font: "9pt  Segoe UI,sans-serif", stroke: "black" };
     }
-
 
     // Function to highlight group
     function highlightGroup(e: any, grp: any, show: boolean) {

@@ -520,18 +520,16 @@ export class goRelshipLink extends goLink {
             if (fromObjview) {
                 let node: goNode | null = model.findNodeByViewId(fromObjview.getId());
                 if (node) {
-                    const fromNode = node as goObjectNode;
-                    //this.fromNode = node;
+                    this.fromNode = node as goObjectNode;
                     this.from = node.key;
-                    const fromType = fromNode.objecttype;
+                    const fromType = this.fromNode.objecttype;
                     const toObjview: akm.cxObjectView | null = relview.getToObjectView();
                     if (toObjview) {
                         node = model.findNodeByViewId(toObjview.getId());
                         if (node) {
-                            const toNode = node as goObjectNode;
-                            //this.toNode = node;
+                            this.toNode = node as goObjectNode;
                             this.to = node.key;
-                            const toType = toNode.objecttype;
+                            const toType = this.toNode.objecttype;
                             if (fromType && toType) {
                                 const reltypes = metis.findRelationshipTypesBetweenTypes(fromType, toType);
                                 if (reltypes) {

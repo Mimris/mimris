@@ -42,16 +42,9 @@ const Palette = (props) => {
           onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} 
         </button>
           {visiblePalette 
-            ? <span className="btn-link btn-sm pl-2 pr-0 " style={{ color: "white" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
-            : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e</span> 
-              </div>}
-          {/* ? 'Palette <' 
-          :  'Palette >' } 
-        </div> */}
-          {/* <div  style={{paddingLeft: "2px"}} onClick={togglePalette}>{visiblePalette ? 'Palette <' :  'Palette >' } </div> */}
-          <div className="togglePalette pr-1" >
-            {visiblePalette ? <> {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}</> : <><span style={{ width: "100%", minHeight: "100px", minWidth: "290"}}></span></> }
-          </div>
+            ? <div> {gojsapp} <div style={{ minWidth: "290px" }}></div></div>
+            : <div className="btn-vertical m-0 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e</span> </div>
+          }
       </>  
   
   return (

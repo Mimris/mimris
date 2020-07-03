@@ -19,6 +19,8 @@ const page = (props:any) => {
 
   // console.log('17 Diagram', props);
   const dispatch = useDispatch()
+  const [refresh, setRefresh] = useState(true)
+  function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */
   const state = useSelector((state: any) => state) // Selecting the whole redux store
@@ -61,7 +63,7 @@ const page = (props:any) => {
         <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '1' })}
-            onClick={() => { toggleTab('1'); }}
+            onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
             Metamodelling
           </NavLink>
@@ -69,7 +71,7 @@ const page = (props:any) => {
         <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '2' })}
-            onClick={() => { toggleTab('2'); }}
+            onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
             Modelling
           </NavLink>
@@ -107,7 +109,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                    />
+                  />
                 </div>
               </Col>
             </Row>
@@ -161,22 +163,26 @@ const page = (props:any) => {
   const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={state} /> 
 
   return (
-    <div className="diagramtabs" >
-      <span className="sourceName pr-2 float-right mr-0 mt-1" 
-        style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
-          Current source: {state.phSource}
-      </span> 
-        <span className="sourceName float-right" 
-          style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-          {loadserver}  {loadlocal}
-      </span> 
-      <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
-        {modellingtabs}
-      </div>
-      <style jsx>{`
+    <>
+      <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
+      <div className="diagramtabs" >
+        <span className="sourceName pr-2 float-right mr-0 mt-1" 
+          style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
+            Current source: {state.phSource}
+        </span> 
+          <span className="sourceName float-right" 
+            style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {loadserver}  {loadlocal}
+        </span> 
+        <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
+          {/* {modellingtabs} */}
+          {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+        </div>
+        <style jsx>{`
 
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </>
   )
 } 
 export default Page(connect(state => state)(page));

@@ -362,7 +362,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.setState(
           produce((draft: AppState) => {
           })
-        )
+          )
+        console.log('366 GoJSApp :', this.state);
+
       }
       break;
       case "PartResized": {
@@ -439,6 +441,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+    
     console.log('441 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn

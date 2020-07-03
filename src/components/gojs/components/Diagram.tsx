@@ -431,7 +431,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               name: 'SHAPE', fill: 'lightyellow', stroke: "black",
               // minSize: new go.Size(150, 50),
               // set the port properties:
-              portId: "", cursor: "pointer",
+              portId: "", 
+              // cursor: "crosshair",
+              cursor: "pointer",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
               toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
             },

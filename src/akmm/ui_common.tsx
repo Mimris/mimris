@@ -266,7 +266,7 @@ export function setObjectType(data: any, typename: string, context: any) {
     // const myModelView = context.myModelView;
     const myDiagram   = context.myDiagram;
     const objtype = myMetis.findObjectTypeByName(typename);
-    if (data.objecttype.name === typename) {
+    if (data.objecttype?.name === typename) {
         // No type change - do nothing
         alert('The object type is unchanged');
     } else if (!objtype) {
@@ -274,7 +274,7 @@ export function setObjectType(data: any, typename: string, context: any) {
         alert('The object type given does not exist');
         // Do nothing
     } else {
-        const currentObject = myMetis.findObject(data.object.id);
+        const currentObject = myMetis.findObject(data.object?.id);
         const objtypeview = myMetis.findObjectTypeView(objtype.typeviewRef);
         if (currentObject) {
             currentObject.setType(objtype);

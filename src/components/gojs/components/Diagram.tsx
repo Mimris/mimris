@@ -190,16 +190,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }
         );
     }
-    console.log('190 myDiagram', this.myMetis);
-    console.log('191 myDiagram', this.myGoModel);
+    // console.log('190 myDiagram', this.myMetis);
+    // console.log('191 myDiagram', this.myGoModel);
     myDiagram.myMetis = this.myMetis;
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
     // provide a tooltip for the background of the Diagram, when not over any Part
-    console.log('198 myDiagram', myDiagram.myMetis);
-    console.log('199 myDiagram', myDiagram.myGoModel);
+    // console.log('198 myDiagram', myDiagram.myMetis);
+    // console.log('199 myDiagram', myDiagram.myGoModel);
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },

@@ -26,14 +26,14 @@ const Palette = (props) => {
     
     const gojsapp = (gojstypes) &&
     < GoJSPaletteApp
-    nodeDataArray={gojstypes.nodeDataArray}
-    linkDataArray={[]}
-    // linkDataArray={gojstypes.linkDataArray}
-    metis={props.metis}
-    myMetis={props.myMetis}
-    myGoModel={props.myGoModel}
-    phFocus={props.phFocus}
-    dispatch={props.dispatch}
+      nodeDataArray={gojstypes.nodeDataArray}
+      linkDataArray={[]}
+      // linkDataArray={gojstypes.linkDataArray}
+      metis={props.metis}
+      myMetis={props.myMetis}
+      myGoModel={props.myGoModel}
+      phFocus={props.phFocus}
+      dispatch={props.dispatch}
     />
     
     const palette =

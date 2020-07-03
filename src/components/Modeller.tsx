@@ -25,7 +25,7 @@ const Modeller = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
 
-  // console.log('11 Modeller', gojsmodel?.nodeDataArray);
+  console.log('28 Modeller', gojsmodel?.nodeDataArray);
 
   const models = props.metis?.models
   const modelviews = props.metis?.modelviews
@@ -34,7 +34,7 @@ const Modeller = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const selmodels = models?.map((m: any) => m)
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
-  // console.log('23 Modeller', models);
+  // console.log('37 Modeller', models);
   // console.log('23 Modeller myMetis', props.myMetis);
   
   const gojsapp = (gojsmodel && !prevgojsmodel) &&
@@ -54,15 +54,15 @@ const Modeller = (props: any) => {
 
   return (
     <>
-      {/* <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
+      <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
       <div className="modeller-heading float-lwft" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
         <div className="modeller-selection float-right" > 
           <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' />
           <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview'  />
         </div> 
       </div>
-        {gojsapp}
-        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
+        {/* {gojsapp} */}
+        {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
       <style jsx>{`
         // .diagram-component {
         //   height: 80%;

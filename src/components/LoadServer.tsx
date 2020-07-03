@@ -11,7 +11,9 @@ const SelectSource = (props: any) => {
   let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
-
+  const refresh = props.refresh
+  const setRefresh = props.setRefresh
+  function toggleRefresh() { setRefresh(!refresh); }
 
   function handleSaveModelStore() {
     console.log('72 SelectSource', state);
@@ -54,7 +56,7 @@ const SelectSource = (props: any) => {
     <>
       <button className="btn-context btn-link float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={toggle}>Model Server: </ModalHeader>
+        <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">
           <strong>Current Source:  {state.phSource}</strong>
           <div className="source bg-light pt-2 ">
@@ -67,7 +69,7 @@ const SelectSource = (props: any) => {
             To keep current version, exit and go to "Local" then click "Save" to save to LocalStore.
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={toggle}>Exit</Button>
+          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Exit</Button>
         </ModalFooter>
       </Modal>
       <style jsx>{`

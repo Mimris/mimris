@@ -17,36 +17,41 @@ import {getLocalStorage} from './GetSetLocalStorage'
 
 const page = (props:any) => {
 
-  // console.log('17 Diagram', props);
+  console.log('17 Diagram', props);
   const dispatch = useDispatch()
   const [refresh, setRefresh] = useState(true)
   function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */
-  const state = useSelector((state: any) => state) // Selecting the whole redux store
-  const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
-  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview) 
+  // const state = useSelector((state: any) => state) // Selecting the whole redux store
+  const focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
+  const focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
   
-  let gojsmetamodelpalette =  state.phGojs?.gojsMetamodelPalette 
-  let gojsmetamodelmodel =  state.phGojs?.gojsMetamodelModel 
-  let gojsmodel =  state.phGojs?.gojsModel 
-  let gojsmetamodel =  state.phGojs?.gojsMetamodel 
-  let metis = state.phData?.metis
-  let myMetis = state.phMymetis?.myMetis
-  let myGoModel = state.phMyGoModel?.myGoModel
-  let myGoMetamodel = state.phMyGoMetamodel?.myGoMetamodel
-  let phFocus = state.phFocus;
+  let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
+  let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
+  let gojsmodel =  props.phGojs?.gojsModel 
+  let gojsmetamodel =  props.phGojs?.gojsMetamodel 
+  let metis = props.phData?.metis
+  let myMetis = props.phMymetis?.myMetis
+  let myGoModel = props.phMyGoModel?.myGoModel
+  let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+  let phFocus = props.phFocus;
 
     
     useEffect(() => {
       // console.log('38 Diagram state', state ); 
-      genGojsModel(state, dispatch);
+      genGojsModel(props, dispatch);
     }, [focusModel.id])
     
     useEffect(() => {
       // console.log('42 Diagram state', state ); 
-      genGojsModel(state, dispatch);
+      genGojsModel(props, dispatch);
     }, [focusModelview.id])
+
+    useEffect(() => {
+      // console.log('42 Diagram state', state ); 
+      genGojsModel(props, dispatch);
+    }, [metis])
     
     const [activeTab, setActiveTab] = useState('2');
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
@@ -159,8 +164,8 @@ const page = (props:any) => {
       </TabContent>
     </>
     )      
-  const loadserver =  <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus} /> 
-  const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={state} /> 
+  const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus} refresh={refresh} setRefresh={setRefresh}/> 
+  const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
 
   return (
     <>
@@ -168,7 +173,7 @@ const page = (props:any) => {
       <div className="diagramtabs" >
         <span className="sourceName pr-2 float-right mr-0 mt-1" 
           style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
-            Current source: {state.phSource}
+            Current source: {props.phSource}
         </span> 
           <span className="sourceName float-right" 
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>

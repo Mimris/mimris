@@ -11,6 +11,9 @@ import useLocalStorage  from '../hooks/use-local-storage'
 const LoadLocal = (props: any) => {
 
   const dispatch = useDispatch()  
+  const refresh = props.refresh
+  const setRefresh = props.setRefresh
+  function toggleRefresh() { setRefresh(!refresh); }
 
   // try {  
   //   if (!window){
@@ -22,7 +25,8 @@ const LoadLocal = (props: any) => {
   //   return <> </>
   // }
 
-  const [state, setState] = useLocalStorage('state',  window?.localStorage.getItem('state') || null);
+  // const [state, setState] = useLocalStorage('state',  window.localStorage.getItem('state') || null);
+  const [state, setState] = useLocalStorage('state',  null);
    
   // console.log('25 LoadLocal', state);
   function handleDispatchStoreFromLocal() {  // Set storeFromLocal
@@ -53,8 +57,9 @@ const LoadLocal = (props: any) => {
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     }
-    // console.log('37', data);
+    console.log('59 LoadLocal', data);
     setState(data)
+    console.log('62 LoadLocal', state);
   }
   
   
@@ -83,7 +88,7 @@ const LoadLocal = (props: any) => {
     <>
       <button className="btn-context btn-link float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={toggle}>LocalStorage: </ModalHeader>
+        <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>LocalStorage: </ModalHeader>
         <ModalBody className="pt-0">
           <strong>Current Source:  {props.phSource}</strong>
           <div className="source bg-light pt-2 ">
@@ -100,7 +105,7 @@ const LoadLocal = (props: any) => {
             To keep current version, click "Save to Local" to save to LocalStore before "Load local" .
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={toggle}>Exit</Button>
+          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => {toggle(); toggleRefresh()}}>Exit</Button>
         </ModalFooter>
       </Modal>
       <style jsx>{`

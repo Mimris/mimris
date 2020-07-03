@@ -4236,7 +4236,8 @@ export class cxModelView extends cxMetaObject {
     setObjectTypeViews(objecttypeviews: cxObjectTypeView[]) {
         this.objecttypeviews = objecttypeviews;
     }
-    getObjecTypetViews() {
+    // getObjecTypetViews() { // sf removed t
+    getObjecTypeViews() {
         return this.objecttypeviews;
     }
     setRelationshipViews(relviews: cxRelationshipView[]) {

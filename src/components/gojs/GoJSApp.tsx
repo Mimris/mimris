@@ -45,7 +45,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   constructor(props: object) {
     super(props);
-    // console.log('34',props.nodeDataArray);
+    // console.log('48 GoJSApp',props.nodeDataArray);
     this.state = {
       nodeDataArray:      this.props?.nodeDataArray,
       linkDataArray:      this.props?.linkDataArray,
@@ -133,8 +133,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram     = e.diagram;
     const myMetis       = this.state.myMetis;
-    const myModel       = myMetis.findModel(this.state.phFocus.focusModel.id);
-    const myModelview   = myMetis.findModelView(this.state.phFocus.focusModelview.id);
+    const myModel       = myMetis?.findModel(this.state.phFocus.focusModel.id);
+    const myModelview   = myMetis?.findModelView(this.state.phFocus.focusModelview.id);
     const myMetamodel   = myModel?.getMetamodel();
     const myGoModel     = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
@@ -635,7 +635,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       </>
     }
     
-    // console.log('360 this.state.nodeDataArray', this.state.nodeDataArray);
+    console.log('638 GOJSApp this.state.nodeDataArray', this.state.nodeDataArray);
     // console.log('361 this.state.linkDataArray', this.state.linkDataArray);
     // console.log('362 this.state.myMetis', this.state.myMetis);
     // console.log('362 this.state.myGoModel', this.state.myGoModel);

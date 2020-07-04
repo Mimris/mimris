@@ -28,6 +28,7 @@ interface DiagramProps {
   linkDataArray:      Array<go.ObjectData>;
   modelData:          go.ObjectData;
   myMetis:            akm.cxMetis;
+  dispatch:           any;  
   skipsDiagramUpdate: boolean;
   onDiagramEvent:     (e: go.DiagramEvent) => void;
   onModelChange:      (e: go.IncrementalData) => void;
@@ -197,6 +198,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
+    myDiagram.dispatch = this.dispatch;
     // provide a tooltip for the background of the Diagram, when not over any Part
     // console.log('198 myDiagram', myDiagram.myMetis);
     // console.log('199 myDiagram', myDiagram.myGoModel);

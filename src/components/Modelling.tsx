@@ -18,8 +18,8 @@ import {getLocalStorage} from './GetSetLocalStorage'
 const page = (props:any) => {
 
   console.log('17 Diagram', props);
-  const dispatch = useDispatch()
-  const [refresh, setRefresh] = useState(true)
+  const dispatch = useDispatch();
+  const [refresh, setRefresh] = useState(true);
   function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */

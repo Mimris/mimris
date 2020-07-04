@@ -694,6 +694,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myMetis           ={this.state.myMetis}
           myGoModel         = {this.state.myGoModel}
           myGoMetamodel     = {this.state.myGoMetamodel}
+          dispatch          = {this.state.dispatch}
               />
         {/* <label>
           Allow Relinking?

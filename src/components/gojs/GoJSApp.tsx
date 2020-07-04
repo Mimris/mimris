@@ -45,7 +45,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   constructor(props: object) {
     super(props);
-    // console.log('34',props.nodeDataArray);
+    // console.log('48 GoJSApp',props.nodeDataArray);
     this.state = {
       nodeDataArray:      this.props?.nodeDataArray,
       linkDataArray:      this.props?.linkDataArray,
@@ -129,11 +129,12 @@ class GoJSApp extends React.Component<{}, AppState> {
    * @param e a GoJS DiagramEvent
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
+    
     const name = e.name;
     const myDiagram     = e.diagram;
     const myMetis       = this.state.myMetis;
-    const myModel       = myMetis.findModel(this.state.phFocus.focusModel.id);
-    const myModelview   = myMetis.findModelView(this.state.phFocus.focusModelview.id);
+    const myModel       = myMetis?.findModel(this.state.phFocus.focusModel.id);
+    const myModelview   = myMetis?.findModelView(this.state.phFocus.focusModelview.id);
     const myMetamodel   = myModel?.getMetamodel();
     const myGoModel     = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
@@ -401,7 +402,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.setState(
           produce((draft: AppState) => {
           })
-        )
+          )
+        console.log('366 GoJSApp :', this.state);
+
       }
       break;
       case "PartResized": {
@@ -478,6 +481,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+    
     console.log('441 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
@@ -671,10 +675,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       </>
     }
     
-    // console.log('360 this.state.nodeDataArray', this.state.nodeDataArray);
+    console.log('638 GOJSApp this.state.nodeDataArray', this.state.nodeDataArray);
     // console.log('361 this.state.linkDataArray', this.state.linkDataArray);
     // console.log('362 this.state.myMetis', this.state.myMetis);
     // console.log('362 this.state.myGoModel', this.state.myGoModel);
+    // console.log('558 this.context', this.context);
 
     return (
       <div className="diagramwrapper">

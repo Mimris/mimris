@@ -3,53 +3,17 @@ import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
-import { loadState, saveState } from './utils/LocalStorage'
+// import { loadState, saveState } from './utils/LocalStorage'
 // import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
   // console.log('8 8', props.modal);
   let state = useSelector((state: any) => state) // Selecting the whole redux store
 
-  // const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
-
-  // const [model, setModel] = useState(focusModel)
-  // console.log('16 Sel', models, focusModel, state);
-
   const dispatch = useDispatch()
-  // const { register, handleSubmit, errors } = useForm()
-
-  function handleSaveLocalStore() {
-    console.log('72 SelectSource', state);
-
-    const data = {
-      phData: state.phData,
-      phFocus: state.phFocus,
-      phUser: state.phUser,
-      phSource: 'localStore'
-    }
-    // console.log('131', data);
-    saveState(data)
-  }
-
-  function handleLoadLocalStore() {
-    console.log('86 SelectSource', loadState());   
-    const locState = loadState()
-    const phData = locState?.phData
-    const phFocus = locState?.phFocus
-    const phUser = locState?.phUser
-    const phSource = 'localStore' //locState.sourceFlag
-    if (locState) {
-      console.log('91 SelectSource', locState);   
-      let data = phData
-      dispatch({ type: 'SET_FOCUS_PHDATA', data })
-      data = phFocus
-      dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
-      data = phUser
-      dispatch({ type: 'SET_FOCUS_PHUSER', data })
-      data = phSource
-      dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
-    }
-  }
+  const refresh = props.refresh
+  const setRefresh = props.setRefresh
+  function toggleRefresh() { setRefresh(!refresh); }
 
   function handleSaveModelStore() {
     console.log('72 SelectSource', state);
@@ -58,16 +22,12 @@ const SelectSource = (props: any) => {
   }
 
   function handleLoadModelStore() {
-    console.log('111 SelectSource');   
+    // console.log('111 SelectSource');   
       dispatch(loadData())
   }
-
-  // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveLocalStoreDiv = <button className="btn-primary btn-sm ml-2" onClick={handleSaveLocalStore} > Save </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 float-right " onClick={handleLoadLocalStore} > Load local </button >
-  
-  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2" onClick={handleSaveModelStore} > Save (not working yet)</button >
-  const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2 float-right" onClick={handleLoadModelStore} > Load Server </button >
+ 
+  const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
+  const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2 float-right" onClick={handleLoadModelStore} > Load from Server </button >
   
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
@@ -75,35 +35,20 @@ const SelectSource = (props: any) => {
   
 // console.log('131', state);
 
-  const buttonDiv = (buttonLabel !== 'Save / Load Model') 
-    ? (buttonLabel === 'Server')
-      ?
-        <div className="select" style={{ paddingTop: "4px" }}>
-          {buttonLoadModelStoreDiv}
-        </div>   
-      :
-        <div className="select" style={{ paddingTop: "4px" }}>
-          {buttonLoadLocalStoreDiv}
-        </div>   
-    : <>
-      <td className="seldiv bg-light" style={{ width: "30%" }}>
-        <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
-        <div className="store-div pb-1 mb-0">
-          <h6>Local Store </h6>
-          <div className="select" style={{ paddingTop: "4px" }}>
-            {buttonSaveLocalStoreDiv} {buttonLoadLocalStoreDiv}
-          </div>
-        </div>
-      </td>
-      <td style={{ width: "60%" }}>
+  const buttonDiv = 
+      <>
         <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
         <div className="store-div pb-1 mb-0">
           <h6>Model repository (Firebase) </h6>
           <div className="select" style={{ paddingTop: "4px" }}>
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
+            <hr />
+          <p> Server access : </p>
+          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe>
+          {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
+          {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>
         </div>
-      </td>
       </>
 
 
@@ -111,24 +56,20 @@ const SelectSource = (props: any) => {
     <>
       <button className="btn-context btn-link float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={toggle}>Model Source: </ModalHeader>
+        <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">
-          {/* <strong>Current Source:  {state.phSource}</strong> */}
+          <strong>Current Source:  {state.phSource}</strong>
           <div className="source bg-light pt-2 ">
-            {/* <table>
-              <tr> */}
-               {buttonDiv}
-              {/* </tr>
-            </table> */}
+             {buttonDiv}
           </div>
         </ModalBody>
         <ModalFooter>
           <div style={{ fontSize: "smaller" }}>
             NB! Clicking "Load" will overwrite current store (memory).
-            To keep current version, click "Save" to LocalStore before "Load" .
+            To keep current version, exit and go to "Local" then click "Save" to save to LocalStore.
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={toggle}>Exit</Button>
+          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Exit</Button>
         </ModalFooter>
       </Modal>
       <style jsx>{`

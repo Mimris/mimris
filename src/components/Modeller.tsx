@@ -10,13 +10,13 @@ const Modeller = (props: any) => {
   let gojsmodel = {}
   gojsmodel = props.gojsModel;
 
-  useEffect(() => {
-    setRefresh(!refresh)
-    prevgojsmodel = null
-    return () => {
-      prevgojsmodel
-    };
-  }, [gojsmodel !== prevgojsmodel])
+  // useEffect(() => {
+  //   setRefresh(!refresh)
+  //   prevgojsmodel = null
+  //   return () => {
+  //     prevgojsmodel
+  //   };
+  // }, [gojsmodel !== prevgojsmodel])
 
 
   let myMetis = props.myMetis;
@@ -25,7 +25,7 @@ const Modeller = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
 
-  // console.log('11 Modeller', gojsmodel?.nodeDataArray);
+  console.log('28 Modeller', gojsmodel?.nodeDataArray);
 
   const models = props.metis?.models
   const modelviews = props.metis?.modelviews
@@ -34,13 +34,15 @@ const Modeller = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const selmodels = models?.map((m: any) => m)
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
-  // console.log('23 Modeller', models);
+  // console.log('37 Modeller', models);
   // console.log('23 Modeller myMetis', props.myMetis);
   
   const gojsapp = (gojsmodel && !prevgojsmodel) &&
     < GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
+      // nodeDataArray={gojsmodel.nodes}
+      // linkDataArray={gojsmodel.links}
       metis={props.metis}
       myMetis={props.myMetis}
       myGoModel={props.myGoModel}
@@ -59,6 +61,7 @@ const Modeller = (props: any) => {
           <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview'  />
         </div> 
       </div>
+        {/* {gojsapp} */}
         {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
       <style jsx>{`
         // .diagram-component {

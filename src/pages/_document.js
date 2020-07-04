@@ -27,7 +27,7 @@ class MyDocument extends Document {
             integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
             crossOrigin="anonymous"
           />
-          <style>{`body { margin: 0 } /* custom! */`}</style>    
+            <style>{`body { margin: 0 } /* custom! */`}</style>    
             {/* <style>{ `.dialog {display: none}}    `}</style> */}
 
         </Head>

@@ -2,7 +2,7 @@
 // Diagram.tsx
 
 // import React from "react";
-import React, { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
@@ -10,51 +10,48 @@ import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
 import genGojsModel from './GenGojsModel'
-import SelectSource from '../components/SelectSource'
+import LoadServer from '../components/LoadServer'
+import LoadLocal from '../components/LoadLocal'
+import {getLocalStorage} from './GetSetLocalStorage'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
 
-  // console.log('17 Diagram', props);
+  console.log('17 Diagram', props);
   const dispatch = useDispatch()
+  const [refresh, setRefresh] = useState(true)
+  function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */
-  const state = useSelector((state: any) => state) // Selecting the whole redux store
-  const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
-  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview) 
-
+  // const state = useSelector((state: any) => state) // Selecting the whole redux store
+  const focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
+  const focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
   
-  let gojsmetamodelpalette =  state.phGojs?.gojsMetamodelPalette 
-  let gojsmetamodelmodel =  state.phGojs?.gojsMetamodelModel 
-  let gojsmodel =  state.phGojs?.gojsModel 
-  let gojsmetamodel =  state.phGojs?.gojsMetamodel 
-  let metis = state.phData?.metis
-  let myMetis = state.phMymetis?.myMetis
-  let myGoModel = state.phMyGoModel?.myGoModel
-  let myGoMetamodel = state.phMyGoMetamodel?.myGoMetamodel
-  let phFocus = state.phFocus;
+  let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
+  let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
+  let gojsmodel =  props.phGojs?.gojsModel 
+  let gojsmetamodel =  props.phGojs?.gojsMetamodel 
+  let metis = props.phData?.metis
+  let myMetis = props.phMymetis?.myMetis
+  let myGoModel = props.phMyGoModel?.myGoModel
+  let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+  let phFocus = props.phFocus;
 
-  // console.log('25 Diagram props state : ', props.phGojs, state.phGojs);
-  // console.log('42 Diagram', gojsmodel ); 
-  
-  // useEffect(() => {
-    //     // genGojsModel(state, dispatch);
-    //   gojsmodel = useSelector(gojsmodel => state.phFocus?.gojsModel) 
-    // }, [focusModelview.id])
-    
-    // useEffect(() => {
-    //   genGojsModel(state, dispatch);
-    // }, [])
     
     useEffect(() => {
       // console.log('38 Diagram state', state ); 
-      genGojsModel(state, dispatch);
+      genGojsModel(props, dispatch);
     }, [focusModel.id])
     
     useEffect(() => {
       // console.log('42 Diagram state', state ); 
-      genGojsModel(state, dispatch);
+      genGojsModel(props, dispatch);
     }, [focusModelview.id])
+
+    useEffect(() => {
+      // console.log('42 Diagram state', state ); 
+      genGojsModel(props, dispatch);
+    }, [metis])
     
     const [activeTab, setActiveTab] = useState('2');
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
@@ -71,7 +68,7 @@ const page = (props:any) => {
         <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '1' })}
-            onClick={() => { toggleTab('1'); }}
+            onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
             Metamodelling
           </NavLink>
@@ -79,7 +76,7 @@ const page = (props:any) => {
         <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '2' })}
-            onClick={() => { toggleTab('2'); }}
+            onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
             Modelling
           </NavLink>
@@ -117,7 +114,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
-                    />
+                  />
                 </div>
               </Col>
             </Row>
@@ -167,25 +164,30 @@ const page = (props:any) => {
       </TabContent>
     </>
     )      
+  const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus} refresh={refresh} setRefresh={setRefresh}/> 
+  const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
 
   return (
-    <div className="diagramtabs" >
-      <span className="sourceName pr-2 float-right mr-0 mt-1" 
-        style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
-          Current source: {state.phSource}
-      </span> 
-        <span className="sourceName float-right" 
-          style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-          <SelectSource buttonLabel='Local' className='ContextModal' phFocus={phFocus} /> 
-          <SelectSource buttonLabel='Server' className='ContextModal' phFocus={phFocus} /> 
-      </span> 
-      <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
-        {modellingtabs}
-      </div>
-      <style jsx>{`
+    <>
+      <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
+      <div className="diagramtabs" >
+        <span className="sourceName pr-2 float-right mr-0 mt-1" 
+          style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
+            Current source: {props.phSource}
+        </span> 
+          <span className="sourceName float-right" 
+            style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {loadserver}  {loadlocal}
+        </span> 
+        <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
+          {/* {modellingtabs} */}
+          {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+        </div>
+        <style jsx>{`
 
-      `}</style>
-    </div>
+        `}</style>
+      </div>
+    </>
   )
 } 
 export default Page(connect(state => state)(page));

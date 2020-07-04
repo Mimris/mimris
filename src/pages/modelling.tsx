@@ -9,13 +9,29 @@ import Footer from "../components/Footer"
 import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
-import { loadState, saveState } from '../components/utils/LocalStorage'
+// import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
+import useLocalStorage from '../hooks/use-local-storage'
+// import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
   
   // console.log('16 diagram',props)
   const dispatch = useDispatch()
+  // const [lstate, setLstate] = useLocalStorage('state');
 
+  // try {
+  //   if (!window) {
+  //     return
+  //   } else {
+  //     console.log('26', lstate);
+  //     (lstate) &&  DispatchLocal(lstate)
+  //   }
+  // } catch (error) {
+  //   console.log('31 modelling', error);
+  // }
+  
+  // console.log('33 modelling', props.phData);
+  
   if (!props.phData) {
     dispatch(loadData())
   }
@@ -37,7 +53,7 @@ const page = (props:any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
-  const setContextDiv =  <SetContext phFocus={props.phFocus} />
+  const setContextDiv =  <SetContext mStore={props} />
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
   // useEffect(() => {
   //   return () => {

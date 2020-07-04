@@ -55,7 +55,7 @@ export class cxMetis {
             for (let i = 0; i < metamodels.length; i++) {
                 const metamodel = metamodels[i];
                 this.importMetamodel(metamodel);
-                console.log('55 importData', this);
+                // console.log('55 importData', this);
             }
         }
         // Handle models next
@@ -4236,7 +4236,8 @@ export class cxModelView extends cxMetaObject {
     setObjectTypeViews(objecttypeviews: cxObjectTypeView[]) {
         this.objecttypeviews = objecttypeviews;
     }
-    getObjecTypetViews() {
+    // getObjecTypetViews() { // sf removed t
+    getObjecTypeViews() {
         return this.objecttypeviews;
     }
     setRelationshipViews(relviews: cxRelationshipView[]) {

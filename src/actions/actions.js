@@ -23,7 +23,11 @@ import {
   SET_FOCUS_TASK, 
   SET_FOCUS_SOURCE, 
   UPDATE_OBJECTTYPE_PROPERTIES,
+  UPDATE_RELSHIPTYPE_PROPERTIES,
   UPDATE_OBJECTVIEW_PROPERTIES,
+  UPDATE_RELSHIPVIEW_PROPERTIES,
+  UPDATE_OBJECT_PROPERTIES,
+  UPDATE_RELSHIP_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
 } from './types';
@@ -201,10 +205,38 @@ export const update_objectview_properties = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const update_relshipview_properties = (data) => {
+  console.log('76 actions update_relshipview_properties', data.payload);
+  return {
+    type: UPDATE_RELSHIPVIEW_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
 export const update_objecttype_properties = (data) => {
   console.log('205 actions update_objecttype_properties', data.payload);
   return {
     type: UPDATE_OBJECTTYPE_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_relshiptype_properties = (data) => {
+  console.log('205 actions update_relshiptype_properties', data.payload);
+  return {
+    type: UPDATE_RELSHIPTYPE_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_object_properties = (data) => {
+  console.log('205 actions update_object_properties', data.payload);
+  return {
+    type: UPDATE_OBJECT_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_relship_properties = (data) => {
+  console.log('205 actions update_relship_properties', data.payload);
+  return {
+    type: UPDATE_RELSHIP_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

@@ -7,7 +7,7 @@ import glb from '../akmm/akm_globals';
 import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
-//import {gqlImportMetis} from '../akmm/ui_graphql'
+//import {gqlImportMetis} from '../Server/src/akmm/ui_graphql'
 const constants = require('../akmm/constants');
 
 const GenGojsModel = async (state: any, dispatch: any) =>  {
@@ -43,14 +43,14 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       // console.log('40 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
-      console.log('46 myGoMetamodel', myGoMetamodel);
+      // console.log('46 myGoMetamodel', myGoMetamodel);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('44 myPalette', myPalette);
       const myModelView = (curmodview) && myMetis?.findModelView(curmodview.id);
-      console.log('51 GenGojsModel  myModel', myModel, myModelView);
+      // console.log('51 GenGojsModel  myModel', myModel, myModelView);
       const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      console.log('53 myGoModel', myGoModel);
+      // console.log('53 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
@@ -176,7 +176,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
           //console.log('125 relviews - link', link, myGoModel);
         }
       }
-      console.log('179 myGoModel', myGoModel);
+      // console.log('179 myGoModel', myGoModel);
     }
     return myGoModel;
   }

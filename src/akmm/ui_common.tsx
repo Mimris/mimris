@@ -10,100 +10,6 @@ const constants = require('./constants');
 
 //import * as go from 'gojs';
 
-export function updateObject(data: any, name: string, value: string, context: any) {
-    if ((data === null) || (name !== "name") || (!data.object)) {
-        return;
-    } else {
-        const metis           = context.myMetis;
-        const myModel         = context.myModel;
-        const myModelView     = context.myModelView;
-        const myDiagram       = context.myDiagram;
-        let currentObject     = data.object;
-        let currentObjectView = data.objectview;
-        let otype             = data.objecttype;
-        if (currentObject.getName() === otype.getName()) {
-            // This is a new object - check if the new name already exists
-            let obj = metis.findObjectByTypeAndName(otype, data.name);
-            if (obj) {
-                // Existing object
-                utils.removeElementFromArray(myModel.getObjects(), currentObject.getId());
-                currentObject = obj;
-                currentObjectView.setObject(currentObject);
-                myModelView.addObjectView(currentObjectView);
-            } 
-        }
-        currentObject.setName(value);
-        currentObject.setModified();
-        currentObjectView.setName(value);
-        currentObjectView.setModified();
-        myDiagram.model.setDataProperty(data, "name", value);
-
-        // const modNode = new gql.gqlObjectView(myNode.objectview);
-        // modifiedNodes.push(modNode);
-    }
-}
-
-export function updateObjectType(data: any, name: string, value: string, context: any) {
-    if ((data === null) || (name !== "name")) {
-        return;
-    }  else {
-        const metis = context.myMetis;
-        const myMetamodel = context.myMetamodel;
-        // Check if this is a type change
-        let objtype = data.objtype;            
-        const typename = data.name;
-        if (objtype) {
-            if  (
-                (objtype.getName() === "New Type") 
-                ||
-                (objtype.getName() === "New Container") 
-                ) {
-                // This is a new type that gets a new name 
-                // Check if the new name already exists
-                let otype = metis.findObjectTypeByName(typename);
-                if (otype) {
-                    // Existing type - the new name already exists
-                    let typeid = objtype.getId();
-                    objtype = otype;
-                    utils.removeElementFromArray(myMetamodel.getObjectTypes(), typeid);
-                    myMetamodel.addObjectType(objtype);
-                    utils.removeElementFromArray(metis.getObjectTypes(), typeid);
-                    metis.addObjectType(objtype);
-                } else {
-                    objtype.setName(typename);
-                    objtype.setModified();
-                    myMetamodel.setModified();
-                }
-            } else {
-                // This is an existing type that gets a new name
-                objtype.setName(typename);
-                objtype.setModified();
-                myMetamodel.setModified();
-            }
-            // Get object typeview
-            let objtypeView = objtype.getDefaultTypeView();
-            if (!objtypeView) {
-                objtypeView = new akm.cxObjectTypeView(utils.createGuid(), typename, objtype, "");
-                objtypeView.setModified();
-                objtype.setDefaultTypeView(objtypeView);
-                objtype.setModified();
-                myMetamodel.setModified();
-                myMetamodel.addObjectTypeView(objtypeView);
-                metis.addObjectTypeView(objtypeView);
-            } else {
-                objtype.setName(typename);
-                objtype.setModified();
-                myMetamodel.setModified();
-                objtypeView.setName(typename);
-                objtypeView.setModified();
-            }                
-            context.myDiagram.model.setDataProperty(data, "name", value);
-            // const modNode = new gql.gqlObjectType(myNode.objtype, true);
-            // modifiedTypeNodes.push(modNode);
-}
-    }
-}
-
 export function createObject(data: any, context: any): akm.cxObjectView | null {
     if (data === null) {
         return null;
@@ -259,6 +165,100 @@ export function createObjectType(data: any, context: any): any {
     } 
 }
 
+export function updateObject(data: any, name: string, value: string, context: any) {
+    if ((data === null) || (name !== "name") || (!data.object)) {
+        return;
+    } else {
+        const metis           = context.myMetis;
+        const myModel         = context.myModel;
+        const myModelView     = context.myModelView;
+        const myDiagram       = context.myDiagram;
+        let currentObject     = data.object;
+        let currentObjectView = data.objectview;
+        let otype             = data.objecttype;
+        if (currentObject.getName() === otype.getName()) {
+            // This is a new object - check if the new name already exists
+            let obj = metis.findObjectByTypeAndName(otype, data.name);
+            if (obj) {
+                // Existing object
+                utils.removeElementFromArray(myModel.getObjects(), currentObject.getId());
+                currentObject = obj;
+                currentObjectView.setObject(currentObject);
+                myModelView.addObjectView(currentObjectView);
+            } 
+        }
+        currentObject.setName(value);
+        currentObject.setModified();
+        currentObjectView.setName(value);
+        currentObjectView.setModified();
+        myDiagram.model.setDataProperty(data, "name", value);
+
+        // const modNode = new gql.gqlObjectView(myNode.objectview);
+        // modifiedNodes.push(modNode);
+    }
+}
+
+export function updateObjectType(data: any, name: string, value: string, context: any) {
+    if ((data === null) || (name !== "name")) {
+        return;
+    }  else {
+        const metis = context.myMetis;
+        const myMetamodel = context.myMetamodel;
+        // Check if this is a type change
+        let objtype = data.objtype;            
+        const typename = data.name;
+        if (objtype) {
+            if  (
+                (objtype.getName() === "New Type") 
+                ||
+                (objtype.getName() === "New Container") 
+                ) {
+                // This is a new type that gets a new name 
+                // Check if the new name already exists
+                let otype = metis.findObjectTypeByName(typename);
+                if (otype) {
+                    // Existing type - the new name already exists
+                    let typeid = objtype.getId();
+                    objtype = otype;
+                    utils.removeElementFromArray(myMetamodel.getObjectTypes(), typeid);
+                    myMetamodel.addObjectType(objtype);
+                    utils.removeElementFromArray(metis.getObjectTypes(), typeid);
+                    metis.addObjectType(objtype);
+                } else {
+                    objtype.setName(typename);
+                    objtype.setModified();
+                    myMetamodel.setModified();
+                }
+            } else {
+                // This is an existing type that gets a new name
+                objtype.setName(typename);
+                objtype.setModified();
+                myMetamodel.setModified();
+            }
+            // Get object typeview
+            let objtypeView = objtype.getDefaultTypeView();
+            if (!objtypeView) {
+                objtypeView = new akm.cxObjectTypeView(utils.createGuid(), typename, objtype, "");
+                objtypeView.setModified();
+                objtype.setDefaultTypeView(objtypeView);
+                objtype.setModified();
+                myMetamodel.setModified();
+                myMetamodel.addObjectTypeView(objtypeView);
+                metis.addObjectTypeView(objtypeView);
+            } else {
+                objtype.setName(typename);
+                objtype.setModified();
+                myMetamodel.setModified();
+                objtypeView.setName(typename);
+                objtypeView.setModified();
+            }                
+            context.myDiagram.model.setDataProperty(data, "name", value);
+            // const modNode = new gql.gqlObjectType(myNode.objtype, true);
+            // modifiedTypeNodes.push(modNode);
+}
+    }
+}
+
 export function setObjectType(data: any, typename: string, context: any) {
     const myMetis     = context.myMetis;
     // const myMetamodel = context.myMetamodel;
@@ -290,6 +290,10 @@ export function setObjectType(data: any, typename: string, context: any) {
             }
         }
     }
+}
+
+export function deleteObjectType(data: any, context: any) {
+    
 }
 
 export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, context: any) {
@@ -401,21 +405,6 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
 
 }
 
-export function deleteObjectType(data: any, context: any) {
-    
-}
-
-function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
-    if (objtypeView) {
-        let viewdata: any = objtypeView.getData();
-        let prop: string;
-        for (prop in viewdata) {
-            if (viewdata[prop] != null)
-                diagram.model.setDataProperty(data, prop, viewdata[prop])
-        }
-        console.log('updateNode', data);
-    }
-}
 export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
     goModel: gjs.goModel,
     nodes: any[]) {
@@ -886,18 +875,7 @@ console.log('645 LinkDrawn', e.subject);
     // }
 
 }
-function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, toObj: akm.cxObject) {
-    if (reltype && fromObj && toObj) {
-        let fromType = reltype.getFromObjType();
-        let toType = reltype.getToObjType();
-        if (fromObj.getType().inherits(fromType)) {
-            if (toObj.getType().inherits(toType)) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
+
 export function createLink(data: any, context: any): any {
     if (!data.key)
         data.key = utils.createGuid();
@@ -963,6 +941,7 @@ export function createLink(data: any, context: any): any {
     }
     return;
 }
+
 export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
     if (lnk.class === 'goRelshipLink') {
 
@@ -987,79 +966,49 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
         rel.modified = true;
     }
 }
+
 export function setRelshipType() {
 
 }
 
-// // Function to call when a node has been deleted
-// function deleteNode(data, deletedFlag) {
-//     // To be done
-//     if (data.category === C_OBJECTTYPE) {
-//         //let typeid = data.objecttype;
-//         let typename = data.name;
-//         let objtype = myMetamodel.findObjectTypeByName(typename);
-//         if (objtype) {
-//             objtype.deleted = deletedFlag;
-//             let objtypeview = objtype.getDefaultTypeView();
-//             if (objtypeview) {
-//                 objtypeview.deleted = deletedFlag;
-//             }
-//         }
-//     } else if (data.category === C_OBJECT) {
-//         // Modelling
-//         let objview = data.objectview;
-//         if (objview) {
-//             objview.deleted = deletedFlag;
-//             if (!deleteViewsOnly) {
-//                 let obj = objview.getObject();
-//                 if (obj) {
-//                     obj.deleted = deletedFlag;
-//                     const objviews = metis.getObjectViewsByObject(obj.id);
-//                     for (let i=0; i<objviews.length; i++) {
-//                         const ov = objviews[i];
-//                         ov.deleted = true;
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
+// Local functions
+function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
+    if (objtypeView) {
+        let viewdata: any = objtypeView.getData();
+        let prop: string;
+        for (prop in viewdata) {
+            if (viewdata[prop] != null)
+                diagram.model.setDataProperty(data, prop, viewdata[prop])
+        }
+        console.log('updateNode', data);
+    }
+}
 
-// // Function to call when a link has been deleted
-// function deleteLink(data, deletedFlag) {
-//    if (data.category === C_RELSHIPTYPE) {
-//         // To be done
-//         let typename = data.name;
-//         let reltype = data.reltype;
-//         if (reltype) {
-//             reltype.deleted = deletedFlag;
-//             let reltypeview = data.typeview;
-//             if (reltypeview) {
-//                 reltypeview.deleted = deletedFlag;
-//             }
-//         }
-//     } else if (data.category === C_RELATIONSHIP) {
-//         // Modelling
-//         let relview = data.relshipview;
-//         if (relview) {
-//             relview.deleted = deletedFlag;
-//             if (!deleteViewsOnly) {
-//            let rel = data.relship;
-//                 if (rel) {
-//                     rel.deleted = deletedFlag;
-//                     const relviews = metis.getRelationshipViewsByRelship(rel.id);
-//                     for (let i=0; i<relviews.length; i++) {
-//                         const rv = relviews[i];
-//                         rv.deleted = true;
-//                     }
-//                 }                        
-//             }
-//         }
-//     }
-// }
+function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram: any) {
+    if (reltypeView) {
+        let viewdata: any = reltypeView.getData();
+        let prop: string;
+        for (prop in viewdata) {
+            if (viewdata[prop] != null)
+                diagram.model.setDataProperty(data, prop, viewdata[prop])
+        }
+        console.log(data);
+    }
+} 
 
+function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, toObj: akm.cxObject) {
+    if (reltype && fromObj && toObj) {
+        let fromType = reltype.getFromObjType();
+        let toType = reltype.getToObjType();
+        if (fromObj.getType().inherits(fromType)) {
+            if (toObj.getType().inherits(toType)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
-// Function to call when a link has been drawn
 function buildLinkFromRelview(model: gsj.goModel, relview: akm.cxRelationshipView, relship: akm.cxRelationship, data: any, diagram: any) {
     let reltype = relship.getType();
     let reltypeView = relview.getTypeView() as akm.cxRelationshipTypeView;
@@ -1074,14 +1023,3 @@ function buildLinkFromRelview(model: gsj.goModel, relview: akm.cxRelationshipVie
     }
     return data;
 }
-function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram: any) {
-    if (reltypeView) {
-        let viewdata: any = reltypeView.getData();
-        let prop: string;
-        for (prop in viewdata) {
-            if (viewdata[prop] != null)
-                diagram.model.setDataProperty(data, prop, viewdata[prop])
-        }
-        console.log(data);
-    }
-} 

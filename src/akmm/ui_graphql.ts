@@ -805,16 +805,18 @@ export class gqlObjectView {
     isGroup: boolean;
     loc: string;
     size: string;
+    deleted: boolean;
     constructor(objview: akm.cxObjectView) {
-        this.id = objview?.id;
-        this.name = objview?.name;
-        this.description = objview?.description;
-        this.objectRef = "";
-        this.typeviewRef = "";
-        this.group = objview?.group;
-        this.isGroup = objview?.isGroup;
-        this.loc = objview?.loc;
-        this.size = objview?.size;
+        this.id             = objview?.id;
+        this.name           = objview?.name;
+        this.description    = objview?.description;
+        this.objectRef      = "";
+        this.typeviewRef    = "";
+        this.group          = objview?.group;
+        this.isGroup        = objview?.isGroup;
+        this.loc            = objview?.loc;
+        this.size           = objview?.size;
+        this.deleted        = objview?.deleted;
         // Code
         const obj = objview?.object;
         if (obj)
@@ -832,14 +834,16 @@ export class gqlRelshipView {
     typeviewRef: string;
     fromobjviewRef: string;
     toobjviewRef: string;
+    deleted: boolean;
     constructor(relview: akm.cxRelationshipView) {
-        this.id = relview.id;
-        this.name = relview.name;
-        this.description = "";
-        this.relshipRef = "";
-        this.typeviewRef = "";
+        this.id             = relview.id;
+        this.name           = relview.name;
+        this.description    = "";
+        this.relshipRef     = "";
+        this.typeviewRef    = "";
         this.fromobjviewRef = relview && relview.fromObjview ? relview.fromObjview.id : "";
-        this.toobjviewRef = relview && relview.toObjview ? relview.toObjview.id : "";
+        this.toobjviewRef   = relview && relview.toObjview ? relview.toObjview.id : "";
+        this.deleted        = relview.deleted;
         // Code
         if (relview.description)
             this.description = relview.description;

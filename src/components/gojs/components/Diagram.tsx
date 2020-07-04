@@ -24,13 +24,13 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 const AllowTopLevel = true;
 
 interface DiagramProps {
-  nodeDataArray: Array<go.ObjectData>;
-  linkDataArray: Array<go.ObjectData>;
-  modelData: go.ObjectData;
-  myMetis: akm.cxMetis;
+  nodeDataArray:      Array<go.ObjectData>;
+  linkDataArray:      Array<go.ObjectData>;
+  modelData:          go.ObjectData;
+  myMetis:            akm.cxMetis;
   skipsDiagramUpdate: boolean;
-  onDiagramEvent: (e: go.DiagramEvent) => void;
-  onModelChange: (e: go.IncrementalData) => void;
+  onDiagramEvent:     (e: go.DiagramEvent) => void;
+  onModelChange:      (e: go.IncrementalData) => void;
 }
 
 export class DiagramWrapper extends React.Component<DiagramProps, {}> {

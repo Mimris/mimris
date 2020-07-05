@@ -614,12 +614,6 @@ function reducer(state = InitialState, action) {
       }
 
 
-
-
-      
-
-
-
     case UPDATE_OBJECT_PROPERTIES:
       // console.log('236', action);
       // console.log('238',
@@ -648,7 +642,6 @@ function reducer(state = InitialState, action) {
             metis: {
               ...state.phData.model.metis,
               models: [
-                // ...state.phData.model.metis.models,
                 ...state.phData.metis.models.slice(0, curmindexo),
                 {
                   ...state.phData.metis.models[curmindexo],
@@ -660,10 +653,6 @@ function reducer(state = InitialState, action) {
                       propertySet: {
                         ...curmv.objects[curoindex].propertySet,
                         ...propSet.propertySet,
-                        // name: action.data.name,
-                        // value: action.data.value,
-                        // unit: action.data.unit,
-                        // tolerance: action.data.tolerance,
                       },
                       integerSet: {
                         ...curmv.objects[index].integerSet,

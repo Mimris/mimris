@@ -529,9 +529,9 @@ function reducer(state = InitialState, action) {
                 {
                   ...state.phData.metis.models[curmindexrv],
                   modelviews: [
-                    ...curm?.modelviews.slice(0, curmvindexrv),
+                    ...curmv?.modelviews.slice(0, curmvindexrv),
                     {
-                      ...curm?.modelviews[curmvindexrv],
+                      ...curmv?.modelviews[curmvindexrv],
                       relshipviews: [
                         ...curmv.relshipviews.slice(0, rvindex),
                         {
@@ -547,7 +547,7 @@ function reducer(state = InitialState, action) {
                         ...curmv.objectviews.slice(rvindex + 1)
                       ]
                     },
-                    ...curm?.modelviews.slice(curmvindexrv + 1),
+                    ...curmv?.modelviews.slice(curmvindexrv + 1),
                   ],
                 },
                 ...state.phData.metis.models.slice(curmindexrv + 1),

@@ -17,6 +17,7 @@ const glb = require('../../../akmm/akm_globals');
 //import * as uic from '../../../Server/src/akmm/ui_common';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
+import LoadLocal from '../../../components/LoadLocal'
 //import { stringify } from 'querystring';
 
 // import './Diagram.css';
@@ -254,7 +255,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e, obj) {
               const node = e.diagram.selection.first().data;
               console.log('245 partContextMenu', node);
-              let objtype = prompt('Enter one of: ' + node.choices);
+              // let objtype = prompt('Enter one of: ' + node.choices);
               const myMetis = e.diagram.myMetis;
               const context = {
                 "myMetis":      myMetis,
@@ -276,7 +277,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               } else {
                 return false;
               }
-            }),
+          }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
             function (o: any) { return o.diagram.commandHandler.canCutSelection(); }),
@@ -353,8 +354,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return true;
               } else {
                 return false;
-              }
-            }),
+            }
+          }),
           makeButton("Cut",
             function (e, obj) { e.diagram.commandHandler.cutSelection(); },
             function (o) { return o.diagram.commandHandler.canCutSelection(); }),
@@ -498,6 +499,73 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           ),
         );
     }
+
+    function cmCommand(e, obj) {
+      var node = obj.part.adornedPart;  // the Node with the context menu
+      var buttontext = obj.elt(1);  // the TextBlock
+      console.log('504 Diagram', node.data.key, node.data.name)
+      // var linkContextMenu =
+        $(go.Adornment, "Vertical",
+
+          makeButton("Set Relationship type",
+            function (e, obj) {
+              const link = e.diagram.selection.first().data;
+              let reltype = prompt('Enter one of: ' + link.choices);
+              const myMetis = e.diagram.myMetis;
+              const context = {
+                "myMetis": myMetis,
+                "myMetamodel": myMetis.currentMetamodel,
+                "myModel": myMetis.currentModel,
+                "myModelView": myMetis.currentModelview,
+                "myDiagram": e.diagram
+              }
+              uic.setRelationshipType(link, reltype, context);
+              const modLink = new gql.gqlRelshipView(link.relshipview);
+              console.log('308 SetReltype', link, modLink);
+              modifiedLinks.push(modLink);
+            }),
+            // function (o) {
+            //   const link = o.part.data;
+            //   if (link.category === 'Relationship') {
+            //     return true;
+            //   } else {
+            //     return false;
+            //   }
+            // },
+          makeButton("Cut",
+            function (e, obj) { e.diagram.commandHandler.cutSelection(); },
+            function (o) { return o.diagram.commandHandler.canCutSelection(); }),
+          makeButton("Copy",
+            function (e, obj) { e.diagram.commandHandler.copySelection(); },
+            function (o) { return o.diagram.commandHandler.canCopySelection(); }),
+          makeButton("Paste",
+            function (e, obj) {
+              glb.pasteViewsOnly = false;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            },
+            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
+          makeButton("Delete",
+            function (e, obj) {
+              glb.deleteViewsOnly = false;
+              e.diagram.commandHandler.deleteSelection();
+            },
+            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+          makeButton("Delete View",
+            function (e, obj) {
+              glb.deleteViewsOnly = true;
+              e.diagram.commandHandler.deleteSelection();
+              glb.deleteViewsOnly = false;
+            },
+            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+          // makeButton("Undo",
+          //            function(e, obj) { e.diagram.commandHandler.undo(); },
+          //            function(o) { return o.diagram.commandHandler.canUndo(); }),
+          // makeButton("Redo",
+          //            function(e, obj) { e.diagram.commandHandler.redo(); },
+          //            function(o) { return o.diagram.commandHandler.canRedo(); })
+        );
+      alert(buttontext.text + " command on " + node.data.key);
+    }
     // dwfine a link template
     let linkTemplate;
     if (true) {
@@ -522,7 +590,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             curve: go.Link.JumpGap,
             corner: 10
           },  // link route should avoid nodes
-          { contextMenu: linkContextMenu },
+          // { contextMenu: linkContextMenu },
+          { contextMenu:                            // define a context menu for each node
+            $("ContextMenu", "Spot",              // that has several buttons around
+                $(go.Placeholder, { padding: 2 }),  // a Placeholder object
+              // $("ContextMenuButton", $(go.TextBlock, "Top"),
+              //   { alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom, click: cmCommand }),
+              // $("ContextMenuButton", $(go.TextBlock, "Right"),
+              //   { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left, click: cmCommand }),
+              // $("ContextMenuButton", $(go.TextBlock, "Bottom"),
+              //   { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand }),
+              $("ContextMenuButton", $(go.TextBlock, "Left"),
+                { alignment: go.Spot.Left, alignmentFocus: go.Spot.Right, click: cmCommand })
+           )  // end Adornment
+          },
           new go.Binding("points").makeTwoWay(),
           $(go.Shape, new go.Binding("stroke", "strokecolor")),
           $(go.TextBlock,     // this is a Link label
@@ -813,17 +894,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
   public render() {
     return (
-      <ReactDiagram
-        ref={this.diagramRef}
-        divClassName='diagram-component'
-        initDiagram={this.initDiagram}
-        nodeDataArray={this.props.nodeDataArray}
-        linkDataArray={this.props?.linkDataArray}
-        myMetis={this.props.myMetis}
-        modelData={this.props.modelData}
-        onModelChange={this.props.onModelChange}
-        skipsDiagramUpdate={this.props.skipsDiagramUpdate}
-      />
+      <>
+        <ReactDiagram
+          ref={this.diagramRef}
+          divClassName='diagram-component'
+          initDiagram={this.initDiagram}
+          nodeDataArray={this.props.nodeDataArray}
+          linkDataArray={this.props?.linkDataArray}
+          myMetis={this.props.myMetis}
+          modelData={this.props.modelData}
+          onModelChange={this.props.onModelChange}
+          skipsDiagramUpdate={this.props.skipsDiagramUpdate}
+        />
+      </>
     );
   }
 }

@@ -7,6 +7,7 @@ import { LOAD_DATA, FAILURE } from './actions/types';
 es6promise.polyfill()
 
 function * loadDataSaga() {
+<<<<<<< HEAD
   console.log('10', document.cookie);
   
   // function getCookie(cname) {
@@ -36,15 +37,25 @@ function * loadDataSaga() {
   // console.log('34 saga', _crf);
 
   
+=======
+  // const cookies = document.cookie
+  // const localhost = 'https://akmserver.herokuapp.com/'
+  const localhost = 'http://localhost:4000/'
+>>>>>>> ed2373ed07d0910e8d14601a73c9c5789032c934
   try {
     let res = ''
     res = yield fetch(`${localhost}akmmodels`,
     {
+<<<<<<< HEAD
       //mode: 'no-cors',
+=======
+      // mode: 'no-cors',
+>>>>>>> ed2373ed07d0910e8d14601a73c9c5789032c934
       headers: {
         "Access-Control-Allow-Origin": "*",
         'Accept': 'application/json',
         'Content-Type': 'application/json',
+<<<<<<< HEAD
         // 'Cookie': `${sessionCookie}`,
         // 'CSRF-Token': `${_crf}`, // This is set on request
         // 'Cache': 'no-cache' // This is set on request
@@ -53,10 +64,13 @@ function * loadDataSaga() {
       },
       // credentials: 'same-origin'
       // credentials: 'include'
+=======
+      },
+>>>>>>> ed2373ed07d0910e8d14601a73c9c5789032c934
     })
     const metis = yield res.json()
     // const phData = yield {  metis  }
-    console.log('56 saga', yield metis); 
+    // console.log('56 saga', yield metis); 
     yield put(loadDataSuccess({ metis }))
   } catch (err) {
     console.log('59 saga', failure(err));  

@@ -25,7 +25,7 @@ const Modeller = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
 
-  console.log('28 Modeller', gojsmodel?.nodeDataArray);
+  // console.log('28 Modeller', gojsmodel?.nodeDataArray);
 
   const models = props.metis?.models
   const modelviews = props.metis?.modelviews

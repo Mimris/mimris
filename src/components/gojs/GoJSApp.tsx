@@ -377,14 +377,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
-            // console.log('309 GoJSApp', part);
+            console.log('309 GoJSApp', part);
             if (part.type === 'objecttype') {
               const otype = uic.createObjectType(part, context);
-              //console.log('268 ExternalObjectsDropped - otype', otype);
+              console.log('385 ExternalObjectsDropped - otype', otype);
               if (otype) {
                 const gqlNode = new gql.gqlObjectType(otype, true);
+                console.log('285 modifiedTypeNodes', gqlNode);
                 modifiedTypeNodes.push(gqlNode);
-                //console.log('285 modifiedTypeNodes', modifiedTypeNodes);
               }
             } else {
               const objview = uic.createObject(part, context);
@@ -452,8 +452,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': {
         const link = e.subject;
-        const fromNode = link.fromNode.data;
-        const toNode   = link.toNode.data;
+        const fromNode = link.fromNode?.data;
+        const toNode   = link.toNode?.data;
         console.log('397 LinkDrawn', fromNode, toNode);
         this.setState(
           produce((draft: AppState) => {
@@ -498,7 +498,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
     
-    console.log('441 modifiedNodes', modifiedNodes);
+    console.log('502 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })

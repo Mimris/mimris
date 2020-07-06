@@ -430,7 +430,7 @@ function reducer(state = InitialState, action) {
 
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      // console.log('229 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      console.log('229 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv  = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -565,7 +565,7 @@ function reducer(state = InitialState, action) {
       console.log('506 curmm', curmm);
       const otlength = curmm?.objtypegeos.length
       let otindex = curmm?.objtypegeos?.findIndex(ot => ot.id === curov?.id)
-      if (otindex < 0) {ovindex = ovlength} 
+      if (otindex < 0) {otindex = otlength} 
       // console.log('411 ovindex', ovindex, ovlength);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
@@ -593,19 +593,6 @@ function reducer(state = InitialState, action) {
                     },
                     ...curmm?.objtypegeos.slice(otindex + 1)
                   ]
-                  // objects: [
-                  //   ...curm.objects.slice(0, curoindex),
-                  //   {
-                  //     ...curo,                 
-                  //     name: action.data.name,
-                  //     description: action.data.desctription,
-                  //     typeRef: action.data.typeviewRef,
-                  //     // ...curopropertyValues: [
-                  //     //   ...curo.propertyValues
-                  //     // ]
-                  //   },
-                  //   ...curm.objects.slice(curoindex + 1)  
-                  // ]
                 },
                 ...state.phData.metis.metamodels.slice(curmindex + 1),
               ]
@@ -615,6 +602,7 @@ function reducer(state = InitialState, action) {
 
 
     case UPDATE_OBJECT_PROPERTIES:
+      console.log('618 UPDATE_OBJECT_PROPERTIES', action);
       // console.log('236', action);
       // console.log('238',
       //   state.phData.model.metis.models[0].model.objects.find(obj => obj.id === action.data.id)
@@ -623,49 +611,42 @@ function reducer(state = InitialState, action) {
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = curmo?.objects?.find(o => o.id === curov?.objectRef) //current Object
-      const curoindexo = curmo?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
+      let curoindexo = curmo?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
 
-      // console.log('239', index);
+      const olength = curmo?.objects.length
+      if (curoindexo < 0) { curoindexo = olength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
+
       const { id, ...rest } = (action.data)
-      // console.log('245', id, rest.integerSet);
-
-      const oid = action.data.id
-      const intSet = (rest.integerSet) ? { ...rest } : state.phData.model.metis.models[0].model.objects[index].integerSet
-      const propSet = (rest && rest.propertySet) ? { ...rest } : state.phData.model.metis.models[0].model.objects[index].propertySet
+      const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
 
       return {
         ...state,
         phData: {
           ...state.phData,
-          model: {
-            ...state.phData.model,
-            metis: {
-              ...state.phData.model.metis,
-              models: [
-                ...state.phData.metis.models.slice(0, curmindexo),
-                {
-                  ...state.phData.metis.models[curmindexo],
-                  objects: [
-                    ...curmo.objects.slice(0, curoindex),
-                    {
-                      ...curmv.objects[curoindex],  
-                      id: oid,
-                      propertySet: {
-                        ...curmv.objects[curoindex].propertySet,
-                        ...propSet.propertySet,
-                      },
-                      integerSet: {
-                        ...curmv.objects[index].integerSet,
-                        ...intSet.integerSet,
-                        // textFitFlag: !state.phData.model.metis.models[0].model.objects[index].integerSet.textFitFlag
-                      }
+          metis: {
+            ...state.phData.metis,
+            models: [
+              ...state.phData.metis.models.slice(0, curmindexo),
+              {
+                ...state.phData.metis.models[curmindexo],
+                objects: [
+                  ...curmo.objects.slice(0, curoindexo),
+                  {
+                    ...curmo.objects[curoindexo],  
+                    id: action.data.id,
+                    name: action.data.name,
+                    description: action.data.description,
+                    typeRef: action.data.typeRef,
+                    propertyValues: {
+                      ...curmo.objects[curoindexo]?.propertyValues,
+                      propertyValues: action.data.propertyValues,
                     },
-                    ...curmv.objects.slice(ovindex + 1)
-                  ],
-                  ...state.phData.metis.models.slice(curmindexo + 1),
-                },
-              ],
-            },
+                  },
+                  ...curmo.objects.slice(curoindexo + 1)
+                ],
+                ...state.phData.metis.models.slice(curmindexo + 1),
+              },
+            ],
           },
         }
       }
@@ -749,7 +730,7 @@ function reducer(state = InitialState, action) {
       // console.log('316'.newOvs);
 
       return {
-        //   ...state,
+          ...state,
         phData: {
           ...state.phData,
           model: {

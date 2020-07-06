@@ -176,15 +176,15 @@ export function updateObject(data: any, name: string, value: string, context: an
         let currentObject     = data.object;
         let currentObjectView = data.objectview;
         let otype             = data.objecttype;
-        if (currentObject.getName() === otype.getName()) {
+        if (currentObject.getName() === otype?.getName()) {
             // This is a new object - check if the new name already exists
             let obj = metis.findObjectByTypeAndName(otype, data.name);
             if (obj) {
                 // Existing object
                 utils.removeElementFromArray(myModel.getObjects(), currentObject.getId());
                 currentObject = obj;
-                currentObjectView.setObject(currentObject);
-                myModelView.addObjectView(currentObjectView);
+                currentObjectView?.setObject(currentObject);
+                myModelView?.addObjectView(currentObjectView);
             } 
         }
         currentObject.setName(value);

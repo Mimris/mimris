@@ -139,13 +139,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             initialAutoScale: go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
             'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
-            draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
-            'draggingTool.horizontalGuidelineColor': 'blue',
-            'draggingTool.verticalGuidelineColor': 'blue',
-            'draggingTool.centerGuidelineColor': 'green',
-            'draggingTool.guidelineWidth': 1,
-            "draggingTool.dragsLink": true,
-            "draggingTool.isGridSnapEnabled": true,
+            // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
+            // 'draggingTool.horizontalGuidelineColor': 'blue',
+            // 'draggingTool.verticalGuidelineColor': 'blue',
+            // 'draggingTool.centerGuidelineColor': 'green',
+            // 'draggingTool.guidelineWidth': 1,
+            // "draggingTool.dragsLink": true,
+            // "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),

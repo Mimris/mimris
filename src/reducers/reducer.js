@@ -533,9 +533,9 @@ function reducer(state = InitialState, action) {
                     {
                       ...curmrv?.modelviews[curmvindexrv],
                       relshipviews: [
-                        ...curmrv.relshipviews.slice(0, rvindex),
+                        ...curmvrv?.relshipviews?.slice(0, rvindex),
                         {
-                          ...curmrv.relshipviews[rvindex],  
+                          ...curmvrv?.relshipviews[rvindex],  
                           id: action.data.id,           
                           name: action.data.name,
                           description: action.data.description,
@@ -543,8 +543,9 @@ function reducer(state = InitialState, action) {
                           typeviewRef: action.data.typeviewRef,
                           fromobjviewRef: action.data.objviewRef,
                           toobjviewRef: action.data.toobjviewRef,
+                          // deleted: action.data.deleted,
                         },
-                        ...curmrv.objectviews.slice(rvindex + 1)
+                        ...curmvrv?.objectviews.slice(rvindex + 1)
                       ]
                     },
                     ...curmrv?.modelviews.slice(curmvindexrv + 1),

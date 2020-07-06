@@ -145,7 +145,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             // 'draggingTool.centerGuidelineColor': 'green',
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
-            // "draggingTool.isGridSnapEnabled": true,
+            "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),

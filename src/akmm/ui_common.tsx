@@ -184,7 +184,7 @@ export function updateObject(data: any, name: string, value: string, context: an
                 utils.removeElementFromArray(myModel.getObjects(), currentObject.getId());
                 currentObject = obj;
                 currentObjectView.setObject(currentObject);
-                myModelView.addObjectView(currentObjectView);
+                myModelView?.addObjectView(currentObjectView);
             } 
         }
         currentObject.setName(value);
@@ -952,24 +952,26 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
     if (lnk.class === 'goRelshipLink') {
 
         const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
-        let relview = link.relshipview;    // cxRelationshipView
-        let rel = relview.relship;    // cxRelationship                
-        let fromNode = myGoModel.findNode(lnk.from);
-        if (fromNode) {
-            link.setFromNode = lnk.from;
-            let fromObjView = fromNode.objectview;
-            relview.fromObjview = fromObjView;
-            rel.fromObject = fromObjView.object;
+        if (link) {
+            let relview = link.relshipview;    // cxRelationshipView
+            let rel = relview.relship;    // cxRelationship                
+            let fromNode = myGoModel.findNode(lnk.from);
+            if (fromNode) {
+                link.setFromNode = lnk.from;
+                let fromObjView = fromNode.objectview;
+                relview.fromObjview = fromObjView;
+                rel.fromObject = fromObjView.object;
+            }
+            let toNode = myGoModel.findNode(lnk.to);
+            if (toNode) {
+                link.setToNode(lnk.to);
+                let toObjView = toNode.objectview;
+                relview.toObjview = toObjView;
+                rel.toObject = toObjView.object;
+            }
+            relview.modified = true;;
+            rel.modified = true;
         }
-        let toNode = myGoModel.findNode(lnk.to);
-        if (toNode) {
-            link.setToNode(lnk.to);
-            let toObjView = toNode.objectview;
-            relview.toObjview = toObjView;
-            rel.toObject = toObjView.object;
-        }
-        relview.modified = true;;
-        rel.modified = true;
     }
 }
 

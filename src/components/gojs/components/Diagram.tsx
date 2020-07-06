@@ -139,12 +139,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             initialAutoScale: go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
             'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
-            draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
-            'draggingTool.horizontalGuidelineColor': 'blue',
-            'draggingTool.verticalGuidelineColor': 'blue',
-            'draggingTool.centerGuidelineColor': 'green',
-            'draggingTool.guidelineWidth': 1,
-            "draggingTool.dragsLink": true,
+            // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
+            // 'draggingTool.horizontalGuidelineColor': 'blue',
+            // 'draggingTool.verticalGuidelineColor': 'blue',
+            // 'draggingTool.centerGuidelineColor': 'green',
+            // 'draggingTool.guidelineWidth': 1,
+            // "draggingTool.dragsLink": true,
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
@@ -590,20 +590,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             curve: go.Link.JumpGap,
             corner: 10
           },  // link route should avoid nodes
-          // { contextMenu: linkContextMenu },
-          { contextMenu:                            // define a context menu for each node
-            $("ContextMenu", "Spot",              // that has several buttons around
-                $(go.Placeholder, { padding: 2 }),  // a Placeholder object
-              // $("ContextMenuButton", $(go.TextBlock, "Top"),
-              //   { alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom, click: cmCommand }),
-              // $("ContextMenuButton", $(go.TextBlock, "Right"),
-              //   { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left, click: cmCommand }),
-              // $("ContextMenuButton", $(go.TextBlock, "Bottom"),
-              //   { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand }),
-              $("ContextMenuButton", $(go.TextBlock, "Left"),
-                { alignment: go.Spot.Left, alignmentFocus: go.Spot.Right, click: cmCommand })
-           )  // end Adornment
-          },
+          { contextMenu: linkContextMenu },
+          // { contextMenu:                            // define a context menu for each node
+          //   $("ContextMenu", "Spot",              // that has several buttons around
+          //       $(go.Placeholder, { padding: 2 }),  // a Placeholder object
+          //     // $("ContextMenuButton", $(go.TextBlock, "Top"),
+          //     //   { alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom, click: cmCommand }),
+          //     // $("ContextMenuButton", $(go.TextBlock, "Right"),
+          //     //   { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left, click: cmCommand }),
+          //     // $("ContextMenuButton", $(go.TextBlock, "Bottom"),
+          //     //   { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand }),
+          //     $("ContextMenuButton", $(go.TextBlock, "Left"),
+          //       { alignment: go.Spot.Left, alignmentFocus: go.Spot.Right, click: cmCommand })
+          //  )  // end Adornment
+          // },
           new go.Binding("points").makeTwoWay(),
           $(go.Shape, new go.Binding("stroke", "strokecolor")),
           $(go.TextBlock,     // this is a Link label

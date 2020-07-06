@@ -209,7 +209,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const gqlNode = new gql.gqlObjectView(myNode.objectview);
                     modifiedNodes.push(gqlNode);
                     const gqlObj = new gql.gqlObject(myNode.objectview.object);
-                    modifiedObjects.push(gqlObj);
+                    //modifiedObjects.push(gqlObj);
                   }
                 }
               }
@@ -276,19 +276,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // Object moved
                 const key = sel.data.key;
                 const myNode = this.getNode(context.myGoModel, key);
-                console.log('275 SelectionMoved', myNode);
+                console.log('279 SelectionMoved', myNode);
                 uic.changeNodeSizeAndPos(sel.data, myGoModel, modifiedNodes);
                 const objview = sel.data.objectview;
-                if (objview) {
+                if (myNode && objview) {
                   // Check if inside a group
                   const group = uic.getGroupByLocation(myGoModel, objview.loc);
                   if (group) {
                       objview.group = group.objectview.id;
-                      const myNode = myGoModel?.findNode(sel.key);
                       myNode.group = group.key;
                   } else {
                       objview.group = "";
-                      const myNode = myGoModel?.findNode(sel.key);
                       myNode.group = "";
                   }
                   const gqlNode = new gql.gqlObjectView(myNode.objectview);
@@ -322,7 +320,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       console.log('314 SelectionDeleted', gqlNode);
                       modifiedNodes.push(gqlNode);
                       const gqlObj = new gql.gqlObject(objview.object);
-                      modifiedObjects.push(gqlObj);
+                      //modifiedObjects.push(gqlObj);
                     }
                 }
               }
@@ -372,7 +370,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         );
         break;
       }
-        break;
+      break;
       case 'ExternalObjectsDropped': {
         const nodes = e.subject;
         this.setState(
@@ -390,7 +388,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             } else {
               const objview = uic.createObject(part, context);
-              console.log('383 New object', objview);
+              console.log('391 New object', objview);
               if (objview) {
                 const myNode  = myGoModel?.findNode(part.key);
                 // Check if inside a group
@@ -398,22 +396,23 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (group) {
                   objview.group = group.objectview?.id;
                   if (myNode) {
-                    console.log('322 myNode', myNode, group);
+                    console.log('399 myNode', myNode, group);
                     myNode.group = group.key;
                   }
                 }
-                console.log('395 New object', myNode);
-                const gqlNode = new gql.gqlObjectView(myNode.objectview);
+                console.log('403 New object', myNode);
+                const gqlNode = new gql.gqlObjectView(objview);
                 modifiedNodes.push(gqlNode);
-                console.log('398 New object', gqlNode);
-                const obj = objview.object;
-                modifiedObjects.push(obj);
+                console.log('406 New object', gqlNode, modifiedNodes);
+                const gqlObj = new gql.gqlObject(objview.object);
+                modifiedObjects.push(gqlObj);
+                console.log('409 New object', gqlObj);
               }
             }
           })
         )
       }
-        break;
+      break;
       case "ObjectSingleClicked": {
         console.log('334 GoJSApp :',e.subject);
         this.setState(

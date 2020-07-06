@@ -590,20 +590,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             curve: go.Link.JumpGap,
             corner: 10
           },  // link route should avoid nodes
-          // { contextMenu: linkContextMenu },
-          { contextMenu:                            // define a context menu for each node
-            $("ContextMenu", "Spot",              // that has several buttons around
-                $(go.Placeholder, { padding: 2 }),  // a Placeholder object
-              // $("ContextMenuButton", $(go.TextBlock, "Top"),
-              //   { alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom, click: cmCommand }),
-              // $("ContextMenuButton", $(go.TextBlock, "Right"),
-              //   { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left, click: cmCommand }),
-              // $("ContextMenuButton", $(go.TextBlock, "Bottom"),
-              //   { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand }),
-              $("ContextMenuButton", $(go.TextBlock, "Left"),
-                { alignment: go.Spot.Left, alignmentFocus: go.Spot.Right, click: cmCommand })
-           )  // end Adornment
-          },
+          { contextMenu: linkContextMenu },
+          // { contextMenu:                            // define a context menu for each node
+          //   $("ContextMenu", "Spot",              // that has several buttons around
+          //       $(go.Placeholder, { padding: 2 }),  // a Placeholder object
+          //     // $("ContextMenuButton", $(go.TextBlock, "Top"),
+          //     //   { alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom, click: cmCommand }),
+          //     // $("ContextMenuButton", $(go.TextBlock, "Right"),
+          //     //   { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left, click: cmCommand }),
+          //     // $("ContextMenuButton", $(go.TextBlock, "Bottom"),
+          //     //   { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand }),
+          //     $("ContextMenuButton", $(go.TextBlock, "Left"),
+          //       { alignment: go.Spot.Left, alignmentFocus: go.Spot.Right, click: cmCommand })
+          //  )  // end Adornment
+          // },
           new go.Binding("points").makeTwoWay(),
           $(go.Shape, new go.Binding("stroke", "strokecolor")),
           $(go.TextBlock,     // this is a Link label

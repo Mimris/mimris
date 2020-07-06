@@ -297,7 +297,7 @@ export function deleteObjectType(data: any, context: any) {
 }
 
 export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, context: any) {
-    const metis     = context.myMetis;
+    const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
         const myGoMetamodel = context.myGoMetamodel;
@@ -336,21 +336,27 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, c
         if (node) {
             let objview = node.objectview;
             if (objview) {
-                const object = objview.object;
-                if (object) {
-                    const oviews = metis.getObjectViewsByObject(object.id);
-                    if (oviews) {
-                        for (let i = 0; i < oviews.length; i++) {
-                            const oview = oviews[i];
-                            oview.deleted = deletedFlag;
-                        }           
-                        objview.deleted = deletedFlag;
-                        object.deleted  = deletedFlag;
-                        // Register change in gql
-                        const delNode = new gql.gqlObjectView(objview);
-                        deletedNodes.push(delNode);
+                objview.deleted = deletedFlag;
+                if (!context.deleteViewsOnly) {
+                    const object = objview.object;
+                    if (object) {
+                        object.deletedFlag = true;
+                        // Find other views of the same object
+                        const oviews = myMetis.getObjectViewsByObject(object.id);
+                        if (oviews) {
+                            for (let i = 0; i < oviews.length; i++) {
+                                const oview = oviews[i];
+                                oview.deleted = deletedFlag;
+                                // Register change in gql
+                                const delNode = new gql.gqlObjectView(oview);
+                                deletedNodes.push(delNode);
+                            }
+                        }                                   
                     }
                 }
+                // Register change in gql
+                const delNode = new gql.gqlObjectView(objview);
+                deletedNodes.push(delNode);
             }
             // Replace myGoModel.nodes with a new array
             let nodes = new Array();
@@ -1009,7 +1015,7 @@ function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, t
     return false;
 }
 
-function buildLinkFromRelview(model: gsj.goModel, relview: akm.cxRelationshipView, relship: akm.cxRelationship, data: any, diagram: any) {
+function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipView, relship: akm.cxRelationship, data: any, diagram: any) {
     let reltype = relship.getType();
     let reltypeView = relview.getTypeView() as akm.cxRelationshipTypeView;
     if (!reltypeView) {

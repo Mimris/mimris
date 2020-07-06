@@ -257,11 +257,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               let objtype = prompt('Enter one of: ' + node.choices);
               const myMetis = e.diagram.myMetis;
               const context = {
-                "myMetis": myMetis,
-                "myMetamodel": myMetis.currentMetamodel,
-                "myModel": myMetis.currentModel,
-                "myModelView": myMetis.currentModelview,
-                "myDiagram": e.diagram
+                "myMetis":      myMetis,
+                "myMetamodel":  myMetis.currentMetamodel,
+                "myModel":      myMetis.currentModel,
+                "myModelView":  myMetis.currentModelview,
+                "myDiagram":    e.diagram,
+                "dispatch":     e.diagram.dispatch
               }
               uic.setObjectType(node, objtype, context);
               const modNode = new gql.gqlObjectView(node.objectview);
@@ -284,29 +285,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { return o.diagram.commandHandler.canCopySelection(); }),
           makeButton("Paste",
             function (e: any, obj: any) {
-              glb.pasteViewsOnly = false;
+              e.diagram.pasteViewsOnly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              glb.pasteViewsOnly = true;
+              e.diagram.pasteViewsOnly = true;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              glb.pasteViewsOnly = false;
+              e.diagram.pasteViewsOnly = false;
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              glb.deleteViewsOnly = false;
+              e.diagram.deleteViewsOnly = false;
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              glb.deleteViewsOnly = true;
+              e.diagram.deleteViewsOnly = true;
               e.diagram.commandHandler.deleteSelection();
-              glb.deleteViewsOnly = false;
+              e.diagram.deleteViewsOnly = false;
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           // makeButton("Undo",
@@ -334,11 +335,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               let reltype = prompt('Enter one of: ' + link.choices);
               const myMetis = e.diagram.myMetis;
               const context = {
-                "myMetis": myMetis,
-                "myMetamodel": myMetis.currentMetamodel,
-                "myModel": myMetis.currentModel,
-                "myModelView": myMetis.currentModelview,
-                "myDiagram": e.diagram
+                "myMetis":      myMetis,
+                "myMetamodel":  myMetis.currentMetamodel,
+                "myModel":      myMetis.currentModel,
+                "myModelView":  myMetis.currentModelview,
+                "myDiagram":    e.diagram,
+                "dispatch":     e.diagram.dispatch
               }
               uic.setRelationshipType(link, reltype, context);
               const modLink = new gql.gqlRelshipView(link.relshipview);
@@ -361,21 +363,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o) { return o.diagram.commandHandler.canCopySelection(); }),
           makeButton("Paste",
             function (e, obj) {
-              glb.pasteViewsOnly = false;
+              e.diagram.pasteViewsOnly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
             function (e, obj) {
-              glb.deleteViewsOnly = false;
+              e.diagram.deleteViewsOnly = false;
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e, obj) {
-              glb.deleteViewsOnly = true;
+              e.diagram.deleteViewsOnly = true;
               e.diagram.commandHandler.deleteSelection();
-              glb.deleteViewsOnly = false;
+              e.diagram.deleteViewsOnly = false;
             },
             function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
           // makeButton("Undo",
@@ -393,16 +395,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         $(go.Adornment, "Vertical",
           makeButton("Paste",
             function (e: any, obj: any) {
-              glb.pasteviewsonly = false;
+              e.diagram.pasteviewsonly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              glb.pasteviewsonly = true;
+              e.diagram.pasteviewsonly = true;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              glb.pasteviewsonly = false;
+              e.diagram.pasteviewsonly = false;
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Undo",

@@ -129,8 +129,8 @@ class GoJSApp extends React.Component<{}, AppState> {
    * @param e a GoJS DiagramEvent
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
-    
-    const name = e.name;
+    const dispatch      = this.state.dispatch;
+    const name          = e.name;
     const myDiagram     = e.diagram;
     const myMetis       = this.state.myMetis;
     const myModel       = myMetis?.findModel(this.state.phFocus.focusModel.id);
@@ -161,8 +161,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myGoModel"       : myGoModel,
       "myGoMetamodel"   : myGoMetamodel,
       "myDiagram"       : myDiagram,
-      "pasteviewsonly"  : false,
+      "pasteViewsOnly"  : false,
       "deleteViewsOnly" : false,
+      "dispatch"        : dispatch,
       "done"            : done
     }
     console.log('153 handleDiagramEvent - context', name, this.state, context);
@@ -207,6 +208,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                     // console.log('211 GoJSApp', field, text, myNode);
                     const gqlNode = new gql.gqlObjectView(myNode.objectview);
                     modifiedNodes.push(gqlNode);
+                    const gqlObj = new gql.gqlObject(myNode.objectview.object);
+                    modifiedObjects.push(gqlObj);
                   }
                 }
               }
@@ -288,8 +291,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                       const myNode = myGoModel?.findNode(sel.key);
                       myNode.group = "";
                   }
-                  const gqlNode = new gql.gqlObjectView(objview);
+                  const gqlNode = new gql.gqlObjectView(myNode.objectview);
                   modifiedNodes.push(gqlNode);
+                  console.log('294 SelectionMoved', gqlNode);
                 }
               }
             }
@@ -300,31 +304,39 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "SelectionDeleted": {
         const deletedFlag = true;
         const deleted = e.subject;
+        context.deleteViewsOnly = myDiagram.deleteViewsOnly;
         this.setState(
           produce((draft: AppState) => {
             for (let it = deleted.iterator; it.next();) {
-              const del: any = it.value.data;  // n is now a Node or a Group
-              const key = del.key;
-              if (del.class === "goObjectNode") {
-                  const myNode = this.getNode(context.myGoModel, key);
-                  uic.deleteNode(del, deletedFlag, modifiedNodes, context);
-                  const objview = del.objectview;
+              const sel: any = it.value.data;  // n is now a Node or a Group
+              const key = sel.key;
+              if (sel.class === "goObjectNode") {
+                const myNode = this.getNode(context.myGoModel, key);
+                // console.log('207, text GoJSApp', myNode);
+                if (myNode) {
+                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, context);
+                  const objview = myNode.objectview;
                   objview.deleted = deletedFlag;
                   if (objview) {
                       const gqlNode = new gql.gqlObjectView(objview);
                       console.log('314 SelectionDeleted', gqlNode);
                       modifiedNodes.push(gqlNode);
-                  }
+                      const gqlObj = new gql.gqlObject(objview.object);
+                      modifiedObjects.push(gqlObj);
+                    }
+                }
               }
-              else if (del.class === "goRelshipLink") {
+              else if (sel.class === "goRelshipLink") {
                   const myLink = this.getLink(context.myGoModel, key);
-                  uic.deleteLink(del, deletedFlag, modifiedLinks, context);
-                  const relview = del.relshipview;
+                  uic.deleteLink(sel, deletedFlag, modifiedLinks, context);
+                  const relview = sel.relshipview;
                   if (relview) {
                     relview.deleted = deletedFlag;
                     const gqlLink = new gql.gqlRelshipView(relview);
                     modifiedLinks.push(gqlLink);
                     console.log('314 SelectionDeleted', gqlLink);
+                    const gqlRel = new gql.gqlRelationship(relview.relship);
+                    modifiedLinks.push(gqlRel);
                   }
               }
             }
@@ -378,19 +390,24 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             } else {
               const objview = uic.createObject(part, context);
+              console.log('383 New object', objview);
               if (objview) {
+                const myNode  = myGoModel?.findNode(part.key);
                 // Check if inside a group
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
                 if (group) {
                   objview.group = group.objectview?.id;
-                  const myNode = myGoModel?.findNode(part.key);
                   if (myNode) {
                     console.log('322 myNode', myNode, group);
                     myNode.group = group.key;
                   }
                 }
-                const gqlNode = new gql.gqlObjectView(objview);
+                console.log('395 New object', myNode);
+                const gqlNode = new gql.gqlObjectView(myNode.objectview);
                 modifiedNodes.push(gqlNode);
+                console.log('398 New object', gqlNode);
+                const obj = objview.object;
+                modifiedObjects.push(obj);
               }
             }
           })

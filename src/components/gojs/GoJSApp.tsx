@@ -457,14 +457,14 @@ class GoJSApp extends React.Component<{}, AppState> {
         console.log('397 LinkDrawn', fromNode, toNode);
         this.setState(
           produce((draft: AppState) => {
-            if (fromNode.class === 'goObjectNode') {
+            if (fromNode?.class === 'goObjectNode') {
               const relview = uic.onLinkDrawn(link, context);
               if (relview) {
                 const gqlLink = new gql.gqlRelshipView(relview);
                 console.log('414 LinkDrawn', link, gqlLink);
                 modifiedLinks.push(gqlLink);
               }
-            } else if (fromNode.class === 'goObjectTypeNode') {
+            } else if (fromNode?.class === 'goObjectTypeNode') {
               link.category = 'Relationship type';
               link.class = 'goRelshipTypeLink';
               const reltype = uic.onLinkDrawn(link, context);

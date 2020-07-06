@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
-// import { loadState, saveState } from './utils/LocalStorage'
+import Selector from './utils/Selector'
 // import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
@@ -26,13 +26,26 @@ const SelectSource = (props: any) => {
       dispatch(loadData())
   }
  
-  const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
-  const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2 float-right" onClick={handleLoadModelStore} > Load from Server </button >
+  const models = props.phData.metis?.models
+  const focusModel = props.phFocus?.focusModel
+  const model = models?.find((m: any) => m?.id === focusModel?.id)
+  const selmodels = models?.map((m: any) => m)
+  const selmodelviews = model?.modelviews?.map((mv: any) => mv)
+
+  const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
+  const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2" onClick={handleLoadModelStore} > Load from Server </button >
   
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
+console.log('42 LoadServer', models, selmodels);
+
+const selectorDiv = (state.phSource === 'Model server') && 
+  <div className="modeller-selection p-2 bg-warning " >
+    <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' /> <br /><hr />
+  <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' />  <br />
+  </div> 
 // console.log('131', state);
 
   const buttonDiv = 
@@ -48,9 +61,9 @@ const SelectSource = (props: any) => {
           {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
           {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>
+          {selectorDiv}
         </div>
       </>
-
 
   return (
     <>
@@ -69,7 +82,7 @@ const SelectSource = (props: any) => {
             To keep current version, exit and go to "Local" then click "Save" to save to LocalStore.
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Exit</Button>
+          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>
         </ModalFooter>
       </Modal>
       <style jsx>{`

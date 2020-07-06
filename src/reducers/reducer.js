@@ -458,11 +458,11 @@ function reducer(state = InitialState, action) {
                 {
                   ...state.phData.metis.models[curmindex],
                   modelviews: [
-                    ...curm.modelviews.slice(0, curmvindex),
+                    ...curm?.modelviews?.slice(0, curmvindex),
                     {
-                      ...curm.modelviews[curmvindex],
+                      ...curm?.modelviews[curmvindex],
                       objectviews: [
-                        ...curmv.objectviews.slice(0, ovindex),
+                        ...curmv?.objectviews?.slice(0, ovindex),
                         {
                           ...curmv.objectviews[ovindex],  
                           id: action.data.id,           
@@ -475,10 +475,10 @@ function reducer(state = InitialState, action) {
                           loc: action.data.loc,
                           size: action.data.size
                         },
-                        ...curmv.objectviews.slice(ovindex + 1)
+                        ...curmv?.objectviews?.slice(ovindex + 1)
                       ]
                     },
-                    ...curm.modelviews.slice(curmvindex + 1),
+                    ...curm?.modelviews?.slice(curmvindex + 1),
                   ],
                   // objects: [
                   //   ...curm.objects.slice(0, curoindex),

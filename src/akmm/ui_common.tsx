@@ -39,7 +39,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
             if (objview) {
                 data.objectview = objview;
-                objview.setIsGroup(objtype.isContainer());
+                objview.setIsGroup(objtype?.isContainer());
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
                 // Include the object view in the current model view

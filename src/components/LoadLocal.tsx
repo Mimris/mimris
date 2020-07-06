@@ -64,8 +64,8 @@ const LoadLocal = (props: any) => {
   
   
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveLocalStoreDiv = <button className="btn-primary btn-sm ml-2" onClick={handleSaveLocalStore} > Save to localStorage </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 float-right " onClick={handleDispatchStoreFromLocal} > Load from localStorage </button >
+  const buttonSaveLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right " onClick={handleSaveLocalStore} > Save to localStorage </button >
+  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 " onClick={handleDispatchStoreFromLocal} > Load from localStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -105,7 +105,7 @@ const LoadLocal = (props: any) => {
             To keep current version, click "Save to Local" to save to LocalStore before "Load local" .
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => {toggle(); toggleRefresh()}}>Exit</Button>
+          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
         </ModalFooter>
       </Modal>
       <style jsx>{`

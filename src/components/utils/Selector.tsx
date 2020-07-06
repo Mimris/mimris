@@ -5,7 +5,7 @@ const Selector = ( props: any ) => {
   const dispatch = useDispatch()
   const type = props.type
   const handleChange = (event: any) => {
-    // console.log('8 selector', event); 
+    console.log('8 selector', props); 
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const focustype = { id: id, name: name }
@@ -47,9 +47,9 @@ const Selector = ( props: any ) => {
         </div>
 
   return (
-    <>
+    <div className="mod-modview float-right">
       {selectDiv}
-    </>
+    </div>
   )
 }
 

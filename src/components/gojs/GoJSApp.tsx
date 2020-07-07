@@ -209,7 +209,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const gqlNode = new gql.gqlObjectView(myNode.objectview);
                     modifiedNodes.push(gqlNode);
                     const gqlObj = new gql.gqlObject(myNode.objectview.object);
-                    //modifiedObjects.push(gqlObj);
+                    modifiedObjects.push(gqlObj);
                   }
                 }
               }

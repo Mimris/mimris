@@ -17,7 +17,7 @@ import {getLocalStorage} from './GetSetLocalStorage'
 
 const page = (props:any) => {
 
-  console.log('17 Diagram', props);
+  // console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   function toggleRefresh() { setRefresh(!refresh); }
@@ -40,17 +40,17 @@ const page = (props:any) => {
 
     
     useEffect(() => {
-      // console.log('38 Diagram state', state ); 
+      // console.log('38 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [focusModel.id])
     
     useEffect(() => {
-      // console.log('42 Diagram state', state ); 
+      // console.log('42 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [focusModelview.id])
 
     useEffect(() => {
-      // console.log('42 Diagram state', state ); 
+      console.log('42 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [metis])
     

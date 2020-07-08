@@ -11,12 +11,14 @@ import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
 
 // import './GoJSApp.css';
-import glb from '../../akmm/akm_globals';
-import * as utils from '../../akmm/utilities';
+// import glb from '../../akmm/akm_globals';
+// import * as utils from '../../akmm/utilities';
 import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
+
+const constants = require('../../akmm/constants');
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -352,7 +354,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (idx !== undefined && idx >= 0) {
                   const nd = draft.nodeDataArray[idx];
                   draft.selectedData = nd;
-                  // console.log('98 GoJSApp.tsx: node = ', nd);
+                  console.log('357 ChangedSelection: node = ', nd);
                 }
               } else if (sel instanceof go.Link) {
                 // console.log('174 GoJSApp.tsx: sel = ', sel);
@@ -377,13 +379,20 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
-            console.log('309 GoJSApp', part);
+            console.log('382 GoJSApp', part);
             if (part.type === 'objecttype') {
+              // if (part.viewkind === 'Object') {
+              //     part.typename = constants.types.OBJECTTYPE_NAME;
+              // } else {
+              //     part.typename = constants.types.CONTAINERTYPE_NAME;
+              // }
               const otype = uic.createObjectType(part, context);
               console.log('385 ExternalObjectsDropped - otype', otype);
               if (otype) {
+                otype.typename = constants.types.OBJECTTYPE_NAME;
+                console.log('388 ExternalObjectsDropped', otype);
                 const gqlNode = new gql.gqlObjectType(otype, true);
-                console.log('285 modifiedTypeNodes', gqlNode);
+                console.log('390 modifiedTypeNodes', gqlNode);
                 modifiedTypeNodes.push(gqlNode);
               }
             } else {
@@ -393,6 +402,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const myNode  = myGoModel?.findNode(part.key);
                 // Check if inside a group
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
+                console.log('405 group', group)
                 if (group) {
                   objview.group = group.objectview?.id;
                   if (myNode) {
@@ -414,7 +424,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "ObjectSingleClicked": {
-        console.log('334 GoJSApp :',e.subject);
+        console.log('334 GoJSApp :', e.subject.part.data);
         this.setState(
           produce((draft: AppState) => {
           })
@@ -463,6 +473,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const gqlLink = new gql.gqlRelshipView(relview);
                 console.log('414 LinkDrawn', link, gqlLink);
                 modifiedLinks.push(gqlLink);
+                const gqlRelship = new gql.gqlRelationship(relview.relship);
+                console.log('476 LinkDrawn', gqlRelship);
+                modifiedRelships.push(gqlRelship);
               }
             } else if (fromNode?.class === 'goObjectTypeNode') {
               link.category = 'Relationship type';
@@ -504,31 +517,31 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
     
-    console.log('447 modifiedTypeNodes', modifiedTypeNodes);
+    console.log('520 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
     })
 
-    console.log('453 modifiedLinks', modifiedLinks);
+    console.log('526 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
     
-    console.log('459 modifiedTypeLinks', modifiedTypeLinks);
+    console.log('532 modifiedTypeLinks', modifiedTypeLinks);
     modifiedTypeLinks?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
     })
 
-    console.log('465 modifiedObjects', modifiedObjects);
+    console.log('538 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 
-    console.log('471 modifiedRelships', modifiedRelships);
+    console.log('544 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })

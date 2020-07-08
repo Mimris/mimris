@@ -661,10 +661,10 @@ function reducer(state = InitialState, action) {
       // console.log('371 curmindex', curmindex);
       // console.log('372 curmvindex', curmvindex);
 
-      const curr = curmvr.relshipviews?.find(rv => rv.id === action?.data?.id) // current relview
+      const curr = curmr.relships?.find(rv => rv.id === action?.data?.id) // current relview
       // console.log('409 curov', curov);
-      const r2length = curmvr?.relshipviews.length
-      let r2index = curmvr?.objectviews?.findIndex(r => r.id === curr?.id) // current relview index
+      const r2length = curmr?.relships.length
+      let r2index = curmr?.relships?.findIndex(r => r.id === curr?.id) // current relview index
       if (r2index < 0) { r2index = r2length } // ovindex = -1, i.e.  not fond, which means adding a new relview
       // console.log('411 ovindex', ovindex, ovlength);
       const curr2 = curmr?.relships?.find(r => r.id === curr?.relshipRef)
@@ -679,11 +679,11 @@ function reducer(state = InitialState, action) {
             models: [
               ...state.phData.metis.models.slice(0, curmindexr),
               {
-                ...state.phData.metis.models[curminde],
+                ...state.phData.metis.models[curmindexr],
                 relshipviews: [
-                  ...curmv.relships.slice(0, rindex),
+                  ...curmr.relships.slice(0, r2index),
                   {
-                    ...curmv.relships[rvindex],
+                    ...curmr.relships[r2index],
                     id: action.data.id,
                     name: action.data.name,
                     description: action.data.description,
@@ -694,10 +694,10 @@ function reducer(state = InitialState, action) {
                     //   ...curmv.relships[rvindex].propvalues,
                     // }
                   },
-                  ...curmv.relships.slice(ovindex + 1)
+                  ...curmr.relships.slice(r2index + 1)
                 ]
               },
-              ...state.phData.metis.models.slice(curmindex + 1),
+              ...state.phData.metis.models.slice(curmindexr + 1),
             ]
           },
         },

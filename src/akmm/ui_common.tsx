@@ -68,11 +68,11 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     console.log('162 uic', myGoModel);
                     return objview;
                 }
+                // if (objview) {
+                //     const newNode = new gql.gqlObjectView(objview);
+                //     modifiedNodes.push(newNode);
+                // }
             }
-            // if (objview) {
-            //     const newNode = new gql.gqlObjectView(objview);
-            //     modifiedNodes.push(newNode);
-            // }
         }
     }
     return null;
@@ -84,6 +84,7 @@ export function createObjectType(data: any, context: any): any {
     const myGoModel   = context.myGoMetamodel;
     const myDiagram   = context.myDiagram;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
+        console.log('87 createObjectType', data);
         data.class = "goObjectTypeNode";
         const typeid   = data.type;
         let typename = data.name;
@@ -93,8 +94,8 @@ export function createObjectType(data: any, context: any): any {
                 // Metamodeling and existing type
                 objtype = myMetamodel.findObjectTypeByName(typename);
                 if (objtype) {
-                    console.log('180 createObjectType - type exists', objtype);
-                    let objtypeView = objtype.getDefaultTypeView();
+                    // Existing type
+                     let objtypeView = objtype.getDefaultTypeView();
                     if (!objtypeView) {
                         objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
                         objtypeView.setModified();
@@ -110,10 +111,12 @@ export function createObjectType(data: any, context: any): any {
                     updateNode(data, objtypeView, myDiagram);                       
                 }
                 else {
-                    // Create type
-                    typename = "New Type";
-                    if (data.viewkind === constants.viewkinds.CONT)
+                    // New type
+                    let objtypename = constants.gojs.C_OBJECTTYPE;
+                    typename = "New Type";;
+                    if (data.viewkind === constants.viewkinds.CONT) {
                         typename = "New Container";
+                    }
                     objtype = new akm.cxObjectType(utils.createGuid(), typename, "");
                     if (objtype) {
                         objtype.setModified();
@@ -122,7 +125,7 @@ export function createObjectType(data: any, context: any): any {
                         myMetamodel.setModified();
                         myMetis.addObjectType(objtype);
                         // Define the object typeview
-                        let objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
+                        let objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.name, objtype, "");
                         if (objtypeView) {
                             objtypeView.setModified();
                             objtypeView.setViewKind(data.viewkind);
@@ -148,10 +151,12 @@ export function createObjectType(data: any, context: any): any {
                             myDiagram.model.setDataProperty(data, "category", constants.gojs.C_OBJECTTYPE);
                             myDiagram.model.setDataProperty(data, "objecttype", objtype);
                             myDiagram.model.setDataProperty(data, "name", typename);
-                            let node = new gjs.goObjectTypeNode(data.key, objtype);
+                            myDiagram.model.setDataProperty(data, "typename", objtypename);
+                            const key = utils.createGuid();
+                            data.id = key;
+                            let node = new gjs.goObjectTypeNode(key, objtype);
                             myGoModel.addNode(node);
                             updateNode(data, objtypeView, myDiagram);  
-                            console.log('177 createObjectType ', myGoModel);                                                          
                         }
                     }
                 }
@@ -482,6 +487,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i] as gjs.goObjectNode;
         if (node.isGroup) {
+            console.log('490 getGroup', node);
             const nodeLoc = loc.split(" ");
             const grpLoc = node.loc.split(" ");
             const grpSize = node.size.split(" ");
@@ -492,6 +498,8 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
             const size = Math.sqrt(gw * gw + gh * gh);
+            console.log('501 getGroup', loc, node.loc);
+            console.log('502 getGroup', nx, gx, gw, ny, gy, gh);
             if (
                 (nx > gx) && (nx < gx + gw) &&
                 (ny > gy) && (ny < gy + gh)
@@ -988,7 +996,7 @@ function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) 
             if (viewdata[prop] != null)
                 diagram.model.setDataProperty(data, prop, viewdata[prop])
         }
-        console.log('updateNode', data);
+        console.log('994 updateNode', data);
     }
 }
 

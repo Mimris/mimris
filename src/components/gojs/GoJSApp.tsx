@@ -11,12 +11,14 @@ import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
 
 // import './GoJSApp.css';
-import glb from '../../akmm/akm_globals';
-import * as utils from '../../akmm/utilities';
+// import glb from '../../akmm/akm_globals';
+// import * as utils from '../../akmm/utilities';
 import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
+
+const constants = require('../../akmm/constants');
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -352,7 +354,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (idx !== undefined && idx >= 0) {
                   const nd = draft.nodeDataArray[idx];
                   draft.selectedData = nd;
-                  // console.log('98 GoJSApp.tsx: node = ', nd);
+                  console.log('357 ChangedSelection: node = ', nd);
                 }
               } else if (sel instanceof go.Link) {
                 // console.log('174 GoJSApp.tsx: sel = ', sel);
@@ -377,13 +379,20 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
-            console.log('309 GoJSApp', part);
+            console.log('382 GoJSApp', part);
             if (part.type === 'objecttype') {
+              // if (part.viewkind === 'Object') {
+              //     part.typename = constants.types.OBJECTTYPE_NAME;
+              // } else {
+              //     part.typename = constants.types.CONTAINERTYPE_NAME;
+              // }
               const otype = uic.createObjectType(part, context);
               console.log('385 ExternalObjectsDropped - otype', otype);
               if (otype) {
+                otype.typename = constants.types.OBJECTTYPE_NAME;
+                console.log('388 ExternalObjectsDropped', otype);
                 const gqlNode = new gql.gqlObjectType(otype, true);
-                console.log('285 modifiedTypeNodes', gqlNode);
+                console.log('390 modifiedTypeNodes', gqlNode);
                 modifiedTypeNodes.push(gqlNode);
               }
             } else {
@@ -414,7 +423,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "ObjectSingleClicked": {
-        console.log('334 GoJSApp :',e.subject);
+        console.log('334 GoJSApp :', e.subject.part.data);
         this.setState(
           produce((draft: AppState) => {
           })
@@ -463,6 +472,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const gqlLink = new gql.gqlRelshipView(relview);
                 console.log('414 LinkDrawn', link, gqlLink);
                 modifiedLinks.push(gqlLink);
+                const gqlRelship = new gql.gqlRelationship(relview.relship);
+                modifiedRelships.push(gqlRelship);
               }
             } else if (fromNode.class === 'goObjectTypeNode') {
               link.category = 'Relationship type';

@@ -216,18 +216,20 @@ export class gqlMetaModel {
     //
 }
 export class gqlObjectType {
-    id: string;
-    name: string;
-    description: string;
-    abstract: boolean;
-    viewkind: string;
-    typeviewRef: string;
-    properties: gqlProperty[];
+    id:             string;
+    name:           string;
+    description:    string;
+    abstract:       boolean;
+    viewkind:       string;
+    typename:       string;
+    typeviewRef:    string;
+    properties:     gqlProperty[];
     constructor(objtype: akm.cxObjectType, includeViews: boolean) {
         this.id = objtype.id;
         this.name = objtype.name;
         this.abstract = objtype.abstract;
         this.viewkind = objtype.viewkind;
+        this.typename = 'Object type';
         this.typeviewRef = objtype.typeview ? objtype.typeview.id : "";
         // Code
         this.description = (objtype.description) ? objtype.description : "";
@@ -236,7 +238,7 @@ export class gqlObjectType {
         if (p) {
             const props = p[0];
             if (props) {
-                if (utils.objExists(props) && props.length > 0) {
+                if (props && props.length > 0) {
                     const cnt = props.length;
                     for (let i = 0; i < cnt; i++) {
                         const prop = props[i];

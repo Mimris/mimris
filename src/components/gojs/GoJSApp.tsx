@@ -203,11 +203,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                     sel.data.name = text;
                   }
                   const myNode = this.getNode(context.myGoModel, key);
-                  // console.log('207, text GoJSApp', myNode);
+                  console.log('207, text GoJSApp', myNode);
                   if (myNode) {
                     myNode.name = text;
                     uic.updateObject(myNode, field, text, context);
-                    // console.log('211 GoJSApp', field, text, myNode);
+                    console.log('211 GoJSApp', field, text, myNode);
                     const gqlNode = new gql.gqlObjectView(myNode.objectview);
                     modifiedNodes.push(gqlNode);
                     const gqlObj = new gql.gqlObject(myNode.objectview.object);

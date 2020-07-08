@@ -691,7 +691,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       </>
     }
     
-    console.log('638 GOJSApp this.state.nodeDataArray', this.state.nodeDataArray);
+    // console.log('638 GOJSApp this.state.nodeDataArray', this.state.nodeDataArray);
     // console.log('361 this.state.linkDataArray', this.state.linkDataArray);
     // console.log('362 this.state.myMetis', this.state.myMetis);
     // console.log('362 this.state.myGoModel', this.state.myGoModel);

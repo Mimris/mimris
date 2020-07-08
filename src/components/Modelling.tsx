@@ -17,7 +17,7 @@ import {getLocalStorage} from './GetSetLocalStorage'
 
 const page = (props:any) => {
 
-  console.log('17 Diagram', props);
+  // console.log('20 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   function toggleRefresh() { setRefresh(!refresh); }
@@ -165,8 +165,9 @@ const page = (props:any) => {
       </TabContent>
     </>
     )      
-  const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
-  const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
+  const loadserver =  <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
+  const loadlocal =   <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
+  // const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
 
   return (
     <>

@@ -39,7 +39,7 @@ const SelectSource = (props: any) => {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
-console.log('42 LoadServer', models, selmodels);
+// console.log('42 LoadServer', models, selmodels);
 
 const selectorDiv = (state.phSource === 'Model server') && 
   <div className="modeller-selection p-2 bg-warning " >
@@ -56,8 +56,8 @@ const selectorDiv = (state.phSource === 'Model server') &&
           <div className="select" style={{ paddingTop: "4px" }}>
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
-          {/* <p> Server access : </p>
-          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+          <p> Server access : </p>
+          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe>
           {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
           {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>

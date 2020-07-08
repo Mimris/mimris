@@ -36,6 +36,7 @@ const page = (props:any) => {
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
   let phFocus = props.phFocus;
+  let phData = props.phData
 
     
     useEffect(() => {
@@ -164,7 +165,7 @@ const page = (props:any) => {
       </TabContent>
     </>
     )      
-  const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus} refresh={refresh} setRefresh={setRefresh}/> 
+  const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
   const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
 
   return (

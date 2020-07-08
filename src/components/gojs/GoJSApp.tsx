@@ -402,6 +402,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const myNode  = myGoModel?.findNode(part.key);
                 // Check if inside a group
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
+                console.log('405 group', group)
                 if (group) {
                   objview.group = group.objectview?.id;
                   if (myNode) {
@@ -466,16 +467,17 @@ class GoJSApp extends React.Component<{}, AppState> {
         console.log('397 LinkDrawn', fromNode, toNode);
         this.setState(
           produce((draft: AppState) => {
-            if (fromNode.class === 'goObjectNode') {
+            if (fromNode?.class === 'goObjectNode') {
               const relview = uic.onLinkDrawn(link, context);
               if (relview) {
                 const gqlLink = new gql.gqlRelshipView(relview);
                 console.log('414 LinkDrawn', link, gqlLink);
                 modifiedLinks.push(gqlLink);
                 const gqlRelship = new gql.gqlRelationship(relview.relship);
+                console.log('476 LinkDrawn', gqlRelship);
                 modifiedRelships.push(gqlRelship);
               }
-            } else if (fromNode.class === 'goObjectTypeNode') {
+            } else if (fromNode?.class === 'goObjectTypeNode') {
               link.category = 'Relationship type';
               link.class = 'goRelshipTypeLink';
               const reltype = uic.onLinkDrawn(link, context);
@@ -515,31 +517,31 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
     
-    console.log('447 modifiedTypeNodes', modifiedTypeNodes);
+    console.log('520 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
     })
 
-    console.log('453 modifiedLinks', modifiedLinks);
+    console.log('526 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
     
-    console.log('459 modifiedTypeLinks', modifiedTypeLinks);
+    console.log('532 modifiedTypeLinks', modifiedTypeLinks);
     modifiedTypeLinks?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
     })
 
-    console.log('465 modifiedObjects', modifiedObjects);
+    console.log('538 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 
-    console.log('471 modifiedRelships', modifiedRelships);
+    console.log('544 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
         let data = (mn) && mn
         this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })

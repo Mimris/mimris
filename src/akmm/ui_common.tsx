@@ -27,48 +27,46 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         console.log('123 createObject', objtype);
-        if (objtype) {
-            let guid = utils.createGuid();
-            let obj = new akm.cxObject(guid, data.name, objtype, data.description);
-            if (obj) {
-                data.object = obj;
-                // Include the new object in the current model
-                myModel?.addObject(obj);
-                myMetis.addObject(obj);
-                console.log('131 createObject', obj, myModel);
-                // Create the corresponding object view
-                objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
-                if (objview) {
-                    data.objectview = objview;
-                    objview.setIsGroup(objtype.isContainer());
-                    objview.setLoc(data.loc);
-                    objview.setSize(data.size);
-                    // Include the object view in the current model view
-                    myModelview.addObjectView(objview);
-                    myMetis.addObjectView(objview);
-                    // Then update the node with its new properties
-                    // First set category and name
-                    myDiagram.model.setDataProperty(data, "category", constants.C_OBJECT);
-                    myDiagram.model.setDataProperty(data, "type", data.name);
-                    // Then set reference to the object view                        
-                    myDiagram.model.setDataProperty(data, "objectview", objview);
-                    // Then set the view properties
-                    // Get the object typeview
-                    let objtypeView = objtype.getDefaultTypeView();
-                    if (!objtypeView) {
-                        objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
-                    }
-                    if (objtypeView) {
-                        objtypeView.setIsGroup1(data.isGroup);
-                        objview.setTypeView(objtypeView);
-                        let node = new gjs.goObjectNode(data.key, objview);
-                        myGoModel.addNode(node);
-                        updateNode(node, objtypeView, myDiagram);
-                        node.loc = data.loc;
-                        node.size = data.size;
-                        console.log('162 uic', myGoModel);
-                        return objview;
-                    }
+        let guid = utils.createGuid();
+        let obj = new akm.cxObject(guid, data.name, objtype, data.description);
+        if (obj) {
+            data.object = obj;
+            // Include the new object in the current model
+            myModel?.addObject(obj);
+            myMetis.addObject(obj);
+            console.log('131 createObject', obj, myModel);
+            // Create the corresponding object view
+            objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
+            if (objview) {
+                data.objectview = objview;
+                objview.setIsGroup(objtype?.isContainer());
+                objview.setLoc(data.loc);
+                objview.setSize(data.size);
+                // Include the object view in the current model view
+                myModelview.addObjectView(objview);
+                myMetis.addObjectView(objview);
+                // Then update the node with its new properties
+                // First set category and name
+                myDiagram.model.setDataProperty(data, "category", constants.C_OBJECT);
+                myDiagram.model.setDataProperty(data, "type", data.name);
+                // Then set reference to the object view                        
+                myDiagram.model.setDataProperty(data, "objectview", objview);
+                // Then set the view properties
+                // Get the object typeview
+                let objtypeView = objtype.getDefaultTypeView();
+                if (!objtypeView) {
+                    objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
+                }
+                if (objtypeView) {
+                    objtypeView.setIsGroup1(data.isGroup);
+                    objview.setTypeView(objtypeView);
+                    let node = new gjs.goObjectNode(data.key, objview);
+                    myGoModel.addNode(node);
+                    updateNode(node, objtypeView, myDiagram);
+                    node.loc = data.loc;
+                    node.size = data.size;
+                    console.log('162 uic', myGoModel);
+                    return objview;
                 }
                 // if (objview) {
                 //     const newNode = new gql.gqlObjectView(objview);
@@ -489,6 +487,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i] as gjs.goObjectNode;
         if (node.isGroup) {
+            console.log('490 getGroup', node);
             const nodeLoc = loc.split(" ");
             const grpLoc = node.loc.split(" ");
             const grpSize = node.size.split(" ");
@@ -499,6 +498,8 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
             const size = Math.sqrt(gw * gw + gh * gh);
+            console.log('501 getGroup', loc, node.loc);
+            console.log('502 getGroup', nx, gx, gw, ny, gy, gh);
             if (
                 (nx > gx) && (nx < gx + gw) &&
                 (ny > gy) && (ny < gy + gh)

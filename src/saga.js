@@ -26,22 +26,22 @@ function * loadDataSaga() {
     }
     return "";
   }
-  console.log('27 saga');
+  // console.log('27 saga');
   // const cookies = document.cookie
   // const localhost = 'https://akmserver.herokuapp.com/'
   const localhost = 'http://localhost:4000/'
   const _crf = getCookie("XSRF-TOKEN") || "";
   const _csrf = getCookie("_csrf") || "";
   const sessionCookie = getCookie("session") || "";
-  console.log('35 saga', _crf);
-  console.log('36 saga', sessionCookie);
-  console.log('37 saga', _csrf);
+  // console.log('35 saga', _crf);
+  // console.log('36 saga', sessionCookie);
+  // console.log('37 saga', _csrf);
 
   try {
     let res = ''
-    console.log('42 test');
+    // console.log('42 test');
     
-    res = yield fetch(`${localhost}akmmodels`,
+    res = yield fetch(`${localhost}akmmodels/`,
     {
       mode: 'no-cors',
       headers: {
@@ -57,7 +57,7 @@ function * loadDataSaga() {
       // credentials: 'same-origin'
       credentials: 'include'
     })
-    console.info('58 fetch()', res);
+    console.info('58 saga fetch()', res);
     console.log('62 saga', res.text()); 
     const metis = yield res.json()
     // const phData = yield {  metis  }

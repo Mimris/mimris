@@ -45,6 +45,7 @@
     "react-dom": "^16.13.1",
     "react-hook-form": "^3.29.4",
     "react-icons": "^3.10.0",
+    "react-iframe-comm": "^1.2.2",
     "react-redux": "^7.2.0",
     "reactstrap": "^8.4.1",
     "redux": "4.0.1",

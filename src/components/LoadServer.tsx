@@ -4,6 +4,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
 import Selector from './utils/Selector'
+import GetStoreFromHtml from './utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
@@ -39,15 +40,27 @@ const SelectSource = (props: any) => {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
-// console.log('42 LoadServer', models, selmodels);
 
+  const frameId = 'myFrame'
+// console.log('42 LoadServer', models, selmodels);
+  if (typeof window !== 'undefined') {
+    var theFrame = document//?.getElementById(frameId);
+    // var theWin = theFrame?.contentWindow;
+    // var theDoc = theFrame?.contentDocument || theFrame?.contentWindow?.document;
+    // var json = theDoc;
+    // var msgs = JSON.parse(theDoc);
+    console.log('44 LoadServer', theFrame)
+  }
+
+  console.log('55 LoadServer',  GetStoreFromHtml() );
+  
+
+  // console.log('45 LoadServer', frames[frameId]?.document.documentElement.innerHTML)
 const selectorDiv = (state.phSource === 'Model server') && 
   <div className="modeller-selection p-2 bg-warning " >
     <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' /> <br /><hr />
   <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' />  <br />
   </div> 
-// console.log('131', state);
-
   const buttonDiv = 
       <>
         <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
@@ -57,7 +70,10 @@ const selectorDiv = (state.phSource === 'Model server') &&
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
           <p> Server access : </p>
-          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe>
+          {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+          {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe> */}
+          {/* {GetStoreFromHtml} */}
+          {/* <IframeHelper /> */}
           {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
           {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>

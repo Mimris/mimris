@@ -687,6 +687,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 {
                   font: "Bold 12pt Sans-Serif",
                   editable: true, isMultiline: false,
+                  name: "name"
                 },
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay()

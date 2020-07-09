@@ -148,6 +148,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodeDataArray: myGoMetamodel.nodes,
       linkDataArray: myGoMetamodel.links
     }
+    const selectedNodes = new Array();
     const modifiedNodes = new Array();
     const modifiedLinks = new Array();
     const modifiedTypeNodes = new Array();
@@ -401,17 +402,34 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           })
-        )
-      }
+          )
+        }
         break;
-      case "ObjectSingleClicked": {
-        console.log('334 GoJSApp :', e.subject.part.data);
+        case "ObjectSingleClicked": {
+        let selection = e.subject;
         this.setState(
           produce((draft: AppState) => {
+            // console.log('412 Selection clicked', selection[0]);
+            // // for (let it = selection?.iterator; it?.next() ;) {
+            //   const sel = selection[0].value;
+            //   const typename = sel.data.type;
+            //   console.log('415 Selection clicked', sel, typename);
+            //   if (typename === 'Object type') {
+            //     // Object type moved
+            //     // to be done
+            //   }
+            //   else {
+            //     // Object moved
+            //     const key = sel.data.key;
+            //     // uic.changeNodeSizeAndPos(sel.data, myGoModel, modifiedNodes);
+            //     const myNode = this.getNode(context.myGoModel, key);
+            //     console.log('425 Selectioncliced', myNode);
+            //     // console.log('272 SelectionMoved', modifiedNodes);
+            //   }
+            // }
           })
         )
         console.log('366 GoJSApp :', this.state);
-
       }
         break;
       case "PartResized": {
@@ -567,7 +585,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     console.log('520 modifiedTypeGeos', modifiedTypeGeos);
     modifiedTypeGeos?.map(mn => {
       let data = (mn) && mn
-      this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEO_PROPERTIES', data })
+      this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
     })
 
     console.log('526 modifiedLinks', modifiedLinks);

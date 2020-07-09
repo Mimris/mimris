@@ -53,7 +53,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
                 // Get the object typeview
-                let objtypeView = objtype.getDefaultTypeView();
+                let objtypeView = objtype?.getDefaultTypeView();
                 if (!objtypeView) {
                     objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
                 }

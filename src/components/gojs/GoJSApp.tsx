@@ -148,17 +148,15 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodeDataArray: myGoMetamodel.nodes,
       linkDataArray: myGoMetamodel.links
     }
-    const modifiedNodes     = new Array();
-    const modifiedTypeNodes = new Array();
-    const modifiedLinks     = new Array();
-    const modifiedTypeNodes = new Array();
-    const modifiedTypeViews = new Array();
-    const modifiedTypeGeos  = new Array();
-    const modifiedLinks     = new Array();
-    const modifiedLinkTypes = new Array();
+    const modifiedNodes         = new Array();
+    const modifiedLinks         = new Array();
+    const modifiedTypeNodes     = new Array();
+    const modifiedTypeViews     = new Array();
+    const modifiedTypeGeos      = new Array();
+    const modifiedLinkTypes     = new Array();
     const modifiedLinkTypeViews = new Array();
-    const modifiedObjects   = new Array();
-    const modifiedRelships  = new Array();
+    const modifiedObjects       = new Array();
+    const modifiedRelships      = new Array();
     let done = false;
     const context = {
       "myMetis"         : myMetis,

@@ -150,8 +150,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     const modifiedNodes     = new Array();
     const modifiedTypeNodes = new Array();
-    const modifiedLinks     = new Array();
-    const modifiedTypeNodes = new Array();
     const modifiedTypeViews = new Array();
     const modifiedTypeGeos  = new Array();
     const modifiedLinks     = new Array();

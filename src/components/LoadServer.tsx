@@ -26,7 +26,7 @@ const SelectSource = (props: any) => {
       dispatch(loadData())
   }
  
-  const models = props.phData.metis?.models
+  const models = props.phData?.metis?.models
   const focusModel = props.phFocus?.focusModel
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const selmodels = models?.map((m: any) => m)

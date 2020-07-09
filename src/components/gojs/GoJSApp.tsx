@@ -449,22 +449,46 @@ class GoJSApp extends React.Component<{}, AppState> {
                         modifiedObjects.push(gqlObj);
                     }
                 }
-              }
-              // Then handle the relationships
-              const it2 = selection.iterator;
-              while (it2.next()) {
-                  const selected = it2.value.data;
-                  if (selected.class === 'goRelshipLink') {
-                    const link = selected;
-                    const relview = uic.createRelationship(link, context);
-                    if (relview) {
-                        const gqlLink = new gql.gqlRelshipView(relview);
-                        modifiedLinks.push(gqlLink);
-                        const gqlRelship = new gql.gqlRelationship(relview.relship);
-                        modifiedRelships.push(gqlRelship);
-                    }      
+            }
+            const it1 = selection.iterator;
+            while (it1.next()) {
+                // Then handle the relationships
+                const selected = it1.value.data;
+                if (selected.class === 'goRelshipLink') {
+                  const link = selected;
+                  const relview = uic.createRelationship(link, context);
+                  if (relview) {
+                      const gqlLink = new gql.gqlRelshipView(relview);
+                      modifiedLinks.push(gqlLink);
+                      const gqlRelship = new gql.gqlRelationship(relview.relship);
+                      modifiedRelships.push(gqlRelship);
+                  }      
                 }
-              }
+            }
+            // // If groups are involved, handle the group content
+            // const groupsToPaste = new Array();
+            // let i = 0;
+            // let it1 = selection.iterator;
+            // while (it1.next()) {
+            //     // Identify groups in the selection
+            //     let selected = it1.value.data;
+            //     console.log('471 onClipboardPasted', selected);
+            //     if (selected.class === 'goObjectNode') {
+            //         let node = selected;
+            //         if (node.isGroup) {
+            //             groupsToPaste[i] = node;
+            //             // groupsToPaste[i] = node.data;
+            //             // groupsToPaste[i].node = node;
+            //             // groupsToPaste[i].key = node.data.key;
+            //             // groupsToPaste[i].objectview = node.data.objectview;
+            //             groupsToPaste[i].members = new Array();
+            //         }
+            //     }
+            //     i++;
+            // }
+        
+
+
           })
         )
       }

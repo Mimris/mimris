@@ -438,7 +438,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               // set the port properties:
               portId: "", 
               // cursor: "crosshair",
-              cursor: "pointer",
+              // cursor: "pointer",
+              // cursor: "move",
+              cursor: "alias",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
               toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
             },
@@ -446,7 +448,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor')),
           $(go.Panel, "Table",
-            { defaultAlignment: go.Spot.Left, margin: 4 },
+            { defaultAlignment: go.Spot.Left, margin: 4, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
             $(go.Panel, "Horizontal",
               $(go.Picture,                   // the image
@@ -457,17 +459,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 },
                 new go.Binding("source", "icon", findImage)
               ),
-
+              
               // define the panel where the text will appear
               $(go.Panel, "Table",
                 {
                   defaultRowSeparatorStroke: "black",
                   maxSize: new go.Size(150, 999),
                   margin: new go.Margin(0, 0, 0, 0),
-                  defaultAlignment: go.Spot.Left
+                  defaultAlignment: go.Spot.Left,
                 },
-                $(go.RowColumnDefinition, { column: 2, width: 4 }
-                ),
+                $(go.RowColumnDefinition, { column: 2, width: 4 }),
                 // content
                 $(go.TextBlock, textStyle(),  // the name
                   {
@@ -476,13 +477,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     row: 0, column: 0, columnSpan: 6,
                     font: "12pt Segoe UI,sans-serif",
                     minSize: new go.Size(80, 16), //sf changed x min size to 100
-   
                     height: 40,
                     verticalAlignment: go.Spot.Center,
                     margin: new go.Margin(0,0,4,0),
                     name: "name"
                   },
-                  new go.Binding("text", "name").makeTwoWay()),
+                  new go.Binding("text", "name").makeTwoWay()
+                ),
                 new go.Binding("choices"),
                 $(go.TextBlock, textStyle(), // the typename
                   {
@@ -671,7 +672,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             */
             {
-              portId: "", cursor: "pointer",
+              portId: "", cursor: "alias",
+              // portId: "", cursor: "pointer",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
               toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
             }),
@@ -697,7 +699,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             $(go.Shape,  // using a Shape instead of a Placeholder
               {
                 name: "SHAPE", fill: "lightyellow",
-                minSize: new go.Size(300, 200) // sf changed to bigger container
+                minSize: new go.Size(300, 200), // sf changed to bigger container
+                margin: new go.Margin(0, 1, 1, 1),
+                cursor: "move"
               },
               new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)
             )

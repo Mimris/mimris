@@ -35,6 +35,7 @@ import {
 import InitStateJson from './InitialState.json'
 
 const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
+console.log('38 InitialState', InitState);
 
 export const InitialState = {
   phData: InitState.phData,
@@ -505,18 +506,13 @@ function reducer(state = InitialState, action) {
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
-      const curmvindexrv = curmrv?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
-      // console.log('371 curmindex', curmindex);
-      // console.log('372 curmvindex', curmvindex);
+      const curmindexvrv = curmrv?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
 
-      const currv = curmvrv.relshipviews?.find(rv => rv.id === action?.data?.id) // current objectview
-      // console.log('409 curov', curov);
-      const rvlength = curmvrv?.relshipviews.length
-      let rvindex = curmvrv?.objectviews?.findIndex(rv => rv.id === currv?.id) // current objectview index
-      if (rvindex < 0) { rvindex = rvlength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
-      // console.log('411 ovindex', ovindex, ovlength);
-      // const curr = curmrv?.relships?.find(r => r.id === currv?.relshipRef)
-      // const currindex = curmrv?.relships?.findIndex(r => r.id === currv?.objectRef)
+      const currvlength =  curmvrv?.relshipviews?.length
+      const currv =     curmvrv?.relshipviews?.find(rv => rv.id === action?.data?.id) // current relshipview
+      let currvindex =     curmvrv?.relshipviews?.findIndex(rv => rv.id === currv?.id) // current relshipview index
+
+      if (currvindex < 0) { currvindex = currvlength } // rvindex = -1, i.e.  not fond, which means adding a new relshipview
  
       return {
         ...state,
@@ -529,26 +525,26 @@ function reducer(state = InitialState, action) {
                 {
                   ...state.phData.metis.models[curmindexrv],
                   modelviews: [
-                    ...curmrv?.modelviews.slice(0, curmvindexrv),
+                    ...curmrv?.modelviews.slice(0, curmindexvrv),
                     {
-                      ...curmrv?.modelviews[curmvindexrv],
+                      ...curmrv?.modelviews[curmindexvrv],
                       relshipviews: [
-                        ...curmvrv?.relshipviews?.slice(0, rvindex),
+                        ...curmvrv?.relshipviews?.slice(0, currvindex),
                         {
-                          ...curmvrv?.relshipviews[rvindex],  
+                          ...curmvrv?.relshipviews[currvindex],  
                           id: action.data.id,           
                           name: action.data.name,
                           description: action.data.description,
-                          relshipRef: action.data.objectRef,
+                          relshipRef: action.data.relshipRef,
                           typeviewRef: action.data.typeviewRef,
-                          fromobjviewRef: action.data.objviewRef,
+                          fromobjviewRef: action.data.fromobjviewRef,
                           toobjviewRef: action.data.toobjviewRef,
                           // deleted: action.data.deleted,
                         },
-                        ...curmvrv?.objectviews.slice(rvindex + 1)
+                        ...curmvrv?.relshipviews.slice(currvindex + 1)
                       ]
                     },
-                    ...curmrv?.modelviews.slice(curmvindexrv + 1),
+                    ...curmrv?.modelviews.slice(curmindexvrv + 1),
                   ],
                 },
                 ...state.phData.metis.models.slice(curmindexrv + 1),
@@ -562,7 +558,7 @@ function reducer(state = InitialState, action) {
       const curmod     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmm     = state.phData?.metis?.metamodels?.find(m => m.id === curmod.metamodelRef)
       const curmmindex = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmod.metamodelRef) 
-      const curot  = curmm?.objtypegeos?.find(ot => ot.id === action?.data?.id)
+      // const curot  = curmm?.objtypegeos?.find(ot => ot.id === action?.data?.id)
       console.log('506 curmm', curmm);
       const otlength = curmm?.objtypegeos.length
       let otindex = curmm?.objtypegeos?.findIndex(ot => ot.id === curov?.id)
@@ -595,20 +591,14 @@ function reducer(state = InitialState, action) {
                     ...curmm?.objtypegeos.slice(otindex + 1)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmindex + 1),
+                ...state.phData.metis.metamodels.slice(curmmindex + 1),
               ]
             },
          },
       }
 
-
     case UPDATE_OBJECT_PROPERTIES:
-      console.log('618 UPDATE_OBJECT_PROPERTIES', action);
-      // console.log('236', action);
-      // console.log('238',
-      //   state.phData.model.metis.models[0].model.objects.find(obj => obj.id === action.data.id)
-      // );
-      
+      console.log('618 UPDATE_OBJECT_PROPERTIES', action);     
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = curmo?.objects?.find(o => o.id === curov?.objectRef) //current Object
@@ -616,7 +606,6 @@ function reducer(state = InitialState, action) {
 
       const olength = curmo?.objects.length
       if (curoindexo < 0) { curoindexo = olength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
-
       const { id, ...rest } = (action.data)
       const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
 
@@ -656,10 +645,6 @@ function reducer(state = InitialState, action) {
       console.log('685 UPDATE_RELSHIP_PROPERTIES', action);
       const curmr = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexr = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      // const curmvr = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
-      // const curmvindexr = curm?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
-      // console.log('371 curmindex', curmindex);
-      // console.log('372 curmvindex', curmvindex);
 
       const curr = curmr.relships?.find(rv => rv.id === action?.data?.id) // current relview
       // console.log('409 curov', curov);
@@ -680,7 +665,7 @@ function reducer(state = InitialState, action) {
               ...state.phData.metis.models.slice(0, curmindexr),
               {
                 ...state.phData.metis.models[curmindexr],
-                relshipviews: [
+                relships: [
                   ...curmr.relships.slice(0, r2index),
                   {
                     ...curmr.relships[r2index],
@@ -688,10 +673,10 @@ function reducer(state = InitialState, action) {
                     name: action.data.name,
                     description: action.data.description,
                     typeRef: action.data.typeRef,
-                    fromobjviewRef: action.data.objviewRef,
-                    toobjviewRef: action.data.toobjviewRef,
+                    fromobjectRef: action.data.fromobjectRef,
+                    toobjectRef: action.data.toobjectRef,
                     // propvalues: {
-                    //   ...curmv.relships[rvindex].propvalues,
+                    //   ...curmv.relships[r2index].propvalues,
                     // }
                   },
                   ...curmr.relships.slice(r2index + 1)

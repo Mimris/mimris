@@ -149,9 +149,14 @@ class GoJSApp extends React.Component<{}, AppState> {
       linkDataArray: myGoMetamodel.links
     }
     const modifiedNodes     = new Array();
+    const modifiedTypeNodes = new Array();
     const modifiedLinks     = new Array();
     const modifiedTypeNodes = new Array();
-    const modifiedTypeLinks = new Array();
+    const modifiedTypeViews = new Array();
+    const modifiedTypeGeos  = new Array();
+    const modifiedLinks     = new Array();
+    const modifiedLinkTypes = new Array();
+    const modifiedLinkTypeViews = new Array();
     const modifiedObjects   = new Array();
     const modifiedRelships  = new Array();
     let done = false;
@@ -555,16 +560,34 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
     })
 
+    console.log('520 modifiedTypeViews', modifiedTypeViews);
+    modifiedTypeViews?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+    })
+
+    console.log('520 modifiedTypeGeos', modifiedTypeGeos);
+    modifiedTypeGeos?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEO_PROPERTIES', data })
+    })
+
     console.log('526 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
     
-    console.log('532 modifiedTypeLinks', modifiedTypeLinks);
-    modifiedTypeLinks?.map(mn => {
+    console.log('532 modifiedLinkTypes', modifiedLinkTypes);
+    modifiedLinkTypes?.map(mn => {
         let data = (mn) && mn
-        this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+        this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+    })
+
+    console.log('532 modifiedLinkTypeViews', modifiedLinkTypeViews);
+    modifiedLinkTypeViews?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
     })
 
     console.log('538 modifiedObjects', modifiedObjects);

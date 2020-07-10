@@ -409,7 +409,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let selection = e.subject;
         this.setState(
           produce((draft: AppState) => {
-            // console.log('412 Selection clicked', selection[0]);
+            console.log('412 Selection clicked', selection);
             // // for (let it = selection?.iterator; it?.next() ;) {
             //   const sel = selection[0].value;
             //   const typename = sel.data.type;

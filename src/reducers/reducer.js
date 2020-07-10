@@ -477,7 +477,8 @@ function reducer(state = InitialState, action) {
                           group: action.data.group,
                           isGroup: action.data.isGroup,
                           loc: action.data.loc,
-                          size: action.data.size
+                          size: action.data.size,
+                          deleted: action.data.deleted,
                         },
                         ...curmv?.objectviews?.slice(ovindex + 1)
                       ]
@@ -540,7 +541,7 @@ function reducer(state = InitialState, action) {
                           typeviewRef: action.data.typeviewRef,
                           fromobjviewRef: action.data.fromobjviewRef,
                           toobjviewRef: action.data.toobjviewRef,
-                          // deleted: action.data.deleted,
+                          deleted: action.data.deleted,
                         },
                         ...curmvrv?.relshipviews.slice(currvindex + 1)
                       ]
@@ -584,6 +585,7 @@ function reducer(state = InitialState, action) {
                       typeviewRef: action.data.typeviewRef,
                       viewkind: action.data.viewkind,
                       abstract: action.data.abstract,
+                      deleted: action.data.deleted,
                     },
                     ...curmmot?.objecttypes.slice(indexot + 1)
                   ]
@@ -631,6 +633,7 @@ function reducer(state = InitialState, action) {
                       strokecolor: action.data.strokecolor,
                       strokewidth: action.data.strokewidth,
                       icon: action.data.icon,
+                      deleted: action.data.deleted,
                     },
                     ...curmmotv?.objecttypeviews.slice(indexotv + 1)
                   ]
@@ -670,7 +673,8 @@ function reducer(state = InitialState, action) {
                       typeRef: action.data.typeRef,
                       metamodelRef: action.data.metamodelRef,
                       loc: action.data.loc,
-                      size: action.data.size
+                      size: action.data.size,
+                      deleted: action.data.deleted,                      
                     },
                     ...curmm?.objtypegeos.slice(otindex + 1)
                   ]
@@ -719,7 +723,8 @@ function reducer(state = InitialState, action) {
                     properties: {
                       ...curmmrt.relshiptypes[indexrt]?.properties,
                       properties: action.data.properties,
-                    },                  
+                    },             
+                    deleted: action.data.deleted,     
                   },
                   ...curmmrt?.relshiptypes.slice(indexrt + 1)
                 ]
@@ -768,7 +773,8 @@ function reducer(state = InitialState, action) {
                     properties: {
                       ...curmm.relshiptypeviews[indexrt]?.properties,
                       properties: action.data.properties,
-                    },                  
+                    },    
+                    deleted: action.data.deleted,              
                   },
                   ...curmm?.relshiptypeviews.slice(indexrtv + 1)
                 ]
@@ -813,6 +819,7 @@ function reducer(state = InitialState, action) {
                       ...curmo.objects[curoindexo]?.propertyValues,
                       propertyValues: action.data.propertyValues,
                     },
+                    deleted: action.data.deleted,
                   },
                   ...curmo.objects.slice(curoindexo + 1)
                 ],
@@ -860,6 +867,7 @@ function reducer(state = InitialState, action) {
                     // propvalues: {
                     //   ...curmv.relships[r2index].propvalues,
                     // }
+                    deleted: action.data.deleted,
                   },
                   ...curmr.relships.slice(r2index + 1)
                 ]

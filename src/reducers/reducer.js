@@ -686,9 +686,9 @@ function reducer(state = InitialState, action) {
       const curmodrt = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmrt = state.phData?.metis?.metamodels?.find(m => m.id === curmodrt.metamodelRef)
       const curmmindexrt = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmmrt.metamodelRef)
-      const currt = curmm?.reshiptypes?.find(ot => ot.id === action?.data?.id)
-      const lengthrt = curmm?.reshiptypes.length
-      let indexrt = curmm?.reshiptypes?.findIndex(ot => ot.id === currt?.id)
+      const currt = curmmrt?.reshiptypes?.find(ot => ot.id === action?.data?.id)
+      const lengthrt = curmmrt?.reshiptypes?.length
+      let indexrt = curmmrt?.reshiptypes?.findIndex(ot => ot.id === currt?.id)
       if (indexrt < 0) { indexrt = lengthrt }
       // console.log('411 ovindex', ovindex, ovlength);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
@@ -704,9 +704,9 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.metamodels[curmmindexrt],
                 relshiptypes: [
-                  ...curmm?.reshiptypes.slice(0, indexrt),
+                  ...curmmrt?.relshiptypes?.slice(0, indexrt),
                   {
-                    ...curmm?.relshiptypes[indexrt],
+                    ...curmmrt?.relshiptypes[indexrt],
                     id: action.data.id,
                     name: action.data.name,
                     description: action.data.description,
@@ -717,11 +717,11 @@ function reducer(state = InitialState, action) {
                     fromobjtypeRef: action.data.fromobjtypeRef,
                     toobjtypeRef: action.data.toobjtypeRef,
                     properties: {
-                      ...curmm.relshiptypes[indexrt]?.properties,
+                      ...curmmrt.relshiptypes[indexrt]?.properties,
                       properties: action.data.properties,
                     },                  
                   },
-                  ...curmm?.relshiptypes.slice(indexrt + 1)
+                  ...curmmrt?.relshiptypes?.slice(indexrt + 1)
                 ]
               },
               ...state.phData.metis.metamodels.slice(curmmindexrt + 1),
@@ -735,9 +735,9 @@ function reducer(state = InitialState, action) {
       const curmodrtv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmrtv = state.phData?.metis?.metamodels?.find(m => m.id === curmodrtv.metamodelRef)
       const curmmindexrtv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmmrtv.metamodelRef)
-      const currtv = curmm?.relshiptypeviews?.find(ot => ot.id === action?.data?.id)
-      const lengthrtv = curmm?.relshiptypeviews.length
-      let indexrtv = curmm?.relshiptypeviews?.findIndex(ot => ot.id === currtv?.id)
+      const currtv = curmmrtv?.relshiptypeviews?.find(ot => ot.id === action?.data?.id)
+      const lengthrtv = curmmrtv?.relshiptypeviews.length
+      let indexrtv = curmmrtv?.relshiptypeviews?.findIndex(ot => ot.id === currtv?.id)
       if (indexrtv < 0) { indexrtv = lengthrtv }
       // console.log('411 ovindex', ovindex, ovlength);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
@@ -753,9 +753,9 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.metamodels[curmmindexrtv],
                 relshiptypeviews: [
-                  ...curmm?.relshiptypeviews.slice(0, indexrtv),
+                  ...curmmrtv?.relshiptypeviews?.slice(0, indexrtv),
                   {
-                    ...curmm?.relshiptypeviews[indexrtv],
+                    ...curmmrtv?.relshiptypeviews[indexrtv],
                     id: action.data.id,
                     name: action.data.name,
                     description: action.data.description,
@@ -766,11 +766,11 @@ function reducer(state = InitialState, action) {
                     fromobjtypeRef: action.data.fromobjtypeRef,
                     toobjtypeRef: action.data.toobjtypeRef,
                     properties: {
-                      ...curmm.relshiptypeviews[indexrt]?.properties,
+                      ...curmmrtv.relshiptypeviews[indexrt]?.properties,
                       properties: action.data.properties,
                     },                  
                   },
-                  ...curmm?.relshiptypeviews.slice(indexrtv + 1)
+                  ...curmmrtv?.relshiptypeviews.slice(indexrtv + 1)
                 ]
               },
               ...state.phData.metis.metamodels.slice(curmmindexrtv + 1),

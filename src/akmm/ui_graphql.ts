@@ -379,7 +379,7 @@ export class gqlObjectTypeView {
         this.description = "";
         if (objtypeview.description)
             this.description = objtypeview.description;
-        this.typeRef = objtypeview.getType()?.id;
+        this.typeRef = objtypeview.type?.id;
         this.isGroup = objtypeview.getIsGroup();
         this.group = objtypeview.getGroup();
         this.viewkind = objtypeview.getViewKind();
@@ -424,7 +424,7 @@ export class gqlRelshipTypeView {
         this.id = reltypeview.id;
         this.name = reltypeview.name;
         this.description = (reltypeview.description) ? reltypeview.description : "";
-        this.typeRef = reltypeview.getType().id;
+        this.typeRef = reltypeview.type.id;
         this.strokecolor = reltypeview.getStrokecolor();
         this.strokewidth = reltypeview.getStrokewidth();
         this.dash = reltypeview.getDash();
@@ -572,12 +572,14 @@ export class gqlObject {
     description: string;
     typeRef: string;
     propertyValues: any[];
+    deleted: boolean;
     constructor(object: akm.cxObject) {
         this.id = object.id;
         this.name = object.name;
         this.description = object.description ? object.description : "";
         this.typeRef = object.type ? object.type.id : "";
         this.propertyValues = [];
+        this.deleted = object.deleted;
 
         // Code
         let type = object.type;
@@ -707,6 +709,7 @@ export class gqlRelationship {
     fromobjectRef: string;
     toobjectRef: string;
     propvalues: any[];
+    deleted: boolean;
     constructor(relship: akm.cxRelationship) {
         this.id = relship.id;
         this.name = relship.name;
@@ -715,14 +718,15 @@ export class gqlRelationship {
         this.toobjectRef = relship.toObject ? relship.toObject.id : "";
         this.typeRef = "";
         this.propvalues = [];
+        this.deleted = relship.deleted;
         // Code
         if (relship) {
             if (relship.description)
                 this.description = relship.description;
-            const type = relship.getType();
+            const type = relship.type;
             if (type)
                 this.typeRef = type.id;
-            const values = relship.getValueset();
+            const values = relship.valueset;
             if (values) {
                 this.propvalues = [];
                 const cnt = values.length;

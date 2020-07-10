@@ -19,6 +19,7 @@ import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
 
 const constants = require('../../akmm/constants');
+const utils     = require('../../akmm/utilities');
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -148,30 +149,32 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodeDataArray: myGoMetamodel.nodes,
       linkDataArray: myGoMetamodel.links
     }
-    const modifiedNodes = new Array();
-    const modifiedLinks = new Array();
-    const modifiedTypeNodes = new Array();
-    const modifiedTypeViews = new Array();
-    const modifiedTypeGeos = new Array();
-    const modifiedLinkTypes = new Array();
+    const modifiedNodes         = new Array();
+    const modifiedLinks         = new Array();
+    const modifiedTypeNodes     = new Array();
+    const modifiedTypeViews     = new Array();
+    const modifiedTypeGeos      = new Array();
+    const modifiedLinkTypes     = new Array();
     const modifiedLinkTypeViews = new Array();
-    const modifiedObjects = new Array();
-    const modifiedRelships = new Array();
+    const modifiedObjects       = new Array();
+    const modifiedRelships      = new Array();
+    const selectedObjectViews   = new Array();
+    const selectedRelshipViews  = new Array();
     let done = false;
     const context = {
-      "myMetis": myMetis,
-      "myMetamodel": myMetamodel,
-      "myModel": myModel,
-      "myModelview": myModelview,
-      "myGoModel": myGoModel,
-      "myGoMetamodel": myGoMetamodel,
-      "myDiagram": myDiagram,
-      "pasteViewsOnly": false,
-      "deleteViewsOnly": false,
-      "dispatch": dispatch,
-      "done": done
+      "myMetis":          myMetis,
+      "myMetamodel":      myMetamodel,
+      "myModel":          myModel,
+      "myModelview":      myModelview,
+      "myGoModel":        myGoModel,
+      "myGoMetamodel":    myGoMetamodel,
+      "myDiagram":        myDiagram,
+      "pasteViewsOnly":   false,
+      "deleteViewsOnly":  false,
+      "dispatch":         dispatch,
+      "done":             done
     }
-    console.log('153 handleDiagramEvent - context', name, this.state, context);
+    console.log('177 handleDiagramEvent - context', name, this.state, context);
 
     switch (name) {
       case 'TextEdited': {
@@ -197,7 +200,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                       modifiedTypeNodes.push(gqlNode);
                     }
                   }
-                } else {
+                } else // Object
+                {
                   if (text === 'Edit name') {
                     text = prompt('Enter name');
                     sel.data.name = text;
@@ -260,13 +264,30 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             for (let it = selection.iterator; it.next();) {
               const sel = it.value;
-              const typename = sel.data.type;
-              console.log('266 SelectionMoved', sel.data);
+              const data = sel.data;
+              const typename = data.type;
+              console.log('266 SelectionMoved', data);
               if (typename === 'Object type') {
-                // Object type moved
-                // to be done
+                  console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
+                  const objtype = context.myMetis.findObjectType(data.objtype.id);
+                  if (objtype) {
+                      let objtypeGeo = context.myMetamodel.findObjtypeGeoByType(objtype);
+                      if (!objtypeGeo) {
+                          objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, objtype, "", "");
+                      }
+                      objtypeGeo.setLoc(data.loc);
+                      objtypeGeo.setSize(data.size);
+                      console.log('272 objtypeGeo', objtypeGeo);
+                      const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
+                      console.log('279 modifiedTypeGeos', gqlObjtypeGeo);
+                      modifiedTypeGeos.push(gqlObjtypeGeo);
+                      // const gqlObjtype = new gql.gqlObjectType(objtype, true);
+                      // modifiedTypeNodes.push(gqlObjtype);
+                      // console.log('281 modifiedTypeNodes', gqlObjtype);
+                  }
               }
-              else {
+              else // Object
+              {
                 // Object moved
                 const key = sel.data.key;
                 uic.changeNodeSizeAndPos(sel.data, myGoModel, modifiedNodes);
@@ -292,29 +313,23 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const myNode = this.getNode(context.myGoModel, key);
                 // console.log('207, text GoJSApp', myNode);
                 if (myNode) {
-                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, context);
-                  const objview = myNode.objectview;
-                  objview.deleted = deletedFlag;
-                  if (objview) {
-                    const gqlNode = new gql.gqlObjectView(objview);
-                    console.log('314 SelectionDeleted', gqlNode);
-                    modifiedNodes.push(gqlNode);
-                    const gqlObj = new gql.gqlObject(objview.object);
-                    //modifiedObjects.push(gqlObj);
-                  }
+                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, context);
+                  console.log('315 modifiedNodes', modifiedNodes);
+                  console.log('316 modifiedNodes', modifiedObjects);
                 }
               }
               else if (sel.class === "goRelshipLink") {
                 const myLink = this.getLink(context.myGoModel, key);
-                uic.deleteLink(sel, deletedFlag, modifiedLinks, context);
+                uic.deleteLink(sel, deletedFlag, modifiedLinks, modifiedRelships, context);
                 const relview = sel.relshipview;
                 if (relview) {
                   relview.deleted = deletedFlag;
-                  const gqlLink = new gql.gqlRelshipView(relview);
-                  modifiedLinks.push(gqlLink);
-                  console.log('314 SelectionDeleted', gqlLink);
+                  const gqlRelview = new gql.gqlRelshipView(relview);
+                  modifiedLinks.push(gqlRelview);
+                  console.log('327 SelectionDeleted', modifiedLinks);
                   const gqlRel = new gql.gqlRelationship(relview.relship);
-                  modifiedLinks.push(gqlRel);
+                  modifiedRelships.push(gqlRel);
+                  console.log('330 SelectionDeleted', modifiedRelships);
                 }
               }
             }
@@ -364,14 +379,26 @@ class GoJSApp extends React.Component<{}, AppState> {
               // } else {
               //     part.typename = constants.types.CONTAINERTYPE_NAME;
               // }
+
               const otype = uic.createObjectType(part, context);
               console.log('385 ExternalObjectsDropped - otype', otype);
               if (otype) {
                 otype.typename = constants.types.OBJECTTYPE_NAME;
                 console.log('388 ExternalObjectsDropped', otype);
-                const gqlNode = new gql.gqlObjectType(otype, true);
-                console.log('390 modifiedTypeNodes', gqlNode);
-                modifiedTypeNodes.push(gqlNode);
+                const gqlObjtype = new gql.gqlObjectType(otype, true);
+                console.log('390 modifiedTypeNodes', gqlObjtype);
+                modifiedTypeNodes.push(gqlObjtype);
+
+                const gqlObjtypeView = new gql.gqlObjectTypeView(otype.typeview);
+                console.log('394 modifiedTypeViews', gqlObjtypeView);
+                modifiedTypeViews.push(gqlObjtypeView);
+
+                const loc  = part.loc;
+                const size = part.size;
+                const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
+                const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
+                console.log('400 modifiedTypeGeos', gqlObjtypeGeo);
+                modifiedTypeGeos.push(gqlObjtypeGeo);
               }
             } else // object
             {
@@ -405,12 +432,18 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
         break;
       case "ObjectSingleClicked": {
-        console.log('334 GoJSApp :', e.subject.part.data);
+        console.log('433 GoJSApp :', e.subject.part.data);
         this.setState(
           produce((draft: AppState) => {
+            const node = e.subject.part.data;
+            const objview = node.objectview;
+            // Do whatever you like
+            // ..
+            const gqlObjView = new gql.gqlObjectView(objview);
+            selectedObjectViews.push(gqlObjView);
+            console.log('444 GoJSApp :', node);
           })
         )
-        console.log('366 GoJSApp :', this.state);
 
       }
         break;
@@ -500,6 +533,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
+        console.log('534 LinkDrawn', link.data);
         this.setState(
           produce((draft: AppState) => {
             if (fromNode?.class === 'goObjectNode') {
@@ -513,12 +547,18 @@ class GoJSApp extends React.Component<{}, AppState> {
                 modifiedRelships.push(gqlRelship);
               }
             } else if (fromNode?.class === 'goObjectTypeNode') {
+              console.log('547 link', fromNode, link.data);
               link.category = 'Relationship type';
               link.class = 'goRelshipTypeLink';
               const reltype = uic.createRelationshipType(link.data, context);
               if (reltype) {
-                const gqlLink = new gql.gqlRelationshipType(reltype);
-                modifiedTypeLinks.push(gqlLink);
+                console.log('551 reltype', reltype);
+                // const gqlType = new gql.gqlRelationshipType(reltype, true);
+                // modifiedLinkTypes.push(gqlType);
+                // console.log('559 gqlType', gqlType);
+                const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
+                modifiedLinkTypeViews.push(gqlTypeView);
+                console.log('556 gqlTypeView', gqlTypeView);
               }
             }
           })
@@ -546,49 +586,49 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
 
-    console.log('502 modifiedNodes', modifiedNodes);
+    console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
-    console.log('520 modifiedTypeNodes', modifiedTypeNodes);
+    console.log('583 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
     })
 
-    console.log('520 modifiedTypeViews', modifiedTypeViews);
+    console.log('589 modifiedTypeViews', modifiedTypeViews);
     modifiedTypeViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
     })
 
-    console.log('520 modifiedTypeGeos', modifiedTypeGeos);
+    console.log('595 modifiedTypeGeos', modifiedTypeGeos);
     modifiedTypeGeos?.map(mn => {
       let data = (mn) && mn
-      this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEO_PROPERTIES', data })
+      this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
     })
 
-    console.log('526 modifiedLinks', modifiedLinks);
+    console.log('601 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
 
-    console.log('532 modifiedLinkTypes', modifiedLinkTypes);
+    console.log('607 modifiedLinkTypes', modifiedLinkTypes);
     modifiedLinkTypes?.map(mn => {
       let data = (mn) && mn
-      this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+      this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
     })
 
-    console.log('532 modifiedLinkTypeViews', modifiedLinkTypeViews);
+    console.log('613 modifiedLinkTypeViews', modifiedLinkTypeViews);
     modifiedLinkTypeViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
     })
 
-    console.log('538 modifiedObjects', modifiedObjects);
+    console.log('619 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
@@ -598,6 +638,12 @@ class GoJSApp extends React.Component<{}, AppState> {
     modifiedRelships?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+    })
+
+    console.log('643 selectedObjectViews', selectedObjectViews);
+    selectedObjectViews?.map(mn => {
+      let data = (mn) && mn
+      this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
     })
   }
 

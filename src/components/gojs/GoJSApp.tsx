@@ -327,7 +327,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const gqlRelview = new gql.gqlRelshipView(relview);
                   modifiedLinks.push(gqlRelview);
                   console.log('327 SelectionDeleted', modifiedLinks);
-                  const gqlRel = new gql.gqlRelationship(relview.relship);
+                  const relship = relview.relship;
+                  relship.deleted = deletedFlag;
+                  const gqlRel = new gql.gqlRelationship(relship);
                   modifiedRelships.push(gqlRel);
                   console.log('330 SelectionDeleted', modifiedRelships);
                 }

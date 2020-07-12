@@ -406,7 +406,6 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
       if (relview) {
         const relship = relview.relship;
         if (relship) {
-            relship.deleted = deletedFlag;
             const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {
@@ -415,7 +414,8 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
                     const gqlRelview = new gql.gqlRelshipView(rview);
                     deletedLinks.push(delLink);
                 }
-             }
+            }
+            relship.deleted = deletedFlag;
             const delRelship = new gql.gqlRelationship(relship);
             deletedRelships.push(delRelship);
         }

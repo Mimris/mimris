@@ -7,6 +7,9 @@ import {
   SET_FOCUS_PHFOCUS,
   SET_FOCUS_USER,
   SET_FOCUS_OBJECT,
+  SET_FOCUS_OBJECTVIEW,
+  SET_FOCUS_RELSHIP,
+  SET_FOCUS_RELSHIPVIEW,
   SET_MYMETIS_MODEL,
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
@@ -38,7 +41,7 @@ import {
 import InitStateJson from './InitialState.json'
 
 const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
-console.log('38 InitialState', InitState);
+// console.log('38 InitialState', InitState);
 
 export const InitialState = {
   phData: InitState.phData,
@@ -187,10 +190,14 @@ let focusTask
 let focusSource
 let focusModelview
 let focusObject
+let focusObjectview = null
+let focusRelship = null
+let focusRelshipview = null
 let focusOrg
 let focusProj
 let focusRole
 let focusCollection
+
 
 function reducer(state = InitialState, action) {
   switch (action.type) {
@@ -246,6 +253,30 @@ function reducer(state = InitialState, action) {
         phFocus: {
           ...state.phFocus,
           focusModel: action.data
+        }
+      }
+    case SET_FOCUS_OBJECTVIEW: 
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusObjectview: action.data
+        }
+      }
+    case SET_FOCUS_RELSHIP: 
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusRelship: action.data
+        }
+      }
+    case SET_FOCUS_RELSHIPVIEW: 
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusRelshipview: action.data
         }
       }
     case SET_GOJS_METAMODELPALETTE:
@@ -602,8 +633,8 @@ function reducer(state = InitialState, action) {
       const curmmotv    = state.phData?.metis?.metamodels?.find(m => m.id === curmodotv.metamodelRef)
       const curmmindexotv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodotv.metamodelRef) 
       const curotv = curmmotv?.objecttypeviews?.find(ot => ot.id === action?.data?.id)
-      const lengthotv = curmm?.objecttypeviews.length
-      let indexotv = curmm?.objecttypeviews?.findIndex(ot => ot.id === curotv?.id)
+      const lengthotv = curmmotv?.objecttypeviews.length
+      let indexotv = curmmotv?.objecttypeviews?.findIndex(ot => ot.id === curotv?.id)
       if (indexotv < 0) {indexotv = lengthotv} 
       // console.log('411 ovindex', ovindex, ovlength);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
@@ -691,7 +722,7 @@ function reducer(state = InitialState, action) {
       const curmmrt = state.phData?.metis?.metamodels?.find(m => m.id === curmodrt.metamodelRef)
       const curmmindexrt = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmmrt.metamodelRef)
       const currt = curmmrt?.reshiptypes?.find(ot => ot.id === action?.data?.id)
-      const lengthrt = curmmrt?.reshiptypes.length
+      const lengthrt = curmmrt?.reshiptypes?.length
       let indexrt = curmmrt?.reshiptypes?.findIndex(ot => ot.id === currt?.id)
       if (indexrt < 0) { indexrt = lengthrt }
       // console.log('411 ovindex', ovindex, ovlength);
@@ -708,7 +739,7 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.metamodels[curmmindexrt],
                 relshiptypes: [
-                  ...curmmrt?.reshiptypes.slice(0, indexrt),
+                  ...curmmrt?.relshiptypes?.slice(0, indexrt),
                   {
                     ...curmmrt?.relshiptypes[indexrt],
                     id: action.data.id,
@@ -726,7 +757,7 @@ function reducer(state = InitialState, action) {
                     },             
                     deleted: action.data.deleted,     
                   },
-                  ...curmmrt?.relshiptypes.slice(indexrt + 1)
+                  ...curmmrt?.relshiptypes?.slice(indexrt + 1)
                 ]
               },
               ...state.phData.metis.metamodels.slice(curmmindexrt + 1),
@@ -740,9 +771,9 @@ function reducer(state = InitialState, action) {
       const curmodrtv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmrtv = state.phData?.metis?.metamodels?.find(m => m.id === curmodrtv.metamodelRef)
       const curmmindexrtv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmmrtv.metamodelRef)
-      const currtv = curmm?.relshiptypeviews?.find(ot => ot.id === action?.data?.id)
-      const lengthrtv = curmm?.relshiptypeviews.length
-      let indexrtv = curmm?.relshiptypeviews?.findIndex(ot => ot.id === currtv?.id)
+      const currtv = curmmrtv?.relshiptypeviews?.find(ot => ot.id === action?.data?.id)
+      const lengthrtv = curmmrtv?.relshiptypeviews.length
+      let indexrtv = curmmrtv?.relshiptypeviews?.findIndex(ot => ot.id === currtv?.id)
       if (indexrtv < 0) { indexrtv = lengthrtv }
       // console.log('411 ovindex', ovindex, ovlength);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
@@ -758,9 +789,9 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.metamodels[curmmindexrtv],
                 relshiptypeviews: [
-                  ...curmm?.relshiptypeviews.slice(0, indexrtv),
+                  ...curmmrtv?.relshiptypeviews?.slice(0, indexrtv),
                   {
-                    ...curmm?.relshiptypeviews[indexrtv],
+                    ...curmmrtv?.relshiptypeviews[indexrtv],
                     id: action.data.id,
                     name: action.data.name,
                     description: action.data.description,
@@ -771,12 +802,12 @@ function reducer(state = InitialState, action) {
                     fromobjtypeRef: action.data.fromobjtypeRef,
                     toobjtypeRef: action.data.toobjtypeRef,
                     properties: {
-                      ...curmm.relshiptypeviews[indexrt]?.properties,
+                      ...curmmrtv.relshiptypeviews[indexrt]?.properties,
                       properties: action.data.properties,
                     },    
                     deleted: action.data.deleted,              
                   },
-                  ...curmm?.relshiptypeviews.slice(indexrtv + 1)
+                  ...curmmrtv?.relshiptypeviews.slice(indexrtv + 1)
                 ]
               },
               ...state.phData.metis.metamodels.slice(curmmindexrtv + 1),
@@ -789,13 +820,15 @@ function reducer(state = InitialState, action) {
       console.log('618 UPDATE_OBJECT_PROPERTIES', action);     
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      const curoo = curmo?.objects?.find(o => o.id === curov?.objectRef) //current Object
-      let curoindexo = curmo?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
+      const curoo = curmo?.objects?.find(o => o.id === action.data.id) //current Object
+      let curoindexo = curmo?.objects?.findIndex(o => o.id === curoo.id) // curretn objectindex
+      console.log('828', curoindexo);
 
-      const olength = curmo?.objects.length
-      if (curoindexo < 0) { curoindexo = olength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
-      const { id, ...rest } = (action.data)
-      const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
+      const lengtho = curmo?.objects.length
+      if (curoindexo < 0) { curoindexo = lengtho } // ovindex = -1, i.e.  not fond, which means adding a new objectview
+      
+      // const { id, ...rest } = (action.data)
+      // const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
 
       return {
         ...state,
@@ -815,11 +848,11 @@ function reducer(state = InitialState, action) {
                     name: action.data.name,
                     description: action.data.description,
                     typeRef: action.data.typeRef,
-                    propertyValues: {
-                      ...curmo.objects[curoindexo]?.propertyValues,
-                      propertyValues: action.data.propertyValues,
-                    },
-                    deleted: action.data.deleted,
+                    // propertyValues: {
+                    //   ...curmo.objects[curoindexo]?.propertyValues,
+                    //   propertyValues: action.data.propertyValues,
+                    // },
+                    // deleted: action.data.deleted,
                   },
                   ...curmo.objects.slice(curoindexo + 1)
                 ],

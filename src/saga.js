@@ -26,7 +26,7 @@ function * loadDataSaga() {
   //   }
   //   return "";
   // }
-  console.log('27 saga');
+  // console.log('27 saga');
   // const cookies = document.cookie
   // const localhost = 'https://akmserver.herokuapp.com/'
   const localhost = 'http://localhost:4000/'

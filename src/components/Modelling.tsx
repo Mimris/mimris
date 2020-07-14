@@ -13,6 +13,8 @@ import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoadLocal from '../components/LoadLocal'
 import {getLocalStorage} from './GetSetLocalStorage'
+import EditFocusModel from '../components/EditFocusModel'
+import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
@@ -20,12 +22,15 @@ const page = (props:any) => {
   // console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
+  // const refresh = props.refresh
+  // const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
   const focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
   const focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
+  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
   
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
@@ -50,7 +55,7 @@ const page = (props:any) => {
     }, [focusModelview.id])
 
     useEffect(() => {
-      console.log('42 Diagram state', props ); 
+      // console.log('42 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [metis])
     
@@ -100,6 +105,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
+                    modelType='metamodel'
                     />
                 </div>
               </Col>
@@ -115,6 +121,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
+                    modelType='metamodel'
                   />
                 </div>
               </Col>
@@ -138,6 +145,7 @@ const page = (props:any) => {
                   metis={metis}
                   phFocus={phFocus}
                   dispatch={dispatch}
+                  modelType='model'
                 />
                 {/* <div className="instances"> area for all instance or result of query 
                 {instances}
@@ -156,6 +164,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
+                    modelType='model'
                   />
                 </div>
               </Col>
@@ -165,9 +174,16 @@ const page = (props:any) => {
       </TabContent>
     </>
     )      
+
+  console.log('173 Modelling', activeTab);
+  
   const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
   const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
-
+  const EditFocusModelDiv = (activeTab === '2') 
+    ? (focusObjectview.name) && <EditFocusModel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+    : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+  // console.log('177 Modelling', EditFocusModelDiv);
+  
   return (
     <>
       <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
@@ -176,10 +192,12 @@ const page = (props:any) => {
           style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
             Current source: {props.phSource}
         </span> 
-          <span className="sourceName float-right" 
-            style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-            {loadserver}  {loadlocal}
-        </span> 
+          <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#000", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {loadserver} {loadlocal}  
+          </span> 
+          <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#f00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+          {EditFocusModelDiv} 
+          </span> 
         <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
           {/* {modellingtabs} */}
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}

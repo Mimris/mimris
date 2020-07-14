@@ -39,12 +39,12 @@ const SelectSource = (props: any) => {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
-console.log('42 LoadServer', models, selmodels);
+// console.log('42 LoadServer', selmodels, selmodelviews);
 
 const selectorDiv = (state.phSource === 'Model server') && 
   <div className="modeller-selection p-2 bg-warning " >
     <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' /> <br /><hr />
-  <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' />  <br />
+    <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' />  <br />
   </div> 
 // console.log('131', state);
 

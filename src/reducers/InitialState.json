@@ -780,6 +780,18 @@
 			"id": "8a2f98d3-ecde-4bf3-ec29-6495a9566e10",
 			"name": "Property 1"
 		},
+			"focusObjectview": {
+			"id": null,
+			"name": ""
+		},
+			"focusRelship": {
+			"id": null,
+			"name": ""
+		},
+			"focusRelshipview": {
+			"id": null,
+			"name": ""
+		},
 		"focusModelview": {
 			"id": "c5512ed2-329c-4b32-5c2b-8a32b6157fd9",
 			"name": "Person Model View 1"

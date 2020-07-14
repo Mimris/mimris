@@ -1494,16 +1494,16 @@ export class cxMetis {
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
 
 export class cxMetaObject {
-    metis: cxMetis;
-    id: string;
-    name: string;
-    nameId: string;
-    class: string;
-    category: string;
-    description: string;
-    deleted: boolean;
-    modified: boolean;
-    fs_collection: string;
+    metis:          cxMetis;
+    id:             string;
+    name:           string;
+    nameId:         string;
+    class:          string;
+    category:       string;
+    description:    string;
+    deleted:        boolean;
+    modified:       boolean;
+    fs_collection:  string;
     // Constructor
     constructor(id: string, name: string, description: string) {
         this.metis = new cxMetis();

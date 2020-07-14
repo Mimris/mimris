@@ -406,7 +406,6 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
       if (relview) {
         const relship = relview.relship;
         if (relship) {
-            relship.deleted = deletedFlag;
             const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {
@@ -415,7 +414,8 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
                     const gqlRelview = new gql.gqlRelshipView(rview);
                     deletedLinks.push(delLink);
                 }
-             }
+            }
+            relship.deleted = deletedFlag;
             const delRelship = new gql.gqlRelationship(relship);
             deletedRelships.push(delRelship);
         }
@@ -949,9 +949,9 @@ export function createLink(data: any, context: any): any {
     return;
 }
 
-export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
+export function onLinkRelinked(lnk: gjs.goRelshipLink, modifiedLinks: any[], modifiedRelships: any[], context: any) {
     if (lnk.class === 'goRelshipLink') {
-
+        const myGoModel = context.myGoModel;
         const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
         if (link) {
             let relview = link.relshipview;    // cxRelationshipView
@@ -970,8 +970,10 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, myGoModel: gjs.goModel) {
                 relview.toObjview = toObjView;
                 rel.toObject = toObjView.object;
             }
-            relview.modified = true;;
-            rel.modified = true;
+            const gqlRelview = new gql.gqlRelshipView(relview);
+            modifiedLinks.push(gqlRelview);
+            const gqlRel = new gql.gqlRelationship(rel);
+            modifiedRelships.push(gqlRel);
         }
     }
 }

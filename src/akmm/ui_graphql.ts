@@ -3,6 +3,7 @@
 const utils = require('./utilities');
 const glb = require('./akm_globals');
 import * as akm from './metamodeller';
+import { deleteNode } from './ui_common';
 //import * as gojs  from './components/akmm/ui_gojs';
 
 export class gqlExportMetis {
@@ -316,133 +317,161 @@ export class gqlExportDatatypes {
     }
 }
 export class gqlDatatype {
-    id: string;
-    name: string;
-    description: string;
-    datatypeRef: string;
-    defaultValue: string;
-    allowedValues: any[];
+    id:             string;
+    name:           string;
+    description:    string;
+    datatypeRef:    string;
+    defaultValue:   string;
+    allowedValues:  any[];
+    deleted:        boolean;
+    modified:       boolean;
     constructor(dtype: akm.cxDatatype) {
-        this.id = dtype.id;
-        this.name = dtype.name;
-        this.description = "";
-        this.datatypeRef = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
-        this.defaultValue = dtype.defaultValue;
-        this.allowedValues = dtype.allowedValues;
+        this.id             = dtype.id;
+        this.name           = dtype.name;
+        this.description    = "";
+        this.datatypeRef    = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
+        this.defaultValue   = dtype.defaultValue;
+        this.allowedValues  = dtype.allowedValues;
+        this.deleted        = dtype.deleted;
+        this.modified       = dtype.modified;
         // Code
         if (utils.objExists(dtype.description))
             this.description = dtype.description;
     }
 }
 export class gqlUnitCategory {
-    id: string;
-    name: string;
-    description: string;
+    id:             string;
+    name:           string;
+    description:    string;
+    deleted:        boolean;
+    modified:       boolean;
     constructor(utype: akm.cxUnitCategory) {
-        this.id = utype.id;
-        this.name = utype.name;
-        this.description = "";
+        this.id             = utype.id;
+        this.name           = utype.name;
+        this.description    = "";
+        this.deleted        = utype.deleted;
+        this.modified       = utype.modified;
         // Code
         if (utils.objExists(utype.description))
             this.description = utype.description;
     }
 }
 export class gqlUnit {
-    id: string;
-    name: string;
-    description: string;
+    id:             string;
+    name:           string;
+    description:    string;
+    deleted:        boolean;
+    modified:       boolean;
     constructor(unit: akm.cxUnit) {
-        this.id = unit.id;
-        this.name = unit.name;
-        this.description = "";
+        this.id             = unit.id;
+        this.name           = unit.name;
+        this.description    = "";
+        this.deleted        = unit.deleted;
+        this.modified       = unit.modified;
         // Code
         if (utils.objExists(unit.description))
             this.description = unit.description;
     }
 }
 export class gqlObjectTypeView {
-    id: string;
-    name: string;
-    description: string;
-    typeRef: string;
-    viewkind: string;
-    isGroup: boolean;
-    group: string;
-    figure: string;
-    fillcolor: string;
-    strokecolor: string;
-    strokewidth: string;
-    icon: string;
+    id:             string;
+    name:           string;
+    description:    string;
+    typeRef:        string;
+    viewkind:       string;
+    isGroup:        boolean;
+    group:          string;
+    figure:         string;
+    fillcolor:      string;
+    strokecolor:    string;
+    strokewidth:    string;
+    icon:           string;
+    deleted:        boolean;
+    modified:       boolean;
     constructor(objtypeview: akm.cxObjectTypeView) {
-        this.id = objtypeview.id;
-        this.name = objtypeview.name;
-        this.description = "";
+        this.id             = objtypeview.id;
+        this.name           = objtypeview.name;
+        this.description    = "";
+        this.typeRef        = objtypeview.type?.id;
+        this.isGroup        = objtypeview.getIsGroup();
+        this.group          = objtypeview.getGroup();
+        this.viewkind       = objtypeview.getViewKind();
+        this.figure         = objtypeview.getFigure();
+        this.fillcolor      = objtypeview.getFillcolor();
+        this.strokecolor    = objtypeview.getStrokecolor();
+        this.strokewidth    = objtypeview.getStrokewidth();
+        this.icon           = objtypeview.getIcon();
+        this.deleted        = objtypeview.deleted;
+        this.modified       = objtypeview.modified;
         if (objtypeview.description)
             this.description = objtypeview.description;
-        this.typeRef = objtypeview.type?.id;
-        this.isGroup = objtypeview.getIsGroup();
-        this.group = objtypeview.getGroup();
-        this.viewkind = objtypeview.getViewKind();
-        this.figure = objtypeview.getFigure();
-        this.fillcolor = objtypeview.getFillcolor();
-        this.strokecolor = objtypeview.getStrokecolor();
-        this.strokewidth = objtypeview.getStrokewidth();
-        this.icon = objtypeview.getIcon();
     }
 }
 export class gqlObjectTypegeo {
-    id: string;
-    name: string;
-    description: string;
-    typeRef: string;
-    metamodelRef: string;
-    loc: string;
-    size: string;
+    id:             string;
+    name:           string;
+    description:    string;
+    typeRef:        string;
+    metamodelRef:   string;
+    loc:            string;
+    size:           string;
+    deleted:        boolean;
+    modified:       boolean;
     constructor(objtypegeo: akm.cxObjtypeGeo) {
-        this.id = objtypegeo.id;
-        this.name = objtypegeo.name;
-        this.typeRef = (objtypegeo.type) ? objtypegeo.type.id : "";
-        this.metamodelRef = (objtypegeo.metamodel) ? objtypegeo.metamodel.id : "";
-        this.loc = objtypegeo.getLoc();
-        this.size = objtypegeo.getSize();
-        this.description = (objtypegeo.description) ? objtypegeo.description : "";
+        this.id             = objtypegeo.id;
+        this.name           = objtypegeo.name;
+        this.typeRef        = (objtypegeo.type) ? objtypegeo.type.id : "";
+        this.metamodelRef   = (objtypegeo.metamodel) ? objtypegeo.metamodel.id : "";
+        this.loc            = objtypegeo.getLoc();
+        this.size           = objtypegeo.getSize();
+        this.description    = (objtypegeo.description) ? objtypegeo.description : "";
+        this.deleted        = objtypegeo.deleted;
+        this.modified       = objtypegeo.modified;
     }
 }
 export class gqlRelshipTypeView {
-    id: string;
-    name: string;
-    description: string;
-    typeRef: string;
-    strokecolor: string;
-    strokewidth: string;
-    dash: string;
-    fromArrow: string;
-    toArrow: string;
+    id:             string;
+    name:           string;
+    description:    string;
+    typeRef:        string;
+    strokecolor:    string;
+    strokewidth:    string;
+    dash:           string;
+    fromArrow:      string;
+    toArrow:        string;
     fromArrowColor: string;
-    toArrowColor: string;
+    toArrowColor:   string;
+    ddeleted:       boolean;
+    modified:       boolean;
     constructor(reltypeview: akm.cxRelationshipTypeView) {
-        this.id = reltypeview.id;
-        this.name = reltypeview.name;
-        this.description = (reltypeview.description) ? reltypeview.description : "";
-        this.typeRef = reltypeview.type.id;
-        this.strokecolor = reltypeview.getStrokecolor();
-        this.strokewidth = reltypeview.getStrokewidth();
-        this.dash = reltypeview.getDash();
-        this.fromArrow = reltypeview.getFromArrow();
-        this.toArrow = reltypeview.getToArrow();
+        this.id             = reltypeview.id;
+        this.name           = reltypeview.name;
+        this.description    = (reltypeview.description) ? reltypeview.description : "";
+        this.typeRef        = reltypeview.type.id;
+        this.strokecolor    = reltypeview.getStrokecolor();
+        this.strokewidth    = reltypeview.getStrokewidth();
+        this.dash           = reltypeview.getDash();
+        this.fromArrow      = reltypeview.getFromArrow();
+        this.toArrow        = reltypeview.getToArrow();
         this.fromArrowColor = reltypeview.getFromArrowColor();
-        this.toArrowColor = reltypeview.getToArrowColor();
+        this.toArrowColor   = reltypeview.getToArrowColor();
+        this.deleted        = reltypeview.deleted;
+        this.modified       = reltypeview.modified;
     }
 }
 export class gqlProperty {
-    id: string;
-    name: string;
-    description: string;
-    datatypeRef: string;
-    unitCategoryRef: string;
+    id:                 string;
+    name:               string;
+    description:        string;
+    datatypeRef:        string;
+    unitCategoryRef:    string;
+    deleted:            boolean;
+    modified:           boolean;
     constructor(prop: akm.cxProperty) {
-        this.id = prop.id;
-        this.name = prop.name;
+        this.id         =   prop.id;
+        this.name       = prop.name;
+        this.deleted    = prop.deleted;
+        this.modified   = prop.modified;
         // Code
         this.description = (prop.description) ? prop.description : "";
         this.datatypeRef = (prop.datatype) ? prop.datatype.id : "";
@@ -567,19 +596,21 @@ export class gqlExportModel {
     }
 }
 export class gqlObject {
-    id: string;
-    name: string;
-    description: string;
-    typeRef: string;
+    id:             string;
+    name:           string;
+    description:    string;
+    typeRef:        string;
     propertyValues: any[];
-    deleted: boolean;
+    deleted:        boolean;
+    modified:       boolean;
     constructor(object: akm.cxObject) {
-        this.id = object.id;
-        this.name = object.name;
-        this.description = object.description ? object.description : "";
-        this.typeRef = object.type ? object.type.id : "";
+        this.id             = object.id;
+        this.name           = object.name;
+        this.description    = object.description ? object.description : "";
+        this.typeRef        = object.type ? object.type.id : "";
         this.propertyValues = [];
-        this.deleted = object.deleted;
+        this.deleted        = object.deleted;
+        this.modified       = object.modified;
 
         // Code
         let type = object.type;
@@ -702,23 +733,25 @@ export class gqlPropertyDefinition {
 }
 */
 export class gqlRelationship {
-    id: string;
-    name: string;
-    description: string;
-    typeRef: string;
-    fromobjectRef: string;
-    toobjectRef: string;
-    propvalues: any[];
-    deleted: boolean;
+    id:             string;
+    name:           string;
+    description:    string;
+    typeRef:        string;
+    fromobjectRef:  string;
+    toobjectRef:    string;
+    propvalues:     any[];
+    deleted:        boolean;
+    modified:       boolean;
     constructor(relship: akm.cxRelationship) {
-        this.id = relship.id;
-        this.name = relship.name;
-        this.description = relship.description;
-        this.fromobjectRef = relship.fromObject ? relship.fromObject.id : "";
-        this.toobjectRef = relship.toObject ? relship.toObject.id : "";
-        this.typeRef = "";
-        this.propvalues = [];
-        this.deleted = relship.deleted;
+        this.id             = relship.id;
+        this.name           = relship.name;
+        this.description    = relship.description;
+        this.fromobjectRef  = relship.fromObject ? relship.fromObject.id : "";
+        this.toobjectRef    = relship.toObject ? relship.toObject.id : "";
+        this.typeRef        = "";
+        this.propvalues     = [];
+        this.deleted        = relship.deleted;
+        this.modified       = relship.modified;
         // Code
         if (relship) {
             if (relship.description)
@@ -745,27 +778,31 @@ export class gqlRelationship {
     }
 }
 export class gqlPropertyValue {
-    property: akm.cxProperty;
-    value: akm.cxValue;
+    property:   akm.cxProperty;
+    value:      akm.cxValue;
     constructor(propval: akm.cxPropertyValue) {
-        this.property = propval.property;
-        this.value = propval.value;
+        this.property   = propval.property;
+        this.value      = propval.value;
     }
 }
 export class gqlModelView {
-    id: string;
-    name: string;
-    description: string;
-    modelRef: string;
-    objectviews: gqlObjectView[];
-    relshipviews: gqlRelshipView[];
+    id:             string;
+    name:           string;
+    description:    string;
+    modelRef:       string;
+    objectviews:    gqlObjectView[];
+    relshipviews:   gqlRelshipView[];
+    deleted:        boolean;
+    modified:       boolean;
     constructor(mv: akm.cxModelView) {
-        this.id = mv.id;
-        this.name = mv.getName();
-        this.description = mv.description ? mv.description : "";
-        this.modelRef = mv.getModel()?.id;
-        this.objectviews = [];
-        this.relshipviews = [];
+        this.id             = mv?.id;
+        this.name           = mv?.getName();
+        this.description    = mv.description ? mv.description : "";
+        this.modelRef       = mv?.getModel()?.id;
+        this.objectviews    = [];
+        this.relshipviews   = [];
+        this.deleted        = mv?.deleted;
+        this.modified       = mv?.modified;
         // Code
         const objviews = mv?.getObjectViews();
         if (objviews) {
@@ -802,16 +839,17 @@ export class gqlModelView {
     }
 }
 export class gqlObjectView {
-    id: string;
-    name: string;
-    description: string;
-    objectRef: string;
-    typeviewRef: string;
-    group: string;
-    isGroup: boolean;
-    loc: string;
-    size: string;
-    deleted: boolean;
+    id:             string;
+    name:           string;
+    description:    string;
+    objectRef:      string;
+    typeviewRef:    string;
+    group:          string;
+    isGroup:        boolean;
+    loc:            string;
+    size:           string;
+    deleted:        boolean;
+    modified:       boolean;
     constructor(objview: akm.cxObjectView) {
         this.id             = objview?.id;
         this.name           = objview?.name;
@@ -823,6 +861,7 @@ export class gqlObjectView {
         this.loc            = objview?.loc;
         this.size           = objview?.size;
         this.deleted        = objview?.deleted;
+        this.modified       = objview?.modified;
         // Code
         const obj = objview?.object;
         if (obj)
@@ -833,14 +872,15 @@ export class gqlObjectView {
     }
 }
 export class gqlRelshipView {
-    id: string;
-    name: string;
-    description: string;
-    relshipRef: string;
-    typeviewRef: string;
+    id:             string;
+    name:           string;
+    description:    string;
+    relshipRef:     string;
+    typeviewRef:    string;
     fromobjviewRef: string;
-    toobjviewRef: string;
-    deleted: boolean;
+    toobjviewRef:   string;
+    deleted:        boolean;
+    modified:       boolean;
     constructor(relview: akm.cxRelationshipView) {
         this.id             = relview.id;
         this.name           = relview.name;
@@ -850,6 +890,7 @@ export class gqlRelshipView {
         this.fromobjviewRef = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef   = relview && relview.toObjview ? relview.toObjview.id : "";
         this.deleted        = relview.deleted;
+        this.modified       = relview.modified;
         // Code
         if (relview.description)
             this.description = relview.description;

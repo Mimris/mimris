@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form'
 import { useSelector, useDispatch } from 'react-redux'
 import { mainModule } from 'process';
 import FieldDiv from './FieldDiv'
+import SelectColor from './SelectColor'
+import { colorOptions } from './data';
 // import { update_objecttypeview_properties } from '../actions/actions'
 // import { loadData, setFocusObject, setfocusSource, setFocusOrg, setFocusProj, setFocusRole, setFocusTask } from '../../actions/actions'
 
@@ -16,7 +18,10 @@ const EditProperties = (props) => {
   // console.log('27', edititem);
 
   const { register, handleSubmit, errors } = useForm()
-
+  const [colorvalue, setColorvalue] = useState(props.item.fillcolor)
+  const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
+  const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
+  const [iconvalue, setIconvalue] = useState(props.item.iconvalue)
   // let collection
   // if (!props.collection || !props.collection.length) {
   //   collection = [objects[1]]
@@ -26,13 +31,9 @@ const EditProperties = (props) => {
   // }
 
   const onSubmit = (e) => {
-    // console.log('29 EditProperties', e);
     const data = { ...edititem, ...e }
-    // console.log('31 EditProperties', props.type, e);
     if (data && data.id) {
-      // console.log('49', props.type);
       dispatch({ type: props.type, data })
-      // dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     }
   }
 
@@ -48,22 +49,162 @@ const EditProperties = (props) => {
     return result;
   }
 
+  const handleChangefc = (event) => {
+    const color = event.target.value
+    setColorvalue(color)
+  }
+  const handleChangesc = (event) => {
+    const scolor = event.target.value
+    setStrokecolorvalue(scolor)
+  }
+  const handleChangesw = (event) => {
+    const strokewidth = event.target.value
+    setStrokewidthvalue(strokewidth)
+  }
+  const handleChangesicon = (event) => {
+    const iconvalue= event.target.value
+    setIconvalue(iconvalue)
+  }
+
   function fieldDiv(p, curitem) {
-    // console.log('51 EditProperties', p, curitem);
-    const fdiv = <FieldDiv key={curitem.id+p} p={p} curitem={curitem} register={register} errors={errors} />
-    // console.log('51 EditProperties', fdiv);
-    return fdiv
-    // return <FieldDiv p={p} curitem={curitem} curobj={props.curobj} register={register} errors={errors} /> 
+    switch (p) {
+      case 'snorre':
+
+      case 'fillcolor':
+        return (
+          <>
+            <div className="field" >
+              <label className="label ml-5" htmlFor="name">
+                fillcolor
+                <select className="sel ml-2" value={colorvalue} onChange={handleChangefc} >
+                  <option value={`${colorvalue}`}>Current</option>
+                  <option value="lightgray">Gray</option>
+                  <option value="white">White</option>
+                  <option value="#ffaaaa">Red</option>
+                  <option value="lightblue">Blue</option>
+                  <option value="lightgreen">Green</option>
+                  <option value="lightyellow">Yellow</option>
+                  <option value="#D58181">Brown</option>
+                  <option value="#e8bfd3">Purple</option>
+                  <option value="orange">Orange</option>
+                </select>
+              </label>
+              <input className="input pt-1 float-right "
+                type="text"
+                id={`${curitem.id}+${p}`}
+                name={`${p}`}
+                // defaltValue={colorvalue}
+                value={colorvalue}
+                ref={register({ required: false })}
+              />
+            </div>
+          </>
+      )
+      case 'strokecolor':
+        return (
+          <>
+            <div className="field" >
+              <label className="label ml-5" htmlFor="name">
+                strokecolor
+                <select className="sel ml-2" value={strokecolorvalue} onChange={handleChangesc} >
+                  <option value={`${strokecolorvalue}`}>Current</option>
+                  <option value="gray">Gray</option>
+                  <option value="white">White</option>
+                  <option value="#ff0000">Red</option>
+                  <option value="blue">Blue</option>
+                  <option value="green">Green</option>
+                  <option value="yellow">Yellow</option>
+                  <option value="#D58181">Brown</option>
+                  <option value="#e8bfd3">Purple</option>
+                  <option value="orange">Orange</option>
+                </select>
+              </label>
+              <input className="input pt-1 float-right "
+                type="text"
+                id={`${curitem.id}+${p}`}
+                name={`${p}`}
+                // defaltValue={colorvalue}
+                value={strokecolorvalue}
+                ref={register({ required: false })}
+              />
+            </div>
+          </>
+      )
+      case 'strokewidth':
+        return (
+          <>
+            <div className="field" >
+              <label className="label ml-5" htmlFor="name">
+                strokewidth
+                <select className="sel ml-2" value={strokewidthvalue} onChange={handleChangesw} >
+                  <option value={`${strokewidthvalue}`}>Current</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                </select>
+              </label>
+              <input className="input pt-1 float-right "
+                type="text"
+                id={`${curitem.id}+${p}`}
+                name={`${p}`}
+                // defaltValue={colorvalue}
+                value={strokewidthvalue}
+                ref={register({ required: false })}
+              />
+            </div>
+          </>
+      )
+      case 'icon':
+        return (
+          <>
+            <div className="field" >
+              <label className="label ml-5" htmlFor="name">
+                icon
+                <select className="selectpicker ml-2" value={iconvalue} onChange={handleChangesicon} >
+                  <option value={`${iconvalue}`}>Current</option>
+                  <option value="default.png">Default.png</option>
+                  <option value="book.png">Book.png</option>
+                  <option value="person.png">Person.png</option>
+                  <option value="analyse.png">Analyse.png</option>
+                  <option value="task1.jfif">Task1.jfif</option>
+                  <option value="parallel.png">Parallel.png</option>
+                  <option value="exclusive.png">Exclusive.png</option>
+                  <option value="inclusive.png">Inclusive.png</option>
+                  <option value="automated.jfif">Inclusive.png</option>
+                  <option value="car.png">Car.png</option>
+                </select>
+              </label>
+              <input className="input pt-1 "
+                type="text"
+                id={`${curitem.id}+${p}`}
+                name={`${p}`}
+                // defaltValue={colorvalue}
+                value={iconvalue}
+                ref={register({ required: false })}
+              />
+            </div>
+          </>
+      )
+    
+        break; 
+      default:
+        return <FieldDiv key={curitem.id + p} p={p} curitem={curitem} register={register} errors={errors} />
+        break;
+      }
   }
 
   const fields = listAllProperties(edititem).map(p => // remove js prototype properties
     ((p.slice(-3) !== 'Ref') && (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
-      (p !== 'group') && (p !== 'propertyValues') && (p !== 'size')) && p
+      (p !== 'group') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'deleted')) && p
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))
-  // console.log('61 EditProperties', fieldsDiv);
+  console.log('61 EditProperties', fieldsDiv);
 
   return (
     <div className="edit bg-light">
@@ -77,7 +218,34 @@ const EditProperties = (props) => {
         .edit {
           font - family: sans-serif;
         }
-
+          .field {
+            display: flex;
+            align-items: center;
+            // margin-bottom: 5px;
+            width: 100%;
+          }
+          .field label {
+            // color: green;
+            display: inline-block;
+            width: 25%;
+            text-align: right;
+            margin-right: 3px;
+            margin-top: 3px;
+          }
+          .field input {
+            // color: green;
+            display: inline-block;
+            width: 75%;
+            margin-left: 2px;
+            margin-right: 3px;
+            padding-top: 0px;
+          }
+          .field .error {
+            color: red;
+            margin-left: 3px;
+            font-size: 0.8em;
+            width: 100px;
+          }
         form button[type="submit"] {
           
           margin-top: 5px;

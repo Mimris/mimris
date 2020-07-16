@@ -19,7 +19,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  // console.log('17 Modelling', props);
+  console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -175,13 +175,12 @@ const page = (props:any) => {
     </>
     )      
 
-  console.log('173 Modelling', activeTab);
-  
+  // console.log('173 Modelling', activeTab);
   const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
   const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
-  const EditFocusModelDiv = (activeTab === '2') 
-    ? (focusObjectview.name) && <EditFocusModel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-    : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const modelType = (activeTab === '1') ? 'metamodel' : 'model'
+  const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // console.log('177 Modelling', EditFocusModelDiv);
   
   return (

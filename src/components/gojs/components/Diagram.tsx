@@ -446,7 +446,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
-            new go.Binding('fill', 'fillcolor')),
+            new go.Binding('fill', 'fillcolor'),
+            new go.Binding('stroke', 'strokecolor'),
+            new go.Binding('strokeWidth', 'strokewidth')
+          ),
+     
           $(go.Panel, "Table",
             { defaultAlignment: go.Spot.Left, margin: 4, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
@@ -454,8 +458,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               $(go.Picture,                   // the image
                 {
                   name: "Picture",
-                  desiredSize: new go.Size(35, 40),
-                  margin: new go.Margin(4, 0, 4, 0),
+                  desiredSize: new go.Size(40, 40),
+                  margin: new go.Margin(4, 4, 4, 0),
                 },
                 new go.Binding("source", "icon", findImage)
               ),
@@ -677,6 +681,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
               toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
             }),
+            
           $(go.Panel, "Vertical",  // position header above the subgraph
             {
               name: "HEADER",
@@ -694,6 +699,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 new go.Binding("fill", "fillcolor"),
                 new go.Binding("text", "name").makeTwoWay()
               ),
+              
             ), // End Horizontal Panel
 
             $(go.Shape,  // using a Shape instead of a Placeholder
@@ -703,6 +709,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 margin: new go.Margin(0, 1, 1, 1),
                 cursor: "move"
               },
+              // $(go.Panel, "Auto",  // the header
+              //   { },
+              //   $(go.Picture,                   // the image
+              //     {
+              //       name: "Picture",
+              //       desiredSize: new go.Size(40, 40),
+              //       margin: new go.Margin(4, 4, 4, 0),
+              //     },
+              //     new go.Binding("source", "icon", findImage)
+              //   ),
+              // ),   
               new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)
             )
           )
@@ -867,8 +884,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     // Function to identify images related to an image id
     function findImage(image: string) {
-      if (image) {
-        return "./../images/" + image;
+      if (image.substring(0,4) === 'http') {
+        return image
+      } else {
+        return "./../images/" + image
       }
       return "";
     }

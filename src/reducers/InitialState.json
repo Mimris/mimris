@@ -776,6 +776,10 @@
 			"id": "676bfd0e-fd4b-44b9-31d6-b08a2dd2da26",
 			"name": "Person Model"
 		},
+		"focusModelview": {
+			"id": "c5512ed2-329c-4b32-5c2b-8a32b6157fd9",
+			"name": "Person Model View 1"
+		},
 		"focusObject": {
 			"id": "8a2f98d3-ecde-4bf3-ec29-6495a9566e10",
 			"name": "Property 1"
@@ -792,10 +796,20 @@
 			"id": null,
 			"name": ""
 		},
-		"focusModelview": {
-			"id": "c5512ed2-329c-4b32-5c2b-8a32b6157fd9",
-			"name": "Person Model View 1"
+
+			"focusObjecttype": {
+			"id": null,
+			"name": ""
 		},
+			"focusObjecttypeview": {
+			"id": null,
+			"name": ""
+		},
+			"focusObjecttypegeos": {
+			"id": null,
+			"name": ""
+		},
+
 		"focusOrg": {
 			"id": null,
 			"name": ""

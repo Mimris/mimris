@@ -160,6 +160,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const modifiedRelships      = new Array();
     const selectedObjectViews   = new Array();
     const selectedRelshipViews  = new Array();
+    const selectedObjectTypes   = new Array();
     let done = false;
     const context = {
       "myMetis":          myMetis,
@@ -187,6 +188,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const key = sel.data.key;
                 let text = sel.data.name;
                 const typename = sel.data.type;
+
                 if (typename === 'Object type') {
                   if (text === 'Edit name') {
                     text = prompt('Enter name');
@@ -195,6 +197,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (myNode) {
                     myNode.name = text;
                     uic.updateObjectType(myNode, field, text, context);
+
                     if (myNode.objecttype) {
                       const gqlNode = new gql.gqlObjectType(myNode.objecttype, true);
                       modifiedTypeNodes.push(gqlNode);
@@ -434,16 +437,34 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         break;
       case "ObjectSingleClicked": {
-        // console.log('433 GoJSApp :', e.subject.part.data);
+        let sel = e.subject.part;
+        console.log('437 GoJSApp :', sel);
         this.setState(
           produce((draft: AppState) => {
-            const node = e.subject.part.data;
-            const objview = node.objectview;
-            // Do whatever you like
-            // ..
-            const gqlObjView = new gql.gqlObjectView(objview);
-            selectedObjectViews.push(gqlObjView);
-            // console.log('444 GoJSApp :', node);
+            if (sel) {
+              if (sel instanceof go.Node) {
+                const key = sel.data.key;
+                let text = sel.data.name;
+                const typename = sel.data.type;
+                if (typename === 'Object type') {
+                  const myNode = this.getNode(context.myGoMetamodel, key);
+                  console.log('449 GoJSApp', myNode.objtype);  
+                  if (myNode.objtype) {
+                    const gqlNode = new gql.gqlObjectType(myNode.objtype, true);
+                    selectedObjectTypes.push(gqlNode);
+                    console.log('453 GoJSApp', selectedObjectTypes);
+                    } 
+                } else // object
+                {
+                  const objview = sel.data.objectview;
+                  // Do whatever you like
+                  // ..
+                  const gqlObjView = new gql.gqlObjectView(objview);
+                  selectedObjectViews.push(gqlObjView);
+                  // console.log('444 GoJSApp :', node);
+                }
+              }
+            }
           })
         )
 
@@ -596,7 +617,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
-    // console.log('583 modifiedTypeNodes', modifiedTypeNodes);
+    console.log('583 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
@@ -648,6 +669,12 @@ class GoJSApp extends React.Component<{}, AppState> {
     selectedObjectViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
+    })
+
+    console.log('643 selectedObjectTypes', selectedObjectTypes);
+    selectedObjectTypes?.map(mn => {
+      let data = (mn) && mn
+      this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
     })
   }
 

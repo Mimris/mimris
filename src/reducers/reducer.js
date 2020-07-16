@@ -10,6 +10,7 @@ import {
   SET_FOCUS_OBJECTVIEW,
   SET_FOCUS_RELSHIP,
   SET_FOCUS_RELSHIPVIEW,
+  SET_FOCUS_OBJECTTYPE,
   SET_MYMETIS_MODEL,
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
@@ -263,7 +264,7 @@ function reducer(state = InitialState, action) {
           focusObjectview: action.data
         }
       }
-    case SET_FOCUS_RELSHIP: 
+      case SET_FOCUS_RELSHIP: 
       return {
         ...state,
         phFocus: {
@@ -271,12 +272,20 @@ function reducer(state = InitialState, action) {
           focusRelship: action.data
         }
       }
-    case SET_FOCUS_RELSHIPVIEW: 
+      case SET_FOCUS_RELSHIPVIEW: 
       return {
         ...state,
         phFocus: {
           ...state.phFocus,
           focusRelshipview: action.data
+        }
+      }
+      case SET_FOCUS_OBJECTTYPE: 
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusObjecttype: action.data
         }
       }
     case SET_GOJS_METAMODELPALETTE:
@@ -591,10 +600,12 @@ function reducer(state = InitialState, action) {
       const curmodot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodot.metamodelRef)
       const curmmindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodot.metamodelRef) 
-      const curot = curmm?.objtypegeos?.find(ot => ot.id === action?.data?.id)
-      const lengthot = curmm?.objtypegeos.length
-      let indexot = curmm?.objtypegeos?.findIndex(ot => ot.id === curot?.id)
+      const curot = curmmot?.objtypegeos?.find(ot => ot.id === action?.data?.id)
+      const lengthot = curmmot?.objtypegeos.length
+      let indexot = curmmot?.objtypegeos?.findIndex(ot => ot.id === curot?.id)
       if (indexot < 0) {indexot = lengthot} 
+      console.log('607 reducer', lengthot, indexot);
+      
 
       return {
         ...state,

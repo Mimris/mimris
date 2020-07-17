@@ -254,7 +254,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Set Object type",
             function (e, obj) {
               const node = e.diagram.selection.first().data;
-              console.log('245 partContextMenu', node);
+              console.log('257 partContextMenu', node);
               // let objtype = prompt('Enter one of: ' + node.choices);
               const myMetis = e.diagram.myMetis;
               const context = {
@@ -278,6 +278,50 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
               }
           }),
+          makeButton("Add Local Typeview",
+            function (e: any, obj: any) { 
+              const node = e.diagram.selection.first().data;
+              console.log('284 partContextMenu', node);
+              const currentObject = node.object;
+              const currentObjectView = node.objectview;
+              if (currentObject && currentObjectView) {                   
+                const myMetis = e.diagram.myMetis;
+                const myMetamodel = myMetis.currentMetamodel;
+                const objtype  = currentObject.type;
+                let typeView = currentObjectView.typeview;
+                const defaultTypeview = objtype.typeview;
+                if (!typeView || (typeView.id === defaultTypeview.id)) {
+                    typeView = new akm.cxObjectTypeView(utils.createGuid(), currentObjectView.name, objtype, "");
+                    typeView.modified = true;
+                    currentObjectView.typeview = typeView;
+                    myMetamodel.addObjectTypeView(typeView);
+                    myMetis.addObjectTypeView(typeView);
+                }
+              }
+
+              const dispatch = e.diagram.dispatch;
+              const gqlObjtypeView = new gql.gqlObjectTypeView(node.objecttypeview);
+              console.log('304 Add Local Typeview', gqlObjtypeView);
+              const modifiedTypeViews = new Array();
+              modifiedTypeViews.push(gqlObjtypeView);
+              modifiedTypeViews.map(mn => {
+                let data = mn
+                e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+              })
+            },
+            function (o: any) {
+              const currentObject = o.part.data.object; 
+              const currentObjectView = o.part.data.objectview;
+              if (currentObject && currentObjectView) {                   
+                let objtype  = currentObject.type;
+                let typeView = currentObjectView.typeview;
+                let defaultTypeview = objtype.typeview;
+                if (typeView && (typeView.id === defaultTypeview.id)) {
+                  return true;
+                }
+              }
+              return false;
+            }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
             function (o: any) { return o.diagram.commandHandler.canCutSelection(); }),

@@ -446,6 +446,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const key = sel.data.key;
                 let text = sel.data.name;
                 const typename = sel.data.type;
+
                 if (typename === 'Object type') {
                   const myNode = this.getNode(context.myGoMetamodel, key);
                   console.log('449 GoJSApp', myNode.objtype);  
@@ -461,13 +462,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   // ..
                   const gqlObjView = new gql.gqlObjectView(objview);
                   selectedObjectViews.push(gqlObjView);
-                  // console.log('444 GoJSApp :', node);
+                  // console.log('444 GoJSApp :', node);                
                 }
               }
             }
           })
         )
-
       }
         break;
       case "PartResized": {

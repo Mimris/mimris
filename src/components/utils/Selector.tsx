@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 
 const Selector = ( props: any ) => {
 
-  console.log('8 selector', props); 
+  // console.log('8 selector', props); 
   const dispatch = useDispatch()
 
   const refresh = props.refresh
@@ -19,7 +19,7 @@ const Selector = ( props: any ) => {
     // console.log('13 selector', data, type);
     dispatch({ type: type, data })
   }
-  console.log('15 selector', props.selName);
+  // console.log('15 selector', props.selName);
   const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
   const options = props.selArray && [
       <option 

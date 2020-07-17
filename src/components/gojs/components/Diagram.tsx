@@ -637,93 +637,113 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // Define the group template with fixed size containers
     if (true) {
       var groupTemplate =
-        $(go.Group, "Auto",
-          new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-          new go.Binding("visible"),
-          { contextMenu: partContextMenu },
-          {
-            selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
-            locationObjectName: "SHAPE",
-            resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+      $(go.Group, "Auto",
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+        new go.Binding("visible"),
+        { contextMenu: partContextMenu },
+        {
+          selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
+          locationObjectName: "SHAPE",
+          resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+          subGraphExpandedChanged: function (grp) {
+            var shp = grp.resizeObject;
+            if (grp.diagram.undoManager.isUndoingRedoing) return;
+            if (grp.isSubGraphExpanded) {
+              // shp.height = grp._savedBreadth;
+              shp.fill = "#ffffef"
+            } else {
+              // grp._savedBreadth = shp.height;
+              // shp.height = NaN;
+              shp.fill = "transparent"
+            }
           },
-          {
-            background: "transparent",
-            ungroupable: true,
-            // highlight when dragging into the Group
-            mouseDragEnter: function (e, grp, prev) { highlightGroup(e, grp, true); },
-            mouseDragLeave: function (e, grp, next) { highlightGroup(e, grp, false); },
-            computesBoundsAfterDrag: true,
-            // when the selection is dropped into a Group, add the selected Parts into that Group;
-            // if it fails, cancel the tool, rolling back any changes
-            // mouseDrop: finishDrop,
-            handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
-            // Groups containing Nodes lay out their members vertically
-            //layout: $(go.TreeLayout)
-          },
-          //new go.Binding("layout", "groupLayout"),
-          new go.Binding("background", "isHighlighted",
-            function (h) {
-              return h ? "rgba(255,0,0,0.2)" : "transparent";
-            }).ofObject(),
-          $(go.Shape, "RoundedRectangle", // surrounds everything
-            {
-              fill: "white",
-              minSize: new go.Size(100, 50)
-            },
-            /*
-            { parameter1: 10, 
-              fill: "rgba(128,128,128,0.33)",
-            },
-            */
-            {
-              portId: "", cursor: "alias",
-              // portId: "", cursor: "pointer",
-              fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-            }),
-            
-          $(go.Panel, "Vertical",  // position header above the subgraph
-            {
-              name: "HEADER",
-              defaultAlignment: go.Spot.TopLeft
-            },
-            $(go.Panel, "Horizontal",  // the header
-              { defaultAlignment: go.Spot.Top },
-              $("SubGraphExpanderButton"),  // this Panel acts as a Button
-              $(go.TextBlock,     // group title near top, next to button
-                {
-                  font: "Bold 12pt Sans-Serif",
-                  editable: true, isMultiline: false,
-                  name: "name"
-                },
-                new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay()
-              ),
-              
-            ), // End Horizontal Panel
+        },
+        
+        {
+          background: "transparent",
+          ungroupable: true,
+          // highlight when dragging into the Group
+          mouseDragEnter: function (e, grp, prev) { highlightGroup(e, grp, true); },
+          mouseDragLeave: function (e, grp, next) { highlightGroup(e, grp, false); },
+          computesBoundsAfterDrag: true,
+          // when the selection is dropped into a Group, add the selected Parts into that Group;
+          // if it fails, cancel the tool, rolling back any changes
+          // mouseDrop: finishDrop,
+          handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+          // Groups containing Nodes lay out their members vertically
+          //layout: $(go.TreeLayout)
+        },
+        //new go.Binding("layout", "groupLayout"),
+        new go.Binding("background", "isHighlighted",
+          function (h) {
+            return h ? "rgba(255,0,0,0.2)" : "transparent";
+          }
+        ).ofObject(),
 
-            $(go.Shape,  // using a Shape instead of a Placeholder
+        $(go.Shape, "RoundedRectangle", // surrounds everything
+          {
+            fill: "white",
+            minSize: new go.Size(100, 50)
+          },
+          /*
+          { parameter1: 10, 
+            fill: "rgba(128,128,128,0.33)",
+          },
+          */
+          {
+            portId: "", cursor: "alias",
+            // portId: "", cursor: "pointer",
+            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+          }
+          ),
+        $(go.Panel,  // the header
+          {},
+          $(go.Picture, //"actualBounds",                  // the image
+            {
+              name: "Picture",
+              desiredSize: new go.Size(670, 400),
+              margin: new go.Margin(16, 0, 0, 0),
+            },
+            new go.Binding("source", "icon", findImage)
+          ),
+        ), 
+        $(go.Panel, "Vertical",  // position header above the subgraph
+          {
+            name: "HEADER",
+            defaultAlignment: go.Spot.TopLeft
+          },
+          $(go.Panel, "Horizontal",  // the header
+            { defaultAlignment: go.Spot.Top },
+            $("SubGraphExpanderButton"),  // this Panel acts as a Button
+
+            $(go.TextBlock,     // group title near top, next to button
               {
-                name: "SHAPE", fill: "lightyellow",
-                minSize: new go.Size(300, 200), // sf changed to bigger container
-                margin: new go.Margin(0, 1, 1, 1),
-                cursor: "move"
+                font: "Bold 12pt Sans-Serif",
+                editable: true, isMultiline: false,
+                name: "name"
               },
-              // $(go.Panel, "Auto",  // the header
-              //   { },
-              //   $(go.Picture,                   // the image
-              //     {
-              //       name: "Picture",
-              //       desiredSize: new go.Size(40, 40),
-              //       margin: new go.Margin(4, 4, 4, 0),
-              //     },
-              //     new go.Binding("source", "icon", findImage)
-              //   ),
-              // ),   
-              new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)
-            )
+              new go.Binding("fill", "fillcolor"),
+              new go.Binding("text", "name").makeTwoWay()
+            ),
+          ), // End Horizontal Panel
+          $(go.Shape,  // using a Shape instead of a Placeholder
+            {
+              // name: "SHAPE", //fill: "rgba(228,228,228,0.53)",
+              name: "SHAPE", fill: "transparent",
+              // name: "SHAPE", fill: "lightyellow",
+              minSize: new go.Size(150, 100), 
+              desiredSize: new go.Size(300, 200),
+              margin: new go.Margin(0, 1, 1, 1),
+              cursor: "move",
+
+
+            },
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+            new go.Binding("isSubGraphExpanded").makeTwoWay(),
           )
-        )
+        ),
+      )
     }
 
     // Define group template map

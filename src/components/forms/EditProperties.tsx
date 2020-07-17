@@ -22,6 +22,8 @@ const EditProperties = (props) => {
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.iconvalue)
+  console.log('25 EditProperties', iconvalue);
+  
   // let collection
   // if (!props.collection || !props.collection.length) {
   //   collection = [objects[1]]
@@ -63,6 +65,8 @@ const EditProperties = (props) => {
   }
   const handleChangesicon = (event) => {
     const iconvalue= event.target.value
+    console.log('66 EditProperties', iconvalue);
+    
     setIconvalue(iconvalue)
   }
 

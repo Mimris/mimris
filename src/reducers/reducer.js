@@ -831,8 +831,8 @@ function reducer(state = InitialState, action) {
       console.log('618 UPDATE_OBJECT_PROPERTIES', action);     
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      const curoo = curmo?.objects?.find(o => o.id === action.data.id) //current Object
-      let curoindexo = curmo?.objects?.findIndex(o => o.id === curoo.id) // curretn objectindex
+      const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object
+      let curoindexo = (curmo) && curmo.objects?.findIndex(o => o.id === curoo?.id) // curretn objectindex
       console.log('828', curoindexo);
 
       const lengtho = curmo?.objects.length

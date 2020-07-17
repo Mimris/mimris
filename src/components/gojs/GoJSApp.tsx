@@ -479,7 +479,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           })
         )
       }
-        break;
+      break;
       case 'ClipboardChanged': {
         const nodes = e.subject;
         console.log('nodes', nodes);
@@ -496,16 +496,18 @@ class GoJSApp extends React.Component<{}, AppState> {
             const it = selection.iterator;
             while (it.next()) {
               const selected = it.value.data;
-              console.log('465 ClipboardPasted', selected);
               // First handle the objects
               if (selected.class === 'goObjectNode') {
+                console.log('480 ClipboardPasted', selected);
                 const node = selected;
                 const objview = uic.createObject(node, context);
                 if (objview) {
                   const gqlNode = new gql.gqlObjectView(objview);
                   modifiedNodes.push(gqlNode);
+                  console.log('486 ClipboardPasted', modifiedNodes);
                   const gqlObj = new gql.gqlObject(objview.object);
                   modifiedObjects.push(gqlObj);
+                  console.log('489 ClipboardPasted', modifiedObjects);
                 }
               }
             }
@@ -514,44 +516,24 @@ class GoJSApp extends React.Component<{}, AppState> {
               // Then handle the relationships
               const selected = it1.value.data;
               if (selected.class === 'goRelshipLink') {
+                console.log('498 ClipboardPasted', selected);
                 const link = selected;
-                const relview = uic.createRelationship(link, context);
+                const relview = uic.createRelationship(link.data, context);
                 if (relview) {
                   const gqlLink = new gql.gqlRelshipView(relview);
+                  console.log('503 ClipboardPasted', link, gqlLink);
                   modifiedLinks.push(gqlLink);
                   const gqlRelship = new gql.gqlRelationship(relview.relship);
+                  console.log('506 ClipboardPasted', gqlRelship);
                   modifiedRelships.push(gqlRelship);
                 }
               }
             }
-            // // If groups are involved, handle the group content
-            // const groupsToPaste = new Array();
-            // let i = 0;
-            // let it1 = selection.iterator;
-            // while (it1.next()) {
-            //     // Identify groups in the selection
-            //     let selected = it1.value.data;
-            //     console.log('471 onClipboardPasted', selected);
-            //     if (selected.class === 'goObjectNode') {
-            //         let node = selected;
-            //         if (node.isGroup) {
-            //             groupsToPaste[i] = node;
-            //             // groupsToPaste[i] = node.data;
-            //             // groupsToPaste[i].node = node;
-            //             // groupsToPaste[i].key = node.data.key;
-            //             // groupsToPaste[i].objectview = node.data.objectview;
-            //             groupsToPaste[i].members = new Array();
-            //         }
-            //     }
-            //     i++;
-            // }
-
-
-
+            console.log('511 ClipboardPasted', modifiedLinks, modifiedRelships);       
           })
         )
       }
-        break;
+      break;
       case 'LinkDrawn': {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
@@ -587,7 +569,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           })
         )
       }
-        break;
+      break;
       case "LinkRelinked": {
         const newLink = e.subject.data;
         // console.log('207 LinkRelinked', newLink);

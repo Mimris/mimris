@@ -3158,7 +3158,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.typeRef = "";
         this.data = new cxObjtypeviewData();
         if (type) {
-            const abs = type.getAbstract();
+            const abs = type.abstract;
             if (abs)
                 this.data.abstract = abs;
         }

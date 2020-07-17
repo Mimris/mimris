@@ -46,7 +46,7 @@ const TasksHelp = () => {
         </NavItem>
       </Nav>
       <TabContent activeTab={activeTab}>
-        <TabPane tabId="1">
+        <TabPane tabId="1" style={{ backgroundColor: "#ffe" }}>
           {/* <Row>
             <Col sm="1">
             </Col>
@@ -78,7 +78,10 @@ const TasksHelp = () => {
       <span onClick={toggleTasks}>{visibleTasks
         ? <div></div>
         // ? <><span style={{ paddingLeft: "5px" }}> Tasks</span> <span style={{ float: "left" }} > &lt;  </span></>
-        : <div className="btn-vertical m-0 pr-1" style={{ backgroundColor: "#aaa", paddingLeft: "2px", minWidth: "10px", maxWidth: "10px", maxHeight: "100%", fontSize: "90%" }}><span> &gt; </span><span> T a s k s - H e l p</span> </div>}
+        : <div className="btn-vertical  m-0 pr-1" 
+          style={{ borderRadius: "5px 5px 5px 5px", backgroundColor: "#eed", paddingLeft: "3px", minWidth: "10px", maxWidth: "10px", height: "100%", fontSize: "90%" }}>
+            <span> &gt; </span><strong> T a s k s - H e l p</strong> 
+          </div>}
       </span>
       <div className="toggleTasks">
         {visibleTasks
@@ -89,7 +92,7 @@ const TasksHelp = () => {
     </>
 
   return (
-    <div className="taskhelp" style={{ backgroundColor: "#eee" }}>
+    <div className="taskhelp" >
       {taskstabs}
       <style jsx>{`
       .nav-item {

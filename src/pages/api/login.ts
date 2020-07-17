@@ -1,4 +1,4 @@
-import { compare } from 'bcryptjs';
+import { compare } from 'bcrypt';
 import cookie from 'cookie';
 import { sign } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';

@@ -40,18 +40,6 @@
   .user-session { grid-area: user-session; }
   .list         { grid-area: list; }
   
-.wrapper {
-  display: grid;
-  /* background-color: #e00;  */
-  color: #444; 
-  white-space: wrap;
-  grid-template-columns:  auto;
-  grid-gap: 0px;
-  grid-template-areas:
-  "header"
-  "workplace"
-  "footer";
-}
 .workplace {
   grid-area: workplace;
   display: grid ;
@@ -61,18 +49,28 @@
   "contextarea contextarea"
   "tasksarea workarea";
 }
-/* // @media only screen and (max-width: 475px) {
-// .workplace {
-//     grid-area: workplace;
-//     display: grid ;
-//     background-color: #aaa;
-//     grid-template-columns: auto 2fr;
-//     grid-template-areas:
-//     "taskarea"
-//     "workarea";
-//   }
-// } */
+@media only screen and (max-width: 575px) {
+ .workplace {
+     grid-area: workplace;
+     display: grid ;
+     background-color: #aaf;
+     grid-template-columns: auto 2fr;
+     grid-template-areas:
+     "contextarea"
+     "taskarea"
+     "workarea";
+   }
+ }
 
+.workplace {
+  grid-area: workplace;
+  display: grid ;
+  /* // background-color: #00f; */
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+  "contextarea contextarea"
+  "tasksarea workarea";
+}
 /* .workarea {
   grid-area: workarea;
   display: grid ;

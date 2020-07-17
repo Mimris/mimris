@@ -6,24 +6,37 @@ import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
-import Diagram from "../components/Diagram";
+import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
-import { loadState, saveState } from '../components/utils/LocalStorage'
+// import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
+import useLocalStorage from '../hooks/use-local-storage'
+// import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
   
   // console.log('16 diagram',props)
   const dispatch = useDispatch()
+  // const [lstate, setLstate] = useLocalStorage('state');
 
+  // try {
+  //   if (!window) {
+  //     return
+  //   } else {
+  //     console.log('26', lstate);
+  //     (lstate) &&  DispatchLocal(lstate)
+  //   }
+  // } catch (error) {
+  //   console.log('31 modelling', error);
+  // }
+  
+  // console.log('33 modelling', props.phData);
+  
   if (!props.phData) {
     dispatch(loadData())
   }
 
   // console.log('23 modelling', props.phData);
-  
-  const [refresh, setRefresh] = useState(false)
-  function toggleRefresh() { setRefresh(!refresh); }
   
   const state = useSelector(state => state)
   
@@ -37,8 +50,7 @@ const page = (props:any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
-  const setContextDiv =  <SetContext phFocus={props.phFocus} />
-  const setWorkareaDiv =  <Diagram />
+  const setContextDiv =  <SetContext ph={props} />
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
   // useEffect(() => {
   //   return () => {
@@ -52,44 +64,43 @@ const page = (props:any) => {
     <div>
       <Layout user={state.phUser?.focusUser} >
         <div id="index" >
-        <div className="wrapper" >
-          <div className="header" >
-            {/* <Header title={props.phUser?.focusUser.name} />  */}
-              {/* <span id="lighten" className="btn-link btn-sm " style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
-          </div>
-          <div className="workplace" >
-            <div className="contextarea" >
-              {setContextDiv}
+          <div className="wrapper" >
+            {/* <div className="header" >
+              <Header title={props.phUser?.focusUser.name} /> 
+            </div> */}
+            <div className="workplace bg-white" >
+              <div className="contextarea" >
+                {setContextDiv}
+              </div>
+                <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "2px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
+                <TasksHelp />
+              </div>
+              <div className="workarea px-1" style={{ backgroundColor: "#eee" }}>
+                <Modelling />
+              </div>
             </div>
-            <div className="tasksarea"  >
-              <TasksHelp />
-            </div>
-            <div className="workarea">
-                {/* {refresh ? <> {setWorkareaDiv} </> : <>  {setWorkareaDiv}  </>} */}
-              <Diagram />
+            <div className="footer">
+              <Footer />
             </div>
           </div>
-          <div className="footer">
-            <Footer />
-          </div>
-        </div>
         </div>
       </Layout>
       <style jsx>{`
       .wrapper {
         display: grid;
+        height: 100%;
         // grid-template-columns: 1fr auto;
         // grid-template-rows:  auto;
         grid-gap: 0px;
         grid-template-areas:
-        "header"
         "workplace"
         "footer";
       }
       .workplace {
         grid-area: workplace;
         display: grid ;
-        // background-color: #;
+        height: 100%;
+        // background-color: #ddd;
         grid-template-columns: auto 1fr;
         grid-template-areas:
         "contextarea contextarea"
@@ -121,13 +132,13 @@ const page = (props:any) => {
       .tasksarea {
         grid-area: tasksarea;
         padding: 0px;
-        margin-right: 4px;
+        margin-right: 0px;
         padding-right: 3px;
         border: 2px;
         border-radius: 5px 5px 5px 5px;
         border-width: 2px;
         // border-color: #000;
-        // background-color: #e00;
+        background-color: #ffe;
         max-width: 220px;
         // font-size: 100%;
       }

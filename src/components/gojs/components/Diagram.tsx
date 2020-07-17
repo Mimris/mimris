@@ -478,7 +478,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.Shape, 'RoundedRectangle',
             {
               name: 'SHAPE', fill: 'lightyellow', stroke: "black",
-              // minSize: new go.Size(150, 50),
+              // margin: new go.Margin(4, 4, 4, 4),
+              // minSize: new go.Size(50, 40),
               // set the port properties:
               portId: "", 
               // cursor: "crosshair",
@@ -496,14 +497,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           ),
      
           $(go.Panel, "Table",
-            { defaultAlignment: go.Spot.Left, margin: 4, cursor: "move" },
+            { defaultAlignment: go.Spot.Left, margin: 0, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
             $(go.Panel, "Horizontal",
               $(go.Picture,                   // the image
                 {
                   name: "Picture",
                   desiredSize: new go.Size(40, 40),
-                  margin: new go.Margin(4, 4, 4, 0),
+                  margin: new go.Margin(0, 4, 0, 2),
+                  // margin: new go.Margin(4, 4, 4, 0),
                 },
                 new go.Binding("source", "icon", findImage)
               ),
@@ -780,8 +782,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               desiredSize: new go.Size(300, 200),
               margin: new go.Margin(0, 1, 1, 1),
               cursor: "move",
-
-
             },
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
             new go.Binding("isSubGraphExpanded").makeTwoWay(),

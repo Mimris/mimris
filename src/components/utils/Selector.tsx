@@ -35,7 +35,45 @@ const Selector = ( props: any ) => {
         {m.name} 
       </option>)]
 
-   const selectDiv =
+  //  const selectDiv = (selName) => {
+  //   switch (selName) {
+    //   case 'Model':
+    //     return (
+    //       <>
+    //         <span className="title mx-2 ">{selName}:</span>
+    //         <select key={focus} className="list-obj mx-2" defaultValue={`Select ${selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+    //           onChange={(event) => { handleChange({ value: event.target.value }); }} name={`Focus ${selName} ...`}>
+    //           {options}
+    //         </select>
+    //       </>
+    //     )
+    //     break;
+    //   case 'Modelview':
+    //     return (
+    //       <>
+    //         <span className="title mx-2 ">{selName}:</span>
+    //         <select key={focus} className="list-obj mx-2" defaultValue={`Select ${selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+    //           onChange={(event) => { handleChange({ value: event.target.value }); toggleRefresh() }} name={`Focus ${selName} ...`}>
+    //           {options}
+    //         </select>
+    //       </>
+    //     )
+    //     break;
+    //   default:
+    //     return (
+    //       <div key={props.type} className="select" ><hr />
+    //         <div className="title "> {selName}:</div>
+    //         <select key={focus} className="list-obj " defaultValue={`Select ${selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+    //           onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${selName} ...`}>
+    //           {options}
+    //         </select>
+    //       </div>
+    //     )
+    //     break;
+    //   }
+    // }
+    // const selectsDiv = selectDiv(props.selName)
+    const selectDiv = 
      ((props.selName === 'Model') || (props.selName === 'Modelviews'))
       ?
        <>
@@ -53,6 +91,7 @@ const Selector = ( props: any ) => {
             {options}
           </select>
         </div>
+    
 
   return (
     <div className="mod-modview float-right">

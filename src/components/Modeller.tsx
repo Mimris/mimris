@@ -61,7 +61,7 @@ const Modeller = (props: any) => {
     ?
     <div className="modeller-selection float-right" >
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />
-      <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+      <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus.focusModel} focustype='focusModel'  />
     </div> 
     :
     <div className="modeller-selection float-right" >

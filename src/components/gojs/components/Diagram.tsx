@@ -296,18 +296,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     currentObjectView.typeview = typeView;
                     myMetamodel.addObjectTypeView(typeView);
                     myMetis.addObjectTypeView(typeView);
+                }              
+                if (typeView) {
+                  const gqlObjtypeView = new gql.gqlObjectTypeView(typeView);
+                  console.log('304 Add Local Typeview', gqlObjtypeView);
+                  const modifiedTypeViews = new Array();
+                  modifiedTypeViews.push(gqlObjtypeView);
+                  modifiedTypeViews.map(mn => {
+                    let data = mn
+                    //e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+                  })
                 }
               }
-
-              const dispatch = e.diagram.dispatch;
-              const gqlObjtypeView = new gql.gqlObjectTypeView(node.objecttypeview);
-              console.log('304 Add Local Typeview', gqlObjtypeView);
-              const modifiedTypeViews = new Array();
-              modifiedTypeViews.push(gqlObjtypeView);
-              modifiedTypeViews.map(mn => {
-                let data = mn
-                e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-              })
             },
             function (o: any) {
               const currentObject = o.part.data.object; 

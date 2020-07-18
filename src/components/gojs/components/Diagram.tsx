@@ -483,23 +483,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
           $(go.Shape, 'RoundedRectangle',
             {
-              name: 'SHAPE', fill: 'lightyellow', stroke: "black",
-              // margin: new go.Margin(4, 4, 4, 4),
-              // minSize: new go.Size(50, 40),
+              name: 'SHAPE', fill: 'lightyellow', stroke: "black", strokeWidth: 1,
               // set the port properties:
-              portId: "", 
-              // cursor: "crosshair",
-              // cursor: "pointer",
-              // cursor: "move",
-              cursor: "alias",
+              portId: "", cursor: "alias",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
               toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
             },
             { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'),
-            new go.Binding('strokeWidth', 'strokewidth')
+            new go.Binding('stroke', 'strokecolor')
+            // new go.Binding('strokeWidth', 'strokewidth'),
           ),
      
           $(go.Panel, "Table",
@@ -749,7 +743,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
             toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
           }
-          ),
+        ),
         $(go.Panel,  // the header
           {},
           $(go.Picture, //"actualBounds",                  // the image

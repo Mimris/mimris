@@ -30,7 +30,8 @@ const EditFocusModel = (props) => {
   const curmmotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curmmobj?.typeviewRef)
   // console.log('34 EditFocusModel', metamodels, curmetamodel, curmmobj);
   const curotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curobjview?.typeviewRef)
-
+  console.log('33 EditFocusModel', curotypeview, curmmobj, curmmotypeview);
+  
   
   
   const editovpropertyDiv = (props.modelType === 'model') 
@@ -42,6 +43,9 @@ const EditFocusModel = (props) => {
     : (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
 
   const editotpropertyDiv = (props.modelType === 'model') 
+    // ? (curotypeview.id !== curmmotypeview?.id) 
+    //   ? <div className="helptext p-4 text-info">This Objectview has no local typeview.<br /> Right-Click the object's icon and select "Add local typeview" to create a local Typevew</div>
+    //   : (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
     ? (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
     : (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
 

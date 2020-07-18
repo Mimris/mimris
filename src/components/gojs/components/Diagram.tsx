@@ -36,6 +36,8 @@ interface DiagramProps {
 }
 
 export class DiagramWrapper extends React.Component<DiagramProps, {}> {
+
+  
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
    */
@@ -199,10 +201,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
-    myDiagram.dispatch = this.dispatch;
+    myDiagram.dispatch = this.props.dispatch;
     // provide a tooltip for the background of the Diagram, when not over any Part
     // console.log('198 myDiagram', myDiagram.myMetis);
     // console.log('199 myDiagram', myDiagram.myGoModel);
+    console.log('39 Diagram', this.state);
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },

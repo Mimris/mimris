@@ -732,7 +732,8 @@
 						"loc": "-120 -310",
 						"size": ""
           }
-        ],
+				],
+					"typeviews": [],
 					"relshipviews": [{
 						"id": "2c00e5dc-0bd5-45b8-569d-5010f47ced8a",
 						"name": "owns_apartment",

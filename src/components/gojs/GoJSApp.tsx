@@ -29,7 +29,7 @@ const utils     = require('../../akmm/utilities');
 interface AppState {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
-  modelData: go.ObjectData;
+  modelData:    go.ObjectData;
   selectedData: go.ObjectData | null;
   skipsDiagramUpdate: boolean;
   metis: any;
@@ -821,21 +821,24 @@ class GoJSApp extends React.Component<{}, AppState> {
     // console.log('362 this.state.myMetis', this.state.myMetis);
     // console.log('362 this.state.myGoModel', this.state.myGoModel);
     // console.log('558 this.context', this.context);
-
+    // console.log('824 dispatch', this.props.dispatch);
+    //console.log('825 dispatch', this.state.dispatch);
+    this.state.myMetis.dispatch = this.state.dispatch;
+    console.log('827 dispatch', this.state.myMetis.dispatch);
     return (
       <div className="diagramwrapper">
 
         <DiagramWrapper
-          nodeDataArray={this.state.nodeDataArray}
-          linkDataArray={this.state.linkDataArray}
-          modelData={this.state.modelData}
+          nodeDataArray     ={this.state.nodeDataArray}
+          linkDataArray     ={this.state.linkDataArray}
+          modelData         ={this.state.modelData}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
-          onDiagramEvent={this.handleDiagramEvent}
-          onModelChange={this.handleModelChange}
-          myMetis={this.state.myMetis}
-          myGoModel={this.state.myGoModel}
-          myGoMetamodel={this.state.myGoMetamodel}
-          dispatch={this.state.dispatch}
+          onDiagramEvent    ={this.handleDiagramEvent}
+          onModelChange     ={this.handleModelChange}
+          myMetis           ={this.state.myMetis}
+          myGoModel         ={this.state.myGoModel}
+          myGoMetamodel     ={this.state.myGoMetamodel}
+          dispatch          ={this.state.dispatch}
         />
         {/* <label>
           Allow Relinking?

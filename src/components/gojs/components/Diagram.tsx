@@ -1,4 +1,4 @@
-// @ts -nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -196,17 +196,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
     console.log('190 myDiagram', this.myMetis);
     //console.log('191 myDiagram', this.myGoModel);
-    myDiagram.myMetis          = this.myMetis;
-    myDiagram.myGoModel        = this.myGoModel;
-    myDiagram.myGoMetamodel    = this.myGoMetamodel;
+    myDiagram.myMetis = this.myMetis;
+    myDiagram.myGoModel = this.myGoModel;
+    myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
-    myDiagram.dispatch         = this.myMetis.dispatch;
+    myDiagram.dispatch = this.myMetis.dispatch;
     console.log('203 dispatch', myDiagram.dispatch);
-    // provide a tooltip for the background of the Diagram, when not over any Part
-    // console.log('198 myDiagram', myDiagram.myMetis);
-    // console.log('199 myDiagram', myDiagram.myGoModel);
-    console.log('39 Diagram', this.state);
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -301,23 +297,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     myMetamodel.addObjectTypeView(typeView);
                     myMetis.addObjectTypeView(typeView);
                 }              
-                if (typeView) {
-                  const gqlObjtypeView = new gql.gqlObjectTypeView(typeView);
-                  const modifiedTypeViews = new Array();
-                  modifiedTypeViews.push(gqlObjtypeView);
-                  modifiedTypeViews.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-                  })
-                  const gqlObjView = new gql.gqlObjectView(currentObjectView);
-                  console.log('310 gqlObjView', gqlObjView);
-                  const modifiedObjectViews = new Array();
-                  modifiedObjectViews.push(gqlObjView);
-                  modifiedObjectViews.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_OBJECVIEW_PROPERTIES', data })
-                  })
-                }
+                const gqlObjtypeView = new gql.gqlObjectTypeView(typeView);
+                const modifiedTypeViews = new Array();
+                modifiedTypeViews.push(gqlObjtypeView);
+                modifiedTypeViews.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+                })
+                const gqlObjView = new gql.gqlObjectView(currentObjectView);
+                console.log('310 gqlObjView', gqlObjView);
+                const modifiedObjectViews = new Array();
+                modifiedObjectViews.push(gqlObjView);
+                modifiedObjectViews.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECVIEW_PROPERTIES', data })
+                })
+              
               }
             },
             function (o: any) {

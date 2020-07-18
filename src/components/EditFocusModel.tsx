@@ -16,11 +16,9 @@ const EditFocusModel = (props) => {
   const focusModel = props.ph.phFocus?.focusModel
   const focusModelview = props.ph.phFocus?.focusModelview
   const focusObjectview = props.ph.phFocus?.focusObjectview
-  const focusTypeview = props.ph.phFocus?.focusTypeview || null
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id)
   const curmodelview = curmodel?.modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const curobjview = curmodelview?.objectviews?.find((ov: any) => ov?.id === focusObjectview?.id)
-  const curmtypeview = curmodelview?.typeviews?.find((ov: any) => ov?.id === focusTypeview?.id) || null
   const curobj = curmodel?.objects?.find(o => o.id === curobjview?.objectRef)
   // console.log('25 EditFocusModel', models, curmodel, curobj);
   
@@ -31,17 +29,22 @@ const EditFocusModel = (props) => {
   const curmmotypegeos = curmetamodel?.objecttypegeos?.find(otg => otg.typeRef === curmmobj?.id)
   const curmmotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curmmobj?.typeviewRef)
   // console.log('34 EditFocusModel', metamodels, curmetamodel, curmmobj);
+  const curotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curobjview?.typeviewRef)
+
   
   
   const editovpropertyDiv = (props.modelType === 'model') 
     ? (curobjview) && <EditProperties item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
     : (curmmobj) && <EditProperties item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
+
   const editopropertyDiv = (props.modelType === 'model') 
     ? (curobj) && <EditProperties item={curobj} type={'UPDATE_OBJECT_PROPERTIES'} />
     : (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
+
   const editotpropertyDiv = (props.modelType === 'model') 
-    ? (curmtypeview) && <EditProperties item={curmtypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+    ? (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
     : (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+
   const idNameDiv = (props.modelType === 'model') 
     ?
     <div className="title  mb-1 pb-1 px-2" >

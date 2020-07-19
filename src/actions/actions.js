@@ -11,6 +11,7 @@ import {
   SET_FOCUS_RELSHIP, 
   SET_FOCUS_RELSHIPVIEW, 
   SET_FOCUS_OBJECTTYPE, 
+  SET_FOCUS_RELSHIPTYPE, 
   SET_MYMETIS_MODEL,
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
@@ -147,6 +148,20 @@ export const setFocusObject = (data) => {
   // console.log('21---', data.value);
   return {
     type: SET_FOCUS_OBJECT,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusObjecttype = (data) => {
+  // console.log('21---', data.value);
+  return {
+    type: SET_FOCUS_OBJECTTYPE,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusRelshiptype = (data) => {
+  // console.log('21---', data.value);
+  return {
+    type: SET_FOCUS_RELSHIPTYPE,
     data: JSON.parse(data.value)
   }
 }

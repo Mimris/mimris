@@ -802,6 +802,10 @@
 			"id": null,
 			"name": ""
 		},
+			"focusRelshiptype": {
+			"id": null,
+			"name": ""
+		},
 			"focusObjecttypeview": {
 			"id": null,
 			"name": ""

@@ -16,55 +16,103 @@ const EditFocusModel = (props) => {
   const focusModel = props.ph.phFocus?.focusModel
   const focusModelview = props.ph.phFocus?.focusModelview
   const focusObjectview = props.ph.phFocus?.focusObjectview
+  const focusRelshipview = props.ph.phFocus?.focusRelshipview
+
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id)
   const curmodelview = curmodel?.modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const curobjview = curmodelview?.objectviews?.find((ov: any) => ov?.id === focusObjectview?.id)
   const curobj = curmodel?.objects?.find(o => o.id === curobjview?.objectRef)
-  // console.log('25 EditFocusModel', models, curmodel, curobj);
+  const currelview = curmodelview?.relshipviews?.find((rv: any) => rv?.id === focusRelshipview?.id)
+  const currel = curmodel?.relships?.find((r: any) => r.id === currelview?.relshipRef)
+  console.log('25 EditFocusModel', models, curmodel, currelview, curobjview?.relshipRef, currel);
   
   const focusObjecttype = props.ph.phFocus?.focusObjecttype
+  const focusRelshiptype = props.ph.phFocus?.focusRelshiptype
   const metamodels = props.ph.phData.metis?.metamodels
   const curmetamodel = metamodels?.find(mm => mm.id === curmodel?.metamodelRef)
   const curmmobj = curmetamodel?.objecttypes?.find((ov: any) => ov?.id === focusObjecttype?.id)
   const curmmotypegeos = curmetamodel?.objecttypegeos?.find(otg => otg.typeRef === curmmobj?.id)
   const curmmotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curmmobj?.typeviewRef)
+  const curmmrel = curmetamodel?.relshiptypes?.find((ov: any) => ov?.id === focusRelshiptype?.id)
+  const curmmrtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === curmmrel?.typeviewRef)
   // console.log('34 EditFocusModel', metamodels, curmetamodel, curmmobj);
   const curotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curobjview?.typeviewRef)
-  console.log('33 EditFocusModel', curotypeview, curmmobj, curmmotypeview);
+  const currtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === curmmrel?.typeviewRef)
+  
+  console.log('42 EditFocusModel', curmetamodel?.relshiptypeviews, currtypeview);
   
   
   
   const editovpropertyDiv = (props.modelType === 'model') 
-    ? (curobjview) && <EditProperties item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
-    : (curmmobj) && <EditProperties item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
+    ? (props.buttonLabel === 'O')
+      ? (curobjview) && <EditProperties item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
+      : (currelview) && <EditProperties item={currelview} curobj={currel} type={'UPDATE_RELSHIPVIEW_PROPERTIES'} />
+    : (props.buttonLabel === 'O')
+      ? (curmmobj) && <EditProperties item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
+      : (curmmrel) && <EditProperties item={curmmrel} curobj={curmmrel} type={'UPDATE_RELSHIPTYPE_PROPERTIES'} />
 
   const editopropertyDiv = (props.modelType === 'model') 
-    ? (curobj) && <EditProperties item={curobj} type={'UPDATE_OBJECT_PROPERTIES'} />
-    : (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
-
+    ? (props.buttonLabel === 'O')
+      ? (curobj) && <EditProperties item={curobj} type={'UPDATE_OBJECT_PROPERTIES'} />
+      : (currel) && <EditProperties item={currel} type={'UPDATE_RELSHIP_PROPERTIES'} />
+    : (props.buttonLabel === 'O')
+      ? (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
+      : <></>
   const editotpropertyDiv = (props.modelType === 'model') 
     // ? (curotypeview.id !== curmmotypeview?.id) 
     //   ? <div className="helptext p-4 text-info">This Objectview has no local typeview.<br /> Right-Click the object's icon and select "Add local typeview" to create a local Typevew</div>
     //   : (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
-    ? (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
-    : (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+    ? (props.buttonLabel === 'O')
+      ? (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+      : (currtypeview) && <EditProperties item={currtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
+    : (props.buttonLabel === 'O')
+      ? (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+      : (curmmrtypeview) && <EditProperties item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
 
   const idNameDiv = (props.modelType === 'model') 
-    ?
-    <div className="title  mb-1 pb-1 px-2" >
-      <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjectview?.id} </span></div>
-      <div> Name :<span className="titlename font-weight-bolder ml-4" >{curobjview?.name}</span></div>
-    </div> 
-    :
-    <div className="title  mb-1 pb-1 px-2" >
-      <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjecttype?.id} </span></div>
-      <div> Name :<span className="titlename font-weight-bolder ml-4" >{curmmobj?.name}</span></div>
-    </div> 
+    ? (props.buttonLabel == 'O') 
+      ?
+        <>
+        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjectview?.id} </span></div>
+        <div> Name :<span className="titlename font-weight-bolder ml-4" >{curobjview?.name}</span></div>
+        </>
+      :
+        <>
+        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshipview?.id} </span></div>
+        <div> Name :<span className="titlename font-weight-bolder ml-4" >{currelview?.name}</span></div>
+        </>
+    : (props.buttonLabel === 'O')
+      ?
+        <>
+        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjecttype?.id} </span></div>
+        <div> Name :<span className="titlename font-weight-bolder ml-4" >{curmmobj?.name}</span></div>
+        </>
+      :
+        <>
+        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshiptype?.id} </span></div>
+        <div> Name :<span className="titlename font-weight-bolder ml-4" >{currel?.name}</span></div>
+        </>
 
-  const modalheader = (props.modelType === 'model') ? 'Edit Objectview:' : 'Edit Objecttype'
-  const objectviewheader = (props.modelType === 'model') ? 'Objectview:' : 'Objecttype'
-  const objectheader = (props.modelType === 'model') ? 'Object:' : 'Objecttypegeos'
-  const typeviewheader = (props.modelType === 'model') ? 'Typeview:' : 'Typeview'
+  const modalheader = (props.modelType === 'model') 
+    ? (props.buttonLabel === 'O') ?'Edit Objectview:' : 'Edit Relshipview'
+    : (props.buttonLabel === 'O') ?'Edit Objecttype:' : 'Edit Relshiptype'
+  const objectviewheader = (props.modelType === 'model') 
+    ? (props.buttonLabel === 'O')
+      ? 'Objectview:' : 'Relshipview'
+    : (props.buttonLabel === 'O')
+      ? 'Objecttype:' : 'Relshiptype' 
+  const objectheader = (props.modelType === 'model') 
+    ? (props.buttonLabel === 'O')
+      ?'Object:' 
+      :'Relship:' 
+    : (props.buttonLabel === 'O')
+      ? 'Objecttypegeos'
+      : ''
+  const typeviewheader = (props.modelType === 'model') 
+    ? (props.buttonLabel === 'O')
+      ? 'Typeview:' : 'Typeview'
+    : (props.buttonLabel === 'O')
+      ? 'Typeview:' : 'Typeview'
 
   // console.log('34 EditFocusModel', curmmobj, curmmotypegeos, curmmotypeview);
 
@@ -79,7 +127,9 @@ const EditFocusModel = (props) => {
         <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>
         <ModalBody >
           <div className="select bg-light pt-0 ">
-            {idNameDiv}
+            <div className="title  mb-1 pb-1 px-2" >
+             {idNameDiv}
+            </div> 
             {/* <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
             <div className="propview bg-light mt-1 p-1 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{objectviewheader}:</div>

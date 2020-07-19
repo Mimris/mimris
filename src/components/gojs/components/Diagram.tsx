@@ -771,6 +771,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 name: "name"
               },
               new go.Binding("fill", "fillcolor"),
+              new go.Binding("stroke", "strokecolor"),
+              new go.Binding("strokeWidth", "strokewidth"),
               new go.Binding("text", "name").makeTwoWay()
             ),
           ), // End Horizontal Panel

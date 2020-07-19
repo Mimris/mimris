@@ -31,7 +31,12 @@ const page = (props:any) => {
   const focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
   const focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
   const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
+  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
+  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
+  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
+  console.log('37 Modelling', props.phFocus, focusRelshiptype.name);
   
+
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodel =  props.phGojs?.gojsModel 
@@ -179,7 +184,9 @@ const page = (props:any) => {
   const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
   const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
-  const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelODiv = (focusObjectview.name || focusObjecttype.name ) && <EditFocusModel buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelRDiv = (focusRelshipview.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='R' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // console.log('177 Modelling', EditFocusModelDiv);
   
@@ -195,7 +202,7 @@ const page = (props:any) => {
             {loadserver} {loadlocal}  
           </span> 
           <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#f00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-          {EditFocusModelDiv} 
+          {EditFocusModelRDiv} {EditFocusModelODiv}
           </span> 
         <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
           {/* {modellingtabs} */}

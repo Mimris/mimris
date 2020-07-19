@@ -161,6 +161,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const selectedObjectViews   = new Array();
     const selectedRelshipViews  = new Array();
     const selectedObjectTypes   = new Array();
+    const selectedRelationshipTypes   = new Array();
     let done = false;
     const context = {
       "myMetis":          myMetis,
@@ -464,6 +465,28 @@ class GoJSApp extends React.Component<{}, AppState> {
                   selectedObjectViews.push(gqlObjView);
                   // console.log('444 GoJSApp :', node);                
                 }
+              } else if (sel instanceof go.Link) {
+                const key = sel.data.key;
+                let text = sel.data.name;
+                const typename = sel.data.type;
+
+                if (typename === 'Relationship type') {
+                  const myLink = this.getLink(context.myGoMetamodel, key);
+                  console.log('474 GoJSApp', myLink.reltype);
+                  if (myLink.reltype) {
+                    const gqlLink= new gql.gqlRelationshipType(myLink.reltype, true);
+                    selectedRelationshipTypes.push(gqlLink);
+                    console.log('478 GoJSApp', selectedRelationshipTypes);
+                  }
+                } else // relation
+                {
+                  const relshipview = sel.data.relshipview;
+                  // Do whatever you like
+                  // ..
+                  const gqlRelshipView = new gql.gqlRelshipView(relshipview);
+                  selectedRelshipViews.push(gqlRelshipView);
+                  // console.log('444 GoJSApp :', node);                
+                }
               }
             }
           })
@@ -652,11 +675,21 @@ class GoJSApp extends React.Component<{}, AppState> {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
     })
+    // console.log('677 selectedObjectViews', selectedObjectViews);
+    selectedRelshipViews?.map(mn => {
+      let data = (mn) && mn
+      this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
+    })
 
     console.log('643 selectedObjectTypes', selectedObjectTypes);
     selectedObjectTypes?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
+    })
+    console.log('689 selectedRelationshipTypes', selectedRelationshipTypes);
+    selectedRelationshipTypes?.map(mn => {
+      let data = (mn) && mn
+      this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
     })
   }
 

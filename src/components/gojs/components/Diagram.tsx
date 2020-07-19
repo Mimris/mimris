@@ -255,7 +255,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e, obj) {
               const node = e.diagram.selection.first().data;
               console.log('257 partContextMenu', node);
-              // let objtype = prompt('Enter one of: ' + node.choices);
+              let objtype = prompt('Enter one of: ' + node.choices);
               const myMetis = e.diagram.myMetis;
               const context = {
                 "myMetis":      myMetis,
@@ -266,10 +266,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "dispatch":     e.diagram.dispatch
               }
               uic.setObjectType(node, objtype, context);
-              const modNode = new gql.gqlObjectView(node.objectview);
-              console.log('308 SetObjtype', node, modNode);
-              //modifiedNodes.push(modNode);
-            },
+              const gqlObjView = new gql.gqlObjectView(node.objectview);
+              console.log('270 SetObjtype', node, gqlObjView);
+              const modifiedObjectViews = new Array();
+              modifiedObjectViews.push(gqlObjView);
+              modifiedObjectViews.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_OBJECVIEW_PROPERTIES', data })
+              })
+              const object = myMetis.findObject(node.object.id);
+              const gqlObject = new gql.gqlObject(object);
+              console.log('278 SetObjtype', gqlObject);
+              const modifiedObjects = new Array();
+              modifiedObjects.push(gqlObject);
+              modifiedObjects.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+              })
+          },
             function (o) {
               const node = o.part.data;
               if (node.category === 'Object') {
@@ -298,6 +312,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     myMetis.addObjectTypeView(typeView);
                 }              
                 const gqlObjtypeView = new gql.gqlObjectTypeView(typeView);
+                console.log('315 gqlObjtypeView', gqlObjtypeView);
                 const modifiedTypeViews = new Array();
                 modifiedTypeViews.push(gqlObjtypeView);
                 modifiedTypeViews.map(mn => {
@@ -305,7 +320,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
                 })
                 const gqlObjView = new gql.gqlObjectView(currentObjectView);
-                console.log('310 gqlObjView', gqlObjView);
+                console.log('323 gqlObjView', gqlObjView);
                 const modifiedObjectViews = new Array();
                 modifiedObjectViews.push(gqlObjView);
                 modifiedObjectViews.map(mn => {
@@ -406,6 +421,61 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
             }
           }),
+          makeButton("Add Local Typeview",
+            function (e: any, obj: any) { 
+              const link = e.diagram.selection.first().data;
+              console.log('426 linkContextMenu', link);
+              const currentRelship = link.relship;
+              const currentRelshipView = link.relshipview;
+              if (currentRelship && currentRelshipView) {                   
+                const myMetis = e.diagram.myMetis;
+                const myMetamodel = myMetis.currentMetamodel;
+                const reltype  = currentRelship.type;
+                let typeView = currentRelshipView.typeview;
+                const defaultTypeview = reltype.typeview;
+                if (!typeView || (typeView.id === defaultTypeview.id)) {
+                    const id = utils.createGuid();
+                    typeView = new akm.cxRelationshipTypeView(id, id, reltype, "");
+                    typeView.nameId = undefined;
+                    typeView.modified = true;
+                    currentRelshipView.typeview = typeView;
+                    myMetamodel.addRelationshipTypeView(typeView);
+                    console.log('441 myMetamodel', myMetamodel);
+                    myMetis.addRelationshipTypeView(typeView);
+                    console.log('443 myMetis', myMetis);
+                }              
+                const gqlReltypeView = new gql.gqlRelshipTypeView(typeView);
+                const modifiedTypeViews = new Array();
+                modifiedTypeViews.push(gqlReltypeView);
+                modifiedTypeViews.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+                })
+                const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
+                console.log('450 gqlRelView', gqlRelView);
+                const modifiedRelshipViews = new Array();
+                modifiedRelshipViews.push(gqlRelView);
+                modifiedRelshipViews.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                })
+              
+              }
+            },
+            function (o: any) {
+              const link = e.diagram.selection.first().data;
+              const currentRelship = link.relship;
+              const currentRelshipView = link.relshipview;
+              if (currentRelship && currentRelshipView) {                   
+                const reltype  = currentRelship.type;
+                const typeView = currentRelshipView.typeview;
+                const defaultTypeview = reltype.typeview;
+                if (typeView && (typeView.id === defaultTypeview.id)) {
+                  return true;
+                }
+              }
+              return false;
+            }),
           makeButton("Cut",
             function (e, obj) { e.diagram.commandHandler.cutSelection(); },
             function (o) { return o.diagram.commandHandler.canCutSelection(); }),

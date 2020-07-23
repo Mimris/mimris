@@ -2,7 +2,8 @@
 
 const FieldDiv = (props) => {
 
-
+  console.log('5 FieldDiv', props);
+  
   return (
     <div>
       <>
@@ -15,10 +16,10 @@ const FieldDiv = (props) => {
             // id={`${props.p}`}
             name={`${props.p}`}
             // placeholder={`${props.curitem[props.p]}`}
-            defaultValue={`${props.curitem[props.p]}`}
             // defaultValue={`${props.curitem[props.p]}`}
+            defaultValue={`${props.curitem[props.p]}`}
             // ref={props.register({ required: true } )}
-     
+            // value={`${props.curitem.p}`}
             ref={props.register({ required: false } )}
             // style={{ backgroundColor: equal ? "ffcccc" : "white" }}
           /> 

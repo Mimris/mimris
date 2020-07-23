@@ -2,9 +2,9 @@ import {
   FAILURE, 
   LOAD_DATA, 
   LOAD_DATA_SUCCESS, 
-  SET_FOCUS_PHDATA, 
-  SET_FOCUS_PHSOURCE,
-  SET_FOCUS_PHFOCUS, 
+  LOAD_TOSTORE_PHDATA, 
+  LOAD_TOSTORE_PHSOURCE,
+  LOAD_TOSTORE_PHFOCUS, 
   SET_FOCUS_USER, 
   SET_FOCUS_OBJECT, 
   SET_FOCUS_OBJECTVIEW, 
@@ -62,14 +62,14 @@ export const loadDataSuccess = (data) => {
 export const setFocusPhsource = (data) => {
   // console.log('46---actions |setFocusPhsource ', data);
   return {
-    type: SET_FOCUS_PHSOURCE,
+    type: LOAD_TOSTORE_PHSOURCE,
     data: JSON.parse(data.value)
   }
 }
 export const setFocusPhdata = (data) => {
   // console.log('21---actions | setFocusPhdata ', data);
   return {
-    type: SET_FOCUS_PHDATA,
+    type: LOAD_TOSTORE_PHDATA,
     data: JSON.parse(data.value)
   }
 }
@@ -77,7 +77,7 @@ export const setFocusPhdata = (data) => {
 export const setFocusPhfocus = (data) => {
   // console.log('21---actions | setFocusPhfocus ', data);
   return {
-    type: SET_FOCUS_PHFOCUS,
+    type: LOAD_TOSTORE_PHFOCUS,
     data: JSON.parse(data.value)
   }
 }

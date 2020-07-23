@@ -2,9 +2,9 @@ import {
   FAILURE,
   LOAD_DATA,
   LOAD_DATA_SUCCESS,
-  SET_FOCUS_PHDATA,
-  SET_FOCUS_PHSOURCE,
-  SET_FOCUS_PHFOCUS,
+  LOAD_TOSTORE_PHDATA,
+  LOAD_TOSTORE_PHSOURCE,
+  LOAD_TOSTORE_PHFOCUS,
   SET_FOCUS_USER,
   SET_FOCUS_OBJECT,
   SET_FOCUS_OBJECTVIEW,
@@ -87,22 +87,22 @@ function reducer(state = InitialState, action) {
         phData: action.data,   
         phSource: 'Model server'
       }
-    case SET_FOCUS_PHDATA:
-      // console.log('169 SET_FOCUS_PHDATA', action);
+    case LOAD_TOSTORE_PHDATA:
+      // console.log('169 LOAD_TOSTORE_PHDATA', action);
       // Object.assign(state, action);    
       return {
         ...state,
         phData: action.data
       }
-    case SET_FOCUS_PHSOURCE:
+    case LOAD_TOSTORE_PHSOURCE:
       // console.log('176 SET_FOCUS_SOURCE', action.data);
       // Object.assign(state, action);    
       return {
         ...state,
         phSource: action.data
       }
-    case SET_FOCUS_PHFOCUS:
-      // console.log('183 SET_FOCUS_PHFOCUS', action.data);
+    case LOAD_TOSTORE_PHFOCUS:
+      // console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);
       // Object.assign(state, action);    
       return {
         ...state,
@@ -612,11 +612,11 @@ function reducer(state = InitialState, action) {
       const curmodrt = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmrt = state.phData?.metis?.metamodels?.find(m => m.id === curmodrt.metamodelRef)
       const curmmindexrt = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmmrt.metamodelRef)
-      const currt = curmmrt?.reshiptypes?.find(ot => ot.id === action?.data?.id)
-      const lengthrt = curmmrt?.reshiptypes?.length
-      let indexrt = curmmrt?.reshiptypes?.findIndex(ot => ot.id === currt?.id)
+      const currt = curmmrt?.relshiptypes?.find(ot => ot.id === action?.data?.id)
+      const lengthrt = curmmrt?.relshiptypes?.length
+      let indexrt = curmmrt?.relshiptypes?.findIndex(ot => ot.id === currt?.id)
       if (indexrt < 0) { indexrt = lengthrt }
-      // console.log('411 ovindex', ovindex, ovlength);
+      console.log('619 indexrt', curmmrt, indexrt, lengthrt);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {
@@ -642,10 +642,10 @@ function reducer(state = InitialState, action) {
                     viewkind: action.data.viewkind,
                     fromobjtypeRef: action.data.fromobjtypeRef,
                     toobjtypeRef: action.data.toobjtypeRef,
-                    properties: {
-                      ...curmmrt.relshiptypes[indexrt]?.properties,
-                      properties: action.data.properties,
-                    },             
+                    // properties: {
+                    //   ...curmmrt.relshiptypes[indexrt]?.properties,
+                    //   properties: action.data.properties,
+                    // },             
                     deleted: action.data.deleted,     
                   },
                   ...curmmrt?.relshiptypes?.slice(indexrt + 1)
@@ -692,10 +692,10 @@ function reducer(state = InitialState, action) {
                     viewkind: action.data.viewkind,
                     fromobjtypeRef: action.data.fromobjtypeRef,
                     toobjtypeRef: action.data.toobjtypeRef,
-                    properties: {
-                      ...curmmrtv.relshiptypeviews[indexrt]?.properties,
-                      properties: action.data.properties,
-                    },    
+                    // properties: {
+                    //   ...curmmrtv.relshiptypeviews[indexrt]?.properties,
+                    //   properties: action.data.properties,
+                    // },    
                     deleted: action.data.deleted,              
                   },
                   ...curmmrtv?.relshiptypeviews.slice(indexrtv + 1)
@@ -743,7 +743,7 @@ function reducer(state = InitialState, action) {
                     //   ...curmo.objects[curoindexo]?.propertyValues,
                     //   propertyValues: action.data.propertyValues,
                     // },
-                    // deleted: action.data.deleted,
+                    deleted: action.data.deleted,
                   },
                   ...curmo.objects.slice(curoindexo + 1)
                 ],

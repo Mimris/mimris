@@ -21,8 +21,8 @@ const EditProperties = (props) => {
   const [colorvalue, setColorvalue] = useState(props.item.fillcolor)
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
-  const [iconvalue, setIconvalue] = useState(props.item.iconvalue)
-  console.log('25 EditProperties', iconvalue);
+  const [iconvalue, setIconvalue] = useState(props.item.icon)
+  console.log('25 EditProperties', props.item.icon, iconvalue);
   
   // let collection
   // if (!props.collection || !props.collection.length) {
@@ -65,8 +65,7 @@ const EditProperties = (props) => {
   }
   const handleChangesicon = (event) => {
     const iconvalue= event.target.value
-    console.log('66 EditProperties', iconvalue);
-    
+    console.log('66 EditProperties', iconvalue); 
     setIconvalue(iconvalue)
   }
 
@@ -167,27 +166,33 @@ const EditProperties = (props) => {
           <>
             <div className="field" >
               <label className="label ml-5" htmlFor="name">
+                {/* icon //: Currentvalue = {props.item.icon} <br/> */}
                 icon
                 <select className="selectpicker ml-2" value={iconvalue} onChange={handleChangesicon} >
-                  <option value={`${iconvalue}`}>Current</option>
+                  {/* <option value={`${iconvalue}`}>Current</option> */}
                   <option value="default.png">Default.png</option>
                   <option value="book.png">Book.png</option>
                   <option value="person.png">Person.png</option>
                   <option value="analyse.png">Analyse.png</option>
+                  <option value="task.png">Task.png</option>
                   <option value="task1.jfif">Task1.jfif</option>
                   <option value="parallel.png">Parallel.png</option>
                   <option value="exclusive.png">Exclusive.png</option>
                   <option value="inclusive.png">Inclusive.png</option>
                   <option value="automated.jfif">Inclusive.png</option>
                   <option value="car.png">Car.png</option>
+                  <option value="person1.svg">person1.svg</option>
+                  <option value="tiger.svg">tiger.svg</option>
                 </select>
               </label>
               <input className="input pt-1 "
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
-                // defaltValue={colorvalue}
+                defaltValue={props.item.icon}
+                // placeholder={props.item.icon}
                 value={iconvalue}
+                // value={(iconvalue) ? iconvalue : props.item.icon}
                 ref={register({ required: false })}
               />
             </div>
@@ -204,7 +209,7 @@ const EditProperties = (props) => {
   const fields = listAllProperties(edititem).map(p => // remove js prototype properties
     ((p.slice(-3) !== 'Ref') && (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
-      (p !== 'group') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'deleted')) && p
+      (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'viewkind') && (p !== 'deleted')) && p
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))

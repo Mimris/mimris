@@ -1,6 +1,6 @@
 
 //@ts-nocheck
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSelector, useDispatch } from 'react-redux'
 import { mainModule } from 'process';
@@ -22,7 +22,8 @@ const EditProperties = (props) => {
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.icon)
-  console.log('25 EditProperties', props.item.icon, iconvalue);
+  console.log('25 EditProperties', props.item);
+  console.log('26 EditProperties', props.item.fillcolor, colorvalue);
   
   // let collection
   // if (!props.collection || !props.collection.length) {
@@ -31,6 +32,10 @@ const EditProperties = (props) => {
   // } else {
   //   collection = props.collection
   // }
+
+  useEffect((colorvalue) => {
+    setColorvalue(colorvalue)
+  }, [colorvalue]);
 
   const onSubmit = (e) => {
     const data = { ...edititem, ...e }
@@ -60,8 +65,8 @@ const EditProperties = (props) => {
     setStrokecolorvalue(scolor)
   }
   const handleChangesw = (event) => {
-    const strokewidth = event.target.value
-    setStrokewidthvalue(strokewidth)
+    const strw = event.target.value
+    setStrokewidthvalue(strw)
   }
   const handleChangesicon = (event) => {
     const iconvalue= event.target.value
@@ -77,10 +82,10 @@ const EditProperties = (props) => {
         return (
           <>
             <div className="field" >
-              <label className="label ml-5" htmlFor="name">
+              <label className="label mt-1" htmlFor="name">
                 fillcolor
                 <select className="sel ml-2" value={colorvalue} onChange={handleChangefc} >
-                  <option value={`${colorvalue}`}>Current</option>
+                  <option value={`${colorvalue}`}>Select ...</option>
                   <option value="lightgray">Gray</option>
                   <option value="white">White</option>
                   <option value="#ffaaaa">Red</option>
@@ -92,11 +97,11 @@ const EditProperties = (props) => {
                   <option value="orange">Orange</option>
                 </select>
               </label>
-              <input className="input pt-1 float-right "
+              <span className="ml-1">colorcode :</span>
+              <input className="input pt-1 float-right " onChange={handleChangefc} style={{backgroundColor: `${colorvalue}`}}
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
-                // defaltValue={colorvalue}
                 value={colorvalue}
                 ref={register({ required: false })}
               />
@@ -107,10 +112,10 @@ const EditProperties = (props) => {
         return (
           <>
             <div className="field" >
-              <label className="label ml-5" htmlFor="name">
+              <label className="label mt-1" htmlFor="name">
                 strokecolor
                 <select className="sel ml-2" value={strokecolorvalue} onChange={handleChangesc} >
-                  <option value={`${strokecolorvalue}`}>Current</option>
+                  <option value={`${strokecolorvalue}`}>Select ...</option>
                   <option value="gray">Gray</option>
                   <option value="white">White</option>
                   <option value="#ff0000">Red</option>
@@ -122,7 +127,8 @@ const EditProperties = (props) => {
                   <option value="orange">Orange</option>
                 </select>
               </label>
-              <input className="input pt-1 float-right "
+              <span className="ml-0">color :</span>
+              <input className="input pt-1 float-right " onChange={handleChangesc} style={{ backgroundColor: `${strokecolorvalue}` }}
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
@@ -137,7 +143,7 @@ const EditProperties = (props) => {
         return (
           <>
             <div className="field" >
-              <label className="label ml-5" htmlFor="name">
+              <label className="label mt-1" htmlFor="name">
                 strokewidth
                 <select className="sel ml-2" value={strokewidthvalue} onChange={handleChangesw} >
                   <option value={strokewidthvalue}>Current</option>
@@ -150,7 +156,8 @@ const EditProperties = (props) => {
                   <option value={7}>7</option>
                 </select>
               </label>
-              <input className="input pt-1 float-right "
+              <span className="ml-0">width :</span>
+              <input className="input pt-1 float-right " onChange={handleChangesw}
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
@@ -165,10 +172,10 @@ const EditProperties = (props) => {
         return (
           <>
             <div className="field" >
-              <label className="label ml-5" htmlFor="name">
+              <label className="label mt-1" htmlFor="name">
                 {/* icon //: Currentvalue = {props.item.icon} <br/> */}
                 icon
-                <select className="selectpicker ml-2" value={iconvalue} onChange={handleChangesicon} >
+                <select className="selectpicker ml-2 float-right" value={iconvalue} onChange={handleChangesicon} >
                   {/* <option value={`${iconvalue}`}>Current</option> */}
                   <option value="default.png">Default.png</option>
                   <option value="book.png">Book.png</option>
@@ -185,16 +192,14 @@ const EditProperties = (props) => {
                   <option value="tiger.svg">tiger.svg</option>
                 </select>
               </label>
-              <input className="input pt-1 "
+              <span className="ml-4">Url :</span>
+              <input className="input pt-1 float-right" onChange={handleChangesicon}
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
-                defaltValue={props.item.icon}
-                // placeholder={props.item.icon}
                 value={iconvalue}
-                // value={(iconvalue) ? iconvalue : props.item.icon}
                 ref={register({ required: false })}
-              />
+                />
             </div>
           </>
       )
@@ -209,7 +214,8 @@ const EditProperties = (props) => {
   const fields = listAllProperties(edititem).map(p => // remove js prototype properties
     ((p.slice(-3) !== 'Ref') && (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
-      (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'viewkind') && (p !== 'deleted')) && p
+      (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'viewkind') && 
+      (p !== 'deleted')) && p
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))

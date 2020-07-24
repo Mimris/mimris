@@ -8,7 +8,7 @@ const FieldDiv = (props) => {
     <div>
       <>
         <div className="field"  >
-          <label className="label " htmlFor="name">{`${props.p}`}</label>
+          <label className="label mt-1" htmlFor="name">{`${props.p}`}</label>
 
           <input className="input pt-1 float-right "
             type="text"

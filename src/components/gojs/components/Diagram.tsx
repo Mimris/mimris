@@ -562,8 +562,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor')
-            // new go.Binding('strokeWidth', 'strokewidth'),
+            new go.Binding('stroke', 'strokecolor'),
+            new go.Binding('strokeWidth', 'strokewidth'),
           ),
      
           $(go.Panel, "Table",

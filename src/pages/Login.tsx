@@ -121,7 +121,7 @@ export default Page(connect(state => state)(page));
   // function handleSetSession() {
   //   const data = session
   //   console.log('87', data);   
-  //   dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+  //   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
   // }
   // let sessbutton 
   // useEffect(() => {

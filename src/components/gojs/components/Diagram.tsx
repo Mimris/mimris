@@ -572,8 +572,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor')
-            // new go.Binding('strokeWidth', 'strokewidth'),
+            new go.Binding('stroke', 'strokecolor'),
+            new go.Binding('strokeWidth', 'strokewidth'),
           ),
      
           $(go.Panel, "Table",
@@ -829,9 +829,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
-              desiredSize: new go.Size(670, 400),
+              // desiredSize: new go.Size(300, 200),
+              // minSize: new go.Binding("minSize", "size"),
               margin: new go.Margin(16, 0, 0, 0),
             },
+            // new go.Binding("desiredSize", "size"),
             new go.Binding("source", "icon", findImage)
           ),
         ), 
@@ -1032,6 +1034,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // Function to identify images related to an image id
     function findImage(image: string) {
       if (image.substring(0,4) === 'http') {
+        return image
+      } else if (image.includes('/')) {
         return image
       } else {
         return "./../images/" + image

@@ -59,7 +59,7 @@ const SelectContext = (props: any) => {
     const phData = JSON.parse(event.value)
     const data = phData
     // console.log('38 sel', data);
-    (data) && dispatch({ type: 'SET_FOCUS_PHDATA', data })
+    (data) && dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
   }
   const handleSessionChange = (event:any) => {
     const id = JSON.parse(event.value).id
@@ -69,7 +69,7 @@ const SelectContext = (props: any) => {
     const focusSession = {id: id, name: name}
     const data = focusSession
     // console.log('38 sel', data);
-    (data) && dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+    (data) && dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
   }
 
   useEffect(() => {
@@ -95,8 +95,8 @@ const SelectContext = (props: any) => {
     function handleSetSession() {
       const data = phFocus.phFocus
       // console.log('87', data);
-      dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
-      dispatch({ type: 'SET_FOCUS_PHSOURCE', sourceFlag })  
+      dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', sourceFlag })  
     }
     // /**
     // * Build the selection options for all context (focus) objects,

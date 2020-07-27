@@ -2,12 +2,13 @@
 
 const FieldDiv = (props) => {
 
-
+  console.log('5 FieldDiv', props);
+  
   return (
     <div>
       <>
         <div className="field"  >
-          <label className="label " htmlFor="name">{`${props.p}`}</label>
+          <label className="label mt-1" htmlFor="name">{`${props.p}`}</label>
 
           <input className="input pt-1 float-right "
             type="text"
@@ -15,10 +16,10 @@ const FieldDiv = (props) => {
             // id={`${props.p}`}
             name={`${props.p}`}
             // placeholder={`${props.curitem[props.p]}`}
-            defaultValue={`${props.curitem[props.p]}`}
             // defaultValue={`${props.curitem[props.p]}`}
+            defaultValue={`${props.curitem[props.p]}`}
             // ref={props.register({ required: true } )}
-     
+            // value={`${props.curitem.p}`}
             ref={props.register({ required: false } )}
             // style={{ backgroundColor: equal ? "ffcccc" : "white" }}
           /> 

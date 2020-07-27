@@ -16,13 +16,13 @@ const DispatchLocalStore = () => {
 
     if (phData && phFocus && phUser && phSource) {
       let data = phData
-      dispatch({ type: 'SET_FOCUS_PHDATA', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
       data = phFocus
-      dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
       data = phUser
-      dispatch({ type: 'SET_FOCUS_PHUSER', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
       data = phSource
-      dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
     } 
   }
 } 

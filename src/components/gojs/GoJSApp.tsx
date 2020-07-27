@@ -675,25 +675,25 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 
-    // console.log('643 selectedObjectViews', selectedObjectViews);
+    console.log('643 selectedObjectViews', selectedObjectViews);
     selectedObjectViews?.map(mn => {
-      let data = (mn) && mn
+      let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
     })
-    // console.log('677 selectedObjectViews', selectedObjectViews);
+    // console.log('677 selectedRelshipViews', selectedRelshipViews);
     selectedRelshipViews?.map(mn => {
-      let data = (mn) && mn
+      let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
     })
 
     console.log('643 selectedObjectTypes', selectedObjectTypes);
     selectedObjectTypes?.map(mn => {
-      let data = (mn) && mn
+      let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
     })
     console.log('689 selectedRelationshipTypes', selectedRelationshipTypes);
     selectedRelationshipTypes?.map(mn => {
-      let data = (mn) && mn
+      let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
     })
   }

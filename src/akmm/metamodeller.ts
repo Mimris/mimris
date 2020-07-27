@@ -300,6 +300,7 @@ export class cxMetis {
             objtype = new cxObjectType(item.id, item.name, item.description);
         }
         if (objtype) {
+            objtype.deleted = item.deleted;
             let otype = (objtype as any);
             for (const prop in item) {
                 if (item[prop]) {
@@ -331,6 +332,7 @@ export class cxMetis {
                 reltype = new cxRelationshipType(item.id, item.name, fromobjtype, toobjtype, item.description);
         }
         if (reltype) {
+            reltype.deleted = item.deleted;
             let rtype = (reltype as any);
             for (const prop in rtype) {
                 if (utils.objExists(item[prop]))

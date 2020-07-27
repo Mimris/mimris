@@ -22,8 +22,8 @@ const EditProperties = (props) => {
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.icon)
-  console.log('25 EditProperties', props.item);
-  console.log('26 EditProperties', props.item.fillcolor, colorvalue);
+  // console.log('25 EditProperties', props.item);
+  // console.log('26 EditProperties', props.item.fillcolor, colorvalue);
   
   // let collection
   // if (!props.collection || !props.collection.length) {
@@ -215,7 +215,7 @@ const EditProperties = (props) => {
     ((p.slice(-3) !== 'Ref') && (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
       (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'viewkind') && 
-      (p !== 'deleted')) && p
+      (p !== 'deleted') && (p !== 'modeified')) && p
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))

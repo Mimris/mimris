@@ -60,7 +60,7 @@ const page = (props:any) => {
     }, [focusModelview.id])
 
     useEffect(() => {
-      // console.log('42 Diagram state', props ); 
+      console.log('63 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [metis])
     

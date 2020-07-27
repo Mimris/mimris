@@ -399,6 +399,7 @@ function reducer(state = InitialState, action) {
                           loc: action.data.loc,
                           size: action.data.size,
                           deleted: action.data.deleted,
+                          modified: action.data.modified,    
                         },
                         ...curmv?.objectviews?.slice(ovindex + 1)
                       ]
@@ -462,6 +463,7 @@ function reducer(state = InitialState, action) {
                           fromobjviewRef: action.data.fromobjviewRef,
                           toobjviewRef: action.data.toobjviewRef,
                           deleted: action.data.deleted,
+                          modified: action.data.modified,    
                         },
                         ...curmvrv?.relshipviews.slice(currvindex + 1)
                       ]
@@ -508,6 +510,7 @@ function reducer(state = InitialState, action) {
                       viewkind: action.data.viewkind,
                       abstract: action.data.abstract,
                       deleted: action.data.deleted,
+                      modified: action.data.modified,    
                     },
                     ...curmmot?.objecttypes.slice(indexot + 1)
                   ]
@@ -556,6 +559,7 @@ function reducer(state = InitialState, action) {
                       strokewidth: action.data.strokewidth,
                       icon: action.data.icon,
                       deleted: action.data.deleted,
+                      modified: action.data.modified,    
                     },
                     ...curmmotv?.objecttypeviews.slice(indexotv + 1)
                   ]
@@ -596,7 +600,8 @@ function reducer(state = InitialState, action) {
                       metamodelRef: action.data.metamodelRef,
                       loc: action.data.loc,
                       size: action.data.size,
-                      deleted: action.data.deleted,                      
+                      deleted: action.data.deleted, 
+                      modified: action.data.modified,                         
                     },
                     ...curmm?.objtypegeos.slice(otindex + 1)
                   ]
@@ -646,7 +651,8 @@ function reducer(state = InitialState, action) {
                     //   ...curmmrt.relshiptypes[indexrt]?.properties,
                     //   properties: action.data.properties,
                     // },             
-                    deleted: action.data.deleted,     
+                    deleted: action.data.deleted,  
+                    modified: action.data.modified,       
                   },
                   ...curmmrt?.relshiptypes?.slice(indexrt + 1)
                 ]
@@ -661,12 +667,13 @@ function reducer(state = InitialState, action) {
       console.log('501 UPDATE_RELSHIPTYPEVIEW_PROPERTIES', action);
       const curmodrtv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmrtv = state.phData?.metis?.metamodels?.find(m => m.id === curmodrtv.metamodelRef)
-      const curmmindexrtv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmmrtv.metamodelRef)
+      const curmmindexrtv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmmrtv.id)
       const currtv = curmmrtv?.relshiptypeviews?.find(ot => ot.id === action?.data?.id)
       const lengthrtv = curmmrtv?.relshiptypeviews.length
       let indexrtv = curmmrtv?.relshiptypeviews?.findIndex(ot => ot.id === currtv?.id)
       if (indexrtv < 0) { indexrtv = lengthrtv }
-      // console.log('411 ovindex', ovindex, ovlength);
+      console.log('669 ovindex', curmmrtv, curmmindexrtv, currtv);
+      console.log('670 ovindex', lengthrtv, indexrtv);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {
@@ -684,19 +691,18 @@ function reducer(state = InitialState, action) {
                   {
                     ...curmmrtv?.relshiptypeviews[indexrtv],
                     id: action.data.id,
-                    name: action.data.name,
+                    // name: action.data.name,
                     description: action.data.description,
-                    typeviewRef: action.data.typeviewRef,
-                    isGroup: action.data.isGroup,
-                    relshipkind: action.data.relshipkind,
-                    viewkind: action.data.viewkind,
-                    fromobjtypeRef: action.data.fromobjtypeRef,
-                    toobjtypeRef: action.data.toobjtypeRef,
-                    // properties: {
-                    //   ...curmmrtv.relshiptypeviews[indexrt]?.properties,
-                    //   properties: action.data.properties,
-                    // },    
+                    typeRef: action.data.typeRef,
+                    strokecolor: action.data.strokecolor,
+                    strokewidth: action.data.strokewidth,
+                    dash: action.data.dash,
+                    fromArrow: action.data.fromArrow,
+                    toArrow: action.data.toArrow,
+                    fromArrowColor: action.data.fromArrowColor,
+                    toArrowColor: action.data.toArrowColor,
                     deleted: action.data.deleted,              
+                    modified: action.data.modified,              
                   },
                   ...curmmrtv?.relshiptypeviews.slice(indexrtv + 1)
                 ]
@@ -744,6 +750,7 @@ function reducer(state = InitialState, action) {
                     //   propertyValues: action.data.propertyValues,
                     // },
                     deleted: action.data.deleted,
+                    modified: action.data.modified,    
                   },
                   ...curmo.objects.slice(curoindexo + 1)
                 ],
@@ -792,6 +799,7 @@ function reducer(state = InitialState, action) {
                     //   ...curmv.relships[r2index].propvalues,
                     // }
                     deleted: action.data.deleted,
+                    modified: action.data.modified,    
                   },
                   ...curmr.relships.slice(r2index + 1)
                 ]

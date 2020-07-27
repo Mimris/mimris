@@ -23,12 +23,12 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        console.log('120 createObject', data);
+        console.log('26 createObject', data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return;
-        console.log('123 createObject', objtype);
+        console.log('31 createObject', objtype);
         let guid = utils.createGuid();
         let obj = new akm.cxObject(guid, data.name, objtype, data.description);
         if (obj) {
@@ -36,14 +36,15 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             // Include the new object in the current model
             myModel?.addObject(obj);
             myMetis.addObject(obj);
-            console.log('131 createObject', obj, myModel);
+            console.log('39 createObject', obj, myModel);
             // Create the corresponding object view
             objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
             if (objview) {
-                data.objectview = objview;
                 objview.setIsGroup(objtype?.isContainer());
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
+                data.objectview = objview;
+                console.log('47 createObject', data);
                 // Include the object view in the current model view
                 myModelview.addObjectView(objview);
                 myMetis.addObjectView(objview);
@@ -56,24 +57,24 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 // Then set the view properties
                 // Get the object typeview
                 let objtypeView = objtype?.getDefaultTypeView();
+                if (context.pasted) 
+                    objtypeView = data.typeview;
                 if (!objtypeView) {
-                    objtypeView = new akm.cxObjectTypeView(utils.createGuid(), objtype.getName(), objtype, "");
+                    const key = utils.createGuid();
+                    objtypeView = new akm.cxObjectTypeView(key, key, objtype, "");
                 }
                 if (objtypeView) {
-                    objtypeView.setIsGroup1(data.isGroup);
+                    //objtypeView.setIsGroup1(data.isGroup);
                     objview.setTypeView(objtypeView);
                     let node = new gjs.goObjectNode(data.key, objview);
+                    console.log('69 createObject', node);
                     myGoModel.addNode(node);
                     updateNode(node, objtypeView, myDiagram);
                     node.loc = data.loc;
                     node.size = data.size;
-                    console.log('162 uic', myGoModel);
+                    console.log('73 createObject', myGoModel);
                     return objview;
                 }
-                // if (objview) {
-                //     const newNode = new gql.gqlObjectView(objview);
-                //     modifiedNodes.push(newNode);
-                // }
             }
         }
     }
@@ -290,16 +291,18 @@ export function setObjectType(data: any, typename: string, context: any) {
         const objtypeview = myMetis.findObjectTypeView(objtype.typeviewRef);
         if (currentObject) {
             currentObject.setType(objtype);
-            currentObject.setName(typename);
+            //currentObject.setName(typename);
             currentObject.setModified();
             const currentObjectView = myMetis.findObjectView(data.objectview?.id);
             if (currentObjectView) {
                 currentObjectView.setTypeView(objtypeview);
-                currentObjectView.setName(typename);
+                //currentObjectView.setName(typename);
                 currentObjectView.setModified();
                 myDiagram.model.setDataProperty(data, "typename", typename);
+                console.log('301 setObjectType', currentObjectView);
                 updateNode(data, objtypeview, myDiagram);
             }
+            return currentObjectView;
         }
     }
 }
@@ -635,13 +638,12 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
+    console.log('641 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetamodel = context.myMetamodel;
     //data.key = utils.createGuid();
     let fromNode = myGoModel.findNode(data.from);
-    if (!fromNode)
-        return;
     let toNode = myGoModel.findNode(data.to);
     if (!toNode)
         return;
@@ -677,11 +679,39 @@ export function createRelationship(data: any, context: any) {
         return;
     }
     //alert("Relationship given IS allowed!");
-    const reltypeview = reltype.getDefaultTypeView();
+    const reltypeview = reltype.typeview;
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
     relshipview.setTypeView(reltypeview);
     console.log('725 myGoModel', myGoModel);
+    myDiagram.requestUpdate();
+    return relshipview;
+}
+
+// functions to handle links
+export function pasteRelationship(data: any, context: any) {
+    const myDiagram = context.myDiagram;
+    const myGoModel = context.myGoModel;
+    const myMetis   = context.myMetis;
+    // const myMetamodel = context.myMetamodel;
+    let relshipname = data.name;
+    //data.key = utils.createGuid();
+    console.log('700 pasteRelationship', data, myGoModel);
+    // let fromNode = data.fromNode;
+    // let toNode = data.toNode;
+    let reltype = data.relshiptype;
+    if (reltype) 
+        reltype = myMetis.findRelationshipType(reltype.id);
+    if (!reltype)
+        return;
+    console.log('708 pasteRelationship', reltype);
+    // const fromObj = myMetis.findObject(fromNode.object.id);
+    // const toObj   = myMetis.findObject(toNode.object.id);
+    const reltypeview = reltype.getDefaultTypeView();
+    myDiagram.model.setDataProperty(data, "name", relshipname);
+    const relshipview = createLink(data, context);
+    relshipview?.setTypeView(reltypeview);
+    console.log('715 pasteRelationship', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -876,6 +906,7 @@ export function setRelationshipType(data: any, typename: string, context: any) {
                         myDiagram.model.setDataProperty(data, "name", typename);
                     data.relshiptype = reltype;
                     updateLink(data, reltypeview, myDiagram);
+                    return currentRelshipView;
                 }
             }
         }
@@ -896,21 +927,27 @@ export function createLink(data: any, context: any): any {
         let relshipview;
         data.class = "goRelshipLink";
         reltype = myMetis.findRelationshipTypeByName(data.name);
+        console.log('930 createLink', reltype, data);
         if (reltype && reltype.isInstantiable()) {
             // Create the relationship
             const myGoModel = context.myGoModel;
-            let fromNode = myGoModel.findNode(data.from);
-            let toNode = myGoModel.findNode(data.to);
+            let fromNode = data.fromNode;
+            if (!fromNode)
+                fromNode = myGoModel.findNode(data.from);
+            let toNode = data.toNode;
+            if (!toNode)
+                toNode = myGoModel.findNode(data.to);
             let fromObjView = fromNode?.objectview;
             let toObjView = toNode?.objectview;
             let fromObj = null;
             if (fromObjView) {
-                fromObj = fromObjView.getObject();
+                fromObj = fromObjView.object;
             }
             let toObj = null;
             if (toObjView) {
-                toObj = toObjView.getObject();
+                toObj = toObjView.object;
             }
+            console.log('946 createLink', fromObj, toObj);
             if (fromObj && toObj) {
                 // Find relationship if it already exists
                 const myModel = context.myModel;
@@ -985,10 +1022,10 @@ export function setRelshipType() {
 // Local functions
 function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
     if (objtypeView) {
-        let viewdata: any = objtypeView.getData();
+        let viewdata: any = objtypeView.data;
         let prop: string;
         for (prop in viewdata) {
-            if (viewdata[prop] != null)
+            if (viewdata[prop] != null) 
                 diagram.model.setDataProperty(data, prop, viewdata[prop])
         }
         console.log('994 updateNode', data);

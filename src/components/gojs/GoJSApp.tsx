@@ -198,10 +198,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (myNode) {
                     myNode.name = text;
                     uic.updateObjectType(myNode, field, text, context);
-
-                    if (myNode.objecttype) {
-                      const gqlNode = new gql.gqlObjectType(myNode.objecttype, true);
-                      modifiedTypeNodes.push(gqlNode);
+                    console.log('201 TextEdited', myNode);
+                    if (myNode.objtype) {
+                      const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
+                      modifiedTypeNodes.push(gqlObjType);
+                      console.log('205 TextEdited', gqlObjType);
                     }
                   }
                 } else // Object
@@ -514,6 +515,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case 'ClipboardPasted': {
         const selection = e.subject;
+        context.pasted  = true;
+        console.log('518 ClipboardPasted', context.pasteViewsOnly);
         this.setState(
           produce((draft: AppState) => {
             const it = selection.iterator;
@@ -521,33 +524,35 @@ class GoJSApp extends React.Component<{}, AppState> {
               const selected = it.value.data;
               // First handle the objects
               if (selected.class === 'goObjectNode') {
-                console.log('480 ClipboardPasted', selected);
+                console.log('526 ClipboardPasted', selected);
                 const node = selected;
                 const objview = uic.createObject(node, context);
                 if (objview) {
                   const gqlNode = new gql.gqlObjectView(objview);
                   modifiedNodes.push(gqlNode);
-                  console.log('486 ClipboardPasted', modifiedNodes);
+                  console.log('532 ClipboardPasted', modifiedNodes);
                   const gqlObj = new gql.gqlObject(objview.object);
                   modifiedObjects.push(gqlObj);
-                  console.log('489 ClipboardPasted', modifiedObjects);
+                  console.log('535 ClipboardPasted', modifiedObjects);
                 }
               }
             }
+            console.log('537 ClipboardPasted', context.myGoModel);
             const it1 = selection.iterator;
             while (it1.next()) {
               // Then handle the relationships
               const selected = it1.value.data;
               if (selected.class === 'goRelshipLink') {
-                console.log('498 ClipboardPasted', selected);
+                console.log('543 ClipboardPasted', selected);
                 const link = selected;
-                const relview = uic.createRelationship(link.data, context);
+                const relview = uic.pasteRelationship(link, context);
+                console.log('546 relview', link, relview);
                 if (relview) {
-                  const gqlLink = new gql.gqlRelshipView(relview);
-                  console.log('503 ClipboardPasted', link, gqlLink);
-                  modifiedLinks.push(gqlLink);
+                  const gqlRelview = new gql.gqlRelshipView(relview);
+                  console.log('549 ClipboardPasted', gqlRelview);
+                  modifiedLinks.push(gqlRelview);
                   const gqlRelship = new gql.gqlRelationship(relview.relship);
-                  console.log('506 ClipboardPasted', gqlRelship);
+                  console.log('552 ClipboardPasted', gqlRelship);
                   modifiedRelships.push(gqlRelship);
                 }
               }
@@ -561,32 +566,32 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        console.log('534 LinkDrawn', link.data);
+        console.log('569 LinkDrawn', link.data);
         this.setState(
           produce((draft: AppState) => {
             if (fromNode?.class === 'goObjectNode') {
               const relview = uic.createRelationship(link.data, context);
               if (relview) {
-                const gqlLink = new gql.gqlRelshipView(relview);
-                console.log('414 LinkDrawn', link, gqlLink);
-                modifiedLinks.push(gqlLink);
+                const gqlRelview = new gql.gqlRelshipView(relview);
+                console.log('576 LinkDrawn', link, gqlRelview);
+                modifiedLinks.push(gqlRelview);
                 const gqlRelship = new gql.gqlRelationship(relview.relship);
-                console.log('476 LinkDrawn', gqlRelship);
+                console.log('579 LinkDrawn', gqlRelship);
                 modifiedRelships.push(gqlRelship);
               }
             } else if (fromNode?.class === 'goObjectTypeNode') {
-              console.log('547 link', fromNode, link.data);
+              console.log('583 link', fromNode, link.data);
               link.category = 'Relationship type';
               link.class = 'goRelshipTypeLink';
               const reltype = uic.createRelationshipType(link.data, context);
               if (reltype) {
-                console.log('551 reltype', reltype);
-                // const gqlType = new gql.gqlRelationshipType(reltype, true);
-                // modifiedLinkTypes.push(gqlType);
-                // console.log('559 gqlType', gqlType);
+                console.log('588 reltype', reltype);
+                const gqlType = new gql.gqlRelationshipType(reltype, true);
+                modifiedLinkTypes.push(gqlType);
+                console.log('591 gqlType', gqlType);
                 const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
                 modifiedLinkTypeViews.push(gqlTypeView);
-                console.log('556 gqlTypeView', gqlTypeView);
+                console.log('594 gqlTypeView', gqlTypeView);
               }
             }
           })
@@ -658,7 +663,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
     })
 
-    // console.log('619 modifiedObjects', modifiedObjects);
+    console.log('619 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })

@@ -70,14 +70,12 @@ const EditProperties = (props) => {
   }
   const handleChangesicon = (event) => {
     const iconvalue= event.target.value
-    console.log('66 EditProperties', iconvalue); 
+    // console.log('66 EditProperties', iconvalue); 
     setIconvalue(iconvalue)
   }
 
   function fieldDiv(p, curitem) {
     switch (p) {
-      case 'snorre':
-
       case 'fillcolor':
         return (
           <>
@@ -215,7 +213,7 @@ const EditProperties = (props) => {
     ((p.slice(-3) !== 'Ref') && (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
       (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'viewkind') && 
-      (p !== 'deleted') && (p !== 'modeified')) && p
+      (p !== 'deleted') && (p !== 'modified')) && p
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))

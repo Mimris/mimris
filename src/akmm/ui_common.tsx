@@ -32,6 +32,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         let guid = utils.createGuid();
         let obj = new akm.cxObject(guid, data.name, objtype, data.description);
         if (obj) {
+            data.oldObject = data.object;
             data.object = obj;
             // Include the new object in the current model
             myModel?.addObject(obj);
@@ -689,29 +690,43 @@ export function createRelationship(data: any, context: any) {
 }
 
 // functions to handle links
-export function pasteRelationship(data: any, context: any) {
+export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis   = context.myMetis;
     // const myMetamodel = context.myMetamodel;
     let relshipname = data.name;
     //data.key = utils.createGuid();
-    console.log('700 pasteRelationship', data, myGoModel);
-    // let fromNode = data.fromNode;
-    // let toNode = data.toNode;
+    console.log('700 pasteRelationship', data, nodes);
+    let fromNode = data.fromNode;
+    let toNode = data.toNode;
+    for (let i=0; i<nodes.length; i++) {
+        const n = nodes[i];
+        if (fromNode.object.id === n.oldObject.id) {
+            data.fromNode = n;
+            break;
+        }
+    }
+    for (let i=0; i<nodes.length; i++) {
+        const n = nodes[i];
+        if (toNode.object.id === n.oldObject.id) {
+            data.toNode = n;
+            break;
+        }
+    }
     let reltype = data.relshiptype;
     if (reltype) 
         reltype = myMetis.findRelationshipType(reltype.id);
     if (!reltype)
         return;
-    console.log('708 pasteRelationship', reltype);
-    // const fromObj = myMetis.findObject(fromNode.object.id);
-    // const toObj   = myMetis.findObject(toNode.object.id);
+    console.log('724 pasteRelationship', reltype);
+    const fromObj = myMetis.findObject(fromNode.object.id);
+    const toObj   = myMetis.findObject(toNode.object.id);
     const reltypeview = reltype.getDefaultTypeView();
     myDiagram.model.setDataProperty(data, "name", relshipname);
     const relshipview = createLink(data, context);
     relshipview?.setTypeView(reltypeview);
-    console.log('715 pasteRelationship', myGoModel);
+    console.log('731 pasteRelationship', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }

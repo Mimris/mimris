@@ -520,6 +520,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.setState(
           produce((draft: AppState) => {
             const it = selection.iterator;
+            const pastedNodes = new Array();
             while (it.next()) {
               const selected = it.value.data;
               // First handle the objects
@@ -527,7 +528,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                 console.log('526 ClipboardPasted', selected);
                 const node = selected;
                 const objview = uic.createObject(node, context);
+                console.log('531 ClipboardPasted', node);
                 if (objview) {
+                  pastedNodes.push(node);
                   const gqlNode = new gql.gqlObjectView(objview);
                   modifiedNodes.push(gqlNode);
                   console.log('532 ClipboardPasted', modifiedNodes);
@@ -545,7 +548,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (selected.class === 'goRelshipLink') {
                 console.log('543 ClipboardPasted', selected);
                 const link = selected;
-                const relview = uic.pasteRelationship(link, context);
+                const relview = uic.pasteRelationship(link, pastedNodes, context);
                 console.log('546 relview', link, relview);
                 if (relview) {
                   const gqlRelview = new gql.gqlRelshipView(relview);

@@ -23,14 +23,14 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
     let myMetis = new akm.cxMetis();
     glb.metis = myMetis;
     myMetis.importData(metis);
-    // console.log('27 gengojsModel myMetis', metis, myMetis);
+    // console.log('27 GenGojsModel myMetis', metis, myMetis);
 
     const focusModel = (state.phFocus) && state.phFocus.focusModel
     const focusModelview = (state.phFocus) && state.phFocus.focusModelview
     const curmod = (models && focusModel.id) && models.find((m: any) => m.id === focusModel.id)
     const curmodview = (curmod && focusModelview.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
     let curGomodel = state.phMyGoModel?.myGoModel;
-    // console.log('35 gengojsmodel :', curmod);
+    // console.log('35 GenGojsModel :', curmod);
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
@@ -38,7 +38,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
       // console.log('40 GengojsModel :', myMetis, curmod.id ,myModel);
       
       const myMetamodel = myModel?.metamodel;
-      // console.log('43 GengojsModel myMetamodel :', myMetamodel);
+      // console.log('43 GenGojsModel myMetamodel :', myMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       // console.log('40 myMetamodelPalette', myMetamodelPalette);

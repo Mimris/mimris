@@ -149,6 +149,7 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview, metis);
     let objviews = modelview?.getObjectViews();
+    console.log('152 buildGoMOdel', metis);
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
         let objview = objviews[i];
@@ -176,8 +177,8 @@ const GenGojsModel = async (state: any, dispatch: any) =>  {
           //console.log('125 relviews - link', link, myGoModel);
         }
       }
-      // console.log('179 myGoModel', myGoModel);
     }
+    console.log('180 myGoModel', myGoModel);
     return myGoModel;
   }
 

@@ -34,7 +34,7 @@ const page = (props:any) => {
   const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
   const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
   const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
-  console.log('37 Modelling', props.phFocus, focusRelshiptype.name);
+  console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
   
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 

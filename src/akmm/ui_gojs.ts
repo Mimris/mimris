@@ -101,10 +101,12 @@ export class goModel {
     findNode(key: string): goObjectNode | null {
         const retval: goObjectNode | null = null;
         if (!utils.isArrayEmpty(this.nodes)) {
+            console.log('103 findNode', key, this.nodes);
             let i = 0;
             while (i < this.nodes.length) {
                 const node: goObjectNode = this.nodes[i] as goObjectNode;
-                if (node.getKey() === key) {
+                //console.log('108 findNode', key, node.key);
+                if (node.key === key) {
                     return (node);
                 }
                 i++;
@@ -330,7 +332,7 @@ export class goObjectNode extends goNode {
                 this.choices.sort();
             }
         }
-        // console.log('331 goObjectNode', this);
+        this.class = 'goObjectNode';
     }
     // Methods
     getObjectViewId(viewid: string): string {
@@ -505,7 +507,7 @@ export class goRelshipLink extends goLink {
 
         if (relview) {
             const metis = relview.metis;
-            const relship = relview.getRelationship();
+            const relship = relview.relship;
             if (relship) {
                 this.relship = relship;
                 this.relshiptype = relship.getType();
@@ -515,17 +517,17 @@ export class goRelshipLink extends goLink {
                 if (this.name.length == 0)
                     this.name = this.typename;
             }
-            this.typeview = relview.getTypeView();
-            const fromObjview = relview.getFromObjectView();
+            this.typeview = relview.typeview;
+            const fromObjview = relview.fromObjview;
             if (fromObjview) {
-                let node: goNode | null = model.findNodeByViewId(fromObjview.getId());
+                let node: goNode | null = model.findNodeByViewId(fromObjview.id);
                 if (node) {
                     this.fromNode = node as goObjectNode;
                     this.from = node.key;
                     const fromType = this.fromNode.objecttype;
-                    const toObjview: akm.cxObjectView | null = relview.getToObjectView();
+                    const toObjview: akm.cxObjectView | null = relview.toObjview;
                     if (toObjview) {
-                        node = model.findNodeByViewId(toObjview.getId());
+                        node = model.findNodeByViewId(toObjview.id);
                         if (node) {
                             this.toNode = node as goObjectNode;
                             this.to = node.key;

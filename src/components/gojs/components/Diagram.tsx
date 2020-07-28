@@ -590,7 +590,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 },
                 new go.Binding("source", "icon", findImage)
               ),
-              
               // define the panel where the text will appear
               $(go.Panel, "Table",
                 {
@@ -723,21 +722,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             corner: 10
           },  // link route should avoid nodes
           { contextMenu: linkContextMenu },
-          // { contextMenu:                            // define a context menu for each node
-          //   $("ContextMenu", "Spot",              // that has several buttons around
-          //       $(go.Placeholder, { padding: 2 }),  // a Placeholder object
-          //     // $("ContextMenuButton", $(go.TextBlock, "Top"),
-          //     //   { alignment: go.Spot.Top, alignmentFocus: go.Spot.Bottom, click: cmCommand }),
-          //     // $("ContextMenuButton", $(go.TextBlock, "Right"),
-          //     //   { alignment: go.Spot.Right, alignmentFocus: go.Spot.Left, click: cmCommand }),
-          //     // $("ContextMenuButton", $(go.TextBlock, "Bottom"),
-          //     //   { alignment: go.Spot.Bottom, alignmentFocus: go.Spot.Top, click: cmCommand }),
-          //     $("ContextMenuButton", $(go.TextBlock, "Left"),
-          //       { alignment: go.Spot.Left, alignmentFocus: go.Spot.Right, click: cmCommand })
-          //  )  // end Adornment
-          // },
           new go.Binding("points").makeTwoWay(),
-          $(go.Shape, new go.Binding("stroke", "strokecolor")),
+          $(go.Shape, { stroke: "black", strokeWidth: 1},
+            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("strokeWidth", "strokewidth"),
+          ),
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
@@ -861,8 +850,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.Shape,  // using a Shape instead of a Placeholder
             {
               // name: "SHAPE", //fill: "rgba(228,228,228,0.53)",
-              name: "SHAPE", fill: "transparent",
-              // name: "SHAPE", fill: "lightyellow",
+              // name: "SHAPE", fill: "transparent",
+              name: "SHAPE", fill: "lightyellow",
+              opacity: "0.9",
               minSize: new go.Size(150, 100), 
               desiredSize: new go.Size(300, 200),
               margin: new go.Margin(0, 1, 1, 1),

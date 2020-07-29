@@ -19,7 +19,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  console.log('17 Modelling', props);
+  // console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -34,7 +34,7 @@ const page = (props:any) => {
   const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
   const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
   const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
-  console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
+  // console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
   
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
@@ -60,7 +60,7 @@ const page = (props:any) => {
     }, [focusModelview.id])
 
     useEffect(() => {
-      console.log('63 Diagram state', props ); 
+      // console.log('63 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [metis])
     

@@ -620,19 +620,19 @@ export class gqlObject {
     deleted:        boolean;
     modified:       boolean;
     constructor(object: akm.cxObject) {
-        this.id             = object.id;
-        this.name           = object.name;
-        this.description    = object.description ? object.description : "";
-        this.typeRef        = object.type ? object.type.id : "";
+        this.id             = object?.id;
+        this.name           = object?.name;
+        this.description    = object?.description ? object?.description : "";
+        this.typeRef        = object?.type ? object?.type.id : "";
         this.propertyValues = [];
-        this.deleted        = object.deleted;
-        this.modified       = object.modified;
+        this.deleted        = object?.deleted;
+        this.modified       = object?.modified;
 
         // Code
-        let type = object.type;
+        let type = object?.type;
         if (type) {
             let properties: any[];
-            let props = type.getProperties(true);
+            let props = type?.getProperties(true);
             if (props) {
                 if (props.length == 0) properties = props;
                 else
@@ -932,22 +932,22 @@ export class gqlRelshipView {
     deleted:        boolean;
     modified:       boolean;
     constructor(relview: akm.cxRelationshipView) {
-        this.id             = relview.id;
-        this.name           = relview.name;
+        this.id             = relview?.id;
+        this.name           = relview?.name;
         this.description    = "";
         this.relshipRef     = "";
         this.typeviewRef    = "";
         this.fromobjviewRef = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef   = relview && relview.toObjview ? relview.toObjview.id : "";
-        this.deleted        = relview.deleted;
-        this.modified       = relview.modified;
+        this.deleted        = relview?.deleted;
+        this.modified       = relview?.modified;
         // Code
-        if (relview.description)
+        if (relview?.description)
             this.description = relview.description;
-        const relship = relview.relship;
+        const relship = relview?.relship;
         if (relship)
             this.relshipRef = relship.id;
-        const typeview = relview.typeview;
+        const typeview = relview?.typeview;
         if (typeview)
             this.typeviewRef = typeview.id;
     }

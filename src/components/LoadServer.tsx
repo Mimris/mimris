@@ -43,8 +43,8 @@ const SelectSource = (props: any) => {
 
 const selectorDiv = (state.phSource === 'Model server') && 
   <div className="modeller-selection p-2 bg-warning " >
-    <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' /> <br /><hr />
-    <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' />  <br />
+    <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
+  <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
   </div> 
 // console.log('131', state);
 

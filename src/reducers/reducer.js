@@ -232,7 +232,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_OBJECT:
-      console.log('229 SET_FOCUS_OBJECT', state, action.data);
+      // console.log('235 SET_FOCUS_OBJECT', state, action.data);
       // focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
       //   focusSource: {
       //     id: action.data.focusSource.id,
@@ -291,7 +291,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_ROLE:
-      console.log('350 role', action);   
+      // console.log('350 role', action);   
       return {
         ...state,
         phFocus: {
@@ -308,7 +308,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_TASK:
-      console.log('367 task', action);   
+      // console.log('367 task', action);   
       // console.log('104', action.data);
 
       // focusTask = action.data.focusTask
@@ -354,7 +354,7 @@ function reducer(state = InitialState, action) {
 
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      console.log('229 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      // console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv  = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview

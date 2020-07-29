@@ -271,7 +271,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const sel = it.value;
               const data = sel.data;
               const typename = data.type;
-              console.log('266 SelectionMoved', data);
+              // console.log('266 SelectionMoved', data);
               if (typename === 'Object type') {
                   // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
                   const objtype = context.myMetis.findObjectType(data.objtype.id);
@@ -440,7 +440,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
-        console.log('437 GoJSApp :', sel);
+        // console.log('437 GoJSApp :', sel);
         this.setState(
           produce((draft: AppState) => {
             if (sel) {
@@ -451,11 +451,11 @@ class GoJSApp extends React.Component<{}, AppState> {
 
                 if (typename === 'Object type') {
                   const myNode = this.getNode(context.myGoMetamodel, key);
-                  console.log('449 GoJSApp', myNode.objtype);  
+                  // console.log('449 GoJSApp', myNode.objtype);  
                   if (myNode.objtype) {
                     const gqlNode = new gql.gqlObjectType(myNode.objtype, true);
                     selectedObjectTypes.push(gqlNode);
-                    console.log('453 GoJSApp', selectedObjectTypes);
+                    // console.log('453 GoJSApp', selectedObjectTypes);
                     } 
                 } else // object
                 {
@@ -473,11 +473,11 @@ class GoJSApp extends React.Component<{}, AppState> {
 
                 if (typename === 'Relationship type') {
                   const myLink = this.getLink(context.myGoMetamodel, key);
-                  console.log('474 GoJSApp', myLink.reltype);
+                  // console.log('474 GoJSApp', myLink.reltype);
                   if (myLink.reltype) {
                     const gqlLink= new gql.gqlRelationshipType(myLink.reltype, true);
                     selectedRelationshipTypes.push(gqlLink);
-                    console.log('478 GoJSApp', selectedRelationshipTypes);
+                    // console.log('478 GoJSApp', selectedRelationshipTypes);
                   }
                 } else // relation
                 {
@@ -496,7 +496,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case "PartResized": {
         const sel = e.subject.part.data;
-        console.log('439 PartResized', sel);
+        // console.log('439 PartResized', sel);
         this.setState(
           produce((draft: AppState) => {
             uic.changeNodeSizeAndPos(sel, myGoModel, modifiedNodes);
@@ -624,13 +624,13 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
 
-    console.log('577 modifiedNodes', modifiedNodes);
+    // console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
-    console.log('583 modifiedTypeNodes', modifiedTypeNodes);
+    // console.log('583 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
@@ -666,7 +666,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
     })
 
-    console.log('619 modifiedObjects', modifiedObjects);
+    // console.log('619 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
@@ -678,7 +678,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 
-    console.log('643 selectedObjectViews', selectedObjectViews);
+    // console.log('643 selectedObjectViews', selectedObjectViews);
     selectedObjectViews?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
@@ -689,12 +689,12 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
     })
 
-    console.log('643 selectedObjectTypes', selectedObjectTypes);
+    // console.log('643 selectedObjectTypes', selectedObjectTypes);
     selectedObjectTypes?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
     })
-    console.log('689 selectedRelationshipTypes', selectedRelationshipTypes);
+    // console.log('689 selectedRelationshipTypes', selectedRelationshipTypes);
     selectedRelationshipTypes?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
@@ -828,7 +828,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       })
     );
-    console.log('579 input: ', value);
+    // console.log('579 input: ', value);
   }
 
   /**
@@ -865,7 +865,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // console.log('824 dispatch', this.props.dispatch);
     //console.log('825 dispatch', this.state.dispatch);
     this.state.myMetis.dispatch = this.state.dispatch;
-    console.log('827 dispatch', this.state.myMetis.dispatch);
+    // console.log('827 dispatch', this.state.myMetis.dispatch);
     return (
       <div className="diagramwrapper">
 

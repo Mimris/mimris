@@ -18,6 +18,7 @@ const glb = require('../../../akmm/akm_globals');
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
+import { FaTumblrSquare } from 'react-icons/fa';
 //import { stringify } from 'querystring';
 
 // import './Diagram.css';
@@ -162,7 +163,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "category": "Object",
               "name": "Generic Object",
               "description": "",
-              "fillcolor": "pink",
+              "strokecolor": "black",
+              "strokewidth": "6",
               "icon": "default.png"
             },
             // allow Ctrl-G to call groupSelection()
@@ -194,7 +196,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }
         );
     }
-    console.log('190 myDiagram', this.myMetis);
+    // console.log('190 myDiagram', this.myMetis);
     //console.log('191 myDiagram', this.myGoModel);
     myDiagram.myMetis = this.myMetis;
     myDiagram.myGoModel = this.myGoModel;
@@ -202,7 +204,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
     myDiagram.dispatch = this.myMetis.dispatch;
-    console.log('203 dispatch', myDiagram.dispatch);
+    // console.log('203 dispatch', myDiagram.dispatch);
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -229,7 +231,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       const toNode = d.toNode;
       const toObj = toNode?.object;
       const toObjtype = reltype.getToObjType();
-      console.log('229 linkInfo', d);
+      // console.log('229 linkInfo', d);
       let str = "Link: ";
       str += d.name + " (" + typename + ")\n";
       str += "from: " + fromObj?.name + "\n";
@@ -238,7 +240,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
 
     function diagramInfo(model: any) {  // Tooltip info for the diagram's model
-      console.log('231 diagramInfo', model);
+      // console.log('231 diagramInfo', model);
       let str = "Model:\n";
       str += model.nodeDataArray.length + " nodes, ";
       str += model.linkDataArray.length + " links";
@@ -272,7 +274,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 let data = mn;
                 e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
               })
-              const object = myMetis.findObject(objview.object.id);
+              const object = myMetis.findObject(objview?.object?.id);
               const gqlObject = new gql.gqlObject(object);
               const modifiedObjects = new Array();
               modifiedObjects.push(gqlObject);
@@ -292,7 +294,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Add Local Typeview",
             function (e: any, obj: any) { 
               const node = e.diagram.selection.first().data;
-              console.log('284 partContextMenu', node);
+              // console.log('284 partContextMenu', node);
               const currentObject = node.object;
               const currentObjectView = node.objectview;
               if (currentObject && currentObjectView) {                   
@@ -309,7 +311,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     myMetis.addObjectTypeView(typeView);
                 }              
                 const gqlObjtypeView = new gql.gqlObjectTypeView(typeView);
-                console.log('315 gqlObjtypeView', gqlObjtypeView);
+                // console.log('315 gqlObjtypeView', gqlObjtypeView);
                 const modifiedTypeViews = new Array();
                 modifiedTypeViews.push(gqlObjtypeView);
                 modifiedTypeViews.map(mn => {
@@ -317,7 +319,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
                 })
                 const gqlObjView = new gql.gqlObjectView(currentObjectView);
-                console.log('323 gqlObjView', gqlObjView);
+                // console.log('323 gqlObjView', gqlObjView);
                 const modifiedObjectViews = new Array();
                 modifiedObjectViews.push(gqlObjView);
                 modifiedObjectViews.map(mn => {
@@ -414,13 +416,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 let data = mn;
                 e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
               })
-              const relship = myMetis.findRelationship(relview.relship.id);
-              const gqlRelship = new gql.gqlRelationship(relship);
+              const relship = myMetis.findRelationship(relview?.relship.id);
+              const gqlRelship = (relship) && new gql.gqlRelationship(relship);
               const modifiedRelships = new Array();
               modifiedRelships.push(gqlRelship);
               modifiedRelships.map(mn => {
                 let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+                (mn) && e.diagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
               })
           },
             function (o) {
@@ -563,39 +565,55 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
           $(go.Shape, 'RoundedRectangle',
             {
-              name: 'SHAPE', fill: 'lightyellow', stroke: "black", strokeWidth: 1,
+              cursor: "alias",
+              name: 'SHAPE', fill: 'lightyellow', //stroke: "gray", // strokeWidth: 1, // the linking of relationships does not work if this is uncommented
+              shadowVisible: true,
               // set the port properties:
-              portId: "", cursor: "alias",
+              portId: "",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
               toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
             },
             { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'),
-            new go.Binding('strokeWidth', 'strokewidth'),
+            new go.Binding('stroke', 'strokecolor'), // sf: the linking of relationships does not work if this is uncommented
+            // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+            // new go.Binding('strokeWidth', `${strokewidth}`), //sf:  the linking of relationships does not work if this is uncommented
           ),
      
           $(go.Panel, "Table",
             { defaultAlignment: go.Spot.Left, margin: 0, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
             $(go.Panel, "Horizontal",
-              $(go.Picture,                   // the image
-                { contextMenu: partContextMenu },
-                {
-                  name: "Picture",
-                  desiredSize: new go.Size(40, 40),
-                  margin: new go.Margin(0, 4, 0, 2),
-                  // margin: new go.Margin(4, 4, 4, 0),
-                },
-                new go.Binding("source", "icon", findImage)
+              { margin: new go.Margin(0, 0, 0, 0) },
+              $(go.Panel, "Vertical",
+                $(go.Panel, "Spot",
+                  $(go.Shape, {
+                    fill: "white", stroke: "white", opacity: "0.5",
+                    desiredSize: new go.Size(50, 50), 
+                    margin: new go.Margin(0, 6, 0, 2),
+                  },
+                  // new go.Binding("fill", "color"),
+                  new go.Binding("figure")),
+                  $(go.Picture,  // the image
+                    // { contextMenu: partContextMenu },
+                    {
+                      name: "Picture",
+                      desiredSize: new go.Size(46, 46),
+                      // margin: new go.Margin(2, 2, 2, 4),
+                      // margin: new go.Margin(4, 4, 4, 4),
+                    },
+                    new go.Binding("source", "icon", findImage)
+                  ),
+                ),
               ),
               // define the panel where the text will appear
               $(go.Panel, "Table",
+                { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
                   maxSize: new go.Size(150, 999),
-                  margin: new go.Margin(0, 0, 0, 0),
+                  // margin: new go.Margin(2),
                   defaultAlignment: go.Spot.Left,
                 },
                 $(go.RowColumnDefinition, { column: 2, width: 4 }),
@@ -609,7 +627,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     minSize: new go.Size(80, 16), //sf changed x min size to 100
                     height: 40,
                     verticalAlignment: go.Spot.Center,
-                    margin: new go.Margin(0,0,4,0),
+                    margin: new go.Margin(0,0,0,2),
                     name: "name"
                   },
                   new go.Binding("text", "name").makeTwoWay()
@@ -620,7 +638,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     row: 1, column: 1, columnSpan: 6,
                     editable: false, isMultiline: false,
                     minSize: new go.Size(10, 4),
-                    margin: new go.Margin(2, 0, 0, 0)
+                    margin: new go.Margin(2, 0, 0, 2)
                   },
                   new go.Binding("text", "typename")
                   //new go.Binding("text", "choices")
@@ -634,10 +652,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     function cmCommand(e, obj) {
       var node = obj.part.adornedPart;  // the Node with the context menu
       var buttontext = obj.elt(1);  // the TextBlock
-      console.log('504 Diagram', node.data.key, node.data.name)
+      console.log('639 Diagram', node.data.key, node.data.name, node.data)
       // var linkContextMenu =
         $(go.Adornment, "Vertical",
-
           makeButton("Set Relationship type",
             function (e, obj) {
               const link = e.diagram.selection.first().data;
@@ -723,9 +740,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },  // link route should avoid nodes
           { contextMenu: linkContextMenu },
           new go.Binding("points").makeTwoWay(),
-          $(go.Shape, { stroke: "black", strokeWidth: 1},
+          // $(go.Shape, { stroke: "black", strokeWidth: 1},
+          $(go.Shape, { stroke: "black", shadowVisible: true, },
             new go.Binding("stroke", "strokecolor"),
-            new go.Binding("strokeWidth", "strokewidth"),
+            // new go.Binding("strokeWidth", "strokewidth"),
           ),
           $(go.TextBlock,     // this is a Link label
             {
@@ -774,7 +792,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }
           },
         },
-        
+
         {
           background: "transparent",
           ungroupable: true,
@@ -793,32 +811,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         new go.Binding("background", "isHighlighted",
           function (h) {
             return h ? "rgba(255,0,0,0.2)" : "transparent";
-          }
+            }
         ).ofObject(),
-
         $(go.Shape, "RoundedRectangle", // surrounds everything
+          // {
+          //   stroke: "gray", strokeWidth: "1",
+          // },
+          // new go.Binding("stroke", "strokecolor"),
+          // new go.Binding("strokeWidth", "strokewidth"),
           {
-            fill: "white",
-            minSize: new go.Size(100, 50)
-          },
-          /*
-          { parameter1: 10, 
-            fill: "rgba(128,128,128,0.33)",
-          },
-          */
-          {
-            portId: "", cursor: "alias",
-            // portId: "", cursor: "pointer",
+            cursor: "alias",
+            fill: "white", 
+            // stroke: "black", 
+            shadowVisible: true,
+            // strokeWidth: 1,
+            minSize: new go.Size(100, 50),
+            portId: "", 
             fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
             toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-          }
+          },
+          new go.Binding("fill", "fillcolor"),
+          // new go.Binding("stroke", "strokecolor"),
+          // new go.Binding("strokeWidth", "strokewidth"),
         ),
         $(go.Panel,  // the header
-          {},
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
-              // desiredSize: new go.Size(300, 200),
+              desiredSize: new go.Size(300, 200),
               // minSize: new go.Binding("minSize", "size"),
               margin: new go.Margin(16, 0, 0, 0),
             },
@@ -833,17 +853,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
           $(go.Panel, "Horizontal",  // the header
             { defaultAlignment: go.Spot.Top },
-            $("SubGraphExpanderButton"),  // this Panel acts as a Button
-
+            $("SubGraphExpanderButton",
+            {margin: new go.Margin(4, 0, 0, 4)},
+            ),  // this Panel acts as a Button
+            
             $(go.TextBlock,     // group title near top, next to button
               {
                 font: "Bold 12pt Sans-Serif",
+                margin: new go.Margin(4, 0, 0, 2),
                 editable: true, isMultiline: false,
                 name: "name"
               },
-              new go.Binding("fill", "fillcolor"),
-              new go.Binding("stroke", "strokecolor"),
-              new go.Binding("strokeWidth", "strokewidth"),
               new go.Binding("text", "name").makeTwoWay()
             ),
           ), // End Horizontal Panel
@@ -853,16 +873,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               // name: "SHAPE", fill: "transparent",
               name: "SHAPE", fill: "lightyellow",
               opacity: "0.9",
-              minSize: new go.Size(150, 100), 
+              minSize: new go.Size(300, 200), 
               desiredSize: new go.Size(300, 200),
-              margin: new go.Margin(0, 1, 1, 1),
+              margin: new go.Margin(0, 1, 1, 4),
               cursor: "move",
             },
             new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
             new go.Binding("isSubGraphExpanded").makeTwoWay(),
-          )
+            
+          ),
         ),
+
       )
+      
     }
 
     // Define group template map
@@ -896,13 +919,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           // define the node's outer shape
           $(go.Shape, "Rectangle",
             {
-              name: "SHAPE", fill: "lightyellow", stroke: "black",
+              name: "SHAPE", fill: "lightyellow",
               //desiredSize: new go.Size(100, 20),
               //margin: new go.Margin(100, 0, 0, 0),
             },
-            new go.Binding("fill", "fillcolor"),
-            new go.Binding("stroke", "strokecolor"),
-            new go.Binding("strokeWidth", "strokewidth")
           ),
 
           $(go.Panel, "Vertical",
@@ -1058,6 +1078,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   }
 
   public render() {
+    // console.log('1065 Diagram', this.props.nodeDataArray);
+    console.log('1069 Diagram', this.props.linkDataArray);
+    
     return (
       <>
         <ReactDiagram

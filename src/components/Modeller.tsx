@@ -4,7 +4,7 @@ import GoJSApp from "./gojs/GoJSApp";
 import Selector from './utils/Selector'
 
 const Modeller = (props: any) => {
-  console.log('8 Modeller', props);
+  // console.log('8 Modeller', props);
 
   let prevgojsmodel = null
   let gojsmodel = {}
@@ -36,7 +36,7 @@ const Modeller = (props: any) => {
   const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusModelview?.id)
   const selmods = { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   const selmodviews = (modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
-  console.log('36', focusModelview, selmods, modelviews);
+  // console.log('36 Modeller', focusModelview, selmods, modelviews);
 
   const selmodels = selmods?.models?.map((m: any) => m)
   const selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)

@@ -447,7 +447,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
                     objview.group = "";
                     node.group = "";
                 }
-                console.log('439 Moved node', node, objview)
+                // console.log('439 Moved node', node, objview)
                 const modNode = new gql.gqlObjectView(objview);
                 nodes.push(modNode);
             }
@@ -530,7 +530,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i] as gjs.goObjectNode;
         if (node.isGroup) {
-            console.log('490 getGroup', node);
+            // console.log('490 getGroup', node);
             const nodeLoc = loc.split(" ");
             const grpLoc = node.loc.split(" ");
             const grpSize = node.size.split(" ");
@@ -541,19 +541,19 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
             const gw = parseInt(grpSize[0]);
             const gh = parseInt(grpSize[1]);
             const size = Math.sqrt(gw * gw + gh * gh);
-            console.log('501 getGroup', loc, node.loc);
-            console.log('502 getGroup', nx, gx, gw, ny, gy, gh);
+            // console.log('501 getGroup', loc, node.loc);
+            // console.log('502 getGroup', nx, gx, gw, ny, gy, gh);
             if (
                 (nx > gx) && (nx < gx + gw) &&
                 (ny > gy) && (ny < gy + gh)
             ) {
                 let grp = {"node": node, "size": size};
-                console.log('285 group', grp);
+                // console.log('285 group', grp);
                 groups.push(grp);
             }
         }
     }
-    console.log('290 groups', groups);
+    // console.log('290 groups', groups);
     if (groups.length > 0) {
         let group = groups[0].node;
         let size  = groups[0].size;
@@ -655,7 +655,7 @@ export function createRelationship(data: any, context: any) {
         const fromType = fromNode.objecttype;
         const toType   = toNode.objecttype;
         const choices  = [];
-        if (fromType && toType) {
+        if ((myMetis) && (fromType && toType)) {
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
             if (reltypes) {
                 for (let i=0; i<reltypes.length; i++) {

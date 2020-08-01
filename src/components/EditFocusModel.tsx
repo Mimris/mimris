@@ -24,7 +24,7 @@ const EditFocusModel = (props) => {
   const curobj = curmodel?.objects?.find(o => o.id === curobjview?.objectRef)
   const currelview = curmodelview?.relshipviews?.find((rv: any) => rv?.id === focusRelshipview?.id)
   const currel = curmodel?.relships?.find((r: any) => r.id === currelview?.relshipRef)
-  console.log('25 EditFocusModel', models, curmodel, currelview, curobjview?.relshipRef, currel);
+  // console.log('25 EditFocusModel', models, curmodel, currelview, curobjview?.relshipRef, currel);
   
   const focusObjecttype = props.ph.phFocus?.focusObjecttype
   const focusRelshiptype = props.ph.phFocus?.focusRelshiptype
@@ -39,7 +39,7 @@ const EditFocusModel = (props) => {
   const curotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curobjview?.typeviewRef)
   const currtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === curmmrel?.typeviewRef)
   
-  console.log('42 EditFocusModel', curmetamodel?.relshiptypeviews, currtypeview);
+  // console.log('42 EditFocusModel', curmetamodel?.relshiptypeviews, currtypeview);
   
   
   

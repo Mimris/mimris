@@ -12,7 +12,7 @@ const constants = require('../akmm/constants');
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
 
-  console.log('17 GenGojsModel props:', props);
+  // console.log('17 GenGojsModel props:', props);
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
   const metamodels = (metis) && metis.metamodels
@@ -30,12 +30,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curmod = (models && focusModel.id) && models.find((m: any) => m.id === focusModel.id)
     const curmodview = (curmod && focusModelview.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
     let curGomodel = props.phMyGoModel?.myGoModel;
-    console.log('35 gengojsmodel :', curmod, curmod.id);
+    // console.log('35 gengojsmodel :', curmod, curmod.id);
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
 
-      console.log('40 GengojsModel :', myModel);
+      // console.log('40 GengojsModel :', myModel);
       
       const myMetamodel = myModel?.metamodel;
       // console.log('43 GenGojsModel myMetamodel :', myMetamodel);
@@ -100,7 +100,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   
       //   console.log('71', gojsMetamodel);
       //   console.log('73', myMetis);
-      console.log('58 gojsModel', gojsModel);
+      // console.log('58 gojsModel', gojsModel);
 
 
       // /** metamodel */
@@ -149,7 +149,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview, metis);
     let objviews = modelview?.getObjectViews();
-    console.log('152 buildGoMOdel', metis);
+    // console.log('152 buildGoMOdel', metis);
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
         let objview = objviews[i];
@@ -178,7 +178,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
     }
-    console.log('180 myGoModel', myGoModel);
+    // console.log('180 myGoModel', myGoModel);
     return myGoModel;
   }
 

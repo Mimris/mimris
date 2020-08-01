@@ -101,7 +101,7 @@ export class goModel {
     findNode(key: string): goObjectNode | null {
         const retval: goObjectNode | null = null;
         if (!utils.isArrayEmpty(this.nodes)) {
-            console.log('103 findNode', key, this.nodes);
+            // console.log('103 findNode', key, this.nodes);
             let i = 0;
             while (i < this.nodes.length) {
                 const node: goObjectNode = this.nodes[i] as goObjectNode;

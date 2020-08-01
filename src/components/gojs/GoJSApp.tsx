@@ -628,7 +628,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (reltype) {
                 console.log('588 reltype', reltype);
                 const gqlType = new gql.gqlRelationshipType(reltype, true);
-                modifiedLinkTypes.push(gqlType);
+                modifiedTypeLinks.push(gqlType);
                 console.log('591 gqlType', gqlType);
                 const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
                 modifiedLinkTypeViews.push(gqlTypeView);

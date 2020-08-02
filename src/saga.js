@@ -42,30 +42,36 @@ function * loadDataSaga() {
     // console.log('42 test');
     
     res = yield fetch(`${localhost}akmmodels/`,
-    {
-      mode: 'no-cors',
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Credentials": 'include', 
-        // "Access-Control-Allow-Credentials": true, 
-        'Accept': 'application/json, text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.',
-        // 'Accept': 'application/json, text/html',
-        'Content-Type': 'application/json',
-        'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
-        'Cache': 'no-cache' // This is set on request
-      },
-      // credentials: 'same-origin'
-      credentials: 'include'
-    })
-    console.info('58 saga fetch()', res);
-    console.log('62 saga', res.text()); 
-    const metis = yield res.json()
+      {
+        mode: 'no-cors',
+        // mode: 'cors',
+        // method: "GET",
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Credentials": true, 
+          // 'Accept': 'application/json', //text/html',
+          'Content-Type': 'application/json',
+          'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+          'Accept': 'application/json, text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.',
+          "Access-Control-Allow-Credentials": 'include', 
+          // 'Cache': 'no-cache' // This is set on request
+        },
+        // credentials: 'same-origin'
+        credentials: 'include'
+      }
+    )
+    // res.then(res => res.txt()).then(console.log)
+    console.log('61 saga fetch()', yield res.clone());
+    // console.log('62 saga', yield res.clone().json()); 
+    const metis = yield res.clone().json()
+    console.log('63 Saga', metis);
+    
     // const phData = yield {  metis  }
     yield put(loadDataSuccess({ metis }))
 
 
   } catch (err) {
-    console.log('59 saga', failure(err));  
+    console.log('72 saga', failure(err));  
     yield put(failure(err))
   }
 }

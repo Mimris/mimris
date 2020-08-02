@@ -13,20 +13,30 @@ import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoadLocal from '../components/LoadLocal'
 import {getLocalStorage} from './GetSetLocalStorage'
+import EditFocusModel from '../components/EditFocusModel'
+import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
 
-  // console.log('20 Modelling', props);
+  // console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
+  // const refresh = props.refresh
+  // const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
   const focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
   const focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
+  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
+  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
+  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
+  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
+  // console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
   
+
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodel =  props.phGojs?.gojsModel 
@@ -40,17 +50,17 @@ const page = (props:any) => {
 
     
     useEffect(() => {
-      // console.log('38 Diagram state', state ); 
+      // console.log('38 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [focusModel.id])
     
     useEffect(() => {
-      // console.log('42 Diagram state', state ); 
+      // console.log('42 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [focusModelview.id])
 
     useEffect(() => {
-      // console.log('42 Diagram state', state ); 
+      // console.log('63 Diagram state', props ); 
       genGojsModel(props, dispatch);
     }, [metis])
     
@@ -100,6 +110,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
+                    modelType='metamodel'
                     />
                 </div>
               </Col>
@@ -115,6 +126,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
+                    modelType='metamodel'
                   />
                 </div>
               </Col>
@@ -138,6 +150,7 @@ const page = (props:any) => {
                   metis={metis}
                   phFocus={phFocus}
                   dispatch={dispatch}
+                  modelType='model'
                 />
                 {/* <div className="instances"> area for all instance or result of query 
                 {instances}
@@ -156,6 +169,7 @@ const page = (props:any) => {
                     metis={metis}
                     phFocus={phFocus}
                     dispatch={dispatch}
+                    modelType='model'
                   />
                 </div>
               </Col>
@@ -165,10 +179,17 @@ const page = (props:any) => {
       </TabContent>
     </>
     )      
-  const loadserver =  <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
-  const loadlocal =   <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
-  // const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
 
+  // console.log('173 Modelling', activeTab);
+  const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
+  const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
+  const modelType = (activeTab === '1') ? 'metamodel' : 'model'
+  // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelODiv = (focusObjectview.name || focusObjecttype.name ) && <EditFocusModel buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelRDiv = (focusRelshipview.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='R' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+  // console.log('177 Modelling', EditFocusModelDiv);
+  
   return (
     <>
       <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
@@ -177,10 +198,12 @@ const page = (props:any) => {
           style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
             Current source: {props.phSource}
         </span> 
-          <span className="sourceName float-right" 
-            style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-            {loadserver}  {loadlocal}
-        </span> 
+          <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#000", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {loadserver} {loadlocal}  
+          </span> 
+          <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#f00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+          {EditFocusModelRDiv} {EditFocusModelODiv}
+          </span> 
         <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
           {/* {modellingtabs} */}
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}

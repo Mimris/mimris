@@ -300,6 +300,7 @@ export class cxMetis {
             objtype = new cxObjectType(item.id, item.name, item.description);
         }
         if (objtype) {
+            //objtype.deleted = item.deleted;
             let otype = (objtype as any);
             for (const prop in item) {
                 if (item[prop]) {
@@ -331,6 +332,7 @@ export class cxMetis {
                 reltype = new cxRelationshipType(item.id, item.name, fromobjtype, toobjtype, item.description);
         }
         if (reltype) {
+            //reltype.deleted = item.deleted;
             let rtype = (reltype as any);
             for (const prop in rtype) {
                 if (utils.objExists(item[prop]))
@@ -453,6 +455,7 @@ export class cxMetis {
             const objtype = this.findObjectType(item.typeRef);
             if (objtype) {
                 obj.setType(objtype);
+                obj.deleted = item.deleted;
                 if (model) model.addObject(obj);
             }
         }
@@ -468,6 +471,7 @@ export class cxMetis {
                     rel.setType(reltype);
                     rel.setFromObject(fromObj);
                     rel.setToObject(toObj);
+                    rel.deleted = item.deleted;
                     model.addRelationship(rel);
                 }
             }
@@ -503,6 +507,7 @@ export class cxMetis {
                     objview.setSize(item.size);
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
+                    objview.deleted = item.deleted;
                     if (item.typeviewRef) {
                         const objtypeview = this.findObjectTypeView(item.typeviewRef);
                         if (objtypeview)
@@ -524,6 +529,7 @@ export class cxMetis {
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
+                    relview.deleted = item.deleted;
                     // relview.setData(item.data);
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
@@ -1494,16 +1500,16 @@ export class cxMetis {
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
 
 export class cxMetaObject {
-    metis: cxMetis;
-    id: string;
-    name: string;
-    nameId: string;
-    class: string;
-    category: string;
-    description: string;
-    deleted: boolean;
-    modified: boolean;
-    fs_collection: string;
+    metis:          cxMetis;
+    id:             string;
+    name:           string;
+    nameId:         string;
+    class:          string;
+    category:       string;
+    description:    string;
+    deleted:        boolean;
+    modified:       boolean;
+    fs_collection:  string;
     // Constructor
     constructor(id: string, name: string, description: string) {
         this.metis = new cxMetis();
@@ -3158,7 +3164,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.typeRef = "";
         this.data = new cxObjtypeviewData();
         if (type) {
-            const abs = type.getAbstract();
+            const abs = type.abstract;
             if (abs)
                 this.data.abstract = abs;
         }

@@ -10,6 +10,7 @@ import "../styles/styles-grid.css"
 // import "../styles/styles-dm.scss"
 import "../styles/gojs.css"
 
+
 class MyApp extends App {
   static async getInitialProps ({ Component, ctx }) {
     let pageProps = {}

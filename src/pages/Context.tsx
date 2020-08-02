@@ -22,11 +22,11 @@ const page = (props: any) => {
 
   let focus = props?.phFocus
   const focusModelId = props.phFocus.focusModel.id
-  console.log('27', focusModelId);
+  // console.log('27', focusModelId);
 
   useEffect(() => {
     focus = props.phFocus
-    console.log('45', focus);
+    // console.log('45', focus);
     const updatefocususer = ({
         focusUser: {
           ...props.phUser?.focusUser,

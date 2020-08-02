@@ -38,9 +38,6 @@ const page = (props:any) => {
 
   // console.log('23 modelling', props.phData);
   
-  const [refresh, setRefresh] = useState(false)
-  function toggleRefresh() { setRefresh(!refresh); }
-  
   const state = useSelector(state => state)
   
   const [visible,setVisible] = useState(false)
@@ -53,7 +50,7 @@ const page = (props:any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
-  const setContextDiv =  <SetContext mStore={props} />
+  const setContextDiv =  <SetContext ph={props} />
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
   // useEffect(() => {
   //   return () => {

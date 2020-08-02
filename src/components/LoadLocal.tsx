@@ -16,7 +16,7 @@ const LoadLocal = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   // try {  
-  //   if (!window){
+  //   if (typeof window === 'undefined'){
   //     console.log('14', props);
   //     return <></>
   //   }
@@ -38,13 +38,13 @@ const LoadLocal = (props: any) => {
     if (locState) {
       console.log('91 SelectSource', locState);
       let data = phData
-      dispatch({ type: 'SET_FOCUS_PHDATA', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
       data = phFocus
-      dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
       data = phUser
-      dispatch({ type: 'SET_FOCUS_PHUSER', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
       data = phSource
-      dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
     }
   }
 
@@ -57,9 +57,9 @@ const LoadLocal = (props: any) => {
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     }
-    console.log('59 LoadLocal', data);
+    // console.log('59 LoadLocal', data);
     setState(data)
-    console.log('62 LoadLocal', state);
+    // console.log('62 LoadLocal', state);
   }
   
   
@@ -92,11 +92,7 @@ const LoadLocal = (props: any) => {
         <ModalBody className="pt-0">
           <strong>Current Source:  {props.phSource}</strong>
           <div className="source bg-light pt-2 ">
-            {/* <table>
-              <tr> */}
             {buttonDiv}
-            {/* </tr>
-            </table> */}
           </div>
         </ModalBody>
         <ModalFooter>
@@ -218,12 +214,12 @@ export default LoadLocal
 //       if (locState) {
 //         console.log('91 SelectSource', locState);
 //         let data = phData
-//         dispatch({ type: 'SET_FOCUS_PHDATA', data })
+//         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 //         data = phFocus
-//       dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+//       dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
 //       data = phUser
-//       dispatch({ type: 'SET_FOCUS_PHUSER', data })
+//       dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
 //       data = phSource
-//       dispatch({ type: 'SET_FOCUS_PHSOURCE', data })
+//       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
 //     }
 //   }

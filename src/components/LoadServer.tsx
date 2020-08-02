@@ -1,5 +1,5 @@
 // @ts-snocheck
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
@@ -13,11 +13,11 @@ const SelectSource = (props: any) => {
 
   const dispatch = useDispatch()
   const refresh = props.refresh
-  const setRefresh = props.setRefresh
+  const setRefresh = props.setRefreshs
   function toggleRefresh() { setRefresh(!refresh); }
 
   function handleSaveModelStore() {
-    console.log('72 SelectSource', state);
+    console.log('72 SelectSource', props);
     alert('Save ModelStore not implemented yet');
 
   }
@@ -26,8 +26,12 @@ const SelectSource = (props: any) => {
     // console.log('111 SelectSource');   
       dispatch(loadData())
   }
+
+  // useEffect(() => {
+  //   dispatch(loadData())
+  // }, [refresh])
  
-  const models = props.phData.metis?.models
+  const models = props.phData?.metis?.models
   const focusModel = props.phFocus?.focusModel
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const selmodels = models?.map((m: any) => m)
@@ -40,6 +44,7 @@ const SelectSource = (props: any) => {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
+// console.log('42 LoadServer', selmodels, selmodelviews);
 
   const frameId = 'myFrame'
 // console.log('42 LoadServer', models, selmodels);
@@ -52,14 +57,14 @@ const SelectSource = (props: any) => {
     console.log('44 LoadServer', theFrame)
   }
 
-  console.log('55 LoadServer',  GetStoreFromHtml() );
+  // console.log('55 LoadServer',  GetStoreFromHtml() );
   
 
   // console.log('45 LoadServer', frames[frameId]?.document.documentElement.innerHTML)
 const selectorDiv = (state.phSource === 'Model server') && 
   <div className="modeller-selection p-2 bg-warning " >
-    <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' /> <br /><hr />
-  <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' />  <br />
+    <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
+  <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
   </div> 
   const buttonDiv = 
       <>
@@ -70,7 +75,7 @@ const selectorDiv = (state.phSource === 'Model server') &&
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
           <p> Server access : </p>
-          {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe>
           {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe> */}
           {/* {GetStoreFromHtml} */}
           {/* <IframeHelper /> */}

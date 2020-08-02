@@ -21,14 +21,11 @@ const page = (props: any) => {
   }
 
   // const state = useSelector(state => state)
-
   // const metis = (state.phData) && state.phData.metis
-
   // const [visibleTasks, setVisibleTasks] = useState(true)
   // function toggleTasks() {
   //   setVisibleTasks(!visibleTasks);
   // }
-
  // /**
 // * Set up the Context items and link to select Context modal,
 // */

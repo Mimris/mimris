@@ -2,11 +2,16 @@ import {
   FAILURE, 
   LOAD_DATA, 
   LOAD_DATA_SUCCESS, 
-  SET_FOCUS_PHDATA, 
-  SET_FOCUS_PHSOURCE,
-  SET_FOCUS_PHFOCUS, 
+  LOAD_TOSTORE_PHDATA, 
+  LOAD_TOSTORE_PHSOURCE,
+  LOAD_TOSTORE_PHFOCUS, 
   SET_FOCUS_USER, 
   SET_FOCUS_OBJECT, 
+  SET_FOCUS_OBJECTVIEW, 
+  SET_FOCUS_RELSHIP, 
+  SET_FOCUS_RELSHIPVIEW, 
+  SET_FOCUS_OBJECTTYPE, 
+  SET_FOCUS_RELSHIPTYPE, 
   SET_MYMETIS_MODEL,
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
@@ -23,7 +28,10 @@ import {
   SET_FOCUS_TASK, 
   SET_FOCUS_SOURCE, 
   UPDATE_OBJECTTYPE_PROPERTIES,
+  UPDATE_OBJECTTYPEVIEW_PROPERTIES,
+  UPDATE_OBJECTTYPEGEOS_PROPERTIES,
   UPDATE_RELSHIPTYPE_PROPERTIES,
+  UPDATE_RELSHIPTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTVIEW_PROPERTIES,
   UPDATE_RELSHIPVIEW_PROPERTIES,
   UPDATE_OBJECT_PROPERTIES,
@@ -54,14 +62,14 @@ export const loadDataSuccess = (data) => {
 export const setFocusPhsource = (data) => {
   // console.log('46---actions |setFocusPhsource ', data);
   return {
-    type: SET_FOCUS_PHSOURCE,
+    type: LOAD_TOSTORE_PHSOURCE,
     data: JSON.parse(data.value)
   }
 }
 export const setFocusPhdata = (data) => {
   // console.log('21---actions | setFocusPhdata ', data);
   return {
-    type: SET_FOCUS_PHDATA,
+    type: LOAD_TOSTORE_PHDATA,
     data: JSON.parse(data.value)
   }
 }
@@ -69,7 +77,7 @@ export const setFocusPhdata = (data) => {
 export const setFocusPhfocus = (data) => {
   // console.log('21---actions | setFocusPhfocus ', data);
   return {
-    type: SET_FOCUS_PHFOCUS,
+    type: LOAD_TOSTORE_PHFOCUS,
     data: JSON.parse(data.value)
   }
 }
@@ -143,6 +151,20 @@ export const setFocusObject = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const setFocusObjecttype = (data) => {
+  // console.log('21---', data.value);
+  return {
+    type: SET_FOCUS_OBJECTTYPE,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusRelshiptype = (data) => {
+  // console.log('21---', data.value);
+  return {
+    type: SET_FOCUS_RELSHIPTYPE,
+    data: JSON.parse(data.value)
+  }
+}
 export const setfocusModelview = (data) => {
   // console.log('21---', data.value);
   return {
@@ -191,13 +213,7 @@ export const setfocusSource = (data) => {
     data: JSON.parse(data.value)
   }
 }
-export const edit_object_properties = (data) => {
-  // console.log('76 action-object-edit-data', data.payload);
-  return {
-    type: EDIT_OBJECT_PROPERTIES,
-    data: JSON.parse(data.value)
-  }
-}
+
 export const update_objectview_properties = (data) => {
   console.log('76 actions update_objectview_properties', data.payload);
   return {
@@ -219,6 +235,20 @@ export const update_objecttype_properties = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const update_objecttypeview_properties = (data) => {
+  console.log('205 actions update_objecttypeview_properties', data.payload);
+  return {
+    type: UPDATE_OBJECTTYPEVIEW_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_objecttypegeos_properties = (data) => {
+  console.log('205 actions update_objecttypegeos_properties', data.payload);
+  return {
+    type: UPDATE_OBJECTTYPEGEOS_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
 export const update_relshiptype_properties = (data) => {
   console.log('205 actions update_relshiptype_properties', data.payload);
   return {
@@ -226,6 +256,15 @@ export const update_relshiptype_properties = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const update_relshiptypeviews_properties = (data) => {
+  console.log('205 actions update_relshiptypeviews_properties', data.payload);
+  return {
+    type: UPDATE_RELSHIPTYPEVIEWS_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+
+
 export const update_object_properties = (data) => {
   console.log('205 actions update_object_properties', data.payload);
   return {
@@ -240,10 +279,24 @@ export const update_relship_properties = (data) => {
     data: JSON.parse(data.value)
   }
 }
+
+
+
+
+
 export const update_objectview_name = (data) => {
   // console.log('76 action-object-edit-data', data.payload);
   return {
     type: UPDATE_OBJECTVIEW_NAME,
+    data: JSON.parse(data.value)
+  }
+}
+
+
+export const edit_object_properties = (data) => {
+  // console.log('76 action-object-edit-data', data.payload);
+  return {
+    type: EDIT_OBJECT_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

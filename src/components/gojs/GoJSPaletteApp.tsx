@@ -38,12 +38,12 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   
   constructor(props: object) {
     super(props);
-    console.log('36 GoJSPaletteApp',props.nodeDataArray);
+    // console.log('36 GoJSPaletteApp',props.nodeDataArray);
     this.state = {
-      nodeDataArray: this.props.nodeDataArray,
-      linkDataArray: this.props.linkDataArray,
+      nodeDataArray: this.props?.nodeDataArray,
+      linkDataArray: this.props?.linkDataArray,
       modelData: {
-        canRelink: true
+        canRelink: false
       },
       selectedData: null,
       skipsDiagramUpdate: false,
@@ -61,9 +61,9 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     // bind handler methods
 
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    this.handleModelChange = this.handleModelChange.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleRelinkChange = this.handleRelinkChange.bind(this);
+    //this.handleModelChange = this.handleModelChange.bind(this);
+    //this.handleInputChange = this.handleInputChange.bind(this);
+    //this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
 
   /**
@@ -272,8 +272,8 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         />;
       </>
     }
-    console.log('266 nodeDataArray', this.state.nodeDataArray);
-    console.log('267 linkDataArray', this.state.linkDataArray);
+    // console.log('266 nodeDataArray', this.state.nodeDataArray);
+    // console.log('267 linkDataArray', this.state.linkDataArray);
 
     return (
       <div>
@@ -286,14 +286,14 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}
         />
-        <label>
+        {/* <label>
           Allow Relinking?
           <input
             type='checkbox'
             id='relink'
             checked={this.state.modelData.canRelink}
             onChange={this.handleRelinkChange} />
-        </label>
+        </label> */}
         {inspector}
       </div>
     );

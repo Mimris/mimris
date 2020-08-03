@@ -806,24 +806,24 @@ export class gqlObjectView {
     loc: string;
     size: string;
     constructor(objview: akm.cxObjectView) {
-        this.id = objview.id;
-        this.name = objview.name;
-        this.description = objview.description;
+        this.id = objview?.id;
+        this.name = objview?.name;
+        this.description = objview?.description;
         this.objectRef = "";
         this.typeviewRef = "";
-        this.group = objview.group;
-        this.isGroup = objview.isGroup;
-        this.loc = objview.loc;
-        this.size = objview.size;
+        this.group = objview?.group;
+        this.isGroup = objview?.isGroup;
+        this.loc = objview?.loc;
+        this.size = objview?.size;
         // Code
         if (objview.description)
             this.description = objview.description;
-        const obj = objview.getObject();
+        const obj = objview?.getObject();
         if (obj)
-            this.objectRef = obj.getId();
-        const typeview = objview.getTypeView();
+            this.objectRef = obj?.getId();
+        const typeview = objview?.getTypeView();
         if (typeview)
-            this.typeviewRef = typeview.getId();
+            this.typeviewRef = typeview?.getId();
     }
 }
 export class gqlRelshipView {

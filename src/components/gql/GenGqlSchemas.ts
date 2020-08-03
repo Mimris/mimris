@@ -13,15 +13,15 @@ const GenGqlSchemas = (ph) => {
   // const focusModel = useSelector(focusModel => state.phFocus.focusModel)
   // const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
 
-  console.log('16', models);
+  // console.log('16', models);
   const selectedModelId = ph.phFocus.focusModel.id
   // const selectedModelId = "c2e472e5-a414-4899-8216-1511109219dd"
-  console.log('19', selectedModelId);
+  // console.log('19', selectedModelId);
   
-  console.log('21', models?.find((m: any) => (m) && m.id === selectedModelId));
+  // console.log('21', models?.find((m: any) => (m) && m.id === selectedModelId));
 
   const currentModel = (models) && models?.find((m: any) => (m) && m.id === selectedModelId)// sf test solution model
-  console.log('22 currentModel', currentModel?.name, currentModel?.metamodelRef);
+  // console.log('22 currentModel', currentModel?.name, currentModel?.metamodelRef);
 
   const currentMetamodel = (metamodels) && metamodels?.find((mm: any) => mm.id === currentModel?.metamodelRef)
   const mm = currentMetamodel
@@ -80,7 +80,7 @@ const GenGqlSchemas = (ph) => {
   const resolvers = resolversWithCommas?.replace(/,/g, '').replace(/false/g, '').replace(/@comma/g, ',');
   const defs = typeDefs + '\n\n\n' + resolvers
   const data = {gql:{id: mm?.id, name: mm?.name, typeDefs: typeDefs, resolvers: resolvers}}
-  console.log('90', data);
+  // console.log('90', data);
   
   // async function putGqlSchemaById(
   //   req: NextApiRequest,

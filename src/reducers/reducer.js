@@ -478,17 +478,16 @@ function reducer(state = InitialState, action) {
         }
       
     case UPDATE_OBJECTTYPE_PROPERTIES:
-      console.log('501 UPDATE_OBJECTTYPE_PROPERTIES', action);
+      // console.log('501 UPDATE_OBJECTTYPE_PROPERTIES', action);
       const curmodot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodot.metamodelRef)
       const curmmindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodot.metamodelRef) 
-      const curot = curmmot?.objtypegeos?.find(ot => ot.id === action?.data?.id)
-      const lengthot = curmmot?.objtypegeos.length
-      let indexot = curmmot?.objtypegeos?.findIndex(ot => ot.id === curot?.id)
+      const curot = curmmot?.objecttypes?.find(ot => ot.id === action?.data?.id)
+      const lengthot = curmmot?.objecttypes.length
+      let indexot = curmmot?.objecttypes?.findIndex(ot => ot.id === curot?.id)
       if (indexot < 0) {indexot = lengthot} 
-      console.log('607 reducer', lengthot, indexot);
+      // console.log('607 reducer', lengthot, indexot);
       
-
       return {
         ...state,
         phData: {
@@ -616,7 +615,7 @@ function reducer(state = InitialState, action) {
       console.log('501 UPDATE_RELSHIPTYPE_PROPERTIES', action);
       const curmodrt = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmrt = state.phData?.metis?.metamodels?.find(m => m.id === curmodrt.metamodelRef)
-      const curmmindexrt = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmmrt.metamodelRef)
+      const curmmindexrt = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodrt.metamodelRef)
       const currt = curmmrt?.relshiptypes?.find(ot => ot.id === action?.data?.id)
       const lengthrt = curmmrt?.relshiptypes?.length
       let indexrt = curmmrt?.relshiptypes?.findIndex(ot => ot.id === currt?.id)

@@ -223,12 +223,16 @@ export class gqlObjectType {
     typename:       string;
     typeviewRef:    string;
     properties:     gqlProperty[];
+    deleted:        boolean;
+    modified:       boolean;
     constructor(objtype: akm.cxObjectType, includeViews: boolean) {
         this.id = objtype.id;
         this.name = objtype.name;
         this.abstract = objtype.abstract;
         this.viewkind = objtype.viewkind;
         this.typename = 'Object type';
+        this.deleted  = objtype.deleted;
+        this.modified = objtype.modified;
         this.typeviewRef = objtype.typeview ? objtype.typeview.id : "";
         // Code
         this.description = (objtype.description) ? objtype.description : "";
@@ -257,20 +261,24 @@ export class gqlObjectType {
     }
 }
 export class gqlRelationshipType {
-    id: string;
-    name: string;
-    description: string;
-    typeviewRef: string;
-    properties: gqlProperty[];
-    relshipkind: string;
-    viewkind: string;
+    id:             string;
+    name:           string;
+    description:    string;
+    typeviewRef:    string;
+    properties:     gqlProperty[];
+    relshipkind:    string;
+    viewkind:       string;
     fromobjtypeRef: string;
-    toobjtypeRef: string;
+    toobjtypeRef:   string;
+    deleted:        boolean;
+    modified:       boolean;
     constructor(reltype: akm.cxRelationshipType, includeViews: boolean) {
         this.id = reltype.id;
         this.name = reltype.name;
         this.relshipkind = reltype.relshipkind;
         this.viewkind = reltype.viewkind;
+        this.deleted  = reltype.deleted;
+        this.modified = reltype.modified;
         this.fromobjtypeRef = (reltype.fromObjtype) ? reltype.fromObjtype.id : "";
         this.toobjtypeRef = (reltype.toObjtype) ? reltype.toObjtype.id : "";
         this.typeviewRef = "";
@@ -439,7 +447,7 @@ export class gqlRelshipTypeView {
     toArrow:        string;
     fromArrowColor: string;
     toArrowColor:   string;
-    ddeleted:       boolean;
+    deleted:        boolean;
     modified:       boolean;
     constructor(reltypeview: akm.cxRelationshipTypeView) {
         this.id             = reltypeview.id;

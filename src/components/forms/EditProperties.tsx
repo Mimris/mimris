@@ -84,6 +84,7 @@ const EditProperties = (props) => {
                 fillcolor
                 <select className="sel ml-2" value={colorvalue} onChange={handleChangefc} >
                   <option value={`${colorvalue}`}>Select ...</option>
+                  <option value="transparent">transparent</option>
                   <option value="lightgray">Gray</option>
                   <option value="white">White</option>
                   <option value="#ffaaaa">Red</option>
@@ -114,6 +115,7 @@ const EditProperties = (props) => {
                 strokecolor
                 <select className="sel ml-2" value={strokecolorvalue} onChange={handleChangesc} >
                   <option value={`${strokecolorvalue}`}>Select ...</option>
+                  <option value="transparent">transparent</option>
                   <option value="gray">Gray</option>
                   <option value="white">White</option>
                   <option value="#ff0000">Red</option>

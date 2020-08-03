@@ -154,7 +154,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const modifiedTypeNodes     = new Array();
     const modifiedTypeViews     = new Array();
     const modifiedTypeGeos      = new Array();
-    const modifiedLinkTypes     = new Array();
+    const modifiedTypeLinks     = new Array();
     const modifiedLinkTypeViews = new Array();
     const modifiedObjects       = new Array();
     const modifiedRelships      = new Array();
@@ -229,15 +229,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                 let typename = sel.data.type;
                 if (typename === 'Relationship type') {
                   const myLink = this.getLink(context.myGoMetamodel, key);
+                  console.log('232 TextEdited', myLink);
                   if (myLink) {
                     if (text === 'Edit name') {
                       text = prompt('Enter name');
                       typename = text;
                     }
-                    uic.updateRelationshipType(myLink, field, text, context);
-                    if (myLink.typeview) {
-                      const gqlLink = new gql.gqlRelshipTypeView(myLink.typeview);
-                      modifiedLinks.push(gqlLink);
+                    uic.updateRelationshipType(myLink, "name", text, context);
+                    if (myLink.reltype) {
+                      const gqlReltype = new gql.gqlRelationshipType(myLink.reltype);
+                      modifiedTypeLinks.push(gqlReltype);
+                      console.log('242 TextEdited', modifiedTypeLinks);
                     }
                   }
                   context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
@@ -307,13 +309,49 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case "SelectionDeleted": {
         const deletedFlag = true;
-        const deleted = e.subject;
+        const selection = e.subject;
         context.deleteViewsOnly = myDiagram.deleteViewsOnly;
         this.setState(
           produce((draft: AppState) => {
-            for (let it = deleted.iterator; it.next();) {
-              const sel: any = it.value.data;  // n is now a Node or a Group
+            for (let it = selection.iterator; it.next();) {
+              const sel = it.value;
+              const data = sel.data;
+              const typename = data.type;
               const key = sel.key;
+              if (typename === 'Object type') {
+                // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
+                const objtype = context.myMetis.findObjectType(data.objtype.id);
+                if (objtype) {
+                  objtype.deleted = deletedFlag;
+                  const gqlObjtype = new gql.gqlObjectType(objtype, true);
+                  modifiedTypeNodes.push(gqlObjtype);
+                  console.log('326 modifiedTypeNodes', modifiedTypeNodes);
+                  let objtypeview = objtype.typeview;
+                  if (objtypeview) {
+                      objtypeview.deleted = deletedFlag;
+                      const gqlObjtypeView = new gql.gqlObjectTypeView(objtypeview);
+                      modifiedTypeViews.push(gqlObjtypeView);
+                      console.log('332 modifiedTypeViews', modifiedTypeViews);
+                  }
+                }
+              }
+              if (typename === 'Relationship type') {
+                // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
+                const reltype = context.myMetis.findRelationshipType(data.reltype.id);
+                if (reltype) {
+                  reltype.deleted = deletedFlag;
+                  const gqlReltype = new gql.gqlRelationshipType(reltype, true);
+                  modifiedTypeLinks.push(gqlReltype);
+                  console.log('343 modifiedTypeLinks', modifiedTypeLinks);
+                  let reltypeview = reltype.typeview;
+                  if (reltypeview) {
+                      reltypeview.deleted = deletedFlag;
+                      const gqlReltypeView = new gql.gqlRelshipTypeView(reltypeview);
+                      modifiedTypeViews.push(gqlReltypeView);
+                      console.log('348 modifiedTypeViews', modifiedTypeViews);
+                  }
+                }
+              }
               if (sel.class === "goObjectNode") {
                 const myNode = this.getNode(context.myGoModel, key);
                 // console.log('207, text GoJSApp', myNode);
@@ -323,7 +361,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   console.log('316 modifiedNodes', modifiedObjects);
                 }
               }
-              else if (sel.class === "goRelshipLink") {
+              if (sel.class === "goRelshipLink") {
                 const myLink = this.getLink(context.myGoModel, key);
                 uic.deleteLink(sel, deletedFlag, modifiedLinks, modifiedRelships, context);
                 const relview = sel.relshipview;
@@ -590,7 +628,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (reltype) {
                 console.log('588 reltype', reltype);
                 const gqlType = new gql.gqlRelationshipType(reltype, true);
-                modifiedLinkTypes.push(gqlType);
+                modifiedTypeLinks.push(gqlType);
                 console.log('591 gqlType', gqlType);
                 const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
                 modifiedLinkTypeViews.push(gqlTypeView);
@@ -630,7 +668,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
-    // console.log('583 modifiedTypeNodes', modifiedTypeNodes);
+    console.log('583 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
@@ -655,7 +693,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     })
 
     // console.log('607 modifiedLinkTypes', modifiedLinkTypes);
-    modifiedLinkTypes?.map(mn => {
+    modifiedTypeLinks?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
     })

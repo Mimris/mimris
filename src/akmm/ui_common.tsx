@@ -832,15 +832,17 @@ export function createRelationshipType(data: any, context: any) {
 }
 
 export function updateRelationshipType(data: any, name: string, value: string, context: any) {
+    console.log('835 updateRelationshipType', name, value);
     if ((data === null) || (name !== "name")) {
         return;
     }  else {
         const metis = context.myMetis;
         const myMetamodel = context.myMetamodel;
         const myDiagram   = context.myDiagram;
-        const typename = data.name;
+        const typename    = value;
         // Check if this is a type change
-        let reltype = metis.findRelationshipType(data.relshiptype.id);            
+        let reltype = metis.findRelationshipType(data.reltype.id);            
+        console.log('844 updateRelationshipType', reltype);
         if (reltype) {
             if  (
                 (reltype.name === "New Type") 
@@ -863,6 +865,7 @@ export function updateRelationshipType(data: any, name: string, value: string, c
                 }
             } else {
                 // This is an existing type that gets a new name
+                console.log('866 updateRelationshipType', typename);
                 reltype.setName(typename);
                 reltype.setModified();
                 myMetamodel.setModified();
@@ -875,16 +878,27 @@ export function updateRelationshipType(data: any, name: string, value: string, c
                 reltype.setDefaultTypeView(reltypeView);
                 reltype.setModified();
                 myMetamodel.setModified();
-                myMetamodel.addObjectTypeView(reltypeView);
-                metis.addObjectTypeView(reltypeView);
-            } else {
-                reltype.setName(typename);
-                reltype.setModified();
-                myMetamodel.setModified();
-                reltypeView.setName(typename);
-                reltypeView.setModified();
+                myMetamodel.addRelationshipTypeView(reltypeView);
+                metis.addRelationshipTypeView(reltypeView);
+            } 
+            if (reltypeView) {
+                let viewdata = reltypeView.getData();
+                let prop: any;
+				for(prop in viewdata){
+					if (prop === name) {
+						viewdata[prop] = value;
+						if (prop === "abstract") {
+							reltypeView.setAbstract(value);
+						}
+						if (prop === "relshipkind") {
+							reltypeView.setRelshipKind(value);
+						}
+						break;
+					}
+				}                            
+				updateLink(data, reltypeView, myDiagram); 
+				myDiagram.requestUpdate();
             }                
-            myDiagram.model.setDataProperty(data, "name", value);
         }
     }
 }

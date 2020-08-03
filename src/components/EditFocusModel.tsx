@@ -21,7 +21,8 @@ const EditFocusModel = (props) => {
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id)
   const curmodelview = curmodel?.modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const curobjview = curmodelview?.objectviews?.find((ov: any) => ov?.id === focusObjectview?.id)
-  const curobj = curmodel?.objects?.find(o => o.id === curobjview?.objectRef)
+  const curobj_tmp = curmodel?.objects?.find(o => o.id === curobjview?.objectRef)
+  const curobj = {...curobj_tmp, name: curobjview.name, description: curobjview.description}
   const currelview = curmodelview?.relshipviews?.find((rv: any) => rv?.id === focusRelshipview?.id)
   const currel = curmodel?.relships?.find((r: any) => r.id === currelview?.relshipRef)
   // console.log('25 EditFocusModel', models, curmodel, currelview, curobjview?.relshipRef, currel);

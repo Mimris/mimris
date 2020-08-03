@@ -19,7 +19,7 @@ const Selector = ( props: any ) => {
     // console.log('13 selector', data, type);
     dispatch({ type: type, data })
   }
-  console.log('15 selector', props);
+  // console.log('15 selector', props);
   const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
   const options = props.selArray && [
       <option 

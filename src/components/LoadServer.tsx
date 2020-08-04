@@ -1,10 +1,10 @@
 // @ts-snocheck
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
 import Selector from './utils/Selector'
-import GetStoreFromHtml from './utils/GetStoreFromHtml'
+// import GetStoreFromHtml from './utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
@@ -46,16 +46,16 @@ const SelectSource = (props: any) => {
   
 // console.log('42 LoadServer', selmodels, selmodelviews);
 
-  const frameId = 'myFrame'
-// console.log('42 LoadServer', models, selmodels);
-  if (typeof window !== 'undefined') {
-    var theFrame = document//?.getElementById(frameId);
-    // var theWin = theFrame?.contentWindow;
-    // var theDoc = theFrame?.contentDocument || theFrame?.contentWindow?.document;
-    // var json = theDoc;
-    // var msgs = JSON.parse(theDoc);
-    console.log('44 LoadServer', theFrame)
-  }
+//   const frameId = 'myFrame'
+// // console.log('42 LoadServer', models, selmodels);
+//   if (typeof window !== 'undefined') {
+//     var theFrame = document//?.getElementById(frameId);
+//     // var theWin = theFrame?.contentWindow;
+//     // var theDoc = theFrame?.contentDocument || theFrame?.contentWindow?.document;
+//     // var json = theDoc;
+//     // var msgs = JSON.parse(theDoc);
+//     console.log('44 LoadServer', theFrame)
+//   }
 
   // console.log('55 LoadServer',  GetStoreFromHtml() );
   

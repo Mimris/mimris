@@ -48,11 +48,13 @@ function * loadDataSaga() {
         // method: "GET",
         headers: {
           "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Credentials": true, 
-          // 'Accept': 'application/json', //text/html',
+          // "Access-Control-Allow-Credentials": true, 
+          // 'Accept': 'text/html',
+          'Accept': 'application/json',
+          // 'Content-Type': 'text/html',
           'Content-Type': 'application/json',
           'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
-          'Accept': 'application/json, text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.',
+          // 'Accept': 'application/json, text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.',
           "Access-Control-Allow-Credentials": 'include', 
           // 'Cache': 'no-cache' // This is set on request
         },
@@ -60,10 +62,12 @@ function * loadDataSaga() {
         credentials: 'include'
       }
     )
+    //.text().then(function (text) { return text ? JSON.parse(text) : {} })
     // res.then(res => res.txt()).then(console.log)
-    console.log('61 saga fetch()', yield res.clone());
+    // console.log('61 saga fetch()', yield res);
     // console.log('62 saga', yield res.clone().json()); 
     const metis = yield res.clone().json()
+    // const metis = yield res.text().then(function(text) {return text ? JSON.parse(text) : {} })
     console.log('63 Saga', metis);
     
     // const phData = yield {  metis  }

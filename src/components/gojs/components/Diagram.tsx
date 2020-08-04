@@ -566,7 +566,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.Shape, 'RoundedRectangle',
             {
               cursor: "alias",
-              name: 'SHAPE', fill: 'lightyellow', stroke: "black",  strokeWidth: 1, // the linking of relationships does not work if this is uncommented
+              name: 'SHAPE', fill: 'lightyellow', stroke: "black",  strokeWidth: 1, 
               shadowVisible: true,
               // set the port properties:
               portId: "",
@@ -576,10 +576,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'), // sf: the linking of relationships does not work if this is uncommented
+            new go.Binding('stroke', 'strokecolor'), 
             // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-            // new go.Binding('strokeWidth', `${strokewidth}`), //sf:  the linking of relationships does not work if this is uncommented
- 
           ),
      
           $(go.Panel, "Table",

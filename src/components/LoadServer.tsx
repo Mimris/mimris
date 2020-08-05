@@ -13,23 +13,17 @@ const SelectSource = (props: any) => {
 
   const dispatch = useDispatch()
   const refresh = props.refresh
-  const setRefresh = props.setRefreshs
+  const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
   function handleSaveModelStore() {
     console.log('72 SelectSource', props);
     alert('Save ModelStore not implemented yet');
-
   }
 
-  function handleLoadModelStore() {
-    // console.log('111 SelectSource');   
+  function handleLoadModelStore() { 
       dispatch(loadData())
   }
-
-  // useEffect(() => {
-  //   dispatch(loadData())
-  // }, [refresh])
  
   const models = props.phData?.metis?.models
   const focusModel = props.phFocus?.focusModel
@@ -46,26 +40,17 @@ const SelectSource = (props: any) => {
   
 // console.log('42 LoadServer', selmodels, selmodelviews);
 
-//   const frameId = 'myFrame'
-// // console.log('42 LoadServer', models, selmodels);
-//   if (typeof window !== 'undefined') {
-//     var theFrame = document//?.getElementById(frameId);
-//     // var theWin = theFrame?.contentWindow;
-//     // var theDoc = theFrame?.contentDocument || theFrame?.contentWindow?.document;
-//     // var json = theDoc;
-//     // var msgs = JSON.parse(theDoc);
-//     console.log('44 LoadServer', theFrame)
-//   }
+  const frameId = 'myFrame'
+  let iframe = {}
+// console.log('42 LoadServer', models, selmodels);
 
-  // console.log('55 LoadServer',  GetStoreFromHtml() );
-  
+  // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
+  const selectorDiv = (state.phSource === 'Model server') && 
+    <div className="modeller-selection p-2 bg-warning " >
+      <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
+      <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
+    </div> 
 
-  // console.log('45 LoadServer', frames[frameId]?.document.documentElement.innerHTML)
-const selectorDiv = (state.phSource === 'Model server') && 
-  <div className="modeller-selection p-2 bg-warning " >
-    <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
-  <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
-  </div> 
   const buttonDiv = 
       <>
         <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
@@ -75,8 +60,8 @@ const selectorDiv = (state.phSource === 'Model server') &&
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
           <p> Server access : </p>
-          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe>
-          {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe> */}
+          {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe>
           {/* {GetStoreFromHtml} */}
           {/* <IframeHelper /> */}
           {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
@@ -85,6 +70,7 @@ const selectorDiv = (state.phSource === 'Model server') &&
           {selectorDiv}
         </div>
       </>
+
 
   return (
     <>
@@ -96,6 +82,7 @@ const selectorDiv = (state.phSource === 'Model server') &&
           <div className="source bg-light pt-2 ">
              {buttonDiv}
           </div>
+          {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={modeldata} >Load</Button> */}
         </ModalBody>
         <ModalFooter>
           <div style={{ fontSize: "smaller" }}>

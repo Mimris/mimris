@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 
 const Selector = ( props: any ) => {
 
-  console.log('8 selector', props); 
+  // console.log('8 selector', props); 
   const dispatch = useDispatch()
 
   const refresh = props.refresh

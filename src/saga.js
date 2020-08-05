@@ -7,53 +7,78 @@ es6promise.polyfill()
 
 const localhost = 'http://localhost:4000/'
 
-function getCookie(cname, document) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
 
+
+// this version is without login
 function * loadDataSaga() {
-
-  const _crf = getCookie("XSRF-TOKEN", document) || "";
-  const _csrf = getCookie("_csrf", document) || "";
-  const sessionCookie = getCookie("session", document) || "";
 
   try {
     let res = ''  
     res = yield fetch(`${localhost}akmmodels/`,
       {
-        mode: 'no-cors',
+        // mode: 'no-cors',
         headers: {
-          "Access-Control-Allow-Origin": "*",
+          // "Access-Control-Allow-Origin": "*",
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
-          "Access-Control-Allow-Credentials": 'include', 
-        },
-        credentials: 'include'
+        }
       }
     )
-    const metis = yield res.clone().json()
-    // console.log('63 Saga', metis);
-    yield put(loadDataSuccess({ metis }))
-  } catch (err) {
-    console.log('72 saga', failure(err));  
-    yield put(failure(err))
+      const metis = yield res.clone().json()
+      // console.log('63 Saga', metis);
+      yield put(loadDataSuccess({ metis }))
+    } catch (err) {
+      console.log('72 saga', failure(err));  
+      yield put(failure(err))
+    }
   }
-}
 
+// This version is for login server with credetials
 
+// function getCookie(cname, document) {
+//   var name = cname + "=";
+//   var decodedCookie = decodeURIComponent(document.cookie);
+//   var ca = decodedCookie.split(';');
+//   for (var i = 0; i < ca.length; i++) {
+//     var c = ca[i];
+//     while (c.charAt(0) == ' ') {
+//       c = c.substring(1);
+//     }
+//     if (c.indexOf(name) == 0) {
+//       return c.substring(name.length, c.length);
+//     }
+//   }
+//   return "";
+// }
+// function * loadDataSaga() {
+//   const _crf = getCookie("XSRF-TOKEN", document) || "";
+//   const _csrf = getCookie("_csrf", document) || "";
+//   const sessionCookie = getCookie("session", document) || "";
+//   try {
+//     let res = ''  
+//     res = yield fetch(`${localhost}akmmodels/`,
+//       {
+//         mode: 'no-cors',
+//         headers: {
+//           "Access-Control-Allow-Origin": "*",
+//           'Accept': 'application/json',
+//           'Content-Type': 'application/json',
+//           'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+//           "Access-Control-Allow-Credentials": 'include', 
+//         },
+//         credentials: 'include'
+//       }
+//     )
+//       const metis = yield res.clone().json()
+//       // console.log('63 Saga', metis);
+//       yield put(loadDataSuccess({ metis }))
+//     } catch (err) {
+//       console.log('72 saga', failure(err));  
+//       yield put(failure(err))
+//     }
+//   }
+
+// ToDo:  Make save model as dispatch
 // function * saveDataSaga() {
 //   const _crf = getCookie("XSRF-TOKEN", document) || "";
 //   const _csrf = getCookie("_csrf", document) || "";

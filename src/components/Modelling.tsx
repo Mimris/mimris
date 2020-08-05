@@ -52,12 +52,12 @@ const page = (props:any) => {
     useEffect(() => {
       // console.log('38 Diagram state', props ); 
       genGojsModel(props, dispatch);
-    }, [focusModel.id])
+    }, [focusModel?.id])
     
     useEffect(() => {
       // console.log('42 Diagram state', props ); 
       genGojsModel(props, dispatch);
-    }, [focusModelview.id])
+    }, [focusModelview?.id])
 
     useEffect(() => {
       // console.log('63 Diagram state', props ); 
@@ -185,8 +185,8 @@ const page = (props:any) => {
   const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
   // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModelODiv = (focusObjectview.name || focusObjecttype.name ) && <EditFocusModel buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModelRDiv = (focusRelshipview.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='R' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModel buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='R' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // console.log('177 Modelling', EditFocusModelDiv);
   

@@ -14,7 +14,7 @@ const SelectContext = (props: any) => {
   const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
   const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
   const focusUser = useSelector(focusUser => state.phUser?.focusUser)
-  const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
+  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
   
   // const [model, setModel] = useState(focusModel)
   // console.log('16 Sel', models, focusModel, state);

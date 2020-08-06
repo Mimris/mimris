@@ -478,7 +478,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
-        // console.log('437 GoJSApp :', sel);
+        console.log('437 GoJSApp :', sel);
         this.setState(
           produce((draft: AppState) => {
             if (sel) {

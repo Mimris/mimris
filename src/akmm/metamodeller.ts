@@ -50,7 +50,7 @@ export class cxMetis {
     importData(importedData: any) {
         this.initImport(importedData);
 
-        const metamodels = importedData.metamodels;
+        const metamodels = importedData?.metamodels;
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const metamodel = metamodels[i];
@@ -59,7 +59,7 @@ export class cxMetis {
             }
         }
         // Handle models next
-        const models: any[] = importedData.models;
+        const models: any[] = importedData?.models;
         if (models && models.length) {
             models.forEach(model => {
                 if (!model.deleted)
@@ -68,7 +68,7 @@ export class cxMetis {
         }
         
         // Handle objects 
-        const objects: any[] = importedData.objects;
+        const objects: any[] = importedData?.objects;
         if (objects && objects.length) {
             objects.forEach(obj => {
                 if (!obj.deleted)
@@ -76,7 +76,7 @@ export class cxMetis {
             })
         }
         // Handle relships 
-        const relships: any[] = importedData.relships;
+        const relships: any[] = importedData?.relships;
         if (relships && relships.length) {
             relships.forEach(rel => {
                 if (!rel.deleted)
@@ -87,7 +87,7 @@ export class cxMetis {
 
     initImport(importedData: any) {
         // Import metamodels
-        let metamodels = importedData.metamodels;
+        let metamodels = importedData?.metamodels;
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const item = metamodels[i];
@@ -160,7 +160,7 @@ export class cxMetis {
             }
         }
 
-        let models = importedData.models;
+        let models = importedData?.models;
         if (models && models.length) {
             for (let i = 0; i < models.length; i++) {
                 const item = models[i];

@@ -566,7 +566,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.Shape, 'RoundedRectangle',
             {
               cursor: "alias",
-              name: 'SHAPE', fill: 'lightyellow', //stroke: "gray", // strokeWidth: 1, // the linking of relationships does not work if this is uncommented
+              name: 'SHAPE', fill: 'lightyellow', stroke: "black",  strokeWidth: 1, 
               shadowVisible: true,
               // set the port properties:
               portId: "",
@@ -576,9 +576,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'), // sf: the linking of relationships does not work if this is uncommented
+            new go.Binding('stroke', 'strokecolor'), 
             // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-            // new go.Binding('strokeWidth', `${strokewidth}`), //sf:  the linking of relationships does not work if this is uncommented
           ),
      
           $(go.Panel, "Table",
@@ -588,10 +587,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               { margin: new go.Margin(0, 0, 0, 0) },
               $(go.Panel, "Vertical",
                 $(go.Panel, "Spot",
+                  { contextMenu: partContextMenu },
                   $(go.Shape, {
-                    fill: "white", stroke: "white", opacity: "0.5",
+                    fill: "white", stroke: "white", opacity: "0.4",
                     desiredSize: new go.Size(50, 50), 
                     margin: new go.Margin(0, 6, 0, 2),
+                    shadowVisible: true,
                   },
                   // new go.Binding("fill", "color"),
                   new go.Binding("figure")),
@@ -649,71 +650,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    function cmCommand(e, obj) {
-      var node = obj.part.adornedPart;  // the Node with the context menu
-      var buttontext = obj.elt(1);  // the TextBlock
-      console.log('639 Diagram', node.data.key, node.data.name, node.data)
-      // var linkContextMenu =
-        $(go.Adornment, "Vertical",
-          makeButton("Set Relationship type",
-            function (e, obj) {
-              const link = e.diagram.selection.first().data;
-              let reltype = prompt('Enter one of: ' + link.choices);
-              const myMetis = e.diagram.myMetis;
-              const context = {
-                "myMetis": myMetis,
-                "myMetamodel": myMetis.currentMetamodel,
-                "myModel": myMetis.currentModel,
-                "myModelView": myMetis.currentModelview,
-                "myDiagram": e.diagram
-              }
-              uic.setRelationshipType(link, reltype, context);
-              const modLink = new gql.gqlRelshipView(link.relshipview);
-              console.log('308 SetReltype', link, modLink);
-              modifiedLinks.push(modLink);
-            }),
-            // function (o) {
-            //   const link = o.part.data;
-            //   if (link.category === 'Relationship') {
-            //     return true;
-            //   } else {
-            //     return false;
-            //   }
-            // },
-          makeButton("Cut",
-            function (e, obj) { e.diagram.commandHandler.cutSelection(); },
-            function (o) { return o.diagram.commandHandler.canCutSelection(); }),
-          makeButton("Copy",
-            function (e, obj) { e.diagram.commandHandler.copySelection(); },
-            function (o) { return o.diagram.commandHandler.canCopySelection(); }),
-          makeButton("Paste",
-            function (e, obj) {
-              glb.pasteViewsOnly = false;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-            },
-            function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
-          makeButton("Delete",
-            function (e, obj) {
-              glb.deleteViewsOnly = false;
-              e.diagram.commandHandler.deleteSelection();
-            },
-            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
-          makeButton("Delete View",
-            function (e, obj) {
-              glb.deleteViewsOnly = true;
-              e.diagram.commandHandler.deleteSelection();
-              glb.deleteViewsOnly = false;
-            },
-            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
-          // makeButton("Undo",
-          //            function(e, obj) { e.diagram.commandHandler.undo(); },
-          //            function(o) { return o.diagram.commandHandler.canUndo(); }),
-          // makeButton("Redo",
-          //            function(e, obj) { e.diagram.commandHandler.redo(); },
-          //            function(o) { return o.diagram.commandHandler.canRedo(); })
-        );
-      alert(buttontext.text + " command on " + node.data.key);
-    }
     // dwfine a link template
     let linkTemplate;
     if (true) {

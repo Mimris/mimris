@@ -34,7 +34,7 @@ const Modeller = (props: any) => {
   const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
   const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusModelview?.id)
-  const selmods = { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
+  const selmods = (models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   const selmodviews = (modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
   // console.log('36 Modeller', focusModelview, selmods, modelviews);
 
@@ -60,8 +60,8 @@ const Modeller = (props: any) => {
   const selector =  (props.modelType ==='model') 
     ?
     <div className="modeller-selection float-right" >
-      <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />
-      <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+      <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />
+      <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
     </div> 
     :
     <div className="modeller-selection float-right" >

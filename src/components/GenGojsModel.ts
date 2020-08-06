@@ -27,8 +27,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
-    const curmod = (models && focusModel.id) && models.find((m: any) => m.id === focusModel.id)
-    const curmodview = (curmod && focusModelview.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
+    const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
+    const curmodview = (curmod && focusModelview?.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
     let curGomodel = props.phMyGoModel?.myGoModel;
     // console.log('35 gengojsmodel :', curmod, curmod.id);
     

@@ -4,6 +4,8 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useSelector, useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
 import Selector from './utils/Selector'
+import SaveModelData from './utils/SaveModelData'
+// import GetStoreFromHtml from './utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
@@ -16,13 +18,14 @@ const SelectSource = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   function handleSaveModelStore() {
-    console.log('72 SelectSource', state);
-    alert('Save ModelStore not implemented yet');
+    const data = props.phData
+    console.log('72 LoadServer', data);
+    SaveModelData(data)
+    // alert('Save ModelStore not implemented yet');
 
   }
 
-  function handleLoadModelStore() {
-    // console.log('111 SelectSource');   
+  function handleLoadModelStore() { 
       dispatch(loadData())
   }
  
@@ -32,7 +35,8 @@ const SelectSource = (props: any) => {
   const selmodels = models?.map((m: any) => m)
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
 
-  const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
+  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save to Server</button >
+  // const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
   const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2" onClick={handleLoadModelStore} > Load from Server </button >
   
   const { buttonLabel, className } = props;
@@ -41,12 +45,16 @@ const SelectSource = (props: any) => {
   
 // console.log('42 LoadServer', selmodels, selmodelviews);
 
-const selectorDiv = (state.phSource === 'Model server') && 
-  <div className="modeller-selection p-2 bg-warning " >
-    <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
-  <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
-  </div> 
-// console.log('131', state);
+  const frameId = 'myFrame'
+  let iframe = {}
+// console.log('42 LoadServer', models, selmodels);
+
+  // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
+  const selectorDiv = (state.phSource === 'Model server') && 
+    <div className="modeller-selection p-2 bg-warning " >
+      <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
+      <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
+    </div> 
 
   const buttonDiv = 
       <>
@@ -56,14 +64,18 @@ const selectorDiv = (state.phSource === 'Model server') &&
           <div className="select" style={{ paddingTop: "4px" }}>
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
-          {/* <p> Server access : </p>
-          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+          <p> Server access : </p>
+          {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe>
+          {/* {GetStoreFromHtml} */}
+          {/* <IframeHelper /> */}
           {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
           {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>
           {selectorDiv}
         </div>
       </>
+
 
   return (
     <>
@@ -75,6 +87,7 @@ const selectorDiv = (state.phSource === 'Model server') &&
           <div className="source bg-light pt-2 ">
              {buttonDiv}
           </div>
+          {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={modeldata} >Load</Button> */}
         </ModalBody>
         <ModalFooter>
           <div style={{ fontSize: "smaller" }}>

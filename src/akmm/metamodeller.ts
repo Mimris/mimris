@@ -3246,23 +3246,27 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     setFigure(figure: string) {
         this.data.figure = figure;
+        this.figure = figure;
     }
     getFigure() {
         return this.data.figure;
     }
     setFillcolor(fillcolor: string) {
         this.data.fillcolor = fillcolor;
+        this.fillcolor = fillcolor;
     }
     getFillcolor() {
         return this.data.fillcolor;
     }
     setStrokecolor(strokecolor: string) {
         this.data.strokecolor = strokecolor;
+        this.strokecolor = strokecolor;
     }
     getStrokecolor() {
         return this.data.strokecolor;
     }
     setStrokewidth(strokewidth: string) {
+        this.strokewidth = strokewidth;
         this.data.strokewidth = strokewidth;
     }
     getStrokewidth() {
@@ -3270,6 +3274,7 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     setIcon(icon: string) {
         this.data.icon = icon;
+        this.icon = icon;
     }
     getIcon() {
         return this.data.icon;
@@ -3370,24 +3375,28 @@ export class cxRelationshipTypeView extends cxMetaObject {
     }
     setStrokecolor(strokecolor: string) {
         this.data.strokecolor = strokecolor;
+        this.strokecolor = strokecolor;
     }
     getStrokecolor() {
         return this.data.strokecolor;
     }
     setStrokewidth(strokewidth: string) {
         this.data.strokewidth = strokewidth;
+        this.strokewidth = strokewidth;
     }
     getStrokewidth() {
         return this.data.strokewidth;
     }
     setDash(dash: string) {
         this.data.dash = dash;
+        this.dash = dash;
     }
     getDash() {
         return this.data.dash;
     }
     setFromArrow(fromArrow: string) {
         this.data.fromArrow = fromArrow;
+        this.fromArrow = fromArrow;
     }
     getFromArrow() {
         let retval = "";
@@ -3397,6 +3406,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     }
     setToArrow(toArrow: string) {
         this.data.toArrow = toArrow;
+        this.toArrow = toArrow;
     }
     setFromArrow2(relshipkind: string) {
         let arrow = '';
@@ -3438,9 +3448,11 @@ export class cxRelationshipTypeView extends cxMetaObject {
     }
     setFromArrowColor(color: string) {
         this.data.fromArrowColor = color;
+        this.fromArrowColor = color;
     }
     setToArrowColor(color: string) {
         this.data.toArrowColor = color;
+        this.toArrowColor = color;
     }
     getFromArrowColor() {
         let retval = "";
@@ -4448,7 +4460,7 @@ export class cxObjectView extends cxMetaObject {
         this.icon = icon;
     }
     getIcon() {
-        if (utils.objExists(this.icon))
+        if (this.icon)
             return this.icon;
         return "";
     }

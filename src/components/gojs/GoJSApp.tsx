@@ -237,7 +237,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     }
                     uic.updateRelationshipType(myLink, "name", text, context);
                     if (myLink.reltype) {
-                      const gqlReltype = new gql.gqlRelationshipType(myLink.reltype);
+                      const gqlReltype = new gql.gqlRelationshipType(myLink.reltype, true);
                       modifiedTypeLinks.push(gqlReltype);
                       console.log('242 TextEdited', modifiedTypeLinks);
                     }
@@ -478,7 +478,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
-        // console.log('437 GoJSApp :', sel);
+        console.log('437 GoJSApp :', sel);
         this.setState(
           produce((draft: AppState) => {
             if (sel) {

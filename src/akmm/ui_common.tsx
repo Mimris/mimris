@@ -866,9 +866,9 @@ export function updateRelationshipType(data: any, name: string, value: string, c
                 }
             } else {
                 // This is an existing type that gets a new name
-                console.log('866 updateRelationshipType', typename);
                 reltype.setName(typename);
                 reltype.setModified();
+                console.log('870 updateRelationshipType', reltype);
                 myMetamodel.setModified();
             }
             // Get relationship typeview

@@ -641,12 +641,17 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "LinkRelinked": {
         const newLink = e.subject.data;
-        // console.log('207 LinkRelinked', newLink);
+        console.log('644 LinkRelinked', context);
         this.setState(
           produce((draft: AppState) => {
-            uic.onLinkRelinked(newLink, modifiedLinks, modifiedRelships, context);
-            console.log('576 SelectionDeleted', modifiedLinks);
-            console.log('577 SelectionDeleted', modifiedRelships);
+            context.modifiedLinks         = modifiedLinks;
+            context.modifiedRelships      = modifiedRelships;
+            context.modifiedTypeLinks     = modifiedTypeLinks;
+            context.modifiedLinkTypeViews = modifiedLinkTypeViews;
+            uic.onLinkRelinked(newLink, context);
+            console.log('652 LinkRelinked', modifiedLinks);
+            console.log('653 LinkRelinked', modifiedRelships);
+            console.log('654 LinkRelinked', modifiedTypeLinks);
           })
         )
       }

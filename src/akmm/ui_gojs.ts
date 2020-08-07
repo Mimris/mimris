@@ -660,8 +660,14 @@ export class goRelshipTypeLink extends goLink {
     getFromNode() {
         return this.fromNode;
     }
+    setFromNode(from: goNode | null) {
+        this.fromNode = from;
+    }
     getToNode() {
         return this.toNode;
+    }
+    setToNode(to: goNode | null) {
+        this.toNode = to;
     }
     loadLinkContent() {
         if (this.reltype) {

@@ -4,6 +4,7 @@ import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
+import { TreeLayout } from 'gojs';
 //import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
 //import { render } from 'react-dom';
@@ -1015,31 +1016,56 @@ export function createLink(data: any, context: any): any {
     return;
 }
 
-export function onLinkRelinked(lnk: gjs.goRelshipLink, modifiedLinks: any[], modifiedRelships: any[], context: any) {
+export function onLinkRelinked(lnk: gjs.goRelshipLink, context: any) {
     if (lnk.class === 'goRelshipLink') {
         const myGoModel = context.myGoModel;
         const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
         if (link) {
-            let relview = link.relshipview;    // cxRelationshipView
-            let rel = relview.relship;    // cxRelationship                
-            let fromNode = myGoModel.findNode(lnk.from);
-            if (fromNode) {
-                link.setFromNode = lnk.from;
-                let fromObjView = fromNode.objectview;
-                relview.fromObjview = fromObjView;
-                rel.fromObject = fromObjView.object;
+            const relview = link.relshipview;    // cxRelationshipView
+            const rel = relview?.relship;    // cxRelationship                
+            const fromNode = myGoModel.findNode(lnk.from);
+            if (rel && relview) {
+                if (fromNode) {
+                    link.setFromNode(lnk.from);
+                    const fromObjView = fromNode.objectview;
+                    relview.fromObjview = fromObjView;
+                    rel.fromObject = fromObjView.object;
+                }
+                let toNode = myGoModel.findNode(lnk.to);
+                if (toNode) {
+                    link.setToNode(lnk.to);
+                    const toObjView = toNode.objectview;
+                    relview.toObjview = toObjView;
+                    rel.toObject = toObjView.object;
+                }
+                const gqlRelview = new gql.gqlRelshipView(relview);
+                context.modifiedLinks.push(gqlRelview);
+                const gqlRel = new gql.gqlRelationship(rel);
+                context.modifiedRelships.push(gqlRel);
             }
-            let toNode = myGoModel.findNode(lnk.to);
-            if (toNode) {
-                link.setToNode(lnk.to);
-                let toObjView = toNode.objectview;
-                relview.toObjview = toObjView;
-                rel.toObject = toObjView.object;
+        }
+    }
+    if (lnk.class === 'goRelshipTypeLink') {
+        const myGoMetamodel = context.myGoMetamodel;
+        const link = myGoMetamodel.findLink(lnk.key) as gjs.goRelshipTypeLink;
+        if (link) {
+            const reltype = link.reltype;  // cxRelationshipType   
+            if (reltype) {             
+                const fromNode = myGoMetamodel.findNode(lnk.from);
+                if (reltype && fromNode) {
+                    link.setFromNode(fromNode);
+                    reltype.fromObjtype = fromNode.objtype;
+                }
+                const toNode = myGoMetamodel.findNode(lnk.to);
+                if (reltype && toNode) {
+                    link.setToNode(toNode);
+                    reltype.toObjtype = toNode.objtype;
+                }
+                const gqlReltype = new gql.gqlRelationshipType(reltype, true);
+                context.modifiedTypeLinks.push(gqlReltype);
+                // const gqlReltypeView = new gql.gqlRelshipTypeView(reltypeview);
+                // modifiedLinkTypeViews.push(gqlReltypeView);
             }
-            const gqlRelview = new gql.gqlRelshipView(relview);
-            modifiedLinks.push(gqlRelview);
-            const gqlRel = new gql.gqlRelationship(rel);
-            modifiedRelships.push(gqlRel);
         }
     }
 }

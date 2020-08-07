@@ -291,7 +291,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
               }
           }),
-          makeButton("Add Local Typeview",
+          makeButton("New Typeview",
             function (e: any, obj: any) { 
               const node = e.diagram.selection.first().data;
               // console.log('284 partContextMenu', node);
@@ -433,58 +433,62 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
             }
           }),
-          makeButton("Add Local Typeview",
+          makeButton("New Typeview",
             function (e: any, obj: any) { 
               const myMetis = e.diagram.myMetis;
               const link = e.diagram.selection.first().data;
-              console.log('438 linkContextMenu', link);
-              const currentRelship = link.relship;
-              const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
-              console.log('441 currentRelshipView', currentRelshipView);
-              if (currentRelship && currentRelshipView) {                   
-                const myMetamodel = myMetis.currentMetamodel;
-                const reltype  = currentRelship.type;
-                let typeView = currentRelshipView.typeview;
-                const defaultTypeview = reltype.typeview;
-                if (!typeView || (typeView.id === defaultTypeview.id)) {
-                    const id = utils.createGuid();
-                    typeView = new akm.cxRelationshipTypeView(id, id, reltype, "");
-                    typeView.nameId = undefined;
-                    typeView.modified = true;
-                    currentRelshipView.typeview = typeView;
-                    myMetamodel.addRelationshipTypeView(typeView);
-                    myMetis.addRelationshipTypeView(typeView);
-                    console.log('455 myMetis', myMetis);
-                }              
-                const gqlReltypeView = new gql.gqlRelshipTypeView(typeView);
-                const modifiedTypeViews = new Array();
-                modifiedTypeViews.push(gqlReltypeView);
-                modifiedTypeViews.map(mn => {
-                  let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-                })
-                const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
-                console.log('450 gqlRelView', gqlRelView);
-                const modifiedRelshipViews = new Array();
-                modifiedRelshipViews.push(gqlRelView);
-                modifiedRelshipViews.map(mn => {
-                  let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                })
-              
+              if (link.class === 'goRelshipLink') {
+                const currentRelship = link.relship;
+                const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
+                if (currentRelship && currentRelshipView) {                   
+                  const myMetamodel = myMetis.currentMetamodel;
+                  const reltype  = currentRelship.type;
+                  let typeView = currentRelshipView.typeview;
+                  const defaultTypeview = reltype.typeview;
+                  if (!typeView || (typeView.id === defaultTypeview.id)) {
+                      const id = utils.createGuid();
+                      typeView = new akm.cxRelationshipTypeView(id, id, reltype, "");
+                      typeView.nameId = undefined;
+                      typeView.modified = true;
+                      currentRelshipView.typeview = typeView;
+                      myMetamodel.addRelationshipTypeView(typeView);
+                      myMetis.addRelationshipTypeView(typeView);
+                  }              
+                  const gqlReltypeView = new gql.gqlRelshipTypeView(typeView);
+                  const modifiedTypeViews = new Array();
+                  modifiedTypeViews.push(gqlReltypeView);
+                  modifiedTypeViews.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+                  })
+                  const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
+                  console.log('467 gqlRelView', gqlRelView);
+                  const modifiedRelshipViews = new Array();
+                  modifiedRelshipViews.push(gqlRelView);
+                  modifiedRelshipViews.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                  })
+                
+                }
               }
             },
             function (o: any) {
-              const link = e.diagram.selection.first().data;
-              const currentRelship = link.relship;
-              const currentRelshipView = link.relshipview;
-              if (currentRelship && currentRelshipView) {                   
-                const reltype  = currentRelship.type;
-                const typeView = currentRelshipView.typeview;
-                const defaultTypeview = reltype.typeview;
-                if (typeView && (typeView.id === defaultTypeview.id)) {
-                  return true;
+              const link = o.part.data;
+              if (link.class === 'goRelshipLink') {
+                const currentRelship = link.relship;
+                const currentRelshipView = link.relshipview;
+                if (currentRelship && currentRelshipView) {                   
+                  const reltype  = currentRelship.type;
+                  const typeView = currentRelshipView.typeview;
+                  const defaultTypeview = reltype.typeview;
+                  if (typeView && (typeView.id === defaultTypeview.id)) {
+                    return true;
+                  }
                 }
+              }
+              else if (link.class === 'goRelshipTypeLink') {
+                  return false;
               }
               return false;
             }),

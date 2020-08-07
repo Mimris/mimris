@@ -64,7 +64,7 @@ const SelectSource = (props: any) => {
           <div className="select" style={{ paddingTop: "4px" }}>
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
-          <p> Server access : </p>
+          <p> Server access  (wait for the json-file to appear below) : </p>
           {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
           <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe>
           {/* {GetStoreFromHtml} */}

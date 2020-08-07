@@ -644,6 +644,7 @@ export function createRelationship(data: any, context: any) {
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetamodel = context.myMetamodel;
+    const myMetis = context.myMetis; // added sf
     //data.key = utils.createGuid();
     let fromNode = myGoModel.findNode(data.from);
     let toNode = myGoModel.findNode(data.to);
@@ -651,7 +652,7 @@ export function createRelationship(data: any, context: any) {
         return;
     let typename = 'isRelatedTo' as string | null;
     let reltype;
-    reltype = myMetamodel.findRelationshipTypeByName(typename);
+    reltype = myMetamodel?.findRelationshipTypeByName(typename);
     if (!reltype) {
         const fromType = fromNode.objecttype;
         const toType   = toNode.objecttype;
@@ -668,7 +669,7 @@ export function createRelationship(data: any, context: any) {
         console.log('647 createRelationship', choices);
         typename = prompt('Enter type name, one of ' + choices);
         reltype = myMetamodel.findRelationshipTypeByName(typename);
-    }
+    } 
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);

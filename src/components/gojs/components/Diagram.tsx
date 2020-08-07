@@ -588,11 +588,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               $(go.Panel, "Vertical",
                 $(go.Panel, "Spot",
                   { contextMenu: partContextMenu },
-                  $(go.Shape, {
-                    fill: "white", stroke: "white", opacity: "0.4",
+                  $(go.Shape, {  // this is the square around the image
+                    fill: "white", stroke: "#ddd", opacity: "0.4",
                     desiredSize: new go.Size(50, 50), 
                     margin: new go.Margin(0, 6, 0, 2),
-                    shadowVisible: true,
+                    // shadowVisible: true,
                   },
                   // new go.Binding("fill", "color"),
                   new go.Binding("figure")),

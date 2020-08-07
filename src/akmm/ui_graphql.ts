@@ -651,7 +651,7 @@ export class gqlObject {
                     while (i < noProperties) {
                         let p = properties[i];
                         if (utils.objExists(p)) {
-                            let prop = glb.metis.findProperty(p.id);
+                            let prop = glb.metis?.findProperty(p.id);
                             if (utils.objExists(prop)) {
                                 let name = prop.getName();
                                 let obj: any = object;

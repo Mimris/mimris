@@ -39,7 +39,7 @@ const SelectContext = (props: any) => {
   // find object with type
   const type = (metamodels, model, objects, curov) => {
     return metamodels?.find(mm => mm.id === (model.metamodelRef))
-      .objecttypes?.find(ot => ot.id === objects?.find(o => o.id === curov.objectRef)?.typeRef)?.name
+      // .objecttypes?.find(ot => ot.id === objects?.find(o => o.id === curov.objectRef)?.typeRef)?.name
   }
   const selroles = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Role')
   const seltasks = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Task')

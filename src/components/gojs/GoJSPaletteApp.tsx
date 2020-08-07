@@ -71,7 +71,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
    */
   private refreshNodeIndex(nodeArr: Array<go.ObjectData>) {
     this.mapNodeKeyIdx.clear();
-    nodeArr.forEach((n: go.ObjectData, idx: number) => {
+    nodeArr?.forEach((n: go.ObjectData, idx: number) => {
       this.mapNodeKeyIdx.set(n.key, idx);
     });
   }
@@ -81,7 +81,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
    */
   private refreshLinkIndex(linkArr: Array<go.ObjectData>) {
     this.mapLinkKeyIdx.clear();
-    linkArr.forEach((l: go.ObjectData, idx: number) => {
+    linkArr?.forEach((l: go.ObjectData, idx: number) => {
       this.mapLinkKeyIdx.set(l.key, idx);
     });
   }

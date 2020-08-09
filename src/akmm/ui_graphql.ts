@@ -104,7 +104,7 @@ export class gqlMetaModel {
                 this.addRelationshipType(reltype, includeViews);
             }
         }
-        const datatypes = glb.metis.getDatatypes();
+        const datatypes = metamodel.getDatatypes();
         if (datatypes) {
             const cnt = datatypes.length;
             for (let i = 0; i < cnt; i++) {
@@ -112,7 +112,7 @@ export class gqlMetaModel {
                 this.addDataType(datatype);
             }
         }
-        let unittypes = glb.metis.getUnitCategories();
+        let unittypes = metamodel.getUnitCategories();
         if (unittypes) {
             let cnt = unittypes.length;
             for (let i = 0; i < cnt; i++) {
@@ -634,37 +634,19 @@ export class gqlObject {
         this.modified       = object.modified;
 
         // Code
-        let type = object.type;
-        if (type) {
-            let properties: any[];
-            let props = type.getProperties(true);
-            if (props) {
-                if (props.length == 0) properties = props;
-                else
-                    properties = props[0];
-                let noProperties = properties.length;
-                if (noProperties > 0) {
-                    let i = 0;
-                    while (i < noProperties) {
-                        let p = properties[i];
-                        if (p) {
-                            let prop = glb.metis.findProperty(p.id);
-                            if (prop) {
-                                let name = prop.getName();
-                                let obj: any = object;
-                                let value = obj[name];
-                                let gObj: any = this;
-                                gObj[name] = value;
-                            }
-                        }
-                        i++;
-                    }
-                }
+        const values = object.valueset;
+        console.log('638 gqlObject - values', values);
+        if (values) {
+            this.propvalues = [];
+            const cnt = values.length;
+            for (let i = 0; i < cnt; i++) {
+                const val = values[i];
+                this.addPropertyValue(val);
             }
         }
     }
     addPropertyValue(val: akm.cxPropertyValue) {
-        if (utils.objExists(val)) {
+        if (val) {
             const gPropval = new gqlPropertyValue(val);
             this.propertyValues.push(gPropval);
         }

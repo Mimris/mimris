@@ -347,7 +347,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { return o.diagram.commandHandler.canCutSelection(); }),
           makeButton("Copy",
             function (e: any, obj: any) { e.diagram.commandHandler.copySelection(); },
-            function (o: any) { return o.diagram.commandHandler.canCopySelection(); }),
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.class === 'goObjectTypeNode') 
+                return false;
+              return o.diagram.commandHandler.canCopySelection(); 
+            }),
           makeButton("Paste",
             function (e: any, obj: any) {
               e.diagram.pasteViewsOnly = false;
@@ -361,7 +366,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
               e.diagram.pasteViewsOnly = false;
             },
-            function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
+            function (o: any) { 
+              return false;
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
           makeButton("Delete",
             function (e: any, obj: any) {
               e.diagram.deleteViewsOnly = false;
@@ -374,7 +382,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.deleteSelection();
               e.diagram.deleteViewsOnly = false;
             },
-            function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            function (o: any) { 
+              return false;
+              return o.diagram.commandHandler.canDeleteSelection(); 
+            }),
           // makeButton("Undo",
           //   function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
           //   function (o: any) { return o.diagram.commandHandler.canUndo(); }),
@@ -497,7 +508,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o) { return o.diagram.commandHandler.canCutSelection(); }),
           makeButton("Copy",
             function (e, obj) { e.diagram.commandHandler.copySelection(); },
-            function (o) { return o.diagram.commandHandler.canCopySelection(); }),
+            function (o) { 
+              const link = o.part.data;
+              if (link.class === 'goRelshipTypeLink') 
+                return false;
+              return o.diagram.commandHandler.canCopySelection(); 
+            }),
           makeButton("Paste",
             function (e, obj) {
               e.diagram.pasteViewsOnly = false;
@@ -516,7 +532,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.deleteSelection();
               e.diagram.deleteViewsOnly = false;
             },
-            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            function (o) { 
+              return false;
+              return o.diagram.commandHandler.canDeleteSelection(); 
+            }),
           // makeButton("Undo",
           //            function(e, obj) { e.diagram.commandHandler.undo(); },
           //            function(o) { return o.diagram.commandHandler.canUndo(); }),
@@ -530,6 +549,49 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
+          makeButton("Zoom All",
+          function (e: any, obj: any) {
+            e.diagram.commandHandler.zoomToFit();
+          },
+          function (o: any) { return true; }),
+          makeButton("Zoom Selection",
+          function (e: any, obj: any) {
+            let selected = myDiagram.selection;
+            let x1 = 0;
+            let y1 = 0;
+            let x2 = 0;
+            let y2 = 0;
+            let w = 0;
+            let h = 0;
+            myDiagram.selection.each(function(node) {
+                if (x1 == 0) x1 = node.actualBounds.x;
+                if (y1 == 0) y1 = node.actualBounds.y;
+                if (w == 0)  w  = node.actualBounds.width;
+                if (h == 0)  h  = node.actualBounds.height;
+                x2 = x1 + w;
+                y2 = y1 + h;
+                const X1 = node.actualBounds.x;
+                if (X1 < x1) x1 = X1;
+                const Y1 = node.actualBounds.y;
+                if (Y1 < y1) y1 = Y1;
+                const W = node.actualBounds.width;
+                const X2 = X1 + W;
+                const H = node.actualBounds.height;
+                const Y2 = Y1 + H;
+                // Compare
+                if (X2 > x2) x2 = X2;
+                if (Y2 > y2) y2 = Y2;
+                w = x2 - x1;
+                h = y2 - y1;
+            });
+            const rect = new go.Rect(x1, y1, w, h);
+            myDiagram.zoomToRect(rect);
+          },
+          function (o: any) { 
+            if (myDiagram.selection.count > 0)
+              return true; 
+            return false;
+          }),
           makeButton("Paste",
             function (e: any, obj: any) {
               e.diagram.pasteviewsonly = false;
@@ -543,7 +605,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
               e.diagram.pasteviewsonly = false;
             },
-            function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
+            function (o: any) { 
+              return false;
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
             function (o: any) { return o.diagram.commandHandler.canUndo(); }),

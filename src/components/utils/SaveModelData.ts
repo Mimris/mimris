@@ -32,8 +32,9 @@ const SaveModelData =  async (modeldata) => {
   // console.log('33', sendData);
   
   try {
-    let res 
-    res = await fetch(`${localhost}postakmmodels/`,
+    // let res y
+    
+    await fetch(`${localhost}postakmmodels/`,
     // res = await fetch(`${localhost}postakmmodels/?${sendData}`,
       {
         method: 'POST',
@@ -50,9 +51,8 @@ const SaveModelData =  async (modeldata) => {
       }
     ).then(res => {console.log('51 SaveModelData res', res)})
       // console.log('50', res)
-    
       // const metis = await res.clone().json()
-      console.log('63 Saga', 'metis');
+      // console.log('63 Saga', 'metis');
       // yield put(loadDataSuccess({ metis }))
   } catch (err) {
     console.log('72 saga', err);

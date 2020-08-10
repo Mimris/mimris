@@ -515,7 +515,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (myLink.reltype) {
                     const gqlLink= new gql.gqlRelationshipType(myLink.reltype, true);
                     selectedRelationshipTypes.push(gqlLink);
-                    // console.log('518 GoJSApp', selectedRelationshipTypes);
+                    console.log('518 GoJSApp', selectedRelationshipTypes);
                   }
                 } else // relation
                 {
@@ -691,7 +691,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
     })
 
-    // console.log('601 modifiedLinks', modifiedLinks);
+    console.log('694 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })

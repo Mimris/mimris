@@ -7,7 +7,8 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import EditProperties  from './forms/EditProperties'
 
 const EditFocusModel = (props) => {
-
+  console.log('10 EditFocusModel', props);
+  
   const refresh = props.refresh
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
@@ -35,11 +36,12 @@ const EditFocusModel = (props) => {
   const curmmobj = curmetamodel?.objecttypes?.find((ov: any) => ov?.id === focusObjecttype?.id)
   const curmmotypegeos = curmetamodel?.objecttypegeos?.find(otg => otg.typeRef === curmmobj?.id)
   const curmmotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curmmobj?.typeviewRef)
+  
   const curmmrel = curmetamodel?.relshiptypes?.find((ov: any) => ov?.id === focusRelshiptype?.id)
   const curmmrtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === curmmrel?.typeviewRef)
   // console.log('34 EditFocusModel', metamodels, curmetamodel, curmmobj);
   const curotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curobjview?.typeviewRef)
-  const currtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === curmmrel?.typeviewRef)
+  const currtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === currelview?.typeviewRef)
   
   // console.log('42 EditFocusModel', curmetamodel?.relshiptypeviews, currtypeview);
   
@@ -66,7 +68,7 @@ const EditFocusModel = (props) => {
     //   : (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
     ? (props.buttonLabel === 'O')
       ? (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
-      : (currtypeview) && <EditProperties item={currtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
+      : (currtypeview) && <EditProperties key={currtypeview.id} item={currtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
     : (props.buttonLabel === 'O')
       ? (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
       : (curmmrtypeview) && <EditProperties item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />

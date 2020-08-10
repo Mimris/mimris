@@ -79,7 +79,7 @@ const EditProperties = (props) => {
       case 'fillcolor':
         return (
           <>
-            <div className="field" >
+            <div key={curitem.id + p} className="field" >
               <label className="label mt-1" htmlFor="name">
                 fillcolor
                 <select className="sel ml-2" value={colorvalue} onChange={handleChangefc} >
@@ -110,7 +110,7 @@ const EditProperties = (props) => {
       case 'strokecolor':
         return (
           <>
-            <div className="field" >
+            <div key={curitem.id + p} className="field" >
               <label className="label mt-1" htmlFor="name">
                 strokecolor
                 <select className="sel ml-2" value={strokecolorvalue} onChange={handleChangesc} >
@@ -142,7 +142,7 @@ const EditProperties = (props) => {
       case 'strokewidth':
         return (
           <>
-            <div className="field" >
+            <div key={curitem.id + p} className="field" >
               <label className="label mt-1" htmlFor="name">
                 strokewidth
                 <select className="sel ml-2" value={strokewidthvalue} onChange={handleChangesw} >
@@ -171,7 +171,7 @@ const EditProperties = (props) => {
       case 'icon':
         return (
           <>
-            <div className="field" >
+            <div key={curitem.id + p} className="field" >
               <label className="label mt-1" htmlFor="name">
                 {/* icon //: Currentvalue = {props.item.icon} <br/> */}
                 icon
@@ -220,7 +220,7 @@ const EditProperties = (props) => {
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))
-  console.log('61 EditProperties', fieldsDiv);
+  // console.log('223 EditProperties', fieldsDiv);
 
   return (
     <div className="edit bg-light">

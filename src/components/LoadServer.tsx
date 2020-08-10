@@ -46,7 +46,7 @@ const SelectSource = (props: any) => {
 // console.log('42 LoadServer', selmodels, selmodelviews);
 
   const frameId = 'myFrame'
-  let iframe = {}
+  // let iframe = {}
 // console.log('42 LoadServer', models, selmodels);
 
   // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)

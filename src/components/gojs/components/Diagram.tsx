@@ -19,8 +19,8 @@ const glb = require('../../../akmm/akm_globals');
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 import { FaTumblrSquare } from 'react-icons/fa';
+import * as svgs from '../../utils/SvgLetters'
 //import { stringify } from 'querystring';
-
 // import './Diagram.css';
 
 const AllowTopLevel = true;
@@ -1048,12 +1048,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     // Function to identify images related to an image id
     function findImage(image: string) {
-      if (image.substring(0,4) === 'http') {
+      if (image.substring(0,4) === 'http') { // its an URL
         return image
-      } else if (image.includes('/')) {
+      } else if (image.includes('/')) { // its a local image
         return image
+      // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
+      //   const letter = image.substring(0, image.length - 4)
+      //   // const lettersvg = letter
+      //   console.log('1058 Diagram', letter, svgs[letter])
+      //   return svgs[letter].svg //svgs[`'${letter}'`]
       } else {
-        return "./../images/" + image
+        return "./../images/" + image //its an image in public/images
       }
       return "";
     }

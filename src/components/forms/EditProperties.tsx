@@ -177,18 +177,19 @@ const EditProperties = (props) => {
                 icon
                 <select className="selectpicker ml-2 float-right" value={iconvalue} onChange={handleChangesicon} >
                   {/* <option value={`${iconvalue}`}>Current</option> */}
-                  <option value="default.png">Default.png</option>
-                  <option value="book.png">Book.png</option>
-                  <option value="person.png">Person.png</option>
                   <option value="analyse.png">Analyse.png</option>
-                  <option value="task.png">Task.png</option>
-                  <option value="task1.jfif">Task1.jfif</option>
-                  <option value="parallel.png">Parallel.png</option>
+                  <option value="automated.jfif">Inclusive.png</option>
+                  <option value="book.png">Book.png</option>
+                  <option value="car.png">Car.png</option>
+                  <option value="default.png">Default.png</option>
                   <option value="exclusive.png">Exclusive.png</option>
                   <option value="inclusive.png">Inclusive.png</option>
-                  <option value="automated.jfif">Inclusive.png</option>
-                  <option value="car.png">Car.png</option>
+                  <option value="info.svg">Info.svg</option>
+                  <option value="person.png">Person.png</option>
                   <option value="person1.svg">person1.svg</option>
+                  <option value="parallel.png">Parallel.png</option>
+                  <option value="task.png">Task.png</option>
+                  <option value="task1.jfif">Task1.jfif</option>
                   <option value="tiger.svg">tiger.svg</option>
                 </select>
               </label>

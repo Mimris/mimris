@@ -511,11 +511,11 @@ class GoJSApp extends React.Component<{}, AppState> {
 
                 if (typename === 'Relationship type') {
                   const myLink = this.getLink(context.myGoMetamodel, key);
-                  // console.log('474 GoJSApp', myLink.reltype);
+                  // console.log('514 GoJSApp', myLink.reltype);
                   if (myLink.reltype) {
                     const gqlLink= new gql.gqlRelationshipType(myLink.reltype, true);
                     selectedRelationshipTypes.push(gqlLink);
-                    // console.log('478 GoJSApp', selectedRelationshipTypes);
+                    // console.log('518 GoJSApp', selectedRelationshipTypes);
                   }
                 } else // relation
                 {
@@ -524,7 +524,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   // ..
                   const gqlRelshipView = new gql.gqlRelshipView(relshipview);
                   selectedRelshipViews.push(gqlRelshipView);
-                  // console.log('444 GoJSApp :', node);                
+                  console.log('527 GoJSApp :', gqlRelshipView);                
                 }
               }
             }

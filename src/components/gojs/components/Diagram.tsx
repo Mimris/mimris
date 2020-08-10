@@ -456,7 +456,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   const reltype  = currentRelship.type;
                   let typeView = currentRelshipView.typeview;
                   const defaultTypeview = reltype.typeview;
-                  if (!typeView || (typeView.id === defaultTypeview.id)) {
+                  if (!typeView || !defaultTypeview || (typeView.id === defaultTypeview.id)) {
                       const id = utils.createGuid();
                       typeView = new akm.cxRelationshipTypeView(id, id, reltype, "");
                       typeView.nameId = undefined;

@@ -219,7 +219,10 @@ const EditProperties = (props) => {
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
       (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'viewkind') && 
       (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
-      (p !== 'relshipviews') && (p !== 'objecttypeviews') && (p !== 'relshiptypeviews')) && p
+      (p !== 'relshipviews') && (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') &&
+      (p !== 'datatypes') && (p !== 'objecttypes') && (p !== 'relshiptypes') &&
+      (p !== 'unittypes') && (p !== 'objtypegeos') ) 
+      && p
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))

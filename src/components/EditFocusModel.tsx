@@ -51,6 +51,8 @@ const EditFocusModel = (props) => {
     && (curmodel) && <EditProperties item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
   const editmvpropertyDiv = (props.modelType === 'modelview') 
     && (curmodelview) && <EditProperties item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
+  const editmmpropertyDiv = (props.modelType === 'modelview') 
+    && (curmetamodel) && <EditProperties item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
 
 
   const editovpropertyDiv = (props.modelType === 'model') 
@@ -118,6 +120,7 @@ const EditFocusModel = (props) => {
 
   const modelheader = (props.buttonLabel === 'M')  && 'Model'
   const modelviewheader = (props.buttonLabel === 'M')  && 'Modelview'
+  const metamodelheader = (props.buttonLabel === 'M')  && 'Metamodel'
  
 
   const objectviewheader = (props.modelType === 'model') 
@@ -159,10 +162,10 @@ const EditFocusModel = (props) => {
               <div className="title bg-light mb-1 pb-1 px-2" >{modelviewheader}:</div>
               {editmvpropertyDiv}
             </div>
-            {/* <div className="propview bg-light mt-1 p-1 border border-dark">
-              <div className="title bg-light mb-1 pb-1 px-2" >{typeviewheader}:</div>
-              {editotpropertyDiv}
-            </div> */}
+            <div className="propview bg-light mt-1 p-1 border border-dark">
+              <div className="title bg-light mb-1 pb-1 px-2" >{metamodelheader}:</div>
+              {editmmpropertyDiv}
+            </div>
           </div>
         </>
       : 

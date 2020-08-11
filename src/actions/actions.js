@@ -29,6 +29,7 @@ import {
   SET_FOCUS_SOURCE, 
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
+  UPDATE_METAMODEL_PROPERTIES,
   UPDATE_OBJECTTYPE_PROPERTIES,
   UPDATE_OBJECTTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTTYPEGEOS_PROPERTIES,
@@ -227,6 +228,13 @@ export const update_modelview_properties = (data) => {
   console.log('76 actions update_modelview_properties', data.payload);
   return {
     type: UPDATE_MODELVIEW_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_metamodel_properties = (data) => {
+  console.log('76 actions update_metamodel_properties', data.payload);
+  return {
+    type: UPDATE_METAMODEL_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

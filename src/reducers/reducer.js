@@ -27,6 +27,8 @@ import {
   SET_FOCUS_COLLECTION,
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
+  UPDATE_MODEL_PROPERTIES,
+  UPDATE_MODELVIEW_PROPERTIES,
   UPDATE_OBJECTVIEW_PROPERTIES,
   UPDATE_RELSHIPVIEW_PROPERTIES,
   UPDATE_OBJECTTYPE_PROPERTIES,
@@ -352,24 +354,39 @@ function reducer(state = InitialState, action) {
         }
       }
 
+    case UPDATE_MODEL_PROPERTIES:
+      console.log('358 UPDATE_MODEL_PROPERTIES', action);
+      const curm1     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
+      const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+  
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models.slice(0,curmindex1),
+                {
+                  ...state.phData.metis.models[curmindex1],
+                    id: action.data.id,           
+                    name: action.data.name,
+                    description: action.data.description,
+                    deleted: action.data.deleted,
+                    modified: action.data.modified,    
+                },      
+                ...state.phData.metis.models.slice(curmindex1 + 1),
+              ]
+            },
+          },
+        }
 
-    case UPDATE_OBJECTVIEW_PROPERTIES:
-      // console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
-      const curm     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
-      const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-      const curmv  = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
-      const curmvindex  = curm?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
-      // console.log('371 curmindex', curmindex);
-      // console.log('372 curmvindex', curmvindex);
-      
-      const curov  = curmv?.objectviews?.find(ov => ov.id === action?.data?.id) // current objectview
-      // console.log('409 curov', curov);
-      const ovlength = curmv?.objectviews.length 
-      let ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov?.id) // current objectview index
-      if (ovindex < 0) {ovindex = ovlength} // ovindex = -1, i.e.  not fond, which means adding a new objectview
-      // console.log('411 ovindex', ovindex, ovlength);
-      const curo = curm?.objects?.find(o => o.id === curov?.objectRef) //current Object
-      const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
+    case UPDATE_MODELVIEW_PROPERTIES:
+      console.log('385 UPDATE_MODELVIEW_PROPERTIES', action);
+      const curmmv2     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
+      const curmindex2 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      const curmv2  = curmmv2?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
+      const curmvindex2  = curmmv2?.modelviews?.findIndex(mv => mv.id === state.phFocus?.focusModelview?.id) // curretn modelview index
  
       return {
         ...state,
@@ -378,49 +395,23 @@ function reducer(state = InitialState, action) {
             metis: {
               ...state.phData.metis,
               models: [
-                ...state.phData.metis.models.slice(0,curmindex),
+                ...state.phData.metis.models.slice(0,curmindex2),
                 {
-                  ...state.phData.metis.models[curmindex],
+                  ...state.phData.metis.models[curmindex2],
                   modelviews: [
-                    ...curm?.modelviews?.slice(0, curmvindex),
+                    ...curmmv2?.modelviews?.slice(0, curmvindex2),
                     {
-                      ...curm?.modelviews[curmvindex],
-                      objectviews: [
-                        ...curmv?.objectviews?.slice(0, ovindex),
-                        {
-                          ...curmv.objectviews[ovindex],  
+                      ...curmmv2?.modelviews[curmvindex2],
                           id: action.data.id,           
                           name: action.data.name,
                           description: action.data.description,
-                          objectRef: action.data.objectRef,
-                          typeviewRef: action.data.typeviewRef,
-                          group: action.data.group,
-                          isGroup: action.data.isGroup,
-                          loc: action.data.loc,
-                          size: action.data.size,
                           deleted: action.data.deleted,
                           modified: action.data.modified,    
-                        },
-                        ...curmv?.objectviews?.slice(ovindex + 1)
-                      ]
                     },
-                    ...curm?.modelviews?.slice(curmvindex + 1),
-                  ],
-                  // objects: [
-                  //   ...curm.objects.slice(0, curoindex),
-                  //   {
-                  //     ...curo,                 
-                  //     name: action.data.name,
-                  //     description: action.data.desctription,
-                  //     typeRef: action.data.typeviewRef,
-                  //     // ...curopropertyValues: [
-                  //     //   ...curo.propertyValues
-                  //     // ]
-                  //   },
-                  //   ...curm.objects.slice(curoindex + 1)  
-                  // ]
+                    ...curmmv2?.modelviews?.slice(curmvindex2 + 1),
+                  ]
                 },
-                ...state.phData.metis.models.slice(curmindex + 1),
+                ...state.phData.metis.models.slice(curmindex2 + 1),
               ]
             },
           },

@@ -12,7 +12,7 @@ import { colorOptions } from './data';
 
 const EditProperties = (props) => {
 
-  // console.log('8 EditProperties', props);
+  console.log('8 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);
@@ -38,7 +38,9 @@ const EditProperties = (props) => {
   }, [colorvalue]);
 
   const onSubmit = (e) => {
+    
     const data = { ...edititem, ...e }
+    console.log('41 EditProperties', data, props.type);
     if (data && data.id) {
       dispatch({ type: props.type, data })
     }
@@ -216,11 +218,12 @@ const EditProperties = (props) => {
     ((p.slice(-3) !== 'Ref') && (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
       (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && (p !== 'viewkind') && 
-      (p !== 'deleted') && (p !== 'modified')) && p
+      (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
+      (p !== 'relshipviews') && (p !== 'objecttypeviews') && (p !== 'relshiptypeviews')) && p
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))
-  // console.log('223 EditProperties', fieldsDiv);
+  console.log('223 EditProperties', fieldsDiv);
 
   return (
     <div className="edit bg-light">

@@ -50,7 +50,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myModelView = (curmodview) && myMetis?.findModelView(curmodview.id);
       // console.log('51 GenGojsModel  myModel', myMetis, myModel, myModelView);
       const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      console.log('53 myGoModel', myGoModel);
+      // console.log('53 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
@@ -174,7 +174,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           myGoModel.addLink(link);
-          console.log('177 buildGoModel - link', link, myGoModel);
+          // console.log('177 buildGoModel - link', link, myGoModel);
         }
       }
     }

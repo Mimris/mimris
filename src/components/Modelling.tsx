@@ -51,11 +51,13 @@ const page = (props:any) => {
     
     useEffect(() => {
       // console.log('38 Diagram state', props ); 
+      setRefresh(!refresh)
       genGojsModel(props, dispatch);
     }, [focusModel?.id])
     
     useEffect(() => {
       // console.log('42 Diagram state', props ); 
+      setRefresh(!refresh)
       genGojsModel(props, dispatch);
     }, [focusModelview?.id])
 
@@ -183,7 +185,10 @@ const page = (props:any) => {
   // console.log('173 Modelling', activeTab);
   const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
   const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
+
+  
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
+  const EditFocusModelMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='M' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
   const EditFocusModelODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModel buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
   const EditFocusModelRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='R' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -202,7 +207,7 @@ const page = (props:any) => {
             {loadserver} {loadlocal}  
           </span> 
           <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#f00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-          {EditFocusModelRDiv} {EditFocusModelODiv}
+          {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
           </span> 
         <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
           {/* {modellingtabs} */}

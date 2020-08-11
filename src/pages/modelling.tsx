@@ -52,11 +52,11 @@ const page = (props:any) => {
   // */
   const setContextDiv =  <SetContext ph={props} />
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
-  // useEffect(() => {
-  //   return () => {
-  //     <SetContext phFocus={props.phFocus} />
-  //   };
-  // }, [props.phData])
+  useEffect(() => {
+    return () => {
+      <SetContext ph={props} />
+    };
+  }, [props.phFocus.focusModel.id])
   // console.log('42 modelling', state.phUser);
   
 

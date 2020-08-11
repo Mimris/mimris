@@ -7,7 +7,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import EditProperties  from './forms/EditProperties'
 
 const EditFocusModel = (props) => {
-  console.log('10 EditFocusModel', props);
+  // console.log('10 EditFocusModel', props);
   
   const refresh = props.refresh
   const setRefresh = props.setRefresh
@@ -47,6 +47,14 @@ const EditFocusModel = (props) => {
   
   
   
+  const editmpropertyDiv = (props.modelType === 'modelview') 
+    && (curmodel) && <EditProperties item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
+  const editmvpropertyDiv = (props.modelType === 'modelview') 
+    && (curmodelview) && <EditProperties item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
+  const editmmpropertyDiv = (props.modelType === 'modelview') 
+    && (curmetamodel) && <EditProperties item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
+
+
   const editovpropertyDiv = (props.modelType === 'model') 
     ? (props.buttonLabel === 'O')
       ? (curobjview) && <EditProperties item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
@@ -62,6 +70,7 @@ const EditFocusModel = (props) => {
     : (props.buttonLabel === 'O')
       ? (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
       : <></>
+
   const editotpropertyDiv = (props.modelType === 'model') 
     // ? (curotypeview.id !== curmmotypeview?.id) 
     //   ? <div className="helptext p-4 text-info">This Objectview has no local typeview.<br /> Right-Click the object's icon and select "Add local typeview" to create a local Typevew</div>
@@ -73,38 +82,53 @@ const EditFocusModel = (props) => {
       ? (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
       : (curmmrtypeview) && <EditProperties item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
 
-  const idNameDiv = (props.modelType === 'model') 
-    ? (props.buttonLabel == 'O') 
-      ?
-        <>
-        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjectview?.id} </span></div>
-        <div> Name :<span className="titlename font-weight-bolder ml-4" >{curobjview?.name}</span></div>
-        </>
-      :
-        <>
-        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshipview?.id} </span></div>
-        <div> Name :<span className="titlename font-weight-bolder ml-4" >{currelview?.name}</span></div>
-        </>
-    : (props.buttonLabel === 'O')
-      ?
-        <>
-        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjecttype?.id} </span></div>
-        <div> Name :<span className="titlename font-weight-bolder ml-4" >{curmmobj?.name}</span></div>
-        </>
-      :
-        <>
-        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshiptype?.id} </span></div>
-        <div> Name :<span className="titlename font-weight-bolder ml-4" >{currel?.name}</span></div>
-        </>
+  const idNameDiv = (props.modelType === 'modelview') 
+    ? 
+      <>
+        <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusModel?.id} </span></div>
+      <div> Name :<span className="titlename font-weight-bolder ml-4" >{props.ph.phFocus.focusModel?.name}</span></div>
+      </>
+    : (props.modelType === 'model') 
+        ? (props.buttonLabel == 'O') 
+          ?
+            <>
+            <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjectview?.id} </span></div>
+            <div> Name :<span className="titlename font-weight-bolder ml-4" >{curobjview?.name}</span></div>
+            </>
+          :
+            <>
+            <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshipview?.id} </span></div>
+            <div> Name :<span className="titlename font-weight-bolder ml-4" >{currelview?.name}</span></div>
+            </>
+        : (props.buttonLabel === 'O')
+          ?
+            <>
+            <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjecttype?.id} </span></div>
+            <div> Name :<span className="titlename font-weight-bolder ml-4" >{curmmobj?.name}</span></div>
+            </>
+          :
+            <>
+            <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshiptype?.id} </span></div>
+            <div> Name :<span className="titlename font-weight-bolder ml-4" >{currel?.name}</span></div>
+            </>
 
-  const modalheader = (props.modelType === 'model') 
-    ? (props.buttonLabel === 'O') ?'Edit Objectview:' : 'Edit Relshipview'
-    : (props.buttonLabel === 'O') ?'Edit Objecttype:' : 'Edit Relshiptype'
+  const modalheader = (props.modelType === 'modelview' || 'modelview' ) 
+    ? (props.buttonLabel === 'M') ? 'Edit Model Properties:' : 'Edit Model Properties:'
+    : (props.modelType === 'model')  
+      ? (props.buttonLabel === 'O') ? 'Edit Objectview:' : 'Edit Relshipview'
+      : (props.buttonLabel === 'O') ? 'Edit Objecttype:' : 'Edit Relshiptype'
+
+  const modelheader = (props.buttonLabel === 'M')  && 'Model'
+  const modelviewheader = (props.buttonLabel === 'M')  && 'Modelview'
+  const metamodelheader = (props.buttonLabel === 'M')  && 'Metamodel'
+ 
+
   const objectviewheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'O')
       ? 'Objectview:' : 'Relshipview'
     : (props.buttonLabel === 'O')
       ? 'Objecttype:' : 'Relshiptype' 
+
   const objectheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'O')
       ?'Object:' 
@@ -112,6 +136,7 @@ const EditFocusModel = (props) => {
     : (props.buttonLabel === 'O')
       ? 'Objecttypegeos'
       : ''
+
   const typeviewheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'O')
       ? 'Typeview:' : 'Typeview'
@@ -120,20 +145,35 @@ const EditFocusModel = (props) => {
 
   // console.log('34 EditFocusModel', curmmobj, curmmotypegeos, curmmotypeview);
 
-  const { buttonLabel, className } = props;
-  const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
-  return (
-    <>
-      <button className="btn-focus btn-link btn-sm float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}
-      </button>
-      <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "90px" }} >
-        <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>
-        <ModalBody >
+  const dialogDiv =
+    (props.modelType === 'modelview')
+      ?
+        <>
           <div className="select bg-light pt-0 ">
             <div className="title  mb-1 pb-1 px-2" >
-             {idNameDiv}
-            </div> 
+              {idNameDiv}
+            </div>
+            {/* <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
+            <div className="propview bg-light mt-1 p-1 border border-dark">
+              <div className="title bg-light mb-1 pb-1 px-2" >{modelheader}:</div>
+              {editmpropertyDiv}
+            </div>
+            <div className="propview bg-light mt-1 p-1 border border-dark">
+              <div className="title bg-light mb-1 pb-1 px-2" >{modelviewheader}:</div>
+              {editmvpropertyDiv}
+            </div>
+            <div className="propview bg-light mt-1 p-1 border border-dark">
+              <div className="title bg-light mb-1 pb-1 px-2" >{metamodelheader}:</div>
+              {editmmpropertyDiv}
+            </div>
+          </div>
+        </>
+      : 
+        <>
+          <div className="select bg-light pt-0 ">
+            <div className="title  mb-1 pb-1 px-2" >
+              {idNameDiv}
+            </div>
             {/* <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
             <div className="propview bg-light mt-1 p-1 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{objectviewheader}:</div>
@@ -141,19 +181,31 @@ const EditFocusModel = (props) => {
             </div>
             <div className="propview bg-light mt-1 p-1 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{objectheader}:</div>
-             {editopropertyDiv}
+              {editopropertyDiv}
             </div>
             <div className="propview bg-light mt-1 p-1 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{typeviewheader}:</div>
               {editotpropertyDiv}
             </div>
           </div>
+        </>
+
+  const { buttonLabel, className } = props;
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
+  return (
+    <>
+      < button className="btn-focus btn-link btn-sm float-right mb-0 pr-2" color="link" onClick={toggle} > {buttonLabel}
+      </button >
+      <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "90px" }} >
+        <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>
+        <ModalBody >
+          {dialogDiv}
         </ModalBody>
         <ModalFooter>
           <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>
         </ModalFooter>
       </Modal>
-
 
       <style jsx>{`
             .list-obj {

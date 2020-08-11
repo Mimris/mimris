@@ -10,14 +10,6 @@ const Modeller = (props: any) => {
   let gojsmodel = {}
   gojsmodel = props.gojsModel;
 
-  // useEffect(() => {
-  //   setRefresh(!refresh)
-  //   prevgojsmodel = null
-  //   return () => {
-  //     prevgojsmodel
-  //   };
-  // }, [gojsmodel !== prevgojsmodel])
-
   let myMetis = props.myMetis;
 
   const [refresh, setRefresh] = useState(true)
@@ -34,12 +26,15 @@ const Modeller = (props: any) => {
   const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
   const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusModelview?.id)
-  const selmods = (models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
-  const selmodviews = (modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
+  const selmods = {models}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
+  const selmodviews = {modelviews}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
   // console.log('36 Modeller', focusModelview, selmods, modelviews);
 
-  const selmodels = selmods?.models?.map((m: any) => m)
-  const selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)
+  let selmodels = selmods?.models?.map((m: any) => m)
+  let selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)
+  useEffect(() => {
+    selmodels = selmods?.models?.map((m: any) => m)
+  }, [modelviews])
   // console.log('37 Modeller', models);
   // console.log('23 Modeller myMetis', props.myMetis);
   

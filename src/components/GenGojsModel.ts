@@ -21,8 +21,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   if (metis !== null) {
     let myMetis = new akm.cxMetis();
-    glb.metis = myMetis;
     myMetis.importData(metis);
+    glb.metis = myMetis;
     // console.log('27 GenGojsModel myMetis', metis, myMetis);
 
     const focusModel = (props.phFocus) && props.phFocus.focusModel

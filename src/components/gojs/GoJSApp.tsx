@@ -171,8 +171,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myGoModel":        myGoModel,
       "myGoMetamodel":    myGoMetamodel,
       "myDiagram":        myDiagram,
-      "pasteViewsOnly":   false,
-      "deleteViewsOnly":  false,
       "dispatch":         dispatch,
       "done":             done
     }
@@ -554,7 +552,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ClipboardPasted': {
         const selection = e.subject;
         context.pasted  = true;
-        console.log('518 ClipboardPasted', context.pasteViewsOnly);
+        console.log('518 ClipboardPasted', context.myMetis.pasteViewsOnly);
         this.setState(
           produce((draft: AppState) => {
             const it = selection.iterator;

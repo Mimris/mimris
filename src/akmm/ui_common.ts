@@ -25,58 +25,61 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
         console.log('26 createObject', data);
+        let obj = data.object;
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return;
-        console.log('31 createObject', objtype);
-        let guid = utils.createGuid();
-        let obj = new akm.cxObject(guid, data.name, objtype, data.description);
-        if (obj) {
-            data.oldObject = data.object;
-            data.object = obj;
-            // Include the new object in the current model
-            myModel?.addObject(obj);
-            myMetis.addObject(obj);
-            console.log('39 createObject', obj, myModel);
-            // Create the corresponding object view
-            objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
-            if (objview) {
-                objview.setIsGroup(objtype?.isContainer());
-                objview.setLoc(data.loc);
-                objview.setSize(data.size);
-                data.objectview = objview;
-                console.log('47 createObject', data);
-                // Include the object view in the current model view
-                myModelview.addObjectView(objview);
-                myMetis.addObjectView(objview);
-                // Then update the node with its new properties
-                // First set category and name
-                myDiagram.model.setDataProperty(data, "category", constants.C_OBJECT);
-                myDiagram.model.setDataProperty(data, "type", data.name);
-                // Then set reference to the object view                        
-                myDiagram.model.setDataProperty(data, "objectview", objview);
-                // Then set the view properties
-                // Get the object typeview
-                let objtypeView = objtype?.getDefaultTypeView();
-                if (context.pasted) 
-                    objtypeView = data.typeview;
-                if (!objtypeView) {
-                    const key = utils.createGuid();
-                    objtypeView = new akm.cxObjectTypeView(key, key, objtype, "");
-                }
-                if (objtypeView) {
-                    //objtypeView.setIsGroup1(data.isGroup);
-                    objview.setTypeView(objtypeView);
-                    let node = new gjs.goObjectNode(data.key, objview);
-                    console.log('69 createObject', node);
-                    myGoModel.addNode(node);
-                    updateNode(node, objtypeView, myDiagram);
-                    node.loc = data.loc;
-                    node.size = data.size;
-                    console.log('73 createObject', myGoModel);
-                    return objview;
-                }
+        console.log('31 createObject', myMetis);
+        if (!myMetis.pasteViewsOnly) {
+            let guid = utils.createGuid();
+            obj = new akm.cxObject(guid, data.name, objtype, data.description);
+            if (obj) {
+                data.oldObject = data.object;
+                data.object = obj;
+                // Include the new object in the current model
+                myModel?.addObject(obj);
+                myMetis.addObject(obj);
+                console.log('39 createObject', obj, myModel);
+            }
+        }
+        // Create the corresponding object view
+        objview = new akm.cxObjectView(utils.createGuid(), obj.getName(), obj, "");
+        if (objview) {
+            objview.setIsGroup(objtype?.isContainer());
+            objview.setLoc(data.loc);
+            objview.setSize(data.size);
+            data.objectview = objview;
+            console.log('47 createObject', data);
+            // Include the object view in the current model view
+            myModelview.addObjectView(objview);
+            myMetis.addObjectView(objview);
+            // Then update the node with its new properties
+            // First set category and name
+            myDiagram.model.setDataProperty(data, "category", constants.C_OBJECT);
+            myDiagram.model.setDataProperty(data, "type", data.name);
+            // Then set reference to the object view                        
+            myDiagram.model.setDataProperty(data, "objectview", objview);
+            // Then set the view properties
+            // Get the object typeview
+            let objtypeView = objtype?.getDefaultTypeView();
+            if (context.pasted) 
+                objtypeView = data.typeview;
+            if (!objtypeView) {
+                const key = utils.createGuid();
+                objtypeView = new akm.cxObjectTypeView(key, key, objtype, "");
+            }
+            if (objtypeView) {
+                //objtypeView.setIsGroup1(data.isGroup);
+                objview.setTypeView(objtypeView);
+                let node = new gjs.goObjectNode(data.key, objview);
+                console.log('69 createObject', node);
+                myGoModel.addNode(node);
+                updateNode(node, objtypeView, myDiagram);
+                node.loc = data.loc;
+                node.size = data.size;
+                console.log('73 createObject', myGoModel);
+                return objview;
             }
         }
     }
@@ -363,7 +366,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             let objview = myMetis.findObjectView(node.objectview.id);
             if (objview) {
                 objview.deleted = deletedFlag;
-                if (!context.deleteViewsOnly) {
+                if (!myMetis.deleteViewsOnly) {
                     const object = objview.object;
                     if (object) {
                         object.deletedFlag = true;
@@ -420,9 +423,11 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
                     deletedLinks.push(delLink);
                 }
             }
-            relship.deleted = deletedFlag;
-            const delRelship = new gql.gqlRelationship(relship);
-            deletedRelships.push(delRelship);
+            if (!myMetis.deleteViewsOnly) {
+                relship.deleted = deletedFlag;
+                const delRelship = new gql.gqlRelationship(relship);
+                deletedRelships.push(delRelship);
+            }
         }
       }
     }

@@ -355,32 +355,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Paste",
             function (e: any, obj: any) {
-              e.diagram.pasteViewsOnly = false;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'false' });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              e.diagram.pasteViewsOnly = true;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'true' });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              e.diagram.pasteViewsOnly = false;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'false' });
             },
             function (o: any) { 
-              return false;
+              //return false;
               return o.diagram.commandHandler.canPasteSelection(); 
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              e.diagram.deleteViewsOnly = false;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'false' });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              e.diagram.deleteViewsOnly = true;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'true' });
               e.diagram.commandHandler.deleteSelection();
-              e.diagram.deleteViewsOnly = false;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'false' });
             },
             function (o: any) { 
               return false;
@@ -394,10 +394,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           //   function (o: any) { return o.diagram.commandHandler.canRedo(); }),
           makeButton("Group",
             function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
-            function (o: any) { return o.diagram.commandHandler.canGroupSelection(); }),
+            function (o: any) { 
+              return false;
+              return o.diagram.commandHandler.canGroupSelection(); 
+            }),
           makeButton("Ungroup",
             function (e: any, obj: any) { e.diagram.commandHandler.ungroupSelection(); },
-            function (o: any) { return o.diagram.commandHandler.canUngroupSelection(); })
+            function (o: any) { 
+              return false;
+              return o.diagram.commandHandler.canUngroupSelection(); 
+            })
         );
     }
 
@@ -516,21 +522,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Paste",
             function (e, obj) {
-              e.diagram.pasteViewsOnly = false;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'false' });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
             function (e, obj) {
-              e.diagram.deleteViewsOnly = false;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'false' });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e, obj) {
-              e.diagram.deleteViewsOnly = true;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'true' });
               e.diagram.commandHandler.deleteSelection();
-              e.diagram.deleteViewsOnly = false;
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'false' });
             },
             function (o) { 
               return false;
@@ -598,15 +604,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
-          makeButton("Paste View",
+            makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              e.diagram.pasteviewsonly = true;
+              myDiagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'true' });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              e.diagram.pasteviewsonly = false;
+              myDiagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'false' });
             },
             function (o: any) { 
-              return false;
+              //return false;
               return o.diagram.commandHandler.canPasteSelection(); 
             }),
           makeButton("Undo",

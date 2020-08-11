@@ -44,6 +44,8 @@ export class cxMetis {
     currentModelview: cxModelView | null = null;
     currentModel: cxModel | null = null;
     currentMetamodel: cxMetaModel | null = null;
+    pasteViewsOnly: boolean = false;
+    deleteViewsOnly: boolean = false;
     // Constructor
     constructor() {
     }

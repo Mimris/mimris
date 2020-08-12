@@ -13,6 +13,7 @@ import {
   SET_FOCUS_OBJECTTYPE,
   SET_FOCUS_RELSHIPTYPE,
   SET_MYMETIS_MODEL,
+  SET_MYMETIS_PARAMETER,
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
   SET_FOCUS_MODEL,
@@ -214,6 +215,18 @@ function reducer(state = InitialState, action) {
         phMymetis: {
           ...state.phMymetis,
           myMetis: action.myMetis
+        }
+      }
+    case SET_MYMETIS_PARAMETER:
+      console.log('221 SET_MYMETIS_PARAMETER', action);
+      return {
+        ...state,
+        phMymetis: {
+          ...state.phMymetis,
+          myMetis: {
+            ...state.phMymetis.myMetis,
+            pasteViewsOnly: action.pasteViewsOnly
+          }
         }
       }
     case SET_MY_GOMODEL:
@@ -423,7 +436,6 @@ function reducer(state = InitialState, action) {
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_mm.metamodelRef) //current meta model
       const curmmindex_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_mm.metamodelRef)  // current metamodel index
-
 
       return {
         ...state,

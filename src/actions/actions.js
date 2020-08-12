@@ -13,6 +13,7 @@ import {
   SET_FOCUS_OBJECTTYPE, 
   SET_FOCUS_RELSHIPTYPE, 
   SET_MYMETIS_MODEL,
+  SET_MYMETIS_PARAMETER,
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
   SET_FOCUS_MODEL, 
@@ -99,9 +100,16 @@ export const setFocusModel = (data) => {
   }
 }
 export const setMymetisModel = (data) => {
-  console.log('21---myMetis', data);
+  console.log('103---myMetis', data);
   return {
     type: SET_MYMETIS_MODEL,
+    data: JSON.parse(data.value)
+  }
+}
+export const setMymetisParameter = (data) => {
+  console.log('110---myMetisParameter', data);
+  return {
+    type: SET_MYMETIS_PARAMETER,
     data: JSON.parse(data.value)
   }
 }

@@ -355,16 +355,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Paste",
             function (e: any, obj: any) {
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'false' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'true' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'true' } });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'false' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
             },
             function (o: any) { 
               //return false;
@@ -372,15 +372,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'false' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'true' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'true' } });
               e.diagram.commandHandler.deleteSelection();
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'false' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
             },
             function (o: any) { 
               return false;
@@ -522,21 +522,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Paste",
             function (e, obj) {
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'false' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' }});
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
             function (e, obj) {
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'false' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e, obj) {
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'true' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'true' } });
               e.diagram.commandHandler.deleteSelection();
-              dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'deleteViewsOnly', value: 'false' });
+              dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
             },
             function (o) { 
               return false;
@@ -607,9 +607,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              myDiagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'true' });
+              myDiagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'true' } });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              myDiagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', parameter: 'pasteViewsOnly', value: 'false' });
+              myDiagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
             },
             function (o: any) { 
               //return false;

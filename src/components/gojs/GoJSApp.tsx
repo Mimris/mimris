@@ -308,7 +308,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "SelectionDeleted": {
         const deletedFlag = true;
         const selection = e.subject;
-        context.deleteViewsOnly = myDiagram.deleteViewsOnly;
         this.setState(
           produce((draft: AppState) => {
             for (let it = selection.iterator; it.next();) {
@@ -350,13 +349,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
               }
+              console.log('352, SelectionDeleted ', context);
               if (sel.class === "goObjectNode") {
                 const myNode = this.getNode(context.myGoModel, key);
-                // console.log('207, text GoJSApp', myNode);
                 if (myNode) {
                   uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, context);
-                  console.log('315 modifiedNodes', modifiedNodes);
-                  console.log('316 modifiedNodes', modifiedObjects);
+                  console.log('357 modifiedNodes', modifiedNodes);
+                  console.log('358 modifiedNodes', modifiedObjects);
                 }
               }
               if (sel.class === "goRelshipLink") {
@@ -367,12 +366,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   relview.deleted = deletedFlag;
                   const gqlRelview = new gql.gqlRelshipView(relview);
                   modifiedLinks.push(gqlRelview);
-                  console.log('327 SelectionDeleted', modifiedLinks);
+                  console.log('369 SelectionDeleted', modifiedLinks);
                   const relship = relview.relship;
                   relship.deleted = deletedFlag;
                   const gqlRel = new gql.gqlRelationship(relship);
                   modifiedRelships.push(gqlRel);
-                  console.log('330 SelectionDeleted', modifiedRelships);
+                  console.log('374 SelectionDeleted', modifiedRelships);
                 }
               }
             }

@@ -175,6 +175,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       "done":             done
     }
     // console.log('177 handleDiagramEvent - context', name, this.state, context);
+    console.log('178 handleEvent', myMetis);
+    console.log('179 handleEvent', context.myMetis);
 
     switch (name) {
       case 'TextEdited': {
@@ -271,7 +273,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const sel = it.value;
               const data = sel.data;
               const typename = data.type;
-              // console.log('266 SelectionMoved', data);
+              // console.log('274 SelectionMoved', data);
               if (typename === 'Object type') {
                   // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
                   const objtype = context.myMetis.findObjectType(data.objtype.id);
@@ -297,8 +299,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const key = sel.data.key;
                 uic.changeNodeSizeAndPos(sel.data, myGoModel, modifiedNodes);
                 const myNode = this.getNode(context.myGoModel, key);
-                // console.log('271 SelectionMoved', myNode);
-                // console.log('272 SelectionMoved', modifiedNodes);
+                console.log('300 SelectionMoved', myNode);
+                // console.log('301 SelectionMoved', modifiedNodes);
               }
             }
           })
@@ -551,7 +553,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ClipboardPasted': {
         const selection = e.subject;
         context.pasted  = true;
-        console.log('518 ClipboardPasted', context.myMetis.pasteViewsOnly);
         this.setState(
           produce((draft: AppState) => {
             const it = selection.iterator;

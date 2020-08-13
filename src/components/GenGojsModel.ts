@@ -98,9 +98,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           linkDataArray: myGoModel?.links
         }
   
-      //   console.log('71', gojsMetamodel);
-      //   console.log('73', myMetis);
-      // console.log('58 gojsModel', gojsModel);
+      // console.log('101', gojsMetamodel);
+      console.log('102 GenGojsModel', myMetis);
+      // console.log('103 gojsModel', gojsModel);
 
 
       // /** metamodel */

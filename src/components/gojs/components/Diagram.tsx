@@ -383,7 +383,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: false } });
             },
             function (o: any) { 
-              return false;
+              //return false;
               return o.diagram.commandHandler.canDeleteSelection(); 
             }),
           // makeButton("Undo",
@@ -539,7 +539,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: false } });
             },
             function (o) { 
-              return false;
+              //return false;
               return o.diagram.commandHandler.canDeleteSelection(); 
             }),
           // makeButton("Undo",

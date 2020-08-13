@@ -175,6 +175,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       "done":             done
     }
     // console.log('177 handleDiagramEvent - context', name, this.state, context);
+    console.log('178 handleEvent', myMetis);
+    console.log('179 handleEvent', context.myMetis);
 
     switch (name) {
       case 'TextEdited': {
@@ -271,7 +273,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const sel = it.value;
               const data = sel.data;
               const typename = data.type;
-              // console.log('266 SelectionMoved', data);
+              // console.log('274 SelectionMoved', data);
               if (typename === 'Object type') {
                   // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
                   const objtype = context.myMetis.findObjectType(data.objtype.id);
@@ -297,8 +299,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const key = sel.data.key;
                 uic.changeNodeSizeAndPos(sel.data, myGoModel, modifiedNodes);
                 const myNode = this.getNode(context.myGoModel, key);
-                // console.log('271 SelectionMoved', myNode);
-                // console.log('272 SelectionMoved', modifiedNodes);
+                console.log('300 SelectionMoved', myNode);
+                // console.log('301 SelectionMoved', modifiedNodes);
               }
             }
           })
@@ -308,7 +310,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "SelectionDeleted": {
         const deletedFlag = true;
         const selection = e.subject;
-        context.deleteViewsOnly = myDiagram.deleteViewsOnly;
         this.setState(
           produce((draft: AppState) => {
             for (let it = selection.iterator; it.next();) {
@@ -350,13 +351,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
               }
+              console.log('352, SelectionDeleted ', context);
               if (sel.class === "goObjectNode") {
                 const myNode = this.getNode(context.myGoModel, key);
-                // console.log('207, text GoJSApp', myNode);
                 if (myNode) {
                   uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, context);
-                  console.log('315 modifiedNodes', modifiedNodes);
-                  console.log('316 modifiedNodes', modifiedObjects);
+                  console.log('357 modifiedNodes', modifiedNodes);
+                  console.log('358 modifiedNodes', modifiedObjects);
                 }
               }
               if (sel.class === "goRelshipLink") {
@@ -367,12 +368,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   relview.deleted = deletedFlag;
                   const gqlRelview = new gql.gqlRelshipView(relview);
                   modifiedLinks.push(gqlRelview);
-                  console.log('327 SelectionDeleted', modifiedLinks);
+                  console.log('369 SelectionDeleted', modifiedLinks);
                   const relship = relview.relship;
                   relship.deleted = deletedFlag;
                   const gqlRel = new gql.gqlRelationship(relship);
                   modifiedRelships.push(gqlRel);
-                  console.log('330 SelectionDeleted', modifiedRelships);
+                  console.log('374 SelectionDeleted', modifiedRelships);
                 }
               }
             }
@@ -552,7 +553,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ClipboardPasted': {
         const selection = e.subject;
         context.pasted  = true;
-        console.log('518 ClipboardPasted', context.myMetis.pasteViewsOnly);
         this.setState(
           produce((draft: AppState) => {
             const it = selection.iterator;

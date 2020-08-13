@@ -364,7 +364,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               // Ask user if only views
               e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'true' } });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
             },
             function (o: any) { 
               //return false;
@@ -380,7 +379,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) {
               e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: 'true' } });
               e.diagram.commandHandler.deleteSelection();
-              //e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: 'false' } });
             },
             function (o: any) { 
               //return false;
@@ -536,7 +534,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e, obj) {
               e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: 'true' } });
               e.diagram.commandHandler.deleteSelection();
-              //e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: 'false' } });
             },
             function (o) { 
               //return false;
@@ -609,8 +606,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               // Ask user if only views
               e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'true' } });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: 'false' } });
-            },
+           },
             function (o: any) { 
               //return false;
               return o.diagram.commandHandler.canPasteSelection(); 

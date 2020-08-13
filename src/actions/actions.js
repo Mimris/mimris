@@ -106,8 +106,8 @@ export const setMymetisModel = (data) => {
     data: JSON.parse(data.value)
   }
 }
-export const setMymetisParameter = (data) => {
-  console.log('110---myMetisParameter', data);
+export const setMyMetisParameter = (data) => {
+  console.log('110---MyMetisParameter', data);
   return {
     type: SET_MYMETIS_PARAMETER,
     data: JSON.parse(data.value)
@@ -176,7 +176,7 @@ export const setFocusRelshiptype = (data) => {
     data: JSON.parse(data.value)
   }
 }
-export const setfocusModelview = (data) => {
+export const setFocusModelview = (data) => {
   // console.log('21---', data.value);
   return {
     type: SET_FOCUS_MODELVIEW,

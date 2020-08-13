@@ -218,14 +218,14 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_MYMETIS_PARAMETER:
-      console.log('221 SET_MYMETIS_PARAMETER', action);
+      console.log('221 SET_MYMETIS_PARAMETER', action.data);
       return {
         ...state,
         phMymetis: {
           ...state.phMymetis,
           myMetis: {
-            ...state.phMymetis.myMetis,
-            pasteViewsOnly: action.pasteViewsOnly
+            ...state.phMymetis.myMetis,        
+            pasteViewsOnly: action.data.pasteViewsOnly       
           }
         }
       }
@@ -823,7 +823,7 @@ function reducer(state = InitialState, action) {
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object
       let curoindexo = (curmo) && curmo.objects?.findIndex(o => o.id === curoo?.id) // curretn objectindex
-      console.log('828', curoindexo);
+      // console.log('828', curoindexo);
 
       const lengtho = curmo?.objects.length
       if (curoindexo < 0) { curoindexo = lengtho } // ovindex = -1, i.e.  not fond, which means adding a new objectview

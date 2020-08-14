@@ -20,9 +20,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   // console.log('22 GenGojsModel metis:', metis);
 
   if (metis !== null) {
-    let myMetis = new akm.cxMetis();
-    myMetis.importData(metis);
-    glb.metis = myMetis;
+    let myMetis = null;
+    console.log('24 myMetis', glb.metis);
+    if (!glb.metis) {
+      myMetis = new akm.cxMetis();
+      myMetis.importData(metis);
+      glb.metis = myMetis;
+      console.log('29 myMetis', myMetis);
+    } else {
+      myMetis = glb.metis;
+      console.log('32 myMetis', myMetis);
+    }
     // console.log('27 GenGojsModel myMetis', metis, myMetis);
 
     const focusModel = (props.phFocus) && props.phFocus.focusModel

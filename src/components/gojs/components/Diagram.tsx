@@ -377,7 +377,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              e.iagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: true } });
+              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: true } });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { 
@@ -604,9 +604,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             makeButton("Paste View",
             function (e: any, obj: any) {
               // Ask user if only views
-              myDiagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: true } });
+              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: true } });
+              console.log('611, Diagram', e);          
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              myDiagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: false } });
+              // e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: false } });
             },
             function (o: any) { 
               //return false;

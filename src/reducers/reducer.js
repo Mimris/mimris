@@ -225,7 +225,8 @@ function reducer(state = InitialState, action) {
           ...state.phMymetis,
           myMetis: {
             ...state.phMymetis.myMetis,        
-            pasteViewsOnly: action.data.pasteViewsOnly       
+            pasteViewsOnly: (action.data.pasteViewsOnly) && action.data.pasteViewsOnly,  
+            deleteViewsOnly: (action.data.deleteViewsOnly) && action.data.deleteViewsOnly       
           }
         }
       }

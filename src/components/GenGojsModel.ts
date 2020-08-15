@@ -21,24 +21,25 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   if (metis !== null) {
     let myMetis = null;
-    console.log('24 myMetis', glb.metis);
+    // console.log('24 myMetis', glb.metis);
     if (!glb.metis) {
       myMetis = new akm.cxMetis();
       myMetis.importData(metis);
       glb.metis = myMetis;
-      console.log('29 myMetis', myMetis);
+      // console.log('29 myMetis', myMetis);
     } else {
       myMetis = glb.metis;
-      console.log('32 myMetis', myMetis);
+      myMetis.importData(metis);
+      // console.log('32 myMetis', myMetis);
     }
-    // console.log('27 GenGojsModel myMetis', metis, myMetis);
+    // console.log('34 GenGojsModel myMetis', metis, myMetis);
 
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
     let curGomodel = props.phMyGoModel?.myGoModel;
-    // console.log('35 gengojsmodel :', curmod, curmod.id);
+    // console.log('41 gengojsmodel :', curmod, curmod?.id);
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
@@ -56,9 +57,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('44 myPalette', myPalette);
       const myModelView = (curmodview) && myMetis?.findModelView(curmodview.id);
-      // console.log('51 GenGojsModel  myModel', myMetis, myModel, myModelView);
+      console.log('59 GenGojsModel  myModel', myMetis, myModel, myModelView);
       const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      // console.log('53 myGoModel', myGoModel);
+      console.log('61 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
@@ -107,8 +108,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
   
       // console.log('101', gojsMetamodel);
-      console.log('102 GenGojsModel', myMetis);
-      // console.log('103 gojsModel', gojsModel);
+      console.log('110 GenGojsModel', myMetis);
+      console.log('111 gojsModel', gojsModel);
 
 
       // /** metamodel */

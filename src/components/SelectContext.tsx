@@ -38,17 +38,22 @@ const SelectContext = (props: any) => {
   
   // find object with type
   const type = (metamodels, model, objects, curov) => {
-    return metamodels?.find(mm => mm.id === (model.metamodelRef))
-      // .objecttypes?.find(ot => ot.id === objects?.find(o => o.id === curov.objectRef)?.typeRef)?.name
+    const mmod = metamodels?.find(mm => mm.id === model.metamodelRef)
+    const o = objects.find(o => o.id === curov.objectRef)
+    const type = mmod.objecttypes.find(ot => ot.name && o.typeRef === ot.id)//?.typeRef)?.name
+
+    console.log('43 SelectContext', type);
+    
+    return type
   }
-  const selroles = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Role')
-  const seltasks = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Task')
-  const selorgs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Organisation')
-  const selprojs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Projects')
-  const selobjs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) !== null)
-  const selPers = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Person')
-  const selproperties = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Property')
-  const selInfo = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Information')
+  const selroles = uniqueovs?.filter(ov => type(metamodels, curmodel, objectviews, ov) === 'Role')
+  const seltasks = uniqueovs?.filter(ov => type(metamodels, curmodel, objectviews, ov) === 'Task')
+  const selorgs = uniqueovs?.filter(ov => type(metamodels, curmodel, objectviews, ov) === 'Organisation')
+  const selprojs = uniqueovs?.filter(ov => type(metamodels, curmodel, objectviews, ov) === 'Projects')
+  const selobjviews = uniqueovs?.filter(ov => type(metamodels, curmodel, objectviews, ov) != null)
+  const selPers = uniqueovs?.filter(ov => type(metamodels, curmodel, objectviews, ov) === 'Person')
+  const selproperties = uniqueovs?.filter(ov => type(metamodels, curmodel, objectviews, ov) === 'Property')
+  const selInfo = uniqueovs?.filter(ov => type(metamodels, curmodel, objectviews, ov) === 'Information')
 
 
   // let optionModel
@@ -119,13 +124,23 @@ const SelectContext = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} style={{marginTop: "90px"}} >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody >
+          <div className="context-list border-bottom border-dark">Context :
+            Model: <strong>{props.phFocus?.focusModel?.name}</strong> |
+            Modelview: <strong>{props.phFocus?.focusModelview?.name}</strong> |
+            Objectview: <strong>{props.phFocus?.focusObjectview?.name}</strong> |
+            {/* Object: <strong>{phFocus?.focusObject?.name}</strong> | */}
+            Org: <strong>{props.phFocus?.focusOrg?.name}</strong> |
+            Proj: <strong>{props.phFocus?.focusProj?.name}</strong> |
+            Role: <strong>{props.phFocus?.focusRole?.name}</strong> |
+            Task: <strong>{props.phFocus?.focusTask?.name}</strong> |
+          </div>
           <div className="select bg-light pt-0 ">
             <Selector key='1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
             <Selector key='2' type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />
             <Selector key='3' type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg' />
             <Selector key='4' type='SET_FOCUS_PROJ' selArray={selprojs} selName='Projects' focustype='focusProj' />
             {/* <Selector type='SET_FOCUS_PROJ' selArray={seloprojs} selName='Projects' focustype='focusProj' /> */}
-            <Selector key='5' type='SET_FOCUS_OBJECT' selArray={selobjs} selName='Objects' focustype='focusObject' />
+            <Selector key='5' type='SET_FOCUS_OBJECT' selArray={selobjviews} selName='Objectviews' focustype='focusObject' />
             {/* <hr style={{ borderTop: "1px solid #8c8b8" , backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
             {/* <h6>Model repository (Firebase) </h6> */}
             <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />

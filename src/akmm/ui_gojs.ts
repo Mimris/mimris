@@ -343,7 +343,7 @@ export class goObjectNode extends goNode {
     loadNodeContent(model: goModel) {
         if (this.typeview) {
             const typeview: akm.cxObjectTypeView = this.typeview;
-            const viewdata: any = typeview.getData();
+            const viewdata: any = typeview.data;
             this.addData(viewdata);
             if (this.objectview) {
                 const objviewId = this.objectview.group;
@@ -578,9 +578,9 @@ export class goRelshipLink extends goLink {
         if ((relview) && (typeview)) {
             if (!relview.deleted) {
                 if (this.toNode && this.fromNode) {
-                    const viewdata: any = typeview.getData();
+                    const viewdata: any = typeview.data;
                     this.addData(viewdata);
-                    this.setName(relview.getName());
+                    this.setName(relview.name);
                     // console.log('584 loadLinkContent', this);
                 }
             }
@@ -593,7 +593,7 @@ export class goRelshipLink extends goLink {
                         if (reltype.typeview) {
                             const data: any = reltype.typeview.data;
                             this.addData(data);
-                            this.setName(relview.getName());
+                            this.setName(relview.name);
                         }
                     }
                 }

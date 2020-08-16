@@ -275,13 +275,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
               })
               const object = myMetis.findObject(objview?.object?.id);
-              const gqlObject = new gql.gqlObject(object);
-              const modifiedObjects = new Array();
-              modifiedObjects.push(gqlObject);
-              modifiedObjects.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-              })
+              if (object) {
+                const gqlObject = new gql.gqlObject(object);
+                const modifiedObjects = new Array();
+                modifiedObjects.push(gqlObject);
+                modifiedObjects.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+                })
+              }
           },
             function (o) {
               const node = o.part.data;
@@ -371,13 +373,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: false } });
+              //e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: false } });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: true } });
+              //e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: true } });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { 
@@ -411,7 +413,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         $(go.Adornment, "Vertical",
           makeButton("Set Relationship type",
             function (e, obj) {
-              const link = e.diagram.selection.first().data;
+              //const link = e.diagram.selection.first().data;
+              const link = obj.part.data;
               let reltype = prompt('Enter one of: ' + link.choices);
               const myMetis = e.diagram.myMetis;
               const context = {
@@ -423,6 +426,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "dispatch":     e.diagram.dispatch
               }
               const relview = uic.setRelationshipType(link, reltype, context);
+              if (!relview) return;
               const gqlRelView = new gql.gqlRelshipView(relview);
               console.log('308 SetReltype', link, gqlRelView);
               const modifiedRelshipViews = new Array();
@@ -451,7 +455,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("New Typeview",
             function (e: any, obj: any) { 
               const myMetis = e.diagram.myMetis;
-              const link = e.diagram.selection.first().data;
+              //const link = e.diagram.selection.first().data;
+              const link = obj.part.data;
               if (link.class === 'goRelshipLink') {
                 const currentRelship = link.relship;
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);

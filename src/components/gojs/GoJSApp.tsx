@@ -136,6 +136,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
+    console.log('139 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus.focusModel.id);
     const myModelview = myMetis?.findModelView(this.state.phFocus.focusModelview.id);
     const myMetamodel = myModel?.getMetamodel();
@@ -313,10 +314,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.setState(
           produce((draft: AppState) => {
             for (let it = selection.iterator; it.next();) {
-              const sel = it.value;
+              const sel  = it.value;
               const data = sel.data;
+              const key  = data.key;
               const typename = data.type;
-              const key = sel.key;
               if (typename === 'Object type') {
                 // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
                 const objtype = context.myMetis.findObjectType(data.objtype.id);
@@ -351,8 +352,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
               }
-              console.log('352, SelectionDeleted ', context);
-              if (sel.class === "goObjectNode") {
+              if (data.class === "goObjectNode") {
                 const myNode = this.getNode(context.myGoModel, key);
                 if (myNode) {
                   uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, context);
@@ -360,10 +360,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   console.log('358 modifiedNodes', modifiedObjects);
                 }
               }
-              if (sel.class === "goRelshipLink") {
+              if (data.class === "goRelshipLink") {
                 const myLink = this.getLink(context.myGoModel, key);
-                uic.deleteLink(sel, deletedFlag, modifiedLinks, modifiedRelships, context);
-                const relview = sel.relshipview;
+                console.log('365 SelectionDeleted', myLink);
+                uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
+                const relview = data.relshipview;
                 if (relview) {
                   relview.deleted = deletedFlag;
                   const gqlRelview = new gql.gqlRelshipView(relview);
@@ -899,7 +900,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     // console.log('638 GOJSApp this.state.nodeDataArray', this.state.nodeDataArray);
     // console.log('361 this.state.linkDataArray', this.state.linkDataArray);
-    // console.log('362 this.state.myMetis', this.state.myMetis);
+    console.log('362 this.state.myMetis', this.state.myMetis);
     // console.log('362 this.state.myGoModel', this.state.myGoModel);
     // console.log('558 this.context', this.context);
     // console.log('824 dispatch', this.props.dispatch);

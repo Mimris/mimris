@@ -362,6 +362,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             myGoModel.nodes = nodes;
         }
         let node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
+        console.log('365 deleteNode', node);
         if (node) {
             let objview = myMetis.findObjectView(node.objectview.id);
             if (objview) {
@@ -406,7 +407,6 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         let l = myGoModel.links[i];
         links.push(l);
     }
-    
     myGoModel.links = links;
     const link = myGoModel?.findLink(data.key);
     if (link) {
@@ -414,6 +414,9 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
       if (relview) {
         const relship = relview.relship;
         if (relship) {
+            relview.deleted = deletedFlag;
+            const gqlRelview = new gql.gqlRelshipView(rview);
+            deletedLinks.push(delLink);
             const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {

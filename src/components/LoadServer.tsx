@@ -10,7 +10,7 @@ import SaveModelData from './utils/SaveModelData'
 
 const SelectSource = (props: any) => {
   // console.log('8 8', props.modal);
-  let state = useSelector((state: any) => state) // Selecting the whole redux store
+  // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
   const refresh = props.refresh
@@ -18,11 +18,23 @@ const SelectSource = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   function handleSaveModelStore() {
-    const data = props.phData
+    // saving current model and metamodel
+    const focusmodel = props.phFocus.focusModel
+    const model = props.phData.metis.models.find(m => m.id === focusmodel.id)
+    const metamodel = props.phData.metis.metamodels.find(mm => mm.id === model.metamodelRef)
+    // const phData = props.phData
+    const data = {
+      metis: {
+        metamodels: [
+          metamodel
+        ],
+        models: [
+          model
+        ]
+      }
+    }
     console.log('72 LoadServer', data);
     SaveModelData(data)
-    // alert('Save ModelStore not implemented yet');
-
   }
 
   function handleLoadModelStore() { 
@@ -50,7 +62,7 @@ const SelectSource = (props: any) => {
 // console.log('42 LoadServer', models, selmodels);
 
   // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
-  const selectorDiv = (state.phSource === 'Model server') && 
+  const selectorDiv = (props.phSource === 'Model server') && 
     <div className="modeller-selection p-2 bg-warning " >
       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
@@ -83,7 +95,7 @@ const SelectSource = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">
-          <strong>Current Source:  {state.phSource}</strong>
+          <strong>Current Source:  {props.phSource}</strong>
           <div className="source bg-light pt-2 ">
              {buttonDiv}
           </div>

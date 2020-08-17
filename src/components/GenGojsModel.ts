@@ -17,11 +17,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const models = (metis) && metis.models
   const metamodels = (metis) && metis.metamodels
 
-  // console.log('22 GenGojsModel metis:', metis);
+  console.log('22 GenGojsModel metis:', metis);
 
   if (metis !== null) {
     let myMetis = null;
-    // console.log('24 myMetis', glb.metis);
+    console.log('24 myMetis', glb.metis);
     if (!glb.metis) {
       myMetis = new akm.cxMetis();
       myMetis.importData(metis);
@@ -29,10 +29,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('29 myMetis', myMetis);
     } else {
       myMetis = glb.metis;
+      console.log('32 myMetis', myMetis);
       myMetis.importData(metis);
-      // console.log('32 myMetis', myMetis);
+      console.log('34 myMetis', myMetis);
     }
-    // console.log('34 GenGojsModel myMetis', metis, myMetis);
+    console.log('36 GenGojsModel myMetis', glb.metis);
 
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview

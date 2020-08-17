@@ -206,7 +206,7 @@ const page = (props:any) => {
           <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#000", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {loadserver} {loadlocal}  
           </span> 
-          <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#f00", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+          <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#fcc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
           {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
           </span> 
         <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >

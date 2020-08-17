@@ -154,15 +154,15 @@ const EditFocusModel = (props) => {
               {idNameDiv}
             </div>
             {/* <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
-            <div className="propview bg-light mt-1 p-1 border border-dark">
+            <div className="propview bg-light mt-1 p-0 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{modelheader}:</div>
               {editmpropertyDiv}
             </div>
-            <div className="propview bg-light mt-1 p-1 border border-dark">
+            <div className="propview bg-light mt-1 p-0 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{modelviewheader}:</div>
               {editmvpropertyDiv}
             </div>
-            <div className="propview bg-light mt-1 p-1 border border-dark">
+            <div className="propview bg-light mt-1 p-0 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{metamodelheader}:</div>
               {editmmpropertyDiv}
             </div>
@@ -175,15 +175,15 @@ const EditFocusModel = (props) => {
               {idNameDiv}
             </div>
             {/* <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
-            <div className="propview bg-light mt-1 p-1 border border-dark">
+            <div className="propview bg-light mt-1 p-0 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{objectviewheader}:</div>
               {editovpropertyDiv}
             </div>
-            <div className="propview bg-light mt-1 p-1 border border-dark">
+            <div className="propview bg-light mt-1 p-0 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{objectheader}:</div>
               {editopropertyDiv}
             </div>
-            <div className="propview bg-light mt-1 p-1 border border-dark">
+            <div className="propview bg-light mt-1 p-0 border border-dark">
               <div className="title bg-light mb-1 pb-1 px-2" >{typeviewheader}:</div>
               {editotpropertyDiv}
             </div>
@@ -195,101 +195,101 @@ const EditFocusModel = (props) => {
   const toggle = () => setModal(!modal);
   return (
     <>
-      < button className="btn-focus btn-link btn-sm float-right mb-0 pr-2" color="link" onClick={toggle} > {buttonLabel}
+      < button className="btn-focus btn-link btn-sm float-right m-0 pr-2" color="link" onClick={toggle} > {buttonLabel}
       </button >
-      <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "90px" }} >
+      <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} >
         <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>
         <ModalBody >
           {dialogDiv}
         </ModalBody>
         <ModalFooter>
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>
+          <Button className="modal-footer m-0 p-0" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>
         </ModalFooter>
       </Modal>
-
-      <style jsx>{`
-            .list-obj {
-              min-Width: 90px;
-            }
-            /*******************************
-            * MODAL AS LEFT/RIGHT SIDEBAR
-            * Add "left" or "right" in modal parent div, after className="modal".
-            * Get free snippets on bootpen.com
-            *******************************/
-            .modal {
-                z-index: 1;
-                margin-top: 50%;
-            }
-            .modal.right .modal-dialog {
-              position: fixed;
-              top: 50%;
-              margin: 150px auto 200px auto;
-              width: 380px;
-              height: 60%;
-              color: black;
-              -webkit-transform: translate3d(0%, 0, 0);
-              -ms-transform: translate3d(0%, 0, 0);
-              -o-transform: translate3d(0%, 0, 0);
-              transform: translate3d(0%, 0, 0);
-            }
-
-            .modal.right .modal-content {
-              height: 80%;
-              overflow-y: auto;
-            }
-
-            .modal.right .modal-body {
-              padding: 15px 15px 80px;
-              color: #444;
-            }
-
-            .modal.right.fade .modal-dialog {
-              position: abolute;
-              top: 100px;
-              right: 320px;
-              -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
-              -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
-              -o-transition: opacity 0.3s linear, left 0.3s ease-out;
-              transition: opacity 0.3s linear, left 0.3s ease-out;
-            }
-            .modal.fade.in {
-              opacity: 1;
-            }
-            .modal.right.fade.show .modal-dialog {
-              right: 0;
-              transform: translate(0,0);
-            }
-
-            /* ----- MODAL STYLE ----- */
-            .modal-content {
-              border-radius: 0;
-              border: none;
-            }
-
-            .modal-header {
-              border-bottom-color: #eeeeee;
-              background-color: #fafafa;
-            }
-            .modal-body {
-               width: 400px;
-            }
-            .modal-backdrop .fade .in {
-              /* display: none; */
-              /* opacity: 0; */
-              /* opacity: 0.5; */
-              /* filter: alpha(opacity=50) !important; */
-              /* background: #fff; */
-                    }
-            .modal-background {
-              display: none;
-            }
-            .btn-context {
-              // font-size: 80%;
-              font-weight: bold;
-            }
-            `}</style> 
     </>
   )
 }
 
 export default EditFocusModel
+
+  // < style jsx > {`
+  //           .list-obj {
+  //             min-Width: 90px;
+  //           }
+  //           /*******************************
+  //           * MODAL AS LEFT/RIGHT SIDEBAR
+  //           * Add "left" or "right" in modal parent div, after className="modal".
+  //           * Get free snippets on bootpen.com
+  //           *******************************/
+  //           .modal {
+  //               z-index: 1;
+  //               margin-top: 50%;
+  //           }
+  //           .modal.right .modal-dialog {
+  //             position: fixed;
+  //             top: 50%;
+  //             margin: 150px auto 200px auto;
+  //             width: 380px;
+  //             height: 60%;
+  //             color: black;
+  //             -webkit-transform: translate3d(0%, 0, 0);
+  //             -ms-transform: translate3d(0%, 0, 0);
+  //             -o-transform: translate3d(0%, 0, 0);
+  //             transform: translate3d(0%, 0, 0);
+  //           }
+
+  //           .modal.right .modal-content {
+  //             height: 80%;
+  //             overflow-y: auto;
+  //           }
+
+  //           .modal.right .modal-body {
+  //             padding: 15px 15px 80px;
+  //             color: #444;
+  //           }
+
+  //           .modal.right.fade .modal-dialog {
+  //             position: abolute;
+  //             top: 100px;
+  //             right: 320px;
+  //             -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+  //             -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+  //             -o-transition: opacity 0.3s linear, left 0.3s ease-out;
+  //             transition: opacity 0.3s linear, left 0.3s ease-out;
+  //           }
+  //           .modal.fade.in {
+  //             opacity: 1;
+  //           }
+  //           .modal.right.fade.show .modal-dialog {
+  //             right: 0;
+  //             transform: translate(0,0);
+  //           }
+
+  //           /* ----- MODAL STYLE ----- */
+  //           .modal-content {
+  //             border-radius: 0;
+  //             border: none;
+  //           }
+
+  //           .modal-header {
+  //             border-bottom-color: #eeeeee;
+  //             background-color: #fafafa;
+  //           }
+  //           .modal-body {
+  //              width: 400px;
+  //           }
+  //           .modal-backdrop .fade .in {
+  //             /* display: none; */
+  //             /* opacity: 0; */
+  //             /* opacity: 0.5; */
+  //             /* filter: alpha(opacity=50) !important; */
+  //             /* background: #fff; */
+  //                   }
+  //           .modal-background {
+  //             display: none;
+  //           }
+  //           .btn-context {
+  //             // font-size: 80%;
+  //             font-weight: bold;
+  //           }
+  //           `}</style > 

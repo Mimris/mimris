@@ -257,7 +257,7 @@ const EditProperties = (props) => {
           .field input {
             // color: green;
             display: inline-block;
-            width: 75%;
+            width: 70%;
             margin-left: 2px;
             margin-right: 3px;
             padding-top: 0px;
@@ -268,8 +268,7 @@ const EditProperties = (props) => {
             font-size: 0.8em;
             width: 100px;
           }
-        form button[type="submit"] {
-          
+        form button[type="submit"] {  
           margin-top: 5px;
           // margin-left: 2px;
           width: 100%;

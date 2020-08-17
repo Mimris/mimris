@@ -35,34 +35,33 @@ const Selector = ( props: any ) => {
         {m.name} 
       </option>)]
 
-    const selectDiv = 
-     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
-      ? (props.selName === 'Model') 
-        ?
-          <>
-            <span className="title mx-2 ">{props.selName}:</span>
-              <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-              onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
-                {options}
-              </select>
-            </>
-        :
-          <>
-            <span className="title mx-2 ">{props.selName}:</span>
-              <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-              onChange={(event) => {handleChange({ value: event.target.value });  toggleRefresh()}} name={`Focus ${props.selName} ...`}>
-                {options}
-              </select>
-            </>
+  const selectDiv = 
+    ((props.selName === 'Model') || (props.selName === 'Modelviews'))
+    ? (props.selName === 'Model') 
+      ?
+        <>
+          <span className="title mx-2 ">{props.selName}:</span>
+          <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+          onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
+            {options}
+          </select>
+        </>
+      :
+        <>
+          <span className="title mx-2 ">{props.selName}:</span>
+            <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+            onChange={(event) => {handleChange({ value: event.target.value });  toggleRefresh()}} name={`Focus ${props.selName} ...`}>
+              {options}
+            </select>
+          </>
       :
         <div key={props.type} className="select" ><hr />
-         <div className="title "> {props.selName}:</div>
-         <select key={focus} className="list-obj " defaultValue={`Select ${props.selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+          <div className="title "> {props.selName}:</div>
+          <select key={focus} className="list-obj " defaultValue={`Select ${props.selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
             onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
             {options}
           </select>
         </div>
-    
 
   return (
     <div className="mod-modview float-right">

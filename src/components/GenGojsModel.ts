@@ -17,7 +17,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const models = (metis) && metis.models
   const metamodels = (metis) && metis.metamodels
 
-  // console.log('22 GenGojsModel metis:', metis);
+  console.log('22 GenGojsModel metis:', metis);
 
   if (metis !== null) {
     let myMetis = null;

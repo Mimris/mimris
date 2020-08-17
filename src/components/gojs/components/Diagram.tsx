@@ -132,6 +132,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     // define myDiagram
     let myDiagram;
+    const myMetis = this.myMetis;
+    myMetis.deleteViewsOnly = false;
+    myMetis.pasteViewsOnly  = false;
     if (true) {
       myDiagram =
         $(go.Diagram,
@@ -196,21 +199,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }
         );
     }
-    // console.log('190 myDiagram', this.myMetis);
-    //console.log('191 myDiagram', this.myGoModel);
     myDiagram.myMetis = this.myMetis;
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
     myDiagram.dispatch = this.myMetis.dispatch;
-    // console.log('203 dispatch', myDiagram.dispatch);
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
           // use a converter to display information about the diagram model
           new go.Binding("text", "", diagramInfo))
       );
+    //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
@@ -224,7 +225,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     function linkInfo(d: any) {  // Tooltip info for a link data object
       const typename = d.relshiptype?.name;
-      const reltype = myDiagram.myMetis.findRelationshipTypeByName(typename);
+      const reltype = myMetis.findRelationshipTypeByName(typename);
       const fromNode = d.fromNode;
       const fromObj = fromNode?.object;
       const fromObjtype = reltype.getFromObjType();
@@ -257,7 +258,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e, obj) {
               const node = e.diagram.selection.first().data;
               let objtype = prompt('Enter one of: ' + node.choices);
-              const myMetis = e.diagram.myMetis;
               const context = {
                 "myMetis":      myMetis,
                 "myMetamodel":  myMetis.currentMetamodel,
@@ -300,7 +300,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const currentObject = node.object;
               const currentObjectView = node.objectview;
               if (currentObject && currentObjectView) {                   
-                const myMetis = e.diagram.myMetis;
                 const myMetamodel = myMetis.currentMetamodel;
                 const objtype  = currentObject.type;
                 let typeView = currentObjectView.typeview;
@@ -357,14 +356,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Paste",
             function (e: any, obj: any) {
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: false } });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
             function (e: any, obj: any) {
-              // Ask user if only views
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: true } });
+              myMetis.pasteViewsOnly = true;
+              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+              const myGoModel = myDiagram.myGoModel;
+              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { 
@@ -373,13 +373,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              //e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: false } });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              //e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: true } });
+              myMetis.deleteViewsOnly = true;
+              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+              const myGoModel = myDiagram.myGoModel;
+              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { 
@@ -416,7 +418,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
               let reltype = prompt('Enter one of: ' + link.choices);
-              const myMetis = e.diagram.myMetis;
               const context = {
                 "myMetis":      myMetis,
                 "myMetamodel":  myMetis.currentMetamodel,
@@ -454,7 +455,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }),
           makeButton("New Typeview",
             function (e: any, obj: any) { 
-              const myMetis = e.diagram.myMetis;
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
               if (link.class === 'goRelshipLink') {
@@ -525,19 +525,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           // makeButton("Paste",
           //   function (e, obj) {
-          //     e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: false }});
           //     e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
           //   },
           //   function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
             function (e, obj) {
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: false } });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
           makeButton("Delete View",
             function (e, obj) {
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { deleteViewsOnly: true } });
+              myMetis.deleteViewsOnly = true;
+              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+              const myGoModel = myDiagram.myGoModel;
+              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { 
@@ -602,17 +603,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }),
           makeButton("Paste",
             function (e: any, obj: any) {
-              e.diagram.pasteviewsonly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
             makeButton("Paste View",
             function (e: any, obj: any) {
-              // Ask user if only views
-              e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: true } });
-              console.log('611, Diagram', e);          
+              myMetis.pasteViewsOnly = true;
+              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+              const myGoModel = myDiagram.myGoModel;
+              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              // e.diagram.dispatch({ type: 'SET_MYMETIS_PARAMETER', data: { pasteViewsOnly: false } });
             },
             function (o: any) { 
               //return false;

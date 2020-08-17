@@ -177,7 +177,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     // console.log('177 handleDiagramEvent - context', name, this.state, context);
     console.log('178 handleEvent', myMetis);
-    console.log('179 handleEvent', context.myMetis);
 
     switch (name) {
       case 'TextEdited': {

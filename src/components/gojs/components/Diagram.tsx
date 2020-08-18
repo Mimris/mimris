@@ -558,6 +558,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
+          makeButton("New Model",
+          function (e: any, obj: any) {
+            const metamodel = myMetis.currentMetamodel;
+            const modelName = prompt("Enter Model name:", metamodel.name);
+            if (modelName == null || modelName === "") {
+              alert("New operation was cancelled");
+            } else {
+              const model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
+              myMetis.addModel(model);
+              console.log('570 myMetis', myMetis);
+              // Dispatch what ???
+            }
+          },
+          function (o: any) { return true; }),
+          makeButton("New Model View",
+          function (e: any, obj: any) {
+            const model = myMetis.currentModel;
+            const modelviewName = prompt("Enter Modelview name:", model.name);
+            if (modelviewName == null || modelviewName === "") {
+              alert("New operation was cancelled");
+            } else {
+              const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model);
+              model.addModelView(modelView);
+              myMetis.addModelView(modelView);
+              console.log('585 myMetis', myMetis);
+              // Dispatch what ???
+            }
+          },
+          function (o: any) { return true; }),
           makeButton("Zoom All",
           function (e: any, obj: any) {
             e.diagram.commandHandler.zoomToFit();

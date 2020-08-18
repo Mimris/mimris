@@ -47,7 +47,7 @@ const SelectSource = (props: any) => {
   const selmodels = models?.map((m: any) => m)
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
 
-  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save to Server</button >
+  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save current to Server</button >
   // const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
   const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2" onClick={handleLoadModelStore} > Load from Server </button >
   

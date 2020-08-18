@@ -5,6 +5,7 @@ import {
   LOAD_TOSTORE_PHDATA, 
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS, 
+  LOAD_TOSTORE_NEWMODEL,
   SET_FOCUS_USER, 
   SET_FOCUS_OBJECT, 
   SET_FOCUS_OBJECTVIEW, 
@@ -63,14 +64,14 @@ export const loadDataSuccess = (data) => {
   }
 }
 
-export const setFocusPhsource = (data) => {
+export const loadToStorePhsource = (data) => {
   // console.log('46---actions |setFocusPhsource ', data);
   return {
     type: LOAD_TOSTORE_PHSOURCE,
     data: JSON.parse(data.value)
   }
 }
-export const setFocusPhdata = (data) => {
+export const loadToStorePhdata = (data) => {
   // console.log('21---actions | setFocusPhdata ', data);
   return {
     type: LOAD_TOSTORE_PHDATA,
@@ -78,10 +79,17 @@ export const setFocusPhdata = (data) => {
   }
 }
 
-export const setFocusPhfocus = (data) => {
+export const loadToStorePhfocus = (data) => {
   // console.log('21---actions | setFocusPhfocus ', data);
   return {
     type: LOAD_TOSTORE_PHFOCUS,
+    data: JSON.parse(data.value)
+  }
+}
+export const loadToStoreNewModel = (data) => {
+  // console.log('21---actions | loadToStoreNewModel ', data);
+  return {
+    type: LOAD_TOSTORE_NEWMODEL,
     data: JSON.parse(data.value)
   }
 }

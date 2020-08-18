@@ -567,8 +567,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             } else {
               const model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
               myMetis.addModel(model);
-              console.log('570 myMetis', myMetis);
-              // Dispatch what ???
+              // data =  //data is gql version of model
+              // e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
             }
           },
           function (o: any) { return true; }),
@@ -583,7 +583,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               model.addModelView(modelView);
               myMetis.addModelView(modelView);
               console.log('585 myMetis', myMetis);
-              // Dispatch what ???
+              // Dispatch what ???: newmodel with modelview(s)
+              // e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
             }
           },
           function (o: any) { return true; }),

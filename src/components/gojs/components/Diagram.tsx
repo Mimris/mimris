@@ -561,13 +561,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("New Model",
           function (e: any, obj: any) {
             const metamodel = myMetis.currentMetamodel;
+            let model = null
             const modelName = prompt("Enter Model name:", metamodel.name);
             if (modelName == null || modelName === "") {
               alert("New operation was cancelled");
             } else {
-              const model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
+              model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
               myMetis.addModel(model);
               // data =  //data is gql version of model
+              // e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
+            }
+            const modelviewName = prompt("Enter Modelview name:", model.name);
+            if (modelviewName == null || modelviewName === "") {
+              alert("New operation was cancelled");
+            } else {
+              // const model = myMetis.currentModel;
+              const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model);
+              model.addModelView(modelView);
+              myMetis.addModelView(modelView);
+              console.log('582 myMetis', model, myMetis.models);
+              // Dispatch what ???: newmodel with modelview(s)
+              // const gqlModel = new gql.gqlExportMetis(myMetis);
+              // console.log('585 myMetis', gqlModel.models);
+              // const data = gqlModel.models
               // e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
             }
           },

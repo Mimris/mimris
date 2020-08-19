@@ -6,6 +6,7 @@ import {
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS, 
   LOAD_TOSTORE_NEWMODEL,
+  LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_USER, 
   SET_FOCUS_OBJECT, 
   SET_FOCUS_OBJECTVIEW, 
@@ -90,6 +91,13 @@ export const loadToStoreNewModel = (data) => {
   // console.log('21---actions | loadToStoreNewModel ', data);
   return {
     type: LOAD_TOSTORE_NEWMODEL,
+    data: JSON.parse(data.value)
+  }
+}
+export const loadToStoreNewModelview = (data) => {
+  // console.log('21---actions | loadToStoreNewModelview ', data);
+  return {
+    type: LOAD_TOSTORE_NEWMODELVIEW,
     data: JSON.parse(data.value)
   }
 }

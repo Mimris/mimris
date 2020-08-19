@@ -6,6 +6,7 @@ import {
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS,
   LOAD_TOSTORE_NEWMODEL,
+  LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_USER,
   SET_FOCUS_OBJECT,
   SET_FOCUS_OBJECTVIEW,
@@ -111,16 +112,34 @@ function reducer(state = InitialState, action) {
         phFocus: action.data
       }
     case LOAD_TOSTORE_NEWMODEL:
-      console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);   
-      const newModels =  action.data.metis.models
-      // console.log('116 LOAD_TOSTORE_NEWMODEL', newModels);   
+      console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);    
       return {
         ...state,
         phData: {
           ...state.phData,
             metis: {
               ...state.phData.metis,
-              models: newModels
+              models: [
+                ...state.phData.metis.models, action.data         
+              ]
+            }
+         }
+      }
+    case LOAD_TOSTORE_NEWMODELVIEW:
+      console.log('113 LOAD_TOSTORE_NEWMODELVIEW', action.data);   
+      const curmnew = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
+      const curmindexnew = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models.slice(0, curmindexnew),
+                action.data,         
+                ...state.phData.metis.models.slice(curmindexnew + 1),
+              ]
             }
          }
       }
@@ -381,9 +400,7 @@ function reducer(state = InitialState, action) {
 
     case UPDATE_MODEL_PROPERTIES:
       console.log('358 UPDATE_MODEL_PROPERTIES', action);
-      const curm1     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
-  
       return {
         ...state,
         phData: {

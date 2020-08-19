@@ -2759,7 +2759,7 @@ export class cxObjectType extends cxType {
         if (utils.objExists(this.relshipkind))
             return this.relshipkind;
         else
-            return constants.RELKINDS.REL;
+            return constants.relkinds.REL;
     }
     setFromObjtype(fromObjtype: cxObjectType) {
         this.fromObjtype = fromObjtype;

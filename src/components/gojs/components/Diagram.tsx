@@ -567,8 +567,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             } else {
               const model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
               myMetis.addModel(model);
-              console.log('570 myMetis', myMetis);
-              // Dispatch what ???
+              // data =  //data is gql version of model
+              // e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
             }
           },
           function (o: any) { return true; }),
@@ -583,7 +583,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               model.addModelView(modelView);
               myMetis.addModelView(modelView);
               console.log('585 myMetis', myMetis);
-              // Dispatch what ???
+              // Dispatch what ???: newmodel with modelview(s)
+              // e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
             }
           },
           function (o: any) { return true; }),
@@ -684,9 +685,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
             new go.Binding('stroke', 'strokecolor'), 
-            // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+            new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
           ),
-     
+      
           $(go.Panel, "Table",
             { defaultAlignment: go.Spot.Left, margin: 0, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
@@ -1090,6 +1091,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         return image
       } else if (image.includes('/')) { // its a local image
         return image
+      } else if (image.includes('.') === false) {
+        const firstcharacter = image.substring(0, 1)
+        const secondcharacter = image.substring(1, 2)
+        console.log('1067 Diagram', firstcharacter, secondcharacter)
+
+      
       // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
       //   const letter = image.substring(0, image.length - 4)
       //   // const lettersvg = letter

@@ -30,7 +30,7 @@ const Selector = ( props: any ) => {
         {focus}
         {/* Select {props.selName}... */}
       </option>,
-      props.selArray.map((m: any) => 
+      props.selArray.map((m: any) => (m) &&
       <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}  > 
         {m.name} 
       </option>)]

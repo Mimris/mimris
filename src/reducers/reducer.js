@@ -5,6 +5,7 @@ import {
   LOAD_TOSTORE_PHDATA,
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS,
+  LOAD_TOSTORE_NEWMODEL,
   SET_FOCUS_USER,
   SET_FOCUS_OBJECT,
   SET_FOCUS_OBJECTVIEW,
@@ -92,29 +93,39 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
-      // console.log('169 LOAD_TOSTORE_PHDATA', action);
-      // Object.assign(state, action);    
+      // console.log('169 LOAD_TOSTORE_PHDATA', action);   
       return {
         ...state,
         phData: action.data
       }
     case LOAD_TOSTORE_PHSOURCE:
-      // console.log('176 SET_FOCUS_SOURCE', action.data);
-      // Object.assign(state, action);    
+      // console.log('176 SET_FOCUS_SOURCE', action.data);   
       return {
         ...state,
         phSource: action.data
       }
     case LOAD_TOSTORE_PHFOCUS:
-      // console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);
-      // Object.assign(state, action);    
+      // console.log('183 LOAD_TOSTORE_PHFOCUS', action.data);   
       return {
         ...state,
         phFocus: action.data
       }
+    case LOAD_TOSTORE_NEWMODEL:
+      console.log('113 LOAD_TOSTORE_NEWMODEL', action.data);   
+      const newModels =  action.data.metis.models
+      // console.log('116 LOAD_TOSTORE_NEWMODEL', newModels);   
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: newModels
+            }
+         }
+      }
     case SET_FOCUS_USER:
-      // console.log('190 SET_FOCUS_USER', action.data);
-      // Object.assign(state, action);    
+      // console.log('190 SET_FOCUS_USER', action.data);   
       return {
         ...state,
         phUser: {
@@ -124,7 +135,6 @@ function reducer(state = InitialState, action) {
       } 
     case SET_FOCUS_MODEL:
       // console.log('121 red', state, action.data); 
-      // Object.assign(state, action);    
       return {
         ...state,
         phFocus: {

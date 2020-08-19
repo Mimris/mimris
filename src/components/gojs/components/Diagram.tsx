@@ -561,21 +561,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("New Model",
           function (e: any, obj: any) {
             const metamodel = myMetis.currentMetamodel;
-            const modelName = prompt("Enter Model name:", metamodel.name);
+            const modelName = prompt("Enter Model name:", "");
             if (modelName == null || modelName === "") {
               alert("New operation was cancelled");
             } else {
               const model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
               myMetis.addModel(model);
-              // data =  //data is gql version of model
-              // e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
+              const modelviewName = prompt("Enter Modelview name:", "");
+              if (modelviewName == null || modelviewName === "") {
+                alert("New operation was cancelled");
+              } else {
+                const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model);
+                model.addModelView(modelView);
+                myMetis.addModelView(modelView);
+                const data = new gql.gqlModel(model, true);
+                e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
+              }
             }
           },
           function (o: any) { return true; }),
           makeButton("New Model View",
           function (e: any, obj: any) {
             const model = myMetis.currentModel;
-            const modelviewName = prompt("Enter Modelview name:", model.name);
+            const modelviewName = prompt("Enter Modelview name:", "");
             if (modelviewName == null || modelviewName === "") {
               alert("New operation was cancelled");
             } else {
@@ -583,8 +591,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               model.addModelView(modelView);
               myMetis.addModelView(modelView);
               console.log('585 myMetis', myMetis);
-              // Dispatch what ???: newmodel with modelview(s)
-              // e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
+              const data = new gql.gqlModel(model, true);
+              console.log('595 NewModelView', data);
+              e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data });
             }
           },
           function (o: any) { return true; }),

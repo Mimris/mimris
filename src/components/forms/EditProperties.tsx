@@ -179,6 +179,23 @@ const EditProperties = (props) => {
                 icon
                 <select className="selectpicker ml-2 float-right" value={iconvalue} onChange={handleChangesicon} >
                   {/* <option value={`${iconvalue}`}>Current</option> */}
+                  <option value="https://img.icons8.com/color/2x/object.png">Object</option>
+                  <option value="https://img.icons8.com/clouds/2x/services.png">Services</option>
+                  <option value="https://img.icons8.com/color/2x/important-property.png">Important-property</option>
+                  <option value="https://img.icons8.com/color/2x/urgent-property.png">Urgent-property</option>
+                  <option value="https://img.icons8.com/color/2x/add-property-1.png">Property</option>
+                  <option value="https://img.icons8.com/color/2x/information.png">Info</option>
+                  <option value="https://img.icons8.com/color/2x/admin-settings-male.png">Role</option>
+                  <option value="https://img.icons8.com/color/2x/task.png">Task</option>
+                  <option value="https://img.icons8.com/color/2x/view-file.png">View</option>
+                  <option value="https://img.icons8.com/color/2x/tear-off-calendar.png">Event</option>
+                  <option value="https://img.icons8.com/color/2x/rules-book.png">Rule</option>
+                  <option value="https://img.icons8.com/color/2x/approve.png">Decision</option>
+                  <option value="https://img.icons8.com/color/2x/weight.png">Unit</option>
+                  <option value="https://img.icons8.com/color/2x/data-.png">Datatype</option>
+                  <option value="https://img.icons8.com/color/2x/variable.png">Datavalue</option>
+                  <option value="https://img.icons8.com/color/2x/person-male.png">Person</option>
+                  <option value="https://img.icons8.com/color/search">Search</option>
                   <option value="analyse.png">Analyse.png</option>
                   <option value="automated.jfif">Inclusive.png</option>
                   <option value="book.png">Book.png</option>
@@ -187,10 +204,7 @@ const EditProperties = (props) => {
                   <option value="exclusive.png">Exclusive.png</option>
                   <option value="inclusive.png">Inclusive.png</option>
                   <option value="info.svg">Info.svg</option>
-                  <option value="person.png">Person.png</option>
-                  <option value="person1.svg">person1.svg</option>
                   <option value="parallel.png">Parallel.png</option>
-                  <option value="task.png">Task.png</option>
                   <option value="task1.jfif">Task1.jfif</option>
                   <option value="tiger.svg">tiger.svg</option>
                 </select>
@@ -204,6 +218,7 @@ const EditProperties = (props) => {
                 ref={register({ required: false })}
                 />
             </div>
+            {/* <div><img src={iconvalue}/></div> */}
           </>
       )
     
@@ -228,11 +243,18 @@ const EditProperties = (props) => {
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))
   console.log('223 EditProperties', fieldsDiv);
 
+  const previewIcon =  (iconvalue) && (iconvalue.substring(0, 4) === 'http')
+    ? <div className="ml-2"><img src={iconvalue} /></div>
+    // : (iconvalue.includes('/')
+    //   ? <div><img src={iconvalue} /></div>
+      : <div><img src={`./../images/${iconvalue}`}/></div>
+
   return (
     <div className="edit bg-light">
       <div className="edit-dialog" >
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldsDiv}
+          {previewIcon}
           <button className="btn-primary" type="submit">Save</button>
         </form>
       </div>

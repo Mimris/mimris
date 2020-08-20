@@ -35,7 +35,7 @@ const Modeller = (props: any) => {
   useEffect(() => {
     selmodels = selmods?.models?.map((m: any) => m)
   }, [modelviews])
-  console.log('37 Modeller', selmodels);
+  // console.log('37 Modeller', selmodels);
   // console.log('23 Modeller myMetis', props.myMetis);
   
   const gojsapp = (gojsmodel && !prevgojsmodel) &&

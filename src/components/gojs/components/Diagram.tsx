@@ -19,7 +19,8 @@ const glb = require('../../../akmm/akm_globals');
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 import { FaTumblrSquare } from 'react-icons/fa';
-import * as svgs from '../../utils/SvgLetters'
+// import * as svgs from '../../utils/SvgLetters'
+import svgs from '../../utils/Svgs'
 //import { stringify } from 'querystring';
 // import './Diagram.css';
 
@@ -697,7 +698,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
             new go.Binding('stroke', 'strokecolor'), 
-            new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+            // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
           ),
       
           $(go.Panel, "Table",
@@ -1106,14 +1107,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       } else if (image.includes('.') === false) {
         const firstcharacter = image.substring(0, 1)
         const secondcharacter = image.substring(1, 2)
-        console.log('1067 Diagram', firstcharacter, secondcharacter)
-
-      
-      // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
-      //   const letter = image.substring(0, image.length - 4)
-      //   // const lettersvg = letter
-      //   console.log('1058 Diagram', letter, svgs[letter])
-      //   return svgs[letter].svg //svgs[`'${letter}'`]
+        console.log('1067 Diagram', firstcharacter, secondcharacter)    
+        // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
+        //   const letter = image.substring(0, image.length - 4)
+        //   // const lettersvg = letter
+        //   console.log('1058 Diagram', letter, svgs[letter])
+        //   return svgs[letter].svg //svgs[`'${letter}'`]
       } else {
         return "./../images/" + image //its an image in public/images
       }

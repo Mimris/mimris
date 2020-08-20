@@ -872,7 +872,7 @@
               "fillcolor": "lightyellow",
               "strokecolor": "gray",
               "strokewidth": "1",
-              "icon": "https://img.icons8.com/color/2x/tear-off-calendar.png",
+              "icon": "https://img.icons8.com/cotton/72/tear-off-calendar.png",
               "deleted": false,
               "modified": false
             },
@@ -887,7 +887,7 @@
               "fillcolor": "#ccffcc",
               "strokecolor": "#000000",
               "strokewidth": "1",
-              "icon": "https://img.icons8.com/color/2x/add-property-1.png",
+              "icon": "https://img.icons8.com/color/2x/type.png",
               "deleted": false,
               "modified": false
             },
@@ -2152,7 +2152,7 @@
                   "typeviewRef": "ff74c6a5-e1ac-443c-23e7-c199cd92d7a1",
                   "group": "",
                   "isGroup": false,
-                  "loc": "590 110",
+                  "loc": "580 140",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2635,8 +2635,8 @@
     },
     "focusRelshipview": {},
     "focusObjecttype": {
-      "id": "515bb361-7a73-4b03-7a58-557007e138a8",
-      "name": "Value"
+      "id": "752e9ef4-6fc0-46b3-4fb6-72515c5b28b1",
+      "name": "Event"
     },
     "focusRelshiptype": {
       "id": "9b70462c-3bd8-482f-41f3-c84d89ab4aee",

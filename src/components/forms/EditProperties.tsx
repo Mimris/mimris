@@ -188,10 +188,10 @@ const EditProperties = (props) => {
                   <option value="https://img.icons8.com/color/2x/admin-settings-male.png">Role</option>
                   <option value="https://img.icons8.com/color/2x/task.png">Task</option>
                   <option value="https://img.icons8.com/color/2x/view-file.png">View</option>
-                  <option value="https://img.icons8.com/color/2x/tear-off-calendar.png">Event</option>
+                  <option value="https://img.icons8.com/cotton/72/tear-off-calendar.png">Event</option>
                   <option value="https://img.icons8.com/color/2x/rules-book.png">Rule</option>
                   <option value="https://img.icons8.com/color/2x/approve.png">Decision</option>
-                  <option value="https://img.icons8.com/color/2x/weight.png">Unit</option>
+                  <option value="https://img.icons8.com/color/2x/type.png">Unit</option>
                   <option value="https://img.icons8.com/color/2x/data-.png">Datatype</option>
                   <option value="https://img.icons8.com/color/2x/variable.png">Datavalue</option>
                   <option value="https://img.icons8.com/color/2x/person-male.png">Person</option>

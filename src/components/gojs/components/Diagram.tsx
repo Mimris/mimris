@@ -515,19 +515,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Cut",
             function (e, obj) { e.diagram.commandHandler.cutSelection(); },
             function (o) { return o.diagram.commandHandler.canCutSelection(); }),
-          makeButton("Copy",
-            function (e, obj) { e.diagram.commandHandler.copySelection(); },
-            function (o) { 
-              const link = o.part.data;
-              if (link.class === 'goRelshipTypeLink') 
-                return false;
-              return o.diagram.commandHandler.canCopySelection(); 
-            }),
-          // makeButton("Paste",
-          //   function (e, obj) {
-          //     e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-          //   },
-          //   function (o) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Delete",
             function (e, obj) {
               e.diagram.commandHandler.deleteSelection();
@@ -697,7 +684,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             // Shape.fill is bound to Node.data.color
             new go.Binding('fill', 'fillcolor'),
             new go.Binding('stroke', 'strokecolor'), 
-            new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+            //new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
           ),
       
           $(go.Panel, "Table",

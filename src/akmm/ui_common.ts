@@ -791,6 +791,7 @@ export function createRelationshipType(data: any, context: any) {
                 myMetamodel.addRelationshipType(reltype2);
                 myMetis.addRelationshipType(reltype2);
                 let reltypeView = reltype.getDefaultTypeView();
+                reltype2.setDefaultTypeView(reltypeView);
                 if (reltypeView) {
                     // Copy reltypeview
                     let reltypeView2 = new akm.cxRelationshipTypeView(utils.createGuid(), reltype2.name, reltype2, "");
@@ -808,6 +809,8 @@ export function createRelationshipType(data: any, context: any) {
                     updateLink(data, reltypeView2, myDiagram);
                     myDiagram.requestUpdate();
                 }
+                console.log('812 reltype2', reltype2);
+                return reltype2;
             } else {   // New relationship type - create it                
                 console.log('754 createRelationshipType', reltype);
                 let typeid = utils.createGuid();

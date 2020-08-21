@@ -18,11 +18,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels
 
-  console.log('22 GenGojsModel metis:', metis);
+  // console.log('22 GenGojsModel metis:', metis);
 
   if (metis !== null) {
     let myMetis = null;
-    console.log('24 myMetis', glb.metis);
+    // console.log('24 myMetis', glb.metis);
     if (!glb.metis) {
       myMetis = new akm.cxMetis();
       myMetis.importData(metis);
@@ -30,11 +30,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('29 myMetis', myMetis);
     } else {
       myMetis = glb.metis;
-      console.log('32 myMetis', myMetis);
+      // console.log('32 myMetis', myMetis);
       myMetis.importData(metis);
-      console.log('34 myMetis', myMetis);
+      // console.log('34 myMetis', myMetis);
     }
-    console.log('36 GenGojsModel myMetis', glb.metis);
+    // console.log('36 GenGojsModel myMetis', glb.metis);
 
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -77,7 +77,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // const linkdataarray = await (curmodview)
       //   ? curmodview.relshipviews.map((rv: any, index: any) => ((rv) && { key: rv.id, from: rv.fromobjviewRef, to: rv.toobjviewRef }))
       //   : []
-
       // const nodemetadataarray = (metamodel)
       //   ? metamodel.objecttypes.map((ot: any, index: any) =>
       //   ({ key: ot.id, text: ot.name, color: 'lightyellow', loc: `0 ${index * (-40)}` }))
@@ -112,8 +111,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
   
       // console.log('101', gojsMetamodel);
-      console.log('110 GenGojsModel', myMetis);
-      console.log('111 gojsModel', gojsModel);
+      // console.log('110 GenGojsModel', myMetis);
+      // console.log('111 gojsModel', gojsModel);
 
 
       // /** metamodel */

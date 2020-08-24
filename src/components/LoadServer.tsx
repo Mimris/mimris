@@ -1,7 +1,8 @@
 // @ts-snocheck
 import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { useSelector, useDispatch } from 'react-redux'
+// import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
 import Selector from './utils/Selector'
 import SaveModelData from './utils/SaveModelData'
@@ -9,7 +10,7 @@ import SaveModelData from './utils/SaveModelData'
 // import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
-  // console.log('8 8', props.modal);
+  console.log('12 LoadServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -62,7 +63,7 @@ const SelectSource = (props: any) => {
 // console.log('42 LoadServer', models, selmodels);
 
   // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
-  const selectorDiv = (props.phSource === 'Model server') && 
+  const selectorDiv = (props.ph.phSource === 'Model server') && 
     <div className="modeller-selection p-2 bg-warning " >
       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
@@ -95,7 +96,7 @@ const SelectSource = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">
-          <strong>Current Source:  {props.phSource}</strong>
+          <strong>Current Source:  {props.ph.phSource}</strong>
           <div className="source bg-light pt-2 ">
              {buttonDiv}
           </div>

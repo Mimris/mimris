@@ -2166,7 +2166,7 @@
           "modelviews": [
             {
               "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",
-              "name": "Main",
+              "name": "Main2",
               "description": "",
               "modelRef": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
               "objectviews": [
@@ -2645,7 +2645,7 @@
     },
     "focusModelview": {
       "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",
-      "name": "Main"
+      "name": "Main2"
     },
     "focusObject": {
       "id": "8a2f98d3-ecde-4bf3-ec29-6495a9566e10",

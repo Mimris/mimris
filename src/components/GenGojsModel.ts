@@ -22,7 +22,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   if (metis !== null) {
     let myMetis = null;
-    // console.log('24 myMetis', glb.metis);
+    console.log('24 myMetis', glb.metis);
     if (!glb.metis) {
       myMetis = new akm.cxMetis();
       myMetis.importData(metis);
@@ -30,12 +30,16 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('29 myMetis', myMetis);
     } else {
       myMetis = glb.metis;
-      // console.log('32 myMetis', myMetis);
+      const deleteViewsOnly = myMetis.deleteViewsOnly;
+      const pasteViewsOnly  = myMetis.pasteViewsOnly;
+      myMetis = new akm.cxMetis();
       myMetis.importData(metis);
+      myMetis.deleteViewsOnly = deleteViewsOnly;
+      myMetis.pasteViewsOnly  = pasteViewsOnly
       // console.log('34 myMetis', myMetis);
     }
-    // console.log('36 GenGojsModel myMetis', glb.metis);
-
+    console.log('37 GenGojsModel myMetis', glb.metis);
+    
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
@@ -47,10 +51,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
-      // console.log('50 GengojsModel :', myModel);
+      console.log('50 GengojsModel :', myModel);
       
       const myMetamodel = myModel?.metamodel;
-      // console.log('53 GenGojsModel myMetamodel :', myMetamodel);
+      console.log('53 GenGojsModel myMetamodel :', myMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       // console.log('56 myMetamodelPalette', myMetamodelPalette);

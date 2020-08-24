@@ -772,8 +772,6 @@ export function createRelationshipType(data: any, context: any) {
     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
     let typename = data.name;
     if (typename) {
-        let fromNode = data.from;  
-        let toNode   = data.to;  
         let fromTypeNode = myGoMetamodel.findNode(data.from);
         let toTypeNode   = myGoMetamodel.findNode(data.to);
         // let tobjType    = data.objtype;
@@ -790,23 +788,29 @@ export function createRelationshipType(data: any, context: any) {
                 myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                 myMetamodel.addRelationshipType(reltype2);
                 myMetis.addRelationshipType(reltype2);
-                let reltypeView = reltype.getDefaultTypeView();
-                reltype2.setDefaultTypeView(reltypeView);
+                const reltypeView = reltype.getDefaultTypeView();
+                //reltype2.setDefaultTypeView(reltypeView);
                 if (reltypeView) {
                     // Copy reltypeview
-                    let reltypeView2 = new akm.cxRelationshipTypeView(utils.createGuid(), reltype2.name, reltype2, "");
+                    const id = utils.createGuid();
+                    const reltypeView2 = new akm.cxRelationshipTypeView(id, id, reltype2, "");
+                    console.log('797 reltypeView2', reltypeView2);
                     reltypeView2.setModified();
                     reltypeView2.setRelshipKind(relkind);
-                    myDiagram.model.setDataProperty(data, "typeview", reltypeView2);
-                    let viewdata = reltypeView.getData();
-                    let viewdata2 = reltypeView2.getData();
-                    for (let prop in viewdata) {
-                        viewdata2[prop] = viewdata[prop];                            
-                    }
+                    const viewdata = reltypeView.getData();
+                    console.log('802 viewdata', viewdata);
+                    const viewdata2 = reltypeView2.getData();
+                    // for (let prop in viewdata) {
+                    //     viewdata2[prop] = viewdata[prop];                            
+                    // }
+                    reltypeView2.setStrokecolor(reltypeView.getStrokecolor());
+                    reltypeView2.setStrokewidth(reltypeView.getStrokewidth());
+                    console.log('807 reltypeView2', viewdata2, reltypeView2);
                     reltype2.setDefaultTypeView(reltypeView2);
                     myMetamodel.addRelationshipTypeView(reltypeView2);
                     myMetis.addRelationshipTypeView(reltypeView2);
                     updateLink(data, reltypeView2, myDiagram);
+                    myDiagram.model.setDataProperty(data, "typeview", reltypeView2);
                     myDiagram.requestUpdate();
                 }
                 console.log('812 reltype2', reltype2);
@@ -1105,6 +1109,9 @@ function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram:
         let viewdata: any = reltypeView.getData();
         let prop: string;
         for (prop in viewdata) {
+            if (prop === 'abstract') continue;
+            if (prop === 'relshipkind') continue;
+            if (prop === 'class') continue;
             if (viewdata[prop] != null)
                 diagram.model.setDataProperty(data, prop, viewdata[prop])
         }

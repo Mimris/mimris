@@ -2651,7 +2651,7 @@ export class cxObjectType extends cxType {
     }
     // Methods
     getLoc(metamodel: cxMetaModel) {
-        if (metamodel.objtypegeos) {
+        if (metamodel?.objtypegeos) {
             let geos = metamodel.objtypegeos;
             if (geos) {
                 for (let i = 0; i < geos.length; i++) {
@@ -2673,7 +2673,7 @@ export class cxObjectType extends cxType {
         return "";
     }
     getSize(metamodel: cxMetaModel) {
-        if (metamodel.objtypegeos) {
+        if (metamodel?.objtypegeos) {
             let geos = metamodel.objtypegeos;
             if (geos) {
                 for (let i = 0; i < geos.length; i++) {
@@ -3251,66 +3251,86 @@ export class cxObjectTypeView extends cxMetaObject {
         this.figure = figure;
     }
     getFigure() {
-        return this.data.figure;
+        if (this.data.figure)
+            return this.data.figure;
+        else if (this.figure)
+            return this.figure;
+        return "";
     }
     setFillcolor(fillcolor: string) {
         this.data.fillcolor = fillcolor;
         this.fillcolor = fillcolor;
     }
     getFillcolor() {
-        return this.data.fillcolor;
+        if (this.data.fillcolor)
+            return this.data.fillcolor;
+        else if (this.fillcolor)
+            return this.fillcolor;
+        return "white";
     }
     setStrokecolor(strokecolor: string) {
         this.data.strokecolor = strokecolor;
         this.strokecolor = strokecolor;
     }
     getStrokecolor() {
-        return this.data.strokecolor;
+        if (this.data.strokecolor)
+            return this.data.strokecolor;
+        else if (this.strokecolor)
+            return this.strokecolor;
+        return "black";
     }
     setStrokewidth(strokewidth: string) {
         this.strokewidth = strokewidth;
         this.data.strokewidth = strokewidth;
     }
     getStrokewidth() {
-        return this.data.strokewidth;
+        if (this.data.strokewidth)
+            return this.data.strokewidth;
+        else if (this.strokewidth)
+            return this.strokewidth;
+        return "1";
     }
     setIcon(icon: string) {
         this.data.icon = icon;
         this.icon = icon;
     }
     getIcon() {
-        return this.data.icon;
+        if (this.data.icon)
+            return this.data.icon;
+        else if (this.icon)
+            return this.icon;
+        return "";
     }
 }
 
 export class cxReltypeviewData {
-    abstract: boolean;
-    relshipkind: string;
-    strokecolor: string;
-    strokewidth: string;
-    dash: string;
-    fromArrow: string;
-    toArrow: string;
+    abstract:       boolean;
+    relshipkind:    string;
+    strokecolor:    string;
+    strokewidth:    string;
+    dash:           string;
+    fromArrow:      string;
+    toArrow:        string;
     fromArrowColor: string;
-    toArrowColor: string;
+    toArrowColor:   string;
     constructor() {
-        this.class = 'cxReltypeviewData';
-        this.abstract = false;
-        this.relshipkind = constants.relkinds.REL;
-        this.strokecolor = "black";
-        this.strokewidth = "1";
-        this.dash = "[0]";
-        this.fromArrow = "";
-        this.toArrow = "OpenTriangle";
+        this.class          = 'cxReltypeviewData';
+        this.abstract       = false;
+        this.relshipkind    = constants.relkinds.REL;
+        this.strokecolor    = "black";
+        this.strokewidth    = "1";
+        this.dash           = "[0]";
+        this.fromArrow      = "";
+        this.toArrow        = "OpenTriangle";
         this.fromArrowColor = "";
-        this.toArrowColor = "white";
+        this.toArrowColor   = "white";
     }
 }
 
 export class cxRelationshipTypeView extends cxMetaObject {
-    type: cxRelationshipType | null;
+    type:    cxRelationshipType | null;
     typeRef: string;
-    data: cxReltypeviewData;
+    data:    cxReltypeviewData;
     constructor(id: string, name: string, type: cxRelationshipType | null, description: string) {
         super(id, name, description);
         this.class = 'cxRelationshipTypeView';
@@ -3352,6 +3372,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         // If is valid JSON
         this.data = data;
     }
+    setData(data: any) {
+        // If is valid JSON
+        this.data = data;
+    }
     getData() {
         return this.data;
     }
@@ -3380,31 +3404,46 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.strokecolor = strokecolor;
     }
     getStrokecolor() {
-        return this.data.strokecolor;
+        if (this.data.strokecolor)
+            return this.data.strokecolor;
+        else if (this.strokecolor)
+            return this.strokecolor;
+        else
+            return "black";
     }
     setStrokewidth(strokewidth: string) {
         this.data.strokewidth = strokewidth;
         this.strokewidth = strokewidth;
     }
     getStrokewidth() {
-        return this.data.strokewidth;
+        if (this.data.strokewidth)
+            return this.data.strokewidth;
+        else if (this.strokewidth)
+            return this.strokewidth;
+        return "1";
     }
     setDash(dash: string) {
         this.data.dash = dash;
         this.dash = dash;
     }
     getDash() {
-        return this.data.dash;
+        if (this.data.dash)
+            return this.data.dash;
+        else if (this.dash)
+            return this.dash;
+        else
+            return "";
     }
     setFromArrow(fromArrow: string) {
         this.data.fromArrow = fromArrow;
         this.fromArrow = fromArrow;
     }
     getFromArrow() {
-        let retval = "";
-        if (utils.objExists(this.data.fromArrow))
-            retval = this.data.fromArrow;
-        return retval;
+        if (this.data.fromArrow)
+            return this.data.fromArrow;
+        else if (this.fromArrow)
+            return this.fromArrow;
+        return "";
     }
     setToArrow(toArrow: string) {
         this.data.toArrow = toArrow;
@@ -3443,30 +3482,33 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.setToArrowColor(color);
     }
     getToArrow() {
-        let retval = "";
-        if (utils.objExists(this.data.toArrow))
-            retval = this.data.toArrow;
-        return retval;
+        if (this.data.toArrow)
+            return this.data.toArrow;
+        else if (this.toArrow)
+            return this.toArrow;
+        return "";
     }
     setFromArrowColor(color: string) {
         this.data.fromArrowColor = color;
         this.fromArrowColor = color;
     }
+    getFromArrowColor() {
+        if (this.data.fromArrowColor)
+            return this.data.fromArrowColor;
+        else if (this.fromArrowColor)
+            return this.fromArrowColor;
+        return "";
+    }
     setToArrowColor(color: string) {
         this.data.toArrowColor = color;
         this.toArrowColor = color;
     }
-    getFromArrowColor() {
-        let retval = "";
-        if (utils.objExists(this.data.fromArrowColor))
-            retval = this.data.fromArrowColor;
-        return retval;
-    }
     getToArrowColor() {
-        let retval = "";
-        if (utils.objExists(this.data.toArrowColor))
-            retval = this.data.toArrowColor;
-        return retval;
+        if (this.data.toArrowColor)
+            return this.data.toArrowColor;
+        else if (this.toArrowColor)
+            return this.toArrowColor;
+        return "";
     }
 }
 

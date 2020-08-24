@@ -501,11 +501,11 @@ function reducer(state = InitialState, action) {
       const ovlength = curmv?.objectviews.length
       let ovindex = curmv?.objectviews?.findIndex(ov => ov.id === curov?.id) // current objectview index
       if (ovindex < 0) { ovindex = ovlength } // ovindex = -1, i.e.  not fond, which means adding a new objectview
-      // console.log('411 ovindex', ovindex, ovlength);
       const curo = curm?.objects?.find(o => o.id === curov?.objectRef) //current Object
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
+      // console.log('506  reduser', curm);
 
-      return {
+      return (curmv) && {
         ...state,
         phData: {
           ...state.phData,

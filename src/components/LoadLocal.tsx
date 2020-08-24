@@ -26,11 +26,11 @@ const LoadLocal = (props: any) => {
   // }
 
   // const [state, setState] = useLocalStorage('state',  window.localStorage.getItem('state') || null);
-  const [state, setState] = useLocalStorage('state',  null);
+  const [locState, setLocState] = useLocalStorage('state',  null);
    
   // console.log('25 LoadLocal', state);
   function handleDispatchStoreFromLocal() {  // Set storeFromLocal
-    const locState = state
+    // const locState = state
     const phData = locState?.phData
     const phFocus = locState?.phFocus
     const phUser = locState?.phUser
@@ -48,7 +48,7 @@ const LoadLocal = (props: any) => {
     }
   }
 
-  function handleSaveLocalStore() {
+  function handleSaveToLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});
     // console.log('72 SelectSource', state, props.ph);
     const data = {
@@ -58,14 +58,44 @@ const LoadLocal = (props: any) => {
       phSource: 'localStore'
     }
     // console.log('59 LoadLocal', data);
-    setState(data)
+    setLocState(data)
+    // console.log('62 LoadLocal', state);
+  }
+
+  function handleSaveCurrentToLocalStore() {
+    // first find current model whidh is in reduxStore
+    let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
+    let curmindex = locState.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
+    // then find lenght of modellarray in lodalStore
+    const curmlength = locState.phData.metis.models?.length   
+    if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
+    console.log('73 LoadLocal', curmindex, reduxmod);
+    const data = {
+      phData: {
+        ...locState.phData,
+        metis: {
+          ...locState.phData.metis,
+          models: [
+            ...locState.phData.metis.models.slice(0, curmindex),     
+            reduxmod,
+            ...locState.phData.metis.models.slice(curmindex + 1),
+          ]
+        },
+      },
+      phFocus:  props.ph.phFocus,
+      phUser:   props.ph.phUser,
+      phSource: 'localStore'
+    };
+    console.log('59 LoadLocal', data);
+    (reduxmod) && setLocState(data)
     // console.log('62 LoadLocal', state);
   }
   
   
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right " onClick={handleSaveLocalStore} > Save to localStorage </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 " onClick={handleDispatchStoreFromLocal} > Load from localStorage </button >
+  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right " onClick={handleSaveToLocalStore} > Save all to localStorage </button >
+  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 " onClick={handleDispatchStoreFromLocal} > Load all from localStorage </button >
+  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right " onClick={handleSaveCurrentToLocalStore} > Save new to localStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -78,7 +108,8 @@ const LoadLocal = (props: any) => {
       <div className="store-div pb-1 mb-0">
         <h6>Local Store </h6>
         <div className="select" style={{ paddingTop: "4px" }}>
-          {buttonSaveLocalStoreDiv} {buttonLoadLocalStoreDiv}
+          {buttonSaveToLocalStoreDiv} {buttonLoadLocalStoreDiv}
+          {buttonSaveCurrentToLocalStoreDiv} 
         </div>
       </div>
     </>

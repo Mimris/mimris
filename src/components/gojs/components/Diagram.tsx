@@ -1087,14 +1087,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     // Function to identify images related to an image id
     function findImage(image: string) {
-      if (image.substring(0,4) === 'http') { // its an URL
+      // if (image.substring(0,4) === 'http') { // its an URL
+      if (image.includes('//')) { // its an URL
+        // console.log('1092 Diagram', image);    
         return image
       } else if (image.includes('/')) { // its a local image
         return image
       } else if (image.includes('.') === false) {
         const firstcharacter = image.substring(0, 1)
         const secondcharacter = image.substring(1, 2)
-        console.log('1067 Diagram', firstcharacter, secondcharacter)    
+        // console.log('1099 Diagram', firstcharacter, secondcharacter)    
         // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
         //   const letter = image.substring(0, image.length - 4)
         //   // const lettersvg = letter

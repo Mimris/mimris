@@ -91,7 +91,6 @@ const LoadLocal = (props: any) => {
     // console.log('62 LoadLocal', state);
   }
   
-  
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right " onClick={handleSaveToLocalStore} > Save all to localStorage </button >
   const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 " onClick={handleDispatchStoreFromLocal} > Load all from localStorage </button >
@@ -99,7 +98,6 @@ const LoadLocal = (props: any) => {
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-
   // console.log('131', state);
 
   const buttonDiv = 

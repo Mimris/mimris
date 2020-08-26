@@ -166,7 +166,7 @@ const SelectContext = (props: any) => {
         <div className="ml-2">{emailDivMailto}</div>
         <ModalFooter>
           <Button color="primary" onClick={toggle}>Set</Button>{' '}
-          <Button color="secondary" onClick={toggle}>Exit</Button>
+          <Button color="link" onClick={toggle}>Exit</Button>
         </ModalFooter>
       </Modal>
     

@@ -22,18 +22,20 @@ const Selector = ( props: any ) => {
     // console.log('13 selector', data, type);
     dispatch({ type: type, data })
   }
-  console.log('25 selector', selArray);
+  console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
   const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
+  
   const options = selArray && [
     <option 
     key={focus} 
-    value={`${focus} ...`} 
+    value={`${focus}...`} 
     // value={`Select ${props.selName} ...`} 
     > 
-      {focus}
-      {/* Select {props.selName}... */}
+      {/* {focus} */}
+      Select {props.selName}...
     </option>,
-    selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
+    selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
+    // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
       <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}  > 
         {m.name} 
       </option>)]

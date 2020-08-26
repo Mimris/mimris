@@ -63,12 +63,18 @@ const LoadLocal = (props: any) => {
   }
 
   function handleSaveCurrentToLocalStore() {
-    // first find current model whidh is in reduxStore
+    // first find current model which is in reduxStore
     let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
     let curmindex = locState.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
-    // then find lenght of modellarray in lodalStore
+    // find lenght of modellarray in lodalStore
     const curmlength = locState.phData.metis.models?.length   
     if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
+    // then find metamodel which is in reduxStore
+    let reduxmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current model index
+    let curmmindex = locState.phData?.metis?.models?.findIndex(mm=> mm?.id === reduxmod?.id) // current model index
+    // then find lenght of modellarray in lodalStore
+    const curmmlength = locState.phData.metis.metamodels?.length   
+    if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     console.log('73 LoadLocal', curmindex, reduxmod);
     const data = {
       phData: {
@@ -79,6 +85,11 @@ const LoadLocal = (props: any) => {
             ...locState.phData.metis.models.slice(0, curmindex),     
             reduxmod,
             ...locState.phData.metis.models.slice(curmindex + 1),
+          ],
+          metamodels: [
+            ...locState.phData.metis.models.slice(0, curmmindex),     
+            reduxmmod,
+            ...locState.phData.metis.models.slice(curmmindex + 1),
           ]
         },
       },
@@ -92,9 +103,9 @@ const LoadLocal = (props: any) => {
   }
   
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right " onClick={handleSaveToLocalStore} > Save all to localStorage </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-primary btn-sm mr-2 " onClick={handleDispatchStoreFromLocal} > Load all from localStorage </button >
-  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right " onClick={handleSaveCurrentToLocalStore} > Save new to localStorage </button >
+  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right w-50" onClick={handleSaveToLocalStore} > Save all to localStorage </button >
+  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchStoreFromLocal} > Load all from localStorage </button >
+  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentToLocalStore} > Add current model to localStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -105,8 +116,9 @@ const LoadLocal = (props: any) => {
       <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
       <div className="store-div pb-1 mb-0">
         <h6>Local Store </h6>
-        <div className="select" style={{ paddingTop: "4px" }}>
-          {buttonSaveToLocalStoreDiv} {buttonLoadLocalStoreDiv}
+        <div className="select pb-5" style={{ paddingTop: "4px" }}>
+          {buttonSaveToLocalStoreDiv}
+          {buttonLoadLocalStoreDiv}
           {buttonSaveCurrentToLocalStoreDiv} 
         </div>
       </div>
@@ -119,7 +131,7 @@ const LoadLocal = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>LocalStorage: </ModalHeader>
         <ModalBody className="pt-0">
-          <strong>Current Source:  {props.phSource}</strong>
+          Current Source: <strong> {props.ph.phSource}</strong>
           <div className="source bg-light pt-2 ">
             {buttonDiv}
           </div>

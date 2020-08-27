@@ -15,7 +15,7 @@ const SetContext = (props: any) =>  {
       Proj: <strong>{phFocus?.focusProj?.name}</strong> |
       Role: <strong>{phFocus?.focusRole?.name}</strong> |
       Task: <strong>{phFocus?.focusTask?.name}</strong> |
-      <SelectContext buttonLabel='Set Context' className='ContextModal' phFocus={phFocus} /> |
+      <SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> |
     </div>
     </>
     )

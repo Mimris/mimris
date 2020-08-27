@@ -10,7 +10,10 @@ const Selector = ( props: any ) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   const type = props.type
-
+  let selArray = props.selArray
+  console.log('14 Selector', props);
+  
+  // if (selArray.length === 1) selArray = [...selArray,...selArray]
   const handleChange = (event: any) => {
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
@@ -19,18 +22,20 @@ const Selector = ( props: any ) => {
     // console.log('13 selector', data, type);
     dispatch({ type: type, data })
   }
-  // console.log('15 selector', props);
+  console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
   const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
-  const options = props.selArray && [
+  
+  const options = selArray && [
     <option 
     key={focus} 
-    value={`${focus} ...`} 
+    value={`${focus}...`} 
     // value={`Select ${props.selName} ...`} 
     > 
-      {focus}
-      {/* Select {props.selName}... */}
+      {/* {focus} */}
+      Select {props.selName}...
     </option>,
-    props.selArray.map((m: any) => (m && m.name !== focus) &&
+    selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
+    // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
       <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}  > 
         {m.name} 
       </option>)]

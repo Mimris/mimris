@@ -44,10 +44,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
-    console.log('42 gengojsmodel', focusModel, focusModelview);
+    // console.log('42 gengojsmodel', focusModel, focusModelview);
 
     let curGomodel = props.phMyGoModel?.myGoModel;
-    console.log('45 gengojsmodel :', curmod, curmod?.id);
+    // console.log('45 gengojsmodel :', curmod, curmod?.id);
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
@@ -65,9 +65,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('61 myPalette', myPalette);
       let myModelView = (curmodview) && myMetis?.findModelView(curmodview?.id);
       if (!myModelView) myModelView = myMetis?.findModelView(focusModelview?.id);
-      console.log('63 GenGojsModel  myModel', myMetis, myModel, myModelView);
+      // console.log('63 GenGojsModel  myModel', myMetis, myModel, myModelView);
       const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      console.log('65 myGoModel', myGoModel);
+      // console.log('65 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);

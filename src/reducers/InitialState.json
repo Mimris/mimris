@@ -256,25 +256,29 @@
             },
             {
               "id": "16502482-bdb3-4140-620e-388b67cdeca6",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "51b40c11-eb7e-44a6-5aad-0e641cb6895c",
               "toobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
               "typeviewRef": "0274ac5c-1685-4458-4b76-3f186ef91b5d",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "1678032d-f855-489d-2d43-9d99c1cddc79",
-              "name": "Has output",
+              "name": "hasOutput",
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
               "toobjtypeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
               "typeviewRef": "327ad90d-46e7-4f30-b390-e4f076add469",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
@@ -289,14 +293,16 @@
             },
             {
               "id": "1acd8224-5c1d-4f59-b9fe-9674a0c57574",
-              "name": "Has Action",
+              "name": "hasAction",
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "51b40c11-eb7e-44a6-5aad-0e641cb6895c",
               "toobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
               "typeviewRef": "11c9e7bb-20fd-42d8-c591-14c497e5da47",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "1fce01a4-9263-43b3-e287-35b7fee4a378",
@@ -324,14 +330,16 @@
             },
             {
               "id": "3d629f3f-8645-43b5-5411-708747e19ab5",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "7f382d70-79e4-4adf-21b7-31fc530435a0",
               "toobjtypeRef": "e84ca8d8-dc82-4299-6951-71126bbe46f9",
               "typeviewRef": "204cfecf-62e8-4970-d63e-25fdb1308cf9",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "459865a9-6ccf-49da-3f2e-a53feda11120",
@@ -346,25 +354,29 @@
             },
             {
               "id": "4e615009-0779-4252-4c7d-d8aadd3551a1",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "1ce4ebe9-27d2-46bb-f998-9ff0de6c9558",
               "toobjtypeRef": "7f382d70-79e4-4adf-21b7-31fc530435a0",
               "typeviewRef": "a462c2ab-a683-4b66-63cc-84c462fc8de8",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "569a4522-107a-4490-02fe-d7943223a721",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "be0a3e40-f536-41f3-fc10-e02c923a7801",
               "toobjtypeRef": "7f382d70-79e4-4adf-21b7-31fc530435a0",
               "typeviewRef": "7e099fff-bb6f-4942-4d94-645f2269178d",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "5ce566e0-b7da-4271-86a5-7a9a2bf732f2",
@@ -379,14 +391,16 @@
             },
             {
               "id": "61bfe2a0-1d1b-4695-3ecc-fbfbfda022f5",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "6382b0c9-4d4d-41a8-da86-1f7f39de2f7c",
               "toobjtypeRef": "be0a3e40-f536-41f3-fc10-e02c923a7801",
               "typeviewRef": "ef4ddf0d-ce40-4ca8-2327-7f2d7edffb90",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
@@ -412,14 +426,16 @@
             },
             {
               "id": "891abd0f-82b6-4011-4a92-dc19789ab4da",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
               "toobjtypeRef": "7f382d70-79e4-4adf-21b7-31fc530435a0",
               "typeviewRef": "64b01544-349e-47a2-0831-2dd7c2b4eb4e",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "8adb5d62-dd6d-403b-f606-3d0178118cfe",
@@ -460,14 +476,16 @@
             },
             {
               "id": "a75ea739-5afd-4f1b-b6a6-bc1889cf7530",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "aab10852-cbf6-4a09-3f05-8e1fd72f5d7d",
               "toobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
               "typeviewRef": "d96894a3-99f5-41e3-5eaa-3fc05f6e1586",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "ab5ef7f2-2e3b-4fb6-7d63-e59d073171a1",
@@ -482,25 +500,29 @@
             },
             {
               "id": "be4d9d78-bbe8-4366-a3b4-fcaead78210e",
-              "name": "Has input",
+              "name": "has input",
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
               "toobjtypeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
               "typeviewRef": "56541df7-dd1b-4558-7b54-af88e35ca53b",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "cb1b2c69-7f9a-4a9d-9f75-a1bc9e1ae370",
-              "name": "WorksOn",
+              "name": "worksOn",
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
               "toobjtypeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
               "typeviewRef": "a7476340-301b-4f02-e19e-64fd6dafff09",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "ccde5452-b601-4112-e4df-69294587c99a",
@@ -515,25 +537,29 @@
             },
             {
               "id": "d062689a-3d1a-487d-3111-3d907ad373f6",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
               "toobjtypeRef": "7f382d70-79e4-4adf-21b7-31fc530435a0",
               "typeviewRef": "b052718d-d3e6-42c5-d44c-0d81166d19bd",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "d761ad11-0719-468b-4f2b-f76958806d69",
-              "name": "Is",
+              "name": "is",
               "relshipkind": "Generalization",
               "viewkind": "",
               "fromobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
               "toobjtypeRef": "752e9ef4-6fc0-46b3-4fb6-72515c5b28b1",
               "typeviewRef": "aa66bd09-94ec-401d-a1cb-2fe544e078b1",
               "description": "",
-              "properties": []
+              "properties": [],
+              "deleted": false,
+              "modified": true
             },
             {
               "id": "feaadfb2-5d05-491a-6222-0d81c5cef15a",
@@ -548,7 +574,7 @@
             },
             {
               "id": "efa8697a-42d8-4dff-5baa-c1aaf00b7dd3",
-              "name": "Uses",
+              "name": "uses",
               "description": "",
               "typeviewRef": "e2721778-06a6-4260-2b6c-0b8022ef798d",
               "relshipkind": "Association",
@@ -887,7 +913,7 @@
               "fillcolor": "#ccffcc",
               "strokecolor": "#000000",
               "strokewidth": "1",
-              "icon": "https://img.icons8.com/color/2x/type.png",
+              "icon": "https://img.icons8.com/color/2x/energy-meter.png",
               "deleted": false,
               "modified": false
             },
@@ -962,7 +988,7 @@
               "name": "",
               "typeRef": "a6ee10cd-9197-400d-ff3a-cd878b07ec9e",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-20 -180",
+              "loc": "30 -180",
               "size": "",
               "description": "",
               "deleted": false,
@@ -984,7 +1010,7 @@
               "name": "",
               "typeRef": "515bb361-7a73-4b03-7a58-557007e138a8",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-20 -310",
+              "loc": "120 -320",
               "size": "",
               "description": "",
               "deleted": false,
@@ -995,7 +1021,7 @@
               "name": "",
               "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-240 -320",
+              "loc": "-130 -320",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1006,7 +1032,7 @@
               "name": "",
               "typeRef": "51b40c11-eb7e-44a6-5aad-0e641cb6895c",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-240 -110",
+              "loc": "-240 -90",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1017,7 +1043,7 @@
               "name": "",
               "typeRef": "aab10852-cbf6-4a09-3f05-8e1fd72f5d7d",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-240 -10",
+              "loc": "-250 10",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1028,7 +1054,7 @@
               "name": "",
               "typeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-610 -410",
+              "loc": "-540 -380",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1050,7 +1076,7 @@
               "name": "",
               "typeRef": "7f382d70-79e4-4adf-21b7-31fc530435a0",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-850 -220",
+              "loc": "-880 -180",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1061,7 +1087,7 @@
               "name": "",
               "typeRef": "6382b0c9-4d4d-41a8-da86-1f7f39de2f7c",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-600 -90",
+              "loc": "-540 -80",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1094,7 +1120,7 @@
               "name": "",
               "typeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-430 -210",
+              "loc": "-430 -200",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1127,7 +1153,7 @@
               "name": "",
               "typeRef": "be0a3e40-f536-41f3-fc10-e02c923a7801",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-850 -90",
+              "loc": "-880 -80",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1138,7 +1164,7 @@
               "name": "",
               "typeRef": "fb3183f3-10d0-4a2b-46d5-f2ab5ccc7e45",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-20 -410",
+              "loc": "120 -400",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1171,7 +1197,7 @@
               "name": "",
               "typeRef": "e84ca8d8-dc82-4299-6951-71126bbe46f9",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-850 -410",
+              "loc": "-880 -380",
               "size": "",
               "description": "",
               "deleted": false,
@@ -1194,7 +1220,7 @@
               "description": "",
               "typeRef": "7dad2f51-58b9-4ac3-ae39-19d07efefb73",
               "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-              "loc": "-980 -310",
+              "loc": "-880 -490",
               "size": "",
               "deleted": false,
               "modified": false
@@ -2140,7 +2166,7 @@
           "modelviews": [
             {
               "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",
-              "name": "Main",
+              "name": "Main2",
               "description": "",
               "modelRef": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
               "objectviews": [
@@ -2152,7 +2178,7 @@
                   "typeviewRef": "ff74c6a5-e1ac-443c-23e7-c199cd92d7a1",
                   "group": "",
                   "isGroup": false,
-                  "loc": "580 140",
+                  "loc": "590 120",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2178,7 +2204,7 @@
                   "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "180 600",
+                  "loc": "390 580",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2204,7 +2230,7 @@
                   "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "-80 370",
+                  "loc": "130 350",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2230,7 +2256,7 @@
                   "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
                   "group": "",
                   "isGroup": false,
-                  "loc": "130 -160",
+                  "loc": "130 -80",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2269,7 +2295,7 @@
                   "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "-80 500",
+                  "loc": "130 480",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2282,7 +2308,7 @@
                   "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "180 340",
+                  "loc": "390 320",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2295,7 +2321,7 @@
                   "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
                   "group": "",
                   "isGroup": false,
-                  "loc": "590 -160",
+                  "loc": "590 -80",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2308,7 +2334,7 @@
                   "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
                   "group": "",
                   "isGroup": false,
-                  "loc": "330 -160",
+                  "loc": "330 -80",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2321,7 +2347,7 @@
                   "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "180 430",
+                  "loc": "390 410",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2334,7 +2360,7 @@
                   "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "180 520",
+                  "loc": "390 500",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2373,7 +2399,7 @@
                   "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "-170 640",
+                  "loc": "40 620",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2386,7 +2412,7 @@
                   "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "0 640",
+                  "loc": "210 620",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2399,7 +2425,7 @@
                   "typeviewRef": "ed54d580-f6a8-445f-3a3f-6689c7fcf5c6",
                   "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                   "isGroup": false,
-                  "loc": "-280 370",
+                  "loc": "-70 350",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2412,7 +2438,7 @@
                   "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
                   "group": "",
                   "isGroup": false,
-                  "loc": "-230 100",
+                  "loc": "-270 120",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2425,7 +2451,7 @@
                   "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
                   "group": "",
                   "isGroup": false,
-                  "loc": "-130 0",
+                  "loc": "-180 20",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2438,7 +2464,7 @@
                   "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
                   "group": "",
                   "isGroup": false,
-                  "loc": "-60 110",
+                  "loc": "-80 120",
                   "size": "",
                   "deleted": false,
                   "modified": false
@@ -2451,7 +2477,7 @@
                   "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
                   "group": "",
                   "isGroup": true,
-                  "loc": "-390 270",
+                  "loc": "-180 250",
                   "size": "780 525",
                   "deleted": false,
                   "modified": false
@@ -2619,15 +2645,15 @@
     },
     "focusModelview": {
       "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",
-      "name": "Main"
+      "name": "Main2"
     },
     "focusObject": {
       "id": "8a2f98d3-ecde-4bf3-ec29-6495a9566e10",
       "name": "Property 1"
     },
     "focusObjectview": {
-      "id": "2763d693-1f45-4e14-2be9-3fbc68edd1ff",
-      "name": "User"
+      "id": "0c49caa8-f10d-4125-ebbb-486d9769d28b",
+      "name": "Meter"
     },
     "focusRelship": {
       "id": null,
@@ -2635,12 +2661,12 @@
     },
     "focusRelshipview": {},
     "focusObjecttype": {
-      "id": "752e9ef4-6fc0-46b3-4fb6-72515c5b28b1",
-      "name": "Event"
+      "id": "7f382d70-79e4-4adf-21b7-31fc530435a0",
+      "name": "EKA Object"
     },
     "focusRelshiptype": {
-      "id": "9b70462c-3bd8-482f-41f3-c84d89ab4aee",
-      "name": "hasProperty"
+      "id": "d761ad11-0719-468b-4f2b-f76958806d69",
+      "name": "Is"
     },
     "focusObjecttypeview": {
       "id": null,

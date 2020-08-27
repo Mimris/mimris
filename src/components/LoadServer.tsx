@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
-import { useSelector, useDispatch } from 'react-redux'
+// import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { loadData } from '../actions/actions'
 import Selector from './utils/Selector'
 import SaveModelData from './utils/SaveModelData'
@@ -9,7 +10,7 @@ import SaveModelData from './utils/SaveModelData'
 // import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
-  // console.log('8 8', props.modal);
+  console.log('12 LoadServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -33,7 +34,7 @@ const SelectSource = (props: any) => {
         ]
       }
     }
-    console.log('72 LoadServer', data);
+    // console.log('72 LoadServer', data);
     SaveModelData(data)
   }
 
@@ -49,7 +50,7 @@ const SelectSource = (props: any) => {
 
   const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save current to Server</button >
   // const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
-  const buttonLoadModelStoreDiv = <button className="btn-primary btn-sm mr-2" onClick={handleLoadModelStore} > Load from Server </button >
+  const buttonLoadModelStoreDiv = <button className="btn-link btn-sm mr-2" onClick={handleLoadModelStore} > Load from Server </button >
   
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
@@ -62,8 +63,8 @@ const SelectSource = (props: any) => {
 // console.log('42 LoadServer', models, selmodels);
 
   // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
-  const selectorDiv = (props.phSource === 'Model server') && 
-    <div className="modeller-selection p-2 bg-warning " >
+  const selectorDiv = (props.ph?.phSource === 'Model server') && 
+    <div className="modeller-selection p-2 " >
       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
     </div> 
@@ -95,7 +96,7 @@ const SelectSource = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">
-          <strong>Current Source:  {props.phSource}</strong>
+          Current Source: <strong>{props.ph?.phSource}</strong>
           <div className="source bg-light pt-2 ">
              {buttonDiv}
           </div>

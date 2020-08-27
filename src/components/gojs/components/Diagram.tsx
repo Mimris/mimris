@@ -386,6 +386,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { 
+              const node = o.part.data;
+              if (node.class === 'goObjectNode') {
+                return o.diagram.commandHandler.canDeleteSelection();
+              } else {
+                return false;
+              }
               //return false;
               return o.diagram.commandHandler.canDeleteSelection(); 
             }),
@@ -452,7 +458,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return true;
               } else {
                 return false;
-            }
+              }
           }),
           makeButton("New Typeview",
             function (e: any, obj: any) { 
@@ -530,8 +536,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { 
-              //return false;
-              return o.diagram.commandHandler.canDeleteSelection(); 
+              const link = o.part.data;
+              if (link.category === 'Relationship') {
+                return o.diagram.commandHandler.canDeleteSelection(); 
+              } else {
+                return false;
+              }
             }),
           // makeButton("Undo",
           //            function(e, obj) { e.diagram.commandHandler.undo(); },

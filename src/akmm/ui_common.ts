@@ -316,6 +316,14 @@ export function deleteObjectType(data: any, context: any) {
     
 }
 
+export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedFlag: boolean) {
+    if (reltype) {
+        // Check if relationships of this type exists
+        reltype.deleted = deletedFlag;
+    }
+
+}
+
 export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, context: any) {
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
@@ -661,7 +669,7 @@ export function createRelationship(data: any, context: any) {
         return;
     let typename = 'isRelatedTo' as string | null;
     let reltype;
-    reltype = myMetamodel?.findRelationshipTypeByName(typename);
+    //reltype = myMetamodel?.findRelationshipTypeByName(typename);
     if (!reltype) {
         const fromType = fromNode.objecttype;
         const toType   = toNode.objecttype;
@@ -800,12 +808,10 @@ export function createRelationshipType(data: any, context: any) {
                     const viewdata = reltypeView.getData();
                     console.log('802 viewdata', viewdata);
                     const viewdata2 = reltypeView2.getData();
-                    // for (let prop in viewdata) {
-                    //     viewdata2[prop] = viewdata[prop];                            
-                    // }
-                    reltypeView2.setStrokecolor(reltypeView.getStrokecolor());
-                    reltypeView2.setStrokewidth(reltypeView.getStrokewidth());
-                    console.log('807 reltypeView2', viewdata2, reltypeView2);
+                    for (let prop in viewdata) {
+                        viewdata2[prop] = viewdata[prop];                            
+                    }
+                    console.log('806 reltypeView2', viewdata2, reltypeView2);
                     reltype2.setDefaultTypeView(reltypeView2);
                     myMetamodel.addRelationshipTypeView(reltypeView2);
                     myMetis.addRelationshipTypeView(reltypeView2);
@@ -813,7 +819,7 @@ export function createRelationshipType(data: any, context: any) {
                     myDiagram.model.setDataProperty(data, "typeview", reltypeView2);
                     myDiagram.requestUpdate();
                 }
-                console.log('812 reltype2', reltype2);
+                console.log('814 reltype2', reltype2);
                 return reltype2;
             } else {   // New relationship type - create it                
                 console.log('754 createRelationshipType', reltype);

@@ -25,7 +25,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     console.log('24 myMetis', glb.metis);
     if (!glb.metis) {
       myMetis = new akm.cxMetis();
-      myMetis.importData(metis);
+      myMetis.importData(metis, true);
       glb.metis = myMetis;
       // console.log('29 myMetis', myMetis);
     } else {
@@ -33,7 +33,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const deleteViewsOnly = myMetis.deleteViewsOnly;
       const pasteViewsOnly  = myMetis.pasteViewsOnly;
       myMetis = new akm.cxMetis();
-      myMetis.importData(metis);
+      myMetis.importData(metis, true);
       myMetis.deleteViewsOnly = deleteViewsOnly;
       myMetis.pasteViewsOnly  = pasteViewsOnly
       // console.log('34 myMetis', myMetis);

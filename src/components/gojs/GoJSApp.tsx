@@ -339,6 +339,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const reltype = context.myMetis.findRelationshipType(data.reltype.id);
                 if (reltype) {
                   reltype.deleted = deletedFlag;
+                  //uic.deleteRelationshipType(reltype, deletedFlag);
                   const gqlReltype = new gql.gqlRelationshipType(reltype, true);
                   modifiedTypeLinks.push(gqlReltype);
                   console.log('343 modifiedTypeLinks', modifiedTypeLinks);

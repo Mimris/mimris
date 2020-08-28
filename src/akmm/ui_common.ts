@@ -316,6 +316,14 @@ export function deleteObjectType(data: any, context: any) {
     
 }
 
+export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedFlag: boolean) {
+    if (reltype) {
+        // Check if relationships of this type exists
+        reltype.deleted = deletedFlag;
+    }
+
+}
+
 export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, context: any) {
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
@@ -649,7 +657,7 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    console.log('641 createRelationship', data);
+    //console.log('641 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetamodel = context.myMetamodel;
@@ -661,7 +669,7 @@ export function createRelationship(data: any, context: any) {
         return;
     let typename = 'isRelatedTo' as string | null;
     let reltype;
-    reltype = myMetamodel?.findRelationshipTypeByName(typename);
+    //reltype = myMetamodel?.findRelationshipTypeByName(typename);
     if (!reltype) {
         const fromType = fromNode.objecttype;
         const toType   = toNode.objecttype;
@@ -675,16 +683,15 @@ export function createRelationship(data: any, context: any) {
                 }
             }
         }
-        console.log('647 createRelationship', choices);
         typename = prompt('Enter type name, one of ' + choices);
-        reltype = myMetamodel.findRelationshipTypeByName(typename);
+        reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
     } 
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
         return;
     }
-    console.log('657 createRelationship', reltype);
+    //console.log('657 createRelationship', reltype);
     if (!isLinkAllowed(reltype, fromNode.object, toNode.object)) {
         alert("Relationship given is not allowed!");
         myDiagram.model.removeLinkData(data);
@@ -695,7 +702,7 @@ export function createRelationship(data: any, context: any) {
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
     relshipview.setTypeView(reltypeview);
-    console.log('725 myGoModel', myGoModel);
+    //console.log('725 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -800,12 +807,10 @@ export function createRelationshipType(data: any, context: any) {
                     const viewdata = reltypeView.getData();
                     console.log('802 viewdata', viewdata);
                     const viewdata2 = reltypeView2.getData();
-                    // for (let prop in viewdata) {
-                    //     viewdata2[prop] = viewdata[prop];                            
-                    // }
-                    reltypeView2.setStrokecolor(reltypeView.getStrokecolor());
-                    reltypeView2.setStrokewidth(reltypeView.getStrokewidth());
-                    console.log('807 reltypeView2', viewdata2, reltypeView2);
+                    for (let prop in viewdata) {
+                        viewdata2[prop] = viewdata[prop];                            
+                    }
+                    console.log('806 reltypeView2', viewdata2, reltypeView2);
                     reltype2.setDefaultTypeView(reltypeView2);
                     myMetamodel.addRelationshipTypeView(reltypeView2);
                     myMetis.addRelationshipTypeView(reltypeView2);
@@ -813,7 +818,7 @@ export function createRelationshipType(data: any, context: any) {
                     myDiagram.model.setDataProperty(data, "typeview", reltypeView2);
                     myDiagram.requestUpdate();
                 }
-                console.log('812 reltype2', reltype2);
+                console.log('814 reltype2', reltype2);
                 return reltype2;
             } else {   // New relationship type - create it                
                 console.log('754 createRelationshipType', reltype);
@@ -1123,8 +1128,12 @@ function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, t
     if (reltype && fromObj && toObj) {
         let fromType = reltype.getFromObjType();
         let toType = reltype.getToObjType();
+        console.log('1132 from and to type', reltype, fromType, toType);
+        console.log('1133 fromObj and toObj', fromObj, toObj);
         if (fromObj.getType().inherits(fromType)) {
+            console.log('1135 inherits fromType: true');
             if (toObj.getType().inherits(toType)) {
+                console.log('1137 inherits toType: true');
                 return true;
             }
         }

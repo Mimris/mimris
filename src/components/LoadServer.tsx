@@ -1,4 +1,4 @@
-// @ts-snocheck
+// @ts-nocheck
 import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { useSelector, useDispatch } from 'react-redux'

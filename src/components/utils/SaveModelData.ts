@@ -4,7 +4,7 @@ es6promise.polyfill()
 
 
 const SaveModelData =  async (modeldata) => {
-
+  console.log('7 modeldata', modeldata);
   const modelData = JSON.stringify(modeldata)
   // const sendData = 'phData:"'+modelData+'"'
   // console.log('9 SaveModelData', modelData);

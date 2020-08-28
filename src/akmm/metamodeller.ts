@@ -1330,8 +1330,30 @@ export class cxMetis {
             let reltype = null;
             while (i < types.length) {
                 reltype = types[i];
+                if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name)
                     return reltype;
+                i++;
+            }
+        }
+        return null;
+    }
+    findRelationshipTypeByName2(name: string, fromObjType: akm.cxObjectType, toObjType: akm.cxObjectType) {
+        const types = this.getRelationshipTypes();
+        if (!types) {
+            return null;
+        } else {
+            let i = 0;
+            let reltype = null;
+            while (i < types.length) {
+                reltype = types[i];
+                if (reltype.isDeleted()) continue;
+                if (reltype.getName() === name) {
+                    const fromType = reltype.fromObjType;
+                    const toType   = reltype.toObjType;
+                    if ((fromType?.id === fromObjType?.id) && (toType?.id === toObjType?.id))
+                        return reltype;
+                }
                 i++;
             }
         }
@@ -2329,6 +2351,27 @@ export class cxMetaModel extends cxMetaObject {
             if (reltype.isDeleted()) continue;
             if (reltype.getName() === name)
                 return reltype;
+        }
+        return null;
+    }
+    findRelationshipTypeByName2(name: string, fromObjType: akm.cxObjectType, toObjType: akm.cxObjectType) {
+        const types = this.getRelshipTypes();
+        if (!types) {
+            return null;
+        } else {
+            let i = 0;
+            let reltype = null;
+            while (i < types.length) {
+                reltype = types[i];
+                if (reltype.isDeleted()) continue;
+                if (reltype.getName() === name) {
+                    const fromType = reltype.fromObjtype;
+                    const toType   = reltype.toObjtype;
+                    if ((fromType?.id === fromObjType?.id) && (toType?.id === toObjType?.id))
+                        return reltype;
+                }
+                i++;
+            }
         }
         return null;
     }

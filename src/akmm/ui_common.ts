@@ -657,7 +657,7 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    console.log('641 createRelationship', data);
+    //console.log('641 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetamodel = context.myMetamodel;
@@ -683,16 +683,15 @@ export function createRelationship(data: any, context: any) {
                 }
             }
         }
-        console.log('647 createRelationship', choices);
         typename = prompt('Enter type name, one of ' + choices);
-        reltype = myMetamodel.findRelationshipTypeByName(typename);
+        reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
     } 
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
         return;
     }
-    console.log('657 createRelationship', reltype);
+    //console.log('657 createRelationship', reltype);
     if (!isLinkAllowed(reltype, fromNode.object, toNode.object)) {
         alert("Relationship given is not allowed!");
         myDiagram.model.removeLinkData(data);
@@ -703,7 +702,7 @@ export function createRelationship(data: any, context: any) {
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
     relshipview.setTypeView(reltypeview);
-    console.log('725 myGoModel', myGoModel);
+    //console.log('725 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -1129,8 +1128,12 @@ function isLinkAllowed(reltype: akm.cxRelationshipType, fromObj: akm.cxObject, t
     if (reltype && fromObj && toObj) {
         let fromType = reltype.getFromObjType();
         let toType = reltype.getToObjType();
+        console.log('1132 from and to type', reltype, fromType, toType);
+        console.log('1133 fromObj and toObj', fromObj, toObj);
         if (fromObj.getType().inherits(fromType)) {
+            console.log('1135 inherits fromType: true');
             if (toObj.getType().inherits(toType)) {
+                console.log('1137 inherits toType: true');
                 return true;
             }
         }

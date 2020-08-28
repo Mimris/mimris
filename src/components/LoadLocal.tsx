@@ -15,6 +15,10 @@ const LoadLocal = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
+  const modelNames = props.ph.phData?.metis?.models.map(mn => <span>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => <span>{mn.name} | </span>)
+  // console.log('20 LoadLocal',  modelNames, metamodelNames);
+  
   // try {  
   //   if (typeof window === 'undefined'){
   //     console.log('14', props);
@@ -114,8 +118,8 @@ const LoadLocal = (props: any) => {
   const buttonDiv = 
     <>
       <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
-      <div className="store-div pb-1 mb-0">
-        <h6>Local Store </h6>
+      <div className="store-div px-2 pb-4 mb-0">
+        <h6>Local Store Actions</h6>
         <div className="select pb-5" style={{ paddingTop: "4px" }}>
           {buttonSaveToLocalStoreDiv}
           {buttonLoadLocalStoreDiv}
@@ -132,6 +136,8 @@ const LoadLocal = (props: any) => {
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>LocalStorage: </ModalHeader>
         <ModalBody className="pt-0">
           Current Source: <strong> {props.ph.phSource}</strong>
+          <div className="source bg-light pt-2 "> Models: <strong> {modelNames}</strong></div>
+          <div className="source bg-light pt-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
           <div className="source bg-light pt-2 ">
             {buttonDiv}
           </div>

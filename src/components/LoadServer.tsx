@@ -18,6 +18,10 @@ const SelectSource = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
+  const modelNames = props.ph.phData?.metis?.models.map(mn => <span>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => <span>{mn.name} | </span>)
+  console.log('20 LoadLocal', modelNames, metamodelNames);
+
   function handleSaveModelStore() {
     // saving current model and metamodel
     const focusmodel = props.phFocus.focusModel
@@ -74,7 +78,7 @@ const SelectSource = (props: any) => {
         <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
         <div className="store-div pb-1 mb-0">
           <h6>Model repository (Firebase) </h6>
-          <div className="select" style={{ paddingTop: "4px" }}>
+          <div className="select px-2" style={{ paddingTop: "4px" }}>
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
           <p> Server access  (wait for the json-file to appear below) : </p>
@@ -97,6 +101,8 @@ const SelectSource = (props: any) => {
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">
           Current Source: <strong>{props.ph?.phSource}</strong>
+          <div className="source bg-light pt-2 "> Models: <strong> {modelNames}</strong></div>
+          <div className="source bg-light pt-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
           <div className="source bg-light pt-2 ">
              {buttonDiv}
           </div>

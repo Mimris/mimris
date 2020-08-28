@@ -30,7 +30,7 @@ const Modeller = (props: any) => {
   // console.log('36 Modeller', focusModelview, selmods, modelviews);
   let selmodels = selmods?.models?.map((m: any) => m)
   let selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)
-  console.log('33 Modeller', focusModel.name, focusModelview.name);
+  // console.log('33 Modeller', focusModel.name, focusModelview.name);
   // useEffect(() => {
   //   console.log('34 Modeller', focusModel.name, focusModelview.name);
   //   focusModel = props.phFocus?.focusModel

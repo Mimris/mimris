@@ -3001,8 +3001,8 @@ export class cxObjtypeGeo extends cxMetaObject {
     constructor(id: string, metamodel: cxMetaModel | null, type: cxObjectType | null, loc: string, size: string) {
         super(id, "", "");
         this.class = "cxObjtypeGeo";
-        this.fs_collection = constants.FS_C_OBJTYPEGEOS;  // Firestore collection
-        this.category = constants.C_OBJTYPEGEOS;
+        this.fs_collection = "objtypegeos";  // Firestore collection
+        this.category = "Object type geo";
         this.metamodel = metamodel;
         this.metamodelRef = "";
         this.type = type;

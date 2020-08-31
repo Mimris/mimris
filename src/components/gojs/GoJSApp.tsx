@@ -426,23 +426,23 @@ class GoJSApp extends React.Component<{}, AppState> {
               // }
 
               const otype = uic.createObjectType(part, context);
-              // console.log('385 ExternalObjectsDropped - otype', otype);
+              // console.log('429 ExternalObjectsDropped - myMetis', myMetis);
               if (otype) {
                 otype.typename = constants.types.OBJECTTYPE_NAME;
-                // console.log('388 ExternalObjectsDropped', otype);
+                // console.log('431 ExternalObjectsDropped', otype);
                 const gqlObjtype = new gql.gqlObjectType(otype, true);
-                // console.log('390 modifiedTypeNodes', gqlObjtype);
+                // console.log('434 modifiedTypeNodes', gqlObjtype);
                 modifiedTypeNodes.push(gqlObjtype);
 
                 const gqlObjtypeView = new gql.gqlObjectTypeView(otype.typeview);
-                // console.log('394 modifiedTypeViews', gqlObjtypeView);
+                // console.log('438 modifiedTypeViews', gqlObjtypeView);
                 modifiedTypeViews.push(gqlObjtypeView);
 
                 const loc  = part.loc;
                 const size = part.size;
                 const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
                 const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
-                console.log('400 modifiedTypeGeos', gqlObjtypeGeo);
+                console.log('445 modifiedTypeGeos', gqlObjtypeGeo);
                 modifiedTypeGeos.push(gqlObjtypeGeo);
               }
             } else // object

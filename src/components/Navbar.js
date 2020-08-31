@@ -4,6 +4,7 @@ import { FaUser } from 'react-icons/fa';
 
 const Navbar = (props) => (
 	
+	
 	// <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
 	// <nav className="navbar sticky-top navbar-expand-md bg-white py-1">
 	// navbar-expand{-sm|-md|-lg|-xl}
@@ -71,6 +72,7 @@ const Navbar = (props) => (
 					<span className="navbar-toggler-icon float-right"></span>
 				</button>
 			</div>
+			<div><pre>{props}</pre></div>
 		</div>
 	</nav>
 );

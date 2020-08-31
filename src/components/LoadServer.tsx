@@ -10,7 +10,7 @@ import SaveModelData from './utils/SaveModelData'
 // import { FaJoint } from 'react-icons/fa';
 
 const SelectSource = (props: any) => {
-  console.log('12 LoadServer', props);
+  // console.log('12 LoadServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -18,9 +18,9 @@ const SelectSource = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
-  const modelNames = props.ph.phData?.metis?.models.map(mn => <span>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => <span>{mn.name} | </span>)
-  console.log('20 LoadLocal', modelNames, metamodelNames);
+  const modelNames = props.ph?.phData?.metis?.models.map(mn => <span>{mn.name} | </span>)
+  const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => <span>{mn.name} | </span>)
+  // console.log('20 LoadLocal', modelNames, metamodelNames);
 
   function handleSaveModelStore() {
     // saving current model and metamodel

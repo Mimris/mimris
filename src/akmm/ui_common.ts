@@ -457,6 +457,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
             if (objview) {
                 objview.loc = sel.loc;
                 objview.size = sel.size;
+                objview.modified = true;
                 const group = getGroupByLocation(goModel, objview.loc);
                 if (group) {
                     objview.group = group.objectview.id;
@@ -465,7 +466,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
                     objview.group = "";
                     node.group = "";
                 }
-                // console.log('439 Moved node', node, objview)
+                // console.log('469 Moved node', node, objview)
                 const modNode = new gql.gqlObjectView(objview);
                 nodes.push(modNode);
             }
@@ -675,16 +676,26 @@ export function createRelationship(data: any, context: any) {
         const toType   = toNode.objecttype;
         const choices  = [];
         if ((myMetis) && (fromType && toType)) {
+            let defText = "";
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
             if (reltypes) {
                 for (let i=0; i<reltypes.length; i++) {
                     const rtype = reltypes[i];
                     choices.push(rtype.name);  
+                    if (rtype.name === 'isRelatedTo')
+                        defText = rtype.name;
+                }
+                if (choices.length == 1) defText = choices[0];
+                typename = prompt('Enter type name, one of ' + choices, defText);
+                for (let i=0; i<reltypes.length; i++) {
+                    const rtype = reltypes[i];
+                    if (rtype.name === typename) {
+                        reltype = rtype;
+                        break;
+                    }
                 }
             }
         }
-        typename = prompt('Enter type name, one of ' + choices);
-        reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
     } 
     if (!reltype) {
         alert("Relationship type given does not exist!")

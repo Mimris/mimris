@@ -284,6 +284,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       }
                       objtypeGeo.setLoc(data.loc);
                       objtypeGeo.setSize(data.size);
+                      objtypeGeo.setModified();
                       // console.log('272 objtypeGeo', objtypeGeo);
                       const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
                       // console.log('279 modifiedTypeGeos', gqlObjtypeGeo);
@@ -318,37 +319,54 @@ class GoJSApp extends React.Component<{}, AppState> {
               const key  = data.key;
               const typename = data.type;
               if (typename === 'Object type') {
-                // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
+                // console.log('321 myMetamodel', context.myMetamodel);  
                 const objtype = context.myMetis.findObjectType(data.objtype.id);
                 if (objtype) {
-                  objtype.deleted = deletedFlag;
-                  const gqlObjtype = new gql.gqlObjectType(objtype, true);
-                  modifiedTypeNodes.push(gqlObjtype);
-                  console.log('326 modifiedTypeNodes', modifiedTypeNodes);
-                  let objtypeview = objtype.typeview;
-                  if (objtypeview) {
-                      objtypeview.deleted = deletedFlag;
-                      const gqlObjtypeView = new gql.gqlObjectTypeView(objtypeview);
-                      modifiedTypeViews.push(gqlObjtypeView);
-                      console.log('332 modifiedTypeViews', modifiedTypeViews);
+                  // Check if objtype instances exist
+                  if (context.myModel.getObjectsByType(objtype, false)) {
+                      alert('Objects of type ' + objtype.name + ' exist - Deletion is not allowed!');
+                  } else {
+                    objtype.deleted = deletedFlag;
+                    const gqlObjtype = new gql.gqlObjectType(objtype, true);
+                    modifiedTypeNodes.push(gqlObjtype);
+                    console.log('332 modifiedTypeNodes', modifiedTypeNodes);
+                    let objtypeview = objtype.typeview;
+                    if (objtypeview) {
+                        objtypeview.deleted = deletedFlag;
+                        const gqlObjtypeView = new gql.gqlObjectTypeView(objtypeview);
+                        modifiedTypeViews.push(gqlObjtypeView);
+                        console.log('338 modifiedTypeViews', modifiedTypeViews);
+                    }
+                    const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
+                    if (geo) {
+                        geo.deleted = deletedFlag;
+                        const gqlObjtypegeo = new gql.gqlObjectTypegeo(geo);
+                        modifiedTypeGeos.push(gqlObjtypegeo);
+                        console.log('345 modifiedTypeGeos', modifiedTypeGeos);
+                    }
                   }
                 }
               }
               if (typename === 'Relationship type') {
-                // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
+                // console.log('350 myMetamodel', context.myMetamodel);  
                 const reltype = context.myMetis.findRelationshipType(data.reltype.id);
                 if (reltype) {
+                  // Check if objtype instances exist
+                  if (context.myModel.getRelationshipsByType(reltype)) {
+                    alert('Relationships of type ' + reltype.name + ' exist - Deletion is not allowed!');
+                    break;
+                  }
                   reltype.deleted = deletedFlag;
                   //uic.deleteRelationshipType(reltype, deletedFlag);
                   const gqlReltype = new gql.gqlRelationshipType(reltype, true);
                   modifiedTypeLinks.push(gqlReltype);
-                  console.log('343 modifiedTypeLinks', modifiedTypeLinks);
+                  console.log('362 modifiedTypeLinks', modifiedTypeLinks);
                   let reltypeview = reltype.typeview;
                   if (reltypeview) {
                       reltypeview.deleted = deletedFlag;
                       const gqlReltypeView = new gql.gqlRelshipTypeView(reltypeview);
                       modifiedTypeViews.push(gqlReltypeView);
-                      console.log('348 modifiedTypeViews', modifiedTypeViews);
+                      console.log('368 modifiedTypeViews', modifiedTypeViews);
                   }
                 }
               }

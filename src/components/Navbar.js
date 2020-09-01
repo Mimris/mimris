@@ -71,6 +71,7 @@ const Navbar = (props) => (
 					<span className="navbar-toggler-icon float-right"></span>
 				</button>
 			</div>
+			{/* <div><pre>{props}</pre></div> */}
 		</div>
 	</nav>
 );

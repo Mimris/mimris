@@ -1137,7 +1137,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         return image
       } else if (image.includes('/')) { // its a local image
         return image
-      } else if (image.includes('.') === false) {
+      } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
         const firstcharacter = image.substring(0, 1)
         const secondcharacter = image.substring(1, 2)
         // console.log('1099 Diagram', firstcharacter, secondcharacter)    

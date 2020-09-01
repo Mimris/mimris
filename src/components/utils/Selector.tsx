@@ -11,7 +11,7 @@ const Selector = ( props: any ) => {
 
   const type = props.type
   let selArray = props.selArray
-  console.log('14 Selector', props);
+  // console.log('14 Selector', props);
   
   // if (selArray.length === 1) selArray = [...selArray,...selArray]
   const handleChange = (event: any) => {
@@ -22,7 +22,7 @@ const Selector = ( props: any ) => {
     // console.log('13 selector', data, type);
     dispatch({ type: type, data })
   }
-  console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
+  // console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
   const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
   
   const options = selArray && [

@@ -55,18 +55,18 @@ const SaveModelData =  async (modeldata) => {
         method: 'GET',
         // mode: 'no-cors',
         headers: {
-        // // "Access-Control-Allow-Origin": "*",
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        // // 'Cookie': `_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
-        // // "Access-Control-Allow-Credentials": 'include',
+        //   // "Access-Control-Allow-Origin": "*",
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        //   // 'Cookie': `_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+        //   // "Access-Control-Allow-Credentials": 'include',
         },
         // credentials: 'include'
         // body: modelData
       }
-    ).then(res => {console.log('68 Reboot res', res)})      // console.log('50', res)
-      // const metis = await res.clone().json()
-      // console.log('63 Saga', 'metis');
+    ).then(res => {console.log('68 Reboot res', res)})
+
+
       // yield put(loadDataSuccess({ metis }))
   } catch (err) {
     console.log('72 saga', err);

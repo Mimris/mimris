@@ -11,7 +11,7 @@ const TargetMeta = (props) => {
   const gojstypes = props.gojsTargetMetamodel
 
   // /** Toggle divs */
-  const [visiblePalette, setVisiblePalette] = useState(true)
+  const [visiblePalette, setVisiblePalette] = useState(false)
   function togglePalette() { setVisiblePalette(!visiblePalette); }
 
   const [refresh, setRefresh] = useState(true)

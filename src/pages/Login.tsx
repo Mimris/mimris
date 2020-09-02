@@ -105,7 +105,6 @@ const page = (props: any) => {
       </div>
   console.log('110', props.phUser.focusUser);
 
-
   return ((!message)
     ? <><Layout user={props.phUser.focusUser} > {loginDiv}</Layout></>
     : <><Layout user={props.phUser.focusUser} > {signupDiv}</Layout></>);

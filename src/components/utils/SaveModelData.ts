@@ -51,7 +51,6 @@ const SaveModelData =  async (modeldata) => {
       }
     ).then(res => {console.log('51 SaveModelData res', res)})
     await fetch(`${localhost}system/reboot/`,
-
       {
         method: 'GET',
         // mode: 'no-cors',

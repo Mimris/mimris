@@ -208,6 +208,7 @@ export class goMetaObject {
     type: any;
     parentModel: goModel | null;
     data: any;
+    deletable: boolean;
     constructor(key: string) {
         this.class = this.constructor.name;
         this.parentModel = null;
@@ -216,6 +217,7 @@ export class goMetaObject {
         this.type = null;
         this.name = "";
         this.data = new Array();
+        this.deletable = true;
     }
     // Methods
     getClass() {

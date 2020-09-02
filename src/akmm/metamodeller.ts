@@ -3705,12 +3705,29 @@ export class cxModel extends cxMetaObject {
     getObjects() {
         return this.objects;
     }
+    getObjectsByType(objtype: cxObjectType, includeSubTypes: boolean) {
+        let objects = new Array();
+        if (this.objects) {
+            for (let i = 0; i < this.objects.length; i++) {
+                let obj = this.objects[i];
+                if (obj && !obj.deleted) {
+                    let type = obj.getType();
+                    if (type && type.getId() === objtype.getId()) 
+                        objects.push(obj);
+                }
+            }
+            if (includeSubTypes) {
+                // get list of subtypes
+            }
+        }
+        return objects;
+    }
     getObjectsByTypename(objtypeName: string, includeSubTypes: boolean) {
         let objects = new Array();
         if (this.objects) {
             for (let i = 0; i < this.objects.length; i++) {
                 let obj = this.objects[i];
-                if (obj) {
+                if (obj && !obj.deleted) {
                     let type = obj.getType();
                     if (type && type.getName() === objtypeName)
                         objects.push(obj);
@@ -3724,6 +3741,23 @@ export class cxModel extends cxMetaObject {
     }
     getRelationships() {
         return this.relships;
+    }
+    getRelationshipsByType(reltype: cxRelationshipType, includeSubTypes: boolean) {
+        let relships = new Array();
+        if (this.relships) {
+            for (let i = 0; i < this.relships.length; i++) {
+                let rel = this.relships[i];
+                if (rel && !rel.deleted) {
+                    let type = rel.getType();
+                    if (type && type.getId() === reltype.getId()) 
+                    relships.push(rel);
+                }
+            }
+            if (includeSubTypes) {
+                // get list of subtypes
+            }
+        }
+        return relships;
     }
     getSubmodels() {
         return this.submodels;

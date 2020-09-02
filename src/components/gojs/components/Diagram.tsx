@@ -251,7 +251,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
 
     // A Context Menu is an Adornment with a bunch of buttons in them
-    // Parts context menu
+    // Nodes context menu
     if (true) {
       var partContextMenu =
         $(go.Adornment, "Vertical",
@@ -346,7 +346,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
-            function (o: any) { return o.diagram.commandHandler.canCutSelection(); }),
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.class === 'goObjectTypeNode') {
+                return false;
+              }
+              return o.diagram.commandHandler.canCutSelection(); 
+            }),
           makeButton("Copy",
             function (e: any, obj: any) { e.diagram.commandHandler.copySelection(); },
             function (o: any) { 
@@ -376,7 +382,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) {
               e.diagram.commandHandler.deleteSelection();
             },
-            function (o: any) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            function (o: any) { 
+              const node = o.part.data;
+              console.log('381 Delete', node);
+              console.log('382 Delete', myDiagram.myMetis);
+              //console.log('383 Delete', node);
+              if (node.class === 'goObjectTypeNode') {
+                  const objtype = node.objtype;
+                  const myModel = myDiagram.myMetis.currentModel;
+                  console.log('386 Delete', myModel);
+                  console.log('387 Delete', objtype);
+                  const objects = myModel.getObjectsByType(objtype, false);
+                  console.log('390 Delete', objects);
+                  if (objects) {
+                    console.log('390 Delete', 'Objects found');
+                    return false;
+                  } else {
+                      console.log('393 Delete', 'No objects found');
+                      return o.diagram.commandHandler.canDeleteSelection(); 
+                    }
+              } else {
+                    console.log('396 Can Delete');
+                    return o.diagram.commandHandler.canDeleteSelection(); 
+              }
+            }),
           makeButton("Delete View",
             function (e: any, obj: any) {
               myMetis.deleteViewsOnly = true;
@@ -521,7 +550,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Cut",
             function (e, obj) { e.diagram.commandHandler.cutSelection(); },
-            function (o) { return o.diagram.commandHandler.canCutSelection(); }),
+            function (o) { 
+              return false;
+              //return o.diagram.commandHandler.canCutSelection(); 
+            }),
           makeButton("Delete",
             function (e, obj) {
               e.diagram.commandHandler.deleteSelection();
@@ -552,7 +584,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    // provide a context menu for the background of the Diagram, when not over any Part
+    // A context menu for the background of the Diagram, when not over any Part
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
@@ -667,11 +699,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    // define a Node template
+    // Define a Node template
     let nodeTemplate;
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+          new go.Binding("deletable"),
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
           {
             toolTip:
@@ -768,11 +801,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    // dwfine a link template
+    // Define a link template
     let linkTemplate;
     if (true) {
       linkTemplate =
         $(go.Link,
+          new go.Binding("deletable"),
           new go.Binding('relinkableFrom', 'canRelink').ofModel(),
           new go.Binding('relinkableTo', 'canRelink').ofModel(),
           {

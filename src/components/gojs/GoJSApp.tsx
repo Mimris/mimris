@@ -732,7 +732,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 
-    // console.log('544 modifiedRelships', modifiedRelships);
+    console.log('544 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })

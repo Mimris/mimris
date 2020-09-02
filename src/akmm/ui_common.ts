@@ -658,7 +658,7 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    //console.log('641 createRelationship', data);
+    console.log('641 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetamodel = context.myMetamodel;
@@ -666,6 +666,7 @@ export function createRelationship(data: any, context: any) {
     //data.key = utils.createGuid();
     let fromNode = myGoModel.findNode(data.from);
     let toNode = myGoModel.findNode(data.to);
+    console.log('669 createRelationship', fromNode, toNode);
     if (!toNode)
         return;
     let typename = 'isRelatedTo' as string | null;
@@ -755,6 +756,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     myDiagram.model.setDataProperty(data, "name", relshipname);
     const relshipview = createLink(data, context);
     relshipview?.setTypeView(reltypeview);
+    relshipview?.setModified();
     console.log('731 pasteRelationship', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
@@ -978,6 +980,7 @@ export function setRelationshipType(data: any, typename: string, context: any) {
 }
 
 export function createLink(data: any, context: any): any {
+    // Creates both relship and relship view
     if (!data.key)
         data.key = utils.createGuid();
     const myMetis = context.myMetis;

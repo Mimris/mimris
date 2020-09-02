@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
+import TargetMeta from "./TargetMeta";
 import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoadLocal from '../components/LoadLocal'
@@ -39,6 +40,8 @@ const page = (props:any) => {
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
+  let gojstargetmetamodelpalette = props.phGojs?.gojsTargetMetamodelPalette // this is the generated target metamodel
+  let gojstargetmetamodel = null //props.phGojs?.gojsTargetMetamodel 
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
   let metis = props.phData?.metis
@@ -159,12 +162,28 @@ const page = (props:any) => {
                  </div> */}
               </div>
               </Col>
-              <Col style={{ paddingLeft: "1px", marginLeft: "1px"}}>
-              <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+            <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
+                    myMetis={myMetis}
+                    myGoModel={myGoModel}
+                    myGoMetamodel={myGoMetamodel}
+                    metis={metis}
+                    phFocus={phFocus}
+                    dispatch={dispatch}
+                    modelType='model'
+                  />
+                </div>
+              </Col>
+              <Col xs="auto m-0 p-0 pr-0">
+                <div className="myTargetMeta pl-0 mb-1 pt-2 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+                  <TargetMeta
+                    gojsModel={gojsmodel}
+                    gojsMetamodel={gojsmetamodel}
+                    gojsTargetMetamodel={gojstargetmetamodel}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     myGoMetamodel={myGoMetamodel}

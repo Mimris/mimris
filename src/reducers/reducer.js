@@ -894,7 +894,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_RELSHIP_PROPERTIES:
-      console.log('685 UPDATE_RELSHIP_PROPERTIES', action);
+      console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
       const curmr = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexr = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
 

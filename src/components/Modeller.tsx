@@ -40,10 +40,10 @@ const Modeller = (props: any) => {
   //   selmodelviews = selmods?.modelviews?.map((m: any) => m)
   // }, [modelviews])
   useEffect(() => {
-    console.log('34 Modeller', focusModel.name, focusModelview.name);
+    // console.log('34 Modeller', focusModel.name, focusModelview.name);
     focusModel = props.phFocus?.focusModel
     focusModelview = props.phFocus?.focusModelview
-    console.log('37 Modeller', focusModel.name, focusModelview.name);
+    // console.log('37 Modeller', focusModel.name, focusModelview.name);
   }, [models, modelviews])
   // console.log('37 Modeller', selmodels);
   // console.log('23 Modeller myMetis', props.myMetis);

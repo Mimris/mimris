@@ -4642,6 +4642,13 @@ export class cxObjectView extends cxMetaObject {
             return this.groupLayout;
         return "";
     }
+    // To be done ??
+    // getGroupMembers() {
+    //     const members = new Array();
+    //     if (this.isGroup) {
+    //         const groupId = this.id;
+    //     }
+    // }
     setParent(parent: string) {
         this.parent = parent;
     }

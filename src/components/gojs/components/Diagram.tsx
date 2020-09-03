@@ -384,26 +384,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) { 
               const node = o.part.data;
-              console.log('381 Delete', node);
-              console.log('382 Delete', myDiagram.myMetis);
               //console.log('383 Delete', node);
               if (node.class === 'goObjectTypeNode') {
-                  const objtype = node.objtype;
-                  const myModel = myDiagram.myMetis.currentModel;
-                  console.log('386 Delete', myModel);
-                  console.log('387 Delete', objtype);
-                  const objects = myModel.getObjectsByType(objtype, false);
-                  console.log('390 Delete', objects);
-                  if (objects) {
-                    console.log('390 Delete', 'Objects found');
-                    return false;
-                  } else {
-                      console.log('393 Delete', 'No objects found');
-                      return o.diagram.commandHandler.canDeleteSelection(); 
-                    }
+                  return o.diagram.commandHandler.canDeleteSelection();                
+                  // const objtype = node.objtype;
+                  // const myModel = myDiagram.myMetis.currentModel;
+                  // console.log('386 Delete', myModel);
+                  // console.log('387 Delete', objtype);
+                  // const objects = myModel.getObjectsByType(objtype, false);
+                  // console.log('390 Delete', objects);
+                  // if (objects) {
+                  //   console.log('390 Delete', 'Objects found');
+                  //   return false;
+                  // } else {
+                  //     console.log('393 Delete', 'No objects found');
+                  //     return o.diagram.commandHandler.canDeleteSelection(); 
+                  //  }
               } else {
-                    console.log('396 Can Delete');
-                    return o.diagram.commandHandler.canDeleteSelection(); 
+                  return o.diagram.commandHandler.canDeleteSelection(); 
               }
             }),
           makeButton("Delete View",
@@ -421,8 +419,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               } else {
                 return false;
               }
-              //return false;
-              return o.diagram.commandHandler.canDeleteSelection(); 
             }),
           // makeButton("Undo",
           //   function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
@@ -430,18 +426,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           // makeButton("Redo",
           //   function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
           //   function (o: any) { return o.diagram.commandHandler.canRedo(); }),
-          makeButton("Group",
-            function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
-            function (o: any) { 
-              return false;
-              return o.diagram.commandHandler.canGroupSelection(); 
-            }),
-          makeButton("Ungroup",
-            function (e: any, obj: any) { e.diagram.commandHandler.ungroupSelection(); },
-            function (o: any) { 
-              return false;
-              return o.diagram.commandHandler.canUngroupSelection(); 
-            })
+          // makeButton("Group",
+          //   function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
+          //   function (o: any) { 
+          //     return false;
+          //     return o.diagram.commandHandler.canGroupSelection(); 
+          //   }),
+          // makeButton("Ungroup",
+          //   function (e: any, obj: any) { e.diagram.commandHandler.ungroupSelection(); },
+          //   function (o: any) { 
+          //     return false;
+          //     return o.diagram.commandHandler.canUngroupSelection(); 
+          //   })
         );
     }
 
@@ -549,7 +545,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               return false;
             }),
           makeButton("Cut",
-            function (e, obj) { e.diagram.commandHandler.cutSelection(); },
+            function (e, obj) { 
+              e.diagram.commandHandler.cutSelection(); 
+            },
             function (o) { 
               return false;
               //return o.diagram.commandHandler.canCutSelection(); 
@@ -558,7 +556,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e, obj) {
               e.diagram.commandHandler.deleteSelection();
             },
-            function (o) { return o.diagram.commandHandler.canDeleteSelection(); }),
+            function (o) { 
+              return o.diagram.commandHandler.canDeleteSelection(); 
+            }),
           makeButton("Delete View",
             function (e, obj) {
               myMetis.deleteViewsOnly = true;

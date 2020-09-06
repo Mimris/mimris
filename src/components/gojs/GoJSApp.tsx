@@ -508,7 +508,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (typename === 'Object type') {
                   const myNode = this.getNode(context.myGoMetamodel, key);
                   // console.log('449 GoJSApp', myNode.objtype);  
-                  if (myNode.objtype) {
+                  if (myNode && myNode.objtype) {
                     const gqlNode = new gql.gqlObjectType(myNode.objtype, true);
                     selectedObjectTypes.push(gqlNode);
                     // console.log('453 GoJSApp', selectedObjectTypes);

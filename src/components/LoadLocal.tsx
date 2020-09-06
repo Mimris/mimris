@@ -1,5 +1,5 @@
 // @ts-snocheck
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useDispatch } from 'react-redux'
 // import { loadData } from '../actions/actions'
@@ -30,14 +30,16 @@ const LoadLocal = (props: any) => {
   // }
 
   // const [state, setState] = useLocalStorage('state',  window.localStorage.getItem('state') || null);
-  const [locState, setLocState] = useLocalStorage('state',  null);
-   
-  // console.log('25 LoadLocal', state);
-  function handleDispatchStoreFromLocal() {  // Set storeFromLocal
+  const [locState, setLocState] = useLocalStorage('state', null);
+
+  // console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
+  function handleDispatchToStoreFromLocal() {  // Set storeFromLocal
     // const locState = state
-    const phData = locState?.phData
-    const phFocus = locState?.phFocus
-    const phUser = locState?.phUser
+    console.log('38 LoadLocal', props);
+    
+    const phData = props.ph?.phData
+    const phFocus = props.ph?.phFocus
+    const phUser = props.ph?.phUser
     const phSource = 'localStore' //locState.sourceFlag
     if (locState) {
       console.log('91 SelectSource', locState);
@@ -108,7 +110,7 @@ const LoadLocal = (props: any) => {
   
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right w-50" onClick={handleSaveToLocalStore} > Save all to localStorage </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchStoreFromLocal} > Load all from localStorage </button >
+  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchToStoreFromLocal} > Load all from localStorage </button >
   const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentToLocalStore} > Add current model to localStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);

@@ -4643,12 +4643,20 @@ export class cxObjectView extends cxMetaObject {
         return "";
     }
     // To be done ??
-    // getGroupMembers() {
-    //     const members = new Array();
-    //     if (this.isGroup) {
-    //         const groupId = this.id;
-    //     }
-    // }
+    getGroupMembers(modelView: cxModelView) {
+        const members = new Array();
+        if (this.isGroup) {
+            const groupId = this.id;
+            const objviews = modelView.getObjectViews();
+            for (let i=0; i<objviews?.length; i++) {
+                const objview = objviews[i];
+                if (objview.group === groupId) {
+                    members.push(objview);
+                }
+            }
+        }
+        return members;
+    }
     setParent(parent: string) {
         this.parent = parent;
     }

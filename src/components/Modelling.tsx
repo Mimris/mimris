@@ -13,24 +13,66 @@ import TargetMeta from "./TargetMeta";
 import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoadLocal from '../components/LoadLocal'
-import {getLocalStorage} from './GetSetLocalStorage'
+import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModel from '../components/EditFocusModel'
 import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
 
-  // console.log('17 Modelling', props);
+  console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
   // const setRefresh = props.setRefresh
-  function toggleRefresh() { setRefresh(!refresh); }
+  const [locState, setLocState] = useLocalStorage('state', props);
+
+
+  function toggleRefresh() { 
+    // first find current model which is in reduxStore
+    let reduxmod = props.phData?.metis?.models?.find(m => m.id === focusModel?.id) // current model index
+    let curmindex = locState.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
+    // find lenght of modellarray in lodalStore
+    const curmlength = locState.phData.metis.models?.length
+    if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
+    // then find metamodel which is in reduxStore
+    let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current model index
+    let curmmindex = locState.phData?.metis?.models?.findIndex(mm => mm?.id === reduxmod?.id) // current model index
+    // then find lenght of modellarray in lodalStore
+    const curmmlength = locState.phData.metis.metamodels?.length
+    if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
+    console.log('73 LoadLocal', curmindex, reduxmod);
+    const data = {
+      phData: {
+        ...locState.phData,
+        metis: {
+          ...locState.phData.metis,
+          models: [
+            ...locState.phData.metis.models.slice(0, curmindex),
+            reduxmod,
+            ...locState.phData.metis.models.slice(curmindex + 1),
+          ],
+          metamodels: [
+            ...locState.phData.metis.models.slice(0, curmmindex),
+            reduxmmod,
+            ...locState.phData.metis.models.slice(curmmindex + 1),
+          ]
+        },
+      },
+      phFocus: props.phFocus,
+      phUser: props.phUser,
+      phSource: 'localStore'
+    };
+    console.log('59 LoadLocal', reduxmod, data);
+    (reduxmod) && setLocState(data)
+    // setLocState(data) 
+    setRefresh(!refresh); 
+  }
   
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
-  const focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
-  const focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
+  let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
+  let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
   const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
   const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
   const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
@@ -51,17 +93,25 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
 
-    
     useEffect(() => {
       // console.log('38 Diagram state', props ); 
       setRefresh(!refresh)
       genGojsModel(props, dispatch);
+      focusModel = props.phFocus?.focusModel
     }, [focusModel?.id])
+
+    useEffect(() => {
+      // console.log('38 Diagram state', props ); 
+      // setRefresh(!refresh)
+      // genGojsModel(props, dispatch);
+      gojsmodel = props.phFocus?.focusModel
+    }, [props.phFocus?.focusModel])
     
     useEffect(() => {
       // console.log('42 Diagram state', props ); 
       setRefresh(!refresh)
       genGojsModel(props, dispatch);
+      focusModel = props.phFocus?.focusModel
     }, [focusModelview?.id])
 
     useEffect(() => {

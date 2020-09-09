@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import GoJSApp from "./gojs/GoJSApp";
 import Selector from './utils/Selector'
 
+
 const Modeller = (props: any) => {
   // console.log('8 Modeller', props);
   let prevgojsmodel = null

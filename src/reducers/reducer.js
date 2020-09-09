@@ -46,6 +46,7 @@ import {
   UPDATE_OBJECTVIEW_NAME
 } from '../actions/types';
 
+
 import InitStateJson from './InitialState.json'
 
 const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
@@ -79,6 +80,7 @@ let focusCollection
 
 
 function reducer(state = InitialState, action) {
+  
   switch (action.type) {
     case FAILURE:
       return {

@@ -57,12 +57,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('53 GenGojsModel myMetamodel :', myMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
-      // console.log('56 myMetamodelPalette', myMetamodelPalette);
+      console.log('56 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
-      // console.log('58 myGoMetamodel', myGoMetamodel);
+      console.log('58 myGoMetamodel', myGoMetamodel);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
-      // console.log('61 myPalette', myPalette);
+      console.log('61 myPalette', myPalette);
       let myModelView = (curmodview) && myMetis?.findModelView(curmodview?.id);
       if (!myModelView) myModelView = myMetis?.findModelView(focusModelview?.id);
       // console.log('63 GenGojsModel  myModel', myMetis, myModel, myModelView);

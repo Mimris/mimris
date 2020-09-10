@@ -1,5 +1,5 @@
 // @ts-snocheck
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useDispatch } from 'react-redux'
 // import { loadData } from '../actions/actions'
@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux'
 import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
+import genGojsModel from './GenGojsModel'
 
 const LoadLocal = (props: any) => {
 
@@ -15,8 +16,8 @@ const LoadLocal = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
 
-  const modelNames = props.ph.phData?.metis?.models.map(mn => <span>{mn.name} | </span>)
-  const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => <span>{mn.name} | </span>)
+  const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
+  const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => <span key={mn.id}>{mn.name} | </span>)
   // console.log('20 LoadLocal',  modelNames, metamodelNames);
   
   // try {  
@@ -30,14 +31,16 @@ const LoadLocal = (props: any) => {
   // }
 
   // const [state, setState] = useLocalStorage('state',  window.localStorage.getItem('state') || null);
-  const [locState, setLocState] = useLocalStorage('state',  null);
-   
-  // console.log('25 LoadLocal', state);
-  function handleDispatchStoreFromLocal() {  // Set storeFromLocal
-    // const locState = state
-    const phData = locState?.phData
-    const phFocus = locState?.phFocus
-    const phUser = locState?.phUser
+  const [locState, setLocState] = useLocalStorage('state', null);
+  let locStatus = false
+  // console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
+  function handleDispatchToStoreFromLocal() {  // Set storeFromLocal
+    locStatus = true
+    console.log('38 LoadLocal', locState);
+    
+    const phData = locState.phData
+    const phFocus = locState.phFocus
+    const phUser = locState.phUser
     const phSource = 'localStore' //locState.sourceFlag
     if (locState) {
       console.log('91 SelectSource', locState);
@@ -52,7 +55,13 @@ const LoadLocal = (props: any) => {
     }
   }
 
-  function handleSaveToLocalStore() {
+  useEffect(() => {
+    console.log('63 LoadLocal', props);
+    genGojsModel(props, dispatch);
+    // setRefresh(!refresh)
+  }, [locStatus])
+
+  function handleSaveAllToLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});
     // console.log('72 SelectSource', state, props.ph);
     const data = {
@@ -66,7 +75,7 @@ const LoadLocal = (props: any) => {
     // console.log('62 LoadLocal', state);
   }
 
-  function handleSaveCurrentToLocalStore() {
+  function handleSaveCurrentModelToLocalStore() {
     // first find current model which is in reduxStore
     let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
     let curmindex = locState.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
@@ -107,9 +116,9 @@ const LoadLocal = (props: any) => {
   }
   
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right w-50" onClick={handleSaveToLocalStore} > Save all to localStorage </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchStoreFromLocal} > Load all from localStorage </button >
-  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentToLocalStore} > Add current model to localStorage </button >
+  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right w-50" onClick={handleSaveAllToLocalStore} > Save all to localStorage </button >
+  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchToStoreFromLocal} > Load all from localStorage </button >
+  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentModelToLocalStore} > Add current model to localStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -127,7 +136,6 @@ const LoadLocal = (props: any) => {
         </div>
       </div>
     </>
-
 
   return (
     <>

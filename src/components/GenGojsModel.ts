@@ -22,7 +22,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   if (metis !== null) {
     let myMetis = null;
-    console.log('24 myMetis', glb.metis);
+    // console.log('24 myMetis', glb.metis);
     if (!glb.metis) {
       myMetis = new akm.cxMetis();
       myMetis.importData(metis, true);
@@ -38,7 +38,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis.pasteViewsOnly  = pasteViewsOnly
       // console.log('34 myMetis', myMetis);
     }
-    console.log('37 GenGojsModel myMetis', glb.metis);
+    // console.log('37 GenGojsModel myMetis', glb.metis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -51,23 +51,23 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
-      console.log('50 GengojsModel :', myModel);
+      // console.log('50 GengojsModel :', myModel);
       
       const myMetamodel = myModel?.metamodel;
-      console.log('53 GenGojsModel myMetamodel :', myMetamodel);
+      // console.log('53 GenGojsModel myMetamodel :', myMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
-      // console.log('56 myMetamodelPalette', myMetamodelPalette);
+      console.log('56 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
-      // console.log('58 myGoMetamodel', myGoMetamodel);
+      console.log('58 myGoMetamodel', myGoMetamodel);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
-      // console.log('61 myPalette', myPalette);
+      console.log('61 myPalette', myPalette);
       let myModelView = (curmodview) && myMetis?.findModelView(curmodview?.id);
       if (!myModelView) myModelView = myMetis?.findModelView(focusModelview?.id);
       // console.log('63 GenGojsModel  myModel', myMetis, myModel, myModelView);
       const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      console.log('70 myGoModel', myGoModel);
+      // console.log('70 myGoModel', myGoModel);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);

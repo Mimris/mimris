@@ -294,7 +294,7 @@ class GoJSPaletteTargetApp extends React.Component<{}, AppState> {
             checked={this.state.modelData.canRelink}
             onChange={this.handleRelinkChange} />
         </label> */}
-        {inspector}
+        {/* {inspector} */}
       </div>
     );
   }

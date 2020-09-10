@@ -1,18 +1,18 @@
 
 import { useDispatch } from 'react-redux';
-import { loadState } from '../../components/utils/LocalStorage'
+// import { loadState } from './LocalStorage'
 
 
-const DispatchLocalStore = () => {
+const DispatchFromLocalStore = (props) => {
   const dispatch = useDispatch()
-  const locState = loadState()
-  // console.log('9 modelling', locState);
-  if (loadState()) {
+  const locState = props
+  console.log('9 modelling', locState.phSource);
+  if (locState) {
     const phData = locState.phData
     const phFocus = locState.phFocus
     const phUser = locState.phUser
-    const phSource = locState.sourceFlag
-    // console.log('15 modelling', phData, phFocus, phUser, phSource);
+    const phSource = locState.phSource
+    console.log('15 modelling', phData, phFocus, phUser, phSource);
 
     if (phData && phFocus && phUser && phSource) {
       let data = phData
@@ -26,7 +26,7 @@ const DispatchLocalStore = () => {
     } 
   }
 } 
-export default DispatchLocalStore;
+export default DispatchFromLocalStore;
 
 
 

@@ -1,4 +1,4 @@
-// @ts -nocheck
+// @ts-nocheck
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
@@ -29,7 +29,7 @@ export function generateObjectType(metamodel, obj, objview) {
         parentType = obj.getType();
         // Connect objtype to parentType
         let reltypes = metamodel.findRelationshipTypesBetweenTypes(objtype, parentType, true);
-        if (reltypes)) {
+        if (reltypes) {
             for (let i=0; i<reltypes.length; i++) {
                 let reltype = reltypes[i];
                 if (reltype.getName() === 'IsA') {
@@ -85,7 +85,7 @@ export function generateObjectType(metamodel, obj, objview) {
             let datatype = metis.findDatatypeByName("string");
             prop.setDatatype(datatype);
         }
-        if (prop)) {
+        if (prop) {
             // Find datatype connected to current property
             let rels = proptype.findOutputRelships(myModel);
             if (!utils.isArrayEmpty(rels)) {

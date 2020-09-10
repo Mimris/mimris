@@ -22,20 +22,19 @@ const page = (props:any) => {
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
   // DispatchFromLocalStore(memoryLocState)
   // console.log('23 modelling', memoryLocState);
-
-  console.log('33 modelling', props);
   
-  if (props && props?.phSource === 'initialState' ) {
+  if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
   // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
   // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) {
-    // if (memoryLocState ) {
+    if (memoryLocState ) {
       // Save it!
       const memoryState = {
         ...memoryLocState,
         phSource: 'savedMemory'
       }
-      console.log('45', memoryState);
+      // console.log('35 modelling', memoryState);
       DispatchFromLocalStore(memoryState)
+    }
   }
 
   // if (!props.phData) {

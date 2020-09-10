@@ -141,9 +141,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         $(go.Diagram,
           {
             initialContentAlignment: go.Spot.Center,       // center the content
+            initialAutoScale: go.Diagram.Uniform,
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
-            initialAutoScale: go.Diagram.UniformToFill,
+            "initialAutoScale": go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
             'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
             // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts

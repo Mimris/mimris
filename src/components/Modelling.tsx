@@ -26,6 +26,7 @@ const page = (props:any) => {
   // const refresh = props.refresh
   // const setRefresh = props.setRefresh
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
+  if (!memoryLocState) {setMemoryLocState(props)}
   
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
@@ -74,37 +75,37 @@ const page = (props:any) => {
     useEffect(() => {
       console.log('63 Diagram state', props ); 
       genGojsModel(props, dispatch);
-      // setRefresh(!refresh)
+      setRefresh(!refresh)
     }, [props.phSource])
 
   function toggleRefresh() {
     // first find current model which is in reduxStore
     let reduxmod = props.phData?.metis?.models?.find(m => m.id === focusModel?.id) // current model index
-    let curmindex = memoryLocState.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
+    let curmindex = memoryLocState?.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
     // find lenght of modellarray in lodalStore
-    const curmlength = memoryLocState.phData.metis.models?.length
+    const curmlength = memoryLocState?.phData?.metis.models?.length
     if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     // then find metamodel which is in reduxStore
     let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current model index
-    let curmmindex = memoryLocState.phData?.metis?.models?.findIndex(mm => mm?.id === reduxmod?.id) // current model index
+    let curmmindex = memoryLocState?.phData?.metis?.models?.findIndex(mm => mm?.id === reduxmod?.id) // current model index
     // then find lenght of modellarray in lodalStore
-    const curmmlength = memoryLocState.phData.metis.metamodels?.length
+    const curmmlength = memoryLocState?.phData?.metis.metamodels?.length
     if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     console.log('73 LoadLocal', curmindex, reduxmod);
     const data = {
       phData: {
-        ...memoryLocState.phData,
+        ...memoryLocState?.phData,
         metis: {
-          ...memoryLocState.phData.metis,
+          ...memoryLocState?.phData?.metis,
           models: [
-            ...memoryLocState.phData.metis.models.slice(0, curmindex),
+            ...memoryLocState?.phData?.metis.models.slice(0, curmindex),
             reduxmod,
-            ...memoryLocState.phData.metis.models.slice(curmindex + 1),
+            ...memoryLocState?.phData?.metis.models.slice(curmindex + 1),
           ],
           metamodels: [
-            ...memoryLocState.phData.metis.models.slice(0, curmmindex),
+            ...memoryLocState?.phData?.metis.models.slice(0, curmmindex),
             reduxmmod,
-            ...memoryLocState.phData.metis.models.slice(curmmindex + 1),
+            ...memoryLocState?.phData?.metis.models.slice(curmmindex + 1),
           ]
         },
       },

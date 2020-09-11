@@ -38,7 +38,9 @@ import {
   UPDATE_OBJECTTYPE_PROPERTIES,
   UPDATE_OBJECTTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTTYPEGEOS_PROPERTIES,
-  UPDATE_RELSHIPTYPE_PROPERTIES,
+  UPDATE_DATATYPE_PROPERTIES,
+  UPDATE_PROPERTY_PROPERTIES,
+  UPDATE_VALUE_PROPERTIES,
   UPDATE_RELSHIPTYPEVIEW_PROPERTIES,
   UPDATE_OBJECT_PROPERTIES,
   UPDATE_RELSHIP_PROPERTIES,
@@ -745,7 +747,130 @@ function reducer(state = InitialState, action) {
             },
          },
       }
-
+      case UPDATE_DATATYPE_PROPERTIES:
+        // console.log('501 UPDATE_DATATYPE_PROPERTIES', action);
+        const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+        const curmmdot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.metamodelRef)
+        const curmmdindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.metamodelRef) 
+        const curdot = curmmdot?.objecttypes?.find(ot => ot.id === action?.data?.id)
+        const lengthotd = curmmdot?.objecttypes.length
+        let indexdot = curmmdot?.objecttypes?.findIndex(ot => ot.id === curdot?.id)
+        if (indexdot < 0) {indexdot = lengthotd} 
+        // console.log('607 reducer', lengthot, indexot);   
+        return {
+          ...state,
+          phData: {
+            ...state.phData,
+              metis: {
+              ...state.phData.metis,
+              metamodels: [
+                ...state.phData.metis.metamodels.slice(0, curmmdindexot),
+                {
+                  ...state.phData.metis.metamodels[curmmdindexot],
+                  objecttypes: [
+                    ...curmmdot?.objecttypes.slice(0, indexdot),
+                    {
+                      ...curmmdot?.objecttypes[indexdot],  
+                      id: action.data.id,           
+                      name: action.data.name,
+                      description: action.data.description,
+                      typeviewRef: action.data.typeviewRef,
+                      viewkind: action.data.viewkind,
+                      abstract: action.data.abstract,
+                      deleted: action.data.deleted,
+                      modified: action.data.modified,    
+                    },
+                    ...curmmdot?.objecttypes.slice(indexdot + 1)
+                  ]
+                },
+                ...state.phData.metis.metamodels.slice(curmmdindexot + 1),
+              ]
+            },
+          },
+        }
+      case UPDATE_PROPERTY_PROPERTIES:
+        // console.log('501 UPDATE_PROPERTY_PROPERTIES', action);
+        const curmoptot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+        const curmmpot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoptot.metamodelRef)
+        const curmmpindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoptot.metamodelRef) 
+        const curpot = curmmpot?.objecttypes?.find(ot => ot.id === action?.data?.id)
+        const lengthotp = curmmpot?.objecttypes.length
+        let indexpot = curmmpot?.objecttypes?.findIndex(ot => ot.id === curpot?.id)
+        if (indexpot < 0) {indexpot = lengthotp} 
+        // console.log('607 reducer', lengthot, indexot);   
+        return {
+          ...state,
+          phData: {
+            ...state.phData,
+              metis: {
+              ...state.phData.metis,
+              metamodels: [
+                ...state.phData.metis.metamodels.slice(0, curmmpindexot),
+                {
+                  ...state.phData.metis.metamodels[curmmpindexot],
+                  objecttypes: [
+                    ...curmmpot?.objecttypes.slice(0, indexpot),
+                    {
+                      ...curmmpot?.objecttypes[indexpot],  
+                      id: action.data.id,           
+                      name: action.data.name,
+                      description: action.data.description,
+                      typeviewRef: action.data.typeviewRef,
+                      viewkind: action.data.viewkind,
+                      abstract: action.data.abstract,
+                      deleted: action.data.deleted,
+                      modified: action.data.modified,    
+                    },
+                    ...curmmpot?.objecttypes.slice(indexpot + 1)
+                  ]
+                },
+                ...state.phData.metis.metamodels.slice(curmmpindexot + 1),
+              ]
+            },
+          },
+        }
+      case UPDATE_VALUE_PROPERTIES:
+        // console.log('501 UPDATE_VALUE_PROPERTIES', action);
+        const curmovptot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+        const curmmvpot    = state.phData?.metis?.metamodels?.find(m => m.id === curmovptot.metamodelRef)
+        const curmmvpindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmovptot.metamodelRef) 
+        const curvpot = curmmvpot?.objecttypes?.find(ot => ot.id === action?.data?.id)
+        const lengthotvp = curmmvpot?.objecttypes.length
+        let indexvpot = curmmvpot?.objecttypes?.findIndex(ot => ot.id === curvpot?.id)
+        if (indexvpot < 0) {indexvpot = lengthotvp} 
+        // console.log('607 reducer', lengthot, indexot);   
+        return {
+          ...state,
+          phData: {
+            ...state.phData,
+              metis: {
+              ...state.phData.metis,
+              metamodels: [
+                ...state.phData.metis.metamodels.slice(0, curmmvpindexot),
+                {
+                  ...state.phData.metis.metamodels[curmmvpindexot],
+                  objecttypes: [
+                    ...curmmvpot?.objecttypes.slice(0, indexpot),
+                    {
+                      ...curmmvpot?.objecttypes[indexpot],  
+                      id: action.data.id,           
+                      name: action.data.name,
+                      description: action.data.description,
+                      typeviewRef: action.data.typeviewRef,
+                      viewkind: action.data.viewkind,
+                      abstract: action.data.abstract,
+                      deleted: action.data.deleted,
+                      modified: action.data.modified,    
+                    },
+                    ...curmmvpot?.objecttypes.slice(indexvpot + 1)
+                  ]
+                },
+                ...state.phData.metis.metamodels.slice(curmmvpindexot + 1),
+              ]
+            },
+          },
+        }
+        
     case UPDATE_RELSHIPTYPE_PROPERTIES:
       console.log('501 UPDATE_RELSHIPTYPE_PROPERTIES', action);
       const curmodrt = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
@@ -861,39 +986,39 @@ function reducer(state = InitialState, action) {
       // const { id, ...rest } = (action.data)
       // const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
 
-      return {
-        ...state,
-        phData: {
-          ...state.phData,
-          metis: {
-            ...state.phData.metis,
-            models: [
-              ...state.phData.metis.models.slice(0, curmindexo),
-              {
-                ...state.phData.metis.models[curmindexo],
-                objects: [
-                  ...curmo.objects.slice(0, curoindexo),
-                  {
-                    ...curmo.objects[curoindexo],  
-                    id: action.data.id,
-                    name: action.data.name,
-                    description: action.data.description,
-                    typeRef: action.data.typeRef,
-                    // propertyValues: {
-                    //   ...curmo.objects[curoindexo]?.propertyValues,
-                    //   propertyValues: action.data.propertyValues,
-                    // },
-                    deleted: action.data.deleted,
-                    modified: action.data.modified,    
-                  },
-                  ...curmo.objects.slice(curoindexo + 1)
-                ],
-                ...state.phData.metis.models.slice(curmindexo + 1),
-              },
-            ],
-          },
-        }
+    return {
+      ...state,
+      phData: {
+        ...state.phData,
+        metis: {
+          ...state.phData.metis,
+          models: [
+            ...state.phData.metis.models.slice(0, curmindexo),
+            {
+              ...state.phData.metis.models[curmindexo],
+              objects: [
+                ...curmo.objects.slice(0, curoindexo),
+                {
+                  ...curmo.objects[curoindexo],  
+                  id: action.data.id,
+                  name: action.data.name,
+                  description: action.data.description,
+                  typeRef: action.data.typeRef,
+                  // propertyValues: {
+                  //   ...curmo.objects[curoindexo]?.propertyValues,
+                  //   propertyValues: action.data.propertyValues,
+                  // },
+                  deleted: action.data.deleted,
+                  modified: action.data.modified,    
+                },
+                ...curmo.objects.slice(curoindexo + 1)
+              ],
+              ...state.phData.metis.models.slice(curmindexo + 1),
+            },
+          ],
+        },
       }
+    }
 
     case UPDATE_RELSHIP_PROPERTIES:
       console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
@@ -943,11 +1068,6 @@ function reducer(state = InitialState, action) {
           },
         },
       }
-
-
-
-
-
 
     case UPDATE_OBJECTVIEW_NAME:
       // name and shortName

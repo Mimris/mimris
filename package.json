@@ -7,7 +7,7 @@
     "heroku-postbuild": "next build",
     "build": "tsc & next build",
     "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
-    "dev": "tsc --downlevelIteration & node --trace-warnings ./database-test.js & next -p ${PORT}",
+    "dev": "tsc --downlevelIteration & node --trace-warnings ./database-test.js & next -p 3000",
     "start": "tsc --downlevelIteration & node ./database-test.js & next build & next start -p ${PORT}",
     "dev2": "react-scripts start  & next -p 3000",
     "start2": "next start -p ${PORT}"

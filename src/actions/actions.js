@@ -36,6 +36,9 @@ import {
   UPDATE_OBJECTTYPE_PROPERTIES,
   UPDATE_OBJECTTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTTYPEGEOS_PROPERTIES,
+  UPDATE_DATATYPE_PROPERTIES,
+  UPDATE_PROPERTY_PROPERTIES,
+  UPDATE_VALUE_PROPERTIES,
   UPDATE_RELSHIPTYPE_PROPERTIES,
   UPDATE_RELSHIPTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTVIEW_PROPERTIES,
@@ -297,6 +300,27 @@ export const update_objecttypegeos_properties = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const update_property_properties = (data) => {
+  console.log('205 actions update_property_properties', data.payload);
+  return {
+    type: UPDATE_PROPERTY_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_datatype_properties = (data) => {
+  console.log('205 actions update_datatype_properties', data.payload);
+  return {
+    type: UPDATE_DATATYPE_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_value_properties = (data) => {
+  console.log('205 actions update_value_properties', data.payload);
+  return {
+    type: UPDATE_VALUE_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
 export const update_relshiptype_properties = (data) => {
   console.log('205 actions update_relshiptype_properties', data.payload);
   return {
@@ -311,7 +335,6 @@ export const update_relshiptypeviews_properties = (data) => {
     data: JSON.parse(data.value)
   }
 }
-
 
 export const update_object_properties = (data) => {
   console.log('205 actions update_object_properties', data.payload);
@@ -328,10 +351,6 @@ export const update_relship_properties = (data) => {
   }
 }
 
-
-
-
-
 export const update_objectview_name = (data) => {
   // console.log('76 action-object-edit-data', data.payload);
   return {
@@ -339,7 +358,6 @@ export const update_objectview_name = (data) => {
     data: JSON.parse(data.value)
   }
 }
-
 
 export const edit_object_properties = (data) => {
   // console.log('76 action-object-edit-data', data.payload);

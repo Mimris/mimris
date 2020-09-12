@@ -23,29 +23,30 @@ import * as gjs from './ui_gojs';
 // cxMetis
 
 export class cxMetis {
-    metamodels: cxMetaModel[] | null = null;
-    models: cxModel[] | null = null;
-    modelviews: cxModelView[] | null = null;
-    datatypes: cxDatatype[] | null = null;
-    enumerations: cxEnumeration[] | null = null;
-    units: cxUnit[] | null = null;
-    categories: cxUnitCategory[] | null = null;
-    properties: cxProperty[] | null = null;
-    objecttypes: cxObjectType[] | null = null;
-    relshiptypes: cxRelationshipType[] | null = null;
-    objecttypeviews: cxObjectTypeView[] | null = null;
-    objtypegeos: cxObjtypeGeo[] | null = null;
-    relshiptypeviews: cxRelationshipTypeView[] | null = null;
-    objects: cxObject[] | null = null;
-    relships: cxRelationship[] | null = null;
-    objectviews: cxObjectView[] | null = null;
-    relshipviews: cxRelationshipView[] | null = null;
-    gojsModel: gjs.goModel | null = null;
-    currentModelview: cxModelView | null = null;
-    currentModel: cxModel | null = null;
-    currentMetamodel: cxMetaModel | null = null;
-    pasteViewsOnly: boolean = false;
-    deleteViewsOnly: boolean = false;
+    metamodels:         cxMetaModel[] | null = null;
+    models:             cxModel[] | null = null;
+    modelviews:         cxModelView[] | null = null;
+    datatypes:          cxDatatype[] | null = null;
+    enumerations:       cxEnumeration[] | null = null;
+    units:              cxUnit[] | null = null;
+    categories:         cxUnitCategory[] | null = null;
+    properties:         cxProperty[] | null = null;
+    objecttypes:        cxObjectType[] | null = null;
+    relshiptypes:       cxRelationshipType[] | null = null;
+    objecttypeviews:    cxObjectTypeView[] | null = null;
+    objtypegeos:        cxObjtypeGeo[] | null = null;
+    relshiptypeviews:   cxRelationshipTypeView[] | null = null;
+    objects:            cxObject[] | null = null;
+    relships:           cxRelationship[] | null = null;
+    objectviews:        cxObjectView[] | null = null;
+    relshipviews:       cxRelationshipView[] | null = null;
+    gojsModel:          gjs.goModel | null = null;
+    currentModelview:   cxModelView | null = null;
+    currentModel:       cxModel | null = null;
+    currentMetamodel:   cxMetaModel | null = null;
+    targetMetamodel:    cxMetaModel | null = null;
+    pasteViewsOnly:     boolean = false;
+    deleteViewsOnly:    boolean = false;
     // Constructor
     constructor() {
     }
@@ -1550,6 +1551,12 @@ export class cxMetis {
     getCurrentMetamodel(): cxMetaModel {
         return this.currentMetamodel;
     }
+    setTargetMetamodel(metamodel: cxMetaModel) {
+        this.targetMetamodel = metamodel;
+    }
+    getTargetMetamodel(): cxMetaModel {
+        return this.targetMetamodel;
+    }
 }
 
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
@@ -2424,6 +2431,8 @@ export class cxMetaModel extends cxMetaObject {
     }
     findRelationshipTypesBetweenTypes(fromType: cxObjectType, toType: cxObjectType, includeGen: boolean) {
         if (!fromType || !toType) return null;
+        const typeFrom = this.metis.findObjectType(fromType.id);
+        const typeTo = this.metis.findObjectType(toType.id);
         const types = this.getRelshipTypes();
         if (!types) return null;
         const reltypes = new Array();
@@ -2433,15 +2442,15 @@ export class cxMetaModel extends cxMetaObject {
             reltype = types[i];
             if (reltype.isDeleted()) continue;
             if (includeGen) {
-                if (reltype.isAllowedFromType(fromType)) {
-                    if (reltype.isAllowedToType(toType)) {
+                if (reltype.isAllowedFromType(typeFrom)) {
+                    if (reltype.isAllowedToType(typeTo)) {
                         reltypes.push(reltype);
                     }
                 }
             } else
                 if (reltype.getRelshipKind() !== constants.relkinds.GEN) {
-                    if (reltype.isAllowedFromType(fromType)) {
-                        if (reltype.isAllowedToType(toType)) {
+                    if (reltype.isAllowedFromType(typeFrom)) {
+                        if (reltype.isAllowedToType(typeTo)) {
                             reltypes.push(reltype);
                         }
                     }
@@ -2561,12 +2570,21 @@ export class cxType extends cxMetaObject {
         }
     }
     addProperty(prop: cxProperty) {
-        // Check if input is of correct class and not already in list (TBD)
-        if (prop.class === "cxProperty") {
-            if (!this.properties)
-                this.properties = new Array();
-            this.properties.push(prop);
+        const props = new Array();
+        const len = this.properties?.length;
+        for (let i=0; i<len; i++) {
+            const p = this.properties[i];
+            props.push(p);
         }
+        this.properties = props;
+        this.properties.push(prop);
+        // Check if input is of correct class and not already in list (TBD)
+        // if (prop.class === "cxProperty") {
+        //     if (!this.properties)
+        //         this.properties = new Array();
+        //     console.log('2577 addProperty', prop, this.properties);
+        //     this.properties.push(prop);
+        // }
     }
     addProperty2(id: string, name: string, desc: string, dtype: cxDatatype) {
         // Check if prop already exists
@@ -3112,13 +3130,6 @@ export class cxRelationshipType extends cxObjectType {
         return retval;
     }
     isAllowedFromType(objtype: cxObjectType) {
-		/*
-        if (!utils.objExists(this.fromObjtype)) {
-            if (utils.objExists(this.fromObjTypeRef)) {
-                this.fromObjtype = this.findObjectType(this.fromObjTypeRef);
-            }
-        }
-		*/
         if (this.fromObjtype) {
             if (objtype.inherits(this.fromObjtype))
                 return true;
@@ -3126,13 +3137,6 @@ export class cxRelationshipType extends cxObjectType {
         return false;
     }
     isAllowedToType(objtype: cxObjectType) {
-		/*
-        if (!utils.objExists(this.toObjtype)) {
-            if (utils.objExists(this.toObjTypeRef)) {
-                this.toObjtype = this.findObjectType(this.toObjTypeRef);
-            }
-        }
-        */
         if (this.toObjtype) {
             if (objtype.inherits(this.toObjtype))
                 return true;
@@ -4203,21 +4207,21 @@ export class cxInstance extends cxMetaObject {
         return true;
     }
     findInputRelships(model: cxModel, rkind: string) {
-        const rels = model.getRelationships();
+        const rels = model.relships;
         if (!rels) return null;
         const relships = new Array();
         for (let i = 0; i < rels.length; i++) {
             const rel = rels[i];
             if (rel) {
-                if (rel.isDeleted())
+                if (rel.deleted)
                     continue;
-                const reltype = rel.getType();
+                const reltype = rel.type;
                 if (reltype) {
-                    const relkind = reltype.getRelshipKind();
+                    const relkind = reltype.relshipkind;
                     if (rkind !== relkind)
                         continue;
                 }
-                let toObj = rel.getToObject();
+                let toObj = rel.toObject;
                 if (toObj) {
                     if (toObj.id === this.id)
                         relships.push(rel);
@@ -4227,21 +4231,21 @@ export class cxInstance extends cxMetaObject {
         return relships;
     }
     findOutputRelships(model: cxModel, rkind: string) {
-        const rels = model.getRelationships();
+        const rels = model.relships;
         if (!rels) return null;
         const relships = new Array();
         for (let i = 0; i < rels.length; i++) {
             const rel = rels[i];
             if (rel) {
-                if (rel.isDeleted())
+                if (rel.deleted)
                     continue;
-                const reltype = rel.getType();
+                const reltype = rel.type;
                 if (reltype) {
-                    const relkind = reltype.getRelshipKind();
+                    const relkind = reltype.relshipkind;
                     if (rkind !== relkind)
                         continue;
                 }
-                let fromObj = rel.getFromObject();
+                let fromObj = rel.fromObject;
                 if (fromObj) {
                     if (fromObj.id === this.id)
                         relships.push(rel);

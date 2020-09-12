@@ -6,33 +6,59 @@ import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
 const constants = require('./constants');
 
+export function askForTargetMetamodel(context) {
+    const myMetis = context.myMetis;
+    const myMetamodel = context.myMetamodel;
+    let   myTargetMetamodel = context.myTargetMetamodel;
+    if (!myTargetMetamodel) {
+        myTargetMetamodel = myMetis.findMetamodelByName("Target Metamodel"); 
+        if (!myTargetMetamodel)
+            myTargetMetamodel = myMetamodel;
+    }
+    const name = prompt("Target metamodel is ", myTargetMetamodel.name);
+    if (name == null || name == "")
+        alert("Operation was cancelled!");
+    else {
+        myTargetMetamodel = myMetis.findMetamodelByName(name); 
+        if (!myTargetMetamodel)
+            alert("The metamodel given does not exist!");
+        return myTargetMetamodel;
+    }
+    return;
+} 
 
-
-export function generateObjectType(metamodel, obj, objview) {
-    if (!obj) {
+export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectView, context: any) {
+    const myMetis     = context.myMetis;
+    const myMetamodel = context.myMetamodel;
+    const myTargetMetamodel = context.myTargetMetamodel;
+    const myModel     = context.myModel;
+    if (!object) {
         return;
     }
+    const obj = myMetis.findObject(object.id);
     let proptypes  = new Array();
-    let objtype = metamodel.findObjectTypeByName(obj.getName());
+    let objtype = myTargetMetamodel.findObjectTypeByName(obj.name);
     if (!objtype) {
         // New object type - Create it
-        objtype = new akm.cxObjectType(utils.createGuid(), obj.getName(), obj.getDescription());
-        let properties = obj.getType().getProperties();
+        objtype = new akm.cxObjectType(utils.createGuid(), obj.name, obj.description);
+        const properties = obj?.type?.properties;
         if (properties !== undefined && properties !== null && properties.length > 0)
             objtype.properties = properties;
-        metamodel.addObjectType(objtype);
-        metis.addObjectType(objtype);
+        myTargetMetamodel.addObjectType(objtype);
+        myMetis.addObjectType(objtype);
+    } else {
+        objtype = myMetis.findObjectType(objtype.id);
     }
     let parentType: akm.cxObjectType | null = null;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (objtype) {
-        parentType = obj.getType();
+        parentType = obj.type;
         // Connect objtype to parentType
-        let reltypes = metamodel.findRelationshipTypesBetweenTypes(objtype, parentType, true);
+        let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(objtype, parentType, true);
         if (reltypes) {
             for (let i=0; i<reltypes.length; i++) {
                 let reltype = reltypes[i];
-                if (reltype.getName() === 'IsA') {
+                if (reltype.name === 'IsA') {
                     parentRelType = reltype;
                     break;
                 }
@@ -42,29 +68,29 @@ export function generateObjectType(metamodel, obj, objview) {
         if (!parentRelType) {
             parentRelType  = new akm.cxRelationshipType(utils.createGuid(), 'IsA', objtype, parentType, "");
             parentRelType.setRelshipKind('Generalization');
-            metamodel.addRelationshipType(parentRelType);
-            metis.addRelationshipType(parentRelType);
+            myMetamodel.addRelationshipType(parentRelType);
+            myMetis.addRelationshipType(parentRelType);
         }
-        if (!metamodel.findObjectTypeViewByName(obj.getName())) {
-            let objtypeview = new akm.cxObjectTypeView(utils.createGuid(), obj.getName(), objtype, obj.getDescription());
+        if (!myMetamodel.findObjectTypeViewByName(obj.name)) {
+            let objtypeview = new akm.cxObjectTypeView(utils.createGuid(), obj.name, objtype, obj.description);
             objtypeview.applyObjectViewParameters(objview);
             objtype.typeview = objtypeview;
-            metamodel.addObjectTypeView(objtypeview);
-            metis.addObjectTypeView(objtypeview);
+            myTargetMetamodel.addObjectTypeView(objtypeview);
+            myMetis.addObjectTypeView(objtypeview);
         }
 
         // Find properties connected to current object
-        let rels = obj.findOutputRelships(myModel);
-        if (utils.isArrayEmpty(rels)) {
+        const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
+        if (!rels) {
             return null;
         } else {
             for (let i=0; i < rels.length; i++) {
                 let rel = rels[i];
-                if (rel.getName() === constants.AKM_HAS_PROPERTY) {
-                    let proptype = rel.getToObject();
+                if (rel.name === constants.types.AKM_HAS_PROPERTY) {
+                    const proptype = rel.getToObject();
                     // Check if property type already exists
                     for (let j=0; j<proptypes.length; j++) {
-                        if (proptype.getName() === proptypes[j].getName())
+                        if (proptype.name === proptypes[j].name)
                             continue;
                     }
                     proptypes.push(proptype);
@@ -73,7 +99,6 @@ export function generateObjectType(metamodel, obj, objview) {
         }
     }         
 
-    
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -81,156 +106,173 @@ export function generateObjectType(metamodel, obj, objview) {
         if (!prop) {
             // New property - create it
             prop = new akm.cxProperty(utils.createGuid(), proptype.name, proptype.description);
-            objtype.addProperty(prop);
-            let datatype = metis.findDatatypeByName("string");
+            let datatype = myMetis.findDatatypeByName("string");
             prop.setDatatype(datatype);
+            objtype.addProperty(prop);
         }
         if (prop) {
             // Find datatype connected to current property
-            let rels = proptype.findOutputRelships(myModel);
-            if (!utils.isArrayEmpty(rels)) {
+            let rels = proptype.findOutputRelships(myModel, constants.relkinds.REL);
+            if (rels) {
                 for (let i=0; i < rels.length; i++) {
                     let rel = rels[i];
-                    if (!rel.isDeleted()) {
-                        if (rel.getName() === constants.AKM_IS_OF_DATATYPE) {
-                            let dtype = rel.getToObject();
+                    if (!rel.deleted) {
+                        if (rel.name === constants.types.AKM_IS_OF_DATATYPE) {
+                            let dtype = rel.toObject;
                             if (dtype) {
-                                let datatype = metis.findDatatypeByName(dtype.name);
-                                prop.setDatatype(datatype);
+                                let datatype = myMetis.findDatatypeByName(dtype.name);
+                                if (datatype) prop.setDatatype(datatype);
                             }
                         }
-                        if (rel.getName() === constants.AKM_HAS_UNIT) {
-                            let u = rel.getToObject();
+                        if (rel.name === constants.types.AKM_HAS_UNIT) {
+                            let u = rel.toObject;
                             if (u) {
-                                let unit = metis.findUnitByName(u.name);
-                                prop.setUnit(unit);
+                                let unit = myMetis.findUnitByName(u.name);
+                                if (unit) prop.setUnit(unit);
                             }
                         }
                     }
-                }
+                    myTargetMetamodel.addProperty(prop);
+                    myMetis.addProperty(prop); 
+                }                           
             }
         }
-        metamodel.addProperty(prop);
-        metis.addProperty(prop);
     }
-    return;
+    return objtype;
 }
 
-export function generateRelshipType(metamodel, rel, relview) {
+export function generateRelshipType(rel: akm.cxRelationship, relview: akm.cxRelationshipView, context: any) {
+    const myMetis     = context.myMetis;
+    const myMetamodel = context.myMetamodel;
     if (!rel) {
         return;
     }
-    let proptypes  = new Array();
     let fromObj  = rel.getFromObject();
-    let fromtype = metamodel.findObjectTypeByName(fromObj.getName());
+    let fromtype = myMetamodel.findObjectTypeByName(fromObj?.name);
     let toObj    = rel.getToObject();
-    let totype   = metamodel.findObjectTypeByName(toObj.getName());
+    let totype   = myMetamodel.findObjectTypeByName(toObj?.name);
     let relname  = rel.getName();
-    let reltype = metamodel.findRelationshipTypeByNames(relname, fromtype.getName(), totype.getName());
+    let reltype = myMetamodel.findRelationshipTypeByNames(relname, fromtype.name, totype.name);
     if (!reltype) {
         // New relationship type - Create it
-        reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, rel.getDescription());
+        reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, rel.description);
         
-        metamodel.addRelationshipType(reltype);
-        metis.addRelationshipType(reltype);
+        myMetamodel.addRelationshipType(reltype);
+        myMetis.addRelationshipType(reltype);
 
-        let reltypeview = new akm.cxRelationshipTypeView(utils.createGuid(), rel.getName(), reltype, rel.getDescription());
+        let reltypeview = new akm.cxRelationshipTypeView(utils.createGuid(), rel.name, reltype, rel.description);
         reltypeview.applyRelationshipViewParameters(relview);
         reltype.typeview = reltypeview;
-        metamodel.addRelationshipTypeView(reltypeview);
-        metis.addRelationshipTypeView(reltypeview);
+        myMetamodel.addRelationshipTypeView(reltypeview);
+        myMetis.addRelationshipTypeView(reltypeview);
     }
 }
 
-export function generateDatatype(object) {
-    let name     = object.getName();
-    let descr    = object.getDescription();
-    let datatype = metis.findDatatypeByName(name);
+export function generateDatatype(obj: akm.cxObject, context: any) {
+    const myMetamodel = context.myMetamodel;
+    const myMetis  = context.myMetis;
+    const myModel  = context.myModel;
+    const object   = myMetis.findObject(obj.id);
+    const name     = object.name;
+    const descr    = object.description;
+
+    let datatype   = myMetis.findDatatypeByName(name);
     if (!datatype) {
         datatype = new akm.cxDatatype(utils.createGuid(), name, descr);
-        metis.addDatatype(datatype);
+        myMetis.addDatatype(datatype);
     }
     if (datatype) {
         // Check if it has a parent datatype
-        const rels = object.findOutputRelships(myModel);
-        let values  = new Array();
-        for (let i=0; i < rels.length; i++) {
-            let rel = rels[i];
-            let obj = rel.getToObject();
-            let type = obj.getType();
-            if (type.getName() === constants.AKM_DATATYPE) {
-                let dtype = metis.findDatatypeByName(obj.getName());
-                datatype.setIsOfDatatype(dtype);
-                // Find allowed values if any
-                if (utils.isArrayEmpty(rels)) {
-                    return false;
-                } else {
-                    for (let i=0; i < rels.length; i++) {
-                        let rel = rels[i];
-                        if (rel.getName() === constants.AKM_HAS_ALLOWED_VALUE) {
-                            let valueObj = rel.getToObject();
-                            // Check if allowed value already exists
-                            for (let j=0; j<values.length; j++) {
-                                if (valueObj.getName() === values[j].value)
-                                    continue;
+        const rels = object.findOutputRelships(myModel, constants.relkinds.REL);
+        if (rels) {
+            let values  = new Array();
+            for (let i=0; i < rels.length; i++) {
+                let rel = rels[i];
+                let obj = rel.toObject;
+                let type = obj.type;
+                if (type.name === constants.types.AKM_DATATYPE) {
+                    let dtype = myMetis.findDatatypeByName(obj.name);
+                    datatype.setIsOfDatatype(dtype);
+                    // Find allowed values if any
+                    if (utils.isArrayEmpty(rels)) {
+                        return false;
+                    } else {
+                        for (let i=0; i < rels.length; i++) {
+                            let rel = rels[i];
+                            if (rel.name === constants.types.AKM_HAS_ALLOWED_VALUE) {
+                                let valueObj = rel.toObject;
+                                // Check if allowed value already exists
+                                for (let j=0; j<values.length; j++) {
+                                    if (valueObj.name === values[j].value)
+                                        continue;
+                                }
+                                values.push(valueObj.getName());
                             }
-                            values.push(valueObj.getName());
-                        }
-                        else if (rel.getName() === constants.AKM_IS_DEFAULTVALUE) {
-                            let valueObj = rel.getToObject();
-                            datatype.setDefaultValue(valueObj.getName());
+                            else if (rel.getName() === constants.types.AKM_IS_DEFAULTVALUE) {
+                                let valueObj = rel.toObject;
+                                datatype.setDefaultValue(valueObj.name);
+                            }
                         }
                     }
                 }
             }
+            for (let i=0; i< values.length; i++) {
+                datatype.addAllowedValue(values[i]);
+            }
         }
-        for (let i=0; i< values.length; i++) {
-            datatype.addAllowedValue(values[i]);
-        }
+        myMetamodel.addDatatype(datatype);
+        console.log('222 generateDatatype', myMetis);
+        return datatype;
     }
 }
 
-export function generateUnit(metamodel, object) {
-    let name     = object.getName();
-    let descr    = object.getDescription();
-    let unit     = metis.findUnitByName(name);
+export function generateUnit(object: akm.cxObject, context: any) {
+    const myMetis      = context.myMetis;
+    const myMetamodel  = context.myMetamodel;
+    let name     = object.name;
+    let descr    = object.description;
+    let unit     = myMetis.findUnitByName(name);
     if (!unit) {
         unit = new akm.cxUnit(utils.createGuid(), name, descr);
-        metamodel.addUnit(unit);
-        metis.addUnit(unit);
+        myMetamodel.addUnit(unit);
+        myMetis.addUnit(unit);
     } else 
-        metamodel.addUnit(unit);
+        myMetamodel.addUnit(unit);
+    return unit;
 }
 
-export function generateTargetMetamodel(targetmetamodel, sourcemodelview) {
-    let metamodel = targetmetamodel;
-    let modelview = sourcemodelview;
+export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, sourcemodelview: akm.cxModelView, context: any) {
+    const currentMetamodel = context.myMetamodel;
+    const myMetis   = context.myMetis;
+    const metamodel = targetmetamodel;
+    const modelview = sourcemodelview;
+    context.myMetamodel = metamodel; 
     if (!modelview)
         return false;
-    let model = modelview.getModel();  // Concept model
+    const model = modelview.model;  // Concept model
     // Define the metamodel type:s
     // Look up the Task object type and connect it to the metamodel
     let objtype;
-    objtype = metis.findObjectTypeByName('Task');
+    objtype = myMetis.findObjectTypeByName('Task');
     if (objtype)
         metamodel.addObjectType(objtype);
     // Look up the Role object type and connect it to the metamodel
-    objtype = metis.findObjectTypeByName('Role');
+    objtype = myMetis.findObjectTypeByName('Role');
     if (objtype)
         metamodel.addObjectType(objtype);
     // Look up the View object type and connect it to the metamodel
-    objtype = metis.findObjectTypeByName('View');
+    objtype = myMetis.findObjectTypeByName('View');
     if (objtype)
         metamodel.addObjectType(objtype);
     // Look up the View object type and connect it to the metamodel
-    objtype = metis.findObjectTypeByName('Property');
+    objtype = myMetis.findObjectTypeByName('Property');
     if (objtype)
         metamodel.addObjectType(objtype);
     // Generate the types defined in the concept model, 
     //  and connect them all to the metamodel:
     // Look up the datatype objects
     let objects;
-    objects = model.getObjectsByTypename('Datatype');
+    objects = model?.getObjectsByTypename('Datatype', false);
     // For each Datatype object call generateDatatype
     if (objects) {
         for (let i=0; i<objects.length; i++) {
@@ -240,36 +282,39 @@ export function generateTargetMetamodel(targetmetamodel, sourcemodelview) {
         }
     }
     // Look up the Unit objects
-    objects = model.getObjectsByTypename('Unit');
+    objects = model?.getObjectsByTypename('Unit', false);
     // For each unit object call generateUnit
     if (objects) {
         for (let i=0; i<objects.length; i++) {
             let obj = objects[i];
             if (obj)
-                generateUnit(metamodel, obj);
+                generateUnit(obj, context);
         }
     }
     // Look up the Information objects
-    let objectviews = modelview.objectviews;
-    for (let i=0; i<objectviews.length; i++) {
-        let objview = objectviews[i];
-        if (!objview) 
-            continue;
-        let type = metis.findObjectTypeByName('Information');
-        let obj = objview.object;
-        if (obj && obj.type) {
-            if (obj.type.inherits(type)) {
-                generateObjectType(metamodel, obj, objview);
+    const objectviews = modelview.objectviews;
+    if (objectviews) {
+        for (let i=0; i<objectviews.length; i++) {
+            let objview = objectviews[i];
+            if (!objview) 
+                continue;
+            let type = myMetis.findObjectTypeByName('Information');
+            let obj = objview.object;
+            if (obj && obj.type) {
+                if (obj.type.inherits(type)) {
+                    generateObjectType(obj, objview, context);
+                }
             }
         }
     }
-            // For each object call generateObjectType
-            // Look up the relationships between Roles and Tasks
-                // For each relship, get relship type and add to metamodel
-            // Look up the relationships between Tasks and Informations
-                // For each relship, get relship type and add to metamodel
+    // For each object call generateObjectType
+    // Look up the relationships between Roles and Tasks
+        // For each relship, get relship type and add to metamodel
+    // Look up the relationships between Tasks and Informations
+        // For each relship, get relship type and add to metamodel
 
     alert("Target metamodel has been successfully generated!");
+    context.myMetamodel = currentMetamodel;
     return true;
 }
 

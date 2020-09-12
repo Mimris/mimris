@@ -10,11 +10,12 @@ import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as gql from '../../../akmm/ui_graphql';
 import * as uic from '../../../akmm/ui_common';
+import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
 const glb = require('../../../akmm/akm_globals');
 
-//import * as uic from '../../../Server/src/akmm/ui_common';
+//import * as uic from '../../../Server/src/akmm/ui_common'; 
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
@@ -257,7 +258,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       var partContextMenu =
         $(go.Adornment, "Vertical",
           makeButton("Set Object type",
-            function (e, obj) {
+            function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
               let objtype = prompt('Enter one of: ' + node.choices);
               const context = {
@@ -287,7 +288,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 })
               }
           },
-            function (o) {
+            function (o: any) {
               const node = o.part.data;
               if (node.category === 'Object') {
                 return true;
@@ -345,6 +346,116 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               }
               return false;
             }),
+          makeButton("Generate Datatype",
+            function(e: any, obj: any) { 
+                const context = {
+                  "myMetis":            myMetis,
+                  "myMetamodel":        myMetis.currentMetamodel,
+                  "myTargetMetamodel":  myMetis.targetMetamodel,
+                  "myModel":            myMetis.currentModel,
+                  "myModelView":        myMetis.currentModelview,
+                  "myDiagram":          e.diagram,
+                  "dispatch":           e.diagram.dispatch
+                }
+                if (!myMetis.targetMetamodel)
+                    myMetis.targetMetamodel = myMetis.currentMetamodel;
+                const contextmenu = obj.part;  
+                const part = contextmenu.adornedPart; 
+                const currentObj = part.data.object;
+                context.myTargetMetamodel = gen.askForTargetMetamodel(context);
+                const dtype = gen.generateDatatype(currentObj, context);
+                const gqlDatatype = new gql.gqlDatatype(dtype);
+                const modifiedDatatypes = new Array();
+                modifiedDatatypes.push(gqlDatatype);
+                modifiedDatatypes.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
+                })
+            },
+            function(o: any) { 
+              const obj = o.part.data.object;
+              const objtype = obj?.type;
+              if (objtype?.name === constants.types.AKM_DATATYPE)
+                  return true;              
+              return false;
+          }),
+          makeButton("Generate Unit",
+            function(e: any, obj: any) { 
+              const context = {
+                "myMetis":            myMetis,
+                "myMetamodel":        myMetis.currentMetamodel,
+                "myTargetMetamodel":  myMetis.targetMetamodel,
+                "myModel":            myMetis.currentModel,
+                "myModelView":        myMetis.currentModelview,
+                "myDiagram":          e.diagram,
+                "dispatch":           e.diagram.dispatch
+            }
+              const contextmenu = obj.part;  
+              const part       = contextmenu.adornedPart; 
+              const currentObj = part.data.object;
+              context.myTargetMetamodel = gen.askForTargetMetamodel(context);
+              const unit = gen.generateUnit(currentObj, context);
+              const gqlUnit = new gql.gqlUnit(unit);
+              const modifiedUnits = new Array();
+              modifiedUnits.push(gqlUnit);
+              modifiedUnits.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_UNIT_PROPERTIES', data })
+              })
+          },
+            function(o: any) { 
+              let obj = o.part.data.object;
+              let objtype = obj.type;
+              if (objtype.name === constants.types.AKM_UNIT)
+                  return true;
+              else
+                  return false;
+         }),
+          makeButton("Generate Object Type",
+            function(e: any, obj: any) { 
+                const context = {
+                  "myMetis":            myMetis,
+                  "myMetamodel":        myMetis.currentMetamodel,
+                  "myTargetMetamodel":  myMetis.targetMetamodel,
+                  "myModel":            myMetis.currentModel,
+                  "myModelView":        myMetis.currentModelview,
+                  "myDiagram":          e.diagram,
+                  "myProperties":       new Array(),
+                  "dispatch":           e.diagram.dispatch
+                  }
+                 const contextmenu = obj.part;  
+                 const part = contextmenu.adornedPart; 
+                 const currentObj = part.data.object;
+                 const currentObjview = part.data.objectview;
+                 context.myTargetMetamodel = gen.askForTargetMetamodel(context);
+                 const objtype = gen.generateObjectType(currentObj, currentObjview, context);
+                 const gqlObjectType = new gql.gqlObjectType(objtype);
+                 const modifiedTypeNodes = new Array();
+                 modifiedTypeNodes.push(gqlObjectType);
+                 modifiedTypeNodes.map(mn => {
+                   let data = mn;
+                   e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+                 });
+                 const modifiedProperties = new Array();
+                 const props = objtype.properties;
+                 for (let i=0; i<props?.length; i++) {
+                    const gqlProp = new gql.gqlProperty(props[i]);
+                    modifiedProperties.push(gqlProp);
+                    modifiedProperties.map(mn => {
+                      let data = mn;
+                      e.diagram.dispatch({ type: 'UPDATE_PROPERTY_PROPERTIES', data })
+                    });
+                  }
+              },  
+            function(o: any) { 
+                 let obj = o.part.data.object;
+                 let objtype = obj.type;
+                 if (objtype.name === constants.types.AKM_DATATYPE)
+                     return false;
+                 if (objtype.name === constants.types.AKM_UNIT)
+                     return false;
+                 return true;
+             }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
             function (o: any) { 

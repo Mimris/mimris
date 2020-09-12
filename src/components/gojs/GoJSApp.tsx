@@ -159,6 +159,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     const modifiedLinkTypeViews = new Array();
     const modifiedObjects       = new Array();
     const modifiedRelships      = new Array();
+    const modifiedDatatypes     = new Array();
+    const modifiedUnits         = new Array();
+    const modifiedProperties    = new Array();
     const selectedObjectViews   = new Array();
     const selectedRelshipViews  = new Array();
     const selectedObjectTypes   = new Array();
@@ -285,13 +288,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                       objtypeGeo.setLoc(data.loc);
                       objtypeGeo.setSize(data.size);
                       objtypeGeo.setModified();
-                      // console.log('272 objtypeGeo', objtypeGeo);
                       const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
-                      // console.log('279 modifiedTypeGeos', gqlObjtypeGeo);
                       modifiedTypeGeos.push(gqlObjtypeGeo);
-                      // const gqlObjtype = new gql.gqlObjectType(objtype, true);
-                      // modifiedTypeNodes.push(gqlObjtype);
-                      // console.log('281 modifiedTypeNodes', gqlObjtype);
                   }
               }
               else // Object
@@ -373,9 +371,10 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (data.class === "goObjectNode") {
                 const myNode = this.getNode(context.myGoModel, key);
                 if (myNode) {
-                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, context);
-                  console.log('357 modifiedNodes', modifiedNodes);
-                  console.log('358 modifiedNodes', modifiedObjects);
+                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedTypeViews, context);
+                  console.log('377 modifiedNodes', modifiedNodes);
+                  console.log('378 modifiedNodes', modifiedObjects);
+                  console.log('379 modifiedTypeViews', modifiedTypeViews);
                 }
               }
               if (data.class === "goRelshipLink") {

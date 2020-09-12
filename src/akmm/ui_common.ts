@@ -324,7 +324,7 @@ export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedF
 
 }
 
-export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, context: any) {
+export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, deletedTypeviews: any, context: any) {
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
@@ -374,29 +374,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
         if (node) {
             let objview = myMetis.findObjectView(node.objectview.id);
             if (objview) {
-                deleteObjectView(objview, deletedFlag, deletedNodes, deletedObjects, context);
-                // objview.deleted = deletedFlag;
-                // if (!myMetis.deleteViewsOnly) {
-                //     const object = objview.object;
-                //     if (object) {
-                //         object.deletedFlag = true;
-                //         // Find other views of the same object
-                //         const oviews = myMetis.getObjectViewsByObject(object.id);
-                //         if (oviews) {
-                //             for (let i = 0; i < oviews.length; i++) {
-                //                 const oview = oviews[i];
-                //                 oview.deleted = deletedFlag;
-                //                 // Register change in gql
-                //                 const gqlObjview = new gql.gqlObjectView(oview);
-                //                 deletedNodes.push(gqlObjview);
-                //                 const obj = oview.object;
-                //                 obj.deleted = deletedFlag;
-                //                 const gqlObj = new gql.gqlObject(obj);
-                //                 deletedObjects.push(gqlObj);
-                //             }
-                //         }                                   
-                //     }
-                // }
+                deleteObjectView(objview, deletedFlag, deletedNodes, deletedObjects, deletedTypeviews, context);
                 // Register change in gql
                 const delNode = new gql.gqlObjectView(objview);
                 deletedNodes.push(delNode);
@@ -406,39 +384,50 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
     }
 }
 
-export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, context: any) {
+export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, deletedTypeviews: any, context: any) {
     const myMetis   = context.myMetis;
     objview.deleted = deletedFlag;
-    if (!myMetis.deleteViewsOnly) {
-        const object = objview.object;
-        if (object) {
+    const object = objview.object;
+    if (object) {
+        const oviews = myMetis.getObjectViewsByObject(object.id);
+        deleteObjectTypeView(objview, deletedFlag, deletedTypeviews);
+        if (!myMetis.deleteViewsOnly) {
+            // Handle object
             object.deletedFlag = true;
-            // Find other views of the same object
-            const oviews = myMetis.getObjectViewsByObject(object.id);
+            const gqlObj = new gql.gqlObject(object);
+            deletedObjects.push(gqlObj);
+            // Handle object views
             if (oviews) {
-                for (let i = 0; i < oviews.length; i++) {
-                    // handle objectview
+                const noViews = oviews.length;
+                for (let i = 0; i < noViews; i++) {
+                    // handle each objectview
                     const oview = oviews[i];
                     oview.deleted = deletedFlag;
                     // Register change in gql
                     const gqlObjview = new gql.gqlObjectView(oview);
                     deletedNodes.push(gqlObjview);
-                    // Handle object
-                    const obj = oview.object;
-                    obj.deleted = deletedFlag;
-                    const gqlObj = new gql.gqlObject(obj);
-                    deletedObjects.push(gqlObj);
                     // Handle objecttypeview
                     if (i== 0) {
-                        let objtype  = obj.type;
-                        let typeView = oview.typeview;
-                        let defaultTypeview = objtype.typeview;
-                        if (typeView && (typeView.id !== defaultTypeview.id)) {
-                            typeView.deleted = deletedFlag;
-                        }
+                        deleteObjectTypeView(oviews[0], deletedFlag, deletedTypeviews);
                     }
                 }
-            }                                   
+            }
+        }       
+    }
+}
+
+export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boolean, deletedTypeviews: any) {
+
+    const object = objview?.object;
+    const objtype  = object?.type;
+    const typeView = objview?.typeview;
+    const defaultTypeview = objtype?.typeview;
+    if (typeView && defaultTypeview) {
+        if (typeView.id !== defaultTypeview.id) {
+            typeView.deleted = deletedFlag;
+            // Register change in gql
+            const gqlTypeview = new gql.gqlObjectTypeView(typeView);
+            deletedTypeviews.push(gqlTypeview);
         }
     }
 }

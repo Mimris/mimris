@@ -11,31 +11,36 @@ import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
 import useLocalStorage from '../hooks/use-local-storage'
+import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
 // import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
-  
+
+  const [refresh, setRefresh] = useState(true);
   // console.log('16 diagram',props)
   const dispatch = useDispatch()
-  // const [lstate, setLstate] = useLocalStorage('state');
-
-  // try {
-  //   if (!window) {
-  //     return
-  //   } else {
-  //     console.log('26', lstate);
-  //     (lstate) &&  DispatchLocal(lstate)
-  //   }
-  // } catch (error) {
-  //   console.log('31 modelling', error);
-  // }
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
+  // DispatchFromLocalStore(memoryLocState)
+  // console.log('23 modelling', memoryLocState);
   
-  // console.log('33 modelling', props.phData);
-  
-  if (!props.phData) {
-    dispatch(loadData())
+  if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
+  // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
+  // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) {
+    if (memoryLocState ) {
+      // Save it!
+      const memoryState = {
+        ...memoryLocState,
+        phSource: 'savedMemory'
+      }
+      // console.log('35 modelling', memoryState);
+      DispatchFromLocalStore(memoryState)
+    }
   }
 
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
+  
   // console.log('23 modelling', props.phData);
   
   const state = useSelector(state => state)
@@ -59,6 +64,7 @@ const page = (props:any) => {
   }, [props.phFocus.focusModel.id])
   // console.log('42 modelling', state.phUser);
   
+  const modellingDiv = <Modelling />
 
   return (
     <div>
@@ -76,7 +82,8 @@ const page = (props:any) => {
                 <TasksHelp />
               </div>
               <div className="workarea px-1" style={{ backgroundColor: "#eee" }}>
-                <Modelling />
+                {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
+                {/* <Modelling /> */}
               </div>
             </div>
             <div className="footer">

@@ -34,6 +34,7 @@ const LoadLocal = (props: any) => {
   const [locState, setLocState] = useLocalStorage('state', null);
   let locStatus = false
   // console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
+  
   function handleDispatchToStoreFromLocal() {  // Set storeFromLocal
     locStatus = true
     console.log('38 LoadLocal', locState);
@@ -56,7 +57,7 @@ const LoadLocal = (props: any) => {
   }
 
   useEffect(() => {
-    console.log('63 LoadLocal', props);
+    console.log('59 LoadLocal', props);
     genGojsModel(props, dispatch);
     // setRefresh(!refresh)
   }, [locStatus])

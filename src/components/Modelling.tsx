@@ -73,8 +73,8 @@ const page = (props:any) => {
     }, [focusModelview?.id])
 
     useEffect(() => {
-      console.log('63 Diagram state', props ); 
-      genGojsModel(props, dispatch);
+      console.log('76 Modelling', props ); 
+      genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])
 
@@ -91,7 +91,7 @@ const page = (props:any) => {
     // then find lenght of modellarray in lodalStore
     const curmmlength = memoryLocState?.phData?.metis.metamodels?.length
     if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    console.log('73 LoadLocal', curmindex, reduxmod);
+    console.log('73 Modelling', curmindex, reduxmod);
     const data = {
       phData: {
         ...memoryLocState?.phData,
@@ -113,7 +113,7 @@ const page = (props:any) => {
       phUser: props.phUser,
       phSource: 'localStore'
     };
-    console.log('59 LoadLocal', reduxmod, data);
+    console.log('59 Modelling', reduxmod, data);
     (reduxmod) && setMemoryLocState(data) 
     setRefresh(!refresh);
   }

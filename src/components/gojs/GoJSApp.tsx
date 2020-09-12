@@ -99,7 +99,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   private getNode(goModel: any, key: string) {
-    const nodes = goModel.nodes;
+    const nodes = goModel?.nodes;
     if (nodes) {
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
@@ -702,7 +702,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
     })
 
-    // console.log('595 modifiedTypeGeos', modifiedTypeGeos);
+    console.log('705 modifiedTypeGeos', modifiedTypeGeos);
     modifiedTypeGeos?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })

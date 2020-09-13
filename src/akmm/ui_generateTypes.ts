@@ -20,6 +20,7 @@ export function askForTargetMetamodel(context) {
         alert("Operation was cancelled!");
     else {
         myTargetMetamodel = myMetis.findMetamodelByName(name); 
+        console.log('24 askForTarget', myTargetMetamodel);
         if (!myTargetMetamodel)
             alert("The metamodel given does not exist!");
         return myTargetMetamodel;
@@ -98,7 +99,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }         
-
+    console.log('102 generateObjectType', proptypes);
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -138,45 +139,50 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }
+    console.log('141 generateObjectType', myMetis);
     return objtype;
 }
 
 export function generateRelshipType(rel: akm.cxRelationship, relview: akm.cxRelationshipView, context: any) {
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
+    const myTargetMetamodel = context.myTargetMetamodel;
+    const myModel     = context.myModel;
     if (!rel) {
         return;
     }
     let fromObj  = rel.getFromObject();
-    let fromtype = myMetamodel.findObjectTypeByName(fromObj?.name);
+    let fromtype = myTargetMetamodel.findObjectTypeByName(fromObj?.name);
     let toObj    = rel.getToObject();
-    let totype   = myMetamodel.findObjectTypeByName(toObj?.name);
+    let totype   = myTargetMetamodel.findObjectTypeByName(toObj?.name);
     let relname  = rel.getName();
-    let reltype = myMetamodel.findRelationshipTypeByNames(relname, fromtype.name, totype.name);
+    let reltype  = myMetamyTargetMetamodelmodel.findRelationshipTypeByNames(relname, fromtype.name, totype.name);
     if (!reltype) {
         // New relationship type - Create it
         reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, rel.description);
         
-        myMetamodel.addRelationshipType(reltype);
+        myTargetMetamodel.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
 
         let reltypeview = new akm.cxRelationshipTypeView(utils.createGuid(), rel.name, reltype, rel.description);
         reltypeview.applyRelationshipViewParameters(relview);
         reltype.typeview = reltypeview;
-        myMetamodel.addRelationshipTypeView(reltypeview);
+        myTargetMetamodel.addRelationshipTypeView(reltypeview);
         myMetis.addRelationshipTypeView(reltypeview);
+        return reltypeview;
     }
 }
 
 export function generateDatatype(obj: akm.cxObject, context: any) {
-    const myMetamodel = context.myMetamodel;
     const myMetis  = context.myMetis;
     const myModel  = context.myModel;
     const object   = myMetis.findObject(obj.id);
     const name     = object.name;
     const descr    = object.description;
+    const myMetamodel = context.myMetamodel;
+    const myTargetMetamodel = context.myTargetMetamodel;
 
-    let datatype   = myMetis.findDatatypeByName(name);
+    let datatype   = myTargetMetamodel.findDatatypeByName(name);
     if (!datatype) {
         datatype = new akm.cxDatatype(utils.createGuid(), name, descr);
         myMetis.addDatatype(datatype);
@@ -191,7 +197,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 let obj = rel.toObject;
                 let type = obj.type;
                 if (type.name === constants.types.AKM_DATATYPE) {
-                    let dtype = myMetis.findDatatypeByName(obj.name);
+                    let dtype = myTargetMetamodel.findDatatypeByName(obj.name);
                     datatype.setIsOfDatatype(dtype);
                     // Find allowed values if any
                     if (utils.isArrayEmpty(rels)) {
@@ -220,7 +226,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 datatype.addAllowedValue(values[i]);
             }
         }
-        myMetamodel.addDatatype(datatype);
+        myTargetMetamodel.addDatatype(datatype);
         console.log('222 generateDatatype', myMetis);
         return datatype;
     }

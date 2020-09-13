@@ -2185,7 +2185,7 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
-    findDataTypeByName(name: string) {
+    findDatatypeByName(name: string) {
         let datatypes = this.getDatatypes();
         if (!datatypes) return null;
         let i = 0;

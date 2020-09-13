@@ -427,6 +427,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                  const part = contextmenu.adornedPart; 
                  const currentObj = part.data.object;
                  const currentObjview = part.data.objectview;
+<<<<<<< HEAD
                  context.myTargetMetamodel = gen.askForTargetMetamodel(context);
                  const objtype = gen.generateObjectType(currentObj, currentObjview, context);
                  const gqlObjectType = new gql.gqlObjectType(objtype);
@@ -436,6 +437,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                    let data = mn;
                    e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
                  });
+=======
+                 console.log('430 Generate Object Type', context);
+                 context.myTargetMetamodel = gen.askForTargetMetamodel(context);
+                 const objtype = gen.generateObjectType(currentObj, currentObjview, context);
+                 // First handle properties
+>>>>>>> fabcba145c92c201ba6dbda7f04b36b48e4b1556
                  const modifiedProperties = new Array();
                  const props = objtype.properties;
                  for (let i=0; i<props?.length; i++) {
@@ -445,7 +452,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                       let data = mn;
                       e.diagram.dispatch({ type: 'UPDATE_PROPERTY_PROPERTIES', data })
                     });
+<<<<<<< HEAD
                   }
+=======
+                 }
+                 // Then handle the object type
+                 const gqlObjectType = new gql.gqlObjectType(objtype);
+                 console.log('433 Generate Object Type', gqlObjectType);
+                 const modifiedTypeNodes = new Array();
+                 modifiedTypeNodes.push(gqlObjectType);
+                 modifiedTypeNodes.map(mn => {
+                   let data = mn;
+                   e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+                 });
+>>>>>>> fabcba145c92c201ba6dbda7f04b36b48e4b1556
               },  
             function(o: any) { 
                  let obj = o.part.data.object;

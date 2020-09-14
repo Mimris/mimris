@@ -12,7 +12,7 @@ const Palette = (props) => {
 // const page = (props) => {
   
   const gojstypes = props.gojsMetamodel
-  const gojsobjects = props.gojsModel // has to be: props.gojsObjects
+  // const gojsobjects = props.gojsModel // has to be: props.gojsObjects
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -30,7 +30,7 @@ const Palette = (props) => {
   /**  * Get the state and metie from the store,  */
     // const gojstypes = props.phFocus.gojsMetamodel
     // console.log('18 Palette', gojstypes, props);
-    // console.log('11 Palette', gojstypes);
+    console.log(' Palette', gojstypes);
     // console.log('12 Palette', gojstypes.nodeDataArray);
     // console.log('13 Palette', gojstypes.linkDataArray);
     
@@ -81,7 +81,7 @@ const Palette = (props) => {
             {/* <Row >
               <Col xs="auto m-0 p-0 pl-3"> */}
                 {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
-                  < GoJSPaletteApp
+                  {/* < GoJSPaletteApp
                     nodeDataArray={gojsobjects.nodeDataArray}
                     linkDataArray={[]}
                     // linkDataArray={gojstypes.linkDataArray}
@@ -90,7 +90,7 @@ const Palette = (props) => {
                     myGoModel={props.myGoModel}
                     phFocus={props.phFocus}
                     dispatch={props.dispatch}
-                  />
+                  /> */}
                 </div>
               {/* </Col>
             </Row> */}

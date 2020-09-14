@@ -60,10 +60,17 @@ const page = (props:any) => {
 
     useEffect(() => {
       // console.log('38 Diagram state', props ); 
+      //setRefresh(!refresh)
+      genGojsModel(props, dispatch);
+      //focusModel = props.phFocus?.focusModel
+    }, [])
+
+    useEffect(() => {
+      // console.log('38 Diagram state', props ); 
       // setRefresh(!refresh)
       genGojsModel(props, dispatch);
       gojsmodel = props.phFocus?.focusModel
-    }, [props.phFocus?.focusModel])
+    }, [props.phFocus?.focusModel, props.phFocus?.focusMetamodel])
     
     useEffect(() => {
       // console.log('42 Diagram state', props ); 

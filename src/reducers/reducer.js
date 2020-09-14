@@ -749,15 +749,18 @@ function reducer(state = InitialState, action) {
          },
       }
       case UPDATE_DATATYPE_PROPERTIES:
-        console.log('501 UPDATE_DATATYPE_PROPERTIES', action);
+        console.log('752 UPDATE_DATATYPE_PROPERTIES', action);
         const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-        const curmmdot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.metamodelRef)
-        const curmmdindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.metamodelRef) 
+        const curmmdot    = state.phData?.metis?.metamodels[0]//?.find(m => m.id === curmodtot.metamodelRef)
+        // const curmmdot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.metamodelRef)
+        console.log('755 reducer', state.phData.metis, curmmdot.name);
+        const curmmdindexot = 0 //state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.metamodelRef) 
         const curdot = curmmdot?.datatypes?.find(ot => ot.id === action?.data?.id)
         const lengthotd = curmmdot?.datatypes.length
         let indexdot = curmmdot?.datatypes?.findIndex(ot => ot.id === curdot?.id)
         if (indexdot < 0) {indexdot = lengthotd} 
-        console.log('607 reducer', lengthotd, indexdot);   
+        console.log('760 reducer', lengthotd, indexdot);   
+        console.log('761 reducer', curmodtot.metamodelRef, curmmdot.datatypes);
         return {
           ...state,
           phData: {
@@ -778,7 +781,8 @@ function reducer(state = InitialState, action) {
                       datatypeRef: action.data.datatypeRef,
                       defaultValue: action.data.defaultValue,
                       allowedValues: action.data.allowedValues,
-                      abstract: action.data.abstract,
+                      // abstract: action.data.abstract,
+                      deleted: action.data.deleted,    
                       modified: action.data.modified,    
                     },
                     ...curmmdot?.datatypes.slice(indexdot + 1)

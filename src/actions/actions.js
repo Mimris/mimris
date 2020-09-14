@@ -266,7 +266,7 @@ export const update_metamodel_properties = (data) => {
   }
 }
 export const update_objectview_properties = (data) => {
-  console.log('76 actions update_objectview_properties', data.payload);
+  console.log('269 actions update_objectview_properties', data.payload);
   return {
     type: UPDATE_OBJECTVIEW_PROPERTIES,
     data: JSON.parse(data.value)

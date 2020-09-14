@@ -493,7 +493,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      // console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -749,7 +749,7 @@ function reducer(state = InitialState, action) {
          },
       }
       case UPDATE_DATATYPE_PROPERTIES:
-        // console.log('501 UPDATE_DATATYPE_PROPERTIES', action);
+        console.log('501 UPDATE_DATATYPE_PROPERTIES', action);
         const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
         const curmmdot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.metamodelRef)
         const curmmdindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.metamodelRef) 

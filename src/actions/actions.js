@@ -308,7 +308,7 @@ export const update_property_properties = (data) => {
   }
 }
 export const update_datatype_properties = (data) => {
-  console.log('205 actions update_datatype_properties', data.payload);
+  console.log('311 actions update_datatype_properties', data.payload);
   return {
     type: UPDATE_DATATYPE_PROPERTIES,
     data: JSON.parse(data.value)

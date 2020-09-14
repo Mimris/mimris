@@ -47,7 +47,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     // console.log('42 gengojsmodel', focusModel, focusModelview);
 
     let curGomodel = props.phMyGoModel?.myGoModel;
-    // console.log('45 gengojsmodel :', curmod, curmod?.id);
+    console.log('45 gengojsmodel :', curmod, curmod?.id);
     
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
@@ -123,7 +123,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => mm.id === curmod.metamodelRef);
       
       
-      // console.log('105 GenGojsModel', myGoModel, gojsModel);
+      console.log('126 GenGojsModel', gojsMetamodel);
       // update the Gojs arrays in the store
           dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
           dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
@@ -137,7 +137,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoPalette(metamodel: akm.cxMetaModel): gjs.goModel {
-    // console.log('74 buildGoPalette', metamodel);
+    console.log('74 buildGoPalette', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     const objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
     if (objecttypes) {
@@ -225,7 +225,7 @@ function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
         const objtype = objtypes[i];
         if (objtype && !objtype.deleted) {
           const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
-          // console.log('208 buildGoMetaModel', metamodel);
+          console.log('208 buildGoMetaModel', metamodel);
           node.loadNodeContent(metamodel);
           myGoMetaModel.addNode(node);
         }

@@ -493,7 +493,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      // console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -749,15 +749,15 @@ function reducer(state = InitialState, action) {
          },
       }
       case UPDATE_DATATYPE_PROPERTIES:
-        // console.log('501 UPDATE_DATATYPE_PROPERTIES', action);
+        console.log('501 UPDATE_DATATYPE_PROPERTIES', action);
         const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
         const curmmdot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.metamodelRef)
         const curmmdindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.metamodelRef) 
-        const curdot = curmmdot?.objecttypes?.find(ot => ot.id === action?.data?.id)
-        const lengthotd = curmmdot?.objecttypes.length
-        let indexdot = curmmdot?.objecttypes?.findIndex(ot => ot.id === curdot?.id)
+        const curdot = curmmdot?.datatypes?.find(ot => ot.id === action?.data?.id)
+        const lengthotd = curmmdot?.datatypes.length
+        let indexdot = curmmdot?.datatypes?.findIndex(ot => ot.id === curdot?.id)
         if (indexdot < 0) {indexdot = lengthotd} 
-        // console.log('607 reducer', lengthot, indexot);   
+        console.log('607 reducer', lengthotd, indexdot);   
         return {
           ...state,
           phData: {
@@ -768,10 +768,10 @@ function reducer(state = InitialState, action) {
                 ...state.phData.metis.metamodels.slice(0, curmmdindexot),
                 {
                   ...state.phData.metis.metamodels[curmmdindexot],
-                  objecttypes: [
-                    ...curmmdot?.objecttypes.slice(0, indexdot),
+                  datatypes: [
+                    ...curmmdot?.datatypes.slice(0, indexdot),
                     {
-                      ...curmmdot?.objecttypes[indexdot],  
+                      ...curmmdot?.datatypes[indexdot],  
                       id: action.data.id,           
                       name: action.data.name,
                       description: action.data.description,
@@ -781,7 +781,7 @@ function reducer(state = InitialState, action) {
                       abstract: action.data.abstract,
                       modified: action.data.modified,    
                     },
-                    ...curmmdot?.objecttypes.slice(indexdot + 1)
+                    ...curmmdot?.datatypes.slice(indexdot + 1)
                   ]
                 },
                 ...state.phData.metis.metamodels.slice(curmmdindexot + 1),

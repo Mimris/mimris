@@ -1293,7 +1293,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   }
 
   public render() {
-    // console.log('1065 Diagram', this.props.nodeDataArray);
+    console.log('1296 Diagram', this.props.nodeDataArray);
     // console.log('1082 Diagram', this.props.linkDataArray);
     
     return (

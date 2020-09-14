@@ -405,6 +405,7 @@ export class goObjectTypeNode extends goNode {
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     typename: string;
     choices: string[];
+    abstract: boolean;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.class = 'goObjectTypeNode';
@@ -414,8 +415,9 @@ export class goObjectTypeNode extends goNode {
         this.typename = constants.gojs.C_OBJECTTYPE;
         // this.isGroup    = false;
         this.choices = ['Edit name'];
-
+        this.abstract = false;
         if (objtype) {
+            this.abstract = objtype.abstract;
             this.setName(objtype.name);
             this.setType(constants.gojs.C_OBJECTTYPE);
             const typeview = objtype.getDefaultTypeView();

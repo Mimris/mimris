@@ -363,6 +363,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = gen.askForTargetMetamodel(context);
+                myMetis.currentModel.targetModelRef = context.myTargetMetamodel.id;
                 const dtype = gen.generateDatatype(currentObj, context);
                 const gqlDatatype = new gql.gqlDatatype(dtype);
                 const modifiedDatatypes = new Array();
@@ -429,6 +430,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                  const currentObjview = part.data.objectview;
                  console.log('430 Generate Object Type', context);
                  context.myTargetMetamodel = gen.askForTargetMetamodel(context);
+                 myMetis.currentModel.targetModelRef = context.myTargetMetamodel.id;
                  const objtype = gen.generateObjectType(currentObj, currentObjview, context);
                  // First handle properties
                  const modifiedProperties = new Array();

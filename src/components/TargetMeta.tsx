@@ -7,11 +7,12 @@ import GoJSPaletteTargetApp from "./gojs/GoJSPaletteTargetApp";
 
 const TargetMeta = (props) => {
   // const page = (props) => {
-
+  console.log('10 TargetMeta', props);
+  
   const gojstypes = props.gojsTargetMetamodel
 
   // /** Toggle divs */
-  const [visiblePalette, setVisiblePalette] = useState(false)
+  const [visiblePalette, setVisiblePalette] = useState(true)
   function togglePalette() { setVisiblePalette(!visiblePalette); }
 
   const [refresh, setRefresh] = useState(true)
@@ -20,8 +21,8 @@ const TargetMeta = (props) => {
   /**  * Get the state and metie from the store,  */
   // const gojstypes = props.phFocus.gojsMetamodel
   // console.log('18 Palette', gojstypes, props);
-  // console.log('11 Palette', gojstypes);
-  // console.log('12 Palette', gojstypes.nodeDataArray);
+  console.log('23 TargetMeta', gojstypes);
+  // console.log('24 TargetMeta', gojstypes.nodeDataArray);
   // console.log('13 Palette', gojstypes.linkDataArray);
 
   const gojsapp = (gojstypes) &&

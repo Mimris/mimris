@@ -23,6 +23,7 @@ import {
   SET_GOJS_METAMODEL,
   SET_GOJS_METAMODELPALETTE, 
   SET_GOJS_METAMODELMODEL,
+  SET_GOJS_TARGETMETAMODEL,
   SET_FOCUS_MODELVIEW,
   SET_FOCUS_PROJ, 
   SET_FOCUS_ORG, 
@@ -157,6 +158,13 @@ export const setGojsMetamodelModel = (data) => {
   // console.log('21---', data);
   return {
     type: SET_GOJS_METAMODELMODEL,
+    data: JSON.parse(data.value)
+  }
+}
+export const setGojsTargetMetamodel = (data) => {
+  // console.log('21---', data);
+  return {
+    type: SET_GOJS_TARGETMETAMODEL,
     data: JSON.parse(data.value)
   }
 }

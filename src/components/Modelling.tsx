@@ -20,7 +20,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  // console.log('17 Modelling', props);
+  console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -40,8 +40,8 @@ const page = (props:any) => {
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
-  let gojstargetmetamodelpalette = props.phGojs?.gojsTargetMetamodelPalette // this is the generated target metamodel
-  let gojstargetmetamodel = null //props.phGojs?.gojsTargetMetamodel 
+  // let gojstargetmetamodelpalette = props.phGojs?.gojsTargetMetamodelPalette // this is the generated target metamodel
+  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel 
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
   let metis = props.phData?.metis
@@ -51,6 +51,8 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
 
+  console.log('54 Modelling', props.phGojs, gojstargetmetamodel);
+  
     useEffect(() => {
       // console.log('38 Diagram state', props ); 
       setRefresh(!refresh)

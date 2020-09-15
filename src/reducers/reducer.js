@@ -23,6 +23,7 @@ import {
   SET_GOJS_METAMODEL,
   SET_GOJS_METAMODELPALETTE,
   SET_GOJS_METAMODELMODEL,
+  SET_GOJS_TARGETMETAMODEL,
   SET_FOCUS_MODELVIEW,
   SET_FOCUS_PROJ,
   SET_FOCUS_ORG,
@@ -222,6 +223,15 @@ function reducer(state = InitialState, action) {
         phGojs: {
           ...state.phGojs,
           gojsMetamodelModel: action.gojsMetamodelModel
+        }
+      }
+    case SET_GOJS_TARGETMETAMODEL:
+      console.log('229 SET_GOJS_TARGETMETAMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsTargetMetamodel: action.gojsTargetMetamodel
         }
       }
     case SET_GOJS_METAMODEL:

@@ -112,14 +112,14 @@ export class gqlMetaModel {
                 this.addDataType(datatype);
             }
         }
-        let unittypes = metamodel.getUnitCategories();
-        if (unittypes) {
-            let cnt = unittypes.length;
-            for (let i = 0; i < cnt; i++) {
-                let unittype = unittypes[i];
-                this.addUnittype(unittype);
-            }
-        }
+        // let unittypes = metamodel.getUnitCategories();
+        // if (unittypes) {
+        //     let cnt = unittypes.length;
+        //     for (let i = 0; i < cnt; i++) {
+        //         let unittype = unittypes[i];
+        //         this.addUnittype(unittype);
+        //     }
+        // }
         if (includeViews) {
             const objtypeviews = metamodel.getObjectTypeViews();
             if (objtypeviews) {
@@ -491,20 +491,24 @@ export class gqlProperty {
     }
 }
 export class gqlModel {
-    id:             string;
-    name:           string;
-    description:    string;
-    metamodelRef:   string;
-    objects:        gqlObject[];
-    relships:       gqlRelationship[];
-    modelviews:     gqlModelView[];
-    deleted:        boolean;
-    modified:       boolean;
+    id:                     string;
+    name:                   string;
+    description:            string;
+    metamodelRef:           string;
+    sourceModelRef:         string;
+    targetModelRef:         string;
+    objects:                gqlObject[];
+    relships:               gqlRelationship[];
+    modelviews:             gqlModelView[];
+    deleted:                boolean;
+    modified:               boolean;
     constructor(model: akm.cxModel, includeViews: boolean) {
         this.id             = model.id;
         this.name           = model.name;
         this.description    = model.description ? model.description : "";
         this.metamodelRef   = model.getMetamodel() ? model.getMetamodel().id : "";
+        this.sourceModelRef = model.sourceModelRef;
+        this.targetModelRef = model.targetModelRef;
         this.objects        = [];
         this.relships       = [];
         this.modelviews     = [];

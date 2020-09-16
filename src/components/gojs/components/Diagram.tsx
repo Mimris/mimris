@@ -468,11 +468,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function(o: any) { 
                  let obj = o.part.data.object;
                  let objtype = obj.type;
-                 if (objtype.name === constants.types.AKM_DATATYPE)
+                 if (objtype.name === constants.types.AKM_INFORMATION)
+                     return true;
+                 else
                      return false;
-                 if (objtype.name === constants.types.AKM_UNIT)
-                     return false;
-                 return true;
              }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
@@ -760,6 +759,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }
           },
           function (o: any) { return true; }),
+          makeButton("Set Target Model",
+          function (e: any, obj: any) {
+            // Set target model
+          },
+          function (o: any) { return false; }),
           makeButton("Zoom All",
           function (e: any, obj: any) {
             e.diagram.commandHandler.zoomToFit();

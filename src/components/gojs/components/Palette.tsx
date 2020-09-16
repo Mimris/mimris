@@ -201,7 +201,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   
       // Function to identify images related to an image id
       function findImage(image: string) {
-          if (image) {
+          if (image && !image.includes('//')) {
               return "./../images/" + image;
           }
           return "";

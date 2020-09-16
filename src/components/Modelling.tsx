@@ -44,6 +44,8 @@ const page = (props:any) => {
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel 
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
+  console.log('47 Modelling', gojsmetamodel);
+  
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
@@ -82,7 +84,7 @@ const page = (props:any) => {
     }, [focusModelview?.id])
 
     useEffect(() => {
-      console.log('76 Modelling', props ); 
+      // console.log('76 Modelling', props ); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])

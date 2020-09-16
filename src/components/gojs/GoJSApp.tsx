@@ -680,6 +680,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         // console.log('146 GoJSApp event name: ', name);
         break;
     }
+    
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
 

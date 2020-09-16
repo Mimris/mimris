@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 const DispatchFromLocalStore = (props) => {
   const dispatch = useDispatch()
   const locState = props
-  console.log('9 modelling', locState.phSource);
+  // console.log('9 modelling', locState.phSource);
   if (locState) {
     const phData = locState.phData
     const phFocus = locState.phFocus

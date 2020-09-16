@@ -1262,10 +1262,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // Function to identify images related to an image id
     function findImage(image: string) {
       // if (image.substring(0,4) === 'http') { // its an URL
-      if (image.includes('//')) { // its an URL
-        // console.log('1092 Diagram', image);    
+      if (image.includes('//')) { // its an URL   
+        // console.log('1269 Diagram', image);
         return image
       } else if (image.includes('/')) { // its a local image
+        // console.log('1270 Diagram', image);   
         return image
       } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
         const firstcharacter = image.substring(0, 1)
@@ -1276,7 +1277,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         //   // const lettersvg = letter
         //   console.log('1058 Diagram', letter, svgs[letter])
         //   return svgs[letter].svg //svgs[`'${letter}'`]
-      } else {
+      } else { 
+        // console.log('1283 Diagram', image);
         return "./../images/" + image //its an image in public/images
       }
       return "";

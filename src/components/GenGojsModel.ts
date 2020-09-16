@@ -61,14 +61,14 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('61 GenGojsModel myMetamodelRef :', curmod.metamodelRef, curmetamodel);
       // console.log('62 GenGojsModel myTargetModelRef :', curmod.targetModelRef, curtargetmodel);
       const myTargetMetamodel = curtargetmodel || null
-      console.log('60 GenGojsModel myTargetMetamodel :', myTargetMetamodel);
+      // console.log('60 GenGojsModel myTargetMetamodel :', myTargetMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       // console.log('63 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
       // console.log('65 myGoMetamodel', myGoMetamodel);
       const myTargetModelPalette = (myTargetMetamodel !== null) && buildGoMetaPalette(myTargetMetamodel);
-      console.log('66 myTargetModelPalette', myTargetModelPalette);
+      // console.log('66 myTargetModelPalette', myTargetModelPalette);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('69 myPalette', myPalette);
@@ -95,7 +95,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       //   ({ key: ot.id, text: ot.name, color: 'lightyellow', loc: `0 ${index * (-40)}` }))
       //   : []
         
-      // console.log('91 GenGojsModel', myMetamodelPalette, myTargetModelPalette);
+      console.log('98 myMetamodelPalette', myMetamodelPalette.nodes);
+      console.log('98 myTargetModelPalette', myTargetModelPalette.nodes);
+      console.log('100 myPalette', myPalette);
       
       const gojsMetamodelPalette =  {
         nodeDataArray: myMetamodelPalette?.nodes,
@@ -108,7 +110,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       }
 
       const gojsMetamodelModel = 
-
         (myGoMetamodel) && 
         { 
           nodeDataArray: myGoMetamodel?.nodes,
@@ -134,7 +135,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => mm.id === curmod.metamodelRef);
       
       
-      console.log('126 GenGojsModel', gojsMetamodel);
+      // console.log('126 GenGojsModel', gojsMetamodel);
       // update the Gojs arrays in the store
           dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
           dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
@@ -149,7 +150,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoPalette(metamodel: akm.cxMetaModel): gjs.goModel {
-    console.log('74 buildGoPalette', metamodel);
+    // console.log('74 buildGoPalette', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     const objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
     if (objecttypes) {

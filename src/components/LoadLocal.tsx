@@ -44,7 +44,7 @@ const LoadLocal = (props: any) => {
     const phUser = locState.phUser
     const phSource = 'localStore' //locState.sourceFlag
     if (locState) {
-      console.log('91 SelectSource', locState);
+      // console.log('91 SelectSource', locState);
       let data = phData
       dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
       data = phFocus
@@ -57,7 +57,7 @@ const LoadLocal = (props: any) => {
   }
 
   useEffect(() => {
-    console.log('59 LoadLocal', props);
+    // console.log('59 LoadLocal', props);
     genGojsModel(props, dispatch);
     // setRefresh(!refresh)
   }, [locStatus])
@@ -111,7 +111,7 @@ const LoadLocal = (props: any) => {
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     };
-    console.log('59 LoadLocal', data);
+    // console.log('59 LoadLocal', data);
     (reduxmod) && setLocState(data)
     // console.log('62 LoadLocal', state);
   }

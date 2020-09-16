@@ -53,6 +53,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     let parentType: akm.cxObjectType | null = null;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (objtype) {
+        objtype.setModified(true);
         parentType = obj.type;
         // Connect objtype to parentType
         let reltypes = myMetamodel.findRelationshipTypesBetweenTypes(objtype, parentType, true);
@@ -68,6 +69,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         // First check if it already exists
         if (!parentRelType) {
             parentRelType  = new akm.cxRelationshipType(utils.createGuid(), 'IsA', objtype, parentType, "");
+            parentRelType.setModified(true);
             parentRelType.setRelshipKind('Generalization');
             myMetamodel.addRelationshipType(parentRelType);
             myMetis.addRelationshipType(parentRelType);
@@ -76,6 +78,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             let objtypeview = new akm.cxObjectTypeView(utils.createGuid(), obj.name, objtype, obj.description);
             objtypeview.applyObjectViewParameters(objview);
             objtype.typeview = objtypeview;
+            objtype.setModified(true);
             myTargetMetamodel?.addObjectTypeView(objtypeview);
             myMetis.addObjectTypeView(objtypeview);
         }
@@ -99,7 +102,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }         
-    console.log('102 generateObjectType', proptypes);
+    console.log('105 generateObjectType', proptypes);
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -139,7 +142,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }
-    console.log('141 generateObjectType', myMetis);
+    console.log('145 generateObjectType', myMetis);
     return objtype;
 }
 

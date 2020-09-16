@@ -135,8 +135,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // define myDiagram
     let myDiagram;
     const myMetis = this.myMetis;
-    myMetis.deleteViewsOnly = false;
-    myMetis.pasteViewsOnly  = false;
+    if (myMetis) {
+      myMetis.deleteViewsOnly = false;
+      myMetis.pasteViewsOnly  = false;
+    }
     if (true) {
       myDiagram =
         $(go.Diagram,
@@ -207,7 +209,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
-    myDiagram.dispatch = this.myMetis.dispatch;
+    myDiagram.dispatch = this.myMetis?.dispatch;
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -278,15 +280,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
               })
               const object = myMetis.findObject(objview?.object?.id);
-              if (object) {
-                const gqlObject = new gql.gqlObject(object);
-                const modifiedObjects = new Array();
-                modifiedObjects.push(gqlObject);
-                modifiedObjects.map(mn => {
-                  let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-                })
-              }
+                if (object) {
+                  const gqlObject = new gql.gqlObject(object);
+                  const modifiedObjects = new Array();
+                  modifiedObjects.push(gqlObject);
+                  modifiedObjects.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+                  })
+                }
           },
             function (o: any) {
               const node = o.part.data;
@@ -364,6 +366,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = gen.askForTargetMetamodel(context);
                 myMetis.currentModel.targetModelRef = context.myTargetMetamodel.id;
+
+                const gqlModel = new gql.gqlModel(context.myModel);
+                const modifiedModels = new Array();
+                modifiedModels.push(gqlModel);
+                modifiedModels.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                })
+                
                 const dtype = gen.generateDatatype(currentObj, context);
                 const gqlDatatype = new gql.gqlDatatype(dtype);
                 const modifiedDatatypes = new Array();
@@ -372,6 +383,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   let data = mn;
                   e.diagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
                 })
+
             },
             function(o: any) { 
               const obj = o.part.data.object;
@@ -430,7 +442,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                  const currentObjview = part.data.objectview;
                  console.log('430 Generate Object Type', context);
                  context.myTargetMetamodel = gen.askForTargetMetamodel(context);
-                 myMetis.currentModel.targetModelRef = context.myTargetMetamodel.id;
+                 myMetis.currentModel.targetModelRef = context.myTargetMetamodel?.id;
                  const objtype = gen.generateObjectType(currentObj, currentObjview, context);
                  // First handle properties
                  const modifiedProperties = new Array();
@@ -1295,7 +1307,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
   }
 
   public render() {
-    console.log('1296 Diagram', this.props.nodeDataArray);
+    // console.log('1296 Diagram', this.props.nodeDataArray);
     // console.log('1082 Diagram', this.props.linkDataArray);
     
     return (

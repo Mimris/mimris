@@ -179,7 +179,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "done":             done
     }
     // console.log('177 handleDiagramEvent - context', name, this.state, context);
-    console.log('178 handleEvent', myMetis);
+    // console.log('178 handleEvent', myMetis);
 
     switch (name) {
       case 'TextEdited': {
@@ -689,7 +689,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
-    console.log('583 modifiedTypeNodes', modifiedTypeNodes);
+    // console.log('583 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
@@ -701,13 +701,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
     })
 
-    console.log('705 modifiedTypeGeos', modifiedTypeGeos);
+    // console.log('705 modifiedTypeGeos', modifiedTypeGeos);
     modifiedTypeGeos?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
     })
 
-    console.log('694 modifiedLinks', modifiedLinks);
+    // console.log('694 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
@@ -731,7 +731,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 
-    console.log('544 modifiedRelships', modifiedRelships);
+    // console.log('544 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
@@ -922,9 +922,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     // console.log('558 this.context', this.context);
     // console.log('824 dispatch', this.props.dispatch);
     //console.log('825 dispatch', this.state.dispatch);
-    this.state.myMetis.dispatch = this.state.dispatch;
+    if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     // console.log('827 dispatch', this.state.myMetis.dispatch);
-    return (
+    return ( (this.state) &&
       <div className="diagramwrapper">
 
         <DiagramWrapper

@@ -38,14 +38,14 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     const obj = myMetis.findObject(object.id);
     let proptypes  = new Array();
-    let objtype = myTargetMetamodel.findObjectTypeByName(obj.name);
+    let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
     if (!objtype) {
         // New object type - Create it
         objtype = new akm.cxObjectType(utils.createGuid(), obj.name, obj.description);
         const properties = obj?.type?.properties;
         if (properties !== undefined && properties !== null && properties.length > 0)
             objtype.properties = properties;
-        myTargetMetamodel.addObjectType(objtype);
+        myTargetMetamodel?.addObjectType(objtype);
         myMetis.addObjectType(objtype);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
@@ -76,7 +76,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             let objtypeview = new akm.cxObjectTypeView(utils.createGuid(), obj.name, objtype, obj.description);
             objtypeview.applyObjectViewParameters(objview);
             objtype.typeview = objtypeview;
-            myTargetMetamodel.addObjectTypeView(objtypeview);
+            myTargetMetamodel?.addObjectTypeView(objtypeview);
             myMetis.addObjectTypeView(objtypeview);
         }
 
@@ -133,7 +133,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                             }
                         }
                     }
-                    myTargetMetamodel.addProperty(prop);
+                    myTargetMetamodel?.addProperty(prop);
                     myMetis.addProperty(prop); 
                 }                           
             }

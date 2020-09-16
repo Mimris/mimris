@@ -9,7 +9,7 @@ const TargetMeta = (props) => {
   // const page = (props) => {
   console.log('10 TargetMeta', props);
   
-  const gojstypes = props.gojsTargetMetamodel
+  const gojstypes = props.gojsModel
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)

@@ -12,7 +12,7 @@ import { colorOptions } from './data';
 
 const EditProperties = (props) => {
 
-  console.log('8 EditProperties', props);
+  // console.log('8 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);
@@ -242,7 +242,7 @@ const EditProperties = (props) => {
   ).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))
-  console.log('223 EditProperties', fieldsDiv);
+  // console.log('223 EditProperties', fieldsDiv);
 
   const previewIcon =  (iconvalue) && (iconvalue.substring(0, 4) === 'http')
     ? <div className="ml-2"><img src={iconvalue} /></div>

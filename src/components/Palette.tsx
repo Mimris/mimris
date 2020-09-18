@@ -12,7 +12,7 @@ const Palette = (props) => {
   
   const gojstypes = props.gojsMetamodel
   const gojsobjects = props.gojsModel // has to be: props.gojsObjects
-  console.log('15 Palette gojstypes',  gojstypes );
+  // console.log('15 Palette gojstypes',  gojstypes );
   // console.log('16 Palette gojsobjects', gojsobjects );
 
   // /** Toggle divs */

@@ -44,7 +44,7 @@ const page = (props:any) => {
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel 
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  console.log('47 Modelling', gojsmetamodel);
+  // console.log('47 Modelling', gojsmetamodel);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -55,32 +55,36 @@ const page = (props:any) => {
 
   // console.log('54 Modelling', props.phGojs, gojstargetmetamodel);
   
-    useEffect(() => {
-      // console.log('38 Diagram state', props ); 
-      setRefresh(!refresh)
-      genGojsModel(props, dispatch);
-      focusModel = props.phFocus?.focusModel
-    }, [focusModel?.id])
+    // useEffect(() => {
+    //   // console.log('38 Diagram state', props ); 
+    //   genGojsModel(props, dispatch);
+    //   setRefresh(!refresh)
+    //   focusModel = props.phFocus?.focusModel
+    // }, [focusModel?.id])
 
     useEffect(() => {
       // console.log('38 Diagram state', props ); 
-      //setRefresh(!refresh)
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
-    }, [])
-
-    useEffect(() => {
-      // console.log('38 Diagram state', props ); 
       // setRefresh(!refresh)
-      genGojsModel(props, dispatch);
-      gojsmodel = props.phFocus?.focusModel
-    }, [props.phFocus?.focusModel, props.phFocus?.focusMetamodel])
+    }, [props.phData.metis])
+
+    // useEffect(() => {
+    //   // console.log('38 Diagram state', props ); 
+    //   // setRefresh(!refresh)
+    //   genGojsModel(props, dispatch);
+    //   gojsmodel = props.phGojs?.gojsModel 
+    // }, [])
+    // }, [props.phFocus?.focusModel, props.phFocus?.focusMetamodel])
     
     useEffect(() => {
-      // console.log('42 Diagram state', props ); 
-      setRefresh(!refresh)
+      focusModelview = props.phFocus?.focusModelview
+      // setRefresh(!refresh)
+      // console.log('80 Diagram state', focusModelview, props.phGojs?.gojsModel.nodeDataArray ); 
       genGojsModel(props, dispatch);
-      focusModel = props.phFocus?.focusModel
+      // console.log('82 Diagram state', props.phGojs?.gojsModel.nodeDataArray ); 
+      // focusModel = props.phFocus?.focusModel
+      setRefresh(!refresh)
     }, [focusModelview?.id])
 
     useEffect(() => {
@@ -204,7 +208,7 @@ const page = (props:any) => {
             <Row >
             <Col xs="auto m-0 p-0 pl-3">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-              <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+              <div className="myPalette pl-1 mb-1 pt-0 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}
@@ -239,7 +243,7 @@ const page = (props:any) => {
                 </div>
               </Col>
               <Col xs="auto m-0 p-0 pr-0">
-                <div className="myTargetMeta pl-0 mb-1 pt-2 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+                <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
                   <TargetMeta
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}

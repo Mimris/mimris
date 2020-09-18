@@ -18,7 +18,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels
 
-  // console.log('22 GenGojsModel metis:', metis);
+  console.log('22 GenGojsModel metis:', metis);
 
   if (metis !== null) {
     let myMetis = null;
@@ -95,9 +95,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       //   ({ key: ot.id, text: ot.name, color: 'lightyellow', loc: `0 ${index * (-40)}` }))
       //   : []
         
-      console.log('98 myMetamodelPalette', myMetamodelPalette.nodes);
-      console.log('98 myTargetModelPalette', myTargetModelPalette.nodes);
-      console.log('100 myPalette', myPalette);
+      console.log('98 gojsModel', myMetamodelPalette.nodes);
+      // console.log('98 myMetamodelPalette', myMetamodelPalette.nodes);
+      // console.log('98 myTargetModelPalette', myTargetModelPalette.nodes);
+      // console.log('100 myPalette', myPalette);
       
       const gojsMetamodelPalette =  {
         nodeDataArray: myMetamodelPalette?.nodes,
@@ -125,16 +126,19 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           nodeDataArray: myGoModel?.nodes,
           linkDataArray: myGoModel?.links
         }
+
+        // const gojsModelObjects = {
+        //   nodeDataArray: myGoModelObjects?.nodes,
+        //   linkDataArray: [] //myGoModel?.links
+        // }
   
       // console.log('101', gojsTargetMetamodel);
       // console.log('110 GenGojsModel', myMetis);
       // console.log('111 gojsModel', gojsModel);
 
-
       // /** metamodel */
       const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => mm.id === curmod.metamodelRef);
-      
-      
+           
       // console.log('126 GenGojsModel', gojsMetamodel);
       // update the Gojs arrays in the store
           dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })

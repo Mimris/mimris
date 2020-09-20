@@ -45,15 +45,12 @@ const EditFocusModel = (props) => {
   
   // console.log('42 EditFocusModel', curmetamodel?.relshiptypeviews, currtypeview);
   
-  
-  
   const editmpropertyDiv = (props.modelType === 'modelview') 
     && (curmodel) && <EditProperties item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
   const editmvpropertyDiv = (props.modelType === 'modelview') 
     && (curmodelview) && <EditProperties item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
   const editmmpropertyDiv = (props.modelType === 'modelview') 
     && (curmetamodel) && <EditProperties item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
-
 
   const editovpropertyDiv = (props.modelType === 'model') 
     ? (props.buttonLabel === 'O')

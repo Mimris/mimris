@@ -48,6 +48,9 @@ const Modeller = (props: any) => {
   }, [models, modelviews])
   // console.log('37 Modeller', selmodels);
   // console.log('23 Modeller myMetis', props.myMetis);
+  useEffect(() => {
+    setRefresh(!refresh)
+  }, [focusModelview?.id])
   
   const gojsapp = (gojsmodel && !prevgojsmodel) &&
     < GoJSApp
@@ -71,7 +74,7 @@ const Modeller = (props: any) => {
       </div> 
     :
       <div className="modeller-selection float-right" >
-        <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />
+        {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
         {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' />
         <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' /> */}
       </div> 

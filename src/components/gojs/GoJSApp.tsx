@@ -142,14 +142,28 @@ class GoJSApp extends React.Component<{}, AppState> {
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
+    console.log('145 handleDiagramEvent', myGoMetamodel);
     const gojsModel = {
       nodeDataArray: myGoModel?.nodes,
       linkDataArray: myGoModel?.links
     }
+    const nodes = new Array();
+    const nods = myGoMetamodel.nodes;
+    for (let i=0; i<nods.length; i++) {
+      const node = nods[i];
+      const objtype = node.objtype;
+      if (objtype.abstract) continue;
+      if (objtype.deleted)  continue;
+      nodes.push(node);
+    }
+    myGoMetamodel.nodes = nodes;
+    console.log('159 gojsMetamodel', myGoMetamodel);
+
     const gojsMetamodel = {
       nodeDataArray: myGoMetamodel?.nodes,
       linkDataArray: myGoMetamodel?.links
     }
+    console.log('165 gojsMetamodel', gojsMetamodel);
     const modifiedNodes         = new Array();
     const modifiedLinks         = new Array();
     const modifiedTypeNodes     = new Array();
@@ -683,7 +697,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     
     this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
     console.log('684 gojsMetamodel', gojsMetamodel);
-    //this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+    this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
 
     // console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {

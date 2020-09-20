@@ -48,8 +48,8 @@ const SelectSource = (props: any) => {
  
   const models = props.phData?.metis?.models
   const focusModel = props.phFocus?.focusModel
-  const model = models?.find((m: any) => m?.id === focusModel?.id)
-  const selmodels = models?.map((m: any) => m)
+  const model = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
+  const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
 
   const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save current to Server</button >
@@ -60,14 +60,14 @@ const SelectSource = (props: any) => {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
-// console.log('42 LoadServer', selmodels, selmodelviews);
+console.log('42 LoadServer', selmodels, selmodelviews);
 
   const frameId = 'myFrame'
   // let iframe = {}
 // console.log('42 LoadServer', models, selmodels);
 
   // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
-  const selectorDiv = (props.ph?.phSource === 'Model server') && 
+  const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels && selmodelviews) &&
     <div className="modeller-selection p-2 " >
       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />

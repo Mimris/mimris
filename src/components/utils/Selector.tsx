@@ -11,7 +11,7 @@ const Selector = ( props: any ) => {
 
   const type = props.type
   let selArray = props.selArray
-  // console.log('14 Selector', props);
+  console.log('14 Selector', props);
   
   // if (selArray.length === 1) selArray = [...selArray,...selArray]
   const handleChange = (event: any) => {
@@ -19,24 +19,26 @@ const Selector = ( props: any ) => {
     const name = JSON.parse(event.value).name
     const focustype = { id: id, name: name }
     const data = focustype
-    console.log('13 selector', data, type);
+    // console.log('22 selector', data, type);
     dispatch({ type: type, data })
     // setRefresh(!refresh)
   }
   // console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
   const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
   
-  const options = selArray && (focus) 
-    ? [
-      <option  key={focus}  value={`${focus}...`} > {focus} </option>,
-      selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
-      // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
-      <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})} > {m.name} </option>)]
-    : [
-      <option   key={focus} value={`${focus}...`} >Select {props.selName}... </option>,
-      selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
-      // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
-      <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)]
+  const options = selArray && (
+    (focus) 
+      ? [
+        <option  key={focus}  value={`${focus}...`} > {focus} </option>,
+        selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
+        // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
+        <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})} > {m.name} </option>)]
+      : [
+        <option   key={focus} value={`${focus}...`} >Select {props.selName}... </option>,
+        selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
+        // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
+        <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)]
+  )
     
     
 

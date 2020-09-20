@@ -48,10 +48,11 @@ const page = (props:any) => {
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+  //let myGoMetamodel = props.phGojs?.gojsMetamodel
   let phFocus = props.phFocus;
   let phData = props.phData
 
-  // console.log('54 Modelling', props.phGojs, gojstargetmetamodel);
+  console.log('54 Modelling', props.phGojs, myGoMetamodel);
   
     useEffect(() => {
       // console.log('38 Diagram state', props ); 
@@ -62,7 +63,7 @@ const page = (props:any) => {
 
     useEffect(() => {
       // console.log('38 Diagram state', props ); 
-      //setRefresh(!refresh)
+      setRefresh(!refresh)
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
     }, [])

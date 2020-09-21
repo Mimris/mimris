@@ -126,11 +126,14 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           nodeDataArray: myGoModel?.nodes,
           linkDataArray: myGoModel?.links
         }
-
-        // const gojsModelObjects = {
-        //   nodeDataArray: myGoModelObjects?.nodes,
-        //   linkDataArray: [] //myGoModel?.links
-        // }
+// Added by Dag      
+      const objects = myModel.objects;
+      const nodes = buildObjectPalette(objects);
+      const gojsModelObjects = {
+        nodeDataArray: nodes,
+        linkDataArray: [] //myGoModel?.links
+      }
+// ----
   
       // console.log('101', gojsTargetMetamodel);
       // console.log('110 GenGojsModel', myMetis);
@@ -167,16 +170,33 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
           const typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
           objview.setTypeView(typeview);
-          let node = new gjs.goObjectNode(utils.createGuid(), objview);
+          const node = new gjs.goObjectNode(utils.createGuid(), objview);
           node.loadNodeContent(myGoPaletteModel);
           node.isGroup = objtype.isContainer();
           if (node.isGroup)
-            node.category = constants.C_PALETTEGROUP_OBJ;
+            node.category = constants.gojs.C_PALETTEGROUP_OBJ;
           myGoPaletteModel.addNode(node);
         }
       }
     }
     return myGoPaletteModel;
+  }
+
+  function buildObjectPalette(objects: akm.cxObject[]) {
+    const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
+    const nodeArray = new Array();
+    for (let i=0; i<objects.length; i++) {
+      const obj = objects[i];
+      const objtype = obj?.getObjectType();
+      const typeview = objtype?.getDefaultTypeView();
+      const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
+      objview.setTypeView(typeview);
+      const node = new gjs.goObjectNode(utils.createGuid(), objview);
+      node.isGroup = objtype.isContainer();
+      node.category = constants.gojs.C_OBJECT;
+      nodeArray.push(node);
+    }
+    return nodeArray;
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
@@ -216,7 +236,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoMetaPalette() {
-    let myGoMetaPalette = new gjs.goModel(utils.createGuid(), "myMetaPalette", null);
+    const myGoMetaPalette = new gjs.goModel(utils.createGuid(), "myMetaPalette", null);
     const nodeArray = new Array();
     const palNode1 = new gjs.paletteNode("01", "objecttype", "Object type", "Object type", "");
     nodeArray.push(palNode1);

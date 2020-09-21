@@ -38,7 +38,7 @@ const Selector = ( props: any ) => {
         selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
         // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
         <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)]
-  )
+    )
     
     
 

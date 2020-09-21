@@ -20,6 +20,7 @@ import {
   SET_MY_GOMETAMODEL,
   SET_FOCUS_MODEL,
   SET_GOJS_MODEL,
+  SET_GOJS_MODELOBJECTS,
   SET_GOJS_METAMODEL,
   SET_GOJS_METAMODELPALETTE,
   SET_GOJS_METAMODELMODEL,
@@ -250,6 +251,15 @@ function reducer(state = InitialState, action) {
         phGojs: {
           ...state.phGojs,
           gojsModel: action.gojsModel
+        }
+      }
+    case SET_GOJS_MODELOBJECTS:
+      // console.log('210 SET_GOJS_MODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsModelObjects: action.gojsModelObjects
         }
       }
     case SET_MYMETIS_MODEL:

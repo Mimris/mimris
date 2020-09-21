@@ -60,7 +60,7 @@ const SelectSource = (props: any) => {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
-console.log('42 LoadServer', selmodels, selmodelviews);
+// console.log('42 LoadServer', selmodels, selmodelviews);
 
   const frameId = 'myFrame'
   // let iframe = {}

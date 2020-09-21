@@ -10,10 +10,10 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 
 const Palette = (props) => {
   
+  console.log('13 Palette ',  props );
   const gojstypes = props.gojsMetamodel
-  const gojsobjects = props.gojsModel // has to be: props.gojsObjects
-  // console.log('15 Palette gojstypes',  gojstypes );
-  // console.log('16 Palette gojsobjects', gojsobjects );
+  const gojsmodelobjects = props.gojsModelObjects // has to be: props.gojsObjects
+  console.log('16 Palette gojsobjects', gojsmodelobjects );
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -82,7 +82,7 @@ const Palette = (props) => {
               <Col xs="auto m-0 p-0 pl-3"> */}
                 {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
                   < GoJSPaletteApp
-                    nodeDataArray={gojsobjects.nodeDataArray}
+                    nodeDataArray={gojsmodelobjects?.nodeDataArray}
                     linkDataArray={[]}
                     // linkDataArray={gojstypes.linkDataArray}
                     metis={props.metis}

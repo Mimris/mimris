@@ -129,6 +129,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 // Added by Dag      
       const objects = myModel.objects;
       const nodes = buildObjectPalette(objects);
+      console.log('131 GenGojsModel', nodes);
       const gojsModelObjects = {
         nodeDataArray: nodes,
         linkDataArray: [] //myGoModel?.links
@@ -147,9 +148,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
           dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
           dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+          dispatch({ type: 'SET_GOJS_MODELOBJECTS', gojsModelObjects })
           dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
           dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
-          dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis })
+          dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
           dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
           dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
     }

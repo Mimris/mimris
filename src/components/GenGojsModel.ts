@@ -220,11 +220,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const nodeArray = new Array();
     const palNode1 = new gjs.paletteNode("01", "objecttype", "Object type", "Object type", "");
     nodeArray.push(palNode1);
-    const palNode2 = new gjs.paletteNode("02", "objecttype", "Object type", "Container type", "");
-    palNode2.viewkind = "Container";
-    //palNode2.isGroup = false;
-    palNode2.fillcolor = "lightgrey";
-    nodeArray.push(palNode2);
+    // const palNode2 = new gjs.paletteNode("02", "objecttype", "Object type", "Container type", "");
+    // palNode2.viewkind = "Container";
+    // //palNode2.isGroup = false;
+    // palNode2.fillcolor = "lightgrey";
+    // nodeArray.push(palNode2);
     let links = '[]';
     let linkArray = JSON.parse(links);
     myGoMetaPalette.nodes = nodeArray;

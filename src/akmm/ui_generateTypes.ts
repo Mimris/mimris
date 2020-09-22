@@ -23,6 +23,16 @@ export function askForTargetMetamodel(context) {
         console.log('24 askForTarget', myTargetMetamodel);
         if (!myTargetMetamodel)
             alert("The metamodel given does not exist!");
+        // Then handle the object type
+        const goMetamodel = new gjs.goModel(utils.createGuid(), name);
+        console.log('28 askForTargetMetamodel', goMetamodel);
+        const modifiedMetamodels = new Array();
+        modifiedMetamodels.push(goMetamodel);
+        modifiedMetamodels.map(mn => {
+            let data = mn;
+            console.log('33 data', data);
+            context.dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', data })
+        });
         return myTargetMetamodel;
     }
     return;

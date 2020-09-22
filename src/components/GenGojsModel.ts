@@ -36,7 +36,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis.importData(metis, true);
       myMetis.deleteViewsOnly = deleteViewsOnly;
       myMetis.pasteViewsOnly  = pasteViewsOnly
-      // console.log('34 myMetis', myMetis);
+      console.log('34 myMetis', myMetis);
     }
     // console.log('37 GenGojsModel myMetis', glb.metis);
     
@@ -47,7 +47,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const curmetamodel = (curmod) && metamodels.find(mm => mm.id === curmod.metamodelRef)
     const curtargetmodel = (curmod) && metamodels.find(mm => mm.id === curmod.targetModelRef)
     
-    // console.log('42 gengojsmodel', focusModel, focusModelview);
+    console.log('50 gengojsmodel', curmod, curtargetmodel, curmod?.targetModelRef);
 
     let curGomodel = props.phMyGoModel?.myGoModel;
     // console.log('45 gengojsmodel :', curmod, curmod?.id);
@@ -61,14 +61,14 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('61 GenGojsModel myMetamodelRef :', curmod.metamodelRef, curmetamodel);
       // console.log('62 GenGojsModel myTargetModelRef :', curmod.targetModelRef, curtargetmodel);
       const myTargetMetamodel = curtargetmodel || null
-      // console.log('60 GenGojsModel myTargetMetamodel :', myTargetMetamodel);
+      console.log('60 GenGojsModel myTargetMetamodel :', myTargetMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       // console.log('63 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
       // console.log('65 myGoMetamodel', myGoMetamodel);
       const myTargetModelPalette = (myTargetMetamodel !== null) && buildGoMetaPalette(myTargetMetamodel);
-      // console.log('66 myTargetModelPalette', myTargetModelPalette);
+      console.log('66 myTargetModelPalette', myTargetModelPalette);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('69 myPalette', myPalette);
@@ -109,7 +109,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         nodeDataArray: myTargetModelPalette?.nodes,
         linkDataArray: []
       }
-
+      console.log('112 gojsTargetMetamodel', gojsTargetMetamodel);
       const gojsMetamodelModel = 
         (myGoMetamodel) && 
         { 
@@ -189,10 +189,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const nodeArray = new Array();
     for (let i=0; i<objects.length; i++) {
       const obj = objects[i];
+      if (obj.isDeleted()) 
+        continue;
       const objtype = obj?.getObjectType();
       const typeview = objtype?.getDefaultTypeView();
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
       objview.setTypeView(typeview);
+      // console.log('198 buildObjectPalette', objview);
       const node = new gjs.goObjectNode(utils.createGuid(), objview);
       node.isGroup = objtype.isContainer();
       node.category = constants.gojs.C_OBJECT;

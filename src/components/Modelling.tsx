@@ -20,7 +20,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  // console.log('17 Modelling', props);
+  console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -40,8 +40,8 @@ const page = (props:any) => {
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
-  // let gojstargetmetamodelpalette = props.phGojs?.gojsTargetMetamodelPalette // this is the generated target metamodel
-  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel 
+  let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
+  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
   // console.log('47 Modelling', gojsmetamodel);
@@ -54,7 +54,7 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
 
-  console.log('54 Modelling', props.phGojs, myGoMetamodel);
+  console.log('54 Modelling', props.phGojs, gojsmodelobjects);
   
     // useEffect(() => {
     //   // console.log('38 Diagram state', props ); 
@@ -189,7 +189,7 @@ const page = (props:any) => {
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmetamodelmodel}
-                    gojsMetamodel={gojsmetamodelpalette}z
+                    gojsMetamodel={gojsmetamodelpalette}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     myGoMetamodel={myGoMetamodel}
@@ -214,6 +214,7 @@ const page = (props:any) => {
                 <Palette
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
+                  gojsModelObjects={gojsmodelobjects}
                   myMetis={myMetis}
                   myGoModel={myGoModel}
                   myGoMetamodel={myGoMetamodel}

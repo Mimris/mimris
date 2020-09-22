@@ -15,7 +15,7 @@ export const saveState = (state) => {
   try {
     // const state2 = {...state, sourceFlag:'localStore'}
     const serializedState = JSON.stringify(state);
-    console.log('17 LocalStorage', state);
+    // console.log('17 LocalStorage', state);
     
     localStorage.setItem('state', serializedState);
   } catch {

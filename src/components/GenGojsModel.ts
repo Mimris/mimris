@@ -187,7 +187,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   function buildObjectPalette(objects: akm.cxObject[]) {
     const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
     const nodeArray = new Array();
-    for (let i=0; i<objects.length; i++) {
+    for (let i=0; i<objects?.length; i++) {
       const obj = objects[i];
       if (obj.isDeleted()) 
         continue;

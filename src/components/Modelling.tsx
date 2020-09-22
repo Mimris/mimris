@@ -41,10 +41,10 @@ const page = (props:any) => {
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
-  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel // this is the generated target metamodel
+  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  // console.log('47 Modelling', gojsmetamodel);
+  console.log('47 Modelling', props.phGojs?.gojsTargetMetamodel);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis

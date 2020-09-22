@@ -366,7 +366,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = gen.askForTargetMetamodel(context);
                 myMetis.currentModel.targetModelRef = context.myTargetMetamodel.id;
-
+                // console.log('369 Diagram', myMetis.currentModel.targetModelRef);
+                
                 const gqlModel = new gql.gqlModel(context.myModel);
                 const modifiedModels = new Array();
                 modifiedModels.push(gqlModel);
@@ -436,15 +437,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
                   }
-                 const contextmenu = obj.part;  
-                 const part = contextmenu.adornedPart; 
-                 const currentObj = part.data.object;
+                if (!myMetis.targetMetamodel)
+                  myMetis.targetMetamodel = myMetis.currentMetamodel;
+                  const contextmenu = obj.part;  
+                  const part = contextmenu.adornedPart; 
+                  const currentObj = part.data.object;
+
+                  context.myTargetMetamodel = gen.askForTargetMetamodel(context);
+                  myMetis.currentModel.targetModelRef = context.myTargetMetamodel?.id;
+                  console.log('447 Generate Object Type', myMetis.currentModel.targetModelRef);
+                  const gqlModel = new gql.gqlModel(context.myModel);
+                  const modifiedModels = new Array();
+                  modifiedModels.push(gqlModel);
+                  modifiedModels.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                  })
                  const currentObjview = part.data.objectview;
-                 console.log('443 Generate Object Type', context);
-                 context.myTargetMetamodel = gen.askForTargetMetamodel(context);
-                 myMetis.currentModel.targetModelRef = context.myTargetMetamodel?.id;
                  const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                 console.log('447 Generate Object Type', objtype);
+                 console.log('449 Generate Object Type', objtype);
                  // First handle properties
                  const modifiedProperties = new Array();
                  const props = objtype.properties;
@@ -453,7 +464,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     modifiedProperties.push(gqlProp);
                     modifiedProperties.map(mn => {
                       let data = mn;
-                      e.diagram.dispatch({ type: 'UPDATE_PROPERTY_PROPERTIES', data })
+                      e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
                     });
                  }
                  // Then handle the object type
@@ -463,7 +474,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                  modifiedTypeNodes.push(gqlObjectType);
                  modifiedTypeNodes.map(mn => {
                    let data = mn;
-                   e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+                   e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
                  });
               },  
             function(o: any) { 

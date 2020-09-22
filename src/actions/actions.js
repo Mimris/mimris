@@ -39,7 +39,9 @@ import {
   UPDATE_OBJECTTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTTYPEGEOS_PROPERTIES,
   UPDATE_DATATYPE_PROPERTIES,
+  UPDATE_TARGETDATATYPE_PROPERTIES,
   UPDATE_PROPERTY_PROPERTIES,
+  UPDATE_TARGETPROPERTY_PROPERTIES,
   UPDATE_VALUE_PROPERTIES,
   UPDATE_RELSHIPTYPE_PROPERTIES,
   UPDATE_RELSHIPTYPEVIEW_PROPERTIES,
@@ -302,6 +304,13 @@ export const update_objecttype_properties = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const update_targetobjecttype_properties = (data) => {
+  console.log('205 actions update_targetobjecttype_properties', data.payload);
+  return {
+    type: UPDATE_TARGETOBJECTTYPE_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
 export const update_objecttypeview_properties = (data) => {
   console.log('205 actions update_objecttypeview_properties', data.payload);
   return {
@@ -320,6 +329,13 @@ export const update_property_properties = (data) => {
   console.log('205 actions update_property_properties', data.payload);
   return {
     type: UPDATE_PROPERTY_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_targetproperty_properties = (data) => {
+  console.log('205 actions update_targetproperty_properties', data.payload);
+  return {
+    type: UPDATE_TARGETPROPERTY_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

@@ -187,6 +187,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const nodeArray = new Array();
     for (let i=0; i<objects.length; i++) {
       const obj = objects[i];
+      if (obj.isDeleted()) 
+        continue;
       const objtype = obj?.getObjectType();
       const typeview = objtype?.getDefaultTypeView();
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");

@@ -192,8 +192,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       "dispatch":         dispatch,
       "done":             done
     }
-    // console.log('177 handleDiagramEvent - context', name, this.state, context);
-    // console.log('178 handleEvent', myMetis);
+    // console.log('195 handleDiagramEvent - context', name, this.state, context);
+    // console.log('196 handleEvent', myMetis);
 
     switch (name) {
       case 'TextEdited': {
@@ -206,7 +206,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const key = sel.data.key;
                 let text = sel.data.name;
                 const typename = sel.data.type;
-
+                console.log('209 typename', typename);
                 if (typename === 'Object type') {
                   if (text === 'Edit name') {
                     text = prompt('Enter name');
@@ -215,11 +215,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (myNode) {
                     myNode.name = text;
                     uic.updateObjectType(myNode, field, text, context);
-                    console.log('201 TextEdited', myNode);
+                    console.log('218 TextEdited', myNode);
                     if (myNode.objtype) {
                       const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
                       modifiedTypeNodes.push(gqlObjType);
-                      console.log('205 TextEdited', gqlObjType);
+                      console.log('222 TextEdited', gqlObjType);
                     }
                   }
                 } else // Object

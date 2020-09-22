@@ -25,7 +25,7 @@ const SelectContext = (props: any) => {
   
   // find object with type
   const objectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews || []
-  console.log('25 Sel', curmodel, modelviews, objects, objectviews);
+  // console.log('25 Sel', curmodel, modelviews, objects, objectviews);
   
   // remove duplicate objects
   const uniqueovs = objectviews?.filter((ov, index, self) =>

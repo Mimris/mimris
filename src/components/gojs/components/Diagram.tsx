@@ -365,8 +365,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = gen.askForTargetMetamodel(context);
-                myMetis.currentModel.targetModelRef = context.myTargetMetamodel.id;
-                // console.log('369 Diagram', myMetis.currentModel.targetModelRef);
+                myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel.id;
+                // console.log('369 Diagram', myMetis.currentModel.targetMetamodelRef);
                 
                 const gqlModel = new gql.gqlModel(context.myModel);
                 const modifiedModels = new Array();
@@ -444,8 +444,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   const currentObj = part.data.object;
 
                   context.myTargetMetamodel = gen.askForTargetMetamodel(context);
-                  myMetis.currentModel.targetModelRef = context.myTargetMetamodel?.id;
-                  console.log('447 Generate Object Type', myMetis.currentModel.targetModelRef);
+                  myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
+                  console.log('447 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
                   const gqlModel = new gql.gqlModel(context.myModel);
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);
@@ -476,6 +476,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                    let data = mn;
                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
                  });
+                 console.log('478 myMetis', myMetis);
               },  
             function(o: any) { 
                  let obj = o.part.data.object;

@@ -10,6 +10,8 @@ export function askForTargetMetamodel(context) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     let   myTargetMetamodel = context.myTargetMetamodel;
+    console.log('13 ui_generateTypes', myTargetMetamodel);
+    
     if (!myTargetMetamodel) {
         myTargetMetamodel = myMetis.findMetamodelByName("Target Metamodel"); 
         if (!myTargetMetamodel)
@@ -20,7 +22,7 @@ export function askForTargetMetamodel(context) {
         alert("Operation was cancelled!");
     else {
         myTargetMetamodel = myMetis.findMetamodelByName(name); 
-        console.log('24 askForTarget', myTargetMetamodel);
+        console.log('25 askForTarget', myTargetMetamodel);
         if (!myTargetMetamodel)
             alert("The metamodel given does not exist!");
         // Then handle the object type
@@ -152,7 +154,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }
-    console.log('145 generateObjectType', myMetis);
+    console.log('145 generateObjectType', myMetis, objtype);
     return objtype;
 }
 

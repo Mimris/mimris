@@ -443,8 +443,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                  console.log('443 Generate Object Type', context);
                  context.myTargetMetamodel = gen.askForTargetMetamodel(context);
                  myMetis.currentModel.targetModelRef = context.myTargetMetamodel?.id;
+                 console.log('446 Generate Object Type', context);
                  const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                 console.log('447 Generate Object Type', objtype);
+                 console.log('448 Generate Object Type', objtype);
                  // First handle properties
                  const modifiedProperties = new Array();
                  const props = objtype.properties;

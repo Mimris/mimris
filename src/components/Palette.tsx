@@ -10,10 +10,10 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 
 const Palette = (props) => {
   
-  console.log('13 Palette ',  props );
+  // console.log('13 Palette ',  props );
   const gojstypes = props.gojsMetamodel
   const gojsmodelobjects = props.gojsModelObjects // has to be: props.gojsObjects
-  console.log('16 Palette gojsobjects', gojsmodelobjects );
+  // console.log('16 Palette gojsobjects', gojsmodelobjects );
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)

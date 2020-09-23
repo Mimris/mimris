@@ -48,7 +48,7 @@ const SelectSource = (props: any) => {
  
   const models = props.phData?.metis?.models
   const focusModel = props.phFocus?.focusModel
-  const model = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
+  const model = models?.find((m: any) => m?.id === focusModel?.id) // || models[0]
   const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
 

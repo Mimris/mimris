@@ -3596,7 +3596,9 @@ export class cxRelationshipTypeView extends cxMetaObject {
 export class cxModel extends cxMetaObject {
     metamodel: cxMetaModel | null;
     metamodelRef: string;
-    sourceModelRef: string;
+    sourceMetamodelRef: string;
+    targetModelRef: string;
+    sourceMetamodelRef: string;
     targetModelRef: string;
     template: any;
     isTemplate: boolean;
@@ -3612,6 +3614,8 @@ export class cxModel extends cxMetaObject {
         this.category = constants.gojs.C_MODEL;
         this.metamodel = metamodel;
         this.metamodelRef = "";
+        this.sourceMetamodelRef = "";
+        this.targetMetamodelRef = "";
         this.sourceModelRef = "";
         this.targetModelRef = "";
         this.template = null;

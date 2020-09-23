@@ -495,6 +495,8 @@ export class gqlModel {
     name:                   string;
     description:            string;
     metamodelRef:           string;
+    sourceMetamodelRef:     string;
+    targetMetamodelRef:     string;
     sourceModelRef:         string;
     targetModelRef:         string;
     objects:                gqlObject[];
@@ -507,6 +509,8 @@ export class gqlModel {
         this.name           = model.name;
         this.description    = model.description ? model.description : "";
         this.metamodelRef   = model.getMetamodel() ? model.getMetamodel().id : "";
+        this.sourceMetamodelRef = model.sourceMetamodelRef;
+        this.targetMetamodelRef = model.targetMetamodelRef;
         this.sourceModelRef = model.sourceModelRef;
         this.targetModelRef = model.targetModelRef;
         this.objects        = [];

@@ -20,7 +20,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  console.log('17 Modelling', props);
+  // console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -41,10 +41,10 @@ const page = (props:any) => {
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
-  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel // this is the generated target metamodel
+  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  // console.log('47 Modelling', gojsmetamodel);
+  // console.log('47 Modelling', props.phGojs?.gojsTargetMetamodel);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -54,7 +54,7 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
 
-  console.log('54 Modelling', props.phGojs, gojsmodelobjects);
+  // console.log('54 Modelling', props.phGojs, gojsmodelobjects);
   
     // useEffect(() => {
     //   // console.log('38 Diagram state', props ); 
@@ -107,7 +107,7 @@ const page = (props:any) => {
     // then find lenght of modellarray in lodalStore
     const curmmlength = memoryLocState?.phData?.metis.metamodels?.length
     if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    console.log('73 Modelling', curmindex, reduxmod);
+    // console.log('73 Modelling', curmindex, reduxmod);
     const data = {
       phData: {
         ...memoryLocState?.phData,
@@ -129,7 +129,7 @@ const page = (props:any) => {
       phUser: props.phUser,
       phSource: 'localStore'
     };
-    console.log('59 Modelling', reduxmod, data);
+    // console.log('59 Modelling', reduxmod, data);
     (reduxmod) && setMemoryLocState(data) 
     setRefresh(!refresh);
   }

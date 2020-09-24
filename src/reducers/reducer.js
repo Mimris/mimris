@@ -229,7 +229,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_TARGETMETAMODEL:
-      // console.log('229 SET_GOJS_TARGETMETAMODEL', action);
+      console.log('229 SET_GOJS_TARGETMETAMODEL', action);
       return {
         ...state,
         phGojs: {
@@ -426,7 +426,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_MODEL_PROPERTIES:
-      console.log('358 UPDATE_MODEL_PROPERTIES', action);
+      console.log('429 UPDATE_MODEL_PROPERTIES', action);
       const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       return {
         ...state,
@@ -905,11 +905,11 @@ function reducer(state = InitialState, action) {
         const curmmtpot    = state.phData?.metis?.metamodels?.find(m => m.id === curmotpot.targetMetamodelRef)
         if (curmmtpot) {
           const curmmtpindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmotpot.targetMetamodelRef) 
-          const curtpot = curmmtpot?.objecttypes?.find(ot => ot.id === action?.data?.id)
-          const lengthottp = curmmtpot?.objecttypes.length
-          let indextpot = curmmtpot?.objecttypes?.findIndex(ot => ot.id === curtpot?.id)
+          const curtpot = curmmtpot?.properties?.find(ot => ot.id === action?.data?.id)
+          const lengthottp = curmmtpot?.properties.length
+          let indextpot = curmmtpot?.properties?.findIndex(ot => ot.id === curtpot?.id)
+          console.log('911 UPDATE_TARGETPROPERTY_PROPERTIES', indextpot, lengthottp)//, curmotpot, curmmtpot);   
           if (indextpot < 0) {indextpot = lengthottp} 
-          console.log('607 reducer', curmotpot,curmmtpot, curmmtpindexot, lengthottp, indextpot);   
           return {
             ...state,
             phData: {

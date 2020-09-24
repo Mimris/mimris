@@ -445,7 +445,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
                   context.myTargetMetamodel = gen.askForTargetMetamodel(context);
                   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                  console.log('447 Generate Object Type', myMetis.currentModel.targetMetamodelRef);
+                  console.log('447 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
                   const gqlModel = new gql.gqlModel(context.myModel);
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);

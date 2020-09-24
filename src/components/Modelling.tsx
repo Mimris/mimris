@@ -44,7 +44,7 @@ const page = (props:any) => {
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  // console.log('47 Modelling', props.phGojs?.gojsTargetMetamodel);
+  console.log('47 Modelling', props.phGojs?.gojsTargetMetamodel, props);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -54,7 +54,7 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
 
-  // console.log('54 Modelling', props.phGojs, gojsmodelobjects);
+  console.log('54 Modelling', props.phGojs, gojsmodelobjects);
   
     // useEffect(() => {
     //   // console.log('38 Diagram state', props ); 

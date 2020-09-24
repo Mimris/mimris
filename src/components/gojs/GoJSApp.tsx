@@ -478,6 +478,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             } else // object
             {
+              if (part.parentModel == null)
+                myMetis.pasteViewsOnly = true;
               if (part.isGroup)
                 part.size = "300 200";    // Hack
               const objview = uic.createObject(part, context);

@@ -713,6 +713,7 @@ function reducer(state = InitialState, action) {
                       id: action.data.id,           
                       name: action.data.name,
                       description: action.data.description,
+                      properties: action.data.properties,
                       typeviewRef: action.data.typeviewRef,
                       viewkind: action.data.viewkind,
                       abstract: action.data.abstract,

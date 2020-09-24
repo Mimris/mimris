@@ -188,9 +188,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
       objview.setTypeView(typeview);
       const node = new gjs.goObjectNode(utils.createGuid(), objview);
-      node.isGroup = objtype.isContainer();
+      node.isGroup = objtype?.isContainer();
       node.category = constants.gojs.C_OBJECT;
-      const viewdata: any = typeview.data;
+      const viewdata: any = typeview?.data;
       node.addData(viewdata);
       nodeArray.push(node);
     }

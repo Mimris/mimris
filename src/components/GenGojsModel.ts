@@ -71,7 +71,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('66 myTargetModelPalette', myTargetModelPalette);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
-      // console.log('69 myPalette', myPalette);
+      console.log('69 myPalette', myPalette);
       let myModelView = (curmodview) && myMetis?.findModelView(curmodview?.id);
       if (!myModelView) myModelView = myMetis?.findModelView(focusModelview?.id);
       // console.log('63 GenGojsModel  myModel', myMetis, myModel, myModelView);
@@ -96,7 +96,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       //   : []
         
       // console.log('98 gojsModel', myMetamodelPalette.nodes);
-      // console.log('98 myMetamodelPalette', myMetamodelPalette.nodes);
+      console.log('98 myMetamodelPalette', myMetamodelPalette.nodes);
       // console.log('98 myTargetModelPalette', myTargetModelPalette.nodes);
       // console.log('100 myPalette', myPalette);
       
@@ -129,7 +129,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 // Added by Dag      
       const objects = myModel.objects;
       const nodes = buildObjectPalette(objects);
-      // console.log('131 GenGojsModel', nodes);
+      console.log('131 GenGojsModel', nodes);
       const gojsModelObjects = {
         nodeDataArray: nodes,
         linkDataArray: [] //myGoModel?.links
@@ -199,7 +199,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const node = new gjs.goObjectNode(utils.createGuid(), objview);
       node.isGroup = objtype.isContainer();
       node.category = constants.gojs.C_OBJECT;
+      //node.loadNodeContent(myGoObjectPalette);
       nodeArray.push(node);
+      // console.log('203 buildObjectPalette', node);
     }
     return nodeArray;
   }

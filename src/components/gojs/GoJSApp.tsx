@@ -448,7 +448,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
-            // console.log('382 GoJSApp', part);
+            console.log('382 GoJSApp', part);
             if (part.type === 'objecttype') {
               // if (part.viewkind === 'Object') {
               //     part.typename = constants.types.OBJECTTYPE_NAME;

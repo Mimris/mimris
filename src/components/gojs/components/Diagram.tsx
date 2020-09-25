@@ -476,7 +476,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                    let data = mn;
                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
                  });
-                 console.log('478 myMetis', myMetis);
+                 console.log('478 myMetis', modifiedTypeNodes, myMetis);
               },  
             function(o: any) { 
                  let obj = o.part.data.object;

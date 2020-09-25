@@ -694,7 +694,7 @@ function reducer(state = InitialState, action) {
       const lengthtot = curmmtot?.objecttypes.length
       let indextot = curmmtot?.objecttypes?.findIndex(ot => ot.id === curtot?.id)
       if (indextot < 0) {indextot = lengthtot} 
-      // console.log('607 reducer', lengthot, indexot);
+       console.log('607 reducer', lengthtot, indextot);
       
       return {
         ...state,

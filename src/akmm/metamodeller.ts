@@ -2623,7 +2623,7 @@ export class cxType extends cxMetaObject {
             const noProperties = properties.length;
             let i = 0;
             while (i < noProperties) {
-                if (properties[i].getName() === propname)
+                if (properties[i].name === propname)
                     return properties[i];
                 i++;
             }

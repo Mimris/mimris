@@ -71,7 +71,7 @@ const LoadLocal = (props: any) => {
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     }
-    // console.log('59 LoadLocal', data);
+    console.log('59 LoadLocal', data);
     setLocState(data)
     // console.log('62 LoadLocal', state);
   }
@@ -84,12 +84,29 @@ const LoadLocal = (props: any) => {
     const curmlength = locState.phData.metis.models?.length   
     if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     // then find metamodel which is in reduxStore
-    let reduxmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current model index
-    let curmmindex = locState.phData?.metis?.models?.findIndex(mm=> mm?.id === reduxmod?.id) // current model index
+    let reduxmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current metamodel index
+    let curmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxmmod?.id) // current model index
     // then find lenght of modellarray in lodalStore
     const curmmlength = locState.phData.metis.metamodels?.length   
     if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    console.log('73 LoadLocal', curmindex, reduxmod);
+    let metamodels = [
+      ...locState.phData.metis.metamodels.slice(0, curmmindex),     
+      reduxmmod,
+      ...locState.phData.metis.metamodels.slice(curmmindex + 1),
+    ]
+    console.log('97 LoadLocal', metamodels);
+    
+    // then find targetMetamodel
+    let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
+    let curtmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
+    const curtmmlength = locState.phData.metis.metamodels?.length   
+    if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
+    metamodels = [
+      ...metamodels.slice(0, curtmmindex),     
+      reduxtmmod,
+      ...metamodels.slice(curtmmindex + 1),
+    ]
+    console.log('73 LoadLocal', metamodels, curtmmindex, reduxtmmod);
     const data = {
       phData: {
         ...locState.phData,
@@ -100,11 +117,12 @@ const LoadLocal = (props: any) => {
             reduxmod,
             ...locState.phData.metis.models.slice(curmindex + 1),
           ],
-          metamodels: [
-            ...locState.phData.metis.models.slice(0, curmmindex),     
-            reduxmmod,
-            ...locState.phData.metis.models.slice(curmmindex + 1),
-          ]
+          // metamodels: [
+            metamodels
+          //   ...locState.phData.metis.metamodels.slice(0, curmmindex),     
+          //   reduxmmod,
+          //   ...locState.phData.metis.metamodels.slice(curmmindex + 1),
+          // ]
         },
       },
       phFocus:  props.ph.phFocus,

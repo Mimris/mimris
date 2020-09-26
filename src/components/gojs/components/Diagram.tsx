@@ -437,46 +437,58 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
                   }
-                if (!myMetis.targetMetamodel)
+                console.log('440 Diagram', myMetis.targetMetamodel);
+                
+                if (!myMetis.targetMetamodel) {
                   myMetis.targetMetamodel = myMetis.currentMetamodel;
                   const contextmenu = obj.part;  
                   const part = contextmenu.adornedPart; 
                   const currentObj = part.data.object;
 
                   context.myTargetMetamodel = gen.askForTargetMetamodel(context);
-                  myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                  console.log('447 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
-                  const gqlModel = new gql.gqlModel(context.myModel);
-                  const modifiedModels = new Array();
-                  modifiedModels.push(gqlModel);
-                  modifiedModels.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                  })
-                 const currentObjview = part.data.objectview;
-                 const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                 console.log('449 Generate Object Type', objtype);
-                 // First handle properties
-                 const modifiedProperties = new Array();
-                 const props = objtype.properties;
-                 for (let i=0; i<props?.length; i++) {
-                    const gqlProp = new gql.gqlProperty(props[i]);
-                    modifiedProperties.push(gqlProp);
-                    modifiedProperties.map(mn => {
+                  console.log('447', context);
+                  
+                  if (context.myTargetMetamodel === "EKA Metamodel") {  
+                    alert("EKA Metamodel is not valid ad Target metamodel!"); // sf dont generate on EKA Metamodel
+                    myMetis.targetMetamodel = null
+                  } else if (context.myTargetMetamodel == undefined) { // sf
+                    myMetis.targetMetamodel = null
+                  } else {
+                    myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
+                    console.log('447 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
+                    const gqlModel = new gql.gqlModel(context.myModel);
+                    const modifiedModels = new Array();
+                    modifiedModels.push(gqlModel);
+                    modifiedModels.map(mn => {
                       let data = mn;
-                      e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
+                      e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                    })
+                    const currentObjview = part.data.objectview;
+                    const objtype = gen.generateObjectType(currentObj, currentObjview, context);
+                    console.log('449 Generate Object Type', objtype);
+                    // First handle properties
+                    const modifiedProperties = new Array();
+                    const props = objtype.properties;
+                    for (let i=0; i<props?.length; i++) {
+                        const gqlProp = new gql.gqlProperty(props[i]);
+                        modifiedProperties.push(gqlProp);
+                        modifiedProperties.map(mn => {
+                          let data = mn;
+                          e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
+                        });
+                    }
+                    // Then handle the object type
+                    const gqlObjectType = new gql.gqlObjectType(objtype);
+                    console.log('461 Generate Object Type', gqlObjectType);
+                    const modifiedTypeNodes = new Array();
+                    modifiedTypeNodes.push(gqlObjectType);
+                    modifiedTypeNodes.map(mn => {
+                      let data = mn;
+                      e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
                     });
-                 }
-                 // Then handle the object type
-                 const gqlObjectType = new gql.gqlObjectType(objtype);
-                 console.log('461 Generate Object Type', gqlObjectType);
-                 const modifiedTypeNodes = new Array();
-                 modifiedTypeNodes.push(gqlObjectType);
-                 modifiedTypeNodes.map(mn => {
-                   let data = mn;
-                   e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
-                 });
-                 console.log('478 myMetis', modifiedTypeNodes, myMetis);
+                    console.log('478 myMetis', modifiedTypeNodes, myMetis);
+                  }
+                }
               },  
             function(o: any) { 
                  let obj = o.part.data.object;

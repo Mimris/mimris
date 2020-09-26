@@ -158,9 +158,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
     if (objecttypes) {
       for (let i = 0; i < objecttypes.length; i++) {
-        const objtype: akm.cxObjectType = objecttypes[i];
+        const objtype: akm.cxObjectType = objecttypes[i];   
         if (objtype && !objtype.deleted && !objtype.abstract) {
           const obj = new akm.cxObject(utils.createGuid(), objtype.name, objtype, "");
+          console.log('164 GenGojsModel', obj);
+          
+          if (obj.isDeleted()) 
+          continue;
           const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
           const typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
           objview.setTypeView(typeview);

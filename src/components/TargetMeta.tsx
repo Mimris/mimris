@@ -21,7 +21,7 @@ const TargetMeta = (props) => {
   /**  * Get the state and metie from the store,  */
   // const gojstypes = props.phFocus.gojsMetamodel
   // console.log('18 Palette', gojstypes, props);
-  console.log('24 TargetMeta', gojstypes);
+  // console.log('24 TargetMeta', gojstypes);
   // console.log('24 TargetMeta', gojstypes.nodeDataArray);
   // console.log('13 Palette', gojstypes.linkDataArray);
 
@@ -32,7 +32,7 @@ const TargetMeta = (props) => {
       // linkDataArray={gojstypes.linkDataArray}
       metis={props.metis}
       myMetis={props.myMetis}
-      myGoModel={props.myGoModel}
+      myGo5Model={props.myGoModel}
       phFocus={props.phFocus}
       dispatch={props.dispatch}
     />

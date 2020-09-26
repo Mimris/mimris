@@ -730,9 +730,57 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
+          makeButton("New Metamodel",
+          function (e: any, obj: any) {
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel
+            }
+            const metamodel = gen.askForMetamodel(context, true);
+            console.log('746 New Metamodel', metamodel);
+            if (metamodel) {
+              const goMetamodel = new gjs.goModel(utils.createGuid(), metamodel.name);
+              goMetamodel.metamodel = metamodel;
+              console.log('750 New Metamodel', goMetamodel);
+              const modifiedMetamodels = new Array();
+              modifiedMetamodels.push(goMetamodel);
+              modifiedMetamodels.map(mn => {
+                  let data = mn;
+                  console.log('755 data', data);
+                  e.diagram.dispatch({ type: 'SET_GOJS_METAMODEL', data })
+              });
+            }
+          },
+          function (o: any) {
+            return true; 
+          }),
+          makeButton("Set Target Metamodel",
+          function (e: any, obj: any) {
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel
+            }
+            const targetMetamodel = gen.askForMetamodel(context, false);
+            console.log('764 Target Metamodel', targetMetamodel);
+            if (targetMetamodel) {
+              const goMetamodel = new gjs.goModel(utils.createGuid(), targetMetamodel.name);
+              goMetamodel.metamodel = targetMetamodel;
+              console.log('750 Target Metamodel', goMetamodel);
+              const modifiedMetamodels = new Array();
+              modifiedMetamodels.push(goMetamodel);
+              modifiedMetamodels.map(mn => {
+                  let data = mn;
+                  console.log('773 data', data);
+                  e.diagram.dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', data })
+              });
+            }
+          },
+          function (o: any) {
+            return true; 
+          }),
           makeButton("New Model",
           function (e: any, obj: any) {
-            let model
+            let model;
             const metamodel = myMetis.currentMetamodel;
             const modelName = prompt("Enter Model name:", "");
             if (modelName == null || modelName === "") {
@@ -754,7 +802,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               }
             }
           },
-          function (o: any) { return true; }),
+          function (o: any) {
+             return true; 
+          }),
           makeButton("New Model View",
           function (e: any, obj: any) {
             const model = myMetis.currentModel;
@@ -771,12 +821,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data });
             }
           },
-          function (o: any) { return true; }),
+          function (o: any) { 
+            return true; 
+          }),
           makeButton("Set Target Model",
           function (e: any, obj: any) {
             // Set target model
           },
-          function (o: any) { return false; }),
+          function (o: any) { 
+            return false; 
+          }),
           makeButton("Zoom All",
           function (e: any, obj: any) {
             e.diagram.commandHandler.zoomToFit();

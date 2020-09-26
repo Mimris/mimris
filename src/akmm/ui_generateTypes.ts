@@ -40,6 +40,48 @@ export function askForTargetMetamodel(context) {
     return;
 } 
 
+export function askForMetamodel(context: any, create: boolean) {
+    const myMetis = context.myMetis;
+    const myMetamodel = context.myMetamodel;
+    const metamodels = myMetis.metamodels;
+    let mmlist = "";
+    for (let i=0; i<metamodels.length; i++) {
+        const mm = metamodels[i];
+        if (i == 0) 
+            mmlist = "'" + mm.name + "'";
+        else 
+            mmlist += ",'" + mm.name + "'";;
+    }
+    let mmname = "";
+    if (!create) 
+        mmname = prompt("Enter Metamodel as one of " + mmlist, myMetamodel.name);
+    else 
+        mmname = prompt("Enter Metamodel name");
+    if (mmname == null || mmname == "") {
+        alert("Operation was cancelled!");
+        return;
+    } else {
+        let metamodel = myMetis.findMetamodelByName(mmname); 
+        if (create && metamodel) {
+            alert("Metamodel already exists");
+            return;
+        }
+        console.log('67 askForMetamodel', myMetis);
+        if (!metamodel) {
+            if (confirm("Create new metamodel '" + mmname + "' ?")) {
+                metamodel = new akm.cxMetaModel(utils.createGuid(), mmname);
+                myMetis.addMetamodel(metamodel);
+            } else {
+                alert("Operation was cancelled!");
+                return;
+            }
+        }
+        console.log('72 myMetis', myMetis);
+        return metamodel;
+    }
+} 
+
+
 export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectView, context: any) {
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;

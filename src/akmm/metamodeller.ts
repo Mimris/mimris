@@ -2623,7 +2623,7 @@ export class cxType extends cxMetaObject {
             const noProperties = properties.length;
             let i = 0;
             while (i < noProperties) {
-                if (properties[i].name === propname)
+                if (properties[i].getName() === propname)
                     return properties[i];
                 i++;
             }
@@ -3597,8 +3597,8 @@ export class cxModel extends cxMetaObject {
     metamodel: cxMetaModel | null;
     metamodelRef: string;
     sourceMetamodelRef: string;
-    targetModelRef: string;
-    sourceMetamodelRef: string;
+    targetMetamodelRef: string;
+    sourceModelRef: string;
     targetModelRef: string;
     template: any;
     isTemplate: boolean;

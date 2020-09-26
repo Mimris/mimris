@@ -10,17 +10,21 @@ export function askForTargetMetamodel(context) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     let   myTargetMetamodel = context.myTargetMetamodel;
-    console.log('13 ui_generateTypes', myTargetMetamodel);
     
     if (!myTargetMetamodel) {
         myTargetMetamodel = myMetis.findMetamodelByName("Target Metamodel"); 
         if (!myTargetMetamodel)
-            myTargetMetamodel = myMetamodel;
+        myTargetMetamodel = myMetamodel;
     }
+    console.log('19 ui_generateTypes', myTargetMetamodel);
     const name = prompt("Target metamodel is ", myTargetMetamodel.name);
-    if (name == null || name == "")
+    console.log('21 ui_generateTypes', myTargetMetamodel);
+    
+    if (name == null || name == "" ) { 
         alert("Operation was cancelled!");
-    else {
+    } else if  (name == "EKA Metamodel") { //sf added EKA Metamodel
+        alert("EKA Metamodel is not valid as Target metamodel!"); //sf added
+    } else {
         myTargetMetamodel = myMetis.findMetamodelByName(name); 
         console.log('25 askForTarget', myTargetMetamodel);
         if (!myTargetMetamodel)

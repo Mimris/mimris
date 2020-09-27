@@ -770,21 +770,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (e: any, obj: any) {
             const context = {
               "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel
+              "myMetamodel":        myMetis.currentMetamodel,
+              "myModel":        myMetis.currentModel
             }
             const targetMetamodel = gen.askForMetamodel(context, false);
             console.log('764 Target Metamodel', targetMetamodel);
             if (targetMetamodel) {
               const goMetamodel = new gjs.goModel(utils.createGuid(), targetMetamodel.name);
               goMetamodel.metamodel = targetMetamodel;
-              console.log('750 Target Metamodel', goMetamodel);
+              console.log('780 Target Metamodel', goMetamodel);
               const modifiedMetamodels = new Array();
               modifiedMetamodels.push(goMetamodel);
               modifiedMetamodels.map(mn => {
-                  let data = mn;
-                  console.log('773 data', data);
-                  e.diagram.dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', data })
+                let data = mn;
+                console.log('773 data', data);
+                e.diagram.dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', data })
               });
+              // myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
+              // console.log('447 Generate targetMetamodelRef', myModel.targetMetamodelRef);
+              const gqlMetamodel = new gql.gqlModel(context.myMetamodel);
+              const modifiedgqlMetamodels = new Array();
+              modifiedgqlMetamodels.push(gqlMetamodel);
+              modifiedgqlMetamodels.map(mn => {
+                let data = mn;
+                console.log('795 Diagram', data);
+                e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
+              })
             }
           },
           function (o: any) {

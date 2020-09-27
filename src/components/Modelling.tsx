@@ -146,7 +146,7 @@ const page = (props:any) => {
 
   const modellingtabs = (<>
       <Nav tabs >
-        <NavItem >
+        <NavItem className="text-danger" >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
@@ -154,7 +154,7 @@ const page = (props:any) => {
             Metamodelling
           </NavLink>
         </NavItem>
-        <NavItem >
+        <NavItem className="text-info">
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
@@ -162,7 +162,7 @@ const page = (props:any) => {
             Concept Modelling
           </NavLink>
         </NavItem>
-        <NavItem >
+        <NavItem className="text-primary">
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '3' })}
             onClick={() => { toggleTab('3'); toggleRefresh() }}

@@ -38,6 +38,7 @@ import {
   UPDATE_OBJECTVIEW_PROPERTIES,
   UPDATE_RELSHIPVIEW_PROPERTIES,
   UPDATE_OBJECTTYPE_PROPERTIES,
+  UPDATE_TARGETMODEL_PROPERTIES,
   UPDATE_TARGETOBJECTTYPE_PROPERTIES,
   UPDATE_OBJECTTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTTYPEGEOS_PROPERTIES,
@@ -428,6 +429,10 @@ function reducer(state = InitialState, action) {
     case UPDATE_MODEL_PROPERTIES:
       console.log('429 UPDATE_MODEL_PROPERTIES', action);
       const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      // let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
+      // console.log('431 reducer', curmindex1)
+      // if (curmindex1 < 0) {curmindex1 = state.phData.metis.models.length}
+      // console.log('433 reducer', curmindex1)
       return {
         ...state,
         phData: {
@@ -440,7 +445,7 @@ function reducer(state = InitialState, action) {
                   ...state.phData.metis.models[curmindex1],
                     id: action.data.id,           
                     name: action.data.name,
-                    description: action.data.description,
+                    description: action.data.description, 
                     sourceMetamodelRef: action.data.sourceMetamodelRef,
                     targetMetamodelRef: action.data.targetMetamodelRef,
                     sourceModelRef: action.data.sourceModelRef,
@@ -449,6 +454,38 @@ function reducer(state = InitialState, action) {
                     modified: action.data.modified,    
                 },      
                 ...state.phData.metis.models.slice(curmindex1 + 1),
+              ]
+            },
+          },
+        }
+    case UPDATE_TARGETMODEL_PROPERTIES:
+      console.log('462 UPDATE_TARGETMODEL_PROPERTIES', action);
+      // const curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      let curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.targetModelRef) // target model index
+      console.log('464 reducer', state.phData.metis.models, curmindex12)
+      if (curmindex12 < 0) {curmindex12 = state.phData.metis.models.length}
+      console.log('466 reducer', curmindex12)
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models.slice(0,curmindex12),
+                {
+                  ...state.phData.metis.models[curmindex12],
+                    id: action.data.id,           
+                    name: action.data.name,
+                    description: action.data.description, 
+                    sourceMetamodelRef: action.data.sourceMetamodelRef,
+                    targetMetamodelRef: action.data.targetMetamodelRef,
+                    sourceModelRef: action.data.sourceModelRef,
+                    targetModelRef: action.data.targetModelRef,
+                    deleted: action.data.deleted,
+                    modified: action.data.modified,    
+                },      
+                ...state.phData.metis.models.slice(curmindex12 + 1),
               ]
             },
           },
@@ -509,6 +546,14 @@ function reducer(state = InitialState, action) {
                 id: action.data.id,
                 name: action.data.name,
                 description: action.data.description,
+                datatypes: action.data.datatypes,
+                objecttypes: action.data.objecttypes,
+                objecttypeviews: action.data.objecttypeviews,
+                objecttypegeos: action.data.objecttypegeos,
+                properties: action.data.properties,
+                relshiptypes: action.data.relshiptypes,
+                relshiptypeviews: action.data.relshiptypeviews,
+                unittypes: action.data.unittypes,
                 deleted: action.data.deleted,
                 modified: action.data.modified,
               },

@@ -39,7 +39,8 @@ import {
   UPDATE_OBJECTTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTTYPEGEOS_PROPERTIES,
   UPDATE_DATATYPE_PROPERTIES,
-  UPDATE_TARGETDATATYPE_PROPERTIES,
+  UPDATE_TARGETMODEL_PROPERTIES,
+  UPDATE_TARGETOBJECTTYPE_PROPERTIES,
   UPDATE_PROPERTY_PROPERTIES,
   UPDATE_TARGETPROPERTY_PROPERTIES,
   UPDATE_VALUE_PROPERTIES,
@@ -301,6 +302,13 @@ export const update_objecttype_properties = (data) => {
   console.log('205 actions update_objecttype_properties', data.payload);
   return {
     type: UPDATE_OBJECTTYPE_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_targetmodel_properties = (data) => {
+  console.log('205 actions update_targetmodel_properties', data.payload);
+  return {
+    type: UPDATE_TARGETMODEL_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

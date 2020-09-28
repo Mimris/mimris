@@ -49,16 +49,20 @@ export function askForTargetModel(context: any, create: boolean) {
     }
 }
 
-export function askForMetamodel(context: any, create: boolean) {
+export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const metamodels = myMetis.metamodels;
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
         const mm = metamodels[i];
-        if (i == 0) 
+        // if (mm.name === 'EKA Metamodel') {
+        //     i--;
+        //     continue;
+        // }
+        if (i == 0) {
             mmlist = "'" + mm.name + "'";
-        else 
+        } else 
             mmlist += ",'" + mm.name + "'";;
     }
     let mmname = "";
@@ -89,9 +93,11 @@ export function askForMetamodel(context: any, create: boolean) {
         return metamodel;
     }
 } 
+
 export function askForTargetMetamodel(context: any, create: boolean) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
+    const myTargetMetamodel = context.myTargetMetamodel;
     const metamodels = myMetis.metamodels;
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
@@ -103,22 +109,37 @@ export function askForTargetMetamodel(context: any, create: boolean) {
     }
     let mmname = "";
     if (!create) 
-        mmname = prompt("Enter Target Metamodel as one of " + mmlist, myMetamodel.name);
+        mmname = prompt("Enter Target Metamodel as one of " + mmlist, myTargetMetamodel.name);
     else 
         mmname = prompt("Enter Target Metamodel name");
     if (mmname == null || mmname == "") {
         alert("Operation was cancelled!");
         return;
     } else {
-        let metamodel = myMetis.findMetamodelByName(mmname); 
+        const metamodel = myMetis.findMetamodelByName(mmname); 
         if (create && metamodel) {
             alert("Target Metamodel already exists");
             return;
+        } else if (!create && !metamodel) {
+            alert("Target metamodel does not exist!");
+            return;
         }
         console.log('67 askForTargetMetamodel', myMetis);
-        if (!metamodel) {
+        if (create && !metamodel) {
             if (confirm("Create new targetmetamodel '" + mmname + "' ?")) {
                 metamodel = new akm.cxMetaModel(utils.createGuid(), mmname);
+                if (metamodel) {
+                    const goMetamodel = new gjs.goModel(utils.createGuid(), metamodel.name);
+                    goMetamodel.metamodel = metamodel;
+                    console.log('750 New Metamodel', goMetamodel);
+                    const modifiedMetamodels = new Array();
+                    modifiedMetamodels.push(goMetamodel);
+                    modifiedMetamodels.map(mn => {
+                        let data = mn;
+                        console.log('755 data', data);
+                        context.dispatch({ type: 'SET_GOJS_METAMODEL', data });
+                    });
+                }
                 myMetis.addMetamodel(metamodel);
             } else {
                 alert("Operation was cancelled!");
@@ -129,7 +150,6 @@ export function askForTargetMetamodel(context: any, create: boolean) {
         return metamodel;
     }
 } 
-
 
 export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectView, context: any) {
     const myMetis     = context.myMetis;
@@ -150,9 +170,24 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.properties = properties;
         myTargetMetamodel?.addObjectType(objtype);
         myMetis.addObjectType(objtype);
+        // Create objecttypeview
+        const id = utils.createGuid();
+        const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
+        objtypeview.applyObjectViewParameters(objview);
+        objtype.typeview = objtypeview;
+        objtype.typeviewRef = objtypeview.id;
+        objtype.setModified(true);
+        myTargetMetamodel?.addObjectTypeView(objtypeview);
+        myMetis.addObjectTypeView(objtypeview);
+        if (!myTargetMetamodel.objtypegeos) 
+            myTargetMetamodel.objtypegeos = new Array();
+        const objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myTargetMetamodel, objtype, "0 0", "100 50");
+        myTargetMetamodel?.objtypegeos.push(objtypegeo);
+        myMetis.addObjtypeGeo(objtypegeo);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
     }
+    console.log('120 myMetis', myMetis);
     let parentType: akm.cxObjectType | null = null;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (objtype) {
@@ -177,14 +212,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             myMetamodel.addRelationshipType(parentRelType);
             myMetis.addRelationshipType(parentRelType);
         }
-        if (!myMetamodel.findObjectTypeViewByName(obj.name)) {
-            let objtypeview = new akm.cxObjectTypeView(utils.createGuid(), obj.name, objtype, obj.description);
-            objtypeview.applyObjectViewParameters(objview);
-            objtype.typeview = objtypeview;
-            objtype.setModified(true);
-            myTargetMetamodel?.addObjectTypeView(objtypeview);
-            myMetis.addObjectTypeView(objtypeview);
-        }
 
         // Find properties connected to current object
         const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
@@ -205,7 +232,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }         
-    console.log('105 generateObjectType', proptypes);
+    console.log('169 generateObjectType', proptypes);
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -245,7 +272,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }
-    console.log('145 generateObjectType', myMetis, objtype);
+    console.log('209 generateObjectType', myMetis, objtype);
     return objtype;
 }
 

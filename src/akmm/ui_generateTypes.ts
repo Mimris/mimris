@@ -32,28 +32,25 @@ export function askForTargetMetamodel(context) {
         // Then handle the object type
         const goMetamodel = new gjs.goModel(utils.createGuid(), name);
         console.log('28 askForTargetMetamodel', goMetamodel);
-        const modifiedMetamodels = new Array();
-        modifiedMetamodels.push(goMetamodel);
-        modifiedMetamodels.map(mn => {
-            let data = mn;
-            console.log('33 data', data);
-            context.dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', data })
-        });
         return myTargetMetamodel;
     }
     return;
 } 
 
-export function askForMetamodel(context: any, create: boolean) {
+export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const metamodels = myMetis.metamodels;
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
         const mm = metamodels[i];
-        if (i == 0) 
+        // if (mm.name === 'EKA Metamodel') {
+        //     i--;
+        //     continue;
+        // }
+        if (i == 0) {
             mmlist = "'" + mm.name + "'";
-        else 
+        } else 
             mmlist += ",'" + mm.name + "'";;
     }
     let mmname = "";
@@ -105,9 +102,24 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.properties = properties;
         myTargetMetamodel?.addObjectType(objtype);
         myMetis.addObjectType(objtype);
+        // Create objecttypeview
+        const id = utils.createGuid();
+        const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
+        objtypeview.applyObjectViewParameters(objview);
+        objtype.typeview = objtypeview;
+        objtype.typeviewRef = objtypeview.id;
+        objtype.setModified(true);
+        myTargetMetamodel?.addObjectTypeView(objtypeview);
+        myMetis.addObjectTypeView(objtypeview);
+        if (!myTargetMetamodel.objtypegeos) 
+            myTargetMetamodel.objtypegeos = new Array();
+        const objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myTargetMetamodel, objtype, "0 0", "100 50");
+        myTargetMetamodel?.objtypegeos.push(objtypegeo);
+        myMetis.addObjtypeGeo(objtypegeo);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
     }
+    console.log('120 myMetis', myMetis);
     let parentType: akm.cxObjectType | null = null;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (objtype) {
@@ -132,14 +144,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             myMetamodel.addRelationshipType(parentRelType);
             myMetis.addRelationshipType(parentRelType);
         }
-        if (!myMetamodel.findObjectTypeViewByName(obj.name)) {
-            let objtypeview = new akm.cxObjectTypeView(utils.createGuid(), obj.name, objtype, obj.description);
-            objtypeview.applyObjectViewParameters(objview);
-            objtype.typeview = objtypeview;
-            objtype.setModified(true);
-            myTargetMetamodel?.addObjectTypeView(objtypeview);
-            myMetis.addObjectTypeView(objtypeview);
-        }
 
         // Find properties connected to current object
         const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
@@ -160,7 +164,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }         
-    console.log('105 generateObjectType', proptypes);
+    console.log('169 generateObjectType', proptypes);
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -200,7 +204,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }
-    console.log('145 generateObjectType', myMetis, objtype);
+    console.log('209 generateObjectType', myMetis, objtype);
     return objtype;
 }
 

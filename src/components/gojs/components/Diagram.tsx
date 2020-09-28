@@ -449,10 +449,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   console.log('447', context);
                   
                   if (context.myTargetMetamodel === "EKA Metamodel") {  
-                    alert("EKA Metamodel is not valid ad Target metamodel!"); // sf dont generate on EKA Metamodel
-                    myMetis.targetMetamodel = null
+                    alert("EKA Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                    myMetis.targetMetamodel = null;
                   } else if (context.myTargetMetamodel == undefined) { // sf
-                    myMetis.targetMetamodel = null
+                    myMetis.targetMetamodel = null;
                   } else {
                     myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
                     console.log('447 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
@@ -465,7 +465,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     })
                     const currentObjview = part.data.objectview;
                     const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                    console.log('449 Generate Object Type', objtype);
+                    console.log('449 Generate Object Type', objtype, myMetis);
                     // First handle properties
                     const modifiedProperties = new Array();
                     const props = objtype.properties;
@@ -477,16 +477,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                           e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
                         });
                     }
-                    // Then handle the object type
+                    const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
+                    console.log('481 Generate Object Type', gqlObjTypeview);
+                    const modifiedTypeViews = new Array();
+                    modifiedTypeViews.push(gqlObjTypeview);
+                    modifiedTypeViews?.map(mn => {
+                      let data = (mn) && mn
+                      e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+                    })
+                    console.log('488 myMetis', modifiedTypeViews, myMetis);                                    // Then handle the object type
                     const gqlObjectType = new gql.gqlObjectType(objtype);
-                    console.log('461 Generate Object Type', gqlObjectType);
+                    console.log('490 Generate Object Type', gqlObjectType);
                     const modifiedTypeNodes = new Array();
                     modifiedTypeNodes.push(gqlObjectType);
                     modifiedTypeNodes.map(mn => {
                       let data = mn;
                       e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
                     });
-                    console.log('478 myMetis', modifiedTypeNodes, myMetis);
+                    console.log('497 myMetis', modifiedTypeNodes, myMetis);
                   }
                 }
               },  

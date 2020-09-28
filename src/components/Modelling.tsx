@@ -146,7 +146,7 @@ const page = (props:any) => {
 
   const modellingtabs = (<>
       <Nav tabs >
-        <NavItem >
+        <NavItem className="text-danger" >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
@@ -154,7 +154,7 @@ const page = (props:any) => {
             Metamodelling
           </NavLink>
         </NavItem>
-        <NavItem >
+        <NavItem className="text-info">
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
@@ -162,7 +162,7 @@ const page = (props:any) => {
             Concept Modelling
           </NavLink>
         </NavItem>
-        <NavItem >
+        <NavItem className="text-primary">
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '3' })}
             onClick={() => { toggleTab('3'); toggleRefresh() }}
@@ -294,7 +294,7 @@ const page = (props:any) => {
               <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
                 <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
-                  {/* <Modeller
+                  <Modeller
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
@@ -304,7 +304,7 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='model'
-                  /> */}
+                  />
                 </div>
               </Col>
             </Row>

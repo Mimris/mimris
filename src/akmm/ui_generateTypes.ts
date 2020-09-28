@@ -6,36 +6,48 @@ import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
 const constants = require('./constants');
 
-export function askForTargetMetamodel(context) {
+
+export function askForTargetModel(context: any, create: boolean) {
     const myMetis = context.myMetis;
-    const myMetamodel = context.myMetamodel;
-    let   myTargetMetamodel = context.myTargetMetamodel;
-    
-    if (!myTargetMetamodel) {
-        myTargetMetamodel = myMetis.findMetamodelByName("Target Metamodel"); 
-        if (!myTargetMetamodel)
-        myTargetMetamodel = myMetamodel;
+    const myModel = context.myModel;
+    const models = myMetis.models;
+    let mlist = "";
+    for (let i=0; i<models.length; i++) {
+        const m = models[i];
+        if (i == 0) 
+            mlist = "'" + m.name + "'";
+        else 
+            mlist += ",'" + m.name + "'";;
     }
-    console.log('19 ui_generateTypes', myTargetMetamodel);
-    const name = prompt("Target metamodel is ", myTargetMetamodel.name);
-    console.log('21 ui_generateTypes', myTargetMetamodel);
-    
-    if (name == null || name == "" ) { 
+    let mname = "";
+    if (!create) 
+        mname = prompt("Enter Model as one of " + mlist, myModel.name);
+    else 
+        mname = prompt("Enter Mmodel name");
+    if (mname == null || mname == "") {
         alert("Operation was cancelled!");
-    } else if  (name == "EKA Metamodel") { //sf added EKA Metamodel
-        alert("EKA Metamodel is not valid as Target metamodel!"); //sf added
+        return;
     } else {
-        myTargetMetamodel = myMetis.findMetamodelByName(name); 
-        console.log('25 askForTarget', myTargetMetamodel);
-        if (!myTargetMetamodel)
-            alert("The metamodel given does not exist!");
-        // Then handle the object type
-        const goMetamodel = new gjs.goModel(utils.createGuid(), name);
-        console.log('28 askForTargetMetamodel', goMetamodel);
-        return myTargetMetamodel;
+        let model = myMetis.findModelByName(mname); 
+        // console.log('67 askForModel', model, myMetis);
+        if (create && model) {
+            alert("Model already exists");
+            return;
+        }
+        if (!model) {
+            if (confirm("Create new model '" + mname + "' ?")) {
+                model = new akm.cxModel(utils.createGuid(), mname);
+                console.log('40 ui_generateTypes', mname, model);
+                myMetis.addModel(model);
+            } else {
+                alert("Operation was cancelled!");
+                return;
+            }
+        }
+        console.log('72 myMetis', myMetis);
+        return model;
     }
-    return;
-} 
+}
 
 export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
     const myMetis = context.myMetis;
@@ -82,6 +94,62 @@ export function askForMetamodel(context: any, create: boolean, hideEKA: boolean)
     }
 } 
 
+export function askForTargetMetamodel(context: any, create: boolean) {
+    const myMetis = context.myMetis;
+    const myMetamodel = context.myMetamodel;
+    const myTargetMetamodel = context.myTargetMetamodel;
+    const metamodels = myMetis.metamodels;
+    let mmlist = "";
+    for (let i=0; i<metamodels.length; i++) {
+        const mm = metamodels[i];
+        if (i == 0) 
+            mmlist = "'" + mm.name + "'";
+        else 
+            mmlist += ",'" + mm.name + "'";;
+    }
+    let mmname = "";
+    if (!create) 
+        mmname = prompt("Enter Target Metamodel as one of " + mmlist, myTargetMetamodel.name);
+    else 
+        mmname = prompt("Enter Target Metamodel name");
+    if (mmname == null || mmname == "") {
+        alert("Operation was cancelled!");
+        return;
+    } else {
+        const metamodel = myMetis.findMetamodelByName(mmname); 
+        if (create && metamodel) {
+            alert("Target Metamodel already exists");
+            return;
+        } else if (!create && !metamodel) {
+            alert("Target metamodel does not exist!");
+            return;
+        }
+        console.log('67 askForTargetMetamodel', myMetis);
+        if (create && !metamodel) {
+            if (confirm("Create new targetmetamodel '" + mmname + "' ?")) {
+                metamodel = new akm.cxMetaModel(utils.createGuid(), mmname);
+                if (metamodel) {
+                    const goMetamodel = new gjs.goModel(utils.createGuid(), metamodel.name);
+                    goMetamodel.metamodel = metamodel;
+                    console.log('750 New Metamodel', goMetamodel);
+                    const modifiedMetamodels = new Array();
+                    modifiedMetamodels.push(goMetamodel);
+                    modifiedMetamodels.map(mn => {
+                        let data = mn;
+                        console.log('755 data', data);
+                        context.dispatch({ type: 'SET_GOJS_METAMODEL', data });
+                    });
+                }
+                myMetis.addMetamodel(metamodel);
+            } else {
+                alert("Operation was cancelled!");
+                return;
+            }
+        }
+        console.log('72 myMetis', myMetis);
+        return metamodel;
+    }
+} 
 
 export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectView, context: any) {
     const myMetis     = context.myMetis;

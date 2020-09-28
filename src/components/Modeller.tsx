@@ -79,51 +79,15 @@ const Modeller = (props: any) => {
       <div className="modeller-selection float-right" >
       </div> 
 
-    const [activeTab, setActiveTab] = useState('2');
-    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); } 
-  
-    const navitemDiv = selmodelviews.map(mv => 
-      <>
-        <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
-            className={classnames({ active: activeTab === '1' })}
-            onClick={() => { toggleTab('mv.index'); toggleRefresh() }}
-          >
-            {mv.name}
-          </NavLink>
-        </NavItem>
-        <TabContent  activeTab={activeTab} >  
-        <TabPane  tabId="1">
-          <div className="workpad p-1 pt-2 bg-white" >
-            <Row >
-              <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-                <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
-                </div>
-                {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
-              </Col>
-              </Row>
-            </div>         
-          </TabPane>
-        </TabContent>
-      </>
-    )
-    const modelviewTabDiv = 
-      <>
-        {selector}
-        <Nav tabs >
-          {navitemDiv} 
-        </Nav>
-      </>
-
 return (
   <>
       {/* <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
       <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
-        {/* {selector} */}
-        {modelviewTabDiv} 
+        {selector}
+
       </div>
         {/* {gojsapp} */}
-        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
+        {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
       <style jsx>{`
         // .diagram-component {
         //   height: 80%;

@@ -109,7 +109,7 @@ export function askForTargetMetamodel(context: any, create: boolean) {
     }
     let mmname = "";
     if (!create) 
-        mmname = prompt("Enter Target Metamodel as one of " + mmlist, myTargetMetamodel.name);
+        mmname = prompt("Enter Target Metamodel as one of " + mmlist, myTargetMetamodel?.name);
     else 
         mmname = prompt("Enter Target Metamodel name");
     if (mmname == null || mmname == "") {

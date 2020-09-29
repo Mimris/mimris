@@ -44,7 +44,7 @@ const page = (props:any) => {
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  // console.log('47 Modelling', props.phGojs?.gojsTargetMetamodel, props);
+  console.log('47 Modelling', props.phGojs);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -252,22 +252,22 @@ const page = (props:any) => {
                   />
                 </div>
               </Col>
-              <Col xs="auto m-0 p-0 pr-0">
-                <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
-                  <TargetMeta
-                    gojsModel={gojsmodel}
-                    gojsMetamodel={gojsmetamodel}
-                    gojsTargetMetamodel={gojstargetmetamodel}
-                    myMetis={myMetis}
-                    myGoModel={myGoModel}
-                    myGoMetamodel={myGoMetamodel}
-                    metis={metis}
-                    phFocus={phFocus}
-                    dispatch={dispatch}
-                    modelType='model'
-                  />
-                </div>
-              </Col>
+            <Col xs="auto m-0 p-0 pr-0">
+              <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+                <TargetMeta
+                  gojsModel={gojsmodel}
+                  gojsMetamodel={gojsmetamodel}
+                  gojsTargetMetamodel={gojstargetmetamodel}
+                  myMetis={myMetis}
+                  myGoModel={myGoModel}
+                  myGoMetamodel={myGoMetamodel}
+                  metis={metis}
+                  phFocus={phFocus}
+                  dispatch={dispatch}
+                  modelType='model'
+                />
+              </div>
+            </Col>
             </Row>
           </div>         
         </TabPane>

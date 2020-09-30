@@ -220,7 +220,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      var str = "Node: " + d.name + "\n";
+      console.log('223 nodeInfo', d);
+      var str = "Name: " + d.name + "\n";
       if (d.group)
         str += "member of " + d.group;
       else
@@ -437,11 +438,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
                   }
+                console.log('441 myMetis', myMetis);
                 const contextmenu = obj.part;  
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = myMetis.targetMetamodel;
-                console.log('444 Diagram', myMetis.targetMetamodel);
+                console.log('446 context', context);
                 //if (!context.myTargetMetamodel) {
                   context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
                   if (context.myTargetMetamodel?.name === "EKA Metamodel") {  
@@ -451,7 +453,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     context.myTargetMetamodel = null;
                 //}
                 myMetis.targetMetamodel = context.myTargetMetamodel;
-                console.log('454 Generate Object Type', context.myTargetMetamodel);
+                console.log('454 Generate Object Type', context.myTargetMetamodel, myMetis);
                 if (context.myTargetMetamodel) {  
                   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
                   console.log('457 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
@@ -756,17 +758,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "myMetamodel":        myMetis.currentMetamodel
             }
             const metamodel = gen.askForMetamodel(context, true);
-            console.log('746 New Metamodel', metamodel);
+            console.log('760 New Metamodel', metamodel);
             if (metamodel) {
-              const goMetamodel = new gjs.goModel(utils.createGuid(), metamodel.name);
-              goMetamodel.metamodel = metamodel;
-              console.log('750 New Metamodel', goMetamodel);
+              const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
+              console.log('763 New Metamodel', gqlMetamodel);
               const modifiedMetamodels = new Array();
-              modifiedMetamodels.push(goMetamodel);
+              modifiedMetamodels.push(gqlMetamodel);
               modifiedMetamodels.map(mn => {
                   let data = mn;
-                  console.log('755 data', data);
-                  e.diagram.dispatch({ type: 'SET_GOJS_METAMODEL', data })
+                  console.log('768 data', data);
+                  e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
               });
             }
           },
@@ -778,7 +779,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             const context = {
               "myMetis":            myMetis,
               "myMetamodel":        myMetis.currentMetamodel,
-              "myModel":            myMetis.currentModel
+              "myModel":            myMetis.currentModel,
+              "myTargetMetamodel":  myMetis.targetMetamodel
             }
             const targetMetamodel = gen.askForMetamodel(context, false);
             console.log('785 Target Metamodel', targetMetamodel);
@@ -795,16 +797,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               })
               console.log('796 current model', gqlModel);
 
-              const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(targetMetamodel);
-              console.log('799 set target Metamodel', gqlMetamodel);
-              const modifiedgqlMetamodels = new Array();
-              modifiedgqlMetamodels.push(gqlMetamodel);
-              modifiedgqlMetamodels.map(mn => {
-                let data = mn;
-                console.log('804 set target Metamodel', data);
-                e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
-              })
+              // const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(targetMetamodel);
+              // console.log('799 set target Metamodel', gqlMetamodel);
+              // const modifiedgqlMetamodels = new Array();
+              // modifiedgqlMetamodels.push(gqlMetamodel);
+              // modifiedgqlMetamodels.map(mn => {
+              //   let data = mn;
+              //   console.log('804 set target Metamodel', data);
+              //   e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
+              // })
             }
+            console.log('810 myMetis', myMetis);
           },
           function (o: any) {
             return true; 

@@ -20,7 +20,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  // console.log('17 Modelling', props);
+  console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -43,6 +43,7 @@ const page = (props:any) => {
   let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
+  let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
   console.log('47 Modelling', props.phGojs);
   
@@ -296,6 +297,7 @@ const page = (props:any) => {
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmodel}
+                    gojsTargetModel={gojstargetmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
                     myGoModel={myGoModel}

@@ -20,6 +20,7 @@ import {
   SET_MY_GOMETAMODEL,
   SET_FOCUS_MODEL, 
   SET_GOJS_MODEL, 
+  SET_GOJS_TARGETMODEL,
   SET_GOJS_MODELOBJECTS,
   SET_GOJS_METAMODEL,
   SET_GOJS_METAMODELPALETTE, 
@@ -183,6 +184,13 @@ export const setGojsModel = (data) => {
   // console.log('21---', data);
   return {
     type: SET_GOJS_MODEL,
+    data: JSON.parse(data.value)
+  }
+}
+export const setGojsTargetModel = (data) => {
+  // console.log('21---', data);
+  return {
+    type: SET_GOJS_TARGETMODEL,
     data: JSON.parse(data.value)
   }
 }

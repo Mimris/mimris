@@ -19,7 +19,7 @@ const SelectSource = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
-  const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => <span key={mn.id}>{mn.name} | </span>)
+  const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
   // console.log('20 LoadLocal', modelNames, metamodelNames);
 
   function handleSaveModelStore() {

@@ -95,7 +95,7 @@ export class cxMetis {
             for (let i = 0; i < metamodels.length; i++) {
                 const item = metamodels[i];
                 if (includeDeleted || !item.deleted) { 
-                    const metamodel = new cxMetaModel(item.id, item.name, item.description);
+                    const metamodel = (item) && new cxMetaModel(item.id, item.name, item.description);
                     this.addMetamodel(metamodel);
                     // Metamodel content
                     let items = item.datatypes;

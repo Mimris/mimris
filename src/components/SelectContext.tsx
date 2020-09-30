@@ -33,7 +33,7 @@ const SelectContext = (props: any) => {
       t.place === ov.place && t.id === ov.id
     ))
   ) || []
-  const curmm = metamodels?.find(mm => mm.id === (curmodel?.metamodelRef))
+  const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
   
   // find object with type
   const type = (metamodels, model, objects, curov) => {                                                                                                                                                                                          

@@ -32,7 +32,7 @@ const EditFocusModel = (props) => {
   const focusObjecttype = props.ph.phFocus?.focusObjecttype
   const focusRelshiptype = props.ph.phFocus?.focusRelshiptype
   const metamodels = props.ph.phData.metis?.metamodels
-  const curmetamodel = metamodels?.find(mm => mm.id === curmodel?.metamodelRef)
+  const curmetamodel = metamodels?.find(mm => (mm) && mm.id === curmodel?.metamodelRef)
   const curmmobj = curmetamodel?.objecttypes?.find((ov: any) => ov?.id === focusObjecttype?.id)
   const curmmotypegeos = curmetamodel?.objecttypegeos?.find(otg => otg.typeRef === curmmobj?.id)
   const curmmotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curmmobj?.typeviewRef)

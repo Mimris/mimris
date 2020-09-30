@@ -21,6 +21,7 @@ import {
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
   SET_GOJS_MODEL,
+  SET_GOJS_TARGETMODEL,
   SET_GOJS_MODELOBJECTS,
   SET_GOJS_METAMODEL,
   SET_GOJS_METAMODELPALETTE,
@@ -256,6 +257,15 @@ function reducer(state = InitialState, action) {
           gojsModel: action.gojsModel
         }
       }
+    case SET_GOJS_TARGETMODEL:
+      console.log('210 SET_GOJS_TARGETMODEL', action);
+      return {
+        ...state,
+        phGojs: {
+          ...state.phGojs,
+          gojsTargetModel: action.gojsModel
+        }
+      }
     case SET_GOJS_MODELOBJECTS:
       // console.log('210 SET_GOJS_MODEL', action);
       return {
@@ -450,6 +460,9 @@ function reducer(state = InitialState, action) {
                     targetMetamodelRef: action.data.targetMetamodelRef,
                     sourceModelRef: action.data.sourceModelRef,
                     targetModelRef: action.data.targetModelRef,
+                    modelviews: action.data.modelviews,
+                    objects: action.data.objects,
+                    relships: action.data.relships,
                     deleted: action.data.deleted,
                     modified: action.data.modified,    
                 },      
@@ -459,10 +472,11 @@ function reducer(state = InitialState, action) {
           },
         }
     case UPDATE_TARGETMODEL_PROPERTIES:
-      console.log('462 UPDATE_TARGETMODEL_PROPERTIES', action);
+      console.log('472 UPDATE_TARGETMODEL_PROPERTIES', action);
       // const curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       let curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.targetModelRef) // target model index
       console.log('464 reducer', state.phData.metis.models, curmindex12)
+
       if (curmindex12 < 0) {curmindex12 = state.phData.metis.models.length}
       console.log('466 reducer', curmindex12)
       return {
@@ -482,10 +496,13 @@ function reducer(state = InitialState, action) {
                     targetMetamodelRef: action.data.targetMetamodelRef,
                     sourceModelRef: action.data.sourceModelRef,
                     targetModelRef: action.data.targetModelRef,
+                    modelviews: action.data.modelviews,
+                    objects: action.data.objects,
+                    relships: action.data.relships,
                     deleted: action.data.deleted,
                     modified: action.data.modified,    
                 },      
-                ...state.phData.metis.models.slice(curmindex12 + 1),
+                ...state.phData.metis.models.slice(curmindex12 + 1, state.phData.metis.models.length),
               ]
             },
           },

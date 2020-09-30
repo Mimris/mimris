@@ -53,6 +53,8 @@ export function askForMetamodel(context: any, create: boolean, hideEKA: boolean)
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const metamodels = myMetis.metamodels;
+    console.log('56 ui_gererateTypes', context);
+    
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
         const mm = metamodels[i];

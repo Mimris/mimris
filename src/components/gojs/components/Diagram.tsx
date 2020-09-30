@@ -809,7 +809,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (o: any) {
             return true; 
           }),
-          makeButton("New Target Model",
+          makeButton("Set Target Model",
           function (e: any, obj: any) {
             const context = {
               "myMetis":            myMetis,

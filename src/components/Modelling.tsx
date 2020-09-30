@@ -152,7 +152,7 @@ const page = (props:any) => {
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
-            Metamodelling
+            {(activeTab === "1") ? 'Metamodellingg' : 'MM'}
           </NavLink>
         </NavItem>
         <NavItem className="text-info">

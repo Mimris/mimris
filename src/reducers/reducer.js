@@ -138,8 +138,11 @@ function reducer(state = InitialState, action) {
       }
     case LOAD_TOSTORE_NEWMODELVIEW:
       console.log('113 LOAD_TOSTORE_NEWMODELVIEW', action.data);   
-      const curmnew = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
-      const curmindexnew = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      const curmnew = state.phData?.metis?.models?.find(m => m.id === action.data.id) //current model
+      let curmindexnew = state.phData?.metis?.models?.findIndex(m => m.id === action.data.id) // current model index
+      // const curmnew = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
+      // const curmindexnew = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      if (curmindexnew < 0) curmindexnew = state.phData?.metis?.models.length
       return {
         ...state,
         phData: {
@@ -149,7 +152,7 @@ function reducer(state = InitialState, action) {
               models: [
                 ...state.phData.metis.models.slice(0, curmindexnew),
                 action.data,         
-                ...state.phData.metis.models.slice(curmindexnew + 1),
+                ...state.phData.metis.models.slice(curmindexnew + 1, state.phData?.metis?.models.length),
               ]
             }
          }
@@ -249,7 +252,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_MODEL:
-      // console.log('210 SET_GOJS_MODEL', action);
+      console.log('255 SET_GOJS_MODEL', action);
       return {
         ...state,
         phGojs: {
@@ -275,7 +278,16 @@ function reducer(state = InitialState, action) {
           gojsModelObjects: action.gojsModelObjects
         }
       }
-    case SET_MYMETIS_MODEL:
+      // case SET_MYMETIS_METAMODEL:
+      //   console.log('269 SET_MYMETIS_METAMODEL', action);
+      //   return {
+      //     ...state,
+      //     phMymetis: {
+      //       ...state.phMymetis,
+      //       myMetis: action.myMetis
+      //     }
+      //   }
+      case SET_MYMETIS_MODEL:
       // console.log('228 SET_MYMETIS_MODEL', action);
       return {
         ...state,
@@ -549,7 +561,7 @@ function reducer(state = InitialState, action) {
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_mm.metamodelRef) //current meta model
       const curmmindex_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_mm.metamodelRef)  // current metamodel index
-
+      if (curmmindex_mm <0) curmmindex_mm = state.phData.metis.metamodels.length
       return {
         ...state,
         phData: {
@@ -574,7 +586,7 @@ function reducer(state = InitialState, action) {
                 deleted: action.data.deleted,
                 modified: action.data.modified,
               },
-              ...state.phData.metis.metamodels.slice(curmmindex_mm + 1),
+              ...state.phData.metis.metamodels.slice(curmmindex_mm + 1, state.phData.metis.metamodels.length),
             ]
           },
         },

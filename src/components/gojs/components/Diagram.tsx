@@ -220,7 +220,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      var str = "Node: " + d.name + "\n";
+      console.log('223 nodeInfo', d);
+      var str = "Name: " + d.name + "\n";
       if (d.group)
         str += "member of " + d.group;
       else
@@ -437,11 +438,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
                   }
+                console.log('441 myMetis', myMetis);
                 const contextmenu = obj.part;  
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = myMetis.targetMetamodel;
-                console.log('444 Diagram', myMetis.targetMetamodel);
+                console.log('446 context', context);
                 //if (!context.myTargetMetamodel) {
                   context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
                   if (context.myTargetMetamodel?.name === "EKA Metamodel") {  
@@ -451,7 +453,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     context.myTargetMetamodel = null;
                 //}
                 myMetis.targetMetamodel = context.myTargetMetamodel;
-                console.log('454 Generate Object Type', context.myTargetMetamodel);
+                console.log('454 Generate Object Type', context.myTargetMetamodel, myMetis);
                 if (context.myTargetMetamodel) {  
                   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
                   console.log('457 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
@@ -459,9 +461,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);
                   modifiedModels.map(mn => {
-                      let data = mn;
-                      e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                    })
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                  })
 
                   const currentObjview = part.data.objectview;
                   const objtype = gen.generateObjectType(currentObj, currentObjview, context);
@@ -756,17 +758,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "myMetamodel":        myMetis.currentMetamodel
             }
             const metamodel = gen.askForMetamodel(context, true);
-            console.log('746 New Metamodel', metamodel);
+            console.log('760 New Metamodel', metamodel);
             if (metamodel) {
-              const goMetamodel = new gjs.goModel(utils.createGuid(), metamodel.name);
-              goMetamodel.metamodel = metamodel;
-              console.log('750 New Metamodel', goMetamodel);
+              const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
+              console.log('763 New Metamodel', gqlMetamodel);
               const modifiedMetamodels = new Array();
-              modifiedMetamodels.push(goMetamodel);
+              modifiedMetamodels.push(gqlMetamodel);
               modifiedMetamodels.map(mn => {
                   let data = mn;
-                  console.log('755 data', data);
-                  e.diagram.dispatch({ type: 'SET_GOJS_METAMODEL', data })
+                  console.log('768 data', data);
+                  e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
               });
             }
           },
@@ -774,86 +775,56 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             return true; 
           }),
           makeButton("Set Target Metamodel",
-          function (e: any, obj: any) {
-            const context = {
-              "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel,
-              "myModel":            myMetis.currentModel
-            }
-            const targetMetamodel = gen.askForMetamodel(context, false);
-            console.log('785 Target Metamodel', targetMetamodel);
-            if (targetMetamodel) {
-              myMetis.targetMetamodel = targetMetamodel;
-              // Update current Model with targetMetamodelRef
-              myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
-              const gqlModel = new gql.gqlModel(myMetis.currentModel);
-              const modifiedModels = new Array();
-              modifiedModels.push(gqlModel);
-              modifiedModels.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-              })
-              console.log('796 current model', gqlModel);
+            function (e: any, obj: any) {
+              const context = {
+                "myMetis":            myMetis,
+                "myMetamodel":        myMetis.currentMetamodel,
+                "myModel":            myMetis.currentModel,
+                "myTargetMetamodel":  myMetis.targetMetamodel
+              }
+              const targetMetamodel = gen.askForMetamodel(context, false);
+              console.log('785 Target Metamodel', targetMetamodel);
+              if (targetMetamodel) {
+                myMetis.targetMetamodel = targetMetamodel;
+                // Update current Model with targetMetamodelRef
+                myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
+                const gqlModel = new gql.gqlModel(myMetis.currentModel);
+                const modifiedModels = new Array();
+                modifiedModels.push(gqlModel);
+                modifiedModels.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                })
+                console.log('796 current model', gqlModel);
 
-              const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(targetMetamodel);
-              console.log('799 set target Metamodel', gqlMetamodel);
-              const modifiedgqlMetamodels = new Array();
-              modifiedgqlMetamodels.push(gqlMetamodel);
-              modifiedgqlMetamodels.map(mn => {
-                let data = mn;
-                console.log('804 set target Metamodel', data);
-                e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
-              })
+                // const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(targetMetamodel);
+                // console.log('799 set target Metamodel', gqlMetamodel);
+                // const modifiedgqlMetamodels = new Array();
+                // modifiedgqlMetamodels.push(gqlMetamodel);
+                // modifiedgqlMetamodels.map(mn => {
+                //   let data = mn;
+                //   console.log('804 set target Metamodel', data);
+                //   e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
+                // })
+              }
+              console.log('810 myMetis', myMetis);
+            },
+            function (o: any) {
+              return true; 
             }
-          },
-          function (o: any) {
-            return true; 
-          }),
-          makeButton("Set Target Model",
-          function (e: any, obj: any) {
-            const context = {
-              "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel,
-              "myModel":            myMetis.currentModel
-            }
-            const targetModel = gen.askForTargetModel(context, false);
-            console.log('822 Target Model', targetModel);
-            if (targetModel) {
-              // First set targetModelRef in current model
-              myMetis.currentModel.targetModelRef = targetModel?.id;
-              const gqlModel = new gql.gqlModel(myMetis.currentModel);
-              const modifiedModels = new Array();
-              modifiedModels.push(gqlModel);
-              modifiedModels.map(mn => {
-                let data = mn;
-                console.log('831 Diagram', data);
-                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-              })
-              // thenk make the new target model
-              console.log('834 set target Model', targetModel);
-              const gqlTargetModel = (targetModel) && new gql.gqlModel(targetModel);
-              console.log('836 set target Model', gqlTargetModel);
-              const modifiedgqlTargetModels = new Array();
-              modifiedgqlTargetModels.push(gqlTargetModel);
-              modifiedgqlTargetModels.map(mn => {
-                let data = mn;
-                console.log('841 Diagram', data);
-                e.diagram.dispatch({ type: 'UPDATE_TARGETMODEL_PROPERTIES', data })
-              })
-            }
-          },
-          function (o: any) {
-            return true; 
-          }),
-          makeButton("New Model",
+          ),
+          makeButton("New Target Model",
           function (e: any, obj: any) {
             let model;
-            const metamodel = myMetis.currentMetamodel;
-            const modelName = prompt("Enter Model name:", "");
+            const metamodel = myMetis.targetMetamodel;
+            console.log('819 Diagram', myMetis);
+            
+            const modelName = prompt("Enter Target Model name:", "");
             if (modelName == null || modelName === "") {
               alert("New operation was cancelled");
             } else {
               model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
+              console.log('824 Diagram', metamodel, model);    
               myMetis.addModel(model);
               const modelviewName = prompt("Enter Modelview name:", model.name);
               if (modelviewName == null || modelviewName === "") {
@@ -870,8 +841,65 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }
           },
           function (o: any) {
-             return true; 
+            return true; 
+          }
+        ),
+          makeButton("Set Target Model",
+          function (e: any, obj: any) {
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel,
+              "myModel":            myMetis.currentModel,
+              "myTargetMetamodel":  myMetis.targetMetamodel
+            }
+            const targetModel = gen.askForTargetModel(context, false);
+            console.log('8552 Target Model', targetModel);
+            if (targetModel) {
+              myMetis.targetModel = targetModel;
+              // Update current Model with targetModelRef
+              myMetis.currentModel.targetModelRef = targetModel?.id;
+              const gqlModel = new gql.gqlModel(myMetis.currentModel);
+              const modifiedModels = new Array();
+              modifiedModels.push(gqlModel);
+              modifiedModels.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+              })
+              console.log('796 current model', gqlModel);
+            }
+            console.log('810 myMetis', myMetis);
+          },
+          function (o: any) {
+            return true; 
           }),
+          makeButton("New Model",
+            function (e: any, obj: any) {
+              let model;
+              const metamodel = myMetis.currentMetamodel;
+              const modelName = prompt("Enter Model name:", "");
+              if (modelName == null || modelName === "") {
+                alert("New operation was cancelled");
+              } else {
+                model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
+                myMetis.addModel(model);
+                const modelviewName = prompt("Enter Modelview name:", model.name);
+                if (modelviewName == null || modelviewName === "") {
+                  alert("New operation was cancelled");
+                } else {
+                  const curmodel = myMetis.currentModel;
+                  const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, curmodel);
+                  model.addModelView(modelView);
+                  myMetis.addModelView(modelView);
+                  const data = new gql.gqlModel(model, true);
+                  console.log('593 Diagram', data);
+                  e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data });
+                }
+              }
+            },
+            function (o: any) {
+              return true; 
+            }
+          ),
           makeButton("New Model View",
           function (e: any, obj: any) {
             const model = myMetis.currentModel;
@@ -891,13 +919,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (o: any) { 
             return true; 
           }),
-          makeButton("Set Target Model",
-          function (e: any, obj: any) {
-            // Set target model
-          },
-          function (o: any) { 
-            return false; 
-          }),
+          // makeButton("Set Target Model",
+          // function (e: any, obj: any) {
+          //   // Set target model
+          // },
+          // function (o: any) { 
+          //   return false; 
+          // }),
           makeButton("Zoom All",
           function (e: any, obj: any) {
             e.diagram.commandHandler.zoomToFit();
@@ -946,25 +974,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
-            makeButton("Paste View",
-            function (e: any, obj: any) {
-              myMetis.pasteViewsOnly = true;
-              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-              const myGoModel = myDiagram.myGoModel;
-              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-            },
-            function (o: any) { 
-              //return false;
-              return o.diagram.commandHandler.canPasteSelection(); 
-            }),
+          makeButton("Paste View",
+          function (e: any, obj: any) {
+            myMetis.pasteViewsOnly = true;
+            e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+            const myGoModel = myDiagram.myGoModel;
+            e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
+            e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+          },
+          function (o: any) { 
+            //return false;
+            return o.diagram.commandHandler.canPasteSelection(); 
+          }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
             function (o: any) { return o.diagram.commandHandler.canUndo(); }),
           makeButton("Redo",
             function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
             function (o: any) { return o.diagram.commandHandler.canRedo(); })
-        );
+        )
     }
 
     // Define a Node template

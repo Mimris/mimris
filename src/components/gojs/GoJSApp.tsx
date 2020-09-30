@@ -697,9 +697,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
     }
     
-    this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-    console.log('684 gojsMetamodel', gojsMetamodel);
-    this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+    // this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+    // console.log('684 gojsMetamodel', gojsMetamodel);
+    // this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
 
     // console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {

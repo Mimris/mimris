@@ -42,6 +42,7 @@ const page = (props:any) => {
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
@@ -68,7 +69,7 @@ const page = (props:any) => {
       // console.log('38 Diagram state', props ); 
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
-      // setRefresh(!refresh)
+      setRefresh(!refresh)
     }, [props.phData.metis])
 
     // useEffect(() => {
@@ -147,28 +148,31 @@ const page = (props:any) => {
 
   const modellingtabs = (<>
       <Nav tabs >
-        <NavItem className="text-danger" >
+        <NavItem>
+        {/* <NavItem className="text-danger" > */}
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
-            {(activeTab === "1") ? 'Metamodellingg' : 'MM'}
+            {(activeTab === "1") ? 'Metamodelling' : 'MM'}
           </NavLink>
         </NavItem>
-        <NavItem className="text-info">
+        <NavItem >
+        {/* <NavItem className="text-info"> */}
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
-            Concept Modelling
+            {(activeTab === "2") ? 'Concept Modelling' : 'CM'}
           </NavLink>
         </NavItem>
-        <NavItem className="text-primary">
+        <NavItem >
+        {/* <NavItem className="text-primary"> */}
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '3' })}
             onClick={() => { toggleTab('3'); toggleRefresh() }}
           >
-            Solution Modelling
+            {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
           </NavLink>
         </NavItem>
       </Nav>
@@ -296,8 +300,7 @@ const page = (props:any) => {
                 <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
-                    gojsModel={gojsmodel}
-                    gojsTargetModel={gojstargetmodel}
+                    gojsModel={gojstargetmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
                     myGoModel={myGoModel}

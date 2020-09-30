@@ -101,6 +101,7 @@ export function askForTargetMetamodel(context: any, create: boolean) {
     const myMetamodel = context.myMetamodel;
     const myTargetMetamodel = context.myTargetMetamodel;
     const metamodels = myMetis.metamodels;
+    console.log('102 myTargetMetamodel', myTargetMetamodel);
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
         const mm = metamodels[i];
@@ -148,6 +149,7 @@ export function askForTargetMetamodel(context: any, create: boolean) {
                 return;
             }
         }
+        myMetis.targetMetamodel = metamodel;
         console.log('72 myMetis', myMetis);
         return metamodel;
     }
@@ -161,6 +163,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (!object) {
         return;
     }
+    console.log('163 myMetis', myMetis);
     const obj = myMetis.findObject(object.id);
     let proptypes  = new Array();
     let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
@@ -172,6 +175,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.properties = properties;
         myTargetMetamodel?.addObjectType(objtype);
         myMetis.addObjectType(objtype);
+        console.log('175 myMetis', myMetis);
         // Create objecttypeview
         const id = utils.createGuid();
         const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
@@ -189,7 +193,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     } else {
         objtype = myMetis.findObjectType(objtype.id);
     }
-    console.log('120 myMetis', myMetis);
+    console.log('193 myMetis', myMetis);
     let parentType: akm.cxObjectType | null = null;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (objtype) {

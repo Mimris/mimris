@@ -24,16 +24,21 @@ const page = (props:any) => {
   // console.log('23 modelling', memoryLocState);
   
   if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
-  // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
-  // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) {
-    if (memoryLocState ) {
-      // Save it!
-      const memoryState = {
-        ...memoryLocState,
-        phSource: 'savedMemory'
+    if (typeof window !== "undefined") {
+      const loadMemory = confirm("Open saved memory model?");
+      if (loadMemory) {
+        // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
+        // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) 
+        if (memoryLocState ) {
+          // Save it!
+          const memoryState = {
+            ...memoryLocState,
+            phSource: 'savedMemory'
+          }
+          // console.log('35 modelling', memoryState);
+          DispatchFromLocalStore(memoryState)
+        }
       }
-      // console.log('35 modelling', memoryState);
-      DispatchFromLocalStore(memoryState)
     }
   }
 
@@ -78,7 +83,7 @@ const page = (props:any) => {
               <div className="contextarea" >
                 {setContextDiv}
               </div>
-                <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "2px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
+                <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
                 <TasksHelp />
               </div>
               <div className="workarea px-1" style={{ backgroundColor: "#eee" }}>

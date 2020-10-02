@@ -3596,11 +3596,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
 export class cxModel extends cxMetaObject {
     metamodel: cxMetaModel | null;
     metamodelRef: string;
-    sourceMetamodelRef: string;
     targetMetamodelRef: string;
     sourceModelRef: string;
     targetModelRef: string;
-    template: any;
+    templates: any[];
     isTemplate: boolean;
     isMetamodel: boolean;
     submodels: cxModel[] | null;
@@ -3614,11 +3613,10 @@ export class cxModel extends cxMetaObject {
         this.category = constants.gojs.C_MODEL;
         this.metamodel = metamodel;
         this.metamodelRef = "";
-        this.sourceMetamodelRef = "";
         this.targetMetamodelRef = "";
         this.sourceModelRef = "";
         this.targetModelRef = "";
-        this.template = null;
+        this.templates = null;
         this.isTemplate = false;
         this.isMetamodel = false;
         this.submodels = null;
@@ -3693,11 +3691,29 @@ export class cxModel extends cxMetaObject {
     getMetamodel() {
         return this.metamodel;
     }
-    setTemplate(template: cxModelView) {
-        this.template = template;
+    addTemplate(template: cxModelView) {
+        if (this.templates == null)
+            this.templates = new Array();
+        if (!this.findTemplate(template.id))
+            this.templates.push(template);
     }
-    getTemplate() {
-        return this.template;
+    findTemplate(id: string) {
+        const templates = this.getTemplates();
+        if (templates) {
+            let i = 0;
+            let tmpl = null;
+            while (i < templates.length) {
+                tmpl = templates[i];
+                if (tmpl) {
+                    if (tmpl.id === id)
+                        return tmpl;
+                }
+                i++;
+            }
+        }
+    }
+    getTemplates() {
+        return this.templates;
     }
     setIsTemplate(flag: boolean) {
         this.isTemplate = flag;

@@ -23,6 +23,7 @@ import * as gjs from './ui_gojs';
 // cxMetis
 
 export class cxMetis {
+    repositoryRef:      string = "";
     metamodels:         cxMetaModel[] | null = null;
     models:             cxModel[] | null = null;
     modelviews:         cxModelView[] | null = null;
@@ -1556,6 +1557,12 @@ export class cxMetis {
     }
     getTargetMetamodel(): cxMetaModel {
         return this.targetMetamodel;
+    }
+    setRepositoryRef(rep: string) {
+        this.repositoryRef = rep;
+    }
+    getRepositoryRef(): string {
+        return this.repositoryRef;
     }
 }
 
@@ -3594,6 +3601,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
 
 // ---------------------------------------------------------------------
 export class cxModel extends cxMetaObject {
+    modeltype: string;
     metamodel: cxMetaModel | null;
     metamodelRef: string;
     targetMetamodelRef: string;
@@ -3611,6 +3619,7 @@ export class cxModel extends cxMetaObject {
         this.class = 'cxModel';
         this.fs_collection = constants.fs.FS_C_MODELS;  // Firestore collection
         this.category = constants.gojs.C_MODEL;
+        this.modeltype = "";
         this.metamodel = metamodel;
         this.metamodelRef = "";
         this.targetMetamodelRef = "";
@@ -3684,6 +3693,12 @@ export class cxModel extends cxMetaObject {
                 this.setMetamodel(metamodel);
             }
         }
+    }
+    setModelType(modeltype: string) {
+        this.modeltype = modeltype;
+    }
+    getModelType() {
+        return this.modeltype;
     }
     setMetamodel(metamodel: cxMetaModel) {
         this.metamodel = metamodel;

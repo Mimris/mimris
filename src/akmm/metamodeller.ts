@@ -23,6 +23,7 @@ import * as gjs from './ui_gojs';
 // cxMetis
 
 export class cxMetis {
+    repositoryRef:      string = "";
     metamodels:         cxMetaModel[] | null = null;
     models:             cxModel[] | null = null;
     modelviews:         cxModelView[] | null = null;
@@ -1556,6 +1557,12 @@ export class cxMetis {
     }
     getTargetMetamodel(): cxMetaModel {
         return this.targetMetamodel;
+    }
+    setRepositoryRef(rep: string) {
+        this.repositoryRef = rep;
+    }
+    getRepositoryRef(): string {
+        return this.repositoryRef;
     }
 }
 
@@ -3594,13 +3601,13 @@ export class cxRelationshipTypeView extends cxMetaObject {
 
 // ---------------------------------------------------------------------
 export class cxModel extends cxMetaObject {
+    modeltype: string;
     metamodel: cxMetaModel | null;
     metamodelRef: string;
-    sourceMetamodelRef: string;
     targetMetamodelRef: string;
     sourceModelRef: string;
     targetModelRef: string;
-    template: any;
+    templates: any[];
     isTemplate: boolean;
     isMetamodel: boolean;
     submodels: cxModel[] | null;
@@ -3612,13 +3619,13 @@ export class cxModel extends cxMetaObject {
         this.class = 'cxModel';
         this.fs_collection = constants.fs.FS_C_MODELS;  // Firestore collection
         this.category = constants.gojs.C_MODEL;
+        this.modeltype = "";
         this.metamodel = metamodel;
         this.metamodelRef = "";
-        this.sourceMetamodelRef = "";
         this.targetMetamodelRef = "";
         this.sourceModelRef = "";
         this.targetModelRef = "";
-        this.template = null;
+        this.templates = null;
         this.isTemplate = false;
         this.isMetamodel = false;
         this.submodels = null;
@@ -3687,17 +3694,41 @@ export class cxModel extends cxMetaObject {
             }
         }
     }
+    setModelType(modeltype: string) {
+        this.modeltype = modeltype;
+    }
+    getModelType() {
+        return this.modeltype;
+    }
     setMetamodel(metamodel: cxMetaModel) {
         this.metamodel = metamodel;
     }
     getMetamodel() {
         return this.metamodel;
     }
-    setTemplate(template: cxModelView) {
-        this.template = template;
+    addTemplate(template: cxModelView) {
+        if (this.templates == null)
+            this.templates = new Array();
+        if (!this.findTemplate(template.id))
+            this.templates.push(template);
     }
-    getTemplate() {
-        return this.template;
+    findTemplate(id: string) {
+        const templates = this.getTemplates();
+        if (templates) {
+            let i = 0;
+            let tmpl = null;
+            while (i < templates.length) {
+                tmpl = templates[i];
+                if (tmpl) {
+                    if (tmpl.id === id)
+                        return tmpl;
+                }
+                i++;
+            }
+        }
+    }
+    getTemplates() {
+        return this.templates;
     }
     setIsTemplate(flag: boolean) {
         this.isTemplate = flag;

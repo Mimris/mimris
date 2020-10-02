@@ -495,10 +495,11 @@ export class gqlModel {
     name:                   string;
     description:            string;
     metamodelRef:           string;
-    sourceMetamodelRef:     string;
     targetMetamodelRef:     string;
     sourceModelRef:         string;
     targetModelRef:         string;
+    isTemplate:             boolean;
+    templates:              gqlModelView[];
     objects:                gqlObject[];
     relships:               gqlRelationship[];
     modelviews:             gqlModelView[];
@@ -513,6 +514,8 @@ export class gqlModel {
         this.targetMetamodelRef = model.targetMetamodelRef;
         this.sourceModelRef = model.sourceModelRef;
         this.targetModelRef = model.targetModelRef;
+        this.isTemplate     = model.isTemplate;
+        this.templates      = [];
         this.objects        = [];
         this.relships       = [];
         this.modelviews     = [];
@@ -539,6 +542,15 @@ export class gqlModel {
                 const relship = relships[i];
                 if (relship && relship.type)
                     this.addRelationship(relship);
+            }
+        }
+        const templates = model.getTemplates();
+        if (templates) {
+            const cnt = templates.length;
+            for (let i = 0; i < cnt; i++) {
+                const tmpl = templates[i];
+                if (tmpl)
+                    this.addTemplate(tmpl);
             }
         }
         if (includeViews) {
@@ -609,6 +621,12 @@ export class gqlModel {
         if (rel && !rel.isDeleted() && rel.type && rel.fromObject && rel.toObject) {
             const gRelship = new gqlRelationship(rel);
             this.relships.push(gRelship);
+        }
+    }
+    addTemplate(tmpl: akm.cxModelView) {
+        if (tmpl) {
+            const gModelView = new gqlModelView(tmpl);
+            this.templates.push(gModelView);
         }
     }
 }

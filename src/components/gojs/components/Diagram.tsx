@@ -874,8 +874,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }),
           makeButton("New Model",
             function (e: any, obj: any) {
-              let model;
-              const metamodel = myMetis.currentMetamodel;
+              const context = {
+                "myMetis":            myMetis,
+                "myMetamodel":        myMetis.currentMetamodel,
+                "myModel":            myMetis.currentModel,
+                "myTargetMetamodel":  myMetis.targetMetamodel
+              }
+                let model;
+              //const metamodel = myMetis.currentMetamodel;
+              const metamodel = gen.askForMetamodel(context, false, true);
+              if (!metamodel) return;
               const modelName = prompt("Enter Model name:", "");
               if (modelName == null || modelName === "") {
                 alert("New operation was cancelled");
@@ -900,7 +908,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               return true; 
             }
           ),
-          makeButton("New Model View",
+          makeButton("New Modelview",
           function (e: any, obj: any) {
             const model = myMetis.currentModel;
             const modelviewName = prompt("Enter Modelview name:", "");
@@ -919,6 +927,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (o: any) { 
             return true; 
           }),
+          makeButton("Set Modelview as Template",
+          function (e: any, obj: any) {
+            const modelview = myMetis.currentModelview;
+            const model = myMetis.currentModel;
+            model.addTemplate(modelview);
+            modelview.setIsTemplate(true);
+            model.setIsTemplate(true);
+            console.log('935 myMetis', myMetis);
+            alert("Current modelview has been set as template");
+          },
+          function (o: any) { 
+            return true; 
+          }),
+
           // makeButton("Set Target Model",
           // function (e: any, obj: any) {
           //   // Set target model

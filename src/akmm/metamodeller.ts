@@ -23,6 +23,7 @@ import * as gjs from './ui_gojs';
 // cxMetis
 
 export class cxMetis {
+    repository:         cxRepository = null;
     repositoryRef:      string = "";
     metamodels:         cxMetaModel[] | null = null;
     models:             cxModel[] | null = null;
@@ -1558,6 +1559,10 @@ export class cxMetis {
     getTargetMetamodel(): cxMetaModel {
         return this.targetMetamodel;
     }
+    setRepository(rep: cxRepository) {
+        this.repository = rep;
+        this.repositoryRef = rep.id;
+    }
     setRepositoryRef(rep: string) {
         this.repositoryRef = rep;
     }
@@ -1669,6 +1674,12 @@ export class cxMetaObject {
 }
 
 // ---------  Data Types, Categories and Units --------------------------
+
+export class cxRepository extends cxMetaObject {
+    constructor(id: string, name: string, description: string) {
+        super(id, name, description);   
+    } 
+}
 
 export class cxDatatype extends cxMetaObject {
     isOfDatatype: cxDatatype | null;

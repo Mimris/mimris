@@ -35,7 +35,7 @@
     "isomorphic-unfetch": "^3.0.0",
     "jsonwebtoken": "8.5.1",
     "micro-cors": "^0.1.1",
-    "next": "^9.5.1",
+    "next": "^9.5.3",
     "next-redux-saga": "4.0.0",
     "next-redux-wrapper": "2.0.0",
     "node-pre-gyp": "^0.15.0",

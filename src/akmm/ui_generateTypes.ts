@@ -4,7 +4,6 @@ import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
-import { defaultCreateRemoteResolver } from 'apollo-server-micro';
 const constants = require('./constants');
 
 

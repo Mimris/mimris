@@ -4,6 +4,7 @@ import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
+import { defaultCreateRemoteResolver } from 'apollo-server-micro';
 const constants = require('./constants');
 
 
@@ -180,6 +181,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const id = utils.createGuid();
         const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
         objtypeview.applyObjectViewParameters(objview);
+        console.log('183 generateObjectType', objtypeview);
         objtype.typeview = objtypeview;
         objtype.typeviewRef = objtypeview.id;
         objtype.setModified(true);
@@ -190,6 +192,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myTargetMetamodel, objtype, "0 0", "100 50");
         myTargetMetamodel?.objtypegeos.push(objtypegeo);
         myMetis.addObjtypeGeo(objtypegeo);
+        defaultCreateRemoteResolver.log('195 generateObjectType', myMetis);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
     }

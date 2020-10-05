@@ -46,6 +46,7 @@ export class cxMetis {
     currentModelview:   cxModelView | null = null;
     currentModel:       cxModel | null = null;
     currentMetamodel:   cxMetaModel | null = null;
+    currentTemplatemodel:   cxModel | null = null;
     targetMetamodel:    cxMetaModel | null = null;
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
@@ -1546,6 +1547,12 @@ export class cxMetis {
     }
     getCurrentModel(): cxModel {
         return this.currentModel;
+    }
+    setCurrentTemplatemodel(model: cxModel) {
+        this.currentTemplatemodel = model;
+    }
+    getCurrentTemplatemodel(): cxModel {
+        return this.currentTemplatemodel;
     }
     setCurrentMetamodel(metamodel: cxMetaModel) {
         this.currentMetamodel = metamodel;

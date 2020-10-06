@@ -900,8 +900,8 @@ function reducer(state = InitialState, action) {
         const curmmt     = state.phData?.metis?.metamodels?.find(m => m.id === curmodt.targetMetamodelRef)
         const curmmtindex = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodt.teargetMetamodelRef) 
         const otcurt  = curmmt?.objtypegeos?.find(ot => ot.id === action?.data?.id)
-        const ottlength = curtmm?.objtypegeos.length
-        let ottindex = curtmm?.objtypegeos?.findIndex(ot => ot.id === otcurt?.id)
+        const ottlength = curmmt?.objtypegeos?.length
+        let ottindex = curmmt?.objtypegeos?.findIndex(ot => ot.id === otcurt?.id)
         if (ottindex < 0) {ottindex = ottlength} 
         return {
           ...state,
@@ -914,9 +914,9 @@ function reducer(state = InitialState, action) {
                   {
                     ...state.phData.metis.metamodels[curmmtindex],
                     objtypegeos: [
-                      ...curtmm?.objtypegeos.slice(0, otindex),
+                      ...curmmt?.objtypegeos?.slice(0, otindex),
                       {
-                        ...curtmm?.objtypegeos[otindex],  
+                        ...curmmt?.objtypegeos[otindex],  
                         id: action.data.id,           
                         name: action.data.name,
                         description: action.data.description,
@@ -927,7 +927,7 @@ function reducer(state = InitialState, action) {
                         deleted: action.data.deleted, 
                         modified: action.data.modified,                         
                       },
-                      ...curtmm?.objtypegeos.slice(otindex + 1)
+                      ...curmmt?.objtypegeos?.slice(otindex + 1)
                     ]
                   },
                   ...state.phData.metis.metamodels.slice(curmmtindex + 1),

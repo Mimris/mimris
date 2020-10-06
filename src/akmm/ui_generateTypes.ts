@@ -191,7 +191,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myTargetMetamodel, objtype, "0 0", "100 50");
         myTargetMetamodel?.objtypegeos.push(objtypegeo);
         myMetis.addObjtypeGeo(objtypegeo);
-        defaultCreateRemoteResolver.log('195 generateObjectType', myMetis);
+        console.log('195 generateObjectType', myMetis);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
     }

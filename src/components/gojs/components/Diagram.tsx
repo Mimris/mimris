@@ -453,10 +453,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     context.myTargetMetamodel = null;
                 //}
                 myMetis.targetMetamodel = context.myTargetMetamodel;
-                console.log('454 Generate Object Type', context.myTargetMetamodel, myMetis);
+                console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
                 if (context.myTargetMetamodel) {  
                   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                  console.log('457 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
+                  console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
                   const gqlModel = new gql.gqlModel(context.myModel);
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);
@@ -467,7 +467,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
                   const currentObjview = part.data.objectview;
                   const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                  console.log('468 Generate Object Type', objtype, myMetis);
+                  console.log('470 Generate Object Type', objtype, myMetis);
                   // First handle properties
                   const modifiedProperties = new Array();
                   const props = objtype.properties;
@@ -480,23 +480,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                       });
                   }
                   const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-                  console.log('481 Generate Object Type', gqlObjTypeview);
+                  console.log('483 Generate Object Type', gqlObjTypeview);
                   const modifiedTypeViews = new Array();
                   modifiedTypeViews.push(gqlObjTypeview);
                   modifiedTypeViews?.map(mn => {
                     let data = (mn) && mn
-                    e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', data })
                   })
-                  console.log('488 myMetis', modifiedTypeViews, myMetis);                                    // Then handle the object type
+                  const geo = context.myTargetMetamodel.findObjtypeGeoByType(objtype);
+                  const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
+                  console.log('492 Generate Object Type', gqlObjTypegeo);
+                  const modifiedGeos = new Array();
+                  modifiedGeos.push(gqlObjTypegeo);
+                  modifiedGeos?.map(mn => {
+                    let data = (mn) && mn
+                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
+                  })
+                  console.log('499 myMetis', modifiedTypeViews, myMetis);                                    // Then handle the object type
                   const gqlObjectType = new gql.gqlObjectType(objtype);
-                  console.log('490 Generate Object Type', gqlObjectType);
+                  console.log('501 Generate Object Type', gqlObjectType);
                   const modifiedTypeNodes = new Array();
                   modifiedTypeNodes.push(gqlObjectType);
                   modifiedTypeNodes.map(mn => {
                     let data = mn;
                     e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
                   });
-                  console.log('497 myMetis', modifiedTypeNodes, myMetis);
+                  console.log('508 myMetis', modifiedTypeNodes, myMetis);
+                  const gqlMetamodel = new gql.gqlMetaModel(context.myTargetMetamodel);
+                  console.log('510 Generate Object Type', gqlMetamodel);
+                  const modifiedMetamodels = new Array();
+                  modifiedMetamodels.push(gqlMetamodel);
+                  modifiedMetamodels.map(mn => {
+                      let data = mn;
+                      console.log('515 Generate Object Type', data);
+                      e.diagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data })
+                  });
                 }
               },  
             function(o: any) { 
@@ -707,6 +725,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               }
               return false;
             }),
+          makeButton("Generate Relationship Type",             
+            function (e: any, obj: any) { 
+            },
+            function(o: any) { 
+              const test = false;
+              if (test)
+                return true;
+              else
+                return false;
+          }),
           makeButton("Cut",
             function (e, obj) { 
               e.diagram.commandHandler.cutSelection(); 

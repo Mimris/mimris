@@ -25,8 +25,8 @@ const page = (props:any) => {
   
   if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
     if (typeof window !== "undefined") {
-      const loadMemory = confirm("Open saved memory model?");
-      if (loadMemory) {
+    //   const loadMemory = confirm("Open saved memory model?");
+      // if (loadMemory) {
         // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
         // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) 
         if (memoryLocState ) {
@@ -38,7 +38,7 @@ const page = (props:any) => {
           // console.log('35 modelling', memoryState);
           DispatchFromLocalStore(memoryState)
         }
-      }
+      // }
     }
   }
 

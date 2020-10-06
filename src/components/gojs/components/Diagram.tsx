@@ -806,12 +806,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) {
               const context = {
                 "myMetis":            myMetis,
-                "myMetamodel":        myMetis.currentMetamodel,
+                "myMetamodel":        myMetis.currentMetamodel, 
                 "myModel":            myMetis.currentModel,
                 "myTargetMetamodel":  myMetis.targetMetamodel
               }
               const targetMetamodel = gen.askForMetamodel(context, false);
-              console.log('785 Target Metamodel', targetMetamodel);
+              console.log('785 Target Metamodel', myMetis.currentModel, targetMetamodel);
               if (targetMetamodel) {
                 myMetis.targetMetamodel = targetMetamodel;
                 // Update current Model with targetMetamodelRef

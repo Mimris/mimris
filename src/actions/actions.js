@@ -40,8 +40,16 @@ import {
   UPDATE_OBJECTTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTTYPEGEOS_PROPERTIES,
   UPDATE_DATATYPE_PROPERTIES,
+  UPDATE_TARGETMETAMODEL_PROPERTIES,
   UPDATE_TARGETMODEL_PROPERTIES,
   UPDATE_TARGETOBJECTTYPE_PROPERTIES,
+  UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES,
+  UPDATE_TARGETBJECTTYPEGEOS_PROPERTIES,
+  UPDATE_TARGETRELSHIPVIEW_PROPERTIES,
+  UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES,
+  UPDATE_TARGETDATATYPE_PROPERTIES,
+  UPDATE_TARGETALUE_PROPERTIES,
+  UPDATE_TARGETRELSHIPTYPE_PROPERTIES,
   UPDATE_PROPERTY_PROPERTIES,
   UPDATE_TARGETPROPERTY_PROPERTIES,
   UPDATE_VALUE_PROPERTIES,
@@ -348,10 +356,45 @@ export const update_property_properties = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const update_targetmetamodel_properties = (data) => {
+  console.log('345 actions update_targetmetamodel_properties', data.payload);
+  return {
+    type: UPDATE_TARGETMETAMODEL_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_targetobjecttypegeos_properties = (data) => {
+  console.log('205 actions update_targetobjecttypegeos_properties', data.payload);
+  return {
+    type: UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_targetrelshiptype_properties = (data) => {
+  console.log('205 actions update_targetrelshiptype_properties', data.payload);
+  return {
+    type: UPDATE_TARGETRELSHIPTYPE_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_targetrelshiptypeview_properties = (data) => {
+  console.log('205 actions update_targetrelshiptypeview_propertie', data.payload);
+  return {
+    type: UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
 export const update_targetproperty_properties = (data) => {
   console.log('205 actions update_targetproperty_properties', data.payload);
   return {
     type: UPDATE_TARGETPROPERTY_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
+export const update_targetvalue_properties = (data) => {
+  console.log('205 actions update_targetvalue_properties', data.payload);
+  return {
+    type: UPDATE_TARGETVALUE_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }

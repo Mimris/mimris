@@ -80,7 +80,7 @@ const TasksHelp = () => {
         // ? <><span style={{ paddingLeft: "5px" }}> Tasks</span> <span style={{ float: "left" }} > &lt;  </span></>
         : <div className="btn-vertical  m-0 pr-1" 
           style={{ borderRadius: "5px 5px 5px 5px", backgroundColor: "#eed", paddingLeft: "3px", minWidth: "10px", maxWidth: "10px", height: "100%", fontSize: "90%" }}>
-            <span> &gt; </span><strong> T a s k s - H e l p</strong> 
+            <span> &gt; </span><strong> . T a s k s - H e l p</strong> 
           </div>}
       </span>
       <div className="toggleTasks">

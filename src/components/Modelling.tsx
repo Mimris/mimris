@@ -147,7 +147,16 @@ const page = (props:any) => {
 
   const modellingtabs = (<>
       <Nav tabs >
-        <NavItem className="text-danger" >
+        {/* <NavItem className="text-danger" >
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+            className={classnames({ active: activeTab === '0' })}
+            onClick={() => { toggleTab('0'); toggleRefresh() }}
+          >
+            {(activeTab === "0") ? 'Template' : 'T'}
+          </NavLink>
+        </NavItem> */}
+        <NavItem>
+        {/* <NavItem className="text-danger" > */}
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
@@ -172,8 +181,46 @@ const page = (props:any) => {
           </NavLink>
         </NavItem>
       </Nav>
-      {/* Metamodelling */}
       <TabContent  activeTab={activeTab} >  
+      {/* Template */}
+      {/* <TabPane tabId="0">
+          <div className="workpad p-1 pt-2 bg-white">
+            <Row >
+            <Col xs="auto m-0 p-0 pl-3">
+              <div className="myPalette pl-1 mb-1 pt-0 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+                <Palette
+                  gojsModel={gojsmodel}
+                  gojsMetamodel={gojsmetamodel}
+                  gojsModelObjects={gojsmodelobjects}
+                  myMetis={myMetis}
+                  myGoModel={myGoModel}
+                  myGoMetamodel={myGoMetamodel}
+                  metis={metis}
+                  phFocus={phFocus}
+                  dispatch={dispatch}
+                  modelType='model'
+                />
+               </div>
+              </Col>
+            <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+                  <Modeller
+                    gojsModel={gojsmodel}
+                    gojsMetamodel={gojsmetamodel}
+                    myMetis={myMetis}
+                    myGoModel={myGoModel}
+                    myGoMetamodel={myGoMetamodel}
+                    metis={metis}
+                    phFocus={phFocus}
+                    dispatch={dispatch}
+                    modelType='model'
+                    />
+                </div>
+              </Col>
+            </Row>
+          </div>         
+        </TabPane> */}
+        {/* Metamodelling */}
         <TabPane  tabId="1">
           <div className="workpad p-1 pt-2 bg-white" >
             <Row >

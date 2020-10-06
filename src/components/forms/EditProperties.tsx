@@ -230,14 +230,14 @@ const EditProperties = (props) => {
   }
 
   const fields = listAllProperties(edititem).map(p => // remove js prototype properties
-    ((p.slice(-3) !== 'Ref') && (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
+    ((p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
       (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
       (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
       (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') &&
       (p !== 'datatypes') && (p !== 'relshiptypes') &&
       (p !== 'unittypes') && (p !== 'objtypegeos') )
-      // (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
+      // (p.slice(-3) !== 'Ref') && (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
       && p
   ).filter(Boolean)
 

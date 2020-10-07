@@ -99,6 +99,7 @@ export class cxMetis {
                 const item = metamodels[i];
                 if (includeDeleted || !item.deleted) { 
                     const metamodel = (item) && new cxMetaModel(item.id, item.name, item.description);
+                    if (!metamodel) continue;
                     this.addMetamodel(metamodel);
                     // Metamodel content
                     let items = item.datatypes;
@@ -118,6 +119,7 @@ export class cxMetis {
                             const item = items[i];
                             if (includeDeleted || !item.deleted) { 
                                 const prop = new cxProperty(item.id, item.name, item.description);
+                                if (!prop) continue;
                                 this.addProperty(prop);
                             }
                         }
@@ -128,6 +130,7 @@ export class cxMetis {
                             const item = items[i];
                             if (includeDeleted || !item.deleted) { 
                                 const otype = new cxObjectType(item.id, item.name, item.description);
+                                if (!otype) continue;
                                 metamodel.addObjectType(otype);
                                 this.addObjectType(otype);
                             }
@@ -139,6 +142,7 @@ export class cxMetis {
                             const item = items[i];
                             if (includeDeleted || !item.deleted) { 
                                 const otype = new cxObjtypeGeo(item.id, null, null, "", "");
+                                if (!otype) continue;
                                 metamodel.addObjtypeGeo(otype);
                                 this.addObjtypeGeo(otype);
                             }
@@ -150,6 +154,7 @@ export class cxMetis {
                             const item = items[i];
                             if (includeDeleted || !item.deleted) { 
                                 const otv = new cxObjectTypeView(item.id, item.name, null, item.description);
+                                if (!otv) continue;
                                 metamodel.addObjectTypeView(otv);
                                 this.addObjectTypeView(otv);
                             }
@@ -161,6 +166,7 @@ export class cxMetis {
                             const item = items[i];
                             if (includeDeleted || !item.deleted) { 
                                 const rtype = new cxRelationshipType(item.id, item.name, null, null, item.description);
+                                if (!rtype) continue;
                                 metamodel.addRelationshipType(rtype);
                                 this.addRelationshipType(rtype);
                             }
@@ -172,6 +178,7 @@ export class cxMetis {
                             const item = items[i];
                             if (includeDeleted || !item.deleted) { 
                                 const rtv = new cxRelationshipTypeView(item.id, item.name, null, item.description);
+                                if (!rtv) continue;
                                 metamodel.addRelationshipTypeView(rtv);
                                 this.addRelationshipTypeView(rtv);
                             }
@@ -193,6 +200,7 @@ export class cxMetis {
                         const item = items[i];
                         if (includeDeleted || !item.deleted) { 
                             const model = new cxModel(item.id, item.name, null, item.description);
+                            if (!model) continue;
                             this.addModel(model);
                             
                             // Objects and relationships
@@ -202,6 +210,7 @@ export class cxMetis {
                                     const item = objs[i];
                                     if (includeDeleted || !item.deleted) { 
                                         const obj = new cxObject(item.id, item.name, null, item.description);
+                                        if (!obj) continue;
                                         model.addObject(obj);
                                         this.addObject(obj);
                                     }
@@ -213,6 +222,7 @@ export class cxMetis {
                                     const item = rels[i];
                                     if (includeDeleted || !item.deleted) { 
                                         const rel = new cxRelationship(item.id, null, null, null, item.name, item.description);
+                                        if (!rel) continue;
                                         model.addRelationship(rel);
                                         this.addRelationship(rel);
                                     }
@@ -224,9 +234,12 @@ export class cxMetis {
                                 for (let i = 0; i < mvs.length; i++) {
                                     const item = mvs[i];
                                     if (includeDeleted || !item.deleted) { 
+                                        console.log('237 initImport', item);
                                         const mv = new cxModelView(item.id, item.name, null, item.description);
+                                        if (!mv) continue;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
+                                        mv.setModel(model);
                                         // Object views and relationship views
                                         let views = item.objectviews;
                                         if (views && views.length) {
@@ -234,6 +247,7 @@ export class cxMetis {
                                                 const item = views[i];
                                                 if (includeDeleted || !item.deleted) { 
                                                     const obj = new cxObjectView(item.id, item.name, null, item.description);
+                                                    if (!obj) continue;
                                                     mv.addObjectView(obj);
                                                     this.addObjectView(obj);
                                                 }
@@ -245,6 +259,7 @@ export class cxMetis {
                                                 const item = views[i];
                                                 if (includeDeleted || !item.deleted) { 
                                                     const rel = new cxRelationshipView(item.id, item.name, null, item.description);
+                                                    if (!rel) continue;
                                                     mv.addRelationshipView(rel);
                                                     this.addRelationshipView(rel);
                                                 }

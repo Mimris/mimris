@@ -566,9 +566,11 @@ export class gqlModel {
         }
     }
     addModelView(mv: akm.cxModelView) {
-        if (mv && !mv.isDeleted() && mv.model) {
+        console.log('569 addModelView', mv);
+        if (mv && !mv.isDeleted()) {
             const gModelView = new gqlModelView(mv);
             this.modelviews.push(gModelView);
+            console.log('572 addModelView', this.modelviews);
             // Then handle the objectviews
             const objtypeviews = mv?.objecttypeviews;
             if (objtypeviews) {
@@ -609,6 +611,7 @@ export class gqlModel {
                     }
                 }
             }
+            console.log('613 addModelView', gModelView);
         }
     }
     addObject(obj: akm.cxObject) {

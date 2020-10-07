@@ -295,7 +295,7 @@ function reducer(state = InitialState, action) {
         //     }
         //   }
       case SET_MYMETIS_MODEL:
-      // console.log('228 SET_MYMETIS_MODEL', action);
+      console.log('228 SET_MYMETIS_MODEL', action);
       return {
         ...state,
         phMymetis: {
@@ -475,7 +475,7 @@ function reducer(state = InitialState, action) {
                     id: action.data.id,           
                     name: action.data.name,
                     description: action.data.description, 
-                    sourceMetamodelRef: action.data.sourceMetamodelRef,
+                    templateModelRef: action.data.templateModelRef,
                     targetMetamodelRef: action.data.targetMetamodelRef,
                     sourceModelRef: action.data.sourceModelRef,
                     targetModelRef: action.data.targetModelRef,
@@ -903,6 +903,7 @@ function reducer(state = InitialState, action) {
         const ottlength = curmmt?.objtypegeos?.length
         let ottindex = curmmt?.objtypegeos?.findIndex(ot => ot.id === otcurt?.id)
         if (ottindex < 0) {ottindex = ottlength} 
+        console.log('905 curmmt', curmmt.objtypegeos, ottindex);
         return {
           ...state,
           phData: {
@@ -914,9 +915,9 @@ function reducer(state = InitialState, action) {
                   {
                     ...state.phData.metis.metamodels[curmmtindex],
                     objtypegeos: [
-                      ...curmmt?.objtypegeos?.slice(0, otindex),
+                      ...curmmt?.objtypegeos?.slice(0, ottindex),
                       {
-                        ...curmmt?.objtypegeos[otindex],  
+                        ...curmmt?.objtypegeos[ottindex],  
                         id: action.data.id,           
                         name: action.data.name,
                         description: action.data.description,
@@ -927,13 +928,13 @@ function reducer(state = InitialState, action) {
                         deleted: action.data.deleted, 
                         modified: action.data.modified,                         
                       },
-                      ...curmmt?.objtypegeos?.slice(otindex + 1)
+                      ...curmmt?.objtypegeos?.slice(ottindex + 1)
                     ]
                   },
                   ...state.phData.metis.metamodels.slice(curmmtindex + 1),
                 ]
               },
-           },
+          },
         }
     case UPDATE_TARGETPROPERTY_PROPERTIES:
       console.log('900 UPDATE_TARGETPROPERTY_PROPERTIES', action);

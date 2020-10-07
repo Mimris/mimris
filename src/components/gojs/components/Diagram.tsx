@@ -489,14 +489,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   })
                   const geo = context.myTargetMetamodel.findObjtypeGeoByType(objtype);
                   const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-                  console.log('492 Generate Object Type', gqlObjTypegeo);
-                  const modifiedGeos = new Array();
-                  modifiedGeos.push(gqlObjTypegeo);
-                  modifiedGeos?.map(mn => {
-                    let data = (mn) && mn
-                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
-                  })
-                  console.log('499 myMetis', modifiedTypeViews, myMetis);                                    // Then handle the object type
+                  console.log('492 Generate Object Type', gqlObjTypegeo, myMetis);
+                  // const modifiedGeos = new Array();
+                  // modifiedGeos.push(gqlObjTypegeo);
+                  // modifiedGeos?.map(mn => {
+                  //   let data = (mn) && mn
+                  //   e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
+                  // })
+                  // console.log('499 myMetis', modifiedGeos, myMetis);                                    // Then handle the object type
                   const gqlObjectType = new gql.gqlObjectType(objtype);
                   console.log('501 Generate Object Type', gqlObjectType);
                   const modifiedTypeNodes = new Array();
@@ -515,6 +515,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                       console.log('515 Generate Object Type', data);
                       e.diagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data })
                   });
+                  e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
                 }
               },  
             function(o: any) { 
@@ -808,22 +809,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "myMetis":            myMetis,
                 "myMetamodel":        myMetis.currentMetamodel, 
                 "myModel":            myMetis.currentModel,
+                "myModelview":        myMetis.currentModelview,
                 "myTargetMetamodel":  myMetis.targetMetamodel
               }
               const targetMetamodel = gen.askForMetamodel(context, false);
-              console.log('785 Target Metamodel', myMetis.currentModel, targetMetamodel);
+              console.log('815 Target Metamodel', myMetis.currentModel, myMetis.currentModelview);
               if (targetMetamodel) {
                 myMetis.targetMetamodel = targetMetamodel;
                 // Update current Model with targetMetamodelRef
                 myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
-                const gqlModel = new gql.gqlModel(myMetis.currentModel);
+                e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+
+                const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
+                gqlModel.addModelView(myMetis.currentModelview);
+                console.log('822 current model', gqlModel, myMetis.currentModelview);
                 const modifiedModels = new Array();
                 modifiedModels.push(gqlModel);
                 modifiedModels.map(mn => {
                   let data = mn;
                   e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
-                console.log('796 current model', gqlModel);
+                console.log('829 current model', gqlModel);
 
                 // const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(targetMetamodel);
                 // console.log('799 set target Metamodel', gqlMetamodel);

@@ -45,7 +45,7 @@ const page = (props:any) => {
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  console.log('47 Modelling', props.phGojs);
+  // console.log('47 Modelling', props.phGojs);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -65,7 +65,7 @@ const page = (props:any) => {
     // }, [focusModel?.id])
 
     useEffect(() => {
-      // console.log('38 Diagram state', props ); 
+      console.log('68 Diagram useEffect 1 ', props ); 
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
       // setRefresh(!refresh)
@@ -83,14 +83,14 @@ const page = (props:any) => {
       focusModelview = props.phFocus?.focusModelview
       // setRefresh(!refresh)
       // console.log('80 Diagram state', focusModelview, props.phGojs?.gojsModel.nodeDataArray ); 
+      console.log('86 Diagram useEffect 2', props); 
       genGojsModel(props, dispatch);
-      // console.log('82 Diagram state', props.phGojs?.gojsModel.nodeDataArray ); 
       // focusModel = props.phFocus?.focusModel
       setRefresh(!refresh)
     }, [focusModelview?.id])
 
     useEffect(() => {
-      // console.log('76 Modelling', props ); 
+      console.log('93 Modelling useEffect 3', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])
@@ -169,7 +169,7 @@ const page = (props:any) => {
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
-            Concept Modelling
+            {(activeTab === "1") ? 'Concept Modelling' : 'CM'}
           </NavLink>
         </NavItem>
         <NavItem className="text-primary">
@@ -177,7 +177,7 @@ const page = (props:any) => {
             className={classnames({ active: activeTab === '3' })}
             onClick={() => { toggleTab('3'); toggleRefresh() }}
           >
-            Solution Modelling
+            {(activeTab === "1") ? 'Solution Modelling' : 'SM'}
           </NavLink>
         </NavItem>
       </Nav>
@@ -343,7 +343,7 @@ const page = (props:any) => {
                 <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
-                    gojsModel={gojstargetmodel}
+                    gojsModel={gojsmodel}
                     gojsTargetModel={gojstargetmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
@@ -380,16 +380,18 @@ const page = (props:any) => {
     <>
       <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
       <div className="diagramtabs" >
-        <span className="sourceName pr-2 float-right mr-0 mt-1" 
-          style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
-            Current source: {props.phSource}
-        </span> 
-          <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#000", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+        <div style={{ transform: "scale(0.9)"}}>
+          <span className="sourceName pr-1 float-right mr-0 mt-1" 
+            style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
+              Current source: {props.phSource}
+          </span> 
+          <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#000", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {loadserver} {loadlocal}  
           </span> 
-          <span className="sourceName float-right" style={{ padding: "2px", backgroundColor: "#fcc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-          {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
-          </span> 
+          <span className="editfocus float-right" style={{ padding: "1px", backgroundColor: "#fcc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
+          </span>
+        </div> 
         <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
           {/* {modellingtabs} */}
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}

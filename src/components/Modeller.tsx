@@ -43,7 +43,7 @@ const Modeller = (props: any) => {
   //   selmodelviews = selmods?.modelviews?.map((m: any) => m)
   // }, [modelviews])
   useEffect(() => {
-    // console.log('34 Modeller', focusModel.name, focusModelview.name);
+    console.log('46 Modeller useEffect 1', props);
     focusModel = props.phFocus?.focusModel
     focusModelview = props.phFocus?.focusModelview
     // console.log('37 Modeller', focusModel.name, focusModelview.name);
@@ -52,6 +52,7 @@ const Modeller = (props: any) => {
   // console.log('23 Modeller myMetis', props.myMetis);
   useEffect(() => {
     setRefresh(!refresh)
+    console.log('54 Modeller useEffect 2', props );
   }, [focusModelview?.id])
   
   const gojsapp = (gojsmodel && !prevgojsmodel) &&

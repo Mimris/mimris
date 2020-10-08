@@ -29,15 +29,15 @@ const page = (props:any) => {
       // if (loadMemory) {
         // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
         // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) 
-        if (memoryLocState ) {
-          // Save it!
-          const memoryState = {
-            ...memoryLocState,
-            phSource: 'savedMemory'
-          }
-          // console.log('35 modelling', memoryState);
-          DispatchFromLocalStore(memoryState)
-        }
+        // if (memoryLocState ) {
+        //   // Save it!
+        //   const memoryState = {
+        //     ...memoryLocState,
+        //     phSource: 'savedMemory'
+        //   }
+        //   // console.log('35 modelling', memoryState);
+        //   DispatchFromLocalStore(memoryState)
+        // }
       // }
     }
   }

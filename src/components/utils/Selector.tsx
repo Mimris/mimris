@@ -26,13 +26,13 @@ const Selector = ( props: any ) => {
   // console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
   const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
   
-  const options = selArray && (
+  const options = selArray && ( //sf TODO:  modelview is mapped 2 times
     (focus) 
       ? [
         <option  key={focus}  value={`${focus}...`} > {focus} </option>,
-        selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
+        selArray.map((m: any, index) => (m.name !== 'Select '+props.selName+'...') &&
         // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
-        <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})} > {m.name} </option>)]
+        <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})} > {m.name} </option>)]
       : [
         <option   key={focus} value={`${focus}...`} >Select {props.selName}... </option>,
         selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
@@ -47,24 +47,24 @@ const Selector = ( props: any ) => {
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
     ? (props.selName === 'Model') 
       ?
-        <>
+      <div key={props.type} className="select" ><hr />
           <span className="title mx-2 ">{props.selName}:</span>
           <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
           onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
             {options}
           </select>
-        </>
+          </div>
       :
-        <>
-          <span className="title mx-2 ">{props.selName}:</span>
-            <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+      <div key={props.type} className="select" ><hr />
+          <span  className="title mx-2 ">{props.selName}:</span>
+            <select key={props.type} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
             onChange={(event) => {handleChange({ value: event.target.value });  toggleRefresh()}} name={`Focus ${props.selName} ...`}>
               {options}
             </select>
-          </>
+            </div>
       :
         <div key={props.type} className="select" ><hr />
-          <div className="title "> {props.selName}:</div>
+          <div  className="title "> {props.selName}:</div>
           <select key={focus} className="list-obj " defaultValue={`Select ${props.selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
             onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
             {options}

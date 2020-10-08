@@ -234,7 +234,7 @@ export class cxMetis {
                                 for (let i = 0; i < mvs.length; i++) {
                                     const item = mvs[i];
                                     if (includeDeleted || !item.deleted) { 
-                                        console.log('237 initImport', item);
+                                        // console.log('237 initImport', item);
                                         const mv = new cxModelView(item.id, item.name, null, item.description);
                                         if (!mv) continue;
                                         model.addModelView(mv);

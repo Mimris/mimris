@@ -79,15 +79,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('69 myPalette', myPalette);
       let myModelView = (curmodview) && myMetis?.findModelView(curmodview?.id);
       if (!myModelView) myModelView = myMetis?.findModelView(focusModelview?.id);
-      console.log('63 GenGojsModel  myModel', myMetis, myModel, myModelView);
+      console.log('82 GenGojsModel  myModel', myMetis, myGoModel, myModel, myModelView);
       const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      console.log('79 GenGojsModel myGoModel', myGoModel);
+      console.log('84 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelView);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
       myMetis?.setCurrentModelview(myModelView);
-      
-      // console.log('53 GenGojsModel  myMetis', myMetis);
+      console.log('89 GenGojsModel  myMetis', myMetis);
+
       // const nodedataarray = await (curmodview)
       //   ? curmodview.objectviews.map((mv: any, index: any) =>
       //     ({ key: mv.id, text: mv.name, color: 'orange', loc: `${mv.loc ? mv.loc.split(' ')[0] + ' ' + mv.loc.split(' ')[1] : {}}` }))

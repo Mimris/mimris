@@ -433,7 +433,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   "myMetamodel":        myMetis.currentMetamodel,
                   "myTargetMetamodel":  myMetis.targetMetamodel,
                   "myModel":            myMetis.currentModel,
-                  "myModelView":        myMetis.currentModelview,
+                  "myCurrentModelview":        myMetis.currentModelview,
                   "myDiagram":          e.diagram,
                   "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
@@ -515,7 +515,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                       console.log('515 Generate Object Type', data);
                       e.diagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data })
                   });
+                  myMetis.currentModelview = context.myCurrentModelview;
                   e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+                  console.log('520 Generate Object Type', myMetis);
                 }
               },  
             function(o: any) { 
@@ -813,7 +815,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "myTargetMetamodel":  myMetis.targetMetamodel
               }
               const targetMetamodel = gen.askForMetamodel(context, false);
-              console.log('815 Target Metamodel', myMetis.currentModel, myMetis.currentModelview);
+              console.log('815 Target Metamodel', myMetis);
               if (targetMetamodel) {
                 myMetis.targetMetamodel = targetMetamodel;
                 // Update current Model with targetMetamodelRef

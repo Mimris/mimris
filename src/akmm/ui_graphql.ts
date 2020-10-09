@@ -996,6 +996,7 @@ export class gqlImportMetis {
         }
     }
     importMetamodel(item: akm.cxMetaModel) {
+        console.log('1001 importMetis - glb.metis', glb.metis);
         let metamodel = glb.metis.findMetamodel(item.id);
         if (!metamodel) {
             metamodel = new akm.cxMetaModel(item.id, item.name, item.description);
@@ -1090,6 +1091,7 @@ export class gqlImportMetis {
 
     }
     importObjectType(item: any, metamodel: akm.cxMetaModel) {
+        console.log('1096 importObjectType - glb.metis', glb.metis);
         let objtype = metamodel.findObjectType(item.id);
         if (!utils.objExists(objtype)) {
             objtype = new akm.cxObjectType(item.id, item.name, item.description);

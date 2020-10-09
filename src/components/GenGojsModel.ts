@@ -3,11 +3,13 @@
 // /**
 // * Generate GoJS model and metamodel from the metisobject in the store,
 // */
-import glb from '../akmm/akm_globals';
+//import glb from '../akmm/akm_globals';
 import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
 //import {gqlImportMetis} from '../Server/src/akmm/ui_graphql'
+const glb = require('../akmm/akm_globals');
+
 const constants = require('../akmm/constants');
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
@@ -20,16 +22,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   // console.log('22 GenGojsModel metis:', metis, modelviews);
 
-  if (metis !== null) {
+  if (metis != null) {
     let myMetis = null;
-    // console.log('24 myMetis', glb.metis);
+    console.log('24 glb.metis', glb.metis, metis);
     if (!glb.metis) {
       myMetis = new akm.cxMetis();
       myMetis.importData(metis, true);
       glb.metis = myMetis;
-      // console.log('29 myMetis', myMetis);
+      console.log('29 myMetis', metis, glb.metis);
     } else {
       myMetis = glb.metis;
+      console.log('33 myMetis', metis, glb.metis);
       const deleteViewsOnly = myMetis.deleteViewsOnly;
       const pasteViewsOnly  = myMetis.pasteViewsOnly;
       const currentModelview = myMetis.currentModelview;
@@ -38,19 +41,19 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis.deleteViewsOnly = deleteViewsOnly;
       myMetis.pasteViewsOnly  = pasteViewsOnly;
       myMetis.currentModelview = currentModelview;
-      // console.log('34 myMetis', myMetis);
+      console.log('42 myMetis', myMetis);
     }
-    // console.log('37 GenGojsModel myMetis', myMetis, glb.metis);
+    console.log('44 GenGojsModel myMetis', myMetis, glb.metis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
-    // console.log('46 gengojsmodel', models, curmod, focusModelview)
+    console.log('46 gengojsmodel', models, curmod, curmod.modelviews, focusModelview)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
-    const curmetamodel = (curmod) && metamodels.find(mm => mm.id === curmod.metamodelRef)
-    const curtargetmodel = (curmod) && metamodels.find(mm => mm.id === curmod.targetMetamodelRef)
+    const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodelRef)
+    const curtargetmodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodelRef)
     
-    // console.log('50 gengojsmodel', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetMetamodelRef);
+    console.log('56 gengojsmodel', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetMetamodelRef);
 
     let curGomodel = props.phMyGoModel?.myGoModel;
     // console.log('45 gengojsmodel :', curmod, curmod?.id);

@@ -770,8 +770,9 @@ function reducer(state = InitialState, action) {
       console.log('567 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
       const curm_tmm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef) //current meta model
-      const curmmindex_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index
+      const curmmindex_tmm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index
       if (curmmindex_tmm <0) curmmindex_tmm = state.phData.metis.metamodels.length
+      console.log('775 curmm_tmm', curmm_tmm, curmmindex_tmm)
       return {
         ...state,
         phData: {

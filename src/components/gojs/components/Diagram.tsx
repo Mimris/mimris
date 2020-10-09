@@ -369,7 +369,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel.id;
                 // console.log('369 Diagram', myMetis.currentModel.targetMetamodelRef);
                 
-                const gqlModel = new gql.gqlModel(context.myModel);
+                const gqlModel = new gql.gqlModel(context.myModel, true);
                 const modifiedModels = new Array();
                 modifiedModels.push(gqlModel);
                 modifiedModels.map(mn => {
@@ -433,7 +433,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   "myMetamodel":        myMetis.currentMetamodel,
                   "myTargetMetamodel":  myMetis.targetMetamodel,
                   "myModel":            myMetis.currentModel,
-                  "myCurrentModelview":        myMetis.currentModelview,
+                  "myCurrentModelview": myMetis.currentModelview,
                   "myDiagram":          e.diagram,
                   "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
@@ -457,14 +457,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 if (context.myTargetMetamodel) {  
                   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
                   console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
-                  const gqlModel = new gql.gqlModel(context.myModel);
+                  const gqlModel = new gql.gqlModel(context.myModel, true);
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);
                   modifiedModels.map(mn => {
                     let data = mn;
                     e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                   })
-
+                  console.log('467 gqlModel', gqlModel);
                   const currentObjview = part.data.objectview;
                   const objtype = gen.generateObjectType(currentObj, currentObjview, context);
                   console.log('470 Generate Object Type', objtype, myMetis);
@@ -515,8 +515,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                       console.log('515 Generate Object Type', data);
                       e.diagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data })
                   });
-                  myMetis.currentModelview = context.myCurrentModelview;
-                  e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+                  // myMetis.currentModelview = context.myCurrentModelview;
+                  // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
                   console.log('520 Generate Object Type', myMetis);
                 }
               },  
@@ -820,10 +820,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 myMetis.targetMetamodel = targetMetamodel;
                 // Update current Model with targetMetamodelRef
                 myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
-                e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+                // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
 
                 const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
-                gqlModel.addModelView(myMetis.currentModelview);
+                // gqlModel.addModelView(myMetis.currentModelview);
                 console.log('822 current model', gqlModel, myMetis.currentModelview);
                 const modifiedModels = new Array();
                 modifiedModels.push(gqlModel);
@@ -894,7 +894,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               myMetis.targetModel = targetModel;
               // Update current Model with targetModelRef
               myMetis.currentModel.targetModelRef = targetModel?.id;
-              const gqlModel = new gql.gqlModel(myMetis.currentModel);
+              const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
               const modifiedModels = new Array();
               modifiedModels.push(gqlModel);
               modifiedModels.map(mn => {

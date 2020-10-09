@@ -60,7 +60,7 @@ export class cxMetis {
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const metamodel = metamodels[i];
-                this.importMetamodel(metamodel);
+                if (metamodel) this.importMetamodel(metamodel);
                 // console.log('55 importData', this);
             }
         }
@@ -68,7 +68,7 @@ export class cxMetis {
         const models: any[] = importedData?.models;
         if (models && models.length) {
             models.forEach(model => {
-                if (!model.deleted)
+                if (model && !model.deleted)
                     this.importModel(model);
             })
         }
@@ -77,7 +77,7 @@ export class cxMetis {
         const objects: any[] = importedData?.objects;
         if (objects && objects.length) {
             objects.forEach(obj => {
-                if (!obj.deleted)
+                if (obj && !obj.deleted)
                 this.importObject(obj, null);
             })
         }
@@ -85,7 +85,7 @@ export class cxMetis {
         const relships: any[] = importedData?.relships;
         if (relships && relships.length) {
             relships.forEach(rel => {
-                if (!rel.deleted)
+                if (rel && !rel.deleted)
                 this.importRelship(rel, null);
             })
         }
@@ -282,65 +282,75 @@ export class cxMetis {
         let objecttypes: any[] = item.objecttypes;
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
-                this.importObjectType(objtype, metamodel);
+                if (objtype && !objtype.deleted)
+                     this.importObjectType(objtype, metamodel);
             });
         }
 
         let objtypegeos: any[] = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {
             objtypegeos.forEach(objtypegeo => {
-                this.importObjectTypegeo(objtypegeo, metamodel);
+                if (objtypegeo && !objtypegeo.deleted) 
+                    this.importObjectTypegeo(objtypegeo, metamodel);
             });
         }
 
         let objecttypeviews: any[] = item.objecttypeviews;
         if (objecttypeviews && objecttypeviews.length) {
             objecttypeviews.forEach(objtypeview => {
-                this.importObjectTypeView(objtypeview, metamodel);
+                if (objtypeview && !objtypeview.deleted) 
+                    this.importObjectTypeView(objtypeview, metamodel);
             });
         }
 
         objecttypes = item.objecttypes;
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
-                this.importObjectType(objtype, metamodel);
+                if (objtype && !objtype.deleted)
+                    this.importObjectType(objtype, metamodel);
             });
         }
         objtypegeos = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {
             objtypegeos.forEach(objtypegeo => {
-                this.importObjectTypegeo(objtypegeo, metamodel);
+                if (objtypegeo && !objtypegeo.deleted)
+                    this.importObjectTypegeo(objtypegeo, metamodel);
             });
         }
         objecttypeviews = item.objecttypeviews;
         if (objecttypeviews && objecttypeviews.length) {
             objecttypeviews.forEach(objtypeview => {
-                this.importObjectTypeView(objtypeview, metamodel);
+                if (objtypeview && !objtypeview.deleted)
+                    this.importObjectTypeView(objtypeview, metamodel);
             });
         }
 
         let relshiptypes: any[] = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
-                if (metamodel && !reltype.deleted) this.importRelshipType(reltype, metamodel);
+                if (reltype && !reltype.deleted) 
+                    this.importRelshipType(reltype, metamodel);
             });
         }
         let relshiptypeviews: any[] = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
-                this.importRelshipTypeView(reltypeview, metamodel);
+                if (reltypeview && !reltypeview.deleted)
+                    this.importRelshipTypeView(reltypeview, metamodel);
             });
         }
         relshiptypes = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
-                this.importRelshipType(reltype, metamodel);
+                if (reltype && !reltype.setDeleted)
+                    this.importRelshipType(reltype, metamodel);
             });
         }
         relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
-                this.importRelshipTypeView(reltypeview, metamodel);
+                if (reltypeview && !reltypeview.deleted)
+                    this.importRelshipTypeView(reltypeview, metamodel);
             });
         }
     }

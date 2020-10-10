@@ -1,20 +1,43 @@
-// @ts-nocheck
+// @ts- nocheck
 
 const utils = require('./utilities');
 const glb = require('./akm_globals');
 import * as akm from './metamodeller';
-import { deleteNode } from './ui_common';
 //import * as gojs  from './components/akmm/ui_gojs';
 
 export class gqlExportMetis {
-    metamodels: gqlMetaModel[];
-    models: gqlModel[];
+    repositories:           gqlRepository[];
+    metamodels:             gqlMetaModel[];
+    models:                 gqlModel[];
+    pasteViewsOnly:         boolean;
+    deleteViewsOnly:        boolean;
+    currentRepositoryRef:   string;
+    currentMetamodelRef:    string;
+    currentModelRef:        string;
+    currentModelviewRef:    string;
+    currentTemplateModelRef: string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
-        this.metamodels = [];
-        this.models = [];
+        this.repositories = [];
+        this.metamodels   = [];
+        this.models       = [];
+        this.currentRepositoryRef    = "";
+        this.currentMetamodelRef     = "";
+        this.currentModelRef         = "";
+        this.currentModelviewRef     = "";
+        this.currentTemplateModelRef = "";
+        this.pasteViewsOnly          = false;
+        this.deleteViewsOnly         = false;
         // Code
         if (metis) {
+            const repositories = metis.getRepositories();
+            if (repositories) {
+                const cnt = repositories.length;
+                for (let i = 0; i < cnt; i++) {
+                    const repository = repositories[i];
+                    this.addRepository(repository);
+                }
+            }
             const metamodels = metis.getMetamodels();
             if (metamodels) {
                 const cnt = metamodels.length;
@@ -31,16 +54,32 @@ export class gqlExportMetis {
                     this.addModel(model, includeViews);
                 }
             }
+            if (metis.currentRepository)
+                this.currentRepositoryRef = metis.currentRepository.id;
+            if (metis.currentMetamodel)
+                this.currentMetamodelRef = metis.currentMetamodel.id;
+            if (metis.currentModel)
+                this.currentModelRef = metis.currentModel.id;
+            if (metis.currentModelView)
+                this.currentModelviewRef = metis.currentModelView.id;
+            if (metis.currentTemplatemodel)
+                this.currentTemplateModelRef = metis.currentTemplatemodel.id;
+            
         }
     }
     // Functions
+    addRepository(repository: akm.cxRepository) {
+        if (repository) {
+            const gRepository = new gqlRepository(repository);
+            this.repositories.push(gRepository);
+        }
+    }
     addMetamodel(metamodel: akm.cxMetaModel, includeViews: boolean) {
         if (metamodel) {
             const gMetamodel = new gqlMetaModel(metamodel, includeViews);
             this.metamodels.push(gMetamodel);
         }
     }
-
     addModel(model: akm.cxModel, includeViews: boolean) {
         if (model && model.metamodel) {
             const gModel = new gqlModel(model, includeViews);
@@ -48,6 +87,17 @@ export class gqlExportMetis {
         }
     }
 }
+export class gqlRepository {
+    id:                 string;
+    name:               string;
+    description:        string;
+    constructor(repository: akm.cxRepository) {
+        this.id             = repository.id;
+        this.name           = repository.name;
+        this.description    = repository.description;
+    }
+}
+
 export class gqlExportMetaModel {
     metamodels: gqlMetaModel[];
     constructor() {
@@ -86,6 +136,8 @@ export class gqlMetaModel {
         this.objecttypeviews = [];
         this.objtypegeos = [];
         this.relshiptypeviews = [];
+        this.deleted  = false;
+        this.modified = false;
 
         // Code
         const objtypes = metamodel.getObjectTypes();
@@ -965,34 +1017,63 @@ export class gqlRelshipView {
     }
 }
 export class gqlImportMetis {
-    metamodels: akm.cxMetaModel[];
-    models: akm.cxModel[];
-    imported: any;
+    repositories:               akm.cxRepository[];
+    metamodels:                 akm.cxMetaModel[];
+    models:                     akm.cxModel[];
+    currentRepositoryRef:       string;
+    currentMetamodelRef:        string;
+    currentModelRef:            string;
+    currentModelviewRef:        string;
+    currentTemplateModelRef:    string;
+    pasteViewsOnly:             boolean;
+    deleteViewsOnly:            boolean;
+    imported:                   any;
     constructor(metis: akm.cxMetis, importedData: any) {
-        this.metamodels = [];
-        this.models = [];
-        this.imported = importedData;
-
+        this.repositories           = [];
+        this.metamodels             = [];
+        this.models                 = [];
+        this.imported               = importedData;
+        this.pasteViewsOnly         = importedData.pasteViewsOnly;
+        this.deleteViewsOnly        = importedData.deleteViewsOnly;
+        this.currentRepositoryRef   = importedData.currentRepositoryRef;
+        this.currentMetamodelRef    = importedData.currentMetamodelRef;
+        this.currentModelRef        = importedData.currentModelRef;
+        this.currentModelviewRef    = importedData.currentModelviewRef;
+        this.currentTemplateModelRef = importedData.currentTemplateModelRef;
+    
         /* Initialise
         glb.metis.initMetis();
         glb.myMetamodel = undefined;
         glb.myModel     = undefined;
         */
-
-        // Handle metamodel first
+        // Handle repositories
+       const repositories = importedData.repositories;
+       if (repositories && (repositories.length > 0)) {
+           repositories.forEach(function (this: gqlImportMetis, repository: akm.cxModel) {
+               this?.importRepository(repository);
+           });
+       }
+        // Handle metamodels
         const metamodels = importedData.metamodels;
-        if (utils.objExists(metamodels) && (metamodels.length > 0)) {
+        if (metamodels && (metamodels.length > 0)) {
             metamodels.forEach(function (this: gqlImportMetis, metamodel: akm.cxMetaModel) {
                 // console.log('834 importMetamodel', metamodel);
                 this?.importMetamodel(metamodel);
             });
         }
-        // Handle models next
+        // Handle models 
         const models = importedData.models;
-        if (utils.objExists(models) && (models.length > 0)) {
+        if (models && (models.length > 0)) {
             models.forEach(function (this: gqlImportMetis, model: akm.cxModel) {
                 this?.importModel(model);
             });
+        }
+    }
+    importRepository(item: akm.cxRepository) {
+        let repository = glb.metis.findRepository(item.id);
+        if (!repository) {
+            repository = new akm.cxRepository(item.id, item.name, item.description);
+            glb.metis.addRepository(repository);
         }
     }
     importMetamodel(item: akm.cxMetaModel) {

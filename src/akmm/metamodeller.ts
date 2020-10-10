@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // this Kernel code
 
 //import akm_globals from "./akm_globals";
@@ -23,8 +23,7 @@ import * as gjs from './ui_gojs';
 // cxMetis
 
 export class cxMetis {
-    repository:         cxRepository = null;
-    repositoryRef:      string = "";
+    repositories:       cxRepository[] | null = null;
     metamodels:         cxMetaModel[] | null = null;
     models:             cxModel[] | null = null;
     modelviews:         cxModelView[] | null = null;
@@ -43,7 +42,8 @@ export class cxMetis {
     objectviews:        cxObjectView[] | null = null;
     relshipviews:       cxRelationshipView[] | null = null;
     gojsModel:          gjs.goModel | null = null;
-    currentModelview:   cxModelView | null = null;
+    currentRepository:  cxRepository | null = null;
+    currentModelView:   cxModelView | null = null;
     currentModel:       cxModel | null = null;
     currentMetamodel:   cxMetaModel | null = null;
     currentTemplatemodel:   cxModel | null = null;
@@ -55,7 +55,7 @@ export class cxMetis {
     }
     importData(importedData: any, includeDeleted: boolean) {
         this.initImport(importedData, includeDeleted);
-
+        // Handle metamodels
         const metamodels = importedData?.metamodels;
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
@@ -89,11 +89,47 @@ export class cxMetis {
                 this.importRelship(rel, null);
             })
         }
-    }
+        // Handle current variables
+        if (importedData.currentRepositoryRef) {
+            const repository = this.findRepository(importedData.currentRepositoryRef);
+            if (repository)
+                this.currentRepository = repository;
+        }
+        if (importedData.currentMetamodelRef) {
+            const metamodel = this.findMetamodel(importedData.currentMetamodelRef);
+            if (metamodel)
+                this.currentMetamodel = metamodel;
+        }
+        if (importedData.currentModelRef) {
+            const model = this.findModel(importedData.currentModelRef);
+            if (model)
+                this.currentModel = model;
+        }
+        if (importedData.currentModelviewRef) {
+            const modelview = this.findModelView(importedData.currentModelviewRef);
+            if (modelview)
+                this.currentModelView = modelview;
+        }
+        if (importedData.currentTemplateModelRef) {
+            const model = this.findModel(importedData.currentTemplateModelRef);
+            if (model)
+                this.currentTemplatemodel = model;
+        }
 
+    }
     initImport(importedData: any, includeDeleted: boolean) {
+        // Import repositories
+        const repositories = importedData?.repositories;
+        if (repositories && repositories.length) {
+            for (let i = 0; i < repositories.length; i++) {
+                const item = repositories[i];
+                const repository = (item) && new cxRepository(item.id, item.name, item.description);
+                if (!repository) continue;
+                this.addRepository(repository);
+            }
+        }
         // Import metamodels
-        let metamodels = importedData?.metamodels;
+        const metamodels = importedData?.metamodels;
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const item = metamodels[i];
@@ -187,8 +223,8 @@ export class cxMetis {
                 }
             }
         }
-
-        let models = importedData?.models;
+        // Import models
+        const models = importedData?.models;
         if (models && models.length) {
             for (let i = 0; i < models.length; i++) {
                 const item = models[i];
@@ -274,7 +310,6 @@ export class cxMetis {
             }
         }
     }
-
     importMetamodel(item: any) {
         const metamodel = this.findMetamodel(item.id);
         if (!metamodel) 
@@ -507,6 +542,9 @@ export class cxMetis {
                         if (model) this.importModelView(mv, model);
                     });
                 }
+                model.targetMetamodelRef = item.targetMetamodelRef;
+                model.sourceModelRef = item.sourceModelRef;
+                model.targetModelRef = item.targetModelRef;
             }
         }
         
@@ -606,6 +644,9 @@ export class cxMetis {
     }
     addItem(item: any) {
         switch (item.class) {
+            case 'cxRepository':
+                this.addRepository(item);
+                break;
             case 'cxMetaModel':
                 this.addMetamodel(item);
                 break;
@@ -647,6 +688,15 @@ export class cxMetis {
             case 'cxRelationshipView':
                 this.addRelationshipView(item);
                 break;
+        }
+    }
+    addRepository(rep: cxRepository) {
+        if (rep.class === "cxRepository") {
+            rep.metis = this;
+            if (this.repositories == null)
+                this.repositories = new Array();
+            if (!this.findRepository(rep.id))
+                this.repositories.push(rep);
         }
     }
     addMetamodel(metamodel: cxMetaModel) {
@@ -1012,6 +1062,21 @@ export class cxMetis {
                 break;
         }
         return retval;
+    }
+    findRepository(id: string) {
+        let repositories = this.getRepositories();
+        if (!repositories)
+            return null;
+        else {
+            let i = 0;
+            while (i < repositories.length) {
+                let repository = repositories[i];
+                if (repository && repository.id === id)
+                    return repository;
+                i++;
+            }
+        }
+        return null;
     }
     findDatatype(id: string) {
         let datatypes = this.getDatatypes();
@@ -1560,6 +1625,15 @@ export class cxMetis {
             }
         }
         return null;
+    }
+    setCurrentRepository(repository: cxRepository) {
+        this.currentRepository = repository;
+    }
+    getCurrentRepository(): cxRepository {
+        return this.currentRepository;
+    }
+    getRepositories(): cxRepository {
+        return this.repositories;
     }
     setCurrentModelview(modelview: cxModelView) {
         this.currentModelview = modelview;

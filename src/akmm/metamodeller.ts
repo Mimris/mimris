@@ -549,6 +549,8 @@ export class cxMetis {
                 model.currentTargetMetamodelRef = item.currentTargetMetamodelRef;
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
+                model.pasteViewsOnly = item.pasteViewsOnly;
+                model.deleteViewsOnly = item.deleteViewsOnly;
             }
         }
         

@@ -22,6 +22,7 @@ import LoadLocal from '../../../components/LoadLocal'
 import { FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 import svgs from '../../utils/Svgs'
+import { truncateSync } from 'fs';
 //import { stringify } from 'querystring';
 // import './Diagram.css';
 
@@ -591,7 +592,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              myMetis.deleteViewsOnly = true;
+              myMetis.currentModel.deleteViewsOnly = true;
               e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
               const myGoModel = myDiagram.myGoModel;
               e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
@@ -1037,13 +1038,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (e: any, obj: any) {
             const myModel = myMetis.currentModel;
             myModel.pasteViewsOnly = true;
-            const gqlModel = new gql.gqlModel(myModel);
+            const gqlModel = new gql.gqlModel(myModel, truncateSync);
             const modifiedModels = new Array();
             modifiedModels.push(gqlModel);
             modifiedModels.map(mn => {
               let data = mn;
               e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
             })
+            console.log('1047 Paste View', gqlModel, myMetis);
             e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
           },
           function (o: any) { 

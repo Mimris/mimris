@@ -17,32 +17,21 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   console.log('17 GenGojsModel props:', props);
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
-  const modelviews = (metis) && metis.modelviews
+  // const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels
 
   // console.log('22 GenGojsModel metis:', metis, modelviews);
 
   if (metis != null) {
-    let myMetis = null;
-    console.log('24 glb.metis', glb.metis, metis);
-    if (!glb.metis) {
-      myMetis = new akm.cxMetis();
+    // let myMetis = null;
+    // console.log('24 glb.metis', glb.metis, metis);
+    // if (!glb.metis) {
+    //   myMetis = new akm.cxMetis();
+    //   myMetis.importData(metis, true);
+    // } else {
+      const myMetis = new akm.cxMetis();
       myMetis.importData(metis, true);
-      glb.metis = myMetis;
-      console.log('29 myMetis', metis, glb.metis);
-    } else {
-      myMetis = glb.metis;
-      console.log('33 myMetis', metis, glb.metis);
-      // const deleteViewsOnly = myMetis.deleteViewsOnly;
-      // const pasteViewsOnly  = myMetis.pasteViewsOnly;
-      // const currentModelview = myMetis.currentModelview;
-      myMetis = new akm.cxMetis();
-      myMetis.importData(metis, true);
-      // myMetis.deleteViewsOnly = deleteViewsOnly;
-      // myMetis.pasteViewsOnly  = pasteViewsOnly;
-      // myMetis.currentModelview = currentModelview;
-      console.log('42 myMetis', myMetis);
-    }
+    // }
     console.log('44 GenGojsModel myMetis', myMetis, glb.metis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel

@@ -551,7 +551,7 @@ export class gqlModel {
     name:                   string;
     description:            string;
     metamodelRef:           string;
-    currentTargetMetamodelRef:     string;
+    targetMetamodelRef:     string;
     sourceModelRef:         string;
     targetModelRef:         string;
     isTemplate:             boolean;
@@ -569,7 +569,7 @@ export class gqlModel {
         this.description    = model.description ? model.description : "";
         this.metamodelRef   = model.getMetamodel() ? model.getMetamodel().id : "";
         this.sourceMetamodelRef = model.sourceMetamodelRef;
-        this.currentTargetMetamodelRef = model.currentTargetMetamodelRef;
+        this.targetMetamodelRef = model.targetMetamodelRef;
         this.sourceModelRef = model.sourceModelRef;
         this.targetModelRef = model.targetModelRef;
         this.isTemplate     = model.isTemplate;

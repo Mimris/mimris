@@ -46,7 +46,7 @@ const page = (props:any) => {
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  // console.log('47 Modelling', props.phGojs);
+  console.log('47 Modelling', props.phGojs?.gojsTargetModel);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis

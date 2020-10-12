@@ -21,19 +21,19 @@ const TargetModeller = (props: any) => {
   const [refresh, setRefresh] = useState(true)
   function toggleRefresh() { setRefresh(!refresh); }
   
-  console.log('28 TargetModeller', props, gojsmodel?.nodeDataArray);
   
-  let focusModel = props.phFocus?.focusModel
-  let focusModelview = props.phFocus?.focusModelview
-
+  let focusTargetModel = props.phFocus?.focusTargetModel
+  let focusTargetModelview = props.phFocus?.focusTargetModelview
+  
+  console.log('28 TargetModeller', props, focusTargetModel, focusTargetModelview);
   const models = props.metis?.models
-  const model = models?.find((m: any) => m?.id === focusModel?.id)
-  const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
+  const model = models?.find((m: any) => m?.id === focusTargetModel?.id)
+  const modelindex = models?.findIndex((m: any) => m?.id === focusTargetModel?.id)
   const modelviews = model?.modelviews
-  const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
-  const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusModelview?.id)
+  const modelview = modelviews?.find((m: any) => m?.id === focusTargetModelview?.id)
+  const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusTargetModelview?.id)
   
-  // put current modell on top 
+  // put current modell on top  
   const selmods = [
     models[modelindex],
     ...models.slice(0, modelindex),
@@ -43,7 +43,7 @@ const TargetModeller = (props: any) => {
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
-  // console.log('36 Modeller', focusModelview, selmods, modelviews);
+  console.log('36 TargetModeller', focusTargetModelview, selmods, modelviews);
   let selmodels = selmods?.models?.map((m: any) => m)
   let selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)
   // console.log('33 Modeller', focusModel.name, focusModelview.name);
@@ -55,18 +55,18 @@ const TargetModeller = (props: any) => {
   //   selmodels = selmods?.models?.map((m: any) => m)
   //   selmodelviews = selmods?.modelviews?.map((m: any) => m)
   // }, [modelviews])
-  useEffect(() => {
-    console.log('46 Modeller useEffect 1', props);
-    focusModel = props.phFocus?.focusModel
-    focusModelview = props.phFocus?.focusModelview
-    // console.log('37 Modeller', focusModel.name, focusModelview.name);
-  }, [models, modelviews])
-  // console.log('37 Modeller', selmodels);
-  // console.log('23 Modeller myMetis', props.myMetis);
-  useEffect(() => {
-    setRefresh(!refresh)
-    console.log('54 Modeller useEffect 2', props );
-  }, [focusModelview?.id])
+  // useEffect(() => {
+  //   console.log('46 TargetModeller useEffect 1', props);
+  //   // focusModel = props.phFocus?.focusModel
+  //   // focusModelview = props.phFocus?.focusModelview
+  //   // console.log('37 Modeller', focusModel.name, focusModelview.name);
+  // }, [models, modelviews])
+  // // console.log('37 Modeller', selmodels);
+  // // console.log('23 Modeller myMetis', props.myMetis);
+  // useEffect(() => {
+  //   setRefresh(!refresh)
+  //   console.log('54 TargetModeller useEffect 2', props );
+  // }, [focusModelview?.id])
   
   const gojsapp = (gojsmodel) &&
     < GoJSApp
@@ -142,16 +142,17 @@ const TargetModeller = (props: any) => {
 
     // console.log('130 Modeller', focusModelview, props);
     useEffect(() => {
-      focusModelview = props.phFocus?.focusModelview
+      focusTargetModelview = props.phFocus?.focusTargetModelview
       genGojsModel(props, dispatch);
       setRefresh(!refresh)
       // console.log('135 Modeller', focusModelview, props);
-    }, [focusModelview?.id])
+    }, [focusTargetModelview?.id])
 
   return (
     <>
-       <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
-        {selector}
+       <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Target Modeller
+       <span className="float-right">{focusTargetModel.name}</span>
+        {/* {selector} */}
         {modelviewTabDiv} 
       </div>
       <style jsx>{`

@@ -97,7 +97,7 @@ const LoadLocal = (props: any) => {
     console.log('97 LoadLocal', metamodels);
     
     // then find currentTargetMetamodel
-    let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.currentTargetMetamodelRef) // current targetmetamodel index
+    let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
     let curtmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
     const curtmmlength = locState.phData.metis.metamodels?.length   
     if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model

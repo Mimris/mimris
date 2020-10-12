@@ -39,12 +39,14 @@ const TargetMeta = (props) => {
 
   const palette =
     <>
-      <button className="btn-sm pt-0 pb-0 b-0 mt-0 mr-2" style={{ backgroundColor: "#9a9", outline: "0", borderStyle: "none" }}
-        onClick={togglePalette}> {visiblePalette ? <span>&gt;PaletteTargetMeta</span> : <span>&lt;</span>}
+      <button className="btn-sm pt-0 px- b-0 mt-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#9a9", outline: "0", borderStyle: "none" }}
+        onClick={togglePalette}> {visiblePalette ? <span>&gt;Target <br /> Metamodel <br />Types</span> : <span>&lt;</span>}
       </button>
       {visiblePalette
-        ? <div> {gojsapp} <div style={{ minWidth: "290px" }}></div></div>
-        : <div className="btn-vertical m-0 pl-2 p-0" style={{ verticalAlign: "middle", maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - T a r g e t - M e t a m o d e l</span> </div>
+        ? <div className="m-1"> {gojsapp} </div>
+        // ? <div> {gojsapp} <div style={{ minWidth: "292px", height: "100%" }}></div></div>
+        // : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - T a r g e t - M e t a m o d e l</span> </div>
+        : <div className="btn-vertical m-0 pl-2 p-0" style={{ verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> P a l e t t e - T a r g e t - M e t a m o d e l</span> </div>
       }
     </>
 
@@ -52,9 +54,10 @@ const TargetMeta = (props) => {
     <>
       {palette}
       <style jsx>{`
-        // .diagram-component {
-        //   height: 100%;
-        // }
+        .diagram-component {
+          height: 101%;
+          width: 100%;
+        }
        `}</style>
     </>
   )

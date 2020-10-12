@@ -83,10 +83,11 @@ const page = (props:any) => {
               <div className="contextarea" >
                 {setContextDiv}
               </div>
-                <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
+                <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
+                {/* <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} > */}
                 <TasksHelp />
               </div>
-              <div className="workarea px-1" style={{ backgroundColor: "#eee" }}>
+              <div className="workarea px-1 py-2" style={{ backgroundColor: "#eee" }}>
                 {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
                 {/* <Modelling /> */}
               </div>
@@ -100,7 +101,8 @@ const page = (props:any) => {
       <style jsx>{`
       .wrapper {
         display: grid;
-        height: 100%;
+        height: 101%;
+        min-height: 101%;
         // grid-template-columns: 1fr auto;
         // grid-template-rows:  auto;
         grid-gap: 0px;
@@ -111,13 +113,15 @@ const page = (props:any) => {
       .workplace {
         grid-area: workplace;
         display: grid ;
-        height: 100%;
+        height: 101%;
+        // min-height: 101%;
         // background-color: #ddd;
         grid-template-columns: auto 1fr;
         grid-template-areas:
         "contextarea contextarea"
         "tasksarea workarea";
       }
+
       // @media only screen and (max-width: 475px) {
       // .workplace {
       //     grid-area: workplace;

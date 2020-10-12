@@ -4397,7 +4397,7 @@
                     "description": "",
                     "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
                     "sourceMetamodelRef": "",
-                    "targetMetamodelRef": "",
+                    "currentTargetMetamodelRef": "",
                     "sourceModelRef": "",
                     "targetModelRef": "",
                     "objects": [],

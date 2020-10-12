@@ -354,20 +354,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const context = {
                   "myMetis":            myMetis,
                   "myMetamodel":        myMetis.currentMetamodel,
-                  "myTargetMetamodel":  myMetis.targetMetamodel,
+                  "myTargetMetamodel":  myMetis.currentTargetMetamodel,
                   "myModel":            myMetis.currentModel,
                   "myModelView":        myMetis.currentModelview,
                   "myDiagram":          e.diagram,
                   "dispatch":           e.diagram.dispatch
                 }
-                if (!myMetis.targetMetamodel)
-                    myMetis.targetMetamodel = myMetis.currentMetamodel;
+                if (!myMetis.currentTargetMetamodel)
+                    myMetis.currentTargetMetamodel = myMetis.currentMetamodel;
                 const contextmenu = obj.part;  
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = gen.askForTargetMetamodel(context);
-                myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel.id;
-                // console.log('369 Diagram', myMetis.currentModel.targetMetamodelRef);
+                myMetis.currentModel.currentTargetMetamodelRef = context.myTargetMetamodel.id;
+                // console.log('369 Diagram', myMetis.currentModel.currentTargetMetamodelRef);
                 
                 const gqlModel = new gql.gqlModel(context.myModel, true);
                 const modifiedModels = new Array();
@@ -399,7 +399,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const context = {
                 "myMetis":            myMetis,
                 "myMetamodel":        myMetis.currentMetamodel,
-                "myTargetMetamodel":  myMetis.targetMetamodel,
+                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
                 "myModel":            myMetis.currentModel,
                 "myModelView":        myMetis.currentModelview,
                 "myDiagram":          e.diagram,
@@ -431,7 +431,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const context = {
                   "myMetis":            myMetis,
                   "myMetamodel":        myMetis.currentMetamodel,
-                  "myTargetMetamodel":  myMetis.targetMetamodel,
+                  "myTargetMetamodel":  myMetis.currentTargetMetamodel,
                   "myModel":            myMetis.currentModel,
                   "myCurrentModelview": myMetis.currentModelview,
                   "myDiagram":          e.diagram,
@@ -442,7 +442,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const contextmenu = obj.part;  
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
-                context.myTargetMetamodel = myMetis.targetMetamodel;
+                context.myTargetMetamodel = myMetis.currentTargetMetamodel;
                 console.log('446 context', context);
                 //if (!context.myTargetMetamodel) {
                   context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
@@ -452,11 +452,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   } else if (context.myTargetMetamodel == undefined)  // sf
                     context.myTargetMetamodel = null;
                 //}
-                myMetis.targetMetamodel = context.myTargetMetamodel;
+                myMetis.currentTargetMetamodel = context.myTargetMetamodel;
                 console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
                 if (context.myTargetMetamodel) {  
-                  myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                  console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
+                  myMetis.currentModel.currentTargetMetamodelRef = context.myTargetMetamodel?.id;
+                  console.log('459 Generate Object Type', context, myMetis.currentModel.currentTargetMetamodelRef);
                   const gqlModel = new gql.gqlModel(context.myModel, true);
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);
@@ -557,6 +557,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const myGoModel = myDiagram.myGoModel;
               e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              console.log('560 Paste View', myMetis);
             },
             function (o: any) { 
               //return false;
@@ -812,14 +813,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "myMetamodel":        myMetis.currentMetamodel, 
                 "myModel":            myMetis.currentModel,
                 "myModelview":        myMetis.currentModelview,
-                "myTargetMetamodel":  myMetis.targetMetamodel
+                "myTargetMetamodel":  myMetis.currentTargetMetamodel
               }
-              const targetMetamodel = gen.askForMetamodel(context, false);
+              const currentTargetMetamodel = gen.askForMetamodel(context, false);
               console.log('815 Target Metamodel', myMetis);
-              if (targetMetamodel) {
-                myMetis.targetMetamodel = targetMetamodel;
-                // Update current Model with targetMetamodelRef
-                myMetis.currentModel.targetMetamodelRef = targetMetamodel?.id;
+              if (currentTargetMetamodel) {
+                myMetis.currentTargetMetamodel = currentTargetMetamodel;
+                // Update current Model with currentTargetMetamodelRef
+                myMetis.currentModel.currentTargetMetamodelRef = currentTargetMetamodel?.id;
                 // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
 
                 const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
@@ -833,7 +834,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 })
                 console.log('829 current model', gqlModel);
 
-                // const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(targetMetamodel);
+                // const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(currentTargetMetamodel);
                 // console.log('799 set target Metamodel', gqlMetamodel);
                 // const modifiedgqlMetamodels = new Array();
                 // modifiedgqlMetamodels.push(gqlMetamodel);
@@ -852,7 +853,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("New Target Model",
           function (e: any, obj: any) {
             let model;
-            const metamodel = myMetis.targetMetamodel;
+            const metamodel = myMetis.currentTargetMetamodel;
             console.log('819 Diagram', myMetis);
             
             const modelName = prompt("Enter Target Model name:", "");
@@ -886,14 +887,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "myMetis":            myMetis,
               "myMetamodel":        myMetis.currentMetamodel,
               "myModel":            myMetis.currentModel,
-              "myTargetMetamodel":  myMetis.targetMetamodel
+              "myTargetMetamodel":  myMetis.currentTargetMetamodel
             }
-            const targetModel = gen.askForTargetModel(context, false);
-            console.log('8552 Target Model', targetModel);
-            if (targetModel) {
-              myMetis.targetModel = targetModel;
+            const currentTargetModel = gen.askForTargetModel(context, false);
+            console.log('8552 Target Model', currentTargetModel);
+            if (currentTargetModel) {
+              myMetis.currentTargetModel = currentTargetModel;
               // Update current Model with targetModelRef
-              myMetis.currentModel.targetModelRef = targetModel?.id;
+              myMetis.currentTargetModel.targetModelRef = currentTargetModel?.id;
               const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
               const modifiedModels = new Array();
               modifiedModels.push(gqlModel);
@@ -914,7 +915,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "myMetis":            myMetis,
                 "myMetamodel":        myMetis.currentMetamodel,
                 "myModel":            myMetis.currentModel,
-                "myTargetMetamodel":  myMetis.targetMetamodel
+                "myTargetMetamodel":  myMetis.currentTargetMetamodel
               }
                 let model;
               //const metamodel = myMetis.currentMetamodel;
@@ -1039,6 +1040,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             const myGoModel = myDiagram.myGoModel;
             e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
             e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            console.log('1043 Paste View', myMetis);
           },
           function (o: any) { 
             //return false;

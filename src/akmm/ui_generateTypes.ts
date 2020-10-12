@@ -149,7 +149,7 @@ export function askForTargetMetamodel(context: any, create: boolean) {
                 return;
             }
         }
-        myMetis.targetMetamodel = metamodel;
+        myMetis.currentTargetMetamodel = metamodel;
         console.log('72 myMetis', myMetis);
         return metamodel;
     }
@@ -465,7 +465,7 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
     return true;
 }
 
-export function generateTargetModel(targetModelview, sourceModelview) {
+export function generateTargetModel(currentTargetModelview, sourceModelview) {
     if (!sourceModelview) return;
     let model = sourceModelview.getModel();
     if (!model) return;
@@ -489,13 +489,13 @@ export function generateTargetModel(targetModelview, sourceModelview) {
     // selection is an array of objectviews to be copied to targetmodelview
     for (let i=0; i<selection.length; i++) {
         let objview = selection[i];
-        copyObjectview(objview, targetModelview);
+        copyObjectview(objview, currentTargetModelview);
     }
     
     /* selection is an array of objectviews to be copied to targetmodelview
     for (let i=0; i<selectionInfo.length; i++) {
         let objview = selectionInfo[i];
-        copyObjectview(objview, targetModelview);
+        copyObjectview(objview, currentTargetModelview);
     }
     */
     
@@ -521,7 +521,7 @@ export function generateTargetModel(targetModelview, sourceModelview) {
 /*
         for (let i=0; i<selection.length; i++) {
             let relview = selection[i];
-            copyRelshipview(relview, targetModelview);
+            copyRelshipview(relview, currentTargetModelview);
         }
 */        
     } 

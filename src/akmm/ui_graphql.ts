@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 
 const utils = require('./utilities');
 const glb = require('./akm_globals');
@@ -9,6 +9,9 @@ export class gqlExportMetis {
     repositories:           gqlRepository[];
     metamodels:             gqlMetaModel[];
     models:                 gqlModel[];
+    //modelviews:             gqlModelView[];
+    //datatypes:              gqlDatatype[];
+    //enumerations:           gqlEnumeration[];
     pasteViewsOnly:         boolean;
     deleteViewsOnly:        boolean;
     currentRepositoryRef:   string;
@@ -21,6 +24,9 @@ export class gqlExportMetis {
         this.repositories = [];
         this.metamodels   = [];
         this.models       = [];
+        //this.modelviews   = [];
+        //this.datatypes    = [];
+        //this.enumerations = [];
         this.currentRepositoryRef    = "";
         this.currentMetamodelRef     = "";
         this.currentModelRef         = "";
@@ -60,10 +66,10 @@ export class gqlExportMetis {
                 this.currentMetamodelRef = metis.currentMetamodel.id;
             if (metis.currentModel)
                 this.currentModelRef = metis.currentModel.id;
-            if (metis.currentModelView)
-                this.currentModelviewRef = metis.currentModelView.id;
-            if (metis.currentTemplatemodel)
-                this.currentTemplateModelRef = metis.currentTemplatemodel.id;
+            if (metis.currentModelview)
+                this.currentModelviewRef = metis.currentModelview.id;
+            if (metis.currentTemplateModel)
+                this.currentTemplateModelRef = metis.currentTemplateModel.id;
             
         }
     }
@@ -547,7 +553,7 @@ export class gqlModel {
     name:                   string;
     description:            string;
     metamodelRef:           string;
-    targetMetamodelRef:     string;
+    currentTargetMetamodelRef:     string;
     sourceModelRef:         string;
     targetModelRef:         string;
     isTemplate:             boolean;
@@ -563,7 +569,7 @@ export class gqlModel {
         this.description    = model.description ? model.description : "";
         this.metamodelRef   = model.getMetamodel() ? model.getMetamodel().id : "";
         this.sourceMetamodelRef = model.sourceMetamodelRef;
-        this.targetMetamodelRef = model.targetMetamodelRef;
+        this.currentTargetMetamodelRef = model.currentTargetMetamodelRef;
         this.sourceModelRef = model.sourceModelRef;
         this.targetModelRef = model.targetModelRef;
         this.isTemplate     = model.isTemplate;

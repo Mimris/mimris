@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 // this Kernel code
 
 //import akm_globals from "./akm_globals";
@@ -43,11 +43,15 @@ export class cxMetis {
     relshipviews:       cxRelationshipView[] | null = null;
     gojsModel:          gjs.goModel | null = null;
     currentRepository:  cxRepository | null = null;
-    currentModelView:   cxModelView | null = null;
-    currentModel:       cxModel | null = null;
     currentMetamodel:   cxMetaModel | null = null;
-    currentTemplatemodel:   cxModel | null = null;
-    targetMetamodel:    cxMetaModel | null = null;
+    currentModel:       cxModel | null = null;
+    currentModelview:   cxModelView | null = null;
+    currentTargetMetamodel:     cxMetaModel | null = null;
+    currentTargetModel:         cxModel | null = null;
+    currentTargetModelview:     cxModelView | null = null;
+    currentTemplateMetamodel:   cxModel | null = null;
+    currentTemplateModel:       cxModel | null = null;
+    currentTemplateModelview:   cxModelView | null = null;
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
     // Constructor
@@ -108,12 +112,12 @@ export class cxMetis {
         if (importedData.currentModelviewRef) {
             const modelview = this.findModelView(importedData.currentModelviewRef);
             if (modelview)
-                this.currentModelView = modelview;
+                this.currentModelview = modelview;
         }
         if (importedData.currentTemplateModelRef) {
             const model = this.findModel(importedData.currentTemplateModelRef);
             if (model)
-                this.currentTemplatemodel = model;
+                this.currentTemplateModel = model;
         }
 
     }
@@ -542,7 +546,7 @@ export class cxMetis {
                         if (model) this.importModelView(mv, model);
                     });
                 }
-                model.targetMetamodelRef = item.targetMetamodelRef;
+                model.currentTargetMetamodelRef = item.currentTargetMetamodelRef;
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
             }
@@ -917,7 +921,7 @@ export class cxMetis {
         }
         return modelviews;
     }
-    getTemplateModelViewByName(name: string) {
+    getTemplateModelviewByName(name: string) {
         if (name && (name.length > 0)) {
             const mviews = this.modelviews;
             if (mviews) {
@@ -935,7 +939,7 @@ export class cxMetis {
         }
         return null;
     }
-    getTemplateModelViews() {
+    getTemplateModelviews() {
         const modelviews = [];
         const mviews = this.modelviews;
         if (mviews) {
@@ -1647,11 +1651,11 @@ export class cxMetis {
     getCurrentModel(): cxModel {
         return this.currentModel;
     }
-    setCurrentTemplatemodel(model: cxModel) {
-        this.currentTemplatemodel = model;
+    setCurrentTemplateModel(model: cxModel) {
+        this.currentTemplateModel = model;
     }
-    getCurrentTemplatemodel(): cxModel {
-        return this.currentTemplatemodel;
+    getCurrentTemplateModel(): cxModel {
+        return this.currentTemplateModel;
     }
     setCurrentMetamodel(metamodel: cxMetaModel) {
         this.currentMetamodel = metamodel;
@@ -1660,10 +1664,10 @@ export class cxMetis {
         return this.currentMetamodel;
     }
     setTargetMetamodel(metamodel: cxMetaModel) {
-        this.targetMetamodel = metamodel;
+        this.currentTargetMetamodel = metamodel;
     }
     getTargetMetamodel(): cxMetaModel {
-        return this.targetMetamodel;
+        return this.currentTargetMetamodel;
     }
     setRepository(rep: cxRepository) {
         this.repository = rep;
@@ -2459,7 +2463,7 @@ export class cxMetaModel extends cxMetaObject {
         const types = this.getRelshipTypes();
         if (!types) return null;
         let i = 0;
-        let reltype = null;
+        let reltype: cxRelationshipType | null = null;
         for (i = 0; i < types.length; i++) {
             reltype = types[i];
             if (reltype) {
@@ -2476,7 +2480,7 @@ export class cxMetaModel extends cxMetaObject {
         const types = this.getRelshipTypes();
         if (!types) return null;
         let i = 0;
-        let reltype = null;
+        let reltype: cxRelationshipType | null = null;
         for (i = 0; i < types.length; i++) {
             reltype = types[i];
             if (reltype.isDeleted()) continue;
@@ -2491,7 +2495,7 @@ export class cxMetaModel extends cxMetaObject {
             return null;
         } else {
             let i = 0;
-            let reltype = null;
+            let reltype: cxRelationshipType | null = null;
             while (i < types.length) {
                 reltype = types[i];
                 if (reltype.isDeleted()) continue;
@@ -3721,10 +3725,10 @@ export class cxModel extends cxMetaObject {
     modeltype: string;
     metamodel: cxMetaModel | null;
     metamodelRef: string;
-    targetMetamodelRef: string;
+    currentTargetMetamodelRef: string;
     sourceModelRef: string;
     targetModelRef: string;
-    templates: any[];
+    templates: cxModelView[];
     isTemplate: boolean;
     isMetamodel: boolean;
     submodels: cxModel[] | null;
@@ -3739,7 +3743,7 @@ export class cxModel extends cxMetaObject {
         this.modeltype = "";
         this.metamodel = metamodel;
         this.metamodelRef = "";
-        this.targetMetamodelRef = "";
+        this.currentTargetMetamodelRef = "";
         this.sourceModelRef = "";
         this.targetModelRef = "";
         this.templates = null;

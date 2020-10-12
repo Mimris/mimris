@@ -33,14 +33,14 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     } else {
       myMetis = glb.metis;
       console.log('33 myMetis', metis, glb.metis);
-      const deleteViewsOnly = myMetis.deleteViewsOnly;
-      const pasteViewsOnly  = myMetis.pasteViewsOnly;
-      const currentModelview = myMetis.currentModelview;
+      // const deleteViewsOnly = myMetis.deleteViewsOnly;
+      // const pasteViewsOnly  = myMetis.pasteViewsOnly;
+      // const currentModelview = myMetis.currentModelview;
       myMetis = new akm.cxMetis();
       myMetis.importData(metis, true);
-      myMetis.deleteViewsOnly = deleteViewsOnly;
-      myMetis.pasteViewsOnly  = pasteViewsOnly;
-      myMetis.currentModelview = currentModelview;
+      // myMetis.deleteViewsOnly = deleteViewsOnly;
+      // myMetis.pasteViewsOnly  = pasteViewsOnly;
+      // myMetis.currentModelview = currentModelview;
       console.log('42 myMetis', myMetis);
     }
     console.log('44 GenGojsModel myMetis', myMetis, glb.metis);
@@ -51,9 +51,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     console.log('46 gengojsmodel', models, curmod, curmod.modelviews, focusModelview)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
     const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodelRef)
-    const curtargetmodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodelRef)
+    const curtargetmodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.currentTargetMetamodelRef)
     
-    console.log('56 gengojsmodel', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetMetamodelRef);
+    console.log('56 gengojsmodel', curmod, curmodview, metamodels, curtargetmodel, curmod?.currentTargetMetamodelRef);
 
     let curGomodel = props.phMyGoModel?.myGoModel;
     // console.log('45 gengojsmodel :', curmod, curmod?.id);
@@ -65,7 +65,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myMetamodel = myModel?.metamodel;
       // console.log('53 GenGojsModel myMetamodel :', myMetamodel);
       // console.log('61 GenGojsModel myMetamodelRef :', curmod.metamodelRef, curmetamodel);
-      // console.log('62 GenGojsModel myTargetMetamodelRef :', curmod.targetMetamodelRef, curtargetmodel);
+      // console.log('62 GenGojsModel myTargetMetamodelRef :', curmod.currentTargetMetamodelRef, curtargetmodel);
       let myTargetMetamodel = curtargetmodel || null;
       if (myTargetMetamodel !== null)
         myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);

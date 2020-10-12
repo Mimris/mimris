@@ -165,20 +165,20 @@ const page = (props:any) => {
             {(activeTab === "1") ? 'Metamodellingg' : 'MM'}
           </NavLink>
         </NavItem>
-        <NavItem className="text-info">
+        <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
-            {(activeTab === "1") ? 'Concept Modelling' : 'CM'}
+            {(activeTab === "2") ? 'Concept Modelling' : 'CM'}
           </NavLink>
         </NavItem>
-        <NavItem className="text-primary">
+        <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '3' })}
             onClick={() => { toggleTab('3'); toggleRefresh() }}
           >
-            {(activeTab === "1") ? 'Solution Modelling' : 'SM'}
+            {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
           </NavLink>
         </NavItem>
       </Nav>

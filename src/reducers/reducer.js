@@ -484,6 +484,8 @@ function reducer(state = InitialState, action) {
                     relships: action.data.relships,
                     deleted: action.data.deleted,
                     modified: action.data.modified,    
+                    pasteViewsOnly: action.data.pasteViewsOnly,    
+                    deleteViewsOnly: action.data.deleteViewsOnly,    
                 },      
                 ...state.phData.metis.models.slice(curmindex1 + 1),
               ]

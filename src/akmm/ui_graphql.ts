@@ -32,8 +32,6 @@ export class gqlExportMetis {
         this.currentModelRef         = "";
         this.currentModelviewRef     = "";
         this.currentTemplateModelRef = "";
-        this.pasteViewsOnly          = false;
-        this.deleteViewsOnly         = false;
         // Code
         if (metis) {
             const repositories = metis.getRepositories();
@@ -563,6 +561,8 @@ export class gqlModel {
     modelviews:             gqlModelView[];
     deleted:                boolean;
     modified:               boolean;
+    pasteViewsOnly:         boolean;
+    deleteViewsOnly:        boolean;
     constructor(model: akm.cxModel, includeViews: boolean) {
         this.id             = model.id;
         this.name           = model.name;
@@ -579,6 +579,8 @@ export class gqlModel {
         this.modelviews     = [];
         this.deleted        = model.deleted;
         this.modified       = model.modified;
+        this.pasteViewsOnly = model.pasteViewsOnly;
+        this.deleteViewsOnly = model.deleteViewsOnly;
         // Code
         if (model.description)
             this.description = model.description;

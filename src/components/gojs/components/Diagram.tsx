@@ -1035,12 +1035,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
           function (e: any, obj: any) {
-            myMetis.pasteViewsOnly = true;
-            e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-            const myGoModel = myDiagram.myGoModel;
-            e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
+            const myModel = myMetis.currentModel;
+            myModel.pasteViewsOnly = true;
+            const gqlModel = new gql.gqlModel(myModel);
+            const modifiedModels = new Array();
+            modifiedModels.push(gqlModel);
+            modifiedModels.map(mn => {
+              let data = mn;
+              e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+            })
             e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-            console.log('1043 Paste View', myMetis);
           },
           function (o: any) { 
             //return false;

@@ -17,21 +17,32 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   console.log('17 GenGojsModel props:', props);
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
-  // const modelviews = (metis) && metis.modelviews
+  const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels
 
   // console.log('22 GenGojsModel metis:', metis, modelviews);
 
   if (metis != null) {
-    // let myMetis = null;
-    // console.log('24 glb.metis', glb.metis, metis);
-    // if (!glb.metis) {
-    //   myMetis = new akm.cxMetis();
-    //   myMetis.importData(metis, true);
-    // } else {
-      const myMetis = new akm.cxMetis();
+    let myMetis = null;
+    console.log('24 glb.metis', glb.metis, metis);
+    if (!glb.metis) {
+      myMetis = new akm.cxMetis();
       myMetis.importData(metis, true);
-    // }
+      glb.metis = myMetis;
+      console.log('29 myMetis', metis, glb.metis);
+    } else {
+      myMetis = glb.metis;
+      console.log('33 myMetis', metis, glb.metis);
+      // const deleteViewsOnly = myMetis.deleteViewsOnly;
+      // const pasteViewsOnly  = myMetis.pasteViewsOnly;
+      // const currentModelview = myMetis.currentModelview;
+      myMetis = new akm.cxMetis();
+      myMetis.importData(metis, true);
+      // myMetis.deleteViewsOnly = deleteViewsOnly;
+      // myMetis.pasteViewsOnly  = pasteViewsOnly;
+      // myMetis.currentModelview = currentModelview;
+      console.log('42 myMetis', myMetis);
+    }
     console.log('44 GenGojsModel myMetis', myMetis, glb.metis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
@@ -69,15 +80,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('69 myPalette', myPalette);
-      let myModelView = (curmodview) && myMetis?.findModelView(curmodview?.id);
-      if (!myModelView) myModelView = myMetis?.findModelView(focusModelview?.id);
-      console.log('82 GenGojsModel  myModel', myMetis, myGoModel, myModel, myModelView);
-      const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      console.log('84 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelView);
+      let myModelView = (curmodview) && myMetis?.findModeliew(curmodview?.id);
+      if (!myModelView) myModelView = myMetis?.findModelview(focusModelview?.id);
+      console.log('82 GenGojsModel  myModel', myMetis, myGoModel, myModel, myModelview);
+      const myGoModel = buildGoModel(myMetis, myModel, myModelview);
+      console.log('84 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
-      myMetis?.setCurrentModelview(myModelView);
+      myMetis?.setCurrentModelview(myModelview);
+      myMetis?.setCurrentTargetModel(myTargetModel);
+      myMetis?.setCurrentTargetModelview(myTargetModelview);
       console.log('89 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)

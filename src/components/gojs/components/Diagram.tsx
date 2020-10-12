@@ -22,7 +22,7 @@ import LoadLocal from '../../../components/LoadLocal'
 import { FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 import svgs from '../../utils/Svgs'
-import { truncateSync } from 'fs';
+// import { truncateSync } from 'fs';
 //import { stringify } from 'querystring';
 // import './Diagram.css';
 
@@ -1038,7 +1038,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (e: any, obj: any) {
             const myModel = myMetis.currentModel;
             myModel.pasteViewsOnly = true;
-            const gqlModel = new gql.gqlModel(myModel, truncateSync);
+            const gqlModel = new gql.gqlModel(myModel, true);
             const modifiedModels = new Array();
             modifiedModels.push(gqlModel);
             modifiedModels.map(mn => {

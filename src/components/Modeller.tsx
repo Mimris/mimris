@@ -83,9 +83,8 @@ const Modeller = (props: any) => {
 return (
   <>
       {/* <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
-      <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+      <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Model:  <strong className="ml-2 ">{focusModel.name}</strong>
         {selector}
-
       </div>
         {/* {gojsapp} */}
         {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}

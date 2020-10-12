@@ -26,6 +26,7 @@
     "cookie": "0.4.0",
     "dataloader": "^2.0.0",
     "es6-promise": "^4.1.1",
+    "fs": "0.0.1-security",
     "go": "^3.0.1",
     "gojs": "^2.1.21",
     "gojs-react": "^1.0.5",

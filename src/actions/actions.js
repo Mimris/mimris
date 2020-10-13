@@ -19,6 +19,9 @@ import {
   SET_MY_GOMODEL,
   SET_MY_GOMETAMODEL,
   SET_FOCUS_MODEL, 
+  SET_FOCUS_MODELVIEW,
+  SET_FOCUS_TARGETMODEL, 
+  SET_FOCUS_TARGETMODELVIEW,
   SET_GOJS_MODEL, 
   SET_GOJS_TARGETMODEL,
   SET_GOJS_MODELOBJECTS,
@@ -26,7 +29,6 @@ import {
   SET_GOJS_METAMODELPALETTE, 
   SET_GOJS_METAMODELMODEL,
   SET_GOJS_TARGETMETAMODEL,
-  SET_FOCUS_MODELVIEW,
   SET_FOCUS_PROJ, 
   SET_FOCUS_ORG, 
   SET_FOCUS_ROLE, 
@@ -132,6 +134,27 @@ export const setFocusModel = (data) => {
     data: JSON.parse(data.value)
   }
 }
+export const setFocusModelview = (data) => {
+  // console.log('21---', data.value);
+  return {
+    type: SET_FOCUS_MODELVIEW,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusTargetModel = (data) => {
+  // console.log('21---', data);
+  return {
+    type: SET_FOCUS_TARGETMODEL,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusTargetModelview = (data) => {
+  // console.log('21---', data.value);
+  return {
+    type: SET_FOCUS_TARGETMODELVIEW,
+    data: JSON.parse(data.value)
+  }
+}
 export const setMymetisModel = (data) => {
   console.log('103---myMetis', data);
   return {
@@ -230,13 +253,7 @@ export const setFocusRelshiptype = (data) => {
     data: JSON.parse(data.value)
   }
 }
-export const setFocusModelview = (data) => {
-  // console.log('21---', data.value);
-  return {
-    type: SET_FOCUS_MODELVIEW,
-    data: JSON.parse(data.value)
-  }
-}
+
 
 export const setFocusProj = (data) => {
   return {

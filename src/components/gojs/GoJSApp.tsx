@@ -455,7 +455,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               // } else {
               //     part.typename = constants.types.CONTAINERTYPE_NAME;
               // }
-
+              console.log('458 myMetis', myMetis);
               const otype = uic.createObjectType(part, context);
               // console.log('429 ExternalObjectsDropped - myMetis', myMetis);
               if (otype) {

@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
+import TargetModeller from "./TargetModeller";
 import TargetMeta from "./TargetMeta";
 import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
@@ -45,7 +46,7 @@ const page = (props:any) => {
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  // console.log('47 Modelling', props.phGojs);
+  console.log('47 Modelling', props.phGojs?.gojsTargetModel);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -164,20 +165,20 @@ const page = (props:any) => {
             {(activeTab === "1") ? 'Metamodellingg' : 'MM'}
           </NavLink>
         </NavItem>
-        <NavItem className="text-info">
+        <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
-            {(activeTab === "1") ? 'Concept Modelling' : 'CM'}
+            {(activeTab === "2") ? 'Concept Modelling' : 'CM'}
           </NavLink>
         </NavItem>
-        <NavItem className="text-primary">
+        <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '3' })}
             onClick={() => { toggleTab('3'); toggleRefresh() }}
           >
-            {(activeTab === "1") ? 'Solution Modelling' : 'SM'}
+            {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
           </NavLink>
         </NavItem>
       </Nav>
@@ -265,7 +266,7 @@ const page = (props:any) => {
             <Row >
             <Col xs="auto m-0 p-0 pl-3">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-              <div className="myPalette pl-1 mb-1 pt-0 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+              <div className="myPalette px-1 mb-1 pt-0 text-white" style={{ maxWidth: "152px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}
@@ -342,7 +343,7 @@ const page = (props:any) => {
               <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
                 <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
-                  <Modeller
+                  <TargetModeller
                     gojsModel={gojsmodel}
                     gojsTargetModel={gojstargetmodel}
                     gojsMetamodel={gojsmetamodel}

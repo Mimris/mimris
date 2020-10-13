@@ -47,7 +47,7 @@ const Selector = ( props: any ) => {
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
     ? (props.selName === 'Model') 
       ?
-      <div key={props.type} className="select" ><hr />
+      <div key={props.type} className="select" >
           <span className="title mx-2 ">{props.selName}:</span>
           <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
           onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
@@ -55,7 +55,7 @@ const Selector = ( props: any ) => {
           </select>
           </div>
       :
-      <div key={props.type} className="select" ><hr />
+      <div key={props.type} className="select" >
           <span  className="title mx-2 ">{props.selName}:</span>
             <select key={props.type} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
             onChange={(event) => {handleChange({ value: event.target.value });  toggleRefresh()}} name={`Focus ${props.selName} ...`}>
@@ -63,7 +63,7 @@ const Selector = ( props: any ) => {
             </select>
             </div>
       :
-        <div key={props.type} className="select" ><hr />
+        <div key={props.type} className="select" >
           <div  className="title "> {props.selName}:</div>
           <select key={focus} className="list-obj " defaultValue={`Select ${props.selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
             onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>

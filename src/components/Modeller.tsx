@@ -42,18 +42,18 @@ const Modeller = (props: any) => {
   //   selmodels = selmods?.models?.map((m: any) => m)
   //   selmodelviews = selmods?.modelviews?.map((m: any) => m)
   // }, [modelviews])
-  useEffect(() => {
-    console.log('46 Modeller useEffect 1', props);
-    focusModel = props.phFocus?.focusModel
-    focusModelview = props.phFocus?.focusModelview
-    // console.log('37 Modeller', focusModel.name, focusModelview.name);
-  }, [models, modelviews])
+  // useEffect(() => {
+  //   console.log('46 Modeller useEffect 1', props);
+  //   focusModel = props.phFocus?.focusModel
+  //   focusModelview = props.phFocus?.focusModelview
+  //   // console.log('37 Modeller', focusModel.name, focusModelview.name);
+  // }, [models, modelviews])
   // console.log('37 Modeller', selmodels);
   // console.log('23 Modeller myMetis', props.myMetis);
-  useEffect(() => {
-    setRefresh(!refresh)
-    console.log('54 Modeller useEffect 2', props );
-  }, [focusModelview?.id])
+  // useEffect(() => {
+  //   setRefresh(!refresh)
+  //   console.log('54 Modeller useEffect 2', props );
+  // }, [focusModelview?.id])
   
   const gojsapp = (gojsmodel && !prevgojsmodel) &&
     < GoJSApp
@@ -83,9 +83,8 @@ const Modeller = (props: any) => {
 return (
   <>
       {/* <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
-      <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+      <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Model:  <strong className="ml-2 ">{focusModel.name}</strong>
         {selector}
-
       </div>
         {/* {gojsapp} */}
         {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}

@@ -32,17 +32,21 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myMetis = new akm.cxMetis();
       myMetis.importData(metis, true);
     // }
-    console.log('44 GenGojsModel myMetis', myMetis, glb.metis);
+    console.log('44 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
+    const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
+    const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     console.log('46 gengojsmodel', models, curmod, curmod.modelviews, focusModelview)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
     const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodelRef)
-    const curtargetmodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.currentTargetMetamodelRef)
-    
-    console.log('56 gengojsmodel', curmod, curmodview, metamodels, curtargetmodel, curmod?.currentTargetMetamodelRef);
+    const curtargetmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodelRef)
+    const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
+    const focustargetmodelview = (curtargetmodel && focusTargetModelview?.id) && curtargetmodel.modelviews.find((mv: any) => mv.id === focusTargetModelview.id)
+    const curtargetmodelview = focustargetmodelview || curtargetmodel?.modelviews[0]
+    console.log('56 gengojsmodel', curmod, curmodview, metamodels, curtargetmodel, curmod?.targetModelRef);
 
     let curGomodel = props.phMyGoModel?.myGoModel;
     // console.log('45 gengojsmodel :', curmod, curmod?.id);
@@ -50,34 +54,40 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (curmod && curmod.id) {
       const myModel = myMetis?.findModel(curmod.id);
       // console.log('50 GengojsModel :', myModel);
+      const myTargetModel = myMetis?.findModel(curtargetmodel?.id);
+      let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
       
       const myMetamodel = myModel?.metamodel;
       // console.log('53 GenGojsModel myMetamodel :', myMetamodel);
       // console.log('61 GenGojsModel myMetamodelRef :', curmod.metamodelRef, curmetamodel);
-      // console.log('62 GenGojsModel myTargetMetamodelRef :', curmod.currentTargetMetamodelRef, curtargetmodel);
-      let myTargetMetamodel = curtargetmodel || null;
+      // console.log('62 GenGojsModel myTargetMetamodelRef :', curmod.targetMetamodelRef, curtargetmodel);
+      let myTargetMetamodel = curtargetmetamodel || null;
       if (myTargetMetamodel !== null)
         myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);
-      // console.log('60 GenGojsModel myTargetMetamodel :', myTargetMetamodel);
+      console.log('60 GenGojsModel myTargetMetamodel :', myTargetMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       // console.log('63 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
       // console.log('65 myGoMetamodel', myGoMetamodel);
       const myTargetMetamodelPalette = (myTargetMetamodel !== null) && buildGoPalette(myTargetMetamodel);
-      // console.log('66 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);
+      console.log('74 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);
 
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel);
       // console.log('69 myPalette', myPalette);
-      let myModelView = (curmodview) && myMetis?.findModelView(curmodview?.id);
-      if (!myModelView) myModelView = myMetis?.findModelView(focusModelview?.id);
-      console.log('82 GenGojsModel  myModel', myMetis, myGoModel, myModel, myModelView);
-      const myGoModel = buildGoModel(myMetis, myModel, myModelView);
-      console.log('84 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelView);
+      let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
+      if (!myModelview) myModelview = myMetis?.findModelView(focusModelview?.id);
+      console.log('82 GenGojsModel  myModel', myMetis, myModel, myModelview);
+      const myGoModel = buildGoModel(myMetis, myModel, myModelview);
+      const myGoTargetModel = buildGoModel(myMetis, myTargetModel, myTargetModelview);
+      console.log('83 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);
+      console.log('84 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
-      myMetis?.setCurrentModelview(myModelView);
+      myMetis?.setCurrentModelview(myModelview);
+      myMetis?.setCurrentTargetModel(myTargetModel);
+      myMetis?.setCurrentTargetModelview(myTargetModelview);
       console.log('89 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)
@@ -122,6 +132,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           linkDataArray: myGoModel?.links
         }
 
+      const gojsTargetModel = {
+        nodeDataArray: myGoTargetModel?.nodes,
+        linkDataArray: myGoTargetModel?.links
+      }
+
       const objects = myModel.objects;
       const nodes = buildObjectPalette(objects);
       const gojsModelObjects = {
@@ -140,6 +155,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
           dispatch({ type: 'SET_GOJS_MODELOBJECTS', gojsModelObjects })
           dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+          dispatch({ type: 'SET_GOJS_TARGETMODEL', gojsTargetModel })
           dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
           dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
           // dispatch({ type: 'SET_MYMETIS_METAMODEL', myMetis })

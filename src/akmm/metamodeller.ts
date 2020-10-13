@@ -546,7 +546,7 @@ export class cxMetis {
                         if (model) this.importModelView(mv, model);
                     });
                 }
-                model.currentTargetMetamodelRef = item.currentTargetMetamodelRef;
+                model.targetMetamodelRef = item.targetMetamodelRef;
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
                 model.pasteViewsOnly = item.pasteViewsOnly;
@@ -1665,11 +1665,23 @@ export class cxMetis {
     getCurrentMetamodel(): cxMetaModel {
         return this.currentMetamodel;
     }
-    setTargetMetamodel(metamodel: cxMetaModel) {
+    setCurrentTargetMetamodel(metamodel: cxMetaModel) {
         this.currentTargetMetamodel = metamodel;
     }
-    getTargetMetamodel(): cxMetaModel {
+    getcurrentTargetMetamodel(): cxMetaModel {
         return this.currentTargetMetamodel;
+    }
+    setCurrentTargetModel(metamodel: cxMetaModel) {
+        this.currentTargetModel = metamodel;
+    }
+    getCurrentTargetModel(): cxMetaModel {
+        return this.currentTargetModel;
+    }
+    setCurrentTargetModelview(metamodel: cxMetaModel) {
+        this.currentTargetModel = metamodel;
+    }
+    getCurrentTargetModelview(): cxMetaModel {
+        return this.currentTargetModel;
     }
     setRepository(rep: cxRepository) {
         this.repository = rep;
@@ -3727,7 +3739,7 @@ export class cxModel extends cxMetaObject {
     modeltype: string;
     metamodel: cxMetaModel | null;
     metamodelRef: string;
-    currentTargetMetamodelRef: string;
+    targetMetamodelRef: string;
     sourceModelRef: string;
     targetModelRef: string;
     templates: cxModelView[];
@@ -3745,7 +3757,7 @@ export class cxModel extends cxMetaObject {
         this.modeltype = "";
         this.metamodel = metamodel;
         this.metamodelRef = "";
-        this.currentTargetMetamodelRef = "";
+        this.targetMetamodelRef = "";
         this.sourceModelRef = "";
         this.targetModelRef = "";
         this.templates = null;

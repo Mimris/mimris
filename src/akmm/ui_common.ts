@@ -31,7 +31,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         if (!objtype)
             return;
         console.log('31 createObject', myMetis);
-        if (!myMetis.pasteViewsOnly) {
+        if (!myModel.pasteViewsOnly) {
             let guid = utils.createGuid();
             obj = new akm.cxObject(guid, data.name, objtype, data.description);
             if (obj) {
@@ -391,7 +391,7 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
     if (object) {
         const oviews = myMetis.getObjectViewsByObject(object.id);
         deleteObjectTypeView(objview, deletedFlag, deletedTypeviews);
-        if (!myMetis.deleteViewsOnly) {
+        if (!myMetis.currentModel.deleteViewsOnly) {
             // Handle object
             object.deletedFlag = true;
             const gqlObj = new gql.gqlObject(object);
@@ -462,7 +462,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
                     deletedLinks.push(delLink);
                 }
             }
-            if (!myMetis.deleteViewsOnly) {
+            if (!myMetis.currentModel.deleteViewsOnly) {
                 relship.deleted = deletedFlag;
                 const delRelship = new gql.gqlRelationship(relship);
                 deletedRelships.push(delRelship);

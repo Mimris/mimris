@@ -1,10 +1,9 @@
-// @ts-nocheck
+// @ts- nocheck
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
-import { TreeLayout } from 'gojs';
 //import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
 //import { render } from 'react-dom';
@@ -19,6 +18,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         data.key = utils.createGuid();
         data.category = constants.C_OBJECT;
         data.class = "goObjectNode";
+        data.object_0 = null;
         const myMetis = context.myMetis;
         const myModel = context.myModel;
         const myModelview = context.myModelview;
@@ -29,14 +29,15 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
-            return;
+            return null;
         console.log('31 createObject', myMetis);
         if (!myModel.pasteViewsOnly) {
             let guid = utils.createGuid();
             obj = new akm.cxObject(guid, data.name, objtype, data.description);
             if (obj) {
-                data.oldObject = data.object;
+                data.object_0 = data.object;
                 data.object = obj;
+                myDiagram.model.setDataProperty(data, "oldObject", data.oldObject);
                 // Include the new object in the current model
                 myModel?.addObject(obj);
                 myMetis.addObject(obj);
@@ -196,7 +197,7 @@ export function updateObject(data: any, name: string, value: string, context: an
         let otype             = data.objecttype;
         if (currentObject.name === otype?.name) {
             // This is a new object - check if the new name already exists
-            let obj = metis.findObjectByTypeAndName(otype, data.name);
+            const obj = metis.findObjectByTypeAndName(otype, data.name);
             if (obj) {
                 // Existing object
                 utils.removeElementFromArray(myModel.getObjects(), currentObject.getId());
@@ -204,6 +205,12 @@ export function updateObject(data: any, name: string, value: string, context: an
                 currentObjectView?.setObject(currentObject);
                 myModelView?.addObjectView(currentObjectView);
             } 
+        } else {
+            const obj = metis.findObject(currentObject.id);
+            if (obj) {
+                currentObject = obj;
+                currentObjectView = metis.findObjectView(currentObjectView.id);
+            }
         }
         currentObject.setName(value);
         currentObject.setModified();
@@ -688,7 +695,7 @@ export function createRelationship(data: any, context: any) {
     console.log('641 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
-    const myMetamodel = context.myMetamodel;
+    //const myMetamodel = context.myMetamodel;
     const myMetis = context.myMetis; // added sf
     //data.key = utils.createGuid();
     let fromNode = myGoModel.findNode(data.from);
@@ -702,7 +709,7 @@ export function createRelationship(data: any, context: any) {
     if (!reltype) {
         const fromType = fromNode.objecttype;
         const toType   = toNode.objecttype;
-        const choices  = [];
+        const choices: string[]  = [];
         if ((myMetis) && (fromType && toType)) {
             let defText = "";
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
@@ -751,42 +758,73 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis   = context.myMetis;
-    // const myMetamodel = context.myMetamodel;
-    let relshipname = data.name;
+    const myModelView = myMetis.currentModelview;
+    const pasteViewsOnly = myMetis.currentModel.pasteViewsOnly;
+    console.log('762 myMetis', myMetis);
+    //const relshipname = data.name;
     //data.key = utils.createGuid();
-    console.log('700 pasteRelationship', data, nodes);
-    let fromNode = data.fromNode;
-    let toNode = data.toNode;
-    for (let i=0; i<nodes.length; i++) {
-        const n = nodes[i];
-        if (fromNode.object.id === n.oldObject?.id) {
-            data.fromNode = n;
-            break;
-        }
-    }
-    for (let i=0; i<nodes.length; i++) {
-        const n = nodes[i];
-        if (toNode.object.id === n.oldObject?.id) {
-            data.toNode = n;
-            break;
-        }
-    }
+    console.log('765 pasteRelationship', data, nodes);
+    // Relationship type must exist
     let reltype = data.relshiptype;
     if (reltype) 
         reltype = myMetis.findRelationshipType(reltype.id);
+    console.log('770 pasteRelationship', reltype);
     if (!reltype)
         return;
-    console.log('724 pasteRelationship', reltype);
-    const fromObj = myMetis.findObject(fromNode.object.id);
-    const toObj   = myMetis.findObject(toNode.object.id);
-    const reltypeview = reltype.getDefaultTypeView();
-    myDiagram.model.setDataProperty(data, "name", relshipname);
-    const relshipview = createLink(data, context);
-    relshipview?.setTypeView(reltypeview);
-    relshipview?.setModified();
-    console.log('731 pasteRelationship', myGoModel);
+    //const reltypeview = reltype.getDefaultTypeView();
+    // Find source objects
+    let fromNode    = data.fromNode;
+    let toNode      = data.toNode;
+    if (pasteViewsOnly) {
+        for (let i=0; i<nodes.length; i++) {
+            const n = nodes[i];
+            if (fromNode.object.id === n?.object_0?.id) {
+                data.fromNode = n;
+                break;
+            }
+        }
+        for (let i=0; i<nodes.length; i++) {
+            const n = nodes[i];
+            if (toNode.object.id === n?.object_0?.id) {
+                data.toNode = n;
+                break;
+            }
+        }
+    }
+    console.log('792 pasteRelationship', data);
+    const fromObjview = data.fromNode?.objectview;
+    const toObjview   = data.toNode?.objectview;
+    let   relship     = data.relship;
+    const typeview    = data.typeview;
+    console.log('797 pasteRelationship', fromObjview, toObjview);
+    // myDiagram.model.setDataProperty(data, "name", relship?.name);
+    if (!pasteViewsOnly) {
+        const fromObj = fromObjview.object;
+        const toObj = toObjview.object;
+        relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
+        if (relship) {
+            relship.setModified();
+            data.relship = relship;
+            relship.setName(reltype.name);
+            myMetis.currentModel.addRelationship(relship);
+            myMetis.addRelationship(relship);
+        }
+    }
+
+    const relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
+    if (relshipview) {
+        relshipview.setTypeView(typeview);              // Uses same typeview as from relview
+        relshipview.setFromObjectView(fromObjview);
+        relshipview.setToObjectView(toObjview);
+        relshipview.setModified();
+        myModelView.addRelationshipView(relshipview);
+        myMetis.addRelationshipView(relshipview);
+    }
+    // const fromObj = myMetis.findObject(fromNode.object.id);
+    // const toObj   = myMetis.findObject(toNode.object.id);
+    console.log('811 pasteRelationship', myGoModel);
     myDiagram.requestUpdate();
-    return relshipview;
+    return relshipview; 
 }
 
 export function updateRelationship(data: any, name: string, value: string, context: any) {

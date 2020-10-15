@@ -34,33 +34,11 @@ const Modeller = (props: any) => {
   let selmodels = selmods?.models?.map((m: any) => m)
   let selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)
   // console.log('33 Modeller', focusModel.name, focusModelview.name);
-  // useEffect(() => {
-  //   console.log('34 Modeller', focusModel.name, focusModelview.name);
-  //   focusModel = props.phFocus?.focusModel
-  //   focusModelview = props.phFocus?.focusModelview
-  //   console.log('37 Modeller', focusModel.name, focusModelview.name);
-  //   selmodels = selmods?.models?.map((m: any) => m)
-  //   selmodelviews = selmods?.modelviews?.map((m: any) => m)
-  // }, [modelviews])
-  // useEffect(() => {
-  //   console.log('46 Modeller useEffect 1', props);
-  //   focusModel = props.phFocus?.focusModel
-  //   focusModelview = props.phFocus?.focusModelview
-  //   // console.log('37 Modeller', focusModel.name, focusModelview.name);
-  // }, [models, modelviews])
-  // console.log('37 Modeller', selmodels);
-  // console.log('23 Modeller myMetis', props.myMetis);
-  // useEffect(() => {
-  //   setRefresh(!refresh)
-  //   console.log('54 Modeller useEffect 2', props );
-  // }, [focusModelview?.id])
   
   const gojsapp = (gojsmodel && !prevgojsmodel) &&
     < GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
-      // nodeDataArray={gojsmodel.nodes}
-      // linkDataArray={gojsmodel.links}
       metis={props.metis}
       myMetis={props.myMetis}
       myGoModel={props.myGoModel}
@@ -89,9 +67,10 @@ return (
         {/* {gojsapp} */}
         {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
       <style jsx>{`
-        // .diagram-component {
-        //   height: 80%;
-        // }
+        .diagram-component {
+          height: 101%;
+          width: 98%;
+        }
        `}</style>
     </>
   )

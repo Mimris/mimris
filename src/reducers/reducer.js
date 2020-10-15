@@ -268,7 +268,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_TARGETMETAMODEL:
-      console.log('229 SET_GOJS_TARGETMETAMODEL', action);
+      // console.log('229 SET_GOJS_TARGETMETAMODEL', action);
       return {
         ...state,
         phGojs: {
@@ -277,7 +277,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_METAMODEL:
-      console.log('219 SET_GOJS_METAMODEL', action);
+      // console.log('219 SET_GOJS_METAMODEL', action);
       return {
         ...state,
         phGojs: {
@@ -286,7 +286,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_MODEL:
-      console.log('255 SET_GOJS_MODEL', action);
+      // console.log('255 SET_GOJS_MODEL', action);
       return {
         ...state,
         phGojs: {
@@ -295,7 +295,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_GOJS_TARGETMODEL:
-      console.log('210 SET_GOJS_TARGETMODEL', action);
+      // console.log('210 SET_GOJS_TARGETMODEL', action);
       return {
         ...state,
         phGojs: {
@@ -322,7 +322,7 @@ function reducer(state = InitialState, action) {
         //     }
         //   }
       case SET_MYMETIS_MODEL:
-      console.log('228 SET_MYMETIS_MODEL', action);
+      // console.log('228 SET_MYMETIS_MODEL', action);
       return {
         ...state,
         phMymetis: {
@@ -331,7 +331,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_MYMETIS_PARAMETER:
-      console.log('221 SET_MYMETIS_PARAMETER', action.data);
+      // console.log('221 SET_MYMETIS_PARAMETER', action.data);
       return {
         ...state,
         phMymetis: {
@@ -476,7 +476,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_MODEL_PROPERTIES:
-      console.log('429 UPDATE_MODEL_PROPERTIES', action);
+      // console.log('429 UPDATE_MODEL_PROPERTIES', action);
       const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       // let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
       // console.log('431 reducer', curmindex1)
@@ -513,13 +513,13 @@ function reducer(state = InitialState, action) {
           },
         }
     case UPDATE_TARGETMODEL_PROPERTIES:
-      console.log('472 UPDATE_TARGETMODEL_PROPERTIES', action);
+      // console.log('472 UPDATE_TARGETMODEL_PROPERTIES', action);
       // const curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       let curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.targetModelRef) // target model index
-      console.log('464 reducer', state.phData.metis.models, curmindex12)
+      // console.log('464 reducer', state.phData.metis.models, curmindex12)
 
       if (curmindex12 < 0) {curmindex12 = state.phData.metis.models.length}
-      console.log('466 reducer', curmindex12)
+      // console.log('466 reducer', curmindex12)
       return {
         ...state,
         phData: {
@@ -550,7 +550,7 @@ function reducer(state = InitialState, action) {
         }
 
     case UPDATE_MODELVIEW_PROPERTIES:
-      console.log('385 UPDATE_MODELVIEW_PROPERTIES', action);
+      // console.log('385 UPDATE_MODELVIEW_PROPERTIES', action);
       const curmmv2     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex2 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv2  = curmmv2?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -586,7 +586,7 @@ function reducer(state = InitialState, action) {
         }
 
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      // console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -658,7 +658,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_RELSHIPVIEW_PROPERTIES:
-      console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
+      // console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === curmrv?.id) // current model index
       const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -709,7 +709,7 @@ function reducer(state = InitialState, action) {
         }
       
     case UPDATE_OBJECTTYPE_PROPERTIES:
-      console.log('501 UPDATE_OBJECTTYPE_PROPERTIES', action);
+      // console.log('501 UPDATE_OBJECTTYPE_PROPERTIES', action);
       const curmodot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodot.metamodelRef)
       const curmmindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodot.metamodelRef) 
@@ -753,7 +753,7 @@ function reducer(state = InitialState, action) {
 
 
     case UPDATE_METAMODEL_PROPERTIES:
-      console.log('766 UPDATE_METAMODEL_PROPERTIES', action);
+      // console.log('766 UPDATE_METAMODEL_PROPERTIES', action);
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_mm.metamodelRef) //current meta model
       const curmmindex_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_mm.metamodelRef)  // current metamodel index
@@ -789,12 +789,12 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_TARGETMETAMODEL_PROPERTIES:
-      console.log('567 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
+      // console.log('567 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
       const curm_tmm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef) //current meta model
       const curmmindex_tmm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index
       if (curmmindex_tmm <0) curmmindex_tmm = state.phData.metis.metamodels.length
-      console.log('775 curmm_tmm', curmm_tmm, curmmindex_tmm)
+      // console.log('775 curmm_tmm', curmm_tmm, curmmindex_tmm)
       return {
         ...state,
         phData: {
@@ -825,17 +825,17 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_TARGETOBJECTTYPE_PROPERTIES:
-      console.log('687 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
+      // console.log('687 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
       const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmtot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.targetMetamodelRef)
-      console.log('690 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmodtot.targetMetamodelRef, curmmtot);
+      // console.log('690 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmodtot.targetMetamodelRef, curmmtot);
       if (!curmmtot) return state;
       const curmmindextot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.targetMetamodelRef) 
       const curtot = curmmtot?.objecttypes?.find(ot => ot.id === action?.data?.id)
       const lengthtot = curmmtot?.objecttypes.length
       let indextot = curmmtot?.objecttypes?.findIndex(ot => ot.id === curtot?.id)
       if (indextot < 0) {indextot = lengthtot} 
-       console.log('607 reducer', lengthtot, indextot);
+      //  console.log('607 reducer', lengthtot, indextot);
       
       return {
         ...state,
@@ -1499,7 +1499,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_OBJECT_PROPERTIES:
-      console.log('618 UPDATE_OBJECT_PROPERTIES', action);     
+      // console.log('618 UPDATE_OBJECT_PROPERTIES', action);     
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object

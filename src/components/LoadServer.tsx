@@ -71,7 +71,8 @@ const SelectSource = (props: any) => {
   // console.log('67 LoadServer', selmodels, selmodelviews);
   // console.log('68 LoadServer', props.ph.phSource);
   // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
-  const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels && selmodelviews) &&
+  const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels) &&
+  // const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels && selmodelviews) &&
     <div className="modeller-selection p-2 " >
       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />

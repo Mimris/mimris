@@ -163,7 +163,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (!object) {
         return;
     }
-    console.log('163 myMetis', myMetis);
+    // console.log('163 myMetis', myMetis);
     const obj = myMetis.findObject(object.id);
     let proptypes  = new Array();
     let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
@@ -175,12 +175,12 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.properties = properties;
         myTargetMetamodel?.addObjectType(objtype);
         myMetis.addObjectType(objtype);
-        console.log('175 myMetis', myMetis);
+        // console.log('175 myMetis', myMetis);
         // Create objecttypeview
         const id = utils.createGuid();
         const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
         objtypeview.applyObjectViewParameters(objview);
-        console.log('183 generateObjectType', objtypeview);
+        // console.log('183 generateObjectType', objtypeview);
         objtype.typeview = objtypeview;
         objtype.typeviewRef = objtypeview.id;
         objtype.setModified(true);
@@ -191,11 +191,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myTargetMetamodel, objtype, "0 0", "100 50");
         myTargetMetamodel?.objtypegeos.push(objtypegeo);
         myMetis.addObjtypeGeo(objtypegeo);
-        console.log('195 generateObjectType', myMetis);
+        // console.log('195 generateObjectType', myMetis);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
     }
-    console.log('193 myMetis', myMetis);
+    // console.log('193 myMetis', myMetis);
     let parentType: akm.cxObjectType | null = null;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (objtype) {
@@ -280,7 +280,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }
-    console.log('209 generateObjectType', myMetis, objtype);
+    // console.log('209 generateObjectType', myMetis, objtype);
     return objtype;
 }
 

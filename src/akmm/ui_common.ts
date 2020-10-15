@@ -50,7 +50,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             objview.setLoc(data.loc);
             objview.setSize(data.size);
             data.objectview = objview;
-            console.log('47 createObject', data);
+            // console.log('47 createObject', data);
             // Include the object view in the current model view
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);

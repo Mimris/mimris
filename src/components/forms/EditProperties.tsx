@@ -236,8 +236,9 @@ const EditProperties = (props) => {
       (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
       (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') &&
       (p !== 'datatypes') && (p !== 'relshiptypes') &&
+      (p.slice(-3) !== 'Ref') &&
       (p !== 'unittypes') && (p !== 'objtypegeos') )
-      // (p.slice(-3) !== 'Ref') && (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
+      //  (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
       && p
   ).filter(Boolean)
 

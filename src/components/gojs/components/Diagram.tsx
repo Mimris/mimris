@@ -221,7 +221,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      console.log('223 nodeInfo', d);
+      // console.log('223 nodeInfo', d);
       const properties = 
       (d.object.type.properties.length > 0) && 
       d.object.type.properties.map(p => {
@@ -1075,6 +1075,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
     // Define a Node template
     let nodeTemplate;
+
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
@@ -1138,7 +1139,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
-                  maxSize: new go.Size(150, 999),
+                  maxSize: new go.Size(166, 999),
                   // margin: new go.Margin(2),
                   defaultAlignment: go.Spot.Left,
                 },
@@ -1149,13 +1150,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     isMultiline: false,  // don't allow newlines in text
                     editable: true,  // allow in-place editing by user
                     row: 0, column: 0, columnSpan: 6,
-                    font: "12pt Segoe UI,sans-serif",
-                    minSize: new go.Size(80, 16), //sf changed x min size to 100
-                    height: 40,
+                    font: "10pt Segoe UI,sans-serif",
+                    minSize: new go.Size(80, 16), 
+                    height: 42,
                     verticalAlignment: go.Spot.Center,
-                    margin: new go.Margin(0,0,0,2),
+                    // stretch: go.GraphObject.Fill, // added to not resize object
+                    // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
+                    margin: new go.Margin(0,0,0,0),
                     name: "name"
-                  },
+                  },        
                   new go.Binding("text", "name").makeTwoWay()
                 ),
                 new go.Binding("choices"),

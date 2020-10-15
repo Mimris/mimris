@@ -148,15 +148,15 @@ class GoJSApp extends React.Component<{}, AppState> {
       linkDataArray: myGoModel?.links
     }
     const nodes = new Array();
-    const nods = myGoMetamodel.nodes;
-    for (let i=0; i<nods.length; i++) {
+    const nods = myGoMetamodel?.nodes;
+    for (let i=0; i<nods?.length; i++) {
       const node = nods[i];
       const objtype = node.objtype;
       if (objtype.abstract) continue;
       if (objtype.deleted)  continue;
       nodes.push(node);
     }
-    myGoMetamodel.nodes = nodes;
+    if (nodes.length > 0) myGoMetamodel.nodes = nodes;
     // console.log('159 gojsMetamodel', myGoMetamodel);
 
     const gojsMetamodel = {
@@ -206,7 +206,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const key = sel.data.key;
                 let text = sel.data.name;
                 const typename = sel.data.type;
-                console.log('209 typename', typename);
+                // console.log('209 typename', typename);
                 if (typename === 'Object type') {
                   if (text === 'Edit name') {
                     text = prompt('Enter name');
@@ -215,11 +215,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (myNode) {
                     myNode.name = text;
                     uic.updateObjectType(myNode, field, text, context);
-                    console.log('218 TextEdited', myNode);
+                    // console.log('218 TextEdited', myNode);
                     if (myNode.objtype) {
                       const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
                       modifiedTypeNodes.push(gqlObjType);
-                      console.log('222 TextEdited', gqlObjType);
+                      // console.log('222 TextEdited', gqlObjType);
                     }
                   }
                 } else // Object
@@ -246,7 +246,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 let typename = sel.data.type;
                 if (typename === 'Relationship type') {
                   const myLink = this.getLink(context.myGoMetamodel, key);
-                  console.log('232 TextEdited', myLink);
+                  // console.log('232 TextEdited', myLink);
                   if (myLink) {
                     if (text === 'Edit name') {
                       text = prompt('Enter name');
@@ -312,7 +312,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const key = sel.data.key;
                 uic.changeNodeSizeAndPos(sel.data, myGoModel, modifiedNodes);
                 const myNode = this.getNode(context.myGoModel, key);
-                console.log('300 SelectionMoved', myNode);
+                // console.log('300 SelectionMoved', myNode);
                 // console.log('301 SelectionMoved', modifiedNodes);
               }
             }
@@ -488,21 +488,21 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const myNode = myGoModel?.findNode(part.key);
                 // Check if inside a group
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
-                console.log('405 group', group)
+                // console.log('405 group', group)
                 if (group) {
                   objview.group = group.objectview?.id;
                   if (myNode) {
-                    console.log('399 myNode', myNode, group);
+                    // console.log('399 myNode', myNode, group);
                     myNode.group = group.key;
                   }
                 }
-                console.log('403 New object', myNode);
+                // console.log('403 New object', myNode);
                 const gqlNode = new gql.gqlObjectView(objview);
                 modifiedNodes.push(gqlNode);
-                console.log('406 New object', gqlNode, modifiedNodes);
+                // console.log('406 New object', gqlNode, modifiedNodes);
                 const gqlObj = new gql.gqlObject(objview.object);
                 modifiedObjects.push(gqlObj);
-                console.log('409 New object', gqlObj);
+                // console.log('409 New object', gqlObj);
               }
             }
           })
@@ -511,7 +511,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
-        console.log('498 GoJSApp :', sel);
+        // console.log('498 GoJSApp :', sel);
         this.setState(
           produce((draft: AppState) => {
             if (sel) {
@@ -535,7 +535,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   // ..
                   const gqlObjView = new gql.gqlObjectView(objview);
                   selectedObjectViews.push(gqlObjView);
-                  console.log('522 GoJSApp :', context.myGoModel);                
+                  // console.log('522 GoJSApp :', context.myGoModel);                
                 }
               } else if (sel instanceof go.Link) {
                 const key = sel.data.key;
@@ -548,7 +548,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (myLink.reltype) {
                     const gqlLink= new gql.gqlRelationshipType(myLink.reltype, true);
                     selectedRelationshipTypes.push(gqlLink);
-                    console.log('518 GoJSApp', selectedRelationshipTypes);
+                    // console.log('518 GoJSApp', selectedRelationshipTypes);
                   }
                 } else // relation
                 {
@@ -557,7 +557,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   // ..
                   const gqlRelshipView = new gql.gqlRelshipView(relshipview);
                   selectedRelshipViews.push(gqlRelshipView);
-                  console.log('527 GoJSApp :', gqlRelshipView);                
+                  // console.log('527 GoJSApp :', gqlRelshipView);                
                 }
               }
             }

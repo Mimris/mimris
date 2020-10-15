@@ -71,7 +71,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           myPalette =
           $(go.Palette,       // must name or refer to the DIV HTML element
             {
-              initialContentAlignment: go.Spot.Center,       // center the content
+              initialContentAlignment: go.Spot.Top,       // center the content
               initialAutoScale: go.Diagram.Uniform,
               maxSelectionCount: 1,
               layout: $(go.GridLayout,
@@ -201,7 +201,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
   
       // Function to identify images related to an image id
       function findImage(image: string) {
-          if (image) {
+          if (image && !image.includes('//')) {
               return "./../images/" + image;
           }
           return "";

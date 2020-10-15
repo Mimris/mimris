@@ -30,7 +30,7 @@ interface AppState {
   dispatch: any;
 }
 
-class GoJSPaletteApp extends React.Component<{}, AppState> {
+class GoJSPaletteTargetApp extends React.Component<{}, AppState> {
   // Maps to store key -> arr index for quick lookups
   private mapNodeKeyIdx: Map<go.Key, number>;
   private mapLinkKeyIdx: Map<go.Key, number>;
@@ -300,7 +300,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   }
 }
 
-export default GoJSPaletteApp;
+export default GoJSPaletteTargetApp;
 
 
 

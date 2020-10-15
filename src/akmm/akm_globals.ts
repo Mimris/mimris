@@ -13,7 +13,7 @@ import * as go from './ui_gojs';
 
 const akm_globals = {
 
-    metis           : akm.cxMetis,
+    metis           : null,
     doit            : false,
     myMetamodel     : akm.cxMetaModel,
     myModel         : akm.cxModel,

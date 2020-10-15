@@ -101,10 +101,12 @@ export class goModel {
     findNode(key: string): goObjectNode | null {
         const retval: goObjectNode | null = null;
         if (!utils.isArrayEmpty(this.nodes)) {
+            // console.log('103 findNode', key, this.nodes);
             let i = 0;
             while (i < this.nodes.length) {
                 const node: goObjectNode = this.nodes[i] as goObjectNode;
-                if (node.getKey() === key) {
+                //console.log('108 findNode', key, node.key);
+                if (node.key === key) {
                     return (node);
                 }
                 i++;
@@ -161,7 +163,7 @@ export class goModel {
         if (utils.objExists(metamodel)) {
             this.metamodel = metamodel;
             if (metamodel.objecttypes) {
-                const gMetamodel = new goModel(utils.createGuid(), metamodel.getName(), this.modelView);
+                const gMetamodel = new goModel(utils.createGuid(), metamodel.name, this.modelView);
                 const objecttypes = metamodel.getObjectTypes();
                 if (objecttypes) {
                     let i = 0;
@@ -206,6 +208,7 @@ export class goMetaObject {
     type: any;
     parentModel: goModel | null;
     data: any;
+    deletable: boolean;
     constructor(key: string) {
         this.class = this.constructor.name;
         this.parentModel = null;
@@ -214,6 +217,7 @@ export class goMetaObject {
         this.type = null;
         this.name = "";
         this.data = new Array();
+        this.deletable = true;
     }
     // Methods
     getClass() {
@@ -277,6 +281,7 @@ export class goNode extends goMetaObject {
 export class goObjectNode extends goNode {
     objectview: akm.cxObjectView | null;
     object: akm.cxObject | null;
+    object_0: akm.cxObject | null;
     objecttype: akm.cxObjectType | null;
     typename: string;
     typeview: akm.cxObjectTypeView | null;
@@ -291,6 +296,7 @@ export class goObjectNode extends goNode {
         this.category = constants.gojs.C_OBJECT;
         this.objectview = objview;
         this.object = null;
+        this.object_0 = null;
         this.objecttype = null;
         this.typename = "";
         this.typeview = null;
@@ -304,10 +310,10 @@ export class goObjectNode extends goNode {
             const object = objview.getObject();
             if (object) {
                 this.object = object;
-                this.name = object.getName();
-                if (object.getType()) {
-                    this.objecttype = (object.getType() as akm.cxObjectType);
-                    this.typename = this.objecttype.getName();
+                this.name = object.name;
+                if (object.type) {
+                    this.objecttype = (object.type as akm.cxObjectType);
+                    this.typename = this.objecttype.name;
                     this.type = this.typename;
                 } else {
                     this.objecttype = null;
@@ -330,7 +336,7 @@ export class goObjectNode extends goNode {
                 this.choices.sort();
             }
         }
-        // console.log('331 goObjectNode', this);
+        this.class = 'goObjectNode';
     }
     // Methods
     getObjectViewId(viewid: string): string {
@@ -341,7 +347,7 @@ export class goObjectNode extends goNode {
     loadNodeContent(model: goModel) {
         if (this.typeview) {
             const typeview: akm.cxObjectTypeView = this.typeview;
-            const viewdata: any = typeview.getData();
+            const viewdata: any = typeview.data;
             this.addData(viewdata);
             if (this.objectview) {
                 const objviewId = this.objectview.group;
@@ -360,7 +366,7 @@ export class goObjectNode extends goNode {
                 //         this.group = (group) ? group.key : "";
                 // }
                 //console.log('312 objectview', this.objectview);
-                this.setName(this.objectview.getName());
+                this.setName(this.objectview.name);
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
                 //console.log('315 goObjectNode', this);
@@ -401,6 +407,7 @@ export class goObjectTypeNode extends goNode {
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     typename: string;
     choices: string[];
+    abstract: boolean;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.class = 'goObjectTypeNode';
@@ -410,8 +417,9 @@ export class goObjectTypeNode extends goNode {
         this.typename = constants.gojs.C_OBJECTTYPE;
         // this.isGroup    = false;
         this.choices = ['Edit name'];
-
+        this.abstract = false;
         if (objtype) {
+            this.abstract = objtype.abstract;
             this.setName(objtype.name);
             this.setType(constants.gojs.C_OBJECTTYPE);
             const typeview = objtype.getDefaultTypeView();
@@ -436,7 +444,7 @@ export class goObjectTypeNode extends goNode {
                 if (typeview) {
                     const data = typeview.getData();
                     this.addData(data);
-                    this.setName(objtype.getName());
+                    this.setName(objtype.name);
                     this.setType(constants.gojs.C_OBJECTTYPE);
                     if (!metamodel) {
                         let model = this.parentModel;
@@ -505,27 +513,27 @@ export class goRelshipLink extends goLink {
 
         if (relview) {
             const metis = relview.metis;
-            const relship = relview.getRelationship();
+            const relship = relview.relship;
             if (relship) {
                 this.relship = relship;
-                this.relshiptype = relship.getType();
-                // this.typename    = this.relshiptype.getName();
+                this.relshiptype = relship.type;
+                // this.typename    = this.relshiptype.name;
                 this.type = this.typename;
-                this.name = this.relship.getName();
+                this.name = this.relship.name;
                 if (this.name.length == 0)
                     this.name = this.typename;
             }
-            this.typeview = relview.getTypeView();
-            const fromObjview = relview.getFromObjectView();
+            this.typeview = relview.typeview;
+            const fromObjview = relview.fromObjview;
             if (fromObjview) {
-                let node: goNode | null = model.findNodeByViewId(fromObjview.getId());
+                let node: goNode | null = model.findNodeByViewId(fromObjview.id);
                 if (node) {
                     this.fromNode = node as goObjectNode;
                     this.from = node.key;
                     const fromType = this.fromNode.objecttype;
-                    const toObjview: akm.cxObjectView | null = relview.getToObjectView();
+                    const toObjview: akm.cxObjectView | null = relview.toObjview;
                     if (toObjview) {
-                        node = model.findNodeByViewId(toObjview.getId());
+                        node = model.findNodeByViewId(toObjview.id);
                         if (node) {
                             this.toNode = node as goObjectNode;
                             this.to = node.key;
@@ -576,9 +584,10 @@ export class goRelshipLink extends goLink {
         if ((relview) && (typeview)) {
             if (!relview.deleted) {
                 if (this.toNode && this.fromNode) {
-                    const data: any = typeview.getData();
-                    this.addData(data);
-                    this.setName(relview.getName());
+                    const viewdata: any = typeview.data;
+                    this.addData(viewdata);
+                    this.setName(relview.name);
+                    // console.log('584 loadLinkContent', this);
                 }
             }
         } else if (relview) {
@@ -590,7 +599,7 @@ export class goRelshipLink extends goLink {
                         if (reltype.typeview) {
                             const data: any = reltype.typeview.data;
                             this.addData(data);
-                            this.setName(relview.getName());
+                            this.setName(relview.name);
                         }
                     }
                 }
@@ -631,7 +640,7 @@ export class goRelshipTypeLink extends goLink {
         this.choices    = ['Edit name'];
 
         if (reltype) {
-            this.setName(reltype.getName());
+            this.setName(reltype.name);
             this.setType(constants.gojs.C_RELSHIPTYPE);
             const typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null
                 = reltype.getDefaultTypeView();
@@ -658,8 +667,14 @@ export class goRelshipTypeLink extends goLink {
     getFromNode() {
         return this.fromNode;
     }
+    setFromNode(from: goNode | null) {
+        this.fromNode = from;
+    }
     getToNode() {
         return this.toNode;
+    }
+    setToNode(to: goNode | null) {
+        this.toNode = to;
     }
     loadLinkContent() {
         if (this.reltype) {
@@ -669,7 +684,7 @@ export class goRelshipTypeLink extends goLink {
                     if (typeview) {
                         const data: any = typeview.getData();
                         this.addData(data);
-                        this.setName(this.reltype.getName());
+                        this.setName(this.reltype.name);
                         return true;
                     }
                 }

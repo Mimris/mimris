@@ -105,7 +105,6 @@ const page = (props: any) => {
       </div>
   console.log('110', props.phUser.focusUser);
 
-
   return ((!message)
     ? <><Layout user={props.phUser.focusUser} > {loginDiv}</Layout></>
     : <><Layout user={props.phUser.focusUser} > {signupDiv}</Layout></>);
@@ -121,7 +120,7 @@ export default Page(connect(state => state)(page));
   // function handleSetSession() {
   //   const data = session
   //   console.log('87', data);   
-  //   dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+  //   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
   // }
   // let sessbutton 
   // useEffect(() => {

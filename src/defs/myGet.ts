@@ -4,7 +4,8 @@ import Router from 'next/router';
 
 export async function myGet(url: string, ctx: NextPageContext) {
     const cookie = ctx.req?.headers.cookie;
-
+    console.log('7 myGet', url);
+    
     const resp = await fetch(url, {
         headers: {
             cookie: cookie!

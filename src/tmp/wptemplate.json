@@ -6787,23 +6787,22 @@
         }
     },
     "phFocus": {
-        "focusTab": "Concept Modelling",
         "focusTemplateModel": {
             "id": "7b5cc0e5-d2f0-4215-748a-8d6f026bdb02",
             "name": "AKMTemplate"
-        },
-        "focusTemplateModelview": {
+          },
+          "focusTemplateModelview": {
             "id": "a4b43b98-63b0-454b-0971-7c3a619b8cd7",
             "name": "WPT"
-        },
+          },
         "focusTargetModel": {
             "id": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
             "name": "Example concept Model"
-        },
-        "focusTargetModelview": {
-        "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",
-        "name": "Main"
-        },
+          },
+          "focusTargetModelview": {
+            "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",
+            "name": "Main"
+          },
         "focusModel": {
             "id": "ab249341-335f-4395-0115-761de99057c8",
             "name": "Workplace"
@@ -6874,5 +6873,5 @@
             "session": null
         }
     },
-    "phSource": "initialState"
+    "phSource": "localStore"
 }

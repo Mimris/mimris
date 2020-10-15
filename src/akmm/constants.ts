@@ -104,10 +104,11 @@ export let types = {
          AKM_PROPERTY          : "Property",
          AKM_DATATYPE          : "Datatype",
          AKM_VALUE             : "Value",
-         AKM_HAS_PROPERTY      : "hasProperty",
-         AKM_IS_OF_DATATYPE    : "isOfDatatype",
-         AKM_IS_DEFAULTVALUE   : "isDefaultValue",
-         AKM_HAS_ALLOWED_VALUE : "hasAllowedValue",
+         AKM_UNIT              : "Unit",
+         AKM_HAS_PROPERTY      : "has",
+         AKM_IS_OF_DATATYPE    : "isOf",
+         AKM_IS_DEFAULTVALUE   : "isDefault",
+         AKM_HAS_ALLOWED_VALUE : "hasAllowed",
     
     // Type properties
          OBJECTTYPE_ID         : "objecttype",

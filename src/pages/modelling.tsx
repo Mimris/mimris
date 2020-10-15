@@ -11,31 +11,41 @@ import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
 import useLocalStorage from '../hooks/use-local-storage'
+import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
 // import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
-  
+
+  const [refresh, setRefresh] = useState(true);
   // console.log('16 diagram',props)
   const dispatch = useDispatch()
-  // const [lstate, setLstate] = useLocalStorage('state');
-
-  // try {
-  //   if (!window) {
-  //     return
-  //   } else {
-  //     console.log('26', lstate);
-  //     (lstate) &&  DispatchLocal(lstate)
-  //   }
-  // } catch (error) {
-  //   console.log('31 modelling', error);
-  // }
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
+  // DispatchFromLocalStore(memoryLocState)
+  // console.log('23 modelling', memoryLocState);
   
-  // console.log('33 modelling', props.phData);
-  
-  if (!props.phData) {
-    dispatch(loadData())
+  if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
+    if (typeof window !== "undefined") {
+    //   const loadMemory = confirm("Open saved memory model?");
+      // if (loadMemory) {
+        // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
+        // if (memoryLocState && props?.phSource === 'initialState' && confirm('Do you want to load model the saved memory?')) 
+        // if (memoryLocState ) {
+        //   // Save it!
+        //   const memoryState = {
+        //     ...memoryLocState,
+        //     phSource: 'savedMemory'
+        //   }
+        //   // console.log('35 modelling', memoryState);
+        //   DispatchFromLocalStore(memoryState)
+        // }
+      // }
+    }
   }
 
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
+  
   // console.log('23 modelling', props.phData);
   
   const state = useSelector(state => state)
@@ -52,17 +62,18 @@ const page = (props:any) => {
   // */
   const setContextDiv =  <SetContext ph={props} />
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
-  // useEffect(() => {
-  //   return () => {
-  //     <SetContext phFocus={props.phFocus} />
-  //   };
-  // }, [props.phData])
+  useEffect(() => {
+    return () => {
+      <SetContext ph={props} />
+    };
+  }, [props.phFocus.focusModel.id])
   // console.log('42 modelling', state.phUser);
   
+  const modellingDiv = <Modelling />
 
   return (
     <div>
-      <Layout user={state.phUser?.focusUser} >
+       <Layout user={state.phUser?.focusUser} >
         <div id="index" >
           <div className="wrapper" >
             {/* <div className="header" >
@@ -72,11 +83,13 @@ const page = (props:any) => {
               <div className="contextarea" >
                 {setContextDiv}
               </div>
-                <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "2px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
+                <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
+                {/* <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} > */}
                 <TasksHelp />
               </div>
-              <div className="workarea px-1" style={{ backgroundColor: "#eee" }}>
-                <Modelling />
+              <div className="workarea px-1 py-2" style={{ backgroundColor: "#eee" }}>
+                {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
+                {/* <Modelling /> */}
               </div>
             </div>
             <div className="footer">
@@ -88,7 +101,8 @@ const page = (props:any) => {
       <style jsx>{`
       .wrapper {
         display: grid;
-        height: 100%;
+        height: 101%;
+        min-height: 101%;
         // grid-template-columns: 1fr auto;
         // grid-template-rows:  auto;
         grid-gap: 0px;
@@ -99,13 +113,15 @@ const page = (props:any) => {
       .workplace {
         grid-area: workplace;
         display: grid ;
-        height: 100%;
+        height: 101%;
+        // min-height: 101%;
         // background-color: #ddd;
         grid-template-columns: auto 1fr;
         grid-template-areas:
         "contextarea contextarea"
         "tasksarea workarea";
       }
+
       // @media only screen and (max-width: 475px) {
       // .workplace {
       //     grid-area: workplace;

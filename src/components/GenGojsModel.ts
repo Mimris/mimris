@@ -32,7 +32,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myMetis = new akm.cxMetis();
       myMetis.importData(metis, true);
     // }
-    // console.log('44 GenGojsModel myMetis', myMetis, glb.metis);
+    console.log('44 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -63,7 +63,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('62 GenGojsModel myTargetMetamodelRef :', curmod.targetMetamodelRef, curtargetmodel);
       let myTargetMetamodel = curtargetmetamodel || null;
       if (myTargetMetamodel !== null)
-      myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);
+        myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);
       // console.log('60 GenGojsModel myTargetMetamodel :', myTargetMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);

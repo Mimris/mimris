@@ -31,6 +31,7 @@ const LoadLocal = (props: any) => {
   // }
 
   // const [state, setState] = useLocalStorage('state',  window.localStorage.getItem('state') || null);
+  if (typeof window === 'undefined') return
   const [locState, setLocState] = useLocalStorage('state', null);
   const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false

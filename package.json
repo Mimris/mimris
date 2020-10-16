@@ -59,6 +59,7 @@
     "sqlite3": "^5.0.0",
     "typescript-fsa": "^3.0.0-beta-2",
     "typescript-fsa-reducers": "^1.2.1",
+    "@zeit/next-sass": "^1.0.1",
     "ws": "^7.3.0"
   },
   "devDependencies": {
@@ -71,7 +72,6 @@
     "@types/react": "^16.9.44",
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
-    "@zeit/next-sass": "^1.0.1",
     "@zeit/next-typescript": "latest",
     "cross-env": "^5.2.0",
     "css-loader": "^1.0.1",

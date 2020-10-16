@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
@@ -18,30 +18,29 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         data.key = utils.createGuid();
         data.category = constants.C_OBJECT;
         data.class = "goObjectNode";
-        data.object_0 = null;
         const myMetis = context.myMetis;
         const myModel = context.myModel;
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
         console.log('26 createObject', data);
-        let obj = data.object;
+        data.objectview_0 = data.objectview;
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
-        console.log('31 createObject', myMetis);
+        console.log('31 createObject', myMetis, data);
+        let obj = data.object;
         if (!myModel.pasteViewsOnly) {
             let guid = utils.createGuid();
             obj = new akm.cxObject(guid, data.name, objtype, data.description);
             if (obj) {
-                data.object_0 = data.object;
                 data.object = obj;
-                myDiagram.model.setDataProperty(data, "oldObject", data.oldObject);
+                myDiagram.model.setDataProperty(data, "object_0", data.object_0);
                 // Include the new object in the current model
                 myModel?.addObject(obj);
                 myMetis.addObject(obj);
-                console.log('39 createObject', obj, myModel);
+                console.log('39 createObject', obj, myModel, myGoModel);
             }
         }
         // Create the corresponding object view
@@ -713,6 +712,7 @@ export function createRelationship(data: any, context: any) {
         if ((myMetis) && (fromType && toType)) {
             let defText = "";
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
+            console.log('715 createRelationship', reltypes, myMetis);
             if (reltypes) {
                 for (let i=0; i<reltypes.length; i++) {
                     const rtype = reltypes[i];
@@ -760,7 +760,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myMetis   = context.myMetis;
     const myModelView = myMetis.currentModelview;
     const pasteViewsOnly = myMetis.currentModel.pasteViewsOnly;
-    console.log('762 myMetis', myMetis);
+    console.log('762 myMetis', myMetis, myGoModel);
     //const relshipname = data.name;
     //data.key = utils.createGuid();
     console.log('765 pasteRelationship', data, nodes);
@@ -778,14 +778,14 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     if (pasteViewsOnly) {
         for (let i=0; i<nodes.length; i++) {
             const n = nodes[i];
-            if (fromNode.object.id === n?.object_0?.id) {
+            if (fromNode.objectview.id === n?.objectview_0?.id) {
                 data.fromNode = n;
                 break;
             }
         }
         for (let i=0; i<nodes.length; i++) {
             const n = nodes[i];
-            if (toNode.object.id === n?.object_0?.id) {
+            if (toNode.objectview.id === n?.objectview_0?.id) {
                 data.toNode = n;
                 break;
             }

@@ -639,7 +639,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        console.log('569 LinkDrawn', link.data);
+        console.log('569 LinkDrawn', fromNode, toNode, link.data, myMetis);
         this.setState(
           produce((draft: AppState) => {
             if (fromNode?.class === 'goObjectNode') {

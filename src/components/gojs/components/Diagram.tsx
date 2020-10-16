@@ -773,7 +773,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Delete View",
             function (e, obj) {
-              myMetis.deleteViewsOnly = true;
+              myMetis.currentModel.deleteViewsOnly = true;
               e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
               const myGoModel = myDiagram.myGoModel;
               e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });

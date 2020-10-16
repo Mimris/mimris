@@ -206,7 +206,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         if (reltypes) {
             for (let i=0; i<reltypes.length; i++) {
                 let reltype = reltypes[i];
-                if (reltype.name === 'IsA') {
+                if (reltype.name === 'Is') {
                     parentRelType = reltype;
                     break;
                 }
@@ -214,13 +214,13 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         }
         // First check if it already exists
         if (!parentRelType) {
-            parentRelType  = new akm.cxRelationshipType(utils.createGuid(), 'IsA', objtype, parentType, "");
+            parentRelType  = new akm.cxRelationshipType(utils.createGuid(), 'Is', objtype, parentType, "");
             parentRelType.setModified(true);
             parentRelType.setRelshipKind('Generalization');
             myMetamodel.addRelationshipType(parentRelType);
             myMetis.addRelationshipType(parentRelType);
         }
-
+        console.log('223 generateObjectType', myMetis);
         // Find properties connected to current object
         const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
         if (!rels) {

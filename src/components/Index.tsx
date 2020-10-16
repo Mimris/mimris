@@ -59,7 +59,7 @@ const page = (props) => {
                     <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
                                 {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
                     <CardText className="bg-light p-3">          
-                    AKM Modeller is the tool for building Aktive Knowledge Models, a modelling tool with integrated Modelling and Metamodelling capabilities.
+                    AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
                     <br /><br />
                     <br /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
                     <br /><br />Start modelling by select "Modelling" in the main menu above. 
@@ -73,12 +73,19 @@ const page = (props) => {
                   <CardBody className="akm-intro" >
                     {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
                     <CardText>
-                      Active Knowledge Modelling (AKM) is a innovative and disruptive way to capture and use enterprise knowledge from practical work with  positive effects on productivity, safety,
-                      collaboration and learning. 
-                      <br /><br />AKM consists of a set of concepts modelled by the IRTV meta-model, i.e. the relationships between Information (products, outcomes, properties and parameters), Roles, Tasks and Views. The hard part is to go from these relatively abstract concepts to their practical use in context of an engineering or design endeavor such as designing information systems / computer software. The logic and context richness of practical workspaces are modelled to form the knowledge base required for model-generated solutions and workplaces.
+                      Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
+                      AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
+                      <br /><br />
+                      The AKM novelty comes from how relationships between roles, tasks and information are captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
+                      <br /><br />
+                      The effects from deploying AKM based solutions are many.
+                      Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. I.e. supporting design parameter balancing, and that task execution is in line with applicable regulations and policies.
+                      Secondly, task execution might create new tasks for other roles, and as such AKM makes collaboration more transparent, effective and precise, with direct impact on safety and security.
+                      <br /><br />
                       <br /><br />
                       (more in the About page ....)
-                      <a href='On AKM modelling (7).html'>sss</a>
+                      <br /><br />
+                      {/* <a href='On AKM modelling (7).html'>Paper: On AKM Modelling</a> */}
                     
                     </CardText>
                   </CardBody>

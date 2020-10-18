@@ -51,7 +51,7 @@ const page = (props) => {
             <CardColumns>
               {/* <Card> */}
               <Card body outline color="warning">
-                <CardHeader>Aktive Knowledge Modelling</CardHeader>
+                <CardHeader>Aktive Knowledge Models</CardHeader>
                 <CardBody className="akm-intro" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
                   <CardText>
@@ -107,16 +107,19 @@ const page = (props) => {
               </Card>
               <Card body outline color="info">
                 {/* <Card style={{ width: '18rem', fontWeight: "bolder" }}> */}
-                <CardHeader>IRTV Modelling</CardHeader>
+                <CardHeader>AKM Modelling</CardHeader>
                 <CardBody className="homepage3" >
                   {/* <CardTitle>IRTV modelling</CardTitle> */}
                   <CardText>
-                  IRTV modelling includes the design of symbols and constructs needed to easily communicate proposed solutions and job tasks and services across roles and resources
-                  of project life-cycles.
                   <CardImg top width="90%" src="images/irtv1.png" alt="irtv figur" />
-                  With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. 
+                  With AKM we can easily model new product structures, such as self-configurable components, systems and product families. 
                   This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
-                  Product design, engineering and life-cycle services are currently based on composing and using these disjoint structures:
+                  <br /><br />
+                  <strong>Product design, engineering and life-cycle services</strong> are currently based on modelling and using these disjoint structures:
+                    <br />- <strong>Product structures:</strong> - functions, components, systems configurations, production and operations, and repair,
+                    <br />- <strong>Organizational hierarchies</strong>, domain teams and discipline groups, and composed project teams,
+                    <br />-  <strong>Processes flows:</strong> -activity-decomposed tasks, BPM delivery flows, IDEF0 patterns, work-patterns (eg. swimlanes),
+                    <br />- <strong>Systems</strong>; - functions, components, modules, systems configurations
                 </CardText>
                 </CardBody>
               </Card>
@@ -125,20 +128,21 @@ const page = (props) => {
               <CardBody className="homepage1" >
                 <CardTitle style={{ fontWeight: "bolder" }}>Knowledge Management</CardTitle>
                 <CardText>
-                Knowledge management as a science and industrial discipline go decades back in time. 
-                The challenge is manifold; - the capture and modelling of knowledge, the validity of modelled knowledge, and the sharing and use of knowledge in future work and projects. 
-                Enterprises that implement effective knowledge management will have huge advantages over competitors. 
-                Benefits include enhanced safety in operations, design of more effective and less vulnerable work processes and more effective collaboration between resources assigned to roles.                 </CardText>
+                  Knowledge management as a science and industrial discipline go decades back in time. 
+                  The challenge is manifold; - the capture and modelling of knowledge, the validity of modelled knowledge, and the sharing and use of knowledge in future work and projects. 
+                  Enterprises that implement effective knowledge management will have huge advantages over competitors. 
+                  Benefits include enhanced safety in operations, design of more effective and less vulnerable work processes and more effective collaboration between resources assigned to roles.
+                </CardText>
               </CardBody>
               <CardBody className="hompage3">
                 <CardTitle style={{ fontWeight: "bolder" }}>Product design, engineering and life-cycle services </CardTitle>
                 <CardText>
-                These capabilities provide functions for control of outcomes and properties. 
-                Components for controlling shape and features. 
-                Part structures for engineering parameter control. 
-                Manufacturing structures for adaptation to the machining. 
-                Assembly structures for controlling the composition of parts.
-              </CardText>
+                  These capabilities provide functions for control of outcomes and properties. 
+                  Components for controlling shape and features. 
+                  Part structures for engineering parameter control. 
+                  Manufacturing structures for adaptation to the machining. 
+                  Assembly structures for controlling the composition of parts.
+                </CardText>
               </CardBody>
               <CardBody className="hompage3">
                 <CardTitle style={{ fontWeight: "bolder" }}>Organizational composition and control</CardTitle>
@@ -158,13 +162,13 @@ const page = (props) => {
               <CardBody>
                 <CardTitle style={{ fontWeight: "bolder" }}>Process design, engineering and execution</CardTitle>
                 <CardText>
-                    are currently based on:
-                    <br />- Activity decomposition and disjoint flows – business and project
-                    <br />- Jobs are defined by tasks needed, no context is captured
-                    <br />- Separate progress reporting and communication from processes
-                    <br />- No balancing of parameters and values across disciplines and roles
-                    <br />- No capture of practical dependencies and settings.
-                  </CardText>
+                  are currently based on:
+                  <br />- Activity decomposition and disjoint flows – business and project
+                  <br />- Jobs are defined by tasks needed, no context is captured
+                  <br />- Separate progress reporting and communication from processes
+                  <br />- No balancing of parameters and values across disciplines and roles
+                  <br />- No capture of practical dependencies and settings.
+                </CardText>
               </CardBody>
               <Link href="/">
                 <Button color="light"></Button>

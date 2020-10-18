@@ -24,14 +24,14 @@ function * loadDataSaga() {
         }
       }
     )
-      const metis = yield res.clone().json()
-      // console.log('63 Saga', metis);
-      yield put(loadDataSuccess({ metis }))
-    } catch (err) {
-      console.log('72 saga', failure(err));  
-      yield put(failure(err))
-    }
+    const metis = yield res.clone().json()
+    // console.log('63 Saga', metis);
+    yield put(loadDataSuccess({ metis }))
+  } catch (err) {
+    console.log('72 saga', failure(err));  
+    yield put(failure(err))
   }
+}
 
 // This version is for login server with credetials
 

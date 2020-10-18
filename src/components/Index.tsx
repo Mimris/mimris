@@ -28,7 +28,6 @@ const page = (props) => {
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
 
   let gojsmodel = state.phFocus?.gojsModel
-
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
   //   genGojsModel(state, dispatch)
@@ -44,12 +43,16 @@ const page = (props) => {
               <Card className="card bg-secondary p-0 mb-2" >
                 <CardBody className="homepage2 p-1" style={{backgroundColor: "#fa0"}}>
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
-                              <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
+                  <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
                   <CardText className="bg-white text-danger p-3" >
                     <strong>Select Modelling in the top menu </strong><br />
-                    (An initial template model is loaded)
-                    <br /><br /><strong>Click the Save/Load Model button (upper right) </strong><br />to Load models from repository or LocalStore.
+                    (An initial example template model is loaded)
+                    <br /><br /><strong>Click the "Local" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the LocalStore.
+                    <br /><br /><strong>Click the "Server" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the Server Repository.
                     <br /><br /><strong>For help: Click "Task / Help" bar to the left!</strong>
+                    {/* <br /><br />
+                    <br /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
+                    <br /><br />Start modelling by select "Modelling" in the main menu above.  */}
                   </CardText>
                 </CardBody>
               </Card>
@@ -57,14 +60,14 @@ const page = (props) => {
                 <Card className="card bg-secondary p-0 mb-2" >
                   <CardBody id="lighten" className="homepage2 bg-secondary p-1" >
                     <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
-                                {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
+                    {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
                     <CardText className="bg-light p-3">          
                     AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
-                    <br /><br />
-                    <br /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
-                    <br /><br />Start modelling by select "Modelling" in the main menu above. 
-                    {/* <br />You can also access it from the help menu to the left.
-                    (The task menu can be minimized by clickin on the &lt; -sign) */}
+                      <br /><br />
+                    With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
+
+
+The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
                     </CardText>
                   </CardBody>
                 </Card>
@@ -85,8 +88,7 @@ const page = (props) => {
                       <br /><br />
                       (more in the About page ....)
                       <br /><br />
-                      {/* <a href='On AKM modelling (7).html'>Paper: On AKM Modelling</a> */}
-                    
+                      {/* <a href='On AKM modelling (7).html'>Paper: On AKM Modelling</a> */}                
                     </CardText>
                   </CardBody>
                   {/* </Card> */}

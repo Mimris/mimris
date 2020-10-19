@@ -710,6 +710,9 @@ export class gqlObject {
     name:           string;
     description:    string;
     typeRef:        string;
+    objectviews:    gqlObjectView[] | null;
+    inputrels:      gqlRelationship[] | null;
+    outputrels:     gqlRelationship[] | null;
     propertyValues: any[];
     deleted:        boolean;
     modified:       boolean;
@@ -718,15 +721,28 @@ export class gqlObject {
         this.name           = object.name;
         this.description    = object.description ? object.description : "";
         this.typeRef        = object.type ? object.type.id : "";
+        this.objectviews    = [];
+        this.inputrels      = [];
+        this.outputrels     = [];
         this.propertyValues = [];
         this.deleted        = object.deleted;
         this.modified       = object.modified;
 
         // Code
+        const objviews = object.objectviews;
+        console.log('729 gqlObject - objectviews', objviews);
+        if (objviews) {
+            this.objectviews = new Array();
+            const cnt = objviews.length;
+            for (let i = 0; i < cnt; i++) {
+                const objview = objviews[i];
+                this.addObjectView(objview);
+            }
+        }
         const values = object.valueset;
         console.log('638 gqlObject - values', values);
         if (values) {
-            this.propvalues = [];
+            this.propvalues = new Array();
             const cnt = values.length;
             for (let i = 0; i < cnt; i++) {
                 const val = values[i];
@@ -734,11 +750,69 @@ export class gqlObject {
             }
         }
     }
-    addPropertyValue(val: akm.cxPropertyValue) {
-        if (val) {
-            const gPropval = new gqlPropertyValue(val);
-            this.propertyValues.push(gPropval);
+    addInputrel(relship: akm.cxRelationship) {
+        if (!relship)
+            return;
+        const gRelship = new gqlRelationship(relship);
+        if (!this.inputrels)
+            this.inputrels = new Array();
+        const len = this.inputrels.length;
+        for (let i=0; i<len; i++) {
+            const rel = this.inputrels[i];
+            if (rel.id === relship.id) {
+                // Relationship is already in list
+                return;
+            }
         }
+        this.inputrels.push(gRelship);
+    }
+    addOutputrel(relship: akm.cxRelationship) {
+        if (!relship)
+            return;
+        const gRelship = new gqlRelationship(relship);
+        if (!this.outputrels)
+            this.outputrels = new Array();
+        const len = this.outputrels.length;
+        for (let i=0; i<len; i++) {
+            const rel = this.outputrels[i];
+            if (rel.id === relship.id) {
+                // Relationship is already in list
+                return;
+            }
+        }
+        this.outputrels.push(gRelship);
+    }
+    addObjectView(objview: akm.cxObjectView) {
+        if (!objview) 
+            return;
+        const gObjview = new gqlObjectView(objview);
+        if (!this.objectviews)
+            this.objectviews = new Array();
+        const len = this.objectviews.length;
+        for (let i=0; i<len; i++) {
+            const ov = this.objectviews[i];
+            if (ov.id === objview.id) {
+                // Relationship is already in list
+                return;
+            }
+        }
+        this.objectviews.push(gObjview);
+    }
+    addPropertyValue(val: akm.cxPropertyValue) {
+        if (!val)
+            return;
+        const gPropval = new gqlPropertyValue(val);
+        if (!this.propertyValues)
+            this.propertyValues = new Array();
+        const len = this.propertyValues.length;
+        for (let i=0; i<len; i++) {
+            const pval = this.propertyValues[i];
+            if (pval.id === val.id) {
+                // Relationship is already in list
+                return;
+            }
+        }
+        this.propertyValues.push(gPropval);
     }
 }
 /*
@@ -831,6 +905,7 @@ export class gqlRelationship {
     typeRef:        string;
     fromobjectRef:  string;
     toobjectRef:    string;
+    relshipviews:   gqlRelshipView[] | null;
     propvalues:     any[];
     deleted:        boolean;
     modified:       boolean;
@@ -841,6 +916,7 @@ export class gqlRelationship {
         this.fromobjectRef  = relship.fromObject ? relship.fromObject.id : "";
         this.toobjectRef    = relship.toObject ? relship.toObject.id : "";
         this.typeRef        = "";
+        this.relshipviews   = [];
         this.propvalues     = [];
         this.deleted        = relship.deleted;
         this.modified       = relship.modified;
@@ -851,15 +927,29 @@ export class gqlRelationship {
             const type = relship.type;
             if (type)
                 this.typeRef = type.id;
+            const relviews = relship.relshipviews;
+            console.log('875 gqlRelationship - relshipviews', relviews);
+            if (relviews) {
+                const cnt = relviews.length;
+                for (let i = 0; i < cnt; i++) {
+                    const relview = relviews[i];
+                    this.addRelshipView(relview);
+                }
+            }
             const values = relship.valueset;
             if (values) {
-                this.propvalues = [];
                 const cnt = values.length;
                 for (let i = 0; i < cnt; i++) {
                     const val = values[i];
                     this.addPropertyValue(val);
                 }
             }
+        }
+    }
+    addRelshipView(relview: akm.cxRelationshipView) {
+        if (relview) {
+            const gRelview = new gqlRelshipView(relview);
+            this.relshipviews.push(gRelview);
         }
     }
     addPropertyValue(val: akm.cxPropertyValue) {
@@ -1391,6 +1481,7 @@ export class gqlImportMetis {
                         objview.setTypeView(objtypeview);
                 }
                 // metis.addObjectView(objview);
+                object.addObjectView(objview);
                 modelview.addObjectView(objview);
                 // console.log("Importing object: " + item.id + ", " + item.name);
             }

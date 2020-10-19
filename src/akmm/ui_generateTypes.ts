@@ -184,13 +184,15 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         objtype.typeview = objtypeview;
         objtype.typeviewRef = objtypeview.id;
         objtype.setModified(true);
-        myTargetMetamodel?.addObjectTypeView(objtypeview);
         myMetis.addObjectTypeView(objtypeview);
-        if (!myTargetMetamodel.objtypegeos) 
-            myTargetMetamodel.objtypegeos = new Array();
-        const objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myTargetMetamodel, objtype, "0 0", "100 50");
-        myTargetMetamodel?.objtypegeos.push(objtypegeo);
-        myMetis.addObjtypeGeo(objtypegeo);
+        if (myTargetMetamodel) {
+            myTargetMetamodel.addObjectTypeView(objtypeview);
+            if (!myTargetMetamodel.objtypegeos) 
+                myTargetMetamodel.objtypegeos = new Array();
+            const objtypegeo = new akm.cxObjtypeGeo(utils.createGuid(), myTargetMetamodel, objtype, "0 0", "100 50");
+            myMetis.addObjtypeGeo(objtypegeo);
+            myTargetMetamodel.objtypegeos.push(objtypegeo);
+        } 
         // console.log('195 generateObjectType', myMetis);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
@@ -559,6 +561,7 @@ export function copyObjectview(fromObjview, toModelview) {
         toTypeview.data[prop] = fromTypeview.data[prop];
     }
     toObjview.typeview = toTypeview;
+    toObj.addObjectView(toObjview);
     metis.addObjectTypeView(toTypeview);
     toModelview.addObjectView(toObjview);
     metis.addObjectView(toObjview);
@@ -604,6 +607,7 @@ export function copyRelshipview(fromRelview, toModelview) {
             toRelview.setFromObjectView(fromObjView);
             toRelview.setToObjectView(toObjView);
 
+            toRel.addRelationshipView(toRelview);
             toModelview.addRelationshipView(toRelview);
             metis.addRelationshipView(toRelview);
         }

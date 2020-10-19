@@ -774,7 +774,7 @@ function reducer(state = InitialState, action) {
                 datatypes: action.data.datatypes,
                 objecttypes: action.data.objecttypes,
                 objecttypeviews: action.data.objecttypeviews,
-                objecttypegeos: action.data.objecttypegeos,
+                objtypegeos: action.data.objtypegeos,
                 properties: action.data.properties,
                 relshiptypes: action.data.relshiptypes,
                 relshiptypeviews: action.data.relshiptypeviews,
@@ -811,7 +811,7 @@ function reducer(state = InitialState, action) {
                 datatypes: action.data.datatypes,
                 objecttypes: action.data.objecttypes,
                 objecttypeviews: action.data.objecttypeviews,
-                objecttypegeos: action.data.objecttypegeos,
+                objtypegeos: action.data.objtypegeos,
                 properties: action.data.properties,
                 relshiptypes: action.data.relshiptypes,
                 relshiptypeviews: action.data.relshiptypeviews,
@@ -926,38 +926,41 @@ function reducer(state = InitialState, action) {
         const ottlength = curmmt?.objtypegeos?.length
         let ottindex = curmmt?.objtypegeos?.findIndex(ot => ot.id === otcurt?.id)
         if (ottindex < 0) {ottindex = ottlength} 
-        console.log('905 curmmt', curmmt.objtypegeos, ottindex);
-        return {
-          ...state,
-          phData: {
-            ...state.phData,
-              metis: {
-                ...state.phData.metis,
-                metamodels: [
-                  ...state.phData.metis.metamodels.slice(0,curmmtindex),
-                  {
-                    ...state.phData.metis.metamodels[curmmtindex],
-                    objtypegeos: [
-                      ...curmmt?.objtypegeos?.slice(0, ottindex),
-                      {
-                        ...curmmt?.objtypegeos[ottindex],  
-                        id: action.data.id,           
-                        name: action.data.name,
-                        description: action.data.description,
-                        typeRef: action.data.typeRef,
-                        metamodelRef: action.data.metamodelRef,
-                        loc: action.data.loc,
-                        size: action.data.size,
-                        deleted: action.data.deleted, 
-                        modified: action.data.modified,                         
-                      },
-                      ...curmmt?.objtypegeos?.slice(ottindex + 1)
-                    ]
-                  },
-                  ...state.phData.metis.metamodels.slice(curmmtindex + 1),
-                ]
-              },
-          },
+        console.log('929 curmmt', curmodt, curmmt, otcurt);
+        console.log('930 curmmt', curmmt.objtypegeos, ottindex);
+        if (curmmt.objtypegeos) {
+          return {
+            ...state,
+            phData: {
+              ...state.phData,
+                metis: {
+                  ...state.phData.metis,
+                  metamodels: [
+                    ...state.phData.metis.metamodels.slice(0,curmmtindex),
+                    {
+                      ...state.phData.metis.metamodels[curmmtindex],
+                      objtypegeos: [
+                        ...curmmt?.objtypegeos?.slice(0, ottindex),
+                        {
+                          ...curmmt?.objtypegeos[ottindex],  
+                          id: action.data.id,           
+                          name: action.data.name,
+                          description: action.data.description,
+                          typeRef: action.data.typeRef,
+                          metamodelRef: action.data.metamodelRef,
+                          loc: action.data.loc,
+                          size: action.data.size,
+                          deleted: action.data.deleted, 
+                          modified: action.data.modified,                         
+                        },
+                        ...curmmt?.objtypegeos?.slice(ottindex + 1)
+                      ]
+                    },
+                    ...state.phData.metis.metamodels.slice(curmmtindex + 1),
+                  ]
+                },
+            },
+          }
         }
     case UPDATE_TARGETPROPERTY_PROPERTIES:
       console.log('900 UPDATE_TARGETPROPERTY_PROPERTIES', action);
@@ -1530,6 +1533,7 @@ function reducer(state = InitialState, action) {
                   name: action.data.name,
                   description: action.data.description,
                   typeRef: action.data.typeRef,
+                  objectviews: action.data.objectviews,
                   // propertyValues: {
                   //   ...curmo.objects[curoindexo]?.propertyValues,
                   //   propertyValues: action.data.propertyValues,
@@ -1580,6 +1584,7 @@ function reducer(state = InitialState, action) {
                     typeRef: action.data.typeRef,
                     fromobjectRef: action.data.fromobjectRef,
                     toobjectRef: action.data.toobjectRef,
+                    relshipviews: action.data.relshipviews,
                     // propvalues: {
                     //   ...curmv.relships[r2index].propvalues,
                     // }

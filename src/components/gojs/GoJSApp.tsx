@@ -232,9 +232,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (myNode) {
                     myNode.name = text;
                     uic.updateObject(myNode, field, text, context);
-                    const gqlNode = new gql.gqlObjectView(myNode.objectview);
-                    modifiedNodes.push(gqlNode);
+                    const gqlObjview = new gql.gqlObjectView(myNode.objectview);
+                    modifiedNodes.push(gqlObjview);
                     const gqlObj = new gql.gqlObject(myNode.objectview.object);
+                    gqlObj.addObjectView(gqlObjview);
                     modifiedObjects.push(gqlObj);
                   }
                 }
@@ -331,31 +332,31 @@ class GoJSApp extends React.Component<{}, AppState> {
               const key  = data.key;
               const typename = data.type;
               if (typename === 'Object type') {
-                // console.log('321 myMetamodel', context.myMetamodel);  
+                // console.log('334 myMetamodel', context.myMetamodel);  
                 const objtype = context.myMetis.findObjectType(data.objtype.id);
                 if (objtype) {
                   // Check if objtype instances exist
-                  // if (context.myModel.getObjectsByType(objtype, false)) {
-                  //     alert('Objects of type ' + objtype.name + ' exist - Deletion is not allowed!');
-                  //     break;
-                  // } 
+                  if (context.myMetis.getObjectsByType(objtype, true)) {
+                      alert('Objects of type ' + objtype.name + ' exist - Deletion is not allowed!');
+                      break;
+                  } 
                   objtype.deleted = deletedFlag;
                   const gqlObjtype = new gql.gqlObjectType(objtype, true);
                   modifiedTypeNodes.push(gqlObjtype);
-                  console.log('332 modifiedTypeNodes', modifiedTypeNodes);
+                  console.log('345 modifiedTypeNodes', modifiedTypeNodes);
                   let objtypeview = objtype.typeview;
                   if (objtypeview) {
                       objtypeview.deleted = deletedFlag;
                       const gqlObjtypeView = new gql.gqlObjectTypeView(objtypeview);
                       modifiedTypeViews.push(gqlObjtypeView);
-                      console.log('338 modifiedTypeViews', modifiedTypeViews);
+                      console.log('351 modifiedTypeViews', modifiedTypeViews);
                   }
                   const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
                   if (geo) {
                       geo.deleted = deletedFlag;
                       const gqlObjtypegeo = new gql.gqlObjectTypegeo(geo);
                       modifiedTypeGeos.push(gqlObjtypegeo);
-                      console.log('345 modifiedTypeGeos', modifiedTypeGeos);
+                      console.log('358 modifiedTypeGeos', modifiedTypeGeos);
                   }
                 }
               }
@@ -363,22 +364,22 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // console.log('350 myMetamodel', context.myMetamodel);  
                 const reltype = context.myMetis.findRelationshipType(data.reltype.id);
                 if (reltype) {
-                  // Check if objtype instances exist
-                  // if (context.myModel.getRelationshipsByType(reltype)) {
-                  //   alert('Relationships of type ' + reltype.name + ' exist - Deletion is not allowed!');
-                  //   break;
-                  // }
+                  // Check if reltype instances exist
+                  if (context.myMetis.getRelationshipsByType(reltype)) {
+                    alert('Relationships of type ' + reltype.name + ' exist - Deletion is not allowed!');
+                    break;
+                  }
                   reltype.deleted = deletedFlag;
                   //uic.deleteRelationshipType(reltype, deletedFlag);
                   const gqlReltype = new gql.gqlRelationshipType(reltype, true);
                   modifiedTypeLinks.push(gqlReltype);
-                  console.log('362 modifiedTypeLinks', modifiedTypeLinks);
+                  console.log('375 modifiedTypeLinks', modifiedTypeLinks);
                   let reltypeview = reltype.typeview;
                   if (reltypeview) {
                       reltypeview.deleted = deletedFlag;
                       const gqlReltypeView = new gql.gqlRelshipTypeView(reltypeview);
                       modifiedTypeViews.push(gqlReltypeView);
-                      console.log('368 modifiedTypeViews', modifiedTypeViews);
+                      console.log('381 modifiedTypeViews', modifiedTypeViews);
                   }
                 }
               }
@@ -386,26 +387,26 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const myNode = this.getNode(context.myGoModel, key);
                 if (myNode) {
                   uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedTypeViews, context);
-                  console.log('377 modifiedNodes', modifiedNodes);
-                  console.log('378 modifiedNodes', modifiedObjects);
-                  console.log('379 modifiedTypeViews', modifiedTypeViews);
+                  console.log('389 modifiedNodes', modifiedNodes);
+                  console.log('390 modifiedNodes', modifiedObjects);
+                  console.log('391 modifiedTypeViews', modifiedTypeViews);
                 }
               }
               if (data.class === "goRelshipLink") {
                 const myLink = this.getLink(context.myGoModel, key);
-                console.log('365 SelectionDeleted', myLink);
+                console.log('396 SelectionDeleted', myLink);
                 uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
                 const relview = data.relshipview;
                 if (relview) {
                   relview.deleted = deletedFlag;
                   const gqlRelview = new gql.gqlRelshipView(relview);
                   modifiedLinks.push(gqlRelview);
-                  console.log('369 SelectionDeleted', modifiedLinks);
+                  console.log('403 SelectionDeleted', modifiedLinks);
                   const relship = relview.relship;
                   relship.deleted = deletedFlag;
                   const gqlRel = new gql.gqlRelationship(relship);
                   modifiedRelships.push(gqlRel);
-                  console.log('374 SelectionDeleted', modifiedRelships);
+                  console.log('408 SelectionDeleted', modifiedRelships);
                 }
               }
             }
@@ -497,10 +498,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
                 // console.log('403 New object', myNode);
-                const gqlNode = new gql.gqlObjectView(objview);
-                modifiedNodes.push(gqlNode);
+                const gqlObjview = new gql.gqlObjectView(objview);
+                modifiedNodes.push(gqlObjview);
                 // console.log('406 New object', gqlNode, modifiedNodes);
                 const gqlObj = new gql.gqlObject(objview.object);
+                gqlObj.addObjectView(gqlObjview);
                 modifiedObjects.push(gqlObj);
                 // console.log('409 New object', gqlObj);
               }
@@ -601,10 +603,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 console.log('531 ClipboardPasted', node);
                 if (objview) {
                   pastedNodes.push(node);
-                  const gqlNode = new gql.gqlObjectView(objview);
-                  modifiedNodes.push(gqlNode);
+                  const gqlObjview = new gql.gqlObjectView(objview);
+                  modifiedNodes.push(gqlObjview);
                   console.log('532 ClipboardPasted', modifiedNodes);
                   const gqlObj = new gql.gqlObject(objview.object);
+                  gqlObj.addObjectView(gqlObjview);
                   modifiedObjects.push(gqlObj);
                   console.log('535 ClipboardPasted', modifiedObjects);
                 }

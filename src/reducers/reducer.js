@@ -1237,7 +1237,7 @@ function reducer(state = InitialState, action) {
       const curmm     = state.phData?.metis?.metamodels?.find(m => m.id === curmod.metamodelRef)
       const curmmindex = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmod.metamodelRef) 
       const otcur  = curmm?.objtypegeos?.find(ot => ot.id === action?.data?.id)
-      const otlength = curmm?.objtypegeos.length
+      const otlength = curmm?.objtypegeos?.length
       let otindex = curmm?.objtypegeos?.findIndex(ot => ot.id === otcur?.id)
       if (otindex < 0) {otindex = otlength} 
       return {

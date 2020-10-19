@@ -279,9 +279,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "dispatch":     e.diagram.dispatch
               }
               const objview = uic.setObjectType(node, objtype, context);
-              const gqlObjView = new gql.gqlObjectView(objview);
+              const gqlObjview = new gql.gqlObjectView(objview);
               const modifiedObjectViews = new Array();
-              modifiedObjectViews.push(gqlObjView);
+              modifiedObjectViews.push(gqlObjview);
               modifiedObjectViews.map(mn => {
                 let data = mn;
                 e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
@@ -289,6 +289,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const object = myMetis.findObject(objview?.object?.id);
                 if (object) {
                   const gqlObject = new gql.gqlObject(object);
+                  gqlObject.addObjectView(gqlObjview);
                   const modifiedObjects = new Array();
                   modifiedObjects.push(gqlObject);
                   modifiedObjects.map(mn => {
@@ -485,8 +486,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                         e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
                       });
                   }
+
+                  const gqlObjectType = new gql.gqlObjectType(objtype);
+                  console.log('491 Generate Object Type', gqlObjectType);
+                  const modifiedTypeNodes = new Array();
+                  modifiedTypeNodes.push(gqlObjectType);
+                  modifiedTypeNodes.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
+                  });
+                  console.log('498 myMetis', modifiedTypeNodes, myMetis);
+
                   const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-                  console.log('483 Generate Object Type', gqlObjTypeview);
+                  console.log('501 Generate Object Type', gqlObjTypeview);
                   const modifiedTypeViews = new Array();
                   modifiedTypeViews.push(gqlObjTypeview);
                   modifiedTypeViews?.map(mn => {
@@ -495,35 +507,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   })
                   const geo = context.myTargetMetamodel.findObjtypeGeoByType(objtype);
                   const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-                  console.log('492 Generate Object Type', gqlObjTypegeo, myMetis);
-                  // const modifiedGeos = new Array();
-                  // modifiedGeos.push(gqlObjTypegeo);
-                  // modifiedGeos?.map(mn => {
-                  //   let data = (mn) && mn
-                  //   e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
-                  // })
-                  // console.log('499 myMetis', modifiedGeos, myMetis);                                    // Then handle the object type
-                  const gqlObjectType = new gql.gqlObjectType(objtype);
-                  console.log('501 Generate Object Type', gqlObjectType);
-                  const modifiedTypeNodes = new Array();
-                  modifiedTypeNodes.push(gqlObjectType);
-                  modifiedTypeNodes.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
-                  });
-                  console.log('508 myMetis', modifiedTypeNodes, myMetis);
-                  const gqlMetamodel = new gql.gqlMetaModel(context.myTargetMetamodel);
-                  console.log('510 Generate Object Type', gqlMetamodel);
-                  const modifiedMetamodels = new Array();
-                  modifiedMetamodels.push(gqlMetamodel);
-                  modifiedMetamodels.map(mn => {
-                      let data = mn;
-                      console.log('515 Generate Object Type', data);
-                      e.diagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data })
-                  });
-                  // myMetis.currentModelview = context.myCurrentModelview;
-                  // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-                  console.log('520 Generate Object Type', myMetis);
+                  console.log('510 Generate Object Type', gqlObjTypegeo, myMetis);
+                  const modifiedGeos = new Array();
+                  modifiedGeos.push(gqlObjTypegeo);
+                  modifiedGeos?.map(mn => {
+                    let data = (mn) && mn
+                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
+                  })
+                  console.log('517 myMetis', modifiedGeos, myMetis);                                    // Then handle the object type
                 }
               },  
             function(o: any) { 
@@ -579,26 +570,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.deleteSelection();
             },
             function (o: any) { 
-              const node = o.part.data;
-              //console.log('383 Delete', node);
-              if (node.class === 'goObjectTypeNode') {
-                  return o.diagram.commandHandler.canDeleteSelection();                
-                  // const objtype = node.objtype;
-                  // const myModel = myDiagram.myMetis.currentModel;
-                  // console.log('386 Delete', myModel);
-                  // console.log('387 Delete', objtype);
-                  // const objects = myModel.getObjectsByType(objtype, false);
-                  // console.log('390 Delete', objects);
-                  // if (objects) {
-                  //   console.log('390 Delete', 'Objects found');
-                  //   return false;
-                  // } else {
-                  //     console.log('393 Delete', 'No objects found');
-                  //     return o.diagram.commandHandler.canDeleteSelection(); 
-                  //  }
-              } else {
-                  return o.diagram.commandHandler.canDeleteSelection(); 
-              }
+              // const node = o.part.data;
+              // //console.log('585 Delete', node);
+              // if (node.class === 'goObjectTypeNode') {
+              //     //return o.diagram.commandHandler.canDeleteSelection();                
+              //     const objtype = node.objtype;
+              //     console.log('588 Delete', objtype);
+              //     const objects = myMetis.getObjectsByType(objtype, true);
+              //     console.log('591 Delete', objects);
+              //     if (objects) {
+              //       console.log('593 Delete', 'Objects found');
+              //       return false;
+              //     } else {
+              //         console.log('596 Delete', 'No objects found');
+              //         return o.diagram.commandHandler.canDeleteSelection(); 
+              //      }
+              // } else {
+              //     return o.diagram.commandHandler.canDeleteSelection(); 
+              // }
+              return o.diagram.commandHandler.canDeleteSelection(); 
             }),
           makeButton("Delete View",
             function (e: any, obj: any) {
@@ -769,7 +759,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { 
-              return o.diagram.commandHandler.canDeleteSelection(); 
+            //   const link = o.part.data;
+            //   //console.log('383 Delete', link);
+            //   if (link.class === 'goRelshipTypeLink') {
+            //     //return o.diagram.commandHandler.canDeleteSelection();                
+            //     const reltype = link.reltype;
+            //     console.log('387 Delete', reltype);
+            //     const relships = myMetis.getRelationshipsByType(reltype, true);
+            //     console.log('390 Delete', relships);
+            //     if (relships) {
+            //       console.log('390 Delete', 'Relstionships found');
+            //       return false;
+            //     } else {
+            //         console.log('393 Delete', 'No relstionships found');
+            //         return o.diagram.commandHandler.canDeleteSelection(); 
+            //      }
+            // } else {
+            //     return o.diagram.commandHandler.canDeleteSelection(); 
+            // }
+            return o.diagram.commandHandler.canDeleteSelection(); 
             }),
           makeButton("Delete View",
             function (e, obj) {

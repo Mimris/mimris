@@ -52,6 +52,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             data.objectview = objview;
             // console.log('47 createObject', data);
             // Include the object view in the current model view
+            obj.addObjectView(objview);
             myModelview.addObjectView(objview);
             myMetis.addObjectView(objview);
             // Then update the node with its new properties
@@ -215,6 +216,7 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObject.setModified();
         currentObjectView.setName(value);
         currentObjectView.setModified();
+        currentObject.addObjectView(currentObjectView);
         myDiagram.model.setDataProperty(data, "name", value);
 
         // const modNode = new gql.gqlObjectView(myNode.objectview);
@@ -376,7 +378,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             myGoModel.nodes = nodes;
         }
         let node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
-        console.log('365 deleteNode', node);
+        console.log('379 deleteNode', node);
         if (node) {
             let objview = myMetis.findObjectView(node.objectview.id);
             if (objview) {
@@ -385,7 +387,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                 const delNode = new gql.gqlObjectView(objview);
                 deletedNodes.push(delNode);
             }
-            console.log('395 deleteNode', objview);
+            console.log('388 deleteNode', objview);
         }
     }
 }
@@ -396,7 +398,6 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
     const object = objview.object;
     if (object) {
         const oviews = myMetis.getObjectViewsByObject(object.id);
-        deleteObjectTypeView(objview, deletedFlag, deletedTypeviews);
         if (!myMetis.currentModel.deleteViewsOnly) {
             // Handle object
             object.deletedFlag = true;
@@ -411,11 +412,10 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
                     oview.deleted = deletedFlag;
                     // Register change in gql
                     const gqlObjview = new gql.gqlObjectView(oview);
+                    gqlObj.addObjectView(gqlObjview);
                     deletedNodes.push(gqlObjview);
                     // Handle objecttypeview
-                    if (i== 0) {
-                        deleteObjectTypeView(oviews[0], deletedFlag, deletedTypeviews);
-                    }
+                    deleteObjectTypeView(oview, deletedFlag, deletedTypeviews);
                 }
             }
         }       
@@ -430,10 +430,12 @@ export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boo
     const defaultTypeview = objtype?.typeview;
     if (typeView && defaultTypeview) {
         if (typeView.id !== defaultTypeview.id) {
-            typeView.deleted = deletedFlag;
-            // Register change in gql
-            const gqlTypeview = new gql.gqlObjectTypeView(typeView);
-            deletedTypeviews.push(gqlTypeview);
+            if (typeView.deleted !== deletedFlag) {
+                typeView.deleted = deletedFlag;
+                // Register change in gql
+                const gqlTypeview = new gql.gqlObjectTypeView(typeView);
+                deletedTypeviews.push(gqlTypeview);
+            }
         }
     }
 }

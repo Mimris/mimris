@@ -825,7 +825,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_TARGETOBJECTTYPE_PROPERTIES:
-      // console.log('687 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
+      console.log('687 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
       const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmtot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.targetMetamodelRef)
       // console.log('690 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmodtot.targetMetamodelRef, curmmtot);

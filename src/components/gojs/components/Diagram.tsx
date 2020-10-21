@@ -486,6 +486,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                         e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
                       });
                   }
+                  console.log('489 modifiedProperties', currentObjview, objtype.properties, modifiedProperties);
 
                   const gqlObjectType = new gql.gqlObjectType(objtype);
                   console.log('491 Generate Object Type', gqlObjectType);

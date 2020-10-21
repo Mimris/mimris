@@ -4218,6 +4218,8 @@
                             "modified": false
                         }
                     ],
+                    "targetMetamodelRef": "552561f1-76a9-4324-6d56-ca549fb63b9a",
+                    "targetModelRef": "16b9d74c-2045-442f-6183-5a2dda6e2613",
                     "deleted": false,
                     "modified": false
                 },
@@ -4226,9 +4228,6 @@
                     "name": "SolutionModel",
                     "description": "",
                     "metamodelRef": "552561f1-76a9-4324-6d56-ca549fb63b9a",
-                    "targetMetamodelRef": "",
-                    "sourceModelRef": "",
-                    "targetModelRef": "552561f1-76a9-4324-6d56-ca549fb63b9a",
                     "isTemplate": false,
                     "templates": [],
                     "objects": [],
@@ -4238,7 +4237,7 @@
                         "id": "7ee8e4d0-1f4c-436e-2581-c55e39720263",
                         "name": "MainView",
                         "description": "",
-                        "modelRef": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
+                        "modelRef": "16b9d74c-2045-442f-6183-5a2dda6e2613",
                         "objectviews": [],
                         "relshipviews": [],
                         "objecttypeviews": [],

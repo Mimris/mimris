@@ -180,7 +180,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const id = utils.createGuid();
         const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
         objtypeview.applyObjectViewParameters(objview);
-        // console.log('183 generateObjectType', objtypeview);
+        console.log('183 generateObjectType', objtypeview);
         objtype.typeview = objtypeview;
         objtype.typeviewRef = objtypeview.id;
         objtype.setModified(true);
@@ -193,7 +193,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             myMetis.addObjtypeGeo(objtypegeo);
             myTargetMetamodel.objtypegeos.push(objtypegeo);
         } 
-        // console.log('195 generateObjectType', myMetis);
+        console.log('195 generateObjectType', myMetis);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
     }

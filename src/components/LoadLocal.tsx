@@ -121,7 +121,7 @@ const LoadLocal = (props: any) => {
     console.log('97 LoadLocal', metamodels);
     
     // then find currentTargetMetamodel
-    let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
+    let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
     let curtmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
     const curtmmlength = locState.phData.metis.metamodels?.length   
     if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
@@ -162,7 +162,7 @@ const LoadLocal = (props: any) => {
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right w-50" onClick={handleSaveAllToLocalStore} > Save all to localStorage </button >
   const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchToStoreFromLocal} > Load all from localStorage </button >
-  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentModelToLocalStore} > Add current model to localStorage </button >
+  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentModelToLocalStore} > Save current model to localStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);

@@ -69,7 +69,7 @@ const page = (props:any) => {
       // console.log('68 Diagram useEffect 1 ', props ); 
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
-      setRefresh(!refresh)
+      // setRefresh(!refresh)
     }, [props.phData.metis])
     
     // useEffect(() => {

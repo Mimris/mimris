@@ -44,15 +44,32 @@ const page = (props) => {
                 <CardBody className="homepage2 p-1" style={{backgroundColor: "#fa0"}}>
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
                   <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
-                  <CardText className="bg-white text-danger p-3" >
+                  <CardText className="bg-light text-danger p-3" >
                     <strong>Select Modelling in the top menu </strong><br />
                     (An initial example template model is loaded)
                     <br /><br /><strong>Click the "Local" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the LocalStore.
                     <br /><br /><strong>Click the "Server" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the Server Repository.
-                    <br /><br /><strong>For help: Click "Task / Help" bar to the left!</strong>
+                    <br /><br /><strong>For help: Click "Task / Help" bar to the left!</strong> <span className="text-secondary" >(Not fully implemented yet !!!)</span>
                     {/* <br /><br />
                     <br /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
                     <br /><br />Start modelling by select "Modelling" in the main menu above.  */}
+                  </CardText>
+                </CardBody>
+              </Card>
+              <Card className="card bg-light p-0 mb-2" >
+                <CardBody className="homepage2 p-1" style={{backgroundColor: "#fd0"}}>
+                  {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
+                  <CardTitle style={{ fontWeight: "bolder" }}>Tips !</CardTitle>
+                  <CardText className="bg-light text-info  p-3" >
+                    <strong>Save current models to a file: <br />(Requirement:</strong> Chrome browser with RemoteDev DevTools Extensions installed) 
+                    
+                    <br /><br /><strong>Right click the meny bar at the top </strong>
+                    <br />Select "Inpect" (a ).
+                    <br /><br /><strong>Click "Export" at the bottom meny) </strong>
+                    <br />... the Redux store (incl. all actions) will be exported and downloaded to "downloads" folder. 
+                    <br /> (Tip: Rename the file to include date and move/copy it to a folder to keep history of your model).
+                    <br />(The file can be loaded later or sent by email to someone for review)
+
                   </CardText>
                 </CardBody>
               </Card>

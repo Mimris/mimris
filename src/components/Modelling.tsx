@@ -69,25 +69,28 @@ const page = (props:any) => {
       // console.log('68 Diagram useEffect 1 ', props ); 
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
-      // setRefresh(!refresh)
-    }, [props.phData.metis])
-
-    // useEffect(() => {
-    //   // console.log('38 Diagram state', props ); 
-    //   // setRefresh(!refresh)
-    //   genGojsModel(props, dispatch);
-    //   gojsmodel = props.phGojs?.gojsModel 
-    // }, [])
-    // }, [props.phFocus?.focusModel, props.phFocus?.focusMetamodel])
-    
-    useEffect(() => {
-      focusModelview = props.phFocus?.focusModelview
-      // setRefresh(!refresh)
-      // console.log('80 Diagram state', focusModelview, props.phGojs?.gojsModel.nodeDataArray ); 
-      // console.log('86 Diagram useEffect 2', props); 
-      genGojsModel(props, dispatch);
-      // focusModel = props.phFocus?.focusModel
       setRefresh(!refresh)
+    }, [props.phData.metis])
+    
+    // useEffect(() => {
+      //   // console.log('38 Diagram state', props ); 
+      //   // setRefresh(!refresh)
+      //   genGojsModel(props, dispatch);
+      //   gojsmodel = props.phGojs?.gojsModel 
+      // }, [])
+      // }, [props.phFocus?.focusModel, props.phFocus?.focusMetamodel])
+      
+      useEffect(() => {
+        // focusModelview = props.phFocus?.focusModelview
+        // setRefresh(!refresh)
+        // console.log('80 Diagram state', focusModelview, props.phGojs?.gojsModel.nodeDataArray ); 
+        console.log('86 Diagram useEffect 2', props); 
+        genGojsModel(props, dispatch);
+        // focusModel = props.phFocus?.focusModel
+        function refres() {
+          setRefresh(!refresh)
+        }
+        setTimeout(refres, 1);
     }, [focusModelview?.id])
 
     useEffect(() => {
@@ -118,12 +121,12 @@ const page = (props:any) => {
           models: [
             ...memoryLocState?.phData?.metis.models.slice(0, curmindex),
             reduxmod,
-            ...memoryLocState?.phData?.metis.models.slice(curmindex + 1),
+            ...memoryLocState?.phData?.metis.models.slice(curmindex + 1, memoryLocState?.phData?.metis.models.lenght),
           ],
           metamodels: [
-            ...memoryLocState?.phData?.metis.models.slice(0, curmmindex),
+            ...memoryLocState?.phData?.metis.metamodels.slice(0, curmmindex),
             reduxmmod,
-            ...memoryLocState?.phData?.metis.models.slice(curmmindex + 1),
+            ...memoryLocState?.phData?.metis.metamodels.slice(curmmindex + 1, memoryLocState?.phData?.metis.metamodels.lenght),
           ]
         },
       },
@@ -131,7 +134,7 @@ const page = (props:any) => {
       phUser: props.phUser,
       phSource: 'localStore'
     };
-    // console.log('59 Modelling', reduxmod, data);
+    console.log('59 Modelling',  data);
     (reduxmod) && setMemoryLocState(data) 
     setRefresh(!refresh);
   }
@@ -254,6 +257,8 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='metamodel'
+                    // refresh={refresh}
+                    // toggleRefresh={toggleRefresh}
                   />
                 </div>
               </Col>
@@ -298,6 +303,8 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='model'
+                    refresh={refresh}
+                    toggleRefresh={toggleRefresh}
                   />
                 </div>
               </Col>
@@ -354,6 +361,8 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='model'
+                    // refresh={refresh}
+                    toggleRefresh={toggleRefresh}
                   />
                 </div>
               </Col>

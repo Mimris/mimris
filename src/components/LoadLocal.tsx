@@ -10,7 +10,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 import genGojsModel from './GenGojsModel'
 
 const LoadLocal = (props: any) => {
-
+  const debug = true
   const dispatch = useDispatch()  
   const refresh = props.refresh
   const setRefresh = props.setRefresh
@@ -59,9 +59,9 @@ const LoadLocal = (props: any) => {
       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
     }
   }
-  function handleDispatchToStoreFromMemory() {  // load store from Local
+  function handleDispatchToStoreFromMemory() {  // load store from localmemorystate
     // memoryStatus = true
-    // console.log('63 LoadLocal', memoryState);
+    if (debug) console.log('63 LoadLocal', memoryState);
     
     const phData = memoryState.phData
     const phFocus = memoryState.phFocus

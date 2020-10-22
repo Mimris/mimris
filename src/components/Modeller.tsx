@@ -14,9 +14,10 @@ const Modeller = (props: any) => {
 
   let myMetis = props.myMetis;
 
-  const [refresh, setRefresh] = useState(true)
-  function toggleRefresh() { setRefresh(!refresh); }
-
+  // const [refresh, setRefresh] = useState(true)
+  // function toggleRefresh() { setRefresh(!refresh); }
+  // const refresh = props.refresh
+  // const toggleRefresh = props.toggleRefresh
   // console.log('28 Modeller', gojsmodel?.nodeDataArray);
 
   const models = props.metis?.models
@@ -50,8 +51,8 @@ const Modeller = (props: any) => {
   const selector = (props.modelType === 'model' || props.modelType === 'modelview') 
       ? <>
           {/* <div className="modeller-selection float-right" > */}
-            <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />
-            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+            <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' />
+            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' />
           {/* </div>  */}
         </>
       :
@@ -64,8 +65,8 @@ return (
       <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Model:  <strong className="ml-2 ">{focusModel.name}</strong>
         {selector}
       </div>
-        {/* {gojsapp} */}
-        {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
+        {gojsapp}
+        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
       <style jsx>{`
         .diagram-component {
           height: 101%;

@@ -10,7 +10,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 import genGojsModel from './GenGojsModel'
 
 const LoadLocal = (props: any) => {
-
+  const debug = true
   const dispatch = useDispatch()  
   const refresh = props.refresh
   const setRefresh = props.setRefresh
@@ -35,7 +35,7 @@ const LoadLocal = (props: any) => {
   const [locState, setLocState] = useLocalStorage('state', null);
   const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false
-  let memoryStatus = false
+  // let memoryStatus = false
   // console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
   
   function handleDispatchToStoreFromLocal() {  // load store from Local
@@ -59,9 +59,9 @@ const LoadLocal = (props: any) => {
       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
     }
   }
-  function handleDispatchToStoreFromMemory() {  // load store from Local
-    memoryStatus = true
-    // console.log('63 LoadLocal', memoryState);
+  function handleDispatchToStoreFromMemory() {  // load store from localmemorystate
+    // memoryStatus = true
+    if (debug) console.log('63 LoadLocal', memoryState);
     
     const phData = memoryState.phData
     const phFocus = memoryState.phFocus

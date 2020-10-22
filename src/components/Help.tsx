@@ -10,7 +10,7 @@ const Help = () => {
           <a className="btn btn-sm btn-link float-right" data-toggle="collapse" href="#source"><span >? </span></a>
           <a className="btn btn-link btn-sm" ><LoadServer className='button ContextModal' buttonLabel='Save/Load Model' /></a>
           <div className="collapse bg-light p-1 b-1" id="source" style={{ backgroundColor: "#fefefe", }}>
-            <a> Click on "Save/Load" above to save current models or load from local storage. </a>
+            <a> Click on "Local or Server" button above to save/load current models from local storage or server repository. </a>
             <a style={{ maxWidth: "50px", float: "right" }} data-toggle="collapse" href="#insert-more"><span >(more...)</span></a>
             <div className="collapse bg-transparent p-1" id="insert-more" style={{ backgroundColor: "#fefefe" }}>
               Temporary copy/backup: RightClick here and select Inspect (Ctrl-Alt-I) Select the Application Tab, and then "Storage", then state.

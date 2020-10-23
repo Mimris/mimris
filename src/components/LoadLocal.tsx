@@ -8,6 +8,15 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
+import { SaveModelToFile, ReadModelFromFile } from './utils/SaveModelToFile';
+
+
+
+// const os = require('os');
+// const ostype = os.platform();
+// const file = (ostype === 'darwin')
+//  ? import modeldata from 'C://downloads/modelfile.json'
+//  : import modeldata from '/downloads/modelfile.json'
 
 const LoadLocal = (props: any) => {
   const debug = true
@@ -113,24 +122,13 @@ const LoadLocal = (props: any) => {
     // then find lenght of modellarray in lodalStore
     const curmmlength = locState.phData.metis.metamodels?.length   
     if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    let metamodels = [
-      ...locState.phData.metis.metamodels.slice(0, curmmindex),     
-      reduxmmod,
-      ...locState.phData.metis.metamodels.slice(curmmindex + 1),
-    ]
-    console.log('97 LoadLocal', metamodels);
     
     // then find currentTargetMetamodel
     let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
     let curtmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
     const curtmmlength = locState.phData.metis.metamodels?.length   
     if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    metamodels = [
-      ...metamodels.slice(0, curtmmindex),     
-      reduxtmmod,
-      ...metamodels.slice(curtmmindex + 1),
-    ]
-    console.log('73 LoadLocal', metamodels, curtmmindex, reduxtmmod);
+
     const data = {
       phData: {
         ...locState.phData,
@@ -141,12 +139,11 @@ const LoadLocal = (props: any) => {
             reduxmod,
             ...locState.phData.metis.models.slice(curmindex + 1),
           ],
-          // metamodels: [
-            metamodels
-          //   ...locState.phData.metis.metamodels.slice(0, curmmindex),     
-          //   reduxmmod,
-          //   ...locState.phData.metis.metamodels.slice(curmmindex + 1),
-          // ]
+          metamodels: [
+            ...locState.phData.metis.metamodels.slice(0, curmmindex),     
+            reduxmmod,
+            ...locState.phData.metis.metamodels.slice(curmmindex + 1, locState.phData.metis.metamodels.length),
+          ]
         },
       },
       phFocus:  props.ph.phFocus,
@@ -157,12 +154,28 @@ const LoadLocal = (props: any) => {
     (reduxmod) && setLocState(data)
     // console.log('62 LoadLocal', state);
   }
-  
+
+  function handleSaveToFile() {
+    let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
+    // console.log('160 LoadLocal', reduxmod);
+    
+    SaveModelToFile(reduxmod)
+  }
+
+ 
   const buttonLoadMemoryStoreDiv = <button className="btn-info w-100 btn-sm mr-2 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from localStorage </button >
+  const buttonSaveModelToFileDiv = <button className="btn-secondary text-secondary w-100 btn-sm mr-2 " onClick={handleSaveToFile} > Export Current Model to File </button >
+  // const handleReadModelFromFileDiv = <button className="btn-info w-100 btn-sm mr-2 " onClick={handleReadModelFromFile} > Save Current Model to File </button >
+ 
+  const handleReadModelFromFileDiv = 
+    <div> Import Model from File (json) :
+      <input type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+    </div>
+
   // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right w-50" onClick={handleSaveAllToLocalStore} > Save all to localStorage </button >
   const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchToStoreFromLocal} > Load all from localStorage </button >
-  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentModelToLocalStore} > Save current model to localStorage </button >
+  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentModelToLocalStore} > Save current model to memoryStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -178,7 +191,14 @@ const LoadLocal = (props: any) => {
           {buttonSaveCurrentToLocalStoreDiv} 
           {buttonSaveToLocalStoreDiv}
         </div>
-        <div className="select pt-5">
+          <br />
+        <div className="select pt-9">
+          <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+          {buttonSaveModelToFileDiv}
+          {handleReadModelFromFileDiv}
+        </div>
+        <div className="select pt-0">
+          <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
           {buttonLoadMemoryStoreDiv}
         </div>
       </div>

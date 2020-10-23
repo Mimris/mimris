@@ -164,7 +164,7 @@ const LoadLocal = (props: any) => {
 
  
   const buttonLoadMemoryStoreDiv = <button className="btn-info w-100 btn-sm mr-2 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from localStorage </button >
-  const buttonSaveModelToFileDiv = <button className="btn-secondary text-secondary w-100 btn-sm mr-2 " onClick={handleSaveToFile} > Export Current Model to File </button >
+  const buttonSaveModelToFileDiv = <button className="btn-secondary text-secondary w-100 btn-sm mr-2 " onClick={handleSaveToFile} > Download Current Model to File </button >
   // const handleReadModelFromFileDiv = <button className="btn-info w-100 btn-sm mr-2 " onClick={handleReadModelFromFile} > Save Current Model to File </button >
  
   const handleReadModelFromFileDiv = 

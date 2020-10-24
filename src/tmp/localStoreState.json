@@ -210,6 +210,18 @@
                             "properties": [],
                             "deleted": false,
                             "modified": false
+                        },
+                        {
+                            "id": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
+                            "name": "Generic Object",
+                            "abstract": false,
+                            "viewkind": "Object",
+                            "typename": "Object type",
+                            "typeviewRef": "5f9ef7b3-8ebf-446e-4e2a-e7a52a978b71",
+                            "description": "",
+                            "properties": [],
+                            "deleted": false,
+                            "modified": false
                         }
                     ],
                     "relshiptypes": [
@@ -719,6 +731,19 @@
                             "properties": [],
                             "deleted": false,
                             "modified": false
+                        },
+                        {
+                            "id": "7d1813e3-5f05-4c64-5964-fbce893149ab",
+                            "name": "Is",
+                            "relshipkind": "Generalization",
+                            "viewkind": "",
+                            "fromobjtypeRef": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
+                            "toobjtypeRef": "7f382d70-79e4-4adf-21b7-31fc530435a0",
+                            "typeviewRef": "66aef1ef-cd97-4bd4-14ed-03d1faf6bccd",
+                            "description": "",
+                            "properties": [],
+                            "deleted": false,
+                            "modified": false
                         }
                     ],
                     "properties": [],
@@ -1048,6 +1073,21 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/type.png",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "5f9ef7b3-8ebf-446e-4e2a-e7a52a978b71",
+                            "name": "5f9ef7b3-8ebf-446e-4e2a-e7a52a978b71",
+                            "description": "",
+                            "typeRef": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
+                            "isGroup": false,
+                            "viewkind": "Object",
+                            "figure": "RoundedRectangle",
+                            "fillcolor": "#96c5b9",
+                            "strokecolor": "#000000",
+                            "strokewidth": "1",
+                            "icon": "default.png",
                             "deleted": false,
                             "modified": false
                         }
@@ -2363,6 +2403,20 @@
                             "strokewidth": "1",
                             "fromArrow": "",
                             "toArrow": "",
+                            "fromArrowColor": "",
+                            "toArrowColor": "white",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "66aef1ef-cd97-4bd4-14ed-03d1faf6bccd",
+                            "name": "66aef1ef-cd97-4bd4-14ed-03d1faf6bccd",
+                            "description": "",
+                            "typeRef": "7d1813e3-5f05-4c64-5964-fbce893149ab",
+                            "strokecolor": "black",
+                            "strokewidth": "1",
+                            "fromArrow": "",
+                            "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
                             "deleted": false,

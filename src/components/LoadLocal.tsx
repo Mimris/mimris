@@ -51,22 +51,24 @@ const LoadLocal = (props: any) => {
     locStatus = true
 
     // console.log('43 LoadLocal', locState);
-    
-    const phData = locState.phData
-    const phFocus = locState.phFocus
-    const phUser = locState.phUser
-    const phSource = 'localStore' //locState.sourceFlag
     if (locState) {
-      // console.log('91 SelectSource', locState);
-      let data = phData
-      dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-      data = phFocus
-      dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
-      data = phUser
-      dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
-      data = phSource
-      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
-    }
+
+      const phData = locState.phData
+      const phFocus = locState.phFocus
+      const phUser = locState.phUser
+      const phSource = 'localStore' //locState.sourceFlag
+      if (locState) {
+        // console.log('91 SelectSource', locState);
+        let data = phData
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+        data = phFocus
+        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
+        data = phUser
+        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
+        data = phSource
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
+      }
+    } else alert('No Modeles saved to Local Storage')
   }
   function handleDispatchToStoreFromMemory() {  // load store from localmemorystate
     // memoryStatus = true
@@ -157,53 +159,21 @@ const LoadLocal = (props: any) => {
 
   function handleSaveToFile() {
     let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    // console.log('160 LoadLocal', reduxmod);
-    
-    SaveModelToFile(reduxmod)
+    SaveModelToFile(reduxmod, reduxmod.name)
   }
 
- 
-  const buttonLoadMemoryStoreDiv = <button className="btn-info w-100 btn-sm mr-2 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from localStorage </button >
-  const buttonSaveModelToFileDiv = <button className="btn-secondary text-secondary w-100 btn-sm mr-2 " onClick={handleSaveToFile} > Download Current Model to File </button >
-  // const handleReadModelFromFileDiv = <button className="btn-info w-100 btn-sm mr-2 " onClick={handleReadModelFromFile} > Save Current Model to File </button >
- 
-  const handleReadModelFromFileDiv = 
-    <div> Import Model from File (json) :
-      <input type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
-    </div>
-
-  // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right w-50" onClick={handleSaveAllToLocalStore} > Save all to localStorage </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchToStoreFromLocal} > Load all from localStorage </button >
-  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentModelToLocalStore} > Save current model to memoryStorage </button >
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-  // console.log('131', state);
+  
+  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mb-2 w-100" onClick={handleDispatchToStoreFromLocal} > Load all models from LocalStorage </button >
+  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
+  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
 
-  const buttonDiv = 
-    <>
-      <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
-      <div className="store-div px-2 pb-4 mb-0">
-        <h6>Local Store Actions</h6>
-        <div className="select pb-5" >
-          {buttonLoadLocalStoreDiv}
-          {buttonSaveCurrentToLocalStoreDiv} 
-          {buttonSaveToLocalStoreDiv}
-        </div>
-          <br />
-        <div className="select pt-9">
-          <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-          {buttonSaveModelToFileDiv}
-          {handleReadModelFromFileDiv}
-        </div>
-        <div className="select pt-0">
-          <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-          {buttonLoadMemoryStoreDiv}
-        </div>
-      </div>
-    </>
+  const buttonSaveModelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveToFile} > Download Current Model to File </button >
 
+  const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
+  
   return (
     <>
       <button className="btn-context btn-link float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
@@ -214,16 +184,41 @@ const LoadLocal = (props: any) => {
           <div className="source bg-light pt-2 "> Models: <strong> {modelNames}</strong></div>
           <div className="source bg-light pt-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
           <div className="source bg-light pt-2 ">
-            {buttonDiv}
+            <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
+            <div className="store-div px-2 pb-1 mb-0">
+              <h6>Local Store </h6>
+              <div className="select" >
+                {buttonLoadLocalStoreDiv}
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#aaa", padding: "2px",  marginTop: "1px" , marginBottom: "6px" }} />
+                {buttonSaveCurrentToLocalStoreDiv} 
+                {buttonSaveToLocalStoreDiv}
+              </div>
+              <div className="select">
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                <h6>Local File </h6>
+                {buttonSaveModelToFileDiv}
+                <div> Import Model from File (json) :
+                  <input type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+                </div>
+              </div>
+              <div className="select pt-1">
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                <h6>Crash Recover </h6>
+                <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
+                  If the browser hang or crash, first reload the page and before any other actions, click on the button below to recover your last work !
+                </div>
+                {buttonLoadMemoryStoreDiv}
+              </div>
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>
-          <div style={{ fontSize: "smaller" }}>
-            NB! Clicking "Load local" will overwrite current store (memory).
-            To keep current version, click "Save to Local" to save to LocalStore before "Load local" .
+          <Button className="modal--footer m-0 py-1 px-2" color="primary" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
+          <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
+            Local Storage is controlled by the Internet Browser, and may at some point be deleted, if not enough memory.
+            <br />NB! Loding models from LocalStorage will overwrite current memory store.  To keep current work, click "Save all to LocalStorage".
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
         </ModalFooter>
       </Modal>
       <style jsx>{`

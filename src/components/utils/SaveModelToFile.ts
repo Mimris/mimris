@@ -1,8 +1,8 @@
 
 
 
-export const SaveModelToFile = (model) => {
-    const fileName = "modelfile";
+export const SaveModelToFile = (model, name) => {
+    const fileName = "model-"+name;
     const json = JSON.stringify(model);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);

@@ -27,18 +27,18 @@ const SelectSource = (props: any) => {
     const focusmodel = props.phFocus.focusModel
     const model = props.phData.metis.models.find(m => m.id === focusmodel.id)
     const metamodel = props.phData.metis.metamodels.find(mm => mm.id === model.metamodelRef)
-    const currentTargetMetamodel = props.phData.metis.metamodels.find(mm => mm.id === model.targetMetamodelRef)
-    const currentTargetModel = props.phData.metis.models.find(mm => mm.id === model.targetModelRef)
+    const currentTargetMetamodel = (model.targetMetamodelRef) && props.phData.metis.metamodels.find(mm => mm.id === model.targetMetamodelRef)
+    const currentTargetModel = (model.targetModelRef) && props.phData.metis.models.find(mm => mm.id === model.targetModelRef)
     // const phData = props.phData
     const data = {
       metis: {
         metamodels: [
           metamodel,
-          currentTargetMetamodel,
+          (currentTargetMetamodel) && currentTargetMetamodel,
         ],
         models: [
           model,
-          currentTargetModel,
+          (currentTargetModel) && currentTargetModel,
         ]
       }
     }

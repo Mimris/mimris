@@ -1,4 +1,6 @@
 // @ts-nocheck
+const debug = false;
+
 // this Kernel code
 
 //import akm_globals from "./akm_globals";
@@ -65,7 +67,7 @@ export class cxMetis {
             for (let i = 0; i < metamodels.length; i++) {
                 const metamodel = metamodels[i];
                 if (metamodel) this.importMetamodel(metamodel);
-                // console.log('55 importData', this);
+                if (debug) console.log('55 importData', this);
             }
         }
         // Handle models next
@@ -274,7 +276,7 @@ export class cxMetis {
                                 for (let i = 0; i < mvs.length; i++) {
                                     const item = mvs[i];
                                     if (includeDeleted || !item.deleted) { 
-                                        // console.log('237 initImport', item);
+                                        if (debug) console.log('237 initImport', item);
                                         const mv = new cxModelView(item.id, item.name, null, item.description);
                                         if (!mv) continue;
                                         model.addModelView(mv);
@@ -448,7 +450,7 @@ export class cxMetis {
                     if (reltype && reltypeview)
                         reltype.setDefaultTypeView(reltypeview);
                 }
-                // console.log("Importing relshiptype: " + item.id + ", " + item.name);
+                if (debug) console.log("Importing relshiptype: " + item.id + ", " + item.name);
                 const properties: any[] = item.properties;
                 if (properties && properties.length) {
                     properties.forEach(p => {
@@ -474,9 +476,9 @@ export class cxMetis {
             objtypeview.setIcon(item.icon);
             objtypeview.setGroup(item.group);
             objtypeview.setIsGroup(item.isGroup);
-            // console.log('222 objtypeview', objtypeview, item);
+            if (debug) console.log('222 objtypeview', objtypeview, item);
             metamodel.addObjectTypeView(objtypeview);
-            // console.log("Importing objtypeview: " + item.id + ", " + item.name);
+            if (debug) console.log("Importing objtypeview: " + item.id + ", " + item.name);
         }
     }
     importObjectTypegeo(item: any, metamodel: cxMetaModel) {
@@ -506,7 +508,7 @@ export class cxMetis {
             reltypeview.setFromArrow(item.fromarrow);
             reltypeview.setToArrow(item.toarrow);
             metamodel.addRelationshipTypeView(reltypeview);
-            // console.log("Importing reltypeview: " + item.id + ", " + item.name);
+            if (debug) console.log("Importing reltypeview: " + item.id + ", " + item.name);
         }
     }
     importProperty(item: any, metamodel: cxMetaModel) {
@@ -577,6 +579,8 @@ export class cxMetis {
                     rel.setType(reltype);
                     rel.setFromObject(fromObj);
                     rel.setToObject(toObj);
+                    fromObj.addOutputrel(rel);
+                    toObj.addInputrel(rel);
                     rel.deleted = item.deleted;
                     model.addRelationship(rel);
                 }
@@ -645,7 +649,7 @@ export class cxMetis {
                     }
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
-                    // console.log("Importing object: " + item.id + ", " + item.name);
+                    if (debug) console.log("Importing object: " + item.id + ", " + item.name);
                 }
             }
         }
@@ -1366,7 +1370,7 @@ export class cxMetis {
             let obj = null;
             while (i < objects.length) {
                 obj = objects[i];
-                // console.log(obj);
+                if (debug) console.log(obj);
                 if (obj) {
                     let type = obj.getType();
                     if (type) {
@@ -2760,7 +2764,7 @@ export class cxType extends cxMetaObject {
         // if (prop.class === "cxProperty") {
         //     if (!this.properties)
         //         this.properties = new Array();
-        //     console.log('2577 addProperty', prop, this.properties);
+        //     if (debug) console.log('2577 addProperty', prop, this.properties);
         //     this.properties.push(prop);
         // }
     }
@@ -3809,12 +3813,12 @@ export class cxModel extends cxMetaObject {
     // repair() {
     //     // Get all modelviews
     //     const modelviews = this.getModelViews();
-    //     console.log('No of modelviews: ', modelviews?.length);
+    //     if (debug) console.log('No of modelviews: ', modelviews?.length);
     //     for (let i=0; i<modelviews?.length; i++) {
     //     //  Get all objectviews
     //         const modelview = modelviews[i];
     //         const objviews = modelview.getObjectViews();
-    //         console.log('No of objectviews: ', objviews?.length);
+    //         if (debug) console.log('No of objectviews: ', objviews?.length);
     //     //  For each objectview
     //         for (let j=0; j<objviews?.length; j++) {
     //             const objview = objviews[j];
@@ -3825,7 +3829,7 @@ export class cxModel extends cxMetaObject {
     //                 let obj0 = this.findObject(objid);
     //     //    If (!object)
     //                 if (!obj0) {
-    //                     console.log('Object not found in model:', objid);
+    //                     if (debug) console.log('Object not found in model:', objid);
     //                     let obj1 = this.metis.findObject(objid);
     //                     if (obj1) {
     //                         this.addObject(obj1);
@@ -3851,11 +3855,11 @@ export class cxModel extends cxMetaObject {
     //                     }
     //                 }
     //             }
-    //             console.log('objview completed:', objview);
+    //             if (debug) console.log('objview completed:', objview);
     //         }
-    //         console.log('modelview completed:', modelview);
+    //         if (debug) console.log('modelview completed:', modelview);
     //     }
-    //     console.log('repair completed');
+    //     if (debug) console.log('repair completed');
     // }
     addReferencedItem(ref: any, id: string) {
         if (ref === 'metamodelRef') {
@@ -4388,7 +4392,7 @@ export class cxInstance extends cxMetaObject {
             if (type) {
                 const prop = type.findProperty(id);
                 if (prop) {
-                    console.log("Function 'addStringValue' not yet implemented!")
+                    if (debug) console.log("Function 'addStringValue' not yet implemented!")
                     /*
                     let val = new cxValue(prop.id, "string", strval, unit);
                     if (this.getValueset() == null)

@@ -1,4 +1,5 @@
 // @ts-nocheck
+const debug = false;
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
@@ -29,7 +30,7 @@ export function askForTargetModel(context: any, create: boolean) {
         return;
     } else {
         let model = myMetis.findModelByName(mname); 
-        // console.log('67 askForModel', model, myMetis);
+        if (debug) console.log('33 askForTargetModel', model, myMetis);
         if (create && model) {
             alert("Model already exists");
             return;
@@ -37,14 +38,14 @@ export function askForTargetModel(context: any, create: boolean) {
         if (!model) {
             if (confirm("Create new model '" + mname + "' ?")) {
                 model = new akm.cxModel(utils.createGuid(), mname);
-                console.log('40 ui_generateTypes', mname, model);
+                if (debug) console.log('41 ui_generateTypes', mname, model);
                 myMetis.addModel(model);
             } else {
                 alert("Operation was cancelled!");
                 return;
             }
         }
-        console.log('72 myMetis', myMetis);
+        if (debug) console.log('48 myMetis', myMetis);
         return model;
     }
 }
@@ -53,7 +54,7 @@ export function askForMetamodel(context: any, create: boolean, hideEKA: boolean)
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const metamodels = myMetis.metamodels;
-    console.log('56 ui_gererateTypes', context);
+    if (debug) console.log('56 ui_gererateTypes', context);
     
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
@@ -81,7 +82,7 @@ export function askForMetamodel(context: any, create: boolean, hideEKA: boolean)
             alert("Metamodel already exists");
             return;
         }
-        console.log('67 askForMetamodel', myMetis);
+        if (debug) console.log('67 askForMetamodel', myMetis);
         if (!metamodel) {
             if (confirm("Create new metamodel '" + mmname + "' ?")) {
                 metamodel = new akm.cxMetaModel(utils.createGuid(), mmname);
@@ -91,7 +92,7 @@ export function askForMetamodel(context: any, create: boolean, hideEKA: boolean)
                 return;
             }
         }
-        console.log('72 myMetis', myMetis);
+        if (debug) console.log('72 myMetis', myMetis);
         return metamodel;
     }
 } 
@@ -101,7 +102,7 @@ export function askForTargetMetamodel(context: any, create: boolean) {
     const myMetamodel = context.myMetamodel;
     const myTargetMetamodel = context.myTargetMetamodel;
     const metamodels = myMetis.metamodels;
-    console.log('102 myTargetMetamodel', myTargetMetamodel);
+    if (debug) console.log('102 myTargetMetamodel', myTargetMetamodel);
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
         const mm = metamodels[i];
@@ -127,19 +128,19 @@ export function askForTargetMetamodel(context: any, create: boolean) {
             alert("Target metamodel does not exist!");
             return;
         }
-        console.log('67 askForTargetMetamodel', myMetis);
+        if (debug) console.log('131 askForTargetMetamodel', myMetis);
         if (create && !metamodel) {
             if (confirm("Create new targetmetamodel '" + mmname + "' ?")) {
                 metamodel = new akm.cxMetaModel(utils.createGuid(), mmname);
                 if (metamodel) {
                     const goMetamodel = new gjs.goModel(utils.createGuid(), metamodel.name);
                     goMetamodel.metamodel = metamodel;
-                    console.log('750 New Metamodel', goMetamodel);
+                    if (debug) console.log('138 New Metamodel', goMetamodel);
                     const modifiedMetamodels = new Array();
                     modifiedMetamodels.push(goMetamodel);
                     modifiedMetamodels.map(mn => {
                         let data = mn;
-                        console.log('755 data', data);
+                        if (debug) console.log('143 data', data);
                         context.dispatch({ type: 'SET_GOJS_METAMODEL', data });
                     });
                 }
@@ -150,7 +151,7 @@ export function askForTargetMetamodel(context: any, create: boolean) {
             }
         }
         myMetis.currentTargetMetamodel = metamodel;
-        console.log('72 myMetis', myMetis);
+        if (debug) console.log('154 myMetis', myMetis);
         return metamodel;
     }
 } 
@@ -163,7 +164,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (!object) {
         return;
     }
-    // console.log('163 myMetis', myMetis);
+    if (debug) console.log('167 myMetis', myMetis);
     const obj = myMetis.findObject(object.id);
     let proptypes  = new Array();
     let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
@@ -175,12 +176,12 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.properties = properties;
         myTargetMetamodel?.addObjectType(objtype);
         myMetis.addObjectType(objtype);
-        // console.log('175 myMetis', myMetis);
+        if (debug) console.log('179 myMetis', myMetis);
         // Create objecttypeview
         const id = utils.createGuid();
         const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
         objtypeview.applyObjectViewParameters(objview);
-        console.log('183 generateObjectType', objtypeview);
+        if (debug) console.log('184 generateObjectType', objtypeview);
         objtype.typeview = objtypeview;
         objtype.typeviewRef = objtypeview.id;
         objtype.setModified(true);
@@ -193,11 +194,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             myMetis.addObjtypeGeo(objtypegeo);
             myTargetMetamodel.objtypegeos.push(objtypegeo);
         } 
-        console.log('195 generateObjectType', myMetis);
+        if (debug) console.log('197 generateObjectType', myMetis);
     } else {
         objtype = myMetis.findObjectType(objtype.id);
     }
-    // console.log('193 myMetis', myMetis);
+    if (debug) console.log('201 myMetis', myMetis);
     let parentType: akm.cxObjectType | null = null;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (objtype) {
@@ -222,7 +223,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             myMetamodel.addRelationshipType(parentRelType);
             myMetis.addRelationshipType(parentRelType);
         }
-        console.log('223 generateObjectType', myMetis);
+        if (debug) console.log('226 generateObjectType', myMetis);
         // Find properties connected to current object
         const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
         if (!rels) {
@@ -242,7 +243,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }         
-    console.log('169 generateObjectType', proptypes);
+    if (debug) console.log('246 generateObjectType', proptypes);
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -282,7 +283,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }
-    // console.log('209 generateObjectType', myMetis, objtype);
+    if (debug) console.log('286 generateObjectType', myMetis, objtype);
     return objtype;
 }
 
@@ -370,7 +371,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             }
         }
         myTargetMetamodel.addDatatype(datatype);
-        console.log('222 generateDatatype', myMetis);
+        if (debug) console.log('374 generateDatatype', myMetis);
         return datatype;
     }
 }

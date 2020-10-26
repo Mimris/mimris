@@ -110,7 +110,7 @@ const EditFocusModel = (props) => {
             </>
 
   const modalheader = (props.modelType === 'modelview' || 'modelview' ) 
-    ? (props.buttonLabel === 'M') ? 'Edit Model Properties:' : 'Edit Model Properties:'
+    ? (props.buttonLabel === 'M') ? 'Edit Model Properties:' : 'Edit Properties:'
     : (props.modelType === 'model')  
       ? (props.buttonLabel === 'O') ? 'Edit Objectview:' : 'Edit Relshipview'
       : (props.buttonLabel === 'O') ? 'Edit Objecttype:' : 'Edit Relshiptype'

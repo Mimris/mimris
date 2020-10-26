@@ -10,8 +10,6 @@ import useLocalStorage  from '../hooks/use-local-storage'
 import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 
-const debug = false
-
 const LoadLocal = (props: any) => {
   const debug = true
   const dispatch = useDispatch()  
@@ -21,7 +19,7 @@ const LoadLocal = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  // console.log('20 LoadLocal',  modelNames, metamodelNames);
+  if (debug) console.log('20 LoadLocal',  modelNames, metamodelNames);
   
   // try {  
   //   if (typeof window === 'undefined'){
@@ -39,7 +37,7 @@ const LoadLocal = (props: any) => {
   const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false
   // let memoryStatus = false
-  // console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
+  if (debug) console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
   
   function handleDispatchToStoreFromLocal() {  // load store from Local
     locStatus = true
@@ -91,7 +89,7 @@ const LoadLocal = (props: any) => {
 
   function handleSaveAllToLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});
-    // if (debug) console.log('72 SelectSource', state, props.ph);
+    if (debug) console.log('72 SelectSource',  props.ph);
     const data = {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,

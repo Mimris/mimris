@@ -11,7 +11,7 @@ import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 
 const LoadLocal = (props: any) => {
-  const debug = true
+  const debug = false
   const dispatch = useDispatch()  
   const refresh = props.refresh
   const setRefresh = props.setRefresh
@@ -37,7 +37,7 @@ const LoadLocal = (props: any) => {
   const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false
   // let memoryStatus = false
-  if (debug) console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
+
   
   function handleDispatchToStoreFromLocal() {  // load store from Local
     locStatus = true

@@ -20,8 +20,8 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
-
-  // console.log('17 Modelling', props);
+  const debug = true
+  // if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -46,7 +46,8 @@ const page = (props:any) => {
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  // console.log('47 Modelling', props.phGojs?.gojsTargetModel);
+
+  if (debug) console.log('49 Modelling', props.phGojs);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -87,10 +88,10 @@ const page = (props:any) => {
         console.log('86 Diagram useEffect 2', props); 
         genGojsModel(props, dispatch);
         // focusModel = props.phFocus?.focusModel
-        function refres() {
-          setRefresh(!refresh)
-        }
-        setTimeout(refres, 1);
+        // function refres() {
+          // setRefresh(!refresh)
+        // }
+        // setTimeout(refres, 1);
     }, [focusModelview?.id])
 
     useEffect(() => {

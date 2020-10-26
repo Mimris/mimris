@@ -116,15 +116,15 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
                 <Card className="bg-info" body outline color="primary" >
                   <CardHeader>Blog </CardHeader>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Alfa Release 2020.10.16</CardTitle>
                     <CardText>
-                    1st version of AKMM awailable on Heroku! sf  
+                      Bugfix and added download upload of models from file. AKMM on akmclient-beta.heroku.com! sf  
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Alfa Release 2020.10.16</CardTitle>
                     <CardText>
-                      2nd version of AKMM on Heroku! sf  
+                      1st working version of AKMM on akmclient-beta.heroku.com! sf  
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
@@ -134,9 +134,15 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Alfa Release 2020.10.16</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
                     <CardText>
-                      1st working version of AKMM on akmclient-beta.heroku.com! sf  
+                      2nd version of AKMM on Heroku! sf  
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
+                    <CardText>
+                    1st version of AKMM awailable on Heroku! sf  
                     </CardText>
                   </CardBody>
                 </Card>

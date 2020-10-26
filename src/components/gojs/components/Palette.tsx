@@ -72,7 +72,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           $(go.Palette,       // must name or refer to the DIV HTML element
             {
               initialContentAlignment: go.Spot.Top,       // center the content
-              initialAutoScale: go.Diagram.Uniform,
+              // initialAutoScale: go.Diagram.Uniform,
               maxSelectionCount: 1,
               layout: $(go.GridLayout,
                 {
@@ -125,7 +125,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     { 
                       defaultRowSeparatorStroke: "black",
                       //minSize: new go.Size(200, 50),
-                      maxSize: new go.Size(200, 999),
+                      maxSize: new go.Size(100, 999),
                       margin: new go.Margin(6, 10, 0, 0),
                       defaultAlignment: go.Spot.Left
                     },

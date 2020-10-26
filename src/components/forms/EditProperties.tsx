@@ -234,8 +234,8 @@ const EditProperties = (props) => {
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
       (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
       (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
-      (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') &&
-      (p !== 'datatypes') && (p !== 'relshiptypes') &&
+      (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') && (p !== 'pasteViewsOnly') && (p !== 'deleteViewsOnly') &&
+      (p !== 'datatypes') && (p !== 'relshiptypes') && (p !== 'inputrels') &&(p !== 'outputrels') &&
       (p.slice(-3) !== 'Ref') &&
       (p !== 'unittypes') && (p !== 'objtypegeos') )
       //  (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')

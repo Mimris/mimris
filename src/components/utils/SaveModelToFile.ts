@@ -1,8 +1,8 @@
 
 
 
-export const SaveModelToFile = (model, name) => {
-    const fileName = "model-"+name;
+export const SaveModelToFile = (model, name, type) => {
+    const fileName = type+"-"+name;
     const json = JSON.stringify(model);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
@@ -34,12 +34,47 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 ...props.phData,
                 metis: {
                     ...props.phData.metis,
+                    metamodels: props.phData.metis.metamodels,   
                     models: [
                         ...props.phData.metis.models.slice(0, mindex),     
                         modelff,
                         ...props.phData.metis.models.slice(mindex + 1, props.phData.metis.models.length),
                     ],
-                    metamodels: props.phData.metis.metamodels,   
+                },
+            }, 
+        };
+        console.log('46 LoadLocal', data);
+        
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+    };
+    reader.readAsText(e.target.files[0])
+  }
+
+
+export const ReadMetamodelFromFile = async (props, dispatch, e) => {
+    e.preventDefault()
+    const reader = new FileReader()
+    reader.onload = async (e) => { 
+        const text = (e.target.result)
+        const metamodelff = JSON.parse(text)
+        //   alert(text)
+        console.log('25 LoadLocal', props);
+        let  mmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
+        const mmlength = props.phData?.metis?.metamodels.length
+        if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
+        console.log('30 LoadLocal', metamodelff, mmindex, mmlength);
+        
+        const data = {
+            phData: {
+                ...props.phData,
+                metis: {
+                    ...props.phData.metis,
+                    metamodels: [
+                        ...props.phData.metis.metamodels.slice(0, mmindex),     
+                        metamodelff,
+                        ...props.phData.metis.metamodels.slice(mmindex + 1, props.phData.metis.metamodels.length),
+                    ],
+                    models: props.phData.metis.models,   
                 },
             }, 
         };

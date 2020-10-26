@@ -8,7 +8,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
-import { SaveModelToFile, ReadModelFromFile } from './utils/SaveModelToFile';
+import { SaveModelToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 
 
 
@@ -157,9 +157,14 @@ const LoadLocal = (props: any) => {
     // console.log('62 LoadLocal', state);
   }
 
-  function handleSaveToFile() {
-    let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    SaveModelToFile(reduxmod, reduxmod.name)
+  function handleSaveModelToFile() {
+    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
+    SaveModelToFile(model, model.name, 'Model')
+  }
+  function handleSaveMetamodelToFile() {
+    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
+    const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) // current model index
+    SaveModelToFile(metamodel, metamodel.name, 'Metamodel')
   }
 
   const { buttonLabel, className } = props;
@@ -170,7 +175,8 @@ const LoadLocal = (props: any) => {
   const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
 
-  const buttonSaveModelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveToFile} > Download Current Model to File </button >
+  const buttonSaveModelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveModelToFile} > Download Current Model to File </button >
+  const buttonSaveMetamodelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveMetamodelToFile} > Download Current Metamodel to File </button >
 
   const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
   
@@ -195,7 +201,15 @@ const LoadLocal = (props: any) => {
               </div>
               <div className="select">
                 <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-                <h6>Local File </h6>
+                <h6>Local Metamodel File </h6>
+                {buttonSaveMetamodelToFileDiv}
+                <div> Import Metamodel from File (json) :
+                  <input type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
+                </div>
+              </div>
+              <div className="select">
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                <h6>Local Model File </h6>
                 {buttonSaveModelToFileDiv}
                 <div> Import Model from File (json) :
                   <input type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />

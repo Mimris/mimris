@@ -32,6 +32,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             return null;
         if (debug) console.log('31 createObject', myMetis, data);
         let obj = data.object;
+        obj = myMetis.findObject(obj.id);
         if (!myModel.pasteViewsOnly) {
             let guid = utils.createGuid();
             obj = new akm.cxObject(guid, data.name, objtype, data.description);
@@ -189,16 +190,17 @@ export function updateObject(data: any, name: string, value: string, context: an
     if ((data === null) || (name !== "name") || (!data.object)) {
         return;
     } else {
-        const metis           = context.myMetis;
+        const myMetis         = context.myMetis;
         const myModel         = context.myModel;
         const myModelView     = context.myModelView;
         const myDiagram       = context.myDiagram;
         let currentObject     = data.object;
+        currentObject         = myMetis.findObject(currentObject.id);
         let currentObjectView = data.objectview;
         let otype             = data.objecttype;
         if (currentObject.name === otype?.name) {
             // This is a new object - check if the new name already exists
-            const obj = metis.findObjectByTypeAndName(otype, data.name);
+            const obj = myMetis.findObjectByTypeAndName(otype, data.name);
             if (obj) {
                 // Existing object
                 utils.removeElementFromArray(myModel.getObjects(), currentObject.getId());
@@ -207,10 +209,10 @@ export function updateObject(data: any, name: string, value: string, context: an
                 myModelView?.addObjectView(currentObjectView);
             } 
         } else {
-            const obj = metis.findObject(currentObject.id);
+            const obj = myMetis.findObject(currentObject.id);
             if (obj) {
                 currentObject = obj;
-                currentObjectView = metis.findObjectView(currentObjectView.id);
+                currentObjectView = myMetis.findObjectView(currentObjectView.id);
             }
         }
         currentObject.setName(value);
@@ -379,18 +381,29 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             myGoModel.nodes = nodes;
         }
         let node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
-        if (debug) console.log('381 deleteNode', node);
+        if (debug) console.log('384 delete node', node);
         if (node) {
+            // Handle deleteViewsOnly
+            if (myMetis.currentModel.deleteViewsOnly) {
+                const objview = node.objectview;
+                objview.deleted = deletedFlag;
+                const delNode = new gql.gqlObjectView(objview);
+                deletedNodes.push(delNode);
+                if (debug) console.log('392 delete objview', objview);
+                return;
+            }
+            // Else handle delete object AND object views
+            // First delete object
             const object = node.object;
+            object.deleted = deletedFlag;          
+            const gqlObj = new gql.gqlObject(object);
+            deletedObjects.push(gqlObj);            
+            // Then handle all object views of the deleted object
             const objviews = object?.objectviews;
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
                 if (objview) {
                     deleteObjectView(objview, deletedFlag, deletedNodes, deletedObjects, deletedTypeviews, context);
-                    // Register change in gql
-                    const delNode = new gql.gqlObjectView(objview);
-                    deletedNodes.push(delNode);
-                    if (debug) console.log('392 deleteNode', objview);
                 }
             }
             let connectedRels = object?.inputrels;
@@ -398,8 +411,9 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
                     rel.deleted = deletedFlag;
-                    const gqlRel = new gql.gqlRelationship(relship);
+                    const gqlRel = new gql.gqlRelationship(rel);
                     deletedRelships.push(gqlRel);
+                    if (debug) console.log('416 delete rel', rel);
                 }
             }
             connectedRels = object?.outputrels;
@@ -407,8 +421,9 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
                     rel.deleted = deletedFlag;
-                    const gqlRel = new gql.gqlRelationship(relship);
+                    const gqlRel = new gql.gqlRelationship(rel);
                     deletedRelships.push(gqlRel);
+                    if (debug) console.log('426 delete rel', rel);
                 }
             }
         }
@@ -422,10 +437,6 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
     if (object) {
         const oviews = myMetis.getObjectViewsByObject(object.id);
         if (!myMetis.currentModel.deleteViewsOnly) {
-            // Handle object
-            object.deletedFlag = true;
-            const gqlObj = new gql.gqlObject(object);
-            deletedObjects.push(gqlObj);
             // Handle object views
             if (oviews) {
                 const noViews = oviews.length;
@@ -433,6 +444,7 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
                     // handle each objectview
                     const oview = oviews[i];
                     oview.deleted = deletedFlag;
+                    if (debug) console.log('447 delete oview', oview);
                     // Register change in gql
                     const gqlObjview = new gql.gqlObjectView(oview);
                     gqlObj.addObjectView(gqlObjview);
@@ -449,14 +461,15 @@ export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boo
 
     const object = objview?.object;
     const objtype  = object?.type;
-    const typeView = objview?.typeview;
+    const typeview = objview?.typeview;
     const defaultTypeview = objtype?.typeview;
-    if (typeView && defaultTypeview) {
-        if (typeView.id !== defaultTypeview.id) {
-            if (typeView.deleted !== deletedFlag) {
-                typeView.deleted = deletedFlag;
+    if (typeview && defaultTypeview) {
+        if (typeview.id !== defaultTypeview.id) {
+            if (typeview.deleted !== deletedFlag) {
+                typeview.deleted = deletedFlag;
+                if (debug) console.log('470 delete typeview', typeview);
                 // Register change in gql
-                const gqlTypeview = new gql.gqlObjectTypeView(typeView);
+                const gqlTypeview = new gql.gqlObjectTypeView(typeview);
                 deletedTypeviews.push(gqlTypeview);
             }
         }
@@ -464,44 +477,73 @@ export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boo
 }
 
 export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[], deletedRelships: any[], context: any) {
-    //const myMetamodel = context.myMetamodel;
+    const myMetamodel = context.myMetamodel;
     const myMetis     = context.myMetis;
     const myGoModel   = context.myGoMetamodel;
-    //const myDiagram   = context.myDiagram;
 
+    // Replace myGoModel.nodes with a new array
     const links = new Array();
     for (let i = 0; i < myGoModel?.links.length; i++) {
         let l = myGoModel.links[i];
         links.push(l);
     }
     myGoModel.links = links;
-    const link = myGoModel?.findLink(data.key);
+    const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
+    if (debug) console.log('492 deleteLink', link);
     if (link) {
-      const relview = link.relshipview;
-      if (relview) {
+        // Handle deleteViewsOnly
+        if (myMetis.currentModel.deleteViewsOnly) {
+            const relview = link.relshipview;
+            relview.deleted = deletedFlag;
+            const delLink = new gql.gqlRelshipView(relview);
+            deletedLinks.push(delLink);
+            if (debug) console.log('500 deleteLink', relview);
+            return;
+        }
+        // Else handle delete relships AND relship views
+        // First delete object
         const relship = relview.relship;
         if (relship) {
             relview.deleted = deletedFlag;
-            const gqlRelview = new gql.gqlRelshipView(rview);
+            const gqlRelview = new gql.gqlRelshipView(relview);
             deletedLinks.push(delLink);
             const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {
                     const rview = rviews[i];
-                    rview.deleted = deletedFlag;
-                    const gqlRelview = new gql.gqlRelshipView(rview);
-                    deletedLinks.push(delLink);
+                    if (!rview.deleted) {
+                        rview.deleted = deletedFlag;
+                        const gqlRelview = new gql.gqlRelshipView(rview);
+                        deletedLinks.push(delLink);
+                        if (debug) console.log('517 deleteLink', rview);
+                        // Handle relshiptypeview
+                        deleteRelshipTypeView(rview, deletedFlag, deletedTypeviews);
+                    }
                 }
             }
-            if (!myMetis.currentModel.deleteViewsOnly) {
-                relship.deleted = deletedFlag;
-                const delRelship = new gql.gqlRelationship(relship);
-                deletedRelships.push(delRelship);
-            }
-        }
-      }
+        }      
     }
 }
+
+export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFlag: boolean, deletedTypeviews: any) {
+
+    const relship = relview?.object;
+    const reltype  = relship?.type;
+    const typeview = relview?.typeview;
+    const defaultTypeview = reltype?.typeview;
+    if (typeview && defaultTypeview) {
+        if (typeview.id !== defaultTypeview.id) {
+            if (typeview.deleted !== deletedFlag) {
+                typeview.deleted = deletedFlag;
+                if (debug) console.log('536 delete typeview', typeview);
+                // Register change in gql
+                const gqlTypeview = new gql.gqlRelshipTypeView(typeview);
+                deletedTypeviews.push(gqlTypeview);
+            }
+        }
+    }
+}
+
 
 export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
     goModel: gjs.goModel,

@@ -400,6 +400,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const relview = data.relshipview;
                 if (relview) {
                   relview.deleted = deletedFlag;
+                  relview.relship = myMetis.findRelationship(relview.relship.id);
                   const gqlRelview = new gql.gqlRelshipView(relview);
                   modifiedLinks.push(gqlRelview);
                   if (debug) console.log('403 SelectionDeleted', modifiedLinks);
@@ -624,9 +625,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (selected.class === 'goRelshipLink') {
                 if (debug) console.log('543 ClipboardPasted', selected);
                 const link = selected;
-                const relview = uic.pasteRelationship(link, pastedNodes, context);
+                let relview = uic.pasteRelationship(link, pastedNodes, context);
                 if (debug) console.log('546 relview', link, relview);
                 if (relview) {
+                  const relid = relview.relship.id;
+                  relview.relship = myMetis.findRelationship(relid);
                   const gqlRelview = new gql.gqlRelshipView(relview);
                   if (debug) console.log('549 ClipboardPasted', gqlRelview);
                   modifiedLinks.push(gqlRelview);
@@ -651,6 +654,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (fromNode?.class === 'goObjectNode') {
               const relview = uic.createRelationship(link.data, context);
               if (relview) {
+                relview.relship = myMetis.findRelationship(relview.relship.id);
                 const gqlRelview = new gql.gqlRelshipView(relview);
                 if (debug) console.log('576 LinkDrawn', link, gqlRelview);
                 modifiedLinks.push(gqlRelview);

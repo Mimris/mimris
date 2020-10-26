@@ -236,7 +236,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const gqlObjview = new gql.gqlObjectView(myNode.objectview);
                     modifiedNodes.push(gqlObjview);
                     const gqlObj = new gql.gqlObject(myNode.objectview.object);
-                    gqlObj.addObjectView(gqlObjview);
                     modifiedObjects.push(gqlObj);
                   }
                 }
@@ -504,7 +503,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 modifiedNodes.push(gqlObjview);
                 // if (debug) console.log('406 New object', gqlNode, modifiedNodes);
                 const gqlObj = new gql.gqlObject(objview.object);
-                gqlObj.addObjectView(gqlObjview);
                 modifiedObjects.push(gqlObj);
                 // if (debug) console.log('409 New object', gqlObj);
               }
@@ -611,7 +609,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                   modifiedNodes.push(gqlObjview);
                   if (debug) console.log('532 ClipboardPasted', modifiedNodes);
                   const gqlObj = new gql.gqlObject(objview.object);
-                  gqlObj.addObjectView(gqlObjview);
                   modifiedObjects.push(gqlObj);
                   if (debug) console.log('535 ClipboardPasted', modifiedObjects);
                 }

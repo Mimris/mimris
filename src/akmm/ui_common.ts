@@ -24,17 +24,19 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (debug) console.log('26 createObject', data);
+        if (debug) console.log('27 createObject', data);
         data.objectview_0 = data.objectview;
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
-        if (debug) console.log('31 createObject', myMetis, data);
+        if (debug) console.log('33 createObject', myMetis, data);
         let obj = data.object;
-        obj = myMetis.findObject(obj.id);
-        if (!myModel.pasteViewsOnly) {
-            let guid = utils.createGuid();
+        if (debug) console.log('36 createObject', obj);
+        if (myModel.pasteViewsOnly) {
+            obj = myMetis.findObject(obj.id);
+        } else {
+            let guid = obj.id;
             obj = new akm.cxObject(guid, data.name, objtype, data.description);
             if (obj) {
                 data.object = obj;
@@ -447,7 +449,6 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
                     if (debug) console.log('447 delete oview', oview);
                     // Register change in gql
                     const gqlObjview = new gql.gqlObjectView(oview);
-                    gqlObj.addObjectView(gqlObjview);
                     deletedNodes.push(gqlObjview);
                     // Handle objecttypeview
                     deleteObjectTypeView(oview, deletedFlag, deletedTypeviews);
@@ -543,7 +544,6 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
         }
     }
 }
-
 
 export function changeNodeSizeAndPos(sel: gjs.goObjectNode,
     goModel: gjs.goModel,

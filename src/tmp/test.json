@@ -213,7 +213,7 @@
                         },
                         {
                             "id": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
-                            "name": "Generic Object",
+                            "name": "Generic",
                             "abstract": false,
                             "viewkind": "Object",
                             "typename": "Object type",
@@ -1313,6 +1313,50 @@
                             "description": "",
                             "deleted": false,
                             "modified": false
+                        },
+                        {
+                            "id": "2dea068f-d1bd-4d3c-7ab5-6ae413d152e6",
+                            "name": "",
+                            "description": "",
+                            "typeRef": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
+                            "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
+                            "loc": "-1140 -340",
+                            "size": "",
+                            "deleted": false,
+                            "modified": true
+                        },
+                        {
+                            "id": "636d735f-b466-4fb0-5db4-da83fc8be88b",
+                            "name": "",
+                            "description": "",
+                            "typeRef": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
+                            "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
+                            "loc": "-1140 -340",
+                            "size": "",
+                            "deleted": false,
+                            "modified": true
+                        },
+                        {
+                            "id": "1be3b026-26fa-474a-f4db-040130d53915",
+                            "name": "",
+                            "description": "",
+                            "typeRef": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
+                            "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
+                            "loc": "-1150 -340",
+                            "size": "",
+                            "deleted": false,
+                            "modified": true
+                        },
+                        {
+                            "id": "a594e880-1b95-452c-a8eb-174e82a6638b",
+                            "name": "",
+                            "description": "",
+                            "typeRef": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
+                            "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
+                            "loc": "-1150 -340",
+                            "size": "",
+                            "deleted": false,
+                            "modified": true
                         }
                     ],
                     "relshiptypeviews": [
@@ -6825,7 +6869,7 @@
                             "fillcolor": "white",
                             "strokecolor": "gray",
                             "strokewidth": "1",
-                            "icon": "info.svg",
+                            "icon": "https://img.icons8.com/color/2x/admin-settings-male.png",
                             "deleted": false,
                             "modified": false
                         },
@@ -12516,6 +12560,98 @@
                             ],
                             "deleted": false,
                             "modified": true
+                        },
+                        {
+                            "id": "2be78d67-5871-42a9-0311-84f69ca64561",
+                            "name": "Address",
+                            "description": "",
+                            "typeRef": "",
+                            "objectviews": [
+                                {
+                                    "id": "a4044a72-db54-4d94-e751-548e94baae0c",
+                                    "name": "Address",
+                                    "description": "",
+                                    "objectRef": "2be78d67-5871-42a9-0311-84f69ca64561",
+                                    "typeviewRef": "",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "20 -380",
+                                    "size": "",
+                                    "deleted": true,
+                                    "modified": false
+                                }
+                            ],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "cbe7fae9-37ae-47d1-5638-5f8c0d9d00d8",
+                            "name": "Company",
+                            "description": "",
+                            "typeRef": "",
+                            "objectviews": [
+                                {
+                                    "id": "8d6796e3-e77e-4fbc-2893-051efa785ef5",
+                                    "name": "Company",
+                                    "description": "",
+                                    "objectRef": "cbe7fae9-37ae-47d1-5638-5f8c0d9d00d8",
+                                    "typeviewRef": "",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "20 -280",
+                                    "size": "",
+                                    "deleted": true,
+                                    "modified": false
+                                }
+                            ],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "6e4ac991-f5ae-4cb2-e389-374c1b93a622",
+                            "name": "Person",
+                            "description": "",
+                            "typeRef": "",
+                            "objectviews": [
+                                {
+                                    "id": "a162be63-80f6-4748-7188-374a297f7187",
+                                    "name": "Person",
+                                    "description": "",
+                                    "objectRef": "6e4ac991-f5ae-4cb2-e389-374c1b93a622",
+                                    "typeviewRef": "",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "20 -480",
+                                    "size": "",
+                                    "deleted": true,
+                                    "modified": false
+                                }
+                            ],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "451da166-07f1-4e4c-95f7-7063bcdd41e4",
+                            "name": "View",
+                            "description": "",
+                            "typeRef": "ccbc200c-4463-4dd5-9fb9-3bba0cddcf85",
+                            "objectviews": [
+                                {
+                                    "id": "49bfdb4d-4abe-4aa1-834d-91a455897ffb",
+                                    "name": "View",
+                                    "description": "",
+                                    "objectRef": "451da166-07f1-4e4c-95f7-7063bcdd41e4",
+                                    "typeviewRef": "5fc01401-ae18-4ce3-b46c-bf9aa487d99c",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "-270 -380",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                }
+                            ],
+                            "deleted": false,
+                            "modified": true
                         }
                     ],
                     "relships": [],
@@ -12534,7 +12670,7 @@
                                     "typeviewRef": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
                                     "group": "",
                                     "isGroup": false,
-                                    "loc": "-240 -280",
+                                    "loc": "-270 -480",
                                     "size": "",
                                     "deleted": false,
                                     "modified": true
@@ -12548,6 +12684,58 @@
                                     "group": "",
                                     "isGroup": false,
                                     "loc": "-270 -580",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "a4044a72-db54-4d94-e751-548e94baae0c",
+                                    "name": "Address",
+                                    "description": "",
+                                    "objectRef": "2be78d67-5871-42a9-0311-84f69ca64561",
+                                    "typeviewRef": "",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "20 -380",
+                                    "size": "",
+                                    "deleted": true,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "8d6796e3-e77e-4fbc-2893-051efa785ef5",
+                                    "name": "Company",
+                                    "description": "",
+                                    "objectRef": "cbe7fae9-37ae-47d1-5638-5f8c0d9d00d8",
+                                    "typeviewRef": "",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "20 -280",
+                                    "size": "",
+                                    "deleted": true,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "a162be63-80f6-4748-7188-374a297f7187",
+                                    "name": "Person",
+                                    "description": "",
+                                    "objectRef": "6e4ac991-f5ae-4cb2-e389-374c1b93a622",
+                                    "typeviewRef": "",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "20 -480",
+                                    "size": "",
+                                    "deleted": true,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "49bfdb4d-4abe-4aa1-834d-91a455897ffb",
+                                    "name": "View",
+                                    "description": "",
+                                    "objectRef": "451da166-07f1-4e4c-95f7-7063bcdd41e4",
+                                    "typeviewRef": "5fc01401-ae18-4ce3-b46c-bf9aa487d99c",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "-270 -380",
                                     "size": "",
                                     "deleted": false,
                                     "modified": true
@@ -12589,16 +12777,16 @@
             "name": "Example concept model"
         },
         "focusModelview": {
-            "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",
-            "name": "Main"
+            "id": "b817b50f-0e03-45d3-7f50-7c82c58f7ac5",
+            "name": "TaskDef"
         },
         "focusObject": {
             "id": "8a2f98d3-ecde-4bf3-ec29-6495a9566e10",
             "name": "Property 1"
         },
         "focusObjectview": {
-            "id": "5cc84d82-a1b3-4cb5-7b43-adb80f848fc9",
-            "name": "Properties"
+            "id": "49bfdb4d-4abe-4aa1-834d-91a455897ffb",
+            "name": "View"
         },
         "focusRelship": {
             "id": null,
@@ -12609,8 +12797,8 @@
             "name": "hasAllowed"
         },
         "focusObjecttype": {
-            "id": "87574791-5d5c-4afe-1310-f4e0321c245a",
-            "name": "Task"
+            "id": "f68c6e1b-2778-40a6-5afa-bd6b3176b50d",
+            "name": "Generic"
         },
         "focusRelshiptype": {
             "id": "d761ad11-0719-468b-4f2b-f76958806d69",

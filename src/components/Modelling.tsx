@@ -229,7 +229,7 @@ const page = (props:any) => {
           <div className="workpad p-1 pt-2 bg-white" >
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-                <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "250px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+                <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
                     gojsModel={gojsmetamodelmodel}
@@ -271,7 +271,7 @@ const page = (props:any) => {
             <Row >
             <Col xs="auto m-0 p-0 pl-3">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-              <div className="myPalette px-1 mb-1 pt-0 text-white" style={{ minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+              <div className="myPalette px-1 mb-1 pt-0 text-white" style={{ maxWidth: "180px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}
@@ -309,7 +309,7 @@ const page = (props:any) => {
                 </div>
               </Col>
             <Col xs="auto m-0 p-0 pr-0">
-              <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+              <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "200px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
                 <TargetMeta
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
@@ -332,7 +332,7 @@ const page = (props:any) => {
           <div className="workpad p-1 pt-2 bg-white">
             <Row >
               <Col xs="auto m-0 p-0 pr-0">
-                <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+                <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "200px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
                   <TargetMeta
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
@@ -402,7 +402,8 @@ const page = (props:any) => {
             {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
           </span>
         </div> 
-        <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
+        <div className="modellingContent pt-1" >
+        {/* <div className="modellingContent pt-1" style={{  minWidth: "200px" }} > */}
           {/* {modellingtabs} */}
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>

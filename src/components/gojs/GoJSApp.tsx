@@ -450,7 +450,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
-            if (debug) console.log('382 GoJSApp', part);
+            if (debug) console.log('453 myMetis', myMetis);
+            if (debug) console.log('454 part', part);
             if (part.type === 'objecttype') {
               // if (part.viewkind === 'Object') {
               //     part.typename = constants.types.OBJECTTYPE_NAME;
@@ -480,6 +481,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             } else // object
             {
+              if (debug) console.log('484 myModel', myModel);
               if (part.parentModel == null)
                 myMetis.pasteViewsOnly = true;
               if (part.isGroup)

@@ -32,59 +32,67 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             return null;
         if (debug) console.log('33 createObject', myMetis, data);
         let obj = data.object;
-        if (debug) console.log('36 createObject', obj);
+        if (debug) console.log('35 createObject', obj);
         if (myModel.pasteViewsOnly) {
-            obj = myMetis.findObject(obj.id);
+            const pastedobj = myMetis.findObject(obj.id);
+            if (!pastedobj) {
+                // This is not a pasted object, create a new one
+                let guid = obj.id;
+                obj = new akm.cxObject(guid, data.name, objtype, data.description);
+                myModel.pasteViewsOnly = false;
+            } else 
+                obj = pastedobj;
         } else {
             let guid = obj.id;
             obj = new akm.cxObject(guid, data.name, objtype, data.description);
-            if (obj) {
-                data.object = obj;
-                myDiagram.model.setDataProperty(data, "object_0", data.object_0);
-                // Include the new object in the current model
-                myModel?.addObject(obj);
-                myMetis.addObject(obj);
-                if (debug) console.log('39 createObject', obj, myModel, myGoModel);
-            }
         }
-        // Create the corresponding object view
-        objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
-        if (objview) {
-            objview.setIsGroup(objtype?.isContainer());
-            objview.setLoc(data.loc);
-            objview.setSize(data.size);
-            data.objectview = objview;
-            // if (debug) console.log('47 createObject', data);
-            // Include the object view in the current model view
-            obj.addObjectView(objview);
-            myModelview.addObjectView(objview);
-            myMetis.addObjectView(objview);
-            // Then update the node with its new properties
-            // First set category and name
-            myDiagram.model.setDataProperty(data, "category", constants.C_OBJECT);
-            myDiagram.model.setDataProperty(data, "type", data.name);
-            // Then set reference to the object view                        
-            myDiagram.model.setDataProperty(data, "objectview", objview);
-            // Then set the view properties
-            // Get the object typeview
-            let objtypeView = objtype?.getDefaultTypeView();
-            if (context.pasted) 
-                objtypeView = data.typeview;
-            if (!objtypeView) {
-                const key = utils.createGuid();
-                objtypeView = new akm.cxObjectTypeView(key, key, objtype, "");
-            }
-            if (objtypeView) {
-                //objtypeView.setIsGroup1(data.isGroup);
-                objview.setTypeView(objtypeView);
-                let node = new gjs.goObjectNode(data.key, objview);
-                if (debug) console.log('69 createObject', node);
-                myGoModel.addNode(node);
-                updateNode(node, objtypeView, myDiagram);
-                node.loc = data.loc;
-                node.size = data.size;
-                if (debug) console.log('73 createObject', myGoModel);
-                return objview;
+        if (debug) console.log('49 createObject', obj, myMetis);
+        if (obj) {
+            data.object = obj;
+            myDiagram.model.setDataProperty(data, "object_0", data.object_0);
+            // Include the new object in the current model
+            myModel?.addObject(obj);
+            if (debug) console.log('55 createObject', obj, myModel, myMetis);
+            myMetis.addObject(obj);
+            // Create the corresponding object view
+            objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+            if (objview) {
+                objview.setIsGroup(objtype?.isContainer());
+                objview.setLoc(data.loc);
+                objview.setSize(data.size);
+                data.objectview = objview;
+                // if (debug) console.log('47 createObject', data);
+                // Include the object view in the current model view
+                obj.addObjectView(objview);
+                myModelview.addObjectView(objview);
+                myMetis.addObjectView(objview);
+                // Then update the node with its new properties
+                // First set category and name
+                myDiagram.model.setDataProperty(data, "category", constants.C_OBJECT);
+                myDiagram.model.setDataProperty(data, "type", data.name);
+                // Then set reference to the object view                        
+                myDiagram.model.setDataProperty(data, "objectview", objview);
+                // Then set the view properties
+                // Get the object typeview
+                let objtypeView = objtype?.getDefaultTypeView();
+                if (context.pasted) 
+                    objtypeView = data.typeview;
+                if (!objtypeView) {
+                    const key = utils.createGuid();
+                    objtypeView = new akm.cxObjectTypeView(key, key, objtype, "");
+                }
+                if (objtypeView) {
+                    //objtypeView.setIsGroup1(data.isGroup);
+                    objview.setTypeView(objtypeView);
+                    let node = new gjs.goObjectNode(data.key, objview);
+                    if (debug) console.log('88 createObject', node);
+                    myGoModel.addNode(node);
+                    updateNode(node, objtypeView, myDiagram);
+                    node.loc = data.loc;
+                    node.size = data.size;
+                    if (debug) console.log('93 createObject', myGoModel);
+                    return objview;
+                }
             }
         }
     }

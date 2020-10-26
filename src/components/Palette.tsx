@@ -1,4 +1,5 @@
 // @ts-nocheck
+const debug = false;
 import React, { useState } from "react";
 // import { Collapse, Button } from 'reactstrap'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
@@ -10,10 +11,10 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 
 const Palette = (props) => {
   
-  // console.log('13 Palette ',  props );
+  if (debug) console.log('13 Palette ',  props );
   const gojstypes = props.gojsMetamodel
   const gojsmodelobjects = props.gojsModelObjects // has to be: props.gojsObjects
-  console.log('16 Palette gojsobjects', gojsmodelobjects );
+  if (debug) console.log('16 Palette gojsobjects', gojsmodelobjects );
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -30,9 +31,9 @@ const Palette = (props) => {
   const toggleTip = () => setTooltipOpen(!tooltipOpen);
   /**  * Get the state and metie from the store,  */
     // const gojstypes = props.phFocus.gojsMetamodel
-    // console.log(' Palette', gojstypes);
-    // console.log('12 Palette', gojstypes.nodeDataArray);
-    // console.log('13 Palette', gojstypes.linkDataArray);
+    if (debug) console.log(' Palette', gojstypes);
+    if (debug) console.log('12 Palette', gojstypes.nodeDataArray);
+    if (debug) console.log('13 Palette', gojstypes.linkDataArray);
     
     const gojsapp = (gojstypes) &&
     <>

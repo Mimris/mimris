@@ -12,7 +12,7 @@ import { createHook } from "async_hooks";
 const TargetModeller = (props: any) => {
 
   const dispatch = useDispatch();
-  console.log('14 TargetMOdeller', props);
+  // console.log('14 TargetMOdeller', props);
   
 
   const gojsmodel = props.gojsTargetModel;
@@ -25,7 +25,7 @@ const TargetModeller = (props: any) => {
   let focusTargetModel = props.phFocus?.focusTargetModel
   let focusTargetModelview = props.phFocus?.focusTargetModelview
   
-  console.log('28 TargetModeller', props, focusTargetModel, focusTargetModelview);
+  // console.log('28 TargetModeller', props, focusTargetModel, focusTargetModelview);
   const models = props.metis?.models
   const model = models?.find((m: any) => m?.id === focusTargetModel?.id)
   const modelindex = models?.findIndex((m: any) => m?.id === focusTargetModel?.id)
@@ -43,7 +43,7 @@ const TargetModeller = (props: any) => {
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
-  console.log('36 TargetModeller', focusTargetModelview, selmods, modelviews);
+  // console.log('36 TargetModeller', focusTargetModelview, selmods, modelviews);
   let selmodels = selmods?.models?.map((m: any) => m)
   let selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)
   // console.log('33 Modeller', focusModel.name, focusModelview.name);

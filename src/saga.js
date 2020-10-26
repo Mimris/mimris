@@ -5,7 +5,8 @@ import { failure, loadDataSuccess } from './actions/actions';
 import { LOAD_DATA, FAILURE } from './actions/types';
 es6promise.polyfill()
 
-const localhost = 'http://localhost:4000/'
+const localhost = 'https://akmserver.herokuapp.com/'
+// const localhost = 'http://localhost:4000/'
 
 
 
@@ -24,14 +25,14 @@ function * loadDataSaga() {
         }
       }
     )
-      const metis = yield res.clone().json()
-      // console.log('63 Saga', metis);
-      yield put(loadDataSuccess({ metis }))
-    } catch (err) {
-      console.log('72 saga', failure(err));  
-      yield put(failure(err))
-    }
+    const metis = yield res.clone().json()
+    // console.log('63 Saga', metis);
+    yield put(loadDataSuccess({ metis }))
+  } catch (err) {
+    console.log('72 saga', failure(err));  
+    yield put(failure(err))
   }
+}
 
 // This version is for login server with credetials
 

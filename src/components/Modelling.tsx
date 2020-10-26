@@ -20,8 +20,8 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
-
-  console.log('17 Modelling', props);
+  const debug = true
+  // if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -46,7 +46,8 @@ const page = (props:any) => {
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
-  console.log('47 Modelling', props.phGojs?.gojsTargetModel);
+
+  if (debug) console.log('49 Modelling', props.phGojs);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -66,32 +67,35 @@ const page = (props:any) => {
     // }, [focusModel?.id])
 
     useEffect(() => {
-      console.log('68 Diagram useEffect 1 ', props ); 
+      // console.log('68 Diagram useEffect 1 ', props ); 
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
       // setRefresh(!refresh)
     }, [props.phData.metis])
-
-    // useEffect(() => {
-    //   // console.log('38 Diagram state', props ); 
-    //   // setRefresh(!refresh)
-    //   genGojsModel(props, dispatch);
-    //   gojsmodel = props.phGojs?.gojsModel 
-    // }, [])
-    // }, [props.phFocus?.focusModel, props.phFocus?.focusMetamodel])
     
-    useEffect(() => {
-      focusModelview = props.phFocus?.focusModelview
-      // setRefresh(!refresh)
-      // console.log('80 Diagram state', focusModelview, props.phGojs?.gojsModel.nodeDataArray ); 
-      console.log('86 Diagram useEffect 2', props); 
-      genGojsModel(props, dispatch);
-      // focusModel = props.phFocus?.focusModel
-      setRefresh(!refresh)
+    // useEffect(() => {
+      //   // console.log('38 Diagram state', props ); 
+      //   // setRefresh(!refresh)
+      //   genGojsModel(props, dispatch);
+      //   gojsmodel = props.phGojs?.gojsModel 
+      // }, [])
+      // }, [props.phFocus?.focusModel, props.phFocus?.focusMetamodel])
+      
+      useEffect(() => {
+        // focusModelview = props.phFocus?.focusModelview
+        // setRefresh(!refresh)
+        // console.log('80 Diagram state', focusModelview, props.phGojs?.gojsModel.nodeDataArray ); 
+        console.log('86 Diagram useEffect 2', props); 
+        genGojsModel(props, dispatch);
+        // focusModel = props.phFocus?.focusModel
+        // function refres() {
+          // setRefresh(!refresh)
+        // }
+        // setTimeout(refres, 1);
     }, [focusModelview?.id])
 
     useEffect(() => {
-      console.log('93 Modelling useEffect 3', props); 
+      // console.log('93 Modelling useEffect 3', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])
@@ -118,12 +122,12 @@ const page = (props:any) => {
           models: [
             ...memoryLocState?.phData?.metis.models.slice(0, curmindex),
             reduxmod,
-            ...memoryLocState?.phData?.metis.models.slice(curmindex + 1),
+            ...memoryLocState?.phData?.metis.models.slice(curmindex + 1, memoryLocState?.phData?.metis.models.lenght),
           ],
           metamodels: [
-            ...memoryLocState?.phData?.metis.models.slice(0, curmmindex),
+            ...memoryLocState?.phData?.metis.metamodels.slice(0, curmmindex),
             reduxmmod,
-            ...memoryLocState?.phData?.metis.models.slice(curmmindex + 1),
+            ...memoryLocState?.phData?.metis.metamodels.slice(curmmindex + 1, memoryLocState?.phData?.metis.metamodels.lenght),
           ]
         },
       },
@@ -131,7 +135,7 @@ const page = (props:any) => {
       phUser: props.phUser,
       phSource: 'localStore'
     };
-    // console.log('59 Modelling', reduxmod, data);
+    console.log('59 Modelling',  data);
     (reduxmod) && setMemoryLocState(data) 
     setRefresh(!refresh);
   }
@@ -173,14 +177,14 @@ const page = (props:any) => {
             {(activeTab === "2") ? 'Concept Modelling' : 'CM'}
           </NavLink>
         </NavItem>
-        <NavItem >
+        {/* <NavItem >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
             className={classnames({ active: activeTab === '3' })}
             onClick={() => { toggleTab('3'); toggleRefresh() }}
           >
             {(activeTab === "3") ? 'Solution Modelling' : 'SM'}
           </NavLink>
-        </NavItem>
+        </NavItem> */}
       </Nav>
       <TabContent  activeTab={activeTab} >  
       {/* Template */}
@@ -226,7 +230,7 @@ const page = (props:any) => {
           <div className="workpad p-1 pt-2 bg-white" >
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-                <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+                <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
                     gojsModel={gojsmetamodelmodel}
@@ -242,7 +246,7 @@ const page = (props:any) => {
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
-              <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+              <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmetamodelmodel}
@@ -254,6 +258,8 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='metamodel'
+                    // refresh={refresh}
+                    // toggleRefresh={toggleRefresh}
                   />
                 </div>
               </Col>
@@ -266,7 +272,7 @@ const page = (props:any) => {
             <Row >
             <Col xs="auto m-0 p-0 pl-3">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-              <div className="myPalette px-1 mb-1 pt-0 text-white" style={{ maxWidth: "152px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+              <div className="myPalette px-1 mb-1 pt-0 text-white" style={{ maxWidth: "180px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}
@@ -298,11 +304,13 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='model'
+                    refresh={refresh}
+                    toggleRefresh={toggleRefresh}
                   />
                 </div>
               </Col>
             <Col xs="auto m-0 p-0 pr-0">
-              <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+              <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "200px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
                 <TargetMeta
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
@@ -325,7 +333,7 @@ const page = (props:any) => {
           <div className="workpad p-1 pt-2 bg-white">
             <Row >
               <Col xs="auto m-0 p-0 pr-0">
-                <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+                <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "200px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
                   <TargetMeta
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
@@ -354,6 +362,8 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='model'
+                    // refresh={refresh}
+                    toggleRefresh={toggleRefresh}
                   />
                 </div>
               </Col>
@@ -393,7 +403,8 @@ const page = (props:any) => {
             {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
           </span>
         </div> 
-        <div className="modellingContent pt-1" style={{  minWidth: "200px" }} >
+        <div className="modellingContent pt-1" >
+        {/* <div className="modellingContent pt-1" style={{  minWidth: "200px" }} > */}
           {/* {modellingtabs} */}
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>

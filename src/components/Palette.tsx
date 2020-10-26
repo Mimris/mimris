@@ -9,11 +9,11 @@ import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 
 const Palette = (props) => {
-  
+  const debug = false
   // console.log('13 Palette ',  props );
   const gojstypes = props.gojsMetamodel
   const gojsmodelobjects = props.gojsModelObjects // has to be: props.gojsObjects
-  // console.log('16 Palette gojsobjects', gojsmodelobjects );
+  if (debug) console.log('16 Palette gojsobjects', gojsmodelobjects );
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -55,6 +55,7 @@ const Palette = (props) => {
         </NavItem>
       </Nav>
       <TabContent activeTab={activeTab} >
+        {/* TYPES */}
         <TabPane tabId="1">
           <div className="workpad p-1 pt-2 bg-white" >
             {/* <Row >
@@ -75,7 +76,7 @@ const Palette = (props) => {
             </Row> */}
           {/* </div> */}
         </TabPane>
-        {/* Modelling */}
+        {/* OBJECTS */}
         <TabPane tabId="2">
           <div className="workpad p-1 pt-2 bg-white">
             {/* <Row >
@@ -110,7 +111,6 @@ const Palette = (props) => {
           {visiblePalette 
            ? (refresh) ?<> { gojsapp } </> : <>{gojsapp}</>
             // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
-            
             : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - M e t a</span> </div>
           }
         </div>

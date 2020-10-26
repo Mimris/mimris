@@ -15,8 +15,8 @@ class MyDocument extends Document {
       <Html>
         <meta name="viewport" content="initial-scale = 0.8, maximum-scale = 1.0" />
         <meta charSet="utf-8" />
-        <title>Metis Modelling Platform</title>
-        <meta name="description" content="Description of the Metis Modelling Platform" />
+        <title>AKM Modelling Platform</title>
+        <meta name="description" content="AKM Modelling Platform is the base modelling tool for making Active Knowlege Models. It is built on the ideas and methods used in the Metis modelling tool developed by Metis in the 1990's. AKMM is built with modern web technologies like React, Nextjs, Redux, Nodejs" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {/* <meta name="viewport" content="height=device-height, initial-scale=1" /> */}
 

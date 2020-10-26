@@ -8,9 +8,10 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
+import { SaveModelToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 
 const LoadLocal = (props: any) => {
-
+  const debug = false
   const dispatch = useDispatch()  
   const refresh = props.refresh
   const setRefresh = props.setRefresh
@@ -18,7 +19,7 @@ const LoadLocal = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  // console.log('20 LoadLocal',  modelNames, metamodelNames);
+  if (debug) console.log('20 LoadLocal',  modelNames, metamodelNames);
   
   // try {  
   //   if (typeof window === 'undefined'){
@@ -31,19 +32,43 @@ const LoadLocal = (props: any) => {
   // }
 
   // const [state, setState] = useLocalStorage('state',  window.localStorage.getItem('state') || null);
+  if (typeof window === 'undefined') return
   const [locState, setLocState] = useLocalStorage('state', null);
+  const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false
-  // console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
+  // let memoryStatus = false
+
   
-  function handleDispatchToStoreFromLocal() {  // Set storeFromLocal
+  function handleDispatchToStoreFromLocal() {  // load store from Local
     locStatus = true
-    console.log('38 LoadLocal', locState);
-    
-    const phData = locState.phData
-    const phFocus = locState.phFocus
-    const phUser = locState.phUser
-    const phSource = 'localStore' //locState.sourceFlag
+
+    // console.log('43 LoadLocal', locState);
     if (locState) {
+      const phData = locState.phData
+      const phFocus = locState.phFocus
+      const phUser = locState.phUser
+      const phSource = 'localStore' //locState.sourceFlag
+      if (locState) {
+        // console.log('91 SelectSource', locState);
+        let data = phData
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+        data = phFocus
+        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
+        data = phUser
+        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
+        data = phSource
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
+      }
+    } else alert('No Modeles saved to Local Storage')
+  }
+  function handleDispatchToStoreFromMemory() {  // load store from localmemorystate
+    // memoryStatus = true
+    if (debug) console.log('63 LoadLocal', memoryState);
+    const phData = memoryState.phData
+    const phFocus = memoryState.phFocus
+    const phUser = memoryState.phUser
+    const phSource = 'localStore' //locState.sourceFlag
+    if (memoryState) {
       // console.log('91 SelectSource', locState);
       let data = phData
       dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
@@ -64,16 +89,15 @@ const LoadLocal = (props: any) => {
 
   function handleSaveAllToLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});
-    // console.log('72 SelectSource', state, props.ph);
+    if (debug) console.log('72 SelectSource',  props.ph);
     const data = {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     }
-    console.log('59 LoadLocal', data);
+    if (debug) console.log('59 LoadLocal', data);
     setLocState(data)
-    // console.log('62 LoadLocal', state);
   }
 
   function handleSaveCurrentModelToLocalStore() {
@@ -89,24 +113,13 @@ const LoadLocal = (props: any) => {
     // then find lenght of modellarray in lodalStore
     const curmmlength = locState.phData.metis.metamodels?.length   
     if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    let metamodels = [
-      ...locState.phData.metis.metamodels.slice(0, curmmindex),     
-      reduxmmod,
-      ...locState.phData.metis.metamodels.slice(curmmindex + 1),
-    ]
-    console.log('97 LoadLocal', metamodels);
     
     // then find currentTargetMetamodel
-    let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
+    let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
     let curtmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
     const curtmmlength = locState.phData.metis.metamodels?.length   
     if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    metamodels = [
-      ...metamodels.slice(0, curtmmindex),     
-      reduxtmmod,
-      ...metamodels.slice(curtmmindex + 1),
-    ]
-    console.log('73 LoadLocal', metamodels, curtmmindex, reduxtmmod);
+
     const data = {
       phData: {
         ...locState.phData,
@@ -117,45 +130,44 @@ const LoadLocal = (props: any) => {
             reduxmod,
             ...locState.phData.metis.models.slice(curmindex + 1),
           ],
-          // metamodels: [
-            metamodels
-          //   ...locState.phData.metis.metamodels.slice(0, curmmindex),     
-          //   reduxmmod,
-          //   ...locState.phData.metis.metamodels.slice(curmmindex + 1),
-          // ]
+          metamodels: [
+            ...locState.phData.metis.metamodels.slice(0, curmmindex),     
+            reduxmmod,
+            ...locState.phData.metis.metamodels.slice(curmmindex + 1, locState.phData.metis.metamodels.length),
+          ]
         },
       },
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     };
-    // console.log('59 LoadLocal', data);
+    // if (debug) console.log('59 LoadLocal', data);
     (reduxmod) && setLocState(data)
-    // console.log('62 LoadLocal', state);
   }
-  
-  // const buttonDiv = <button className="float-right bg-light" onClick={handleSetSession} > Get Saved Session</button >
-  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm ml-2 float-right w-50" onClick={handleSaveAllToLocalStore} > Save all to localStorage </button >
-  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mr-2 " onClick={handleDispatchToStoreFromLocal} > Load all from localStorage </button >
-  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mt-1 ml-2 float-right w-50" onClick={handleSaveCurrentModelToLocalStore} > Add current model to localStorage </button >
+
+  function handleSaveModelToFile() {
+    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
+    SaveModelToFile(model, model.name, 'Model')
+  }
+  function handleSaveMetamodelToFile() {
+    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
+    const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) // current model index
+    SaveModelToFile(metamodel, metamodel.name, 'Metamodel')
+  }
+
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-  // console.log('131', state);
+  
+  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mb-2 w-100" onClick={handleDispatchToStoreFromLocal} > Load all models from LocalStorage </button >
+  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
+  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
 
-  const buttonDiv = 
-    <>
-      <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
-      <div className="store-div px-2 pb-4 mb-0">
-        <h6>Local Store Actions</h6>
-        <div className="select pb-5" style={{ paddingTop: "4px" }}>
-          {buttonSaveToLocalStoreDiv}
-          {buttonLoadLocalStoreDiv}
-          {buttonSaveCurrentToLocalStoreDiv} 
-        </div>
-      </div>
-    </>
+  const buttonSaveModelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveModelToFile} > Download Current Model to File </button >
+  const buttonSaveMetamodelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveMetamodelToFile} > Download Current Metamodel to File </button >
 
+  const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
+  
   return (
     <>
       <button className="btn-context btn-link float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
@@ -166,16 +178,49 @@ const LoadLocal = (props: any) => {
           <div className="source bg-light pt-2 "> Models: <strong> {modelNames}</strong></div>
           <div className="source bg-light pt-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
           <div className="source bg-light pt-2 ">
-            {buttonDiv}
+            <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
+            <div className="store-div px-2 pb-1 mb-0">
+              <h6>Local Store </h6>
+              <div className="select" >
+                {buttonLoadLocalStoreDiv}
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#aaa", padding: "2px",  marginTop: "1px" , marginBottom: "6px" }} />
+                {buttonSaveCurrentToLocalStoreDiv} 
+                {buttonSaveToLocalStoreDiv}
+              </div>
+              <div className="select">
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                <h6>Local Metamodel File </h6>
+                {buttonSaveMetamodelToFileDiv}
+                <div> Import Metamodel from File (json) :
+                  <input type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
+                </div>
+              </div>
+              <div className="select">
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                <h6>Local Model File </h6>
+                {buttonSaveModelToFileDiv}
+                <div> Import Model from File (json) :
+                  <input type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+                </div>
+              </div>
+              <div className="select pt-1">
+                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                <h6>Crash Recover </h6>
+                <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
+                  If the browser hang or crash, first reload the page and before any other actions, click on the button below to recover your last work !
+                </div>
+                {buttonLoadMemoryStoreDiv}
+              </div>
+            </div>
           </div>
         </ModalBody>
         <ModalFooter>
-          <div style={{ fontSize: "smaller" }}>
-            NB! Clicking "Load local" will overwrite current store (memory).
-            To keep current version, click "Save to Local" to save to LocalStore before "Load local" .
+          <Button className="modal--footer m-0 py-1 px-2" color="primary" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
+          <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
+            Local Storage is controlled by the Internet Browser, and may at some point be deleted, if not enough memory.
+            <br />NB! Loding models from LocalStorage will overwrite current memory store.  To keep current work, click "Save all to LocalStorage".
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
         </ModalFooter>
       </Modal>
       <style jsx>{`
@@ -263,37 +308,3 @@ const LoadLocal = (props: any) => {
 
 export default LoadLocal
 
-
-
-// function handleSaveLocalStore() {
-//       // console.log('72 SelectSource', state, props.ph);
-//       const data = {
-//         phData: props.ph.phData,
-//         phFocus: props.ph.phFocus,
-//         phUser: props.ph.phUser,
-//         phSource: 'localStore'
-//       }
-//       // console.log('37', data);
-//       setState(data)
-//     }
-
-// function handleLoadLocalStore() {
-//       // console.log('42 LoadLocal', state);
-//       // const locState = loadState()
-//       const locState = state
-//       const phData = locState?.phData
-//       const phFocus = locState?.phFocus
-//       const phUser = locState?.phUser
-//       const phSource = 'localStore' //locState.sourceFlag
-//       if (locState) {
-//         console.log('91 SelectSource', locState);
-//         let data = phData
-//         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-//         data = phFocus
-//       dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
-//       data = phUser
-//       dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
-//       data = phSource
-//       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
-//     }
-//   }

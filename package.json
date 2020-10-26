@@ -10,8 +10,8 @@
     "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
     "dev": "tsc --downlevelIteration & node --trace-warnings ./database-test.js & next -p 3000",
     "startlocal": "next build & next -p 3000",
-    "start": "next build & next -p ${PORT}",
-    "starttmp": "tsc --downlevelIteration & node ./database-test.js & next build & next start -p ${PORT}",
+    "start0": "next build & next -p ${PORT}",
+    "start": "tsc --downlevelIteration & node ./database-test.js & next build & next start -p ${PORT}",
     "dev2": "react-scripts start  & next -p 3000",
     "start2": "next start -p 3000",
     "start3": "next start -p ${PORT}"

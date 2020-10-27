@@ -144,7 +144,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         linkDataArray: [] //myGoModel?.links
       }
   
-      // console.log('101 GenGojsModel gojsTargetMetamodel', gojsTargetMetamodel);
+      if (debug) console.log('101 GenGojsModel', myMetamodel, myModel, myPalette);
 
       // /** metamodel */
       const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => mm.id === curmod.metamodelRef);
@@ -214,7 +214,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview, metis);
+    if (debug) console.log('217 GenGojsModel', metis, modelview);
+    
+    const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
@@ -240,7 +242,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           myGoModel.addLink(link);
-          // console.log('177 buildGoModel - link', link, myGoModel);
+          if (debug) console.log('245 buildGoModel - link', link, myGoModel);
         }
       }
     }

@@ -57,7 +57,7 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
 
-  console.log('54 Modelling', focusModelview?.id);
+  // console.log('54 Modelling', focusModelview?.id);
   
     // useEffect(() => {
     //   // console.log('38 Diagram state', props ); 

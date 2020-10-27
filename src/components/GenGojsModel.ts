@@ -13,7 +13,7 @@ const glb = require('../akmm/akm_globals');
 const constants = require('../akmm/constants');
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
-  const debug = false
+  const debug = true
   if (debug) console.log('18 GenGojsModel props:', props);
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models

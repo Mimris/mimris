@@ -9,7 +9,7 @@
     "build": "tsc & next build",
     "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
     "dev": "tsc --downlevelIteration & node --trace-warnings ./database-test.js & next -p 3000",
-    "startlocal": "next build & next -p 3000",
+    "startlocal": "next -p 3000",
     "start": "next -p ${PORT}",
     "start0": "next build & next -p ${PORT}",
     "start1": "tsc --downlevelIteration & node ./database-test.js & next build & next start -p ${PORT}",

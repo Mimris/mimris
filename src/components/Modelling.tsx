@@ -47,7 +47,7 @@ const page = (props:any) => {
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
 
-  if (debug) console.log('49 Modelling', props.phGojs);
+  if (debug) console.log('49 Modelling', gojsmodel, gojsmodelobjects, props);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -57,7 +57,7 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
 
-  // console.log('54 Modelling', props.phGojs, gojsmodelobjects);
+  console.log('54 Modelling', focusModelview?.id);
   
     // useEffect(() => {
     //   // console.log('38 Diagram state', props ); 
@@ -67,7 +67,7 @@ const page = (props:any) => {
     // }, [focusModel?.id])
 
     useEffect(() => {
-      // console.log('68 Diagram useEffect 1 ', props ); 
+      console.log('68 Diagram useEffect 1 ', props ); 
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
       // setRefresh(!refresh)
@@ -88,10 +88,10 @@ const page = (props:any) => {
         console.log('86 Diagram useEffect 2', props); 
         genGojsModel(props, dispatch);
         // focusModel = props.phFocus?.focusModel
-        // function refres() {
-          // setRefresh(!refresh)
-        // }
-        // setTimeout(refres, 1);
+        function refres() {
+          setRefresh(!refresh)
+        }
+        setTimeout(refres, 1);
     }, [focusModelview?.id])
 
     useEffect(() => {

@@ -13,8 +13,8 @@ const glb = require('../akmm/akm_globals');
 const constants = require('../akmm/constants');
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
-
-  // console.log('17 GenGojsModel props:', props);
+  const debug = true
+  if (debug) console.log('18 GenGojsModel props:', props);
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
   // const modelviews = (metis) && metis.modelviews
@@ -32,7 +32,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myMetis = new akm.cxMetis();
       myMetis.importData(metis, true);
     // }
-    console.log('44 GenGojsModel myMetis', myMetis);
+    if (debug) console.log('44 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -80,7 +80,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       // console.log('82 GenGojsModel  myModel', myMetis, myModel, myModelview);
       const myGoModel = buildGoModel(myMetis, myModel, myModelview);
       const myGoTargetModel = buildGoModel(myMetis, myTargetModel, myTargetModelview);
-      // console.log('83 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);
+      if (debug) console.log('83 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);
       // console.log('84 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);

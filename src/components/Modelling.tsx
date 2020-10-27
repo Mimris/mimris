@@ -20,7 +20,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
-  const debug = true
+  const debug = false
   // if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);

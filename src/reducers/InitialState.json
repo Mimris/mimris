@@ -769,9 +769,39 @@
                             "modified": false
                         },
                         {
+                            "id": "632c266a-f4ff-43a9-d363-21d8e4d80903",
+                            "name": "undefined",
+                            "description": "Undefined",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "7962dcf1-d678-405e-5950-5dcc1b8a131a",
+                            "name": "undefined",
+                            "description": "Undefined",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
                             "id": "9c426092-98be-4470-97d3-99ee033b6b29",
                             "name": "boolean",
                             "description": "Boolean",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "a20d8ab5-9bf5-4625-6ff2-e72090d99448",
+                            "name": "string",
+                            "description": "String",
                             "datatypeRef": "",
                             "defaultValue": null,
                             "allowedValues": "",
@@ -789,7 +819,27 @@
                             "modified": false
                         },
                         {
+                            "id": "b20324f6-654d-4918-e4c2-492919c4cbc3",
+                            "name": "integer",
+                            "description": "Integer",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
                             "id": "b959f506-7609-4915-80dc-2b64270efa9f",
+                            "name": "date",
+                            "description": "Date",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "bc05e48e-c3a1-4d82-378b-7508ce020add",
                             "name": "date",
                             "description": "Date",
                             "datatypeRef": "",
@@ -4661,8 +4711,8 @@
                         },
                         {
                             "id": "b817b50f-0e03-45d3-7f50-7c82c58f7ac5",
-                            "name": "TaskDef",
-                            "description": "Definition of Task properties",
+                            "name": "TEST",
+                            "description": "",
                             "modelRef": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
                             "objectviews": [
                                 {

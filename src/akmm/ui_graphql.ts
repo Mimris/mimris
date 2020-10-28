@@ -455,7 +455,7 @@ export class gqlObjectTypeView {
         this.id             = objtypeview.id;
         this.name           = objtypeview.name;
         this.description    = "";
-        this.typeRef        = objtypeview.type?.id;
+        this.typeRef        = objtypeview.type.id;
         this.isGroup        = objtypeview.getIsGroup();
         this.group          = objtypeview.getGroup();
         this.viewkind       = objtypeview.getViewKind();
@@ -511,13 +511,13 @@ export class gqlRelshipTypeView {
         this.name           = reltypeview.name;
         this.description    = (reltypeview.description) ? reltypeview.description : "";
         this.typeRef        = reltypeview.type.id;
-        this.strokecolor    = reltypeview.strokecolor;
-        this.strokewidth    = reltypeview.strokewidth;
-        this.dash           = reltypeview.dash;
-        this.fromArrow      = reltypeview.fromArrow;
-        this.toArrow        = reltypeview.toArrow;
-        this.fromArrowColor = reltypeview.fromArrowColor;
-        this.toArrowColor   = reltypeview.toArrowColor;
+        this.strokecolor    = reltypeview.getStrokecolor();
+        this.strokewidth    = reltypeview.getStrokewidth();
+        this.dash           = reltypeview.getDash();
+        this.fromArrow      = reltypeview.getFromArrow();
+        this.toArrow        = reltypeview.getToArrow();
+        this.fromArrowColor = reltypeview.getFromArrowColor();
+        this.toArrowColor   = reltypeview.getToArrowColor();
         this.deleted        = reltypeview.deleted;
         this.modified       = reltypeview.modified;
     }
@@ -989,23 +989,14 @@ export class gqlObjectView {
         this.id             = objview?.id;
         this.name           = objview?.name;
         this.description    = objview?.description;
-        this.objectRef      = "";
-        this.typeviewRef    = "";
+        this.objectRef      = objview?.object?.id;
+        this.typeviewRef    = objview?.typeview?.id;
         this.group          = objview?.group;
         this.isGroup        = objview?.isGroup;
         this.loc            = objview?.loc;
         this.size           = objview?.size;
         this.deleted        = objview?.deleted;
         this.modified       = objview?.modified;
-        // Code
-        const obj = objview?.object;
-        if (obj) {
-            this.objectRef = obj?.id;
-            obj.addObjectView(objview);
-        }
-        const typeview = objview?.typeview;
-        if (typeview)
-            this.typeviewRef = typeview?.id;
     }
 }
 export class gqlRelshipView {
@@ -1031,14 +1022,10 @@ export class gqlRelshipView {
         // Code
         if (relview.description)
             this.description = relview.description;
-        const relship = relview.relship;
-        if (relship) {
-            this.relshipRef = relship.id;
-            relship.addRelationshipView(relview);
-        }
-        const typeview = relview.typeview;
-        if (typeview)
-            this.typeviewRef = typeview.id;
+        if (relview.relship)
+            this.relshipRef = relview.relship.id;
+        if (relview.typeview)
+            this.typeviewRef = relview.typeview.id;
     }
 }
 export class gqlImportMetis {

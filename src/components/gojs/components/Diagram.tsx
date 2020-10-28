@@ -309,24 +309,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           }),
           makeButton("New Typeview",
             function (e: any, obj: any) { 
-              const node = e.diagram.selection.first().data;
-              if (debug) console.log('284 partContextMenu', node);
-              const currentObject = node.object;
-              const currentObjectView = node.objectview;
+              const node = obj.part.data;
+              if (debug) console.log('313 node', node);
+              const currentObject = myMetis.findObject(node.object.id)
+              const currentObjectView =  myMetis.findObjectView(node.objectview.id);
+              if (debug) console.log('316 obj and objview', currentObject, currentObjectView);
               if (currentObject && currentObjectView) {                   
                 const myMetamodel = myMetis.currentMetamodel;
                 const objtype  = currentObject.type;
-                let typeView = currentObjectView.typeview;
+                let typeview = currentObjectView.typeview;
                 const defaultTypeview = objtype.typeview;
-                if (!typeView || (typeView.id === defaultTypeview.id)) {
-                    typeView = new akm.cxObjectTypeView(utils.createGuid(), currentObjectView.name, objtype, "");
-                    typeView.modified = true;
-                    currentObjectView.typeview = typeView;
-                    myMetamodel.addObjectTypeView(typeView);
-                    myMetis.addObjectTypeView(typeView);
-                }              
-                const gqlObjtypeView = new gql.gqlObjectTypeView(typeView);
-                if (debug) console.log('315 gqlObjtypeView', gqlObjtypeView);
+                if (debug) console.log('322 node', objtype, defaultTypeview, typeview);
+                if (!typeview || (typeview.id === defaultTypeview.id)) {
+                    const id = utils.createGuid();
+                    typeview = new akm.cxObjectTypeView(id, id, objtype, "");
+                    typeview.data = defaultTypeview.data;
+                    typeview.data.fillcolor = "lightgray";
+                    typeview.modified = true;
+                    currentObjectView.typeview = typeview;
+                    myMetamodel.addObjectTypeView(typeview);
+                    myMetis.addObjectTypeView(typeview);
+                    if (debug) console.log('329 myMetis', currentObjectView, typeview, myMetis);
+                  }              
+                const gqlObjtypeView = new gql.gqlObjectTypeView(typeview);
+                if (debug) console.log('332 gqlObjtypeView', gqlObjtypeView);
                 const modifiedTypeViews = new Array();
                 modifiedTypeViews.push(gqlObjtypeView);
                 modifiedTypeViews.map(mn => {
@@ -334,14 +340,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
                 })
                 const gqlObjView = new gql.gqlObjectView(currentObjectView);
-                if (debug) console.log('323 gqlObjView', gqlObjView);
+                if (debug) console.log('340 gqlObjView', gqlObjView);
                 const modifiedObjectViews = new Array();
                 modifiedObjectViews.push(gqlObjView);
                 modifiedObjectViews.map(mn => {
                   let data = mn;
                   e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-                })
-              
+                })              
               }
             },
             function (o: any) {
@@ -351,6 +356,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 let objtype  = currentObject.type;
                 let typeView = currentObjectView.typeview;
                 let defaultTypeview = objtype.typeview;
+                if (debug) console.log('358 typeview, defaultTypeview', typeview, defaultTypeview);
                 if (typeView && (typeView.id === defaultTypeview.id)) {
                   return true;
                 }
@@ -684,23 +690,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
               if (link.class === 'goRelshipLink') {
-                const currentRelship = link.relship;
+                const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {                   
                   const myMetamodel = myMetis.currentMetamodel;
                   const reltype  = currentRelship.type;
-                  let typeView = currentRelshipView.typeview;
+                  let typeview = currentRelshipView.typeview;
                   const defaultTypeview = reltype.typeview;
-                  if (!typeView || !defaultTypeview || (typeView.id === defaultTypeview.id)) {
+                  if (debug) console.log('701 link', reltype, defaultTypeview, typeview);
+                  if (!typeview || (typeview.id === defaultTypeview.id)) {
                       const id = utils.createGuid();
-                      typeView = new akm.cxRelationshipTypeView(id, id, reltype, "");
-                      typeView.nameId = undefined;
-                      typeView.modified = true;
-                      currentRelshipView.typeview = typeView;
-                      myMetamodel.addRelationshipTypeView(typeView);
-                      myMetis.addRelationshipTypeView(typeView);
-                  }              
-                  const gqlReltypeView = new gql.gqlRelshipTypeView(typeView);
+                      typeview = new akm.cxRelationshipTypeView(id, id, reltype, "");
+                      typeview.data = defaultTypeview.data;
+                      typeview.data.strokecolor = "red";
+                      typeview.nameId = undefined;
+                      typeview.modified = true;
+                      currentRelshipView.typeview = typeview;
+                      myMetamodel.addRelationshipTypeView(typeview);
+                      myMetis.addRelationshipTypeView(typeview);
+                      if (debug) console.log('712 myMetis', currentRelshipView, typeview, myMetis);
+                    }    
+                  const gqlReltypeView = new gql.gqlRelshipTypeView(typeview);
+                  if (debug) console.log('715 gqlReltypeView', gqlReltypeView);
                   const modifiedTypeViews = new Array();
                   modifiedTypeViews.push(gqlReltypeView);
                   modifiedTypeViews.map(mn => {
@@ -708,7 +719,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
                   })
                   const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
-                  if (debug) console.log('467 gqlRelView', gqlRelView);
+                  if (debug) console.log('723 gqlRelView', gqlRelView);
                   const modifiedRelshipViews = new Array();
                   modifiedRelshipViews.push(gqlRelView);
                   modifiedRelshipViews.map(mn => {

@@ -56,37 +56,31 @@ export class goModel {
         this.metamodel = metamodel;
     }
     addNode(node: goObjectNode | goObjectTypeNode) {
-        // Check if input is of correct class and not already in list (TBD)     
+        // Check if input is of correct class and not already in list (TBD)
         // if ((node.class === "goObjectNode")
         //     || (node.class === "goObjectTypeNode")
         //     || (node.class === "goNode")
-        //     || (node.class === "i")
-        //     ) 
-        //     {
-                node.setParentModel(this);
-                let oldNodes: goObjectNode[] = new Array();
-                for (let i = 0; i < this.nodes.length; i++) {
-                    let n = this.nodes[i] as goObjectNode;
-                    oldNodes.push(n);
-                }
-                oldNodes.push(node as goObjectNode);
-                this.nodes = oldNodes;
+        // ) {
+            node.setParentModel(this);
+            let oldNodes: goObjectNode[] = new Array();
+            for (let i = 0; i < this.nodes.length; i++) {
+                let n = this.nodes[i] as goObjectNode;
+                oldNodes.push(n);
+            }
+            oldNodes.push(node as goObjectNode);
+            this.nodes = oldNodes;
         // }
     }
     addLink(link: goLink) {
         // Check if input is of correct class and not already in list (TBD)
-        // if ((link.class === "goRelshipLink") 
-        //     || (link.class === "goRelshipTypeLink") 
-        //     || (link.class === "i")
-        //     ) {
-                let oldLinks: goLink[] = new Array();
-                for (let i = 0; i < this.links.length; i++) {
-                    let l = this.links[i] as goLink;
-                    oldLinks.push(l);
-                }
-                oldLinks.push(link as goLink);
-                this.links = oldLinks;
-                // console.log('88 ui_gojs', this.links, oldLinks);
+        // if ((link.class === "goRelshipLink") || (link.class === "goRelshipTypeLink")) {
+            let oldLinks: goLink[] = new Array();
+            for (let i = 0; i < this.links.length; i++) {
+                let l = this.links[i] as goLink;
+                oldLinks.push(l);
+            }
+            oldLinks.push(link as goLink);
+            this.links = oldLinks;
         // }
     }
     findNodeByViewId(objviewId: string): goObjectNode | null {
@@ -95,12 +89,12 @@ export class goModel {
             let i = 0;
             while (i < this.nodes.length) {
                 const node = this.nodes[i];
-                if (node.class === 'goObjectNode') {
+                // if (node.class === 'goObjectNode') {
                     const n = node as goObjectNode;
                     if (n.objectview && n.objectview.getId() === objviewId) {
                         return (n);
                     }
-                }
+                // }
                 i++;
             }
         }
@@ -140,14 +134,14 @@ export class goModel {
         const cnt = nodes.length;
         for (let i = 0; i < cnt; i++) {
             const n = nodes[i];
-            if (n.class === "goObjectNode") {
+            // if (n.class === "goObjectNode") {
                 const node = n as goObjectNode;
                 if (!node.isGroup)
                     continue;
                 const objview = node.objectview;
                 if (objview && objview.getId() === groupKey)
                     return node;
-            }
+            // }
         }
         return null;
     }

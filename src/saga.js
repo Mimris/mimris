@@ -5,14 +5,13 @@ import { failure, loadDataSuccess } from './actions/actions';
 import { LOAD_DATA, FAILURE } from './actions/types';
 es6promise.polyfill()
 
-const localhost = 'https://akmserver.herokuapp.com/'
-// const localhost = 'http://localhost:4000/'
+// const localhost = 'https://akmserver.herokuapp.com/'
+const localhost = 'http://localhost:4000/'
 
 
 
 // this version is without login
 function * loadDataSaga() {
-
   try {
     let res = ''  
     res = yield fetch(`${localhost}akmmodels/`,

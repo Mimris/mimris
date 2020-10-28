@@ -14,7 +14,7 @@ const constants = require('../akmm/constants');
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
   const debug = false
-  // if (debug) console.log('18 GenGojsModel props:', props);
+  if (debug) console.log('18 GenGojsModel props:', props);
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
   // const modelviews = (metis) && metis.modelviews

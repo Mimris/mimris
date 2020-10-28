@@ -4711,7 +4711,7 @@
                         },
                         {
                             "id": "b817b50f-0e03-45d3-7f50-7c82c58f7ac5",
-                            "name": "TEST",
+                            "name": "TaskDef",
                             "description": "",
                             "modelRef": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
                             "objectviews": [

@@ -83,12 +83,12 @@ const page = (props:any) => {
     
     useEffect(() => {
       focusModelview = props.phFocus?.focusModelview
-      // setRefresh(!refresh)
-      // console.log('80 Diagram state', focusModelview, props.phGojs?.gojsModel.nodeDataArray ); 
       // console.log('86 Diagram useEffect 2', props); 
       genGojsModel(props, dispatch);
-      // focusModel = props.phFocus?.focusModel
-      setRefresh(!refresh)
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 1);
     }, [focusModelview?.id])
 
     useEffect(() => {

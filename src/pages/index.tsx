@@ -21,14 +21,11 @@ const page = (props: any) => {
   }
 
   // const state = useSelector(state => state)
-
   // const metis = (state.phData) && state.phData.metis
-
   // const [visibleTasks, setVisibleTasks] = useState(true)
   // function toggleTasks() {
   //   setVisibleTasks(!visibleTasks);
   // }
-
  // /**
 // * Set up the Context items and link to select Context modal,
 // */
@@ -40,7 +37,8 @@ const page = (props: any) => {
         <div id="index" >
           <div className="wrapper">
             <div className="header">
-              <Header title='eaderTitle' />
+              {/* <Header title='HeaderTitle' /> */}
+              <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
             </div>
             <div className="workplace">
               <div className="contextarea">
@@ -55,7 +53,7 @@ const page = (props: any) => {
             </div>
             <div className="footer">
               <Footer />
-            </div>y
+            </div>
             
           </div>
         </div>
@@ -63,6 +61,7 @@ const page = (props: any) => {
       <style jsx>{`
       .wrapper {
         display: grid;
+        // height: 100%;
         // grid-template-columns: auto auto;
         grid-gap: 0px;
         grid-template-areas:
@@ -73,6 +72,7 @@ const page = (props: any) => {
       .workplace {
         grid-area: workplace;
         display: grid ;
+        height: 100%;
         // background-color: #;
         grid-template-columns: auto 1fr;
         grid-template-areas:

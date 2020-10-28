@@ -1,38 +1,120 @@
 import { all, call, delay, put, take, takeLatest } from 'redux-saga/effects';
-// import keepAlive from 'redux-saga-restart';
 import es6promise from 'es6-promise'
 import 'isomorphic-unfetch'
 import { failure, loadDataSuccess } from './actions/actions';
 import { LOAD_DATA, FAILURE } from './actions/types';
 es6promise.polyfill()
 
+const localhost = 'https://akmserver.herokuapp.com/'
+// const localhost = 'http://localhost:4000/'
+
+
+
+// this version is without login
 function * loadDataSaga() {
+
   try {
-    let res = ''
-    // res = yield fetch('http://localhost:8080/metismodels')
-    // res = yield fetch('http://localhost:4000/akmmodels',
-    res = yield fetch('https://akmserver.herokuapp.com/akmmodels',
-    {
-      // mode: 'no-cors',
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+    let res = ''  
+    res = yield fetch(`${localhost}akmmodels/`,
+      {
+        // mode: 'no-cors',
+        headers: {
+          // "Access-Control-Allow-Origin": "*",
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        }
       }
-    })
-    const metis = yield res.json()
-    // const phData = yield {  metis  }
-    // console.log('21', yield metis); 
+    )
+    const metis = yield res.clone().json()
+    // console.log('63 Saga', metis);
     yield put(loadDataSuccess({ metis }))
   } catch (err) {
-    console.log('32', failure(err));  
+    console.log('72 saga', failure(err));  
     yield put(failure(err))
   }
 }
 
+// This version is for login server with credetials
+
+// function getCookie(cname, document) {
+//   var name = cname + "=";
+//   var decodedCookie = decodeURIComponent(document.cookie);
+//   var ca = decodedCookie.split(';');
+//   for (var i = 0; i < ca.length; i++) {
+//     var c = ca[i];
+//     while (c.charAt(0) == ' ') {
+//       c = c.substring(1);
+//     }
+//     if (c.indexOf(name) == 0) {
+//       return c.substring(name.length, c.length);
+//     }
+//   }
+//   return "";
+// }
+// function * loadDataSaga() {
+//   const _crf = getCookie("XSRF-TOKEN", document) || "";
+//   const _csrf = getCookie("_csrf", document) || "";
+//   const sessionCookie = getCookie("session", document) || "";
+//   try {
+//     let res = ''  
+//     res = yield fetch(`${localhost}akmmodels/`,
+//       {
+//         mode: 'no-cors',
+//         headers: {
+//           "Access-Control-Allow-Origin": "*",
+//           'Accept': 'application/json',
+//           'Content-Type': 'application/json',
+//           'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+//           "Access-Control-Allow-Credentials": 'include', 
+//         },
+//         credentials: 'include'
+//       }
+//     )
+//       const metis = yield res.clone().json()
+//       // console.log('63 Saga', metis);
+//       yield put(loadDataSuccess({ metis }))
+//     } catch (err) {
+//       console.log('72 saga', failure(err));  
+//       yield put(failure(err))
+//     }
+//   }
+
+// ToDo:  Make save model as dispatch
+// function * saveDataSaga() {
+//   const _crf = getCookie("XSRF-TOKEN", document) || "";
+//   const _csrf = getCookie("_csrf", document) || "";
+//   const sessionCookie = getCookie("session", document) || "";
+
+//   try {
+//     let res = ''  
+//     res = yield fetch(`${localhost}akmmodels/`,
+//       {
+//         method: 'POST',
+//         mode: 'no-cors',
+//         headers: {
+//           "Access-Control-Allow-Origin": "*",
+//           'Accept': 'application/json',
+//           'Content-Type': 'application/json',
+//           'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+//           "Access-Control-Allow-Credentials": 'include', 
+//         },
+//         credentials: 'include'
+//       }
+//     )
+//     const metis = yield res.clone().json()
+//     console.log('63 Saga', metis);
+//     yield put(saveDataSuccess({ metis }))
+//   } catch (err) {
+//     console.log('72 saga', failure(err));  
+//     yield put(failure(err))
+//   }
+// }
+
 function* rootSaga() {
   yield all([
-    takeLatest(LOAD_DATA, loadDataSaga)
+    // console.log('45'),
+    takeLatest(LOAD_DATA, loadDataSaga),
+    // takeLatest(SAVE_DATA, saveDataSaga)
     // take(LOAD_DATA, loadDataSaga)
   ])
 }

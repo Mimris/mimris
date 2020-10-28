@@ -13,7 +13,7 @@ import * as go from './ui_gojs';
 
 const akm_globals = {
 
-    metis           : akm.cxMetis,
+    metis           : null,
     doit            : false,
     myMetamodel     : akm.cxMetaModel,
     myModel         : akm.cxModel,
@@ -30,7 +30,9 @@ const akm_globals = {
     logged_in       : false,
     myPalette       : go.paletteNode,
     myMetaPalette   : go.paletteNode,
-    myPaletteModel  : ""
+    myPaletteModel  : "",
+    pasteViewsOnly  : false,
+    deleteViewsOnly : false
 
 }
 

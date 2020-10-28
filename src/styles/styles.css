@@ -1,12 +1,10 @@
 
-/* .custom_class {
- background-color: red;
- padding: 0px;
-} */
+/* .custom_class { */
+ /* background-color: red; */
+ /* padding: 0px; */
+/* } */
 
-
-
-/* @media only screen and (max-width: 375px) {
+/* @media only screen and (max-width: 500px) {
   .wrapper {
     display: grid;
     grid-gap: 10px;
@@ -18,7 +16,9 @@
 	}
 } */
 .wrapper {
-  margin-top: 4px;
+  margin-top: 0px;
+  /* height: 100vh; */
+  background-color: #eee;
 }
 
 .header {
@@ -29,8 +29,9 @@
 }
 .workplace {
   background-color: #e6e9e9;
+  height: 100vh;
   /* margin-top: 2px; */
-  padding: 2px;
+  padding: 0px;
   border-radius: 5px 5px 5px 5px;
   grid-gap: 2px;
 }

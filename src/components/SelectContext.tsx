@@ -14,37 +14,58 @@ const SelectContext = (props: any) => {
   const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
   const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
   const focusUser = useSelector(focusUser => state.phUser?.focusUser)
-  const focusModelview = useSelector(focusModelview => state.phFocus.focusModelview)
+  const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
   
   // const [model, setModel] = useState(focusModel)
-  // console.log('16 Sel', models, focusModel, state);
-
-  const curmodel = models?.find((m: any) => m?.id === focusModel?.id)
+  
+  const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
   const objects = curmodel?.objects //.map((o: any) => o)
   // const objectviews = curmodel?.objectviews //.map((o: any) => o)
+  
   // find object with type
-
-  const objectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
+  const objectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews || []
+  // console.log('25 Sel', curmodel, modelviews, objects, objectviews);
+  
+  // remove duplicate objects
   const uniqueovs = objectviews?.filter((ov, index, self) =>
     index === self.findIndex((t) => (
       t.place === ov.place && t.id === ov.id
     ))
-  )
-  const curmm = metamodels?.find(mm => mm.id === (curmodel?.metamodelRef))
-
-  // console.log('32 SelectContext :', uniqueovs);
+  ) || []
+  const curmm = metamodels?.find(mm => (mm) && mm.id === (curmodel?.metamodelRef))
   
   // find object with type
-  const type = (metamodels, model, objects, curov) => {
-    return metamodels?.find(mm => mm.id === (model.metamodelRef))
-      .objecttypes?.find(ot => ot.id === objects?.find(o => o.id === curov.objectRef)?.typeRef)?.name
+  const type = (metamodels, model, objects, curov) => {                                                                                                                                                                                          
+    const mmod = metamodels?.find(mm => mm.id === model.metamodelRef)
+    const o = objects.find(o => o.id === curov.objectRef)
+    // console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
+    const type = mmod.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
+    // console.log('43 SelectContext', mmod.objecttypes.name, o, type);
+    return type
   }
+
+  // function handleSendContextAsEmail() {
+    const emailAddress = 'snorres@gmail.com'
+    const subject = "Context subject"
+    const bodyFocus = JSON.stringify(props.phFocus)
+    // const bodyData = JSON.stringify(state.phData)
+    const body = bodyFocus
+  const hrefGmail = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=' + emailAddress+'&subject=' + subject + '&body=' + body
+  const hrefEmail = 'mailto:' + emailAddress+'?subject=' + subject + '&body=' + body
+  const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
+  const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
+  // const emailDiv = <a href="mailto:${emailAddress}?subject=${subject}&body=${body}">Send mail with Link to  context</a>
+  //https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=target@email.com&subject=MISSED%20CALL%20EZTRADER&body=Hello%2C%0A%0AI%20tried%20contacting%20you%20today%20but%20you%20seem%20to%20have%20missed%20my%20call.%20%0A%0APlease%20return%20my%20call%20as%20soon%20as%20you%E2%80%99re%20available.%20%0A%0AIn%20any%20case%2C%20I%20will%20try%20ringing%20you%20at%20a%20later%20time.%0A%0A%0ATy%2C%0A%0A%0A%0A
+  // console.log('51 SelectContext', emailDivMailto);
+  // }
+  // const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSendContextAsEmail} > Save to Server</button >
+
   const selroles = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Role')
   const seltasks = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Task')
   const selorgs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Organisation')
   const selprojs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Projects')
-  const selobjs = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) !== null)
+  const selobjviews = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) != null)
   const selPers = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Person')
   const selproperties = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Property')
   const selInfo = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Information')
@@ -58,7 +79,7 @@ const SelectContext = (props: any) => {
     const phData = JSON.parse(event.value)
     const data = phData
     // console.log('38 sel', data);
-    (data) && dispatch({ type: 'SET_FOCUS_PHDATA', data })
+    (data) && dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
   }
   const handleSessionChange = (event:any) => {
     const id = JSON.parse(event.value).id
@@ -68,7 +89,7 @@ const SelectContext = (props: any) => {
     const focusSession = {id: id, name: name}
     const data = focusSession
     // console.log('38 sel', data);
-    (data) && dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
+    (data) && dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
   }
 
   useEffect(() => {
@@ -94,8 +115,8 @@ const SelectContext = (props: any) => {
     function handleSetSession() {
       const data = phFocus.phFocus
       // console.log('87', data);
-      dispatch({ type: 'SET_FOCUS_PHFOCUS', data })
-      dispatch({ type: 'SET_FOCUS_PHSOURCE', sourceFlag })  
+      dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
+      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', sourceFlag })  
     }
     // /**
     // * Build the selection options for all context (focus) objects,
@@ -118,13 +139,23 @@ const SelectContext = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} style={{marginTop: "90px"}} >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody >
+          <div className="context-list border-bottom border-dark">Context :
+            Model: <strong>{props.phFocus?.focusModel?.name}</strong> |
+            Modelview: <strong>{props.phFocus?.focusModelview?.name}</strong> |
+            Objectview: <strong>{props.phFocus?.focusObjectview?.name}</strong> |
+            {/* Object: <strong>{phFocus?.focusObject?.name}</strong> | */}
+            Org: <strong>{props.phFocus?.focusOrg?.name}</strong> |
+            Proj: <strong>{props.phFocus?.focusProj?.name}</strong> |
+            Role: <strong>{props.phFocus?.focusRole?.name}</strong> |
+            Task: <strong>{props.phFocus?.focusTask?.name}</strong> |
+          </div>
           <div className="select bg-light pt-0 ">
             <Selector key='1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
             <Selector key='2' type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />
             <Selector key='3' type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg' />
             <Selector key='4' type='SET_FOCUS_PROJ' selArray={selprojs} selName='Projects' focustype='focusProj' />
             {/* <Selector type='SET_FOCUS_PROJ' selArray={seloprojs} selName='Projects' focustype='focusProj' /> */}
-            <Selector key='5' type='SET_FOCUS_OBJECT' selArray={selobjs} selName='Objects' focustype='focusObject' />
+            <Selector key='5' type='SET_FOCUS_OBJECTVIEW' selArray={selobjviews} selName='Objectviews' focustype='focusObjectview' />
             {/* <hr style={{ borderTop: "1px solid #8c8b8" , backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
             {/* <h6>Model repository (Firebase) </h6> */}
             <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
@@ -132,9 +163,11 @@ const SelectContext = (props: any) => {
  
  
         </ModalBody>
+          <div className="ml-2">{emailDivGmail}</div>
+        <div className="ml-2">{emailDivMailto}</div>
         <ModalFooter>
           <Button color="primary" onClick={toggle}>Set</Button>{' '}
-          <Button color="secondary" onClick={toggle}>Exit</Button>
+          <Button color="link" onClick={toggle}>Exit</Button>
         </ModalFooter>
       </Modal>
     

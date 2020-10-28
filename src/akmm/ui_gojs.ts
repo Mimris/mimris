@@ -1,4 +1,5 @@
 // Application code
+const debug = false;
 
 //const glb 	= require('./akm_globals');
 const constants = require('./constants');
@@ -38,7 +39,7 @@ export class goModel {
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;
 
-        // console.log('41 constants', constants);
+        if (debug) console.log('41 constants', constants);
     }
     // Methods
     getModelView() {
@@ -55,32 +56,38 @@ export class goModel {
         this.metamodel = metamodel;
     }
     addNode(node: goObjectNode | goObjectTypeNode) {
-        // Check if input is of correct class and not already in list (TBD)
-        if ((node.class === "goObjectNode")
-            || (node.class === "goObjectTypeNode")
-            || (node.class === "goNode")
-        ) {
-            node.setParentModel(this);
-            let oldNodes: goObjectNode[] = new Array();
-            for (let i = 0; i < this.nodes.length; i++) {
-                let n = this.nodes[i] as goObjectNode;
-                oldNodes.push(n);
-            }
-            oldNodes.push(node as goObjectNode);
-            this.nodes = oldNodes;
-        }
+        // Check if input is of correct class and not already in list (TBD)     
+        // if ((node.class === "goObjectNode")
+        //     || (node.class === "goObjectTypeNode")
+        //     || (node.class === "goNode")
+        //     || (node.class === "i")
+        //     ) 
+        //     {
+                node.setParentModel(this);
+                let oldNodes: goObjectNode[] = new Array();
+                for (let i = 0; i < this.nodes.length; i++) {
+                    let n = this.nodes[i] as goObjectNode;
+                    oldNodes.push(n);
+                }
+                oldNodes.push(node as goObjectNode);
+                this.nodes = oldNodes;
+        // }
     }
     addLink(link: goLink) {
         // Check if input is of correct class and not already in list (TBD)
-        if ((link.class === "goRelshipLink") || (link.class === "goRelshipTypeLink")) {
-            let oldLinks: goLink[] = new Array();
-            for (let i = 0; i < this.links.length; i++) {
-                let l = this.links[i] as goLink;
-                oldLinks.push(l);
-            }
-            oldLinks.push(link as goLink);
-            this.links = oldLinks;
-        }
+        // if ((link.class === "goRelshipLink") 
+        //     || (link.class === "goRelshipTypeLink") 
+        //     || (link.class === "i")
+        //     ) {
+                let oldLinks: goLink[] = new Array();
+                for (let i = 0; i < this.links.length; i++) {
+                    let l = this.links[i] as goLink;
+                    oldLinks.push(l);
+                }
+                oldLinks.push(link as goLink);
+                this.links = oldLinks;
+                // console.log('88 ui_gojs', this.links, oldLinks);
+        // }
     }
     findNodeByViewId(objviewId: string): goObjectNode | null {
         const retval: goObjectNode | null = null;
@@ -255,7 +262,6 @@ export class goNode extends goMetaObject {
     size: string;
     constructor(key: string, model: goModel | null) {
         super(key);
-        this.class = 'goNode';
         this.parentModel = model;  // goModel
         this.loc = "";
         this.size = "";
@@ -287,7 +293,6 @@ export class goObjectNode extends goNode {
     parent: string;
     constructor(key: string, objview: akm.cxObjectView) {
         super(key, null);
-        this.class = 'goObjectNode';
         this.category = constants.gojs.C_OBJECT;
         this.objectview = objview;
         this.object = null;
@@ -345,11 +350,11 @@ export class goObjectNode extends goNode {
                 //     if (utils.objExists(group))
                 //         this.group = (group) ? group.key : "";
                 // }
-                //console.log('312 objectview', this.objectview);
+                if (debug) console.log('312 objectview', this.objectview);
                 this.setName(this.objectview.getName());
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
-                //console.log('315 goObjectNode', this);
+                if (debug) console.log('315 goObjectNode', this);
                 return true;
             }
         }
@@ -388,7 +393,6 @@ export class goObjectTypeNode extends goNode {
     typename: string;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
-        this.class = 'goObjectTypeNode';
         this.category = constants.gojs.C_OBJECTTYPE;
         this.objtype = objtype;
         this.typeview = null;
@@ -455,7 +459,6 @@ export class goLink extends goMetaObject {
     parentModel: goModel;
     constructor(key: string, model: goModel) {
         super(key);
-        this.class = 'goLink';
         this.parentModel = model;  // goModel
     }
     // Methods
@@ -473,7 +476,6 @@ export class goRelshipLink extends goLink {
     to: string;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
-        this.class = 'goRelshipLink';
         this.category = constants.gojs.C_RELATIONSHIP;
         this.relshipview = relview;
         this.relship = null;
@@ -587,7 +589,6 @@ export class goRelshipTypeLink extends goLink {
     to:         string | undefined;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
-        this.class = 'goRelshipTypeLink';
         this.category   = constants.gojs.C_RELSHIPTYPE;
         this.reltype    = reltype;
         this.typeview   = null;

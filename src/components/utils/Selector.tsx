@@ -2,54 +2,79 @@ import { useDispatch } from 'react-redux'
 
 const Selector = ( props: any ) => {
 
+  // console.log('8 selector', props); 
   const dispatch = useDispatch()
+
+  const refresh = props.refresh
+  const setRefresh = props.setRefresh
+  function toggleRefresh() { setRefresh(!refresh); }
+
   const type = props.type
+  let selArray = props.selArray
+  // console.log('14 Selector', props);
+  
+  // if (selArray.length === 1) selArray = [...selArray,...selArray]g
   const handleChange = (event: any) => {
-    console.log('8 selector', event); 
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const focustype = { id: id, name: name }
     const data = focustype
-    console.log('13 selector', data, type);
+    // console.log('22 selector', data, type);
     dispatch({ type: type, data })
+    // setRefresh(!refresh)
   }
-  // console.log('15 selector', props);
+  // console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
+  const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
+  
+  const options = selArray && ( //sf TODO:  modelview is mapped 2 times
+    (focus) 
+      ? [
+        <option  key={focus}  value={`${focus}...`} > {focus} </option>,
+        selArray.map((m: any, index) => (m.name !== 'Select '+props.selName+'...') &&
+        // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
+        <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})} > {m.name} </option>)]
+      : [
+        <option   key={focus} value={`${focus}...`} >Select {props.selName}... </option>,
+        selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
+        // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
+        <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)]
+    )
+    
+    
 
-  const options = props.selArray && [
-      <option 
-        key={'Select ...'} 
-        value={`Select ${props.selName} ...`} 
-      > 
-        Select {props.selName}...
-      </option>,
-      props.selArray.map((m: any) => 
-      <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}  > 
-        {m.name} 
-      </option>)]
-
-   const selectDiv =
-     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
+  // console.log('38 selector', options);
+  const selectDiv = 
+    ((props.selName === 'Model') || (props.selName === 'Modelviews'))
+    ? (props.selName === 'Model') 
       ?
-       <>
-         <span className="title mx-2 ">{props.selName}:</span>
-          <select className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-            onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
+      <div key={props.type} className="select" >
+          <span className="title mx-2 ">{props.selName}:</span>
+          <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+          onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
             {options}
           </select>
-        </>
+          </div>
       :
-        <div key={props.type} className="select" ><hr />
-         <div className="title "> {props.selName}:</div>
-         <select className="list-obj " defaultValue={`Select ${props.selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+      <div key={props.type} className="select" >
+          <span  className="title mx-2 ">{props.selName}:</span>
+            <select key={props.type} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+            onChange={(event) => {handleChange({ value: event.target.value });  toggleRefresh()}} name={`Focus ${props.selName} ...`}>
+              {options}
+            </select>
+            </div>
+      :
+        <div key={props.type} className="select" >
+          <div  className="title "> {props.selName}:</div>
+          <select key={focus} className="list-obj " defaultValue={`Select ${props.selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
             onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
             {options}
           </select>
         </div>
 
   return (
-    <>
+    <div className="mod-modview float-right">
       {selectDiv}
-    </>
+    </div>
   )
 }
 

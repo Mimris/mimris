@@ -7,14 +7,15 @@ const Navbar = (props) => (
 	// <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
 	// <nav className="navbar sticky-top navbar-expand-md bg-white py-1">
 	// navbar-expand{-sm|-md|-lg|-xl}
-	<nav className="navbar navbar-expand-sm bg-light py-1">
+	<nav className="navbar navbar-expand-sm bg-light py-0">
 		<div className="container mx-0 ">
-			<a className="navbar-brand nabar-left mr-2" href="#">
-				<img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/>
+			<a className="navbar-brand nabar-left mr-4" href="#">
+				<img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/>
+				{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
 				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
 			</a>
 			{/* <span ><strong>OrgEngine Teambuilder</strong> */}
-			<span style={{ fontsize: "bigger"}}><strong> AKMM</strong></span>
+			<span style={{ fontsize: "bigger"}}><strong> AKM Modeller</strong></span>
 			<div className="collapse navbar-collapse" id="nav-toggler-metis">
 				<ul className="navbar-nav ml-auto mr-3">
 					<li className="nav-item">
@@ -70,6 +71,7 @@ const Navbar = (props) => (
 					<span className="navbar-toggler-icon float-right"></span>
 				</button>
 			</div>
+			{/* <div><pre>{props}</pre></div> */}
 		</div>
 	</nav>
 );

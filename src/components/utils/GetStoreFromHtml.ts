@@ -58,7 +58,7 @@ try {
 
   const delay = t => new Promise(resolve => setTimeout(resolve, t))
   delay(132000).then(() => {
-    getStore('http://localhost:3000/post')
+    getStore('http://localhost:4000/akmodels')
   })
 
 } catch (err) {

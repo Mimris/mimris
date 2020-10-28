@@ -67,7 +67,7 @@ const page = (props: any) => {
             <div className="tasksarea"  >
               {tasks}
             </div>
-            <div className="settings-title bg-light m-1 pt-2 px-2">
+            <div className="settings-title bg-light m-1 pt-2 px-2 " style={{maxHeight: "50px"}}>
               <h5>User profile and settings</h5>
             </div>
             <div className="settings">        
@@ -159,7 +159,7 @@ const page = (props: any) => {
             padding: 4px;
             background-color: #aaa;
             grid-template-columns: auto 2fr;
-            // grid-auto-rows:auto auto 1fr;
+            grid-auto-rows:auto auto 1fr;
             grid-template-areas:
             "contextarea contextarea"
             "tasksarea settings-title"
@@ -172,6 +172,7 @@ const page = (props: any) => {
             outline-offset:-6px;
             padding: 0px;
             font-size: 60%;
+            // align-self: start;
             background-color: #e8e8e8;
             color: #000;
             max-height: 60px; 
@@ -185,6 +186,7 @@ const page = (props: any) => {
             border-color: #000;
             background-color: #baa;
             font-size: 100%;
+            justfy-self: start;
           }
           .settings {
             grid-area: settings;
@@ -193,6 +195,7 @@ const page = (props: any) => {
             grid-gap: 6px;
             column-width: 8rem;
             column-count: 2;
+            align-self: start;
             // columns: auto;
             // grid-template-columns: auto ;
             // grid-template-areas:

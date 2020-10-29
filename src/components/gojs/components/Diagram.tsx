@@ -270,7 +270,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Set Object type",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
-              let objtype = prompt('Enter one of: ' + node.choices);
+              if (debug) console.log('273 node', node);
+              const objtypes = myMetis.getObjectTypes();
+              if (debug) console.log('275 Set object type', objtypes);
+              let defText  = "";
+              if (objtypes) {
+                  node.choices = [];
+                  for (let i=0; i<objtypes.length; i++) {
+                      const otype = objtypes[i];
+                      if (!otype.deleted && !otype.abstract) {
+                          node.choices.push(otype.name); 
+                          if (otype.name === 'Generic')
+                            defText = otype.name;
+                      }  
+                  }
+              }
+              let objtype = prompt('Enter one of: ' + node.choices, defText);
               const context = {
                 "myMetis":      myMetis,
                 "myMetamodel":  myMetis.currentMetamodel,
@@ -290,7 +305,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const object = myMetis.findObject(objview?.object?.id);
                 if (object) {
                   const gqlObject = new gql.gqlObject(object);
-                  gqlObject.addObjectView(gqlObjview);
                   const modifiedObjects = new Array();
                   modifiedObjects.push(gqlObject);
                   modifiedObjects.map(mn => {
@@ -647,9 +661,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         $(go.Adornment, "Vertical",
           makeButton("Set Relationship type",
             function (e, obj) {
-              //const link = e.diagram.selection.first().data;
+              const myGoModel = myMetis.gojsModel;
               const link = obj.part.data;
-              let reltype = prompt('Enter one of: ' + link.choices);
+              if (debug) console.log('666 link', link, myDiagram, myGoModel);
+              let fromNode = myGoModel?.findNode(link.from);
+              let toNode   = myGoModel?.findNode(link.to);
+              if (debug) console.log('669 from and toNode', fromNode, toNode);
+              const fromType = fromNode?.objecttype;
+              const toType   = toNode?.objecttype;
+              if (debug) console.log('672 link', fromType, toType);
+              const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
+              let   defText  = "";
+              link.choices = [];
+              if (debug) console.log('675 createRelationship', reltypes, myMetis);
+              if (reltypes) {
+                  for (let i=0; i<reltypes.length; i++) {
+                      const rtype = reltypes[i];
+                      link.choices.push(rtype.name);  
+                      if (rtype.name === 'isRelatedTo')
+                          defText = rtype.name;
+                  }
+              }
+              let reltype = prompt('Enter one of: ' + link.choices, defText);
               const context = {
                 "myMetis":      myMetis,
                 "myMetamodel":  myMetis.currentMetamodel,
@@ -675,8 +708,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               modifiedRelships.map(mn => {
                 let data = mn;
                 (mn) && e.diagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-              })
-          },
+              })              
+            },
             function (o) {
               const link = o.part.data;
               if (link.category === 'Relationship') {
@@ -1448,10 +1481,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           )
         );
     }
-
-
-
-
 
     //  sf added #####################################################
     // Create an HTMLInfo and dynamically create some HTML to show/hide

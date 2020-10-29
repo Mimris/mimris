@@ -163,8 +163,8 @@ const LoadLocal = (props: any) => {
   const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
 
-  const buttonSaveModelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveModelToFile} > Download Current Model to File </button >
-  const buttonSaveMetamodelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveMetamodelToFile} > Download Current Metamodel to File </button >
+  const buttonSaveModelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveModelToFile} > Save Current Model to File (Downloads) </button >
+  const buttonSaveMetamodelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveMetamodelToFile} > Save Current Metamodel to File (Downloads)</button >
 
   const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
   

@@ -1,5 +1,5 @@
 // @ts-nocheck
-const debug = false;
+const debug = false; 
 
 const utils = require('./utilities');
 const glb = require('./akm_globals');
@@ -455,7 +455,7 @@ export class gqlObjectTypeView {
         this.id             = objtypeview.id;
         this.name           = objtypeview.name;
         this.description    = "";
-        this.typeRef        = objtypeview.type?.id;
+        this.typeRef        = objtypeview.type.id;
         this.isGroup        = objtypeview.getIsGroup();
         this.group          = objtypeview.getGroup();
         this.viewkind       = objtypeview.getViewKind();
@@ -511,13 +511,13 @@ export class gqlRelshipTypeView {
         this.name           = reltypeview.name;
         this.description    = (reltypeview.description) ? reltypeview.description : "";
         this.typeRef        = reltypeview.type.id;
-        this.strokecolor    = reltypeview.strokecolor;
-        this.strokewidth    = reltypeview.strokewidth;
-        this.dash           = reltypeview.dash;
-        this.fromArrow      = reltypeview.fromArrow;
-        this.toArrow        = reltypeview.toArrow;
-        this.fromArrowColor = reltypeview.fromArrowColor;
-        this.toArrowColor   = reltypeview.toArrowColor;
+        this.strokecolor    = reltypeview.getStrokecolor();
+        this.strokewidth    = reltypeview.getStrokewidth();
+        this.dash           = reltypeview.getDash();
+        this.fromArrow      = reltypeview.getFromArrow();
+        this.toArrow        = reltypeview.getToArrow();
+        this.fromArrowColor = reltypeview.getFromArrowColor();
+        this.toArrowColor   = reltypeview.getToArrowColor();
         this.deleted        = reltypeview.deleted;
         this.modified       = reltypeview.modified;
     }
@@ -711,9 +711,6 @@ export class gqlObject {
     name:           string;
     description:    string;
     typeRef:        string;
-    objectviews:    gqlObjectView[] | null;
-    inputrels:      gqlRelationship[] | null;
-    outputrels:     gqlRelationship[] | null;
     propertyValues: any[];
     deleted:        boolean;
     modified:       boolean;
@@ -722,44 +719,11 @@ export class gqlObject {
         this.name           = object.name;
         this.description    = object.description ? object.description : "";
         this.typeRef        = object.type ? object.type.id : "";
-        this.objectviews    = [];
-        this.inputrels      = [];
-        this.outputrels     = [];
         this.propertyValues = [];
         this.deleted        = object.deleted;
         this.modified       = object.modified;
 
         // Code
-        const objviews = object.objectviews;
-        if (debug) console.log('734 gqlObject - objectviews', objviews);
-        if (objviews) {
-            this.objectviews = new Array();
-            const cnt = objviews.length;
-            for (let i = 0; i < cnt; i++) {
-                const objview = objviews[i];
-                this.addObjectView(objview);
-            }
-        }
-        const inputrels = object.inputrels;
-        if (debug) console.log('744 gqlObject - inputrels', inputrels);
-        if (inputrels) {
-            this.inputrels = new Array();
-            const cnt = inputrels.length;
-            for (let i = 0; i < cnt; i++) {
-                const inputrel = inputrels[i];
-                this.addInputrel(inputrel);
-            }
-        }
-        const outputrels = object.outputrels;
-        if (debug) console.log('744 gqlObject - outputrels', outputrels);
-        if (outputrels) {
-            this.outputrels = new Array();
-            const cnt = outputrels.length;
-            for (let i = 0; i < cnt; i++) {
-                const outputrel = outputrels[i];
-                this.addOutputrel(outputrel);
-            }
-        }
         const values = object.valueset;
         if (debug) console.log('638 gqlObject - values', values);
         if (values) {
@@ -770,54 +734,6 @@ export class gqlObject {
                 this.addPropertyValue(val);
             }
         }
-    }
-    addInputrel(relship: akm.cxRelationship) {
-        if (!relship)
-            return;
-        const gRelship = new gqlRelationship(relship);
-        if (!this.inputrels)
-            this.inputrels = new Array();
-        const len = this.inputrels.length;
-        for (let i=0; i<len; i++) {
-            const rel = this.inputrels[i];
-            if (rel.id === relship.id) {
-                // Relationship is already in list
-                return;
-            }
-        }
-        this.inputrels.push(gRelship);
-    }
-    addOutputrel(relship: akm.cxRelationship) {
-        if (!relship)
-            return;
-        const gRelship = new gqlRelationship(relship);
-        if (!this.outputrels)
-            this.outputrels = new Array();
-        const len = this.outputrels.length;
-        for (let i=0; i<len; i++) {
-            const rel = this.outputrels[i];
-            if (rel.id === relship.id) {
-                // Relationship is already in list
-                return;
-            }
-        }
-        this.outputrels.push(gRelship);
-    }
-    addObjectView(objview: akm.cxObjectView) {
-        if (!objview) 
-            return;
-        const gObjview = new gqlObjectView(objview);
-        if (!this.objectviews)
-            this.objectviews = new Array();
-        const len = this.objectviews.length;
-        for (let i=0; i<len; i++) {
-            const ov = this.objectviews[i];
-            if (ov.id === objview.id) {
-                // Relationship is already in list
-                return;
-            }
-        }
-        this.objectviews.push(gObjview);
     }
     addPropertyValue(val: akm.cxPropertyValue) {
         if (!val)
@@ -926,7 +842,7 @@ export class gqlRelationship {
     typeRef:        string;
     fromobjectRef:  string;
     toobjectRef:    string;
-    relshipviews:   gqlRelshipView[] | null;
+    // relshipviews:   gqlRelshipView[] | null;
     propvalues:     any[];
     deleted:        boolean;
     modified:       boolean;
@@ -937,7 +853,6 @@ export class gqlRelationship {
         this.fromobjectRef  = relship.fromObject ? relship.fromObject.id : "";
         this.toobjectRef    = relship.toObject ? relship.toObject.id : "";
         this.typeRef        = "";
-        this.relshipviews   = [];
         this.propvalues     = [];
         this.deleted        = relship.deleted;
         this.modified       = relship.modified;
@@ -949,18 +864,7 @@ export class gqlRelationship {
             if (type)
                 this.typeRef = type.id;
             const fromObj = relship.fromObject;
-            fromObj.addOutputrel(relship);
             const toObj = relship.toObject;
-            toObj.addInputrel(relship);
-            const relviews = relship.relshipviews;
-            if (debug) console.log('875 gqlRelationship - relshipviews', relviews);
-            if (relviews) {
-                const cnt = relviews.length;
-                for (let i = 0; i < cnt; i++) {
-                    const relview = relviews[i];
-                    this.addRelshipView(relview);
-                }
-            }
             const values = relship.valueset;
             if (values) {
                 const cnt = values.length;
@@ -969,12 +873,6 @@ export class gqlRelationship {
                     this.addPropertyValue(val);
                 }
             }
-        }
-    }
-    addRelshipView(relview: akm.cxRelationshipView) {
-        if (relview) {
-            const gRelview = new gqlRelshipView(relview);
-            this.relshipviews.push(gRelview);
         }
     }
     addPropertyValue(val: akm.cxPropertyValue) {
@@ -1091,23 +989,14 @@ export class gqlObjectView {
         this.id             = objview?.id;
         this.name           = objview?.name;
         this.description    = objview?.description;
-        this.objectRef      = "";
-        this.typeviewRef    = "";
+        this.objectRef      = objview?.object?.id;
+        this.typeviewRef    = objview?.typeview?.id;
         this.group          = objview?.group;
         this.isGroup        = objview?.isGroup;
         this.loc            = objview?.loc;
         this.size           = objview?.size;
         this.deleted        = objview?.deleted;
         this.modified       = objview?.modified;
-        // Code
-        const obj = objview?.object;
-        if (obj) {
-            this.objectRef = obj?.id;
-            obj.addObjectView(objview);
-        }
-        const typeview = objview?.typeview;
-        if (typeview)
-            this.typeviewRef = typeview?.id;
     }
 }
 export class gqlRelshipView {
@@ -1133,14 +1022,10 @@ export class gqlRelshipView {
         // Code
         if (relview.description)
             this.description = relview.description;
-        const relship = relview.relship;
-        if (relship) {
-            this.relshipRef = relship.id;
-            relship.addRelationshipView(relview);
-        }
-        const typeview = relview.typeview;
-        if (typeview)
-            this.typeviewRef = typeview.id;
+        if (relview.relship)
+            this.relshipRef = relview.relship.id;
+        if (relview.typeview)
+            this.typeviewRef = relview.typeview.id;
     }
 }
 export class gqlImportMetis {

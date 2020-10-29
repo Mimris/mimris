@@ -2708,7 +2708,7 @@
             "models": [
                 {
                     "id": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
-                    "name": "Example concept model",
+                    "name": "Concept example-model",
                     "description": "",
                     "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
                     "targetMetamodelRef": "552561f1-76a9-4324-6d56-ca549fb63b9a",
@@ -5031,7 +5031,7 @@
                 },
                 {
                     "id": "16b9d74c-2045-442f-6183-5a2dda6e2613",
-                    "name": "Example Solution Model",
+                    "name": "Solution example-model",
                     "description": "",
                     "metamodelRef": "552561f1-76a9-4324-6d56-ca549fb63b9a",
                     "isTemplate": false,

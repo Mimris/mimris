@@ -2,7 +2,7 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
-const debug = true;
+const debug = false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
@@ -386,10 +386,12 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (data.class === "goObjectNode") {
                 const myNode = this.getNode(context.myGoModel, key);
                 if (myNode) {
-                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedRelships, modifiedTypeViews, context);
-                  if (debug) console.log('389 modifiedNodes', modifiedNodes);
-                  if (debug) console.log('390 modifiedNodes', modifiedObjects);
-                  if (debug) console.log('391 modifiedTypeViews', modifiedTypeViews);
+                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
+                  if (debug) console.log('390 modifiedNodes', modifiedNodes);
+                  if (debug) console.log('391 modifiedNodes', modifiedObjects);
+                  if (debug) console.log('392 modifiedTypeViews', modifiedTypeViews);
+                  if (debug) console.log('393 modifiedLinks', modifiedLinks);
+                  if (debug) console.log('394 modifiedRelships', modifiedRelships);
                 }
               }
               if (data.class === "goRelshipLink") {
@@ -490,6 +492,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('391 New object', objview);
               if (objview) {
                 const myNode = myGoModel?.findNode(part.key);
+                // if (myNode) {
+                //   gojsModel.nodeDataArray.push(myNode);
+                // }
                 // Check if inside a group
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
                 // if (debug) console.log('405 group', group)

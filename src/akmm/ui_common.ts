@@ -1,5 +1,5 @@
 // @ts-nocheck
-const debug = true;
+const debug = false;
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';
@@ -345,7 +345,7 @@ export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedF
 
 }
 
-export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, deletedRelships: any, deletedTypeviews: any, context: any) {
+export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, deletedLinks: any, deletedRelships: any, deletedTypeviews: any, context: any) {
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
@@ -405,15 +405,18 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             // Else handle delete object AND object views
             // First delete object
             const object = node.object;
-            object.deleted = deletedFlag;          
-            const gqlObj = new gql.gqlObject(object);
-            deletedObjects.push(gqlObj);            
+            if (object) {
+                object.deleted = deletedFlag;          
+                const gqlObj = new gql.gqlObject(object);
+                deletedObjects.push(gqlObj);   
+            }         
             // Then handle all object views of the deleted object
             const objviews = object?.objectviews;
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
                 if (objview) {
                     deleteObjectView(objview, deletedFlag, deletedNodes, deletedObjects, deletedTypeviews, context);
+                    if (debug) console.log('417 delete objview', objview);
                 }
             }
             let connectedRels = object?.inputrels;
@@ -421,9 +424,19 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
                     rel.deleted = deletedFlag;
+                    const relviews = rel.relshipviews;
+                    for (let i=0; i<relviews?.length; i++) {
+                        const relview = relviews[0];
+                        if (relview) {
+                            relview.deleted = deletedFlag;
+                            const gqlRelview = new gql.gqlRelshipView(relview);
+                            deletedLinks.push(gqlRelview);
+                            if (debug) console.log('432 delete relview', relview);
+                        }
+                    }
                     const gqlRel = new gql.gqlRelationship(rel);
                     deletedRelships.push(gqlRel);
-                    if (debug) console.log('416 delete rel', rel);
+                    if (debug) console.log('437 delete rel', rel);
                 }
             }
             connectedRels = object?.outputrels;
@@ -433,7 +446,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                     rel.deleted = deletedFlag;
                     const gqlRel = new gql.gqlRelationship(rel);
                     deletedRelships.push(gqlRel);
-                    if (debug) console.log('426 delete rel', rel);
+                    if (debug) console.log('447 delete rel', rel);
                 }
             }
         }
@@ -515,7 +528,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         if (relship) {
             relview.deleted = deletedFlag;
             const gqlRelview = new gql.gqlRelshipView(relview);
-            deletedLinks.push(delLink);
+            deletedLinks.push(gqlRelview);
             const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {
@@ -523,7 +536,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
                     if (!rview.deleted) {
                         rview.deleted = deletedFlag;
                         const gqlRelview = new gql.gqlRelshipView(rview);
-                        deletedLinks.push(delLink);
+                        deletedLinks.push(gqlRelview);
                         if (debug) console.log('517 deleteLink', rview);
                         // Handle relshiptypeview
                         deleteRelshipTypeView(rview, deletedFlag, deletedTypeviews);

@@ -1397,6 +1397,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               },
               new go.Binding("text", "name").makeTwoWay()
             ),
+            $(go.TextBlock, textStyle(), // the typename
+            {
+              row: 1, column: 1, columnSpan: 6, textAlign: "end",
+              editable: false, isMultiline: false,
+              minSize: new go.Size(10, 4),
+              margin: new go.Margin(2, 0, 0, 2)
+            },
+            new go.Binding("text", "typename")
+            //new go.Binding("text", "choices")
+          ),
           ), // End Horizontal Panel
           $(go.Shape,  // using a Shape instead of a Placeholder
             {

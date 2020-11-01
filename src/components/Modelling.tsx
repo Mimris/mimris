@@ -231,7 +231,7 @@ const page = (props:any) => {
           <div className="workpad p-1 pt-2 bg-white" >
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-                <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+                <div className="myPalette pl-1 mb-1 pt-2" style={{ minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
                     gojsModel={gojsmetamodelmodel}
@@ -307,7 +307,7 @@ const page = (props:any) => {
                 </div>
               </Col>
             <Col xs="auto m-0 p-0 pr-0">
-              <div className="myTargetMeta pl-0 mb-1 pt-0 text-white float-right" style={{ maxWidth: "200px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+              <div className="myTargetMeta pl-0 mb-1 pt-0 float-right" style={{ maxWidth: "300px", minHeight: "8vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
                 <TargetMeta
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}

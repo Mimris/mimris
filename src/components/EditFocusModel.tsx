@@ -7,7 +7,8 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import EditProperties  from './forms/EditProperties'
 
 const EditFocusModel = (props) => {
-  // console.log('10 EditFocusModel', props);
+  const debug = false
+  if (debug) console.log('10 EditFocusModel', props);
   
   const refresh = props.refresh
   const setRefresh = props.setRefresh
@@ -23,7 +24,7 @@ const EditFocusModel = (props) => {
   const curmodelview = curmodel?.modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const curobjview = curmodelview?.objectviews?.find((ov: any) => ov?.id === focusObjectview?.id)
   const curobj_tmp = curmodel?.objects?.find(o => o.id === curobjview?.objectRef)
-  const curobj = (curobj_tmp) && {...curobj_tmp, name: curobjview?.name, description: curobjview?.description}
+  const curobj = (curobj_tmp) && {...curobj_tmp, name: curobjview?.name, description: curobjview?.description} // the object(instance) of current objview
   const currelview = curmodelview?.relshipviews?.find((rv: any) => rv?.id === focusRelshipview?.id)
   const currel_tmp= curmodel?.relships?.find((r: any) => r.id === currelview?.relshipRef)
   const currel = (currel_tmp) && {...currel_tmp, name: currelview?.name, description: currelview?.description}
@@ -31,9 +32,11 @@ const EditFocusModel = (props) => {
   
   const focusObjecttype = props.ph.phFocus?.focusObjecttype
   const focusRelshiptype = props.ph.phFocus?.focusRelshiptype
+
   const metamodels = props.ph.phData.metis?.metamodels
   const curmetamodel = metamodels?.find(mm => (mm) && mm.id === curmodel?.metamodelRef)
   const curmmobj = curmetamodel?.objecttypes?.find((ov: any) => ov?.id === focusObjecttype?.id)
+
   const curmmotypegeos = curmetamodel?.objecttypegeos?.find(otg => otg.typeRef === curmmobj?.id)
   const curmmotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curmmobj?.typeviewRef)
   
@@ -43,7 +46,8 @@ const EditFocusModel = (props) => {
   const curotypeview = curmetamodel?.objecttypeviews?.find(tv => tv.id === curobjview?.typeviewRef)
   const currtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === currelview?.typeviewRef)
   
-  // console.log('42 EditFocusModel', curmetamodel?.relshiptypeviews, currtypeview);
+  
+  if (debug) console.log('42 EditFocusModel', focusObjecttype, curobj_tmp, curobj);
   
   const editmpropertyDiv = (props.modelType === 'modelview') 
     && (curmodel) && <EditProperties item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
@@ -208,85 +212,3 @@ const EditFocusModel = (props) => {
 }
 
 export default EditFocusModel
-
-  // < style jsx > {`
-  //           .list-obj {
-  //             min-Width: 90px;
-  //           }
-  //           /*******************************
-  //           * MODAL AS LEFT/RIGHT SIDEBAR
-  //           * Add "left" or "right" in modal parent div, after className="modal".
-  //           * Get free snippets on bootpen.com
-  //           *******************************/
-  //           .modal {
-  //               z-index: 1;
-  //               margin-top: 50%;
-  //           }
-  //           .modal.right .modal-dialog {
-  //             position: fixed;
-  //             top: 50%;
-  //             margin: 150px auto 200px auto;
-  //             width: 380px;
-  //             height: 60%;
-  //             color: black;
-  //             -webkit-transform: translate3d(0%, 0, 0);
-  //             -ms-transform: translate3d(0%, 0, 0);
-  //             -o-transform: translate3d(0%, 0, 0);
-  //             transform: translate3d(0%, 0, 0);
-  //           }
-
-  //           .modal.right .modal-content {
-  //             height: 80%;
-  //             overflow-y: auto;
-  //           }
-
-  //           .modal.right .modal-body {
-  //             padding: 15px 15px 80px;
-  //             color: #444;
-  //           }
-
-  //           .modal.right.fade .modal-dialog {
-  //             position: abolute;
-  //             top: 100px;
-  //             right: 320px;
-  //             -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
-  //             -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
-  //             -o-transition: opacity 0.3s linear, left 0.3s ease-out;
-  //             transition: opacity 0.3s linear, left 0.3s ease-out;
-  //           }
-  //           .modal.fade.in {
-  //             opacity: 1;
-  //           }
-  //           .modal.right.fade.show .modal-dialog {
-  //             right: 0;
-  //             transform: translate(0,0);
-  //           }
-
-  //           /* ----- MODAL STYLE ----- */
-  //           .modal-content {
-  //             border-radius: 0;
-  //             border: none;
-  //           }
-
-  //           .modal-header {
-  //             border-bottom-color: #eeeeee;
-  //             background-color: #fafafa;
-  //           }
-  //           .modal-body {
-  //              width: 400px;
-  //           }
-  //           .modal-backdrop .fade .in {
-  //             /* display: none; */
-  //             /* opacity: 0; */
-  //             /* opacity: 0.5; */
-  //             /* filter: alpha(opacity=50) !important; */
-  //             /* background: #fff; */
-  //                   }
-  //           .modal-background {
-  //             display: none;
-  //           }
-  //           .btn-context {
-  //             // font-size: 80%;
-  //             font-weight: bold;
-  //           }
-  //           `}</style > 

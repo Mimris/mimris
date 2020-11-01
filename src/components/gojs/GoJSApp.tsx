@@ -2,7 +2,7 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
-const debug = true;
+const debug = false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
@@ -236,7 +236,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     const gqlObjview = new gql.gqlObjectView(myNode.objectview);
                     modifiedNodes.push(gqlObjview);
                     const gqlObj = new gql.gqlObject(myNode.objectview.object);
-                    gqlObj.addObjectView(gqlObjview);
                     modifiedObjects.push(gqlObj);
                   }
                 }
@@ -387,10 +386,12 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (data.class === "goObjectNode") {
                 const myNode = this.getNode(context.myGoModel, key);
                 if (myNode) {
-                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedRelships, modifiedTypeViews, context);
-                  if (debug) console.log('389 modifiedNodes', modifiedNodes);
-                  if (debug) console.log('390 modifiedNodes', modifiedObjects);
-                  if (debug) console.log('391 modifiedTypeViews', modifiedTypeViews);
+                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
+                  if (debug) console.log('390 modifiedNodes', modifiedNodes);
+                  if (debug) console.log('391 modifiedNodes', modifiedObjects);
+                  if (debug) console.log('392 modifiedTypeViews', modifiedTypeViews);
+                  if (debug) console.log('393 modifiedLinks', modifiedLinks);
+                  if (debug) console.log('394 modifiedRelships', modifiedRelships);
                 }
               }
               if (data.class === "goRelshipLink") {
@@ -400,6 +401,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const relview = data.relshipview;
                 if (relview) {
                   relview.deleted = deletedFlag;
+                  relview.relship = myMetis.findRelationship(relview.relship.id);
                   const gqlRelview = new gql.gqlRelshipView(relview);
                   modifiedLinks.push(gqlRelview);
                   if (debug) console.log('403 SelectionDeleted', modifiedLinks);
@@ -450,7 +452,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           produce((draft: AppState) => {
             const nn = nodes.first();
             const part = nodes.first().data;
-            if (debug) console.log('382 GoJSApp', part);
+            if (debug) console.log('453 myMetis', myMetis);
+            if (debug) console.log('454 part', part);
             if (part.type === 'objecttype') {
               // if (part.viewkind === 'Object') {
               //     part.typename = constants.types.OBJECTTYPE_NAME;
@@ -480,6 +483,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             } else // object
             {
+              if (debug) console.log('484 myModel', myModel);
               if (part.parentModel == null)
                 myMetis.pasteViewsOnly = true;
               if (part.isGroup)
@@ -488,6 +492,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('391 New object', objview);
               if (objview) {
                 const myNode = myGoModel?.findNode(part.key);
+                // if (myNode) {
+                //   gojsModel.nodeDataArray.push(myNode);
+                // }
                 // Check if inside a group
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
                 // if (debug) console.log('405 group', group)
@@ -503,7 +510,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                 modifiedNodes.push(gqlObjview);
                 // if (debug) console.log('406 New object', gqlNode, modifiedNodes);
                 const gqlObj = new gql.gqlObject(objview.object);
-                gqlObj.addObjectView(gqlObjview);
                 modifiedObjects.push(gqlObj);
                 // if (debug) console.log('409 New object', gqlObj);
               }
@@ -610,7 +616,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                   modifiedNodes.push(gqlObjview);
                   if (debug) console.log('532 ClipboardPasted', modifiedNodes);
                   const gqlObj = new gql.gqlObject(objview.object);
-                  gqlObj.addObjectView(gqlObjview);
                   modifiedObjects.push(gqlObj);
                   if (debug) console.log('535 ClipboardPasted', modifiedObjects);
                 }
@@ -624,9 +629,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (selected.class === 'goRelshipLink') {
                 if (debug) console.log('543 ClipboardPasted', selected);
                 const link = selected;
-                const relview = uic.pasteRelationship(link, pastedNodes, context);
+                let relview = uic.pasteRelationship(link, pastedNodes, context);
                 if (debug) console.log('546 relview', link, relview);
                 if (relview) {
+                  const relid = relview.relship.id;
+                  relview.relship = myMetis.findRelationship(relid);
                   const gqlRelview = new gql.gqlRelshipView(relview);
                   if (debug) console.log('549 ClipboardPasted', gqlRelview);
                   modifiedLinks.push(gqlRelview);
@@ -651,6 +658,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (fromNode?.class === 'goObjectNode') {
               const relview = uic.createRelationship(link.data, context);
               if (relview) {
+                relview.relship = myMetis.findRelationship(relview.relship.id);
                 const gqlRelview = new gql.gqlRelshipView(relview);
                 if (debug) console.log('576 LinkDrawn', link, gqlRelview);
                 modifiedLinks.push(gqlRelview);

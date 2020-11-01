@@ -43,8 +43,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 },
             }, 
         };
-        console.log('46 LoadLocal', data);
-        
+        console.log('46 LoadLocal', data);      
         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
     };
     reader.readAsText(e.target.files[0])

@@ -11,8 +11,8 @@ import { colorOptions } from './data';
 // import { loadData, setFocusObject, setfocusSource, setFocusOrg, setFocusProj, setFocusRole, setFocusTask } from '../../actions/actions'
 
 const EditProperties = (props) => {
-
-  // console.log('8 EditProperties', props);
+  const debug = false
+  if (debug) console.log('8 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);
@@ -22,6 +22,7 @@ const EditProperties = (props) => {
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.icon)
+  // const otype = pprops.item.typeRef
   // console.log('25 EditProperties', props.item);
   // console.log('26 EditProperties', props.item.fillcolor, colorvalue);
   
@@ -242,7 +243,7 @@ const EditProperties = (props) => {
       && p
   ).filter(Boolean)
 
-  const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))
+  const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
   // console.log('223 EditProperties', fieldsDiv);
 
   const previewIcon =  (iconvalue) && (iconvalue.substring(0, 4) === 'http')

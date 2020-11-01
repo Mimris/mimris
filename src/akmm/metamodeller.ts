@@ -3808,59 +3808,6 @@ export class cxModel extends cxMetaObject {
         this.relships = null;
         this.modelviews = null;
     }
-
-    // Methods
-    // repair() {
-    //     // Get all modelviews
-    //     const modelviews = this.getModelViews();
-    //     if (debug) console.log('No of modelviews: ', modelviews?.length);
-    //     for (let i=0; i<modelviews?.length; i++) {
-    //     //  Get all objectviews
-    //         const modelview = modelviews[i];
-    //         const objviews = modelview.getObjectViews();
-    //         if (debug) console.log('No of objectviews: ', objviews?.length);
-    //     //  For each objectview
-    //         for (let j=0; j<objviews?.length; j++) {
-    //             const objview = objviews[j];
-    //             if (objview) {
-    //     //    Get object
-    //                 let obj = objview.getObject();
-    //                 let objid = obj?.id;
-    //                 let obj0 = this.findObject(objid);
-    //     //    If (!object)
-    //                 if (!obj0) {
-    //                     if (debug) console.log('Object not found in model:', objid);
-    //                     let obj1 = this.metis.findObject(objid);
-    //                     if (obj1) {
-    //                         this.addObject(obj1);
-    //                     } 
-    //                     else {
-    //     //      Get typeview
-    //                         const typeview = objview.getTypeView();
-    //                         if (typeview) {
-    //     //        Get type
-    //                         const type = typeview.getType();
-    //                             if (type) {
-    //     //        Create object of type
-    //                                 let obj2 = new cxObject(utils.createGuid(), objview.getName(), type, objview.getDescription());
-    //                                 if (obj2) {
-    //     //        Set objectview.object = object
-    //                                     objview.setObject(obj2);
-    //     //        Add object to metis and model
-    //                                     this.addObject(obj2);
-    //                                     this.metis.addObject(obj2);
-    //                                 }
-    //                             }
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //             if (debug) console.log('objview completed:', objview);
-    //         }
-    //         if (debug) console.log('modelview completed:', modelview);
-    //     }
-    //     if (debug) console.log('repair completed');
-    // }
     addReferencedItem(ref: any, id: string) {
         if (ref === 'metamodelRef') {
             const metamodel = this.metis?.findMetamodel(id);

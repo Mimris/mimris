@@ -163,8 +163,8 @@ const LoadLocal = (props: any) => {
   const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
 
-  const buttonSaveModelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveModelToFile} > Download Current Model to File </button >
-  const buttonSaveMetamodelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveMetamodelToFile} > Download Current Metamodel to File </button >
+  const buttonSaveModelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveModelToFile} > Save Current Model to File (Downloads) </button >
+  const buttonSaveMetamodelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveMetamodelToFile} > Save Current Metamodel to File (Downloads)</button >
 
   const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
   
@@ -181,30 +181,30 @@ const LoadLocal = (props: any) => {
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <div className="store-div px-2 pb-1 mb-0">
               <h6>Local Store </h6>
-              <div className="select" >
+              <div className="select bg-light mb-1 p-2  border border-dark">
                 {buttonLoadLocalStoreDiv}
                 <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#aaa", padding: "2px",  marginTop: "1px" , marginBottom: "6px" }} />
                 {buttonSaveCurrentToLocalStoreDiv} 
                 {buttonSaveToLocalStoreDiv}
               </div>
-              <div className="select">
-                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-                <h6>Local Metamodel File </h6>
-                {buttonSaveMetamodelToFileDiv}
-                <div> Import Metamodel from File (json) :
+              <div className="select bg-light mb-1 p-2 border border-dark">
+                <h6>Import Metamodel from file </h6>
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                <div className="mb-2"> 
                   <input type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
+                {buttonSaveMetamodelToFileDiv}
               </div>
-              <div className="select">
-                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-                <h6>Local Model File </h6>
-                {buttonSaveModelToFileDiv}
-                <div> Import Model from File (json) :
+              <div className="select bg-light mb-1 p-2  border border-dark">
+                <h6>Import Model from file </h6>
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                <div className="mb-2">
                   <input type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
                 </div>
+                {buttonSaveModelToFileDiv}
               </div>
-              <div className="select pt-1">
-                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+              <div className="select bg-light mb-1 p-2  border border-dark">
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <h6>Crash Recover </h6>
                 <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
                   If the browser hang or crash, first reload the page and before any other actions, click on the button below to recover your last work !

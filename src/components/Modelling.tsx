@@ -68,7 +68,7 @@ const page = (props:any) => {
 
     useEffect(() => {
       // if (debug) console.log('68 Diagram useEffect 1 ', props ); 
-      genGojsModel(props, dispatch);
+      // genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
       // setRefresh(!refresh)
     }, [props.phData.metis])

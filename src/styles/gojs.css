@@ -33,7 +33,7 @@ p {
 }
 
 .inspector td, th {
-  padding: 2px;
+  padding: 0px;
 }
 
 .inspector input {

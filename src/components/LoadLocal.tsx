@@ -10,10 +10,8 @@ import useLocalStorage  from '../hooks/use-local-storage'
 import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 
-const debug = false
-
 const LoadLocal = (props: any) => {
-  const debug = true
+  const debug = false
   const dispatch = useDispatch()  
   const refresh = props.refresh
   const setRefresh = props.setRefresh
@@ -21,7 +19,7 @@ const LoadLocal = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  // console.log('20 LoadLocal',  modelNames, metamodelNames);
+  if (debug) console.log('20 LoadLocal',  modelNames, metamodelNames);
   
   // try {  
   //   if (typeof window === 'undefined'){
@@ -39,7 +37,7 @@ const LoadLocal = (props: any) => {
   const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false
   // let memoryStatus = false
-  // console.log('25 LoadLocal', locState.phData.metis.models[0].modelviews[0].objectviews[0].loc);
+
   
   function handleDispatchToStoreFromLocal() {  // load store from Local
     locStatus = true
@@ -63,7 +61,7 @@ const LoadLocal = (props: any) => {
       }
     } else alert('No Modeles saved to Local Storage')
   }
-  function handleDispatchToStoreFromMemory() {  // load store from localmemorystate
+  function handleDispatchToStoreFromMemory() {  // load store from Local
     // memoryStatus = true
     if (debug) console.log('63 LoadLocal', memoryState);
     const phData = memoryState.phData
@@ -91,7 +89,7 @@ const LoadLocal = (props: any) => {
 
   function handleSaveAllToLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});
-    // if (debug) console.log('72 SelectSource', state, props.ph);
+    if (debug) console.log('72 SelectSource',  props.ph);
     const data = {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
@@ -165,14 +163,14 @@ const LoadLocal = (props: any) => {
   const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
 
-  const buttonSaveModelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveModelToFile} > Download Current Model to File </button >
-  const buttonSaveMetamodelToFileDiv = <button className="btn-secondary btn-sm mr-2 text-secondary w-100  " onClick={handleSaveMetamodelToFile} > Download Current Metamodel to File </button >
+  const buttonSaveModelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveModelToFile} > Save Current Model to File (Downloads) </button >
+  const buttonSaveMetamodelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveMetamodelToFile} > Save Current Metamodel to File (Downloads)</button >
 
   const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
   
   return (
     <>
-      <button className="btn-context btn-link float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+      <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>LocalStorage: </ModalHeader>
         <ModalBody className="pt-0">
@@ -183,30 +181,30 @@ const LoadLocal = (props: any) => {
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <div className="store-div px-2 pb-1 mb-0">
               <h6>Local Store </h6>
-              <div className="select" >
+              <div className="select bg-light mb-1 p-2  border border-dark">
                 {buttonLoadLocalStoreDiv}
                 <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#aaa", padding: "2px",  marginTop: "1px" , marginBottom: "6px" }} />
                 {buttonSaveCurrentToLocalStoreDiv} 
                 {buttonSaveToLocalStoreDiv}
               </div>
-              <div className="select">
-                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-                <h6>Local Metamodel File </h6>
-                {buttonSaveMetamodelToFileDiv}
-                <div> Import Metamodel from File (json) :
+              <div className="select bg-light mb-1 p-2 border border-dark">
+                <h6>Import Metamodel from file </h6>
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                <div className="mb-2"> 
                   <input type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
+                {buttonSaveMetamodelToFileDiv}
               </div>
-              <div className="select">
-                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
-                <h6>Local Model File </h6>
-                {buttonSaveModelToFileDiv}
-                <div> Import Model from File (json) :
+              <div className="select bg-light mb-1 p-2  border border-dark">
+                <h6>Import Model from file </h6>
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                <div className="mb-2">
                   <input type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
                 </div>
+                {buttonSaveModelToFileDiv}
               </div>
-              <div className="select pt-1">
-                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+              <div className="select bg-light mb-1 p-2  border border-dark">
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <h6>Crash Recover </h6>
                 <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
                   If the browser hang or crash, first reload the page and before any other actions, click on the button below to recover your last work !

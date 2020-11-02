@@ -12,7 +12,6 @@ const localhost = 'http://localhost:4000/'
 
 // this version is without login
 function * loadDataSaga() {
-
   try {
     let res = ''  
     res = yield fetch(`${localhost}akmmodels/`,

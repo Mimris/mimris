@@ -61,14 +61,25 @@ const page = (props) => {
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
                   <CardTitle style={{ fontWeight: "bolder" }}>Tips !</CardTitle>
                   <CardText className="bg-light text-info  p-3" >
-                    <strong>Save current models to a file: <br />(Requirement:</strong> Chrome browser with RemoteDev DevTools Extensions installed) 
+                    <strong><strong>Save current model to a file: <br />
+                    <br />Click on the "Local" button </strong>
+                    <br />Select "Download Current Model to File". </strong>
+                    <br />... the model is downloaded to the "downloads" folder. 
+                    <hr />
+                    <strong><strong>In case of hang or crash </strong></strong><br />
+                    <strong> 
+                      - Reload the webpage! ...then before anything else:<br />
+                      - Select "Recover Unseaved Models from MemoryStorage". </strong>
+  
+                    <br /><br /><strong> </strong>
+                    {/* <strong>Save current models to a file: <br />(Requirement:</strong> Chrome browser with RemoteDev DevTools Extensions installed) 
                     
                     <br /><br /><strong>Right click the meny bar at the top </strong>
                     <br />Select "Inpect" (a ).
                     <br /><br /><strong>Click "Export" at the bottom meny) </strong>
                     <br />... the Redux store (incl. all actions) will be exported and downloaded to "downloads" folder. 
                     <br /> (Tip: Rename the file to include date and move/copy it to a folder to keep history of your model).
-                    <br />(The file can be loaded later or sent by email to someone for review)
+                    <br />(The file can be loaded later or sent by email to someone for review) */}
 
                   </CardText>
                 </CardBody>
@@ -116,15 +127,15 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
                 <Card className="bg-info" body outline color="primary" >
                   <CardHeader>Blog </CardHeader>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
                     <CardText>
-                    1st version of AKMM awailable on Heroku! sf  
+                      Bugfix and added download upload of models from file. AKMM on akmclient-beta.heroku.com! sf  
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
                     <CardText>
-                      2nd version of AKMM on Heroku! sf  
+                      1st working version of AKMM on akmclient-beta.heroku.com! sf  
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
@@ -134,9 +145,15 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Alfa Release 2020.10.16</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
                     <CardText>
-                      1st working version of AKMM on akmclient-beta.heroku.com! sf  
+                      2nd version of AKMM on Heroku! sf  
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
+                    <CardText>
+                      1st version of AKMM awailable on Heroku! sf  
                     </CardText>
                   </CardBody>
                 </Card>

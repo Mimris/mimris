@@ -10,7 +10,7 @@ import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 
 const Palette = (props) => {
-  
+  const debug = false
   if (debug) console.log('13 Palette ',  props );
   const gojstypes = props.gojsMetamodel
   const gojsmodelobjects = props.gojsModelObjects // has to be: props.gojsObjects
@@ -104,7 +104,7 @@ const Palette = (props) => {
    const palette =
       <> 
         <button className="btn-sm p-0 mr-2" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
-          onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} 
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette - Metamodel </span> : <span>&gt;</span>} 
         </button>
 
         <div>
@@ -112,7 +112,7 @@ const Palette = (props) => {
           {visiblePalette 
            ? (refresh) ?<> { gojsapp } </> : <>{gojsapp}</>
             // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
-            : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - M e t a</span> </div>
+            : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - M e t a m o d e l </span> </div>
           }
         </div>
       </>  

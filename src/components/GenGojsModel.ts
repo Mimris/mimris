@@ -13,7 +13,7 @@ const glb = require('../akmm/akm_globals');
 const constants = require('../akmm/constants');
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
-
+  const debug = false
   if (debug) console.log('17 GenGojsModel props:', props);
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
@@ -30,9 +30,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     //   myMetis.importData(metis, true);
     // } else {
       const myMetis = new akm.cxMetis();
+      if (debug) console.log('33 GenGojsModel', myMetis);  
       myMetis.importData(metis, true);
     // }
-    if (debug) console.log('44 GenGojsModel myMetis', myMetis);
+      if (debug) console.log('36 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -214,7 +215,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview, metis);
+    if (debug) console.log('217 GenGojsModel', metis, modelview);
+    
+    const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
+    if (debug) console.log('221 GenGojsModel', myGoModel);
+    
     let objviews = modelview?.getObjectViews();
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
@@ -222,6 +227,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!objview.deleted) {
           let node = new gjs.goObjectNode(utils.createGuid(), objview);
           myGoModel.addNode(node);
+          if (debug) console.log('245 buildGoModel - node', node, myGoModel);
+
         }
       }
       const nodes = myGoModel.nodes;

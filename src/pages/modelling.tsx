@@ -15,16 +15,16 @@ import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
 // import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
+  // console.log('16 diagram',props)
 
   const [refresh, setRefresh] = useState(true);
-  // console.log('16 diagram',props)
   const dispatch = useDispatch()
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
   // DispatchFromLocalStore(memoryLocState)
   // console.log('23 modelling', memoryLocState);
   
-  if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
-    if (typeof window !== "undefined") {
+  // if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
+  //   if (typeof window !== "undefined") {
     //   const loadMemory = confirm("Open saved memory model?");
       // if (loadMemory) {
         // if ((typeof window !== "undefined") && props && props?.phSource === 'initialState' ) {
@@ -39,16 +39,16 @@ const page = (props:any) => {
         //   DispatchFromLocalStore(memoryState)
         // }
       // }
-    }
-  }
+  //   }
+  // }
 
   // if (!props.phData) {
   //   dispatch(loadData())
   // }
   
-  // console.log('23 modelling', props.phData);
   
   const state = useSelector(state => state)
+  // console.log('51 modelling', state, props.phData);
   
   const [visible,setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
@@ -87,7 +87,7 @@ const page = (props:any) => {
                 {/* <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} > */}
                 <TasksHelp />
               </div>
-              <div className="workarea px-1 py-2" style={{ backgroundColor: "#eee" }}>
+              <div className="workarea mr-1 pl-1 pt-2 pb-3" style={{ backgroundColor: "#ddd" }}>
                 {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
                 {/* <Modelling /> */}
               </div>

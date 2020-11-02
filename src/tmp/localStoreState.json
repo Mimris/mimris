@@ -744,9 +744,39 @@
                             "modified": false
                         },
                         {
+                            "id": "632c266a-f4ff-43a9-d363-21d8e4d80903",
+                            "name": "undefined",
+                            "description": "Undefined",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "7962dcf1-d678-405e-5950-5dcc1b8a131a",
+                            "name": "undefined",
+                            "description": "Undefined",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
                             "id": "9c426092-98be-4470-97d3-99ee033b6b29",
                             "name": "boolean",
                             "description": "Boolean",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "a20d8ab5-9bf5-4625-6ff2-e72090d99448",
+                            "name": "string",
+                            "description": "String",
                             "datatypeRef": "",
                             "defaultValue": null,
                             "allowedValues": "",
@@ -764,7 +794,27 @@
                             "modified": false
                         },
                         {
+                            "id": "b20324f6-654d-4918-e4c2-492919c4cbc3",
+                            "name": "integer",
+                            "description": "Integer",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
                             "id": "b959f506-7609-4915-80dc-2b64270efa9f",
+                            "name": "date",
+                            "description": "Date",
+                            "datatypeRef": "",
+                            "defaultValue": null,
+                            "allowedValues": "",
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "bc05e48e-c3a1-4d82-378b-7508ce020add",
                             "name": "date",
                             "description": "Date",
                             "datatypeRef": "",
@@ -43110,202 +43160,6 @@
                     "id": "ab249341-335f-4395-0115-761de99057c8",
                     "name": "Workplace",
                     "description": "",
-                    "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
-                    "sourceMetamodelRef": "",
-                    "templateModelRef": "",
-                    "targetModelRef": "",
-                    "objects": [
-                        {
-                            "id": "573deedb-a6d9-4d6e-8f8d-05cad4ea50a0",
-                            "name": "Model",
-                            "description": "",
-                            "typeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "cbc41817-3788-4e49-28bd-321c4ce84887",
-                            "name": "id",
-                            "description": "",
-                            "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "a7c63c9e-67b1-45fb-5d4f-9174e3bcf7b7",
-                            "name": "Name",
-                            "description": "",
-                            "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "d43fae8c-ade2-434a-bea5-895d3259bfb4",
-                            "name": "Type",
-                            "description": "",
-                            "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "dfd75ab8-aceb-4c24-6293-722bea4cf959",
-                            "name": "RepositoryUri",
-                            "description": "",
-                            "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "89697e0b-23b2-4b50-53bb-e6e5f78b4230",
-                            "name": "Value",
-                            "description": "",
-                            "typeRef": "515bb361-7a73-4b03-7a58-557007e138a8",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "4966cf31-5b35-403a-6d18-a7a41f2a1f97",
-                            "name": "SolutionRef",
-                            "description": "",
-                            "typeRef": "515bb361-7a73-4b03-7a58-557007e138a8",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "36906333-273e-4062-61d0-8ba08772bc4f",
-                            "name": "String",
-                            "description": "",
-                            "typeRef": "a6ee10cd-9197-400d-ff3a-cd878b07ec9e",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "db0ddfd1-84a3-4bc6-952b-57af3e10f3bb",
-                            "name": "Datatype",
-                            "description": "",
-                            "typeRef": "a6ee10cd-9197-400d-ff3a-cd878b07ec9e",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "70e78d80-9b96-4ca6-865c-f02df157692e",
-                            "name": "Value",
-                            "description": "",
-                            "typeRef": "515bb361-7a73-4b03-7a58-557007e138a8",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "9b4914a0-0da5-4eda-8130-bfaa2fda4995",
-                            "name": "WorkplaceRef Solution Template",
-                            "description": "",
-                            "typeRef": "515bb361-7a73-4b03-7a58-557007e138a8",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "2224a3f6-1dc5-4fcc-b800-6d25066a65c5",
-                            "name": "String",
-                            "description": "",
-                            "typeRef": "a6ee10cd-9197-400d-ff3a-cd878b07ec9e",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "320ced17-2b72-4e2e-775d-9d5cbd7a8579",
-                            "name": "URI",
-                            "description": "",
-                            "typeRef": "515bb361-7a73-4b03-7a58-557007e138a8",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "27746d43-79db-4dbc-fd62-100ff4f73caa",
-                            "name": "",
-                            "description": "",
-                            "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "05c179a3-e7d0-449c-13e4-ef020fc5ebcd",
-                            "name": "ClientUri",
-                            "description": "",
-                            "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "d1ee3bdc-6101-49e3-c956-5f3e1541dccc",
-                            "name": "ServerUri",
-                            "description": "",
-                            "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "44416e8f-3119-4f86-20c9-9d0da946a845",
-                            "name": "id",
-                            "description": "",
-                            "typeRef": "6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "3c554d03-16dc-4517-29f6-6a34562a51f0",
-                            "name": "Metamodel",
-                            "description": "",
-                            "typeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "4ff72b61-8cab-4877-4959-3aa18366061f",
-                            "name": "WorkspaceRef",
-                            "description": "",
-                            "typeRef": "515bb361-7a73-4b03-7a58-557007e138a8",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "83d734e7-a3c6-4d53-a546-dea6a248c8cb",
-                            "name": "TemplateRef",
-                            "description": "",
-                            "typeRef": "515bb361-7a73-4b03-7a58-557007e138a8",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "5d703cc5-60b9-43aa-180e-fc1d1bc013b2",
-                            "name": "Datatype",
-                            "description": "",
-                            "typeRef": "a6ee10cd-9197-400d-ff3a-cd878b07ec9e",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "9d7a3536-c65e-4485-2837-8aac067dd112",
-                            "name": "Information",
-                            "description": "",
-                            "typeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "51455bb9-a4d6-4ef0-586e-b32b752a22e5",
-                            "name": "AkmClient",
-                            "description": "",
-                            "typeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "870119ce-0de4-4ad0-7c25-0c9e88ebf4eb",
-                            "name": "AkmServer",
-                            "description": "",
-                            "typeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
-                            "deleted": false,
-                            "modified": true
                         },
                         {
                             "id": "b46a05f1-6040-4ac4-98bb-9a5227d8247d",

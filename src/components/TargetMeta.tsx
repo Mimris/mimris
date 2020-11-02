@@ -40,13 +40,13 @@ const TargetMeta = (props) => {
   const palette =
     <>
       <button className="btn-sm pt-0 pr-1 b-0 mt-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#9a9", outline: "0", borderStyle: "none" }}
-        onClick={togglePalette}> {visiblePalette ? <span>&gt;Target <br /> Metamodel <br />Types</span> : <span>&lt;</span>}
+        onClick={togglePalette}> {visiblePalette ? <span>&gt;Target <br /> Concept Metamodel</span> : <span>&lt;</span>}
       </button>
       {visiblePalette
         ? <div className="m-1"> {gojsapp} </div>
         // ? <div> {gojsapp} <div style={{ minWidth: "292px", height: "100%" }}></div></div>
         // : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - T a r g e t - M e t a m o d e l</span> </div>
-        : <div className="btn-vertical m-0 pl-2 p-0" style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> T a r g e t - C o n c e p t  M e t a m o d e l</span> </div>
+        : <div className="btn-vertical m-0 pl-2 p-0" style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> T a r g e t - C o n c e p t - M e t a m o d e l</span> </div>
       }
     </>
 

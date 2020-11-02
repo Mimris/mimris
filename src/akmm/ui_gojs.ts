@@ -80,12 +80,12 @@ export class goModel {
             let i = 0;
             while (i < this.nodes.length) {
                 const node = this.nodes[i];
-                if (node.class === 'goObjectNode') {
+                // if (node.class === 'goObjectNode') {
                     const n = node as goObjectNode;
                     if (n.objectview && n.objectview.getId() === objviewId) {
                         return (n);
                     }
-                }
+                // }
                 i++;
             }
         }
@@ -125,14 +125,14 @@ export class goModel {
         const cnt = nodes.length;
         for (let i = 0; i < cnt; i++) {
             const n = nodes[i];
-            if (n.class === "goObjectNode") {
+            // if (n.class === "goObjectNode") {
                 const node = n as goObjectNode;
                 if (!node.isGroup)
                     continue;
                 const objview = node.objectview;
                 if (objview && objview.getId() === groupKey)
                     return node;
-            }
+            // }
         }
         return null;
     }

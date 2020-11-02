@@ -40,9 +40,7 @@ import {
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
   UPDATE_METAMODEL_PROPERTIES,
-  UPDATE_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_PROPERTIES,
-  UPDATE_RELSHIP_PROPERTIES,
   UPDATE_RELSHIPVIEW_PROPERTIES,
   UPDATE_OBJECTTYPE_PROPERTIES,
   UPDATE_TARGETMETAMODEL_PROPERTIES,
@@ -62,6 +60,8 @@ import {
   UPDATE_VALUE_PROPERTIES,
   UPDATE_RELSHIPTYPE_PROPERTIES,
   UPDATE_RELSHIPTYPEVIEW_PROPERTIES,
+  UPDATE_OBJECT_PROPERTIES,
+  UPDATE_RELSHIP_PROPERTIES,
   EDIT_OBJECT_PROPERTIES,
   UPDATE_OBJECTVIEW_NAME
 } from '../actions/types';
@@ -71,7 +71,6 @@ import InitStateJson from './InitialState.json'
 
 const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
 // if (debug) console.log('38 InitialState', InitState);
-
 
 export const InitialState = {
   phData: InitState.phData,
@@ -101,7 +100,7 @@ let focusCollection
 
 
 function reducer(state = InitialState, action) {
-  const debug = true;
+  
   switch (action.type) {
     case FAILURE:
       return {
@@ -510,7 +509,7 @@ function reducer(state = InitialState, action) {
                     pasteViewsOnly: action.data.pasteViewsOnly,    
                     deleteViewsOnly: action.data.deleteViewsOnly,    
                 },      
-                ...state.phData.metis.models.slice(curmindex1 + 1, state.phData.metis.models.length),
+                ...state.phData.metis.models.slice(curmindex1 + 1),
               ]
             },
           },
@@ -579,14 +578,15 @@ function reducer(state = InitialState, action) {
                           deleted: action.data.deleted,
                           modified: action.data.modified,    
                     },
-                    ...curmmv2?.modelviews?.slice(curmvindex2 + 1, curmmv2?.modelviews.length),
+                    ...curmmv2?.modelviews?.slice(curmvindex2 + 1),
                   ]
                 },
-                ...state.phData.metis.models.slice(curmindex2 + 1, state.phData.metis.models.length),
+                ...state.phData.metis.models.slice(curmindex2 + 1),
               ]
             },
           },
         }
+
     case UPDATE_OBJECT_PROPERTIES:
       if  (debug) if (debug) console.log('5888 UPDATE_OBJECT_PROPERTIES', action);     
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
@@ -670,8 +670,6 @@ function reducer(state = InitialState, action) {
         },
       }
     }
-    
-
     
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (debug) console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
@@ -777,10 +775,10 @@ function reducer(state = InitialState, action) {
                         deleted: action.data.deleted,
                         modified: action.data.modified,
                       },
-                      ...curmv?.objectviews?.slice(ovindex + 1, curmv.objectviews.length)
+                      ...curmv?.objectviews?.slice(ovindex + 1)
                     ]
                   },
-                  ...curm?.modelviews?.slice(curmvindex + 1, curm.modelviews.length),
+                  ...curm?.modelviews?.slice(curmvindex + 1),
                 ],
                 // objects: [
                 //   ...curm.objects.slice(0, curoindex),
@@ -793,7 +791,7 @@ function reducer(state = InitialState, action) {
                 //     //   ...curo.propertyValues
                 //     // ]
                 //   },
-                //   ...curm.objects.slice(curoindex + 1, curm.objects.length)  
+                //   ...curm.objects.slice(curoindex + 1)  
                 // ]
               },
               ...state.phData.metis.models.slice(curmindex + 1, state.phData.metis.models.length),
@@ -851,6 +849,7 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+
     case UPDATE_RELSHIPVIEW_PROPERTIES:
       // if (debug) console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
@@ -890,17 +889,17 @@ function reducer(state = InitialState, action) {
                           deleted: action.data.deleted,
                           modified: action.data.modified,    
                         },
-                        ...curmvrv?.relshipviews.slice(currvindex + 1, curmvrv?.relshipviews.length)
+                        ...curmvrv?.relshipviews.slice(currvindex + 1)
                       ]
                     },
-                    ...curmrv?.modelviews.slice(curmindexvrv + 1, curmrv?.modelviews.length),
+                    ...curmrv?.modelviews.slice(curmindexvrv + 1),
                   ],
                 },
-                ...state.phData.metis.models.slice(curmindexrv + 1, state.phData.metis.models.length),
+                ...state.phData.metis.models.slice(curmindexrv + 1),
               ]
             },
           },
-      }
+        }
       
     case UPDATE_OBJECTTYPE_PROPERTIES:
       // if (debug) console.log('501 UPDATE_OBJECTTYPE_PROPERTIES', action);
@@ -936,10 +935,10 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted,
                       modified: action.data.modified,    
                     },
-                    ...curmmot?.objecttypes.slice(indexot + 1, curmmot?.objecttypes.length)
+                    ...curmmot?.objecttypes.slice(indexot + 1)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmindexot + 1, state.phData.metis.metamodels.length),
+                ...state.phData.metis.metamodels.slice(curmmindexot + 1),
               ]
             },
          },
@@ -1055,10 +1054,10 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted,
                       modified: action.data.modified,    
                     },
-                    ...curmmtot?.objecttypes.slice(indexot + 1, curmmtot?.objecttypes.length)
+                    ...curmmtot?.objecttypes.slice(indexot + 1)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmindextot + 1, state.phData.metis.metamodels.length),
+                ...state.phData.metis.metamodels.slice(curmmindextot + 1),
               ]
             },
          },
@@ -1103,10 +1102,10 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted,
                       modified: action.data.modified,    
                     },
-                    ...curmmtotv?.objecttypeviews.slice(indexotv + 1, curmmtotv?.objecttypeviews.length)
+                    ...curmmtotv?.objecttypeviews.slice(indexotv + 1)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmindextotv + 1, state.phData.metis.metamodels.length),
+                ...state.phData.metis.metamodels.slice(curmmindextotv + 1),
               ]
             },
           },
@@ -1147,10 +1146,10 @@ function reducer(state = InitialState, action) {
                           deleted: action.data.deleted, 
                           modified: action.data.modified,                         
                         },
-                        ...curmmt?.objtypegeos?.slice(ottindex + 1, curmmt?.objtypegeos.length)
+                        ...curmmt?.objtypegeos?.slice(ottindex + 1)
                       ]
                     },
-                    ...state.phData.metis.metamodels.slice(curmmtindex + 1, state.phData.metis.metamodels.length),
+                    ...state.phData.metis.metamodels.slice(curmmtindex + 1),
                   ]
                 },
             },
@@ -1189,10 +1188,10 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted,
                       modified: action.data.modified,    
                     },
-                    ...curmmtpot?.properties.slice(indextpot + 1, curmmtpot?.properties.length)
+                    ...curmmtpot?.properties.slice(indextpot + 1)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmtpindexot + 1, state.phData.metis.metamodels.length),
+                ...state.phData.metis.metamodels.slice(curmmtpindexot + 1),
               ]
             },
           },
@@ -1240,10 +1239,10 @@ function reducer(state = InitialState, action) {
                     deleted: action.data.deleted,  
                     modified: action.data.modified,       
                   },
-                  ...curmmtrt?.relshiptypes?.slice(indexrt + 1, curmmtrt?.relshiptypes.length)
+                  ...curmmtrt?.relshiptypes?.slice(indexrt + 1)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindextrt + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmmindextrt + 1),
             ]
           },
         },
@@ -1289,10 +1288,10 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted,              
                       modified: action.data.modified,              
                     },
-                    ...curmmtrtv?.relshiptypeviews.slice(indextrtv + 1, curmmtrtv?.relshiptypeviews.length)
+                    ...curmmtrtv?.relshiptypeviews.slice(indextrtv + 1)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmindextrtv + 1, state.phData.metis.metamodels.length),
+                ...state.phData.metis.metamodels.slice(curmmindextrtv + 1),
               ]
             },
           },
@@ -1331,10 +1330,10 @@ function reducer(state = InitialState, action) {
                     abstract: action.data.abstract,
                     modified: action.data.modified,    
                   },
-                  ...curmmdtdot?.datatypes.slice(indexdtdot + 1, curmmdtdot?.datatypes.length)
+                  ...curmmdtdot?.datatypes.slice(indexdtdot + 1)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmdtdindexot + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmmdtdindexot + 1),
             ]
           },
         },
@@ -1372,10 +1371,10 @@ function reducer(state = InitialState, action) {
                     deleted: action.data.deleted,
                     modified: action.data.modified,    
                   },
-                  ...curmmtvpot?.objecttypes.slice(indextvpot + 1, curmmtvpot?.objecttypes.length)
+                  ...curmmtvpot?.objecttypes.slice(indextvpot + 1)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmtvpindexot + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmmtvpindexot + 1),
             ]
           },
         },
@@ -1420,10 +1419,10 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted,
                       modified: action.data.modified,    
                     },
-                    ...curmmotv?.objecttypeviews.slice(indexotv + 1, curmmotv?.objecttypeviews.length)
+                    ...curmmotv?.objecttypeviews.slice(indexotv + 1)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmindexotv + 1, state.phData.metis.metamodels.length),
+                ...state.phData.metis.metamodels.slice(curmmindexotv + 1),
               ]
             },
          },
@@ -1461,10 +1460,10 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted, 
                       modified: action.data.modified,                         
                     },
-                    ...curmm?.objtypegeos.slice(otindex + 1, curmm?.objtypegeos.length)
+                    ...curmm?.objtypegeos.slice(otindex + 1)
                   ]
                 },
-                ...state.phData.metis.metamodels.slice(curmmindex + 1, state.phData.metis.metamodels.length),
+                ...state.phData.metis.metamodels.slice(curmmindex + 1),
               ]
             },
          },
@@ -1503,10 +1502,10 @@ function reducer(state = InitialState, action) {
                     abstract: action.data.abstract,
                     modified: action.data.modified,    
                   },
-                  ...curmmddot?.datatypes.slice(indexddot + 1, curmmddot?.datatypes.length)
+                  ...curmmddot?.datatypes.slice(indexddot + 1)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmddindexot + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmmddindexot + 1),
             ]
           },
         },
@@ -1543,10 +1542,10 @@ function reducer(state = InitialState, action) {
                     deleted: action.data.deleted,
                     modified: action.data.modified,    
                   },
-                  ...curmmpot?.properties.slice(indexpot + 1, curmmpot?.properties.length)
+                  ...curmmpot?.properties.slice(indexpot + 1)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmpindexot + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmmpindexot + 1),
             ]
           },
         },
@@ -1585,10 +1584,10 @@ function reducer(state = InitialState, action) {
                     deleted: action.data.deleted,
                     modified: action.data.modified,    
                   },
-                  ...curmmvpot?.objecttypes.slice(indexvvpot + 1, curmmvpot?.objecttypes.length)
+                  ...curmmvpot?.objecttypes.slice(indexvvpot + 1)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmvpindexot + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmmvpindexot + 1),
             ]
           },
         },
@@ -1636,10 +1635,10 @@ function reducer(state = InitialState, action) {
                     deleted: action.data.deleted,  
                     modified: action.data.modified,       
                   },
-                  ...curmmrt?.relshiptypes?.slice(indexrt + 1, curmmrt?.relshiptypes.length)
+                  ...curmmrt?.relshiptypes?.slice(indexrt + 1)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindexrt + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmmindexrt + 1),
             ]
           },
         },
@@ -1686,16 +1685,18 @@ function reducer(state = InitialState, action) {
                     deleted: action.data.deleted,              
                     modified: action.data.modified,              
                   },
-                  ...curmmrtv?.relshiptypeviews.slice(indexrtv + 1, curmmrtv?.relshiptypeviews.length)
+                  ...curmmrtv?.relshiptypeviews.slice(indexrtv + 1)
                 ]
               },
-              ...state.phData.metis.metamodels.slice(curmmindexrtv + 1, state.phData.metis.metamodels.length),
+              ...state.phData.metis.metamodels.slice(curmmindexrtv + 1),
             ]
           },
         },
       }
 
- 
+
+
+
     case UPDATE_OBJECTVIEW_NAME:
       // name and shortName
       let ovIndex, objvs3
@@ -1711,7 +1712,7 @@ function reducer(state = InitialState, action) {
           [
             ...objvs2.slice(0, ovIndex),
             objvs2[ovIndex],
-            ...objvs2.slice(ovIndex + 1, objvs2.length),
+            ...objvs2.slice(ovIndex + 1),
           ]
         objvs2 = objvs3
       })

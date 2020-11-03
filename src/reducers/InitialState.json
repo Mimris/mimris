@@ -3568,16 +3568,27 @@
                             "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
                             "toobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
                             "propvalues": [],
-                            "deleted": false,
+                            "deleted": true,
                             "modified": false
                         },
                         {
-                            "id": "493963b4-dfc8-48a3-6054-5c6f6015f74c",
-                            "name": "worksOn",
+                            "id": "efe2d79f-1b17-4784-e419-6596b80e7de6",
+                            "name": "Part",
                             "description": "",
-                            "typeRef": "cb1b2c69-7f9a-4a9d-9f75-a1bc9e1ae370",
-                            "fromobjectRef": "ec7cb5ad-ba7e-458f-f50e-1ba799641fc3",
-                            "toobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
+                            "typeRef": "0c2653b4-f201-48bb-d738-75d97de01d36",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
+                            "propvalues": [],
+                            "deleted": true,
+                            "modified": false
+                        },
+                        {
+                            "id": "efe2d79f-1b17-4784-e419-6596b80e7de6",
+                            "name": "Part",
+                            "description": "",
+                            "typeRef": "0c2653b4-f201-48bb-d738-75d97de01d36",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3667,7 +3678,51 @@
                             "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
                             "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
                             "propvalues": [],
+                            "deleted": true,
+                            "modified": false
+                        },
+                        {
+                            "id": "3d622545-0a80-4663-45a9-aa012e2190f9",
+                            "name": "member",
+                            "description": "",
+                            "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "propvalues": [],
+                            "deleted": true,
+                            "modified": false
+                        },
+                        {
+                            "id": "3d622545-0a80-4663-45a9-aa012e2190f9",
+                            "name": "member",
+                            "description": "",
+                            "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "propvalues": [],
                             "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "3ff28633-42e8-4b0d-b1e2-908e1bb3658a",
+                            "name": "member",
+                            "description": "",
+                            "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
+                            "fromobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
+                            "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "propvalues": [],
+                            "deleted": true,
+                            "modified": false
+                        },
+                        {
+                            "id": "3ff28633-42e8-4b0d-b1e2-908e1bb3658a",
+                            "name": "member",
+                            "description": "",
+                            "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
+                            "fromobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
+                            "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "propvalues": [],
+                            "deleted": true,
                             "modified": false
                         },
                         {
@@ -4042,7 +4097,7 @@
                             "toobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
                             "propvalues": [],
                             "deleted": false,
-                            "modified": true
+                            "modified": false
                         },
                         {
                             "id": "45b27c84-0465-48cc-7794-966fe8ade3e5",
@@ -4053,7 +4108,7 @@
                             "toobjectRef": "7b4489ec-2e1d-459c-6a21-bc85be58b4a0",
                             "propvalues": [],
                             "deleted": false,
-                            "modified": true
+                            "modified": false
                         },
                         {
                             "id": "5a13dd4a-66a7-4bd7-87ca-34b575be9397",
@@ -4063,6 +4118,16 @@
                             "fromobjectRef": "7b4489ec-2e1d-459c-6a21-bc85be58b4a0",
                             "toobjectRef": "edd6c22e-9802-420d-a92f-f60ef0a99209",
                             "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "911e1700-fdcb-4781-3c8b-078c75ae6f86",
+                            "name": "worksOn",
+                            "description": "",
+                            "typeRef": "cb1b2c69-7f9a-4a9d-9f75-a1bc9e1ae370",
+                            "fromobjectRef": "ec7cb5ad-ba7e-458f-f50e-1ba799641fc3",
+                            "toobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
                             "deleted": false,
                             "modified": true
                         }
@@ -4134,10 +4199,10 @@
                                     "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
                                     "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                                     "isGroup": false,
-                                    "loc": "-70 420",
+                                    "loc": "-60 420",
                                     "size": "",
-                                    "deleted": false,
-                                    "modified": false
+                                    "deleted": true,
+                                    "modified": true
                                 },
                                 {
                                     "id": "2cf1d823-33df-4a96-5924-2c321e43ca6b",
@@ -4199,10 +4264,10 @@
                                     "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
                                     "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                                     "isGroup": false,
-                                    "loc": "-70 580",
+                                    "loc": "-60 580",
                                     "size": "",
-                                    "deleted": false,
-                                    "modified": false
+                                    "deleted": true,
+                                    "modified": true
                                 },
                                 {
                                     "id": "8ee4bc09-163c-428f-717f-9c669684180e",
@@ -4264,10 +4329,10 @@
                                     "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
                                     "group": "",
                                     "isGroup": true,
-                                    "loc": "-140 20",
+                                    "loc": "-130 20",
                                     "size": "311 776",
-                                    "deleted": false,
-                                    "modified": false
+                                    "deleted": true,
+                                    "modified": true
                                 },
                                 {
                                     "id": "bb8a2351-ab52-435f-aa36-95df083b676f",
@@ -4290,10 +4355,10 @@
                                     "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
                                     "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                                     "isGroup": false,
-                                    "loc": "-70 50",
+                                    "loc": "-60 50",
                                     "size": "",
-                                    "deleted": false,
-                                    "modified": false
+                                    "deleted": true,
+                                    "modified": true
                                 },
                                 {
                                     "id": "c7f5401e-4e20-4f53-e0b6-1c1bba2e152c",
@@ -4407,10 +4472,10 @@
                                     "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
                                     "group": "bb6d4cee-51f0-4169-d028-a7fed5549405",
                                     "isGroup": false,
-                                    "loc": "-70 230",
+                                    "loc": "-60 230",
                                     "size": "",
-                                    "deleted": false,
-                                    "modified": false
+                                    "deleted": true,
+                                    "modified": true
                                 },
                                 {
                                     "id": "aba143fe-d2cd-4911-b0f4-f149d9e6eb7b",
@@ -4526,7 +4591,7 @@
                                     "isGroup": false,
                                     "loc": "330 470",
                                     "size": "",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
                                 },
                                 {
@@ -4539,7 +4604,7 @@
                                     "isGroup": false,
                                     "loc": "220 290",
                                     "size": "",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
                                 },
                                 {
@@ -4552,7 +4617,7 @@
                                     "isGroup": false,
                                     "loc": "330 150",
                                     "size": "",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
                                 },
                                 {
@@ -4565,7 +4630,7 @@
                                     "isGroup": false,
                                     "loc": "220 630",
                                     "size": "",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
                                 },
                                 {
@@ -4578,8 +4643,333 @@
                                     "isGroup": true,
                                     "loc": "200 20",
                                     "size": "300 776",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
+                                },
+                                {
+                                    "id": "f4e4b6b7-4c7a-42f8-ff5a-53864dd7bba4",
+                                    "name": "Info. obj. (Products)",
+                                    "description": "",
+                                    "objectRef": "371fb208-bdee-4bba-c20a-7dd92a27b8b4",
+                                    "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
+                                    "group": "",
+                                    "isGroup": true,
+                                    "loc": "-160 20",
+                                    "size": "300 776",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "af77ec3d-3761-4d84-1b6d-9c418e32238d",
+                                    "name": "Person",
+                                    "description": "",
+                                    "objectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                                    "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
+                                    "group": "f4e4b6b7-4c7a-42f8-ff5a-53864dd7bba4",
+                                    "isGroup": false,
+                                    "loc": "-90 430",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "96caa1bd-d9d0-4d7f-e30a-919b8ad43221",
+                                    "name": "Address",
+                                    "description": "",
+                                    "objectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
+                                    "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
+                                    "group": "f4e4b6b7-4c7a-42f8-ff5a-53864dd7bba4",
+                                    "isGroup": false,
+                                    "loc": "-90 590",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
+                                    "name": "Company",
+                                    "description": "",
+                                    "objectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
+                                    "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
+                                    "group": "f4e4b6b7-4c7a-42f8-ff5a-53864dd7bba4",
+                                    "isGroup": false,
+                                    "loc": "-90 60",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "63dea2b6-84a1-4e6d-3b75-dc6c2bf2ee78",
+                                    "name": "Role",
+                                    "description": "",
+                                    "objectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                                    "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
+                                    "group": "f4e4b6b7-4c7a-42f8-ff5a-53864dd7bba4",
+                                    "isGroup": false,
+                                    "loc": "-90 240",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "name": "Properties",
+                                    "description": "",
+                                    "objectRef": "ca6864fb-9f48-4795-cee4-d4db9db2fccd",
+                                    "typeviewRef": "3c6fd19a-e766-4615-3928-fc4b0d072c55",
+                                    "group": "",
+                                    "isGroup": true,
+                                    "loc": "170 20",
+                                    "size": "732 777",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "4797cd8b-bc62-4085-e5f1-d9c3d9dd8bb1",
+                                    "name": "Meter",
+                                    "description": "",
+                                    "objectRef": "421b695c-571d-40ed-fffa-fe2ee59b54ba",
+                                    "typeviewRef": "ff74c6a5-e1ac-443c-23e7-c199cd92d7a1",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "730 650",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "ee27c404-1aef-4eeb-8ba0-9700a3028cf7",
+                                    "name": "Name",
+                                    "description": "",
+                                    "objectRef": "bdfabf60-7c64-42cf-3538-7e65f7ed33d5",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "190 160",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "685c481c-afa2-485e-e941-1ed1ef488749",
+                                    "name": "zipcode",
+                                    "description": "",
+                                    "objectRef": "bfe4be92-f8eb-4f74-b657-d2df76dddfb9",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "370 570",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "7c3b8a6d-344b-4ada-2e2c-907931749390",
+                                    "name": "Position",
+                                    "description": "",
+                                    "objectRef": "cf3888ab-2b0a-4fdb-3eaf-a84c4f10e30d",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "190 250",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "cde964ac-59cd-49e0-29eb-2cf99bb0ccd7",
+                                    "name": "string",
+                                    "description": "",
+                                    "objectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                                    "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "460 160",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "2b4c17eb-0c6e-4eef-0399-de70082c7567",
+                                    "name": "Orgno",
+                                    "description": "",
+                                    "objectRef": "7709e53b-d025-4c1b-4378-4640a9dfcd89",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "190 70",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "daec7ef1-636f-469e-0a33-3ff58ccbd58e",
+                                    "name": "string",
+                                    "description": "",
+                                    "objectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                                    "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "460 350",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "cd071203-dafc-4a2d-2407-3eb7fc3fb9bd",
+                                    "name": "username",
+                                    "description": "",
+                                    "objectRef": "f72d4d3a-0c09-4fed-24d9-b3738efa6707",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "190 350",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "de9a0fb2-89e7-4d8a-cddd-15c3fa9f8f08",
+                                    "name": "= 9 char",
+                                    "description": "",
+                                    "objectRef": "8952fded-1e0c-485f-8d66-695c3ae6eb57",
+                                    "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "730 70",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "76d271fe-1cc5-4422-0674-cddfdb9676cb",
+                                    "name": "string",
+                                    "description": "",
+                                    "objectRef": "f17f0412-9448-412a-4ee0-fbfff476f73a",
+                                    "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "460 70",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "4cf1381d-534a-4d31-501f-d19c680e385e",
+                                    "name": "email",
+                                    "description": "",
+                                    "objectRef": "46c3f7ce-1d2d-46c3-e2be-28d690f74939",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "190 420",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "6f2e496c-9d18-488b-10b3-c97f6ca4b922",
+                                    "name": "street",
+                                    "description": "",
+                                    "objectRef": "2808c16a-16e8-4fe3-9cb9-e186cc57139e",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "190 650",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "e23ae02a-5fec-499a-6144-6bebbf7864a6",
+                                    "name": "< 80 char",
+                                    "description": "",
+                                    "objectRef": "7e2b081d-f598-40f1-005f-ada2658a1070",
+                                    "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "730 160",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "73edd534-2381-4fe1-8653-7a36455abb05",
+                                    "name": "suite",
+                                    "description": "",
+                                    "objectRef": "ff2109bf-c2ce-45d0-f9c3-bdd86d2a3250",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "370 650",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "66b9caae-f371-4aba-c32d-639d7e07f11e",
+                                    "name": "city",
+                                    "description": "",
+                                    "objectRef": "48893cb1-d4ef-4d12-1723-07b93edd7f46",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "190 570",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "b388050e-255d-40d3-cf40-92147aba0809",
+                                    "name": "Name",
+                                    "description": "",
+                                    "objectRef": "bdfabf60-7c64-42cf-3538-7e65f7ed33d5",
+                                    "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "190 490",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "dcbdac1e-409a-4988-ed6c-7520be94429b",
+                                    "name": "< 20 char",
+                                    "description": "",
+                                    "objectRef": "543db63b-cd08-42ef-c189-0d1c3528e957",
+                                    "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "730 350",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "5e4ee5c6-0406-48e3-b9b0-a593cd45f97c",
+                                    "name": "< 8 char",
+                                    "description": "",
+                                    "objectRef": "46d94144-b152-400e-6c36-2f729011b5c6",
+                                    "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "730 460",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "4a79e5fd-6dc4-46f8-d8c2-94feb8b0c837",
+                                    "name": "string",
+                                    "description": "",
+                                    "objectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                                    "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
+                                    "group": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+                                    "isGroup": false,
+                                    "loc": "460 460",
+                                    "size": "",
+                                    "deleted": false,
+                                    "modified": true
                                 }
                             ],
                             "relshipviews": [
@@ -4690,7 +5080,7 @@
                                     "typeviewRef": "3e3ae0f7-2600-4d00-4433-e2257f75e2f3",
                                     "fromobjviewRef": "2763d693-1f45-4e14-2be9-3fbc68edd1ff",
                                     "toobjviewRef": "85282421-c446-46d8-5719-03c938b29d0a",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
                                 },
                                 {
@@ -4711,7 +5101,7 @@
                                     "relshipRef": "493963b4-dfc8-48a3-6054-5c6f6015f74c",
                                     "typeviewRef": "a7476340-301b-4f02-e19e-64fd6dafff09",
                                     "fromobjviewRef": "6549f56b-0a60-4028-6499-eed364d9126a",
-                                    "toobjviewRef": "bf4a9885-a855-4021-90d8-3f44cf28f724",
+                                    "toobjviewRef": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
                                     "deleted": false,
                                     "modified": false
                                 },
@@ -4733,7 +5123,7 @@
                                     "relshipRef": "bf1eb956-41a8-4c1d-75ce-c7a90967453f",
                                     "typeviewRef": "a7476340-301b-4f02-e19e-64fd6dafff09",
                                     "fromobjviewRef": "fba99792-d629-4aae-419d-ce6b75824902",
-                                    "toobjviewRef": "2763d693-1f45-4e14-2be9-3fbc68edd1ff",
+                                    "toobjviewRef": "af77ec3d-3761-4d84-1b6d-9c418e32238d",
                                     "deleted": false,
                                     "modified": false
                                 },
@@ -4800,7 +5190,7 @@
                                     "typeviewRef": "e90a6728-4659-4450-3491-e8a5ab6edaf1",
                                     "fromobjviewRef": "2763d693-1f45-4e14-2be9-3fbc68edd1ff",
                                     "toobjviewRef": "7ff6cad2-4346-4d08-52e5-907dbc010c15",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
                                 },
                                 {
@@ -4811,7 +5201,7 @@
                                     "typeviewRef": "e90a6728-4659-4450-3491-e8a5ab6edaf1",
                                     "fromobjviewRef": "bf4a9885-a855-4021-90d8-3f44cf28f724",
                                     "toobjviewRef": "7ff6cad2-4346-4d08-52e5-907dbc010c15",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
                                 },
                                 {
@@ -4942,7 +5332,7 @@
                                     "relshipRef": "93390858-0bd2-496c-c286-bd72f5e434ab",
                                     "typeviewRef": "3287786e-3e38-4007-34cc-762791910512",
                                     "fromobjviewRef": "51026ce6-2e46-4c77-774c-2cbfc82c683b",
-                                    "toobjviewRef": "2763d693-1f45-4e14-2be9-3fbc68edd1ff",
+                                    "toobjviewRef": "af77ec3d-3761-4d84-1b6d-9c418e32238d",
                                     "deleted": false,
                                     "modified": false
                                 },
@@ -4953,7 +5343,7 @@
                                     "relshipRef": "ce0b6a61-2654-41f1-e934-5800ca89623e",
                                     "typeviewRef": "3287786e-3e38-4007-34cc-762791910512",
                                     "fromobjviewRef": "51026ce6-2e46-4c77-774c-2cbfc82c683b",
-                                    "toobjviewRef": "85282421-c446-46d8-5719-03c938b29d0a",
+                                    "toobjviewRef": "96caa1bd-d9d0-4d7f-e30a-919b8ad43221",
                                     "deleted": false,
                                     "modified": false
                                 },
@@ -4986,7 +5376,7 @@
                                     "relshipRef": "7e6075c7-dbca-4246-7630-552e32d237ca",
                                     "typeviewRef": "3287786e-3e38-4007-34cc-762791910512",
                                     "fromobjviewRef": "6de7909f-5426-44fe-b232-deca35ffde87",
-                                    "toobjviewRef": "bf4a9885-a855-4021-90d8-3f44cf28f724",
+                                    "toobjviewRef": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
                                     "deleted": false,
                                     "modified": false
                                 },
@@ -5020,8 +5410,8 @@
                                     "typeviewRef": "7d366f20-b016-4597-f657-ad6853315a32",
                                     "fromobjviewRef": "0da6d058-b243-4620-4d3c-30e0ae6091ba",
                                     "toobjviewRef": "446ea7c3-166d-4ac3-b920-519adbdf94c1",
-                                    "deleted": false,
-                                    "modified": true
+                                    "deleted": true,
+                                    "modified": false
                                 },
                                 {
                                     "id": "eea5425e-c135-4291-c0fb-243508d29634",
@@ -5031,8 +5421,8 @@
                                     "typeviewRef": "7d366f20-b016-4597-f657-ad6853315a32",
                                     "fromobjviewRef": "446ea7c3-166d-4ac3-b920-519adbdf94c1",
                                     "toobjviewRef": "31110d19-10da-45e4-934d-2f7b5c56455d",
-                                    "deleted": false,
-                                    "modified": true
+                                    "deleted": true,
+                                    "modified": false
                                 },
                                 {
                                     "id": "5a766be2-6e97-40e5-7368-3439544c3b33",
@@ -5042,7 +5432,7 @@
                                     "typeviewRef": "7d366f20-b016-4597-f657-ad6853315a32",
                                     "fromobjviewRef": "0da6d058-b243-4620-4d3c-30e0ae6091ba",
                                     "toobjviewRef": "446ea7c3-166d-4ac3-b920-519adbdf94c1",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": false
                                 },
                                 {
@@ -5053,6 +5443,325 @@
                                     "typeviewRef": "7d366f20-b016-4597-f657-ad6853315a32",
                                     "fromobjviewRef": "31110d19-10da-45e4-934d-2f7b5c56455d",
                                     "toobjviewRef": "ee85e847-a4ab-4527-1e54-fcfd35c23fd2",
+                                    "deleted": true,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "ea306a73-ac6c-4d65-8194-fc7577e5a01c",
+                                    "name": "Part",
+                                    "description": "",
+                                    "relshipRef": "efe2d79f-1b17-4784-e419-6596b80e7de6",
+                                    "typeviewRef": "3e3ae0f7-2600-4d00-4433-e2257f75e2f3",
+                                    "fromobjviewRef": "af77ec3d-3761-4d84-1b6d-9c418e32238d",
+                                    "toobjviewRef": "96caa1bd-d9d0-4d7f-e30a-919b8ad43221",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "10914130-aecb-4765-af6d-17c9e9d70a25",
+                                    "name": "member",
+                                    "description": "",
+                                    "relshipRef": "3d622545-0a80-4663-45a9-aa012e2190f9",
+                                    "typeviewRef": "e90a6728-4659-4450-3491-e8a5ab6edaf1",
+                                    "fromobjviewRef": "af77ec3d-3761-4d84-1b6d-9c418e32238d",
+                                    "toobjviewRef": "63dea2b6-84a1-4e6d-3b75-dc6c2bf2ee78",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "9e69a502-cbf5-4735-0e13-ad6b0ac681f0",
+                                    "name": "member",
+                                    "description": "",
+                                    "relshipRef": "3ff28633-42e8-4b0d-b1e2-908e1bb3658a",
+                                    "typeviewRef": "e90a6728-4659-4450-3491-e8a5ab6edaf1",
+                                    "fromobjviewRef": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
+                                    "toobjviewRef": "63dea2b6-84a1-4e6d-3b75-dc6c2bf2ee78",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "d8ad7d66-a98a-45bc-b95b-1603f3489c9a",
+                                    "name": "hasAllowed",
+                                    "description": "",
+                                    "relshipRef": "036c2c60-7c22-4efb-3a87-a56d638a27e3",
+                                    "typeviewRef": "b65c5186-f0b9-4b2f-47df-e22dec1f613c",
+                                    "fromobjviewRef": "cde964ac-59cd-49e0-29eb-2cf99bb0ccd7",
+                                    "toobjviewRef": "e23ae02a-5fec-499a-6144-6bebbf7864a6",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "df31ed66-61c3-4cfa-1621-a4af58b1e396",
+                                    "name": "hasAllowed",
+                                    "description": "",
+                                    "relshipRef": "1f48c2ff-c9da-4984-07b4-b1870543602d",
+                                    "typeviewRef": "b65c5186-f0b9-4b2f-47df-e22dec1f613c",
+                                    "fromobjviewRef": "76d271fe-1cc5-4422-0674-cddfdb9676cb",
+                                    "toobjviewRef": "de9a0fb2-89e7-4d8a-cddd-15c3fa9f8f08",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "0bb43120-2ca6-41d8-efda-c3d9ae943fb8",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "dd47a135-c5e9-4f05-dcfe-3e75fd6e567b",
+                                    "typeviewRef": "0334372d-cdc8-4019-53e5-5db98d827b6b",
+                                    "fromobjviewRef": "2b4c17eb-0c6e-4eef-0399-de70082c7567",
+                                    "toobjviewRef": "76d271fe-1cc5-4422-0674-cddfdb9676cb",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "300cc16c-db49-4e46-c248-a42078980a5b",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "bbe33a19-abad-4c99-1c36-d7cc6b8b8010",
+                                    "typeviewRef": "0334372d-cdc8-4019-53e5-5db98d827b6b",
+                                    "fromobjviewRef": "ee27c404-1aef-4eeb-8ba0-9700a3028cf7",
+                                    "toobjviewRef": "cde964ac-59cd-49e0-29eb-2cf99bb0ccd7",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "1f02cb15-80c1-4e4d-a9c1-801f398a416b",
+                                    "name": "hasAllowed",
+                                    "description": "",
+                                    "relshipRef": "61037161-a4e6-4c71-c37f-dbd8a7471a05",
+                                    "typeviewRef": "b65c5186-f0b9-4b2f-47df-e22dec1f613c",
+                                    "fromobjviewRef": "daec7ef1-636f-469e-0a33-3ff58ccbd58e",
+                                    "toobjviewRef": "dcbdac1e-409a-4988-ed6c-7520be94429b",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "5e0a8587-b43b-4384-421b-9d78a99f8e15",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "d1f107ac-96ba-49a3-94d6-5311f5859bc0",
+                                    "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
+                                    "fromobjviewRef": "7c3b8a6d-344b-4ada-2e2c-907931749390",
+                                    "toobjviewRef": "daec7ef1-636f-469e-0a33-3ff58ccbd58e",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "0db53f0a-074c-4a00-875e-a0ebcd6c2d9e",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "a6807df6-6472-4b9e-bcdc-9d07ec7cf06a",
+                                    "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
+                                    "fromobjviewRef": "cd071203-dafc-4a2d-2407-3eb7fc3fb9bd",
+                                    "toobjviewRef": "daec7ef1-636f-469e-0a33-3ff58ccbd58e",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "20cbe8e3-2fbb-475a-2874-edf88d0357a7",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "71224769-c97e-41b9-9ab9-11d20923a3b4",
+                                    "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
+                                    "fromobjviewRef": "4cf1381d-534a-4d31-501f-d19c680e385e",
+                                    "toobjviewRef": "daec7ef1-636f-469e-0a33-3ff58ccbd58e",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "b1fb6a35-096f-4324-0801-18a04ec7c796",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "bbe33a19-abad-4c99-1c36-d7cc6b8b8010",
+                                    "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
+                                    "fromobjviewRef": "b388050e-255d-40d3-cf40-92147aba0809",
+                                    "toobjviewRef": "cde964ac-59cd-49e0-29eb-2cf99bb0ccd7",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "00c16dc3-3229-4d46-70e2-9678d92af701",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "5ad378f2-a350-494f-812f-4f809b00bd72",
+                                    "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
+                                    "fromobjviewRef": "66b9caae-f371-4aba-c32d-639d7e07f11e",
+                                    "toobjviewRef": "daec7ef1-636f-469e-0a33-3ff58ccbd58e",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "42725766-da57-4d51-c1ec-b77fd0f15d11",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "e36f9747-3a2d-4c27-499e-4f288308f72c",
+                                    "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
+                                    "fromobjviewRef": "6f2e496c-9d18-488b-10b3-c97f6ca4b922",
+                                    "toobjviewRef": "daec7ef1-636f-469e-0a33-3ff58ccbd58e",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "c5ae3a2a-acc2-4840-0632-93590260b955",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "f285742c-0660-4aef-acff-0a359b6ff9be",
+                                    "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
+                                    "fromobjviewRef": "685c481c-afa2-485e-e941-1ed1ef488749",
+                                    "toobjviewRef": "4a79e5fd-6dc4-46f8-d8c2-94feb8b0c837",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "b637a088-7f56-4461-8e1a-c8c14fc92d89",
+                                    "name": "hasAllowed",
+                                    "description": "",
+                                    "relshipRef": "131b9885-adf6-43bf-95b0-4673fa50b4fc",
+                                    "typeviewRef": "b65c5186-f0b9-4b2f-47df-e22dec1f613c",
+                                    "fromobjviewRef": "4a79e5fd-6dc4-46f8-d8c2-94feb8b0c837",
+                                    "toobjviewRef": "5e4ee5c6-0406-48e3-b9b0-a593cd45f97c",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "300df850-a56f-4202-ff23-9c94c939f577",
+                                    "name": "isOf",
+                                    "description": "",
+                                    "relshipRef": "25079a0b-8184-4bcb-6485-6d819af2640d",
+                                    "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
+                                    "fromobjviewRef": "73edd534-2381-4fe1-8653-7a36455abb05",
+                                    "toobjviewRef": "4a79e5fd-6dc4-46f8-d8c2-94feb8b0c837",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "0655cb32-9f31-4474-bdd9-4c056e00412e",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "bcb4a9fe-d825-4a06-89dd-ff6b8a61612b",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
+                                    "toobjviewRef": "ee27c404-1aef-4eeb-8ba0-9700a3028cf7",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "3aa9ceb0-8f8e-4a25-96c0-68abdc7af5eb",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "8c3c47eb-d00e-4e39-fc79-824ee2ee3c88",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "96caa1bd-d9d0-4d7f-e30a-919b8ad43221",
+                                    "toobjviewRef": "685c481c-afa2-485e-e941-1ed1ef488749",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "4ac9948b-9f73-4dde-44e9-c2d7db24d09f",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "5002d6c3-a178-40ae-0cba-840759014792",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "63dea2b6-84a1-4e6d-3b75-dc6c2bf2ee78",
+                                    "toobjviewRef": "7c3b8a6d-344b-4ada-2e2c-907931749390",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "2d8c732a-f456-4aa9-896d-dfe319d339a4",
+                                    "name": "isRelatedTo",
+                                    "description": "",
+                                    "relshipRef": "89119f24-9c0a-492a-bec6-6b472924e167",
+                                    "typeviewRef": "7d366f20-b016-4597-f657-ad6853315a32",
+                                    "fromobjviewRef": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
+                                    "toobjviewRef": "2b4c17eb-0c6e-4eef-0399-de70082c7567",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "0b522643-aef9-4f39-5f5d-8a05cb785ad9",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "8da008e6-352c-4501-dae9-e7d50bb02763",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "af77ec3d-3761-4d84-1b6d-9c418e32238d",
+                                    "toobjviewRef": "cd071203-dafc-4a2d-2407-3eb7fc3fb9bd",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "a9c50d7b-c789-4528-c3cf-d463485a19c7",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "cda47e8e-bafa-4efd-d571-0484437f1620",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "af77ec3d-3761-4d84-1b6d-9c418e32238d",
+                                    "toobjviewRef": "4cf1381d-534a-4d31-501f-d19c680e385e",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "04ce6119-139a-4cfc-f5e8-8b790329da61",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "9945676d-13d8-4f21-d4b0-03385ac972d1",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "96caa1bd-d9d0-4d7f-e30a-919b8ad43221",
+                                    "toobjviewRef": "6f2e496c-9d18-488b-10b3-c97f6ca4b922",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "f5ff4c96-9645-48c6-0d96-1268928e548c",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "95ddf71e-09e1-4592-dae3-7bf42a44b5d6",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "96caa1bd-d9d0-4d7f-e30a-919b8ad43221",
+                                    "toobjviewRef": "73edd534-2381-4fe1-8653-7a36455abb05",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "11a7ba81-4537-4f04-ed25-80333abdd25b",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "9ce03983-d7d8-40d1-4f5a-3eb17af1ef19",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "96caa1bd-d9d0-4d7f-e30a-919b8ad43221",
+                                    "toobjviewRef": "66b9caae-f371-4aba-c32d-639d7e07f11e",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "31722421-d3dc-4387-bf41-e8050f8a67a0",
+                                    "name": "hasProperty",
+                                    "description": "",
+                                    "relshipRef": "944356cf-1d90-405d-0786-31cadebb9e44",
+                                    "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
+                                    "fromobjviewRef": "af77ec3d-3761-4d84-1b6d-9c418e32238d",
+                                    "toobjviewRef": "b388050e-255d-40d3-cf40-92147aba0809",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "448ac30c-40f1-4a6f-d7c9-baad476b876a",
+                                    "name": "worksOn",
+                                    "description": "",
+                                    "relshipRef": "493963b4-dfc8-48a3-6054-5c6f6015f74c",
+                                    "typeviewRef": "a7476340-301b-4f02-e19e-64fd6dafff09",
+                                    "fromobjviewRef": "6549f56b-0a60-4028-6499-eed364d9126a",
+                                    "toobjviewRef": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
+                                    "deleted": false,
+                                    "modified": false
+                                },
+                                {
+                                    "id": "f394f186-2392-47c9-ad04-ea1a0fa42449",
+                                    "name": "worksOn",
+                                    "description": "",
+                                    "relshipRef": "911e1700-fdcb-4781-3c8b-078c75ae6f86",
+                                    "typeviewRef": "a7476340-301b-4f02-e19e-64fd6dafff09",
+                                    "fromobjviewRef": "6549f56b-0a60-4028-6499-eed364d9126a",
+                                    "toobjviewRef": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
                                     "deleted": false,
                                     "modified": true
                                 }
@@ -5076,7 +5785,7 @@
                                     "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
                                     "group": "",
                                     "isGroup": true,
-                                    "loc": "-930.375 -585.2960530226312",
+                                    "loc": "-920 -590",
                                     "size": "300 776",
                                     "deleted": false,
                                     "modified": false
@@ -5087,9 +5796,9 @@
                                     "description": "",
                                     "objectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
                                     "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
-                                    "group": "",
+                                    "group": "bb3813dc-38d1-40e6-7518-f798862114a9",
                                     "isGroup": false,
-                                    "loc": "-860.375 -185.2960530226312",
+                                    "loc": "-850 -185",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5100,9 +5809,9 @@
                                     "description": "",
                                     "objectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
                                     "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
-                                    "group": "",
+                                    "group": "bb3813dc-38d1-40e6-7518-f798862114a9",
                                     "isGroup": false,
-                                    "loc": "-860.375 -25.296053022631213",
+                                    "loc": "-850 -25",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5113,9 +5822,9 @@
                                     "description": "",
                                     "objectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
                                     "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
-                                    "group": "",
+                                    "group": "bb3813dc-38d1-40e6-7518-f798862114a9",
                                     "isGroup": false,
-                                    "loc": "-860.375 -555.2960530226312",
+                                    "loc": "-850 -555",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5126,9 +5835,9 @@
                                     "description": "",
                                     "objectRef": "14175a35-09f2-447c-1807-e74596b30816",
                                     "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
-                                    "group": "",
+                                    "group": "bb3813dc-38d1-40e6-7518-f798862114a9",
                                     "isGroup": false,
-                                    "loc": "-860.375 -375.2960530226312",
+                                    "loc": "-850 -375",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5141,7 +5850,7 @@
                                     "typeviewRef": "3c6fd19a-e766-4615-3928-fc4b0d072c55",
                                     "group": "",
                                     "isGroup": true,
-                                    "loc": "-600.375 -585.2960530226312",
+                                    "loc": "-590 -590",
                                     "size": "732 777",
                                     "deleted": false,
                                     "modified": false
@@ -5152,9 +5861,9 @@
                                     "description": "",
                                     "objectRef": "421b695c-571d-40ed-fffa-fe2ee59b54ba",
                                     "typeviewRef": "ff74c6a5-e1ac-443c-23e7-c199cd92d7a1",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-40.375 24.703946977368787",
+                                    "loc": "-40 25",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5165,9 +5874,9 @@
                                     "description": "",
                                     "objectRef": "bdfabf60-7c64-42cf-3538-7e65f7ed33d5",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-580.375 -465.2960530226312",
+                                    "loc": "-580 -465",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5178,9 +5887,9 @@
                                     "description": "",
                                     "objectRef": "bfe4be92-f8eb-4f74-b657-d2df76dddfb9",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-400.375 -55.29605302263121",
+                                    "loc": "-400 -55",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5191,9 +5900,9 @@
                                     "description": "",
                                     "objectRef": "cf3888ab-2b0a-4fdb-3eaf-a84c4f10e30d",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-580.375 -375.2960530226312",
+                                    "loc": "-580 -375",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5204,9 +5913,9 @@
                                     "description": "",
                                     "objectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
                                     "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-310.375 -465.2960530226312",
+                                    "loc": "-310 -465",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5217,9 +5926,9 @@
                                     "description": "",
                                     "objectRef": "7709e53b-d025-4c1b-4378-4640a9dfcd89",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-580.375 -555.2960530226312",
+                                    "loc": "-580 -555",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5230,9 +5939,9 @@
                                     "description": "",
                                     "objectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
                                     "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-310.375 -275.2960530226312",
+                                    "loc": "-310 -275",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5243,9 +5952,9 @@
                                     "description": "",
                                     "objectRef": "f72d4d3a-0c09-4fed-24d9-b3738efa6707",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-580.375 -275.2960530226312",
+                                    "loc": "-580 -275",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5256,9 +5965,9 @@
                                     "description": "",
                                     "objectRef": "8952fded-1e0c-485f-8d66-695c3ae6eb57",
                                     "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-40.375 -555.2960530226312",
+                                    "loc": "-40 -555",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5269,9 +5978,9 @@
                                     "description": "",
                                     "objectRef": "f17f0412-9448-412a-4ee0-fbfff476f73a",
                                     "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-310.375 -555.2960530226312",
+                                    "loc": "-310 -555",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5282,9 +5991,9 @@
                                     "description": "",
                                     "objectRef": "46c3f7ce-1d2d-46c3-e2be-28d690f74939",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-580.375 -205.2960530226312",
+                                    "loc": "-580 -205",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5295,9 +6004,9 @@
                                     "description": "",
                                     "objectRef": "2808c16a-16e8-4fe3-9cb9-e186cc57139e",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-580.375 24.703946977368787",
+                                    "loc": "-580 25",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5308,9 +6017,9 @@
                                     "description": "",
                                     "objectRef": "7e2b081d-f598-40f1-005f-ada2658a1070",
                                     "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-40.375 -465.2960530226312",
+                                    "loc": "-40 -465",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5321,9 +6030,9 @@
                                     "description": "",
                                     "objectRef": "ff2109bf-c2ce-45d0-f9c3-bdd86d2a3250",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-400.375 24.703946977368787",
+                                    "loc": "-400 25",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5334,9 +6043,9 @@
                                     "description": "",
                                     "objectRef": "48893cb1-d4ef-4d12-1723-07b93edd7f46",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-580.375 -55.29605302263121",
+                                    "loc": "-580 -55",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5347,9 +6056,9 @@
                                     "description": "",
                                     "objectRef": "bdfabf60-7c64-42cf-3538-7e65f7ed33d5",
                                     "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-580.375 -135.2960530226312",
+                                    "loc": "-580 -135",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5360,9 +6069,9 @@
                                     "description": "",
                                     "objectRef": "543db63b-cd08-42ef-c189-0d1c3528e957",
                                     "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-40.375 -275.2960530226312",
+                                    "loc": "-40 -275",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5373,9 +6082,9 @@
                                     "description": "",
                                     "objectRef": "46d94144-b152-400e-6c36-2f729011b5c6",
                                     "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-40.375 -165.2960530226312",
+                                    "loc": "-40 -165",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -5386,9 +6095,9 @@
                                     "description": "",
                                     "objectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
                                     "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
-                                    "group": "",
+                                    "group": "8c35a2dd-f8cf-43f6-c50c-fed054657adb",
                                     "isGroup": false,
-                                    "loc": "-310.375 -165.2960530226312",
+                                    "loc": "-310 -165",
                                     "size": "",
                                     "deleted": false,
                                     "modified": false
@@ -6246,16 +6955,16 @@
             "name": "Property 1"
         },
         "focusObjectview": {
-            "id": "d838deb6-db81-49d0-5379-ee7fa5182083",
-            "name": "Default types"
+            "id": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
+            "name": "Properties"
         },
         "focusRelship": {
             "id": null,
             "name": ""
         },
         "focusRelshipview": {
-            "id": "9a49a2c1-1598-4df4-23ed-820cab75b4aa",
-            "name": "isRelatedTo"
+            "id": "046f21ce-88c6-4fc1-b15c-787ac4b2dee0",
+            "name": "includes"
         },
         "focusObjecttype": {
             "id": "aab10852-cbf6-4a09-3f05-8e1fd72f5d7d",
@@ -6303,5 +7012,5 @@
             "session": null
         }
     },
-    "phSource": "localStore"
+    "phSource": "initialState"
 }

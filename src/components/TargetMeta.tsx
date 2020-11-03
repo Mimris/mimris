@@ -39,8 +39,8 @@ const TargetMeta = (props) => {
 
   const palette =
     <>
-      <button className="btn-sm pt-0 pr-1 b-0 mt-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#9a9", outline: "0", borderStyle: "none" }}
-        onClick={togglePalette}> {visiblePalette ? <span>&gt;Target <br /> Concept Metamodel</span> : <span>&lt;</span>}
+      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-3 mr-2 " style={{ textAlign: "left",  backgroundColor: "#9a9", outline: "0", borderStyle: "none" }}
+        onClick={togglePalette}> {visiblePalette ? <span> -&gt; Target <br /> Concept Metamodel</span> : <span>&lt;</span>}
       </button>
       {visiblePalette
         ? <div className="m-1"> {gojsapp} </div>
@@ -53,12 +53,12 @@ const TargetMeta = (props) => {
   return (
     <>
       {palette}
-      <style jsx>{`
+      {/* <style jsx>{`
         .diagram-component {
           height: 101%;
           width: 98%;
         }
-       `}</style>
+       `}</style> */}
     </>
   )
 }

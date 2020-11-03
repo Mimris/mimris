@@ -155,7 +155,7 @@ const page = (props:any) => {
         border-width: 2px;
         // border-color: #000;
         background-color: #ffe;
-        max-width: 220px;
+        // max-width: 220px;
         // font-size: 100%;
       }
       .workarea {

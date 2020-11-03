@@ -1150,7 +1150,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           {
             toolTip:
               $(go.Adornment, "Auto",
-                $(go.Shape, { fill: "#FFFFCC" }),
+                $(go.Shape, { fill: "lightyellow" }),
                 $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling nodeInfo(data)
                   new go.Binding("text", "", nodeInfo))
               )
@@ -1158,7 +1158,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.Shape, 'RoundedRectangle',
             {
               cursor: "alias",
-              name: 'SHAPE', fill: 'lightyellow', stroke: "black",  strokeWidth: 1, 
+              name: 'SHAPE', fill: 'red', stroke: "black",  strokeWidth: 1, 
               shadowVisible: true,
               // set the port properties:
               portId: "",
@@ -1298,7 +1298,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
         );
     }
-
     // Define the group template with fixed size containers
     if (true) {
       var groupTemplate =
@@ -1315,7 +1314,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             if (grp.diagram.undoManager.isUndoingRedoing) return;
             if (grp.isSubGraphExpanded) {
               // shp.height = grp._savedBreadth;
-              shp.fill = "#ffffef"
+              shp.fill = "white"
             } else {
               // grp._savedBreadth = shp.height;
               // shp.height = NaN;
@@ -1341,7 +1340,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         //new go.Binding("layout", "groupLayout"),
         new go.Binding("background", "isHighlighted",
           function (h) {
-            return h ? "rgba(255,0,0,0.2)" : "transparent";
+            return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is te background of all
             }
         ).ofObject(),
         $(go.Shape, "RoundedRectangle", // surrounds everything
@@ -1352,11 +1351,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           // new go.Binding("strokeWidth", "strokewidth"),
           {
             cursor: "alias",
-            fill: "white", 
+            fill: "transparent", 
             // stroke: "black", 
             shadowVisible: true,
             // strokeWidth: 1,
-            minSize: new go.Size(100, 50),
+            minSize: new go.Size(20, 30),
             portId: "", 
             fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
             toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
@@ -1369,7 +1368,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
-              desiredSize: new go.Size(300, 200),
+              minSize: new go.Size(30, 20),
+              // desiredSize: new go.Size(300, 200),
               // minSize: new go.Binding("minSize", "size"),
               margin: new go.Margin(16, 0, 0, 0),
             },
@@ -1408,13 +1408,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             //new go.Binding("text", "choices")
           ),
           ), // End Horizontal Panel
-          $(go.Shape,  // using a Shape instead of a Placeholder
+          $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
             {
               // name: "SHAPE", //fill: "rgba(228,228,228,0.53)",
               // name: "SHAPE", fill: "transparent",
-              name: "SHAPE", fill: "lightyellow",
+              name: "SHAPE", fill: "white",
               opacity: "0.9",
-              minSize: new go.Size(300, 200), 
+              minSize: new go.Size(180, 120), 
               desiredSize: new go.Size(300, 200),
               margin: new go.Margin(0, 1, 1, 4),
               cursor: "move",
@@ -1461,6 +1461,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           $(go.Shape, "Rectangle",
             {
               name: "SHAPE", fill: "lightyellow",
+              // opacity: "0.7",
               //desiredSize: new go.Size(100, 20),
               //margin: new go.Margin(100, 0, 0, 0),
             },

@@ -65,7 +65,7 @@ const Modeller = (props: any) => {
 
     const selector = (props.modelType === 'model' || props.modelType === 'modelview') 
     ? <>
-        {/* <div className="modeller-selection float-right" > */}
+        {/* <div className="modeller-selection" > */}
           {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
           <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
         {/* </div>  */}
@@ -133,9 +133,9 @@ const Modeller = (props: any) => {
       <Nav tabs >
         {navitemDiv} 
       </Nav>
-      <TabContent   > 
+      <TabContent > 
         <TabPane  >
-          <div className="workpad bg-white p-1 pt-2"> 
+          <div className="workpad bg-white mt-0 p-1 pt-2"> 
             {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
           </div>         
         </TabPane>
@@ -154,10 +154,12 @@ const Modeller = (props: any) => {
 
   return (
     (props.modelType === 'model') ?
-    <div className="mt-1" style={{backgroundColor: "#acc"}}>
-      <h5 className="modeller-heading float-left text-dark m-6 mr-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller</h5>
+    <div className="mt-1 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
       <div>
+        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller</h5>
         {selector}
+      </div><br />
+      <div className="mt-2">
         {modelviewTabDiv} 
       </div>
       <style jsx>{`
@@ -168,7 +170,7 @@ const Modeller = (props: any) => {
     </div>
     :
     <div className="mt-1" style={{backgroundColor: "#acc"}}>
-      <h5 className="modeller-heading text-dark m-6 mr-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+      <h5 className="modeller-heading text-dark mr-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
       <div>
         {selector}
         {metamodelTabDiv} 

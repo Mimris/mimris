@@ -842,11 +842,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               }
             }),
           // makeButton("Undo",
-          //            function(e, obj) { e.diagram.commandHandler.undo(); },
-          //            function(o) { return o.diagram.commandHandler.canUndo(); }),
+            //            function(e, obj) { e.diagram.commandHandler.undo(); },
+            //            function(o) { return o.diagram.commandHandler.canUndo(); }),
           // makeButton("Redo",
-          //            function(e, obj) { e.diagram.commandHandler.redo(); },
-          //            function(o) { return o.diagram.commandHandler.canRedo(); })
+            //            function(e, obj) { e.diagram.commandHandler.redo(); },
+            //            function(o) { return o.diagram.commandHandler.canRedo(); })
         );
     }
 

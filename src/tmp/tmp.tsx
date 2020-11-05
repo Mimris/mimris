@@ -235,6 +235,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         str += "\n" + "Type: " + d.type;
       return str;
     }
+    
 
     function linkInfo(d: any) {  // Tooltip info for a link data object
       const typename = d.relshiptype?.name;
@@ -368,15 +369,54 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const currentObjectView = o.part.data.objectview;
               if (currentObject && currentObjectView) {                   
                 let objtype  = currentObject.type;
-                let typeView = currentObjectView.typeview;
+                let typeview = currentObjectView.typeview;
                 let defaultTypeview = objtype.typeview;
                 if (debug) console.log('358 typeview, defaultTypeview', typeview, defaultTypeview);
-                if (typeView && (typeView.id === defaultTypeview.id)) {
+                if (typeview && (typeview.id === defaultTypeview.id)) {
                   return true;
                 }
               }
               return false;
             }),
+          makeButton("Reset Typeview", 
+          function (e: any, obj: any) {
+            const node = obj.part.data;
+            if (debug) console.log('383 node', node);
+            const currentObject = myMetis.findObject(node.object.id)
+            const currentObjectView =  myMetis.findObjectView(node.objectview.id);
+            if (debug) console.log('386 obj and objview', currentObject, currentObjectView);
+            if (currentObject && currentObjectView) {                   
+              const myMetamodel = myMetis.currentMetamodel;
+              const objtype  = currentObject.type;
+              let typeview = currentObjectView.typeview;
+              const defaultTypeview = objtype.typeview;
+              if (debug) console.log('392 node', objtype, defaultTypeview, typeview);
+              if (!typeview || (typeview.id !== defaultTypeview.id)) {
+                currentObjectView.typeview = defaultTypeview;
+              }
+              const gqlObjView = new gql.gqlObjectView(currentObjectView);
+              if (debug) console.log('397 gqlObjView', gqlObjView);
+              const modifiedObjectViews = new Array();
+              modifiedObjectViews.push(gqlObjView);
+              modifiedObjectViews.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+              })              
+            }
+          },
+          function (o: any) {
+            const currentObject = o.part.data.object; 
+            const currentObjectView = o.part.data.objectview;
+            if (currentObject && currentObjectView) {                   
+              const objtype  = currentObject.type;
+              const typeView = currentObjectView.typeview;
+              const defaultTypeview = objtype.typeview;
+              if (typeView && (typeView.id !== defaultTypeview.id)) {
+                return true;
+              }
+            }
+            return false;
+          }),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
                 const context = {
@@ -655,16 +695,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    // A Context menu for links    
-    let link
+    // A Context menu for links   
+    let link 
     if (true) {
       var linkContextMenu =
         $(go.Adornment, "Vertical",
           makeButton("Set Relationship type",
             function (e, obj) {
               const myGoModel = myMetis.gojsModel;
-              const link = obj.part.data;
-              if (debug) console.log('666 link', link, myDiagram, myGoModel);
+              link = obj.part.data;
+              console.log('666 link', link, myDiagram, myGoModel);
               let fromNode = myGoModel?.findNode(link.from);
               let toNode   = myGoModel?.findNode(link.to);
               if (debug) console.log('669 from and toNode', fromNode, toNode);
@@ -683,8 +723,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                           defText = rtype.name;
                   }
               }
-
-              console.log('726 ', link, customSelectBox.value);             
+              console.log('726 ', link, customSelectBox.value);
+              
               let reltype = customSelectBox.value; //sf prompt does not work in cloud
               // let reltype = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
 
@@ -699,7 +739,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const relview = uic.setRelationshipType(link, reltype, context);
               if (!relview) return;
               const gqlRelView = new gql.gqlRelshipView(relview);
-              if (debug) console.log('308 SetReltype', link, gqlRelView);
+              console.log('308 SetReltype', link, gqlRelView);
               const modifiedRelshipViews = new Array();
               modifiedRelshipViews.push(gqlRelView);
               modifiedRelshipViews.map(mn => {
@@ -763,8 +803,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   modifiedRelshipViews.map(mn => {
                     let data = mn;
                     e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                  })
-                
+                  })                
                 }
               }
             },
@@ -778,6 +817,49 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   const typeView = currentRelshipView.typeview;
                   const defaultTypeview = reltype.typeview;
                   if (typeView && (typeView.id === defaultTypeview.id)) {
+                    return true;
+                  }
+                }
+              }
+              else if (link.class === 'goRelshipTypeLink') {
+                  return false;
+              }
+              return false;
+            }),
+          makeButton("Reset Typeview",
+            function (e: any, obj: any) { 
+              const link = obj.part.data;
+              if (link.class === 'goRelshipLink') {
+                const currentRelship = myMetis.findRelationship(link.relship.id);
+                const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
+                if (currentRelship && currentRelshipView) {                   
+                  const myMetamodel = myMetis.currentMetamodel;
+                  const reltype  = currentRelship.type;
+                  let typeview = currentRelshipView.typeview;
+                  const defaultTypeview = reltype.typeview;
+                  currentRelshipView.typeview = defaultTypeview;
+
+                  const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
+                  if (debug) console.log('798 gqlRelView', gqlRelView);
+                  const modifiedRelshipViews = new Array();
+                  modifiedRelshipViews.push(gqlRelView);
+                  modifiedRelshipViews.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                  })
+                }
+              }
+            },
+            function (o: any) {
+              const link = o.part.data;
+              if (link.class === 'goRelshipLink') {
+                const currentRelship = link.relship;
+                const currentRelshipView = link.relshipview;
+                if (currentRelship && currentRelshipView) {                   
+                  const reltype  = currentRelship.type;
+                  const typeView = currentRelshipView.typeview;
+                  const defaultTypeview = reltype.typeview;
+                  if (typeView && (typeView.id !== defaultTypeview.id)) {
                     return true;
                   }
                 }
@@ -847,11 +929,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               }
             }),
           // makeButton("Undo",
-          //            function(e, obj) { e.diagram.commandHandler.undo(); },
-          //            function(o) { return o.diagram.commandHandler.canUndo(); }),
+            //            function(e, obj) { e.diagram.commandHandler.undo(); },
+            //            function(o) { return o.diagram.commandHandler.canUndo(); }),
           // makeButton("Redo",
-          //            function(e, obj) { e.diagram.commandHandler.redo(); },
-          //            function(o) { return o.diagram.commandHandler.canRedo(); })
+            //            function(e, obj) { e.diagram.commandHandler.redo(); },
+            //            function(o) { return o.diagram.commandHandler.canRedo(); })
         );
     }
 
@@ -1249,6 +1331,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
+
+
+
+
     // Define a link template
     let linkTemplate;
     if (true) {
@@ -1274,6 +1360,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             curve: go.Link.JumpGap,
             corner: 10
           },  // link route should avoid nodes
+
           { contextMenu: linkContextMenu },
           new go.Binding("points").makeTwoWay(),
           // $(go.Shape, { stroke: "black", strokeWidth: 1},
@@ -1293,7 +1380,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             {
               isMultiline: false,  // don't allow newlines in text
               editable: true,  // allow in-place editing by user
-              //textEditor: customEditor,
+              //ç
             },
 
             new go.Binding("text", "name").makeTwoWay(),
@@ -1510,7 +1597,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       customSelectBox.innerHTML = "";
       textBlock.choices = link?.choices;
       console.log('1596 ', link?.choices);
-
       // this sample assumes textBlock.choices is not null
       if (!textBlock.choices) {
         if (debug) console.log('626 customEditor - No choices');
@@ -1562,7 +1648,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     // This is necessary for HTMLInfo instances that are used as text editors
     customEditor.valueFunction = function () { return customSelectBox.value; }
 
-    // // Set the HTMLInfo:
+    // Set the HTMLInfo:
     myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
 
     myDiagram.toolManager.hoverDelay = 400 //sf  setting the time the cursor need to be still before showing toolTip

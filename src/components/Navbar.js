@@ -24,6 +24,9 @@ const Navbar = (props) => (
 					<li className="nav-item">
 						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
 					</li>
+					<li className="nav-item">
+						<Link href="/table"><a className="nav-link">Table</a></Link>
+					</li>
 					<li className="nav-item dropdown">
 						<a className="nav-link dropdown-toggle" href="/other" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More

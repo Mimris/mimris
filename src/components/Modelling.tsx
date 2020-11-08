@@ -61,14 +61,16 @@ const page = (props:any) => {
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
     useEffect(() => {
-      // if (debug) console.log('68 Diagram useEffect 1 ', props ); 
-      // genGojsModel(props, dispatch);
+      genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
-      // setRefresh(!refresh)
-    }, [props.phData.metis])
+      const data = 'TEST';
+      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
+      console.log('68 Diagram useEffect 1 ', props, data ); 
+      //setRefresh(!refresh)
+    }, [refresh && props.phSource])
 
     useEffect(() => {
-      if (debug) console.log('86 Diagram useEffect 2', props); 
+      console.log('71 Diagram useEffect 2', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -77,7 +79,7 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id])
 
     useEffect(() => {
-      // if (debug) console.log('93 Modelling useEffect 3', props); 
+      console.log('80 Modelling useEffect 3', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])

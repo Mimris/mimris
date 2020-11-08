@@ -390,9 +390,11 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             }
             myGoModel.nodes = nodes;
         }
+        if (debug) console.log('393 nodes', myGoModel.nodes);
         let node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
-        if (debug) console.log('384 delete node', node);
+        if (debug) console.log('395 delete node', node);
         if (node) {
+            node.deleted = deletedFlag;
             // Handle deleteViewsOnly
             if (myMetis.currentModel.deleteViewsOnly) {
                 const objview = node.objectview;
@@ -415,6 +417,8 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
                 if (objview) {
+                    const node = myGoModel.findNodeByViewId(objview.id);
+                    if (node) node.deleted = deletedFlag;
                     deleteObjectView(objview, deletedFlag, deletedNodes, deletedObjects, deletedTypeviews, context);
                     if (debug) console.log('417 delete objview', objview);
                 }
@@ -428,6 +432,8 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                     for (let i=0; i<relviews?.length; i++) {
                         const relview = relviews[0];
                         if (relview) {
+                            const link = myGoModel.findLinkByViewId(relview.id);
+                            if (nolinkde) link.deleted = deletedFlag;
                             relview.deleted = deletedFlag;
                             const gqlRelview = new gql.gqlRelshipView(relview);
                             deletedLinks.push(gqlRelview);
@@ -444,9 +450,21 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
                     rel.deleted = deletedFlag;
+                    const relviews = rel.relshipviews;
+                    for (let i=0; i<relviews?.length; i++) {
+                        const relview = relviews[0];
+                        if (relview) {
+                            const link = myGoModel.findLinkByViewId(relview.id);
+                            if (link) link.deleted = deletedFlag;
+                            relview.deleted = deletedFlag;
+                            const gqlRelview = new gql.gqlRelshipView(relview);
+                            deletedLinks.push(gqlRelview);
+                            if (debug) console.log('462 delete relview', relview);
+                        }
+                    }
                     const gqlRel = new gql.gqlRelationship(rel);
                     deletedRelships.push(gqlRel);
-                    if (debug) console.log('447 delete rel', rel);
+                    if (debug) console.log('467 delete rel', rel);
                 }
             }
         }
@@ -772,9 +790,34 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
     }
 }
 
+export function addNodeToDataArray(parent: any, node: gjs.goObjectNode, objview: akm.cxObjectView) {
+    const nodeArray = parent.nodeDataArray;
+    const newArray  = new Array();
+    for (let i=0; i<nodeArray.length; i++) {
+        const n = nodeArray[i]; 
+        if (n) newArray.push(n);
+    }
+    const myNode = new gjs.goObjectNode(node.key, objview);
+    myNode.loc = node.loc;
+    myNode.size = node.size;
+    const objtype = objview.object?.type;
+    const typeview = objtype?.typeview;
+    myNode.typeview = typeview;
+    const viewdata = typeview?.data;
+    for (let prop in viewdata) {
+        if (prop === "class") continue;
+        if (prop === "isGroup") continue;
+        if (prop === "group") continue;
+        myNode[prop] = viewdata[prop];                            
+    }
+    newArray.push(myNode);
+    parent.nodeDataArray = newArray;
+    return myNode;
+}
+
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    if (debug) console.log('641 createRelationship', data);
+    console.log('641 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     //const myMetamodel = context.myMetamodel;
@@ -782,7 +825,7 @@ export function createRelationship(data: any, context: any) {
     //data.key = utils.createGuid();
     let fromNode = myGoModel.findNode(data.from);
     let toNode = myGoModel.findNode(data.to);
-    if (debug) console.log('669 createRelationship', fromNode, toNode);
+    console.log('669 createRelationship', myGoModel, fromNode, toNode);
     if (!toNode)
         return;
     let typename = 'isRelatedTo' as string | null;
@@ -820,7 +863,7 @@ export function createRelationship(data: any, context: any) {
         myDiagram.model.removeLinkData(data);
         return;
     }
-    if (debug) console.log('657 createRelationship', reltype);
+    console.log('657 createRelationship', reltype);
     if (!isLinkAllowed(reltype, fromNode.object, toNode.object)) {
         alert("Relationship given is not allowed!");
         myDiagram.model.removeLinkData(data);
@@ -831,7 +874,7 @@ export function createRelationship(data: any, context: any) {
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
     relshipview.setTypeView(reltypeview);
-    if (debug) console.log('725 myGoModel', myGoModel);
+    console.log('725 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -1258,6 +1301,28 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
         }
     }
 }
+
+export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relview: akm.cxRelationshipView) {
+    const linkArray = parent.linkDataArray;
+    const newArray  = new Array();
+    for (let i=0; i<linkArray.length; i++) {
+        const l = linkArray[i]; 
+        if (l) newArray.push(l);
+    }
+    const reltype = relview.relship?.type;
+    const typeview = reltype?.typeview;
+    myLink.typeview = typeview;
+    const viewdata = typeview?.data;
+    for (let prop in viewdata) {
+        if (prop === "class") continue;
+        myLink[prop] = viewdata[prop];                            
+    }
+    console.log('1322 myLink', myLink);
+    newArray.push(myLink);
+    parent.linkDataArray = newArray;
+    return myLink;
+}
+
 
 export function setRelshipType() {
 

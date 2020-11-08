@@ -72,7 +72,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           $(go.Palette,       // must name or refer to the DIV HTML element
             {
               initialContentAlignment: go.Spot.Top,       // center the content
-              initialAutoScale: go.Diagram.Uniform,
+              // initialAutoScale: go.Diagram.Uniform,
               maxSelectionCount: 1,
               layout: $(go.GridLayout,
                 {
@@ -99,13 +99,12 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               new go.Binding("text", "name"),
                 
               // define the node's outer shape
-              $(go.Shape, "Rectangle",
+              $(go.Shape, "RoundedRectangle",
                 {
                   name: "SHAPE", 
                   fill: "lightyellow", 
                   stroke: "black",
-                },
-                
+                }, 
                   new go.Binding("fill", "fillcolor"),
                   new go.Binding("stroke", "strokecolor"),
                   new go.Binding("strokeWidth", "strokewidth")
@@ -125,7 +124,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                     { 
                       defaultRowSeparatorStroke: "black",
                       //minSize: new go.Size(200, 50),
-                      maxSize: new go.Size(200, 999),
+                      maxSize: new go.Size(100, 999),
+                      minSize: new go.Size(90, 15),
                       margin: new go.Margin(6, 10, 0, 0),
                       defaultAlignment: go.Spot.Left
                     },
@@ -156,7 +156,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               new go.Binding("text", "name"),
     
               // define the node's outer shape
-              $(go.Shape, "Rectangle",
+              $(go.Shape, "RoundedRectangle",
                 {
                   name: "SHAPE", fill: "lightyellow", stroke: "black",
                   //desiredSize: new go.Size(100, 20),
@@ -172,9 +172,10 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 $(go.Panel, "Table",
                   {
                     defaultRowSeparatorStroke: "black",
-                    maxSize: new go.Size(150, 999),
+                    maxSize: new go.Size(100, 999),
+                    minSize: new go.Size(90, 40),
                     margin: new go.Margin(6, 10, 0, 3),
-                    defaultAlignment: go.Spot.Left
+                    defaultAlignment: go.Spot.TopLeft
                   },
                   $(go.RowColumnDefinition, { column: 2, width: 4 }
                   ),
@@ -184,7 +185,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                       row: 0, column: 0, columnSpan: 6,
                       font: "12pt Segoe UI,sans-serif",
                       editable: true, isMultiline: false,
-                      minSize: new go.Size(10, 16),
+                      minSize: new go.Size(80, 40),
                       name: "name"
                     },
                     new go.Binding("text", "name").makeTwoWay()),

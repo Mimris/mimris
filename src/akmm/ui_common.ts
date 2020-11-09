@@ -790,16 +790,20 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
     }
 }
 
-export function addNodeToDataArray(parent: any, node: gjs.goObjectNode, objview: akm.cxObjectView) {
+export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObjectView) {
     const nodeArray = parent.nodeDataArray;
     const newArray  = new Array();
     for (let i=0; i<nodeArray.length; i++) {
         const n = nodeArray[i]; 
         if (n) newArray.push(n);
     }
+    //newArray.push(node);
     const myNode = new gjs.goObjectNode(node.key, objview);
     myNode.loc = node.loc;
     myNode.size = node.size;
+    myNode.objectview_0 = node.objectview_0;
+    myNode.parentModel = node.parentModel;
+    myNode.type = node.type;
     const objtype = objview.object?.type;
     const typeview = objtype?.typeview;
     myNode.typeview = typeview;
@@ -817,7 +821,7 @@ export function addNodeToDataArray(parent: any, node: gjs.goObjectNode, objview:
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    console.log('641 createRelationship', data);
+    console.log('824 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     //const myMetamodel = context.myMetamodel;
@@ -825,7 +829,7 @@ export function createRelationship(data: any, context: any) {
     //data.key = utils.createGuid();
     let fromNode = myGoModel.findNode(data.from);
     let toNode = myGoModel.findNode(data.to);
-    console.log('669 createRelationship', myGoModel, fromNode, toNode);
+    console.log('832 createRelationship', myGoModel, fromNode, toNode);
     if (!toNode)
         return;
     let typename = 'isRelatedTo' as string | null;
@@ -838,7 +842,7 @@ export function createRelationship(data: any, context: any) {
         if ((myMetis) && (fromType && toType)) {
             let defText = "";
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
-            if (debug) console.log('715 createRelationship', reltypes, myMetis);
+            if (debug) console.log('845 createRelationship', reltypes, myMetis);
             if (reltypes) {
                 for (let i=0; i<reltypes.length; i++) {
                     const rtype = reltypes[i];
@@ -863,7 +867,7 @@ export function createRelationship(data: any, context: any) {
         myDiagram.model.removeLinkData(data);
         return;
     }
-    console.log('657 createRelationship', reltype);
+    console.log('870 createRelationship', reltype);
     if (!isLinkAllowed(reltype, fromNode.object, toNode.object)) {
         alert("Relationship given is not allowed!");
         myDiagram.model.removeLinkData(data);
@@ -874,7 +878,7 @@ export function createRelationship(data: any, context: any) {
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
     relshipview.setTypeView(reltypeview);
-    console.log('725 myGoModel', myGoModel);
+    console.log('881 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -886,43 +890,41 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myMetis   = context.myMetis;
     const myModelView = myMetis.currentModelview;
     const pasteViewsOnly = myMetis.currentModel.pasteViewsOnly;
-    if (debug) console.log('762 myMetis', myMetis, myGoModel);
+    if (debug) console.log('890 myMetis', myMetis, myGoModel);
     //const relshipname = data.name;
     //data.key = utils.createGuid();
-    if (debug) console.log('765 pasteRelationship', data, nodes);
+    if (debug) console.log('893 pasteRelationship', data, nodes);
     // Relationship type must exist
     let reltype = data.relshiptype;
     if (reltype) 
         reltype = myMetis.findRelationshipType(reltype.id);
-    if (debug) console.log('770 pasteRelationship', reltype);
+    if (debug) console.log('898 pasteRelationship', reltype);
     if (!reltype)
         return;
     //const reltypeview = reltype.getDefaultTypeView();
     // Find source objects
     let fromNode    = data.fromNode;
     let toNode      = data.toNode;
-    if (pasteViewsOnly) {
-        for (let i=0; i<nodes.length; i++) {
-            const n = nodes[i];
+    for (let i=0; i<nodes.length; i++) {
+        const n = nodes[i];
             if (fromNode.objectview.id === n?.objectview_0?.id) {
-                data.fromNode = n;
-                break;
-            }
-        }
-        for (let i=0; i<nodes.length; i++) {
-            const n = nodes[i];
-            if (toNode.objectview.id === n?.objectview_0?.id) {
-                data.toNode = n;
-                break;
-            }
+            data.fromNode = n;
+            break;
         }
     }
-    if (debug) console.log('792 pasteRelationship', data);
+    for (let i=0; i<nodes.length; i++) {
+        const n = nodes[i];
+        if (toNode.objectview.id === n?.objectview_0?.id) {
+            data.toNode = n;
+            break;
+        }
+    }
+    if (debug) console.log('919 pasteRelationship', data);
     const fromObjview = data.fromNode?.objectview;
     const toObjview   = data.toNode?.objectview;
     let   relship     = data.relship;
     const typeview    = data.typeview;
-    if (debug) console.log('797 pasteRelationship', fromObjview, toObjview);
+    if (debug) console.log('924 pasteRelationship', fromObjview, toObjview);
     // myDiagram.model.setDataProperty(data, "name", relship?.name);
     if (!pasteViewsOnly) {
         const fromObj = fromObjview.object;
@@ -935,8 +937,9 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
             myMetis.currentModel.addRelationship(relship);
             myMetis.addRelationship(relship);
         }
+    } else {
+        relship = myMetis.findRelationship(relship.id);
     }
-
     const relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
     if (relshipview) {
         relshipview.setTypeView(typeview);              // Uses same typeview as from relview
@@ -946,9 +949,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         myModelView.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
     }
-    // const fromObj = myMetis.findObject(fromNode.object.id);
-    // const toObj   = myMetis.findObject(toNode.object.id);
-    if (debug) console.log('811 pasteRelationship', myGoModel);
+   if (debug) console.log('811 pasteRelationship', myGoModel);
     myDiagram.requestUpdate();
     return relshipview; 
 }
@@ -1314,6 +1315,7 @@ export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relvi
     myLink.typeview = typeview;
     const viewdata = typeview?.data;
     for (let prop in viewdata) {
+        if (prop === "abstract") continue;
         if (prop === "class") continue;
         myLink[prop] = viewdata[prop];                            
     }
@@ -1334,8 +1336,11 @@ function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) 
         let viewdata: any = objtypeView.data;
         let prop: string;
         for (prop in viewdata) {
-            if (viewdata[prop] != null) 
+            if (viewdata[prop] != null) {
+                if (prop === 'abstract') continue;
+                if (prop === 'class') continue;
                 diagram.model.setDataProperty(data, prop, viewdata[prop])
+            }
         }
         if (debug) console.log('994 updateNode', data);
     }

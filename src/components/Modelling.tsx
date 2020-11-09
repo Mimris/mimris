@@ -21,7 +21,6 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
-  const debug = false
   // if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
@@ -60,14 +59,14 @@ const page = (props:any) => {
 
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
-    useEffect(() => {
-      genGojsModel(props, dispatch);
-      //focusModel = props.phFocus?.focusModel
-      const data = 'TEST';
-      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
-      console.log('68 Diagram useEffect 1 ', props, data ); 
-      //setRefresh(!refresh)
-    }, [refresh && props.phSource])
+    // useEffect(() => {
+    //   genGojsModel(props, dispatch);
+    //   //focusModel = props.phFocus?.focusModel
+    //   // const data = 'TEST';
+    //   // dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
+    //   console.log('68 Diagram useEffect 1 ', props ); 
+    //   setRefresh(!refresh)
+    // }, [props.phData.metis.models])
 
     useEffect(() => {
       console.log('71 Diagram useEffect 2', props); 

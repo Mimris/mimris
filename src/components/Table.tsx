@@ -1,273 +1,159 @@
-import React, { useMemo } from 'react';
-import { useTable, useSortBy, useRowSelect, useFilters, useGlobalFilter } from 'react-table';
-import IndeterminateCheckbox from "./table/IndeterminateCheckbox";
-// import { columns, data } from './table/dataSource';
+// @ts-nocheck
+// Diagram.tsx
+const debug = false;
 
-function Table(props) {
-  // console.log('6', props);
-  
-  const models = props.ph.phData?.metis.models
-  const focusModelId = props.phFocus?.focusModel.id
-  // const focusModelviewId = props.phFocus?.focusModelview.id
-  const curmod = models?.find(m => m.i === focusModelId)
-  const modelviews = curmod.modelviews
-  // const curmodview = curmod.modelviews?.find(mv => mv.id === focusModelviewId)
+// import React from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
+import { connect, useSelector, useDispatch } from 'react-redux';
+import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
+import classnames from 'classnames';
+import Page from './page';
 
-  
-  const objects = curmod?.objects
-  
-  const metamodels = props.ph.phData?.metis.metamodels
-  const curmmod = metamodels.find(mm => mm.id === curmod?.metamodelRef)
-  
-  // console.log('17',
-  //   curmod?.objects.map(o => o &&
-  //     {
-  //       ...o,
-  //       type: curmmod.objecttypes.find(ot => ot && (ot.id === o.typeRef)).name,   
-  //       objViews: modelviews.map(mv => mv.objectviews.find(ov => ov.objectRef === o.id) && mv.name).filter(Boolean), 
-  //       countObjViews: modelviews.map(mv => mv.objectviews.find(ov => ov.objectRef === o.id)).length 
-  //       // group: 
-  //     }
-  //   )
-  // );
+import ObjectTable from './table/ObjectTable'
+import RelshipTable from './table/RelshipTable'
+import EditFocusModel from '../components/EditFocusModel'
+import EditFocusMetamodel from '../components/EditFocusMetamodel'
+// import {loadDiagram} from './akmm/diagram/loadDiagram'
 
+const page = (props:any) => {
+  const debug = false
+  // if (debug) console.log('17 Modelling', props);
+  const dispatch = useDispatch();
+  const [refresh, setRefresh] = useState(true);
   
-  // console.log('13', props.ph.phData, models, focusModelId, curmod, objects);
-  const edititem = objects[0]
+  /**  * Get the state from the store  */
+  // const state = useSelector((state: any) => state) // Selecting the whole redux store
+  let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
+  let focusModelview = useSelector(focusModelview => props.phFocus?.focusModelview) 
+  const focusObjectview = useSelector(focusObjectview => props.phFocus?.focusObjectview) 
+  const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
+  const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
+  const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
+  // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
-  function listAllProperties(o) { // list all obj properties incl prototype properties
-    var objectToInspect;
-    var result = [];
-    for (objectToInspect = o; objectToInspect !== null;
-      objectToInspect = Object.getPrototypeOf(objectToInspect)) {
-      result = result.concat(
-        Object.getOwnPropertyNames(objectToInspect)
-      );
+  let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
+  let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
+  let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
+  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  let gojsmodel =  props.phGojs?.gojsModel 
+  let gojstargetmodel =  props.phGojs?.gojsTargetModel 
+  let gojsmetamodel =  props.phGojs?.gojsMetamodel 
+
+  if (debug) console.log('49 Modelling', gojsmodel, gojsmodelobjects, props);
+  
+  let metis = props.phData?.metis
+  let myMetis = props.phMymetis?.myMetis
+  let myGoModel = props.phMyGoModel?.myGoModel
+  let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+  //let myGoMetamodel = props.phGojs?.gojsMetamodel
+  let phFocus = props.phFocus;
+  let phData = props.phData
+
+  // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
+
+
+    // useEffect(() => {
+    //   console.log('80 Modelling useEffect 3', props); 
+    //   genGojsModel(props, dispatch)
+    //   setRefresh(!refresh)
+    // }, [props.phSource])
+
+
+    
+    const [activeTab, setActiveTab] = useState('1');
+    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
+    const [tooltipOpen, setTooltipOpen] = useState(false);
+    const toggleTip = () => setTooltipOpen(!tooltipOpen);
+    
+    const [visibleTasks, setVisibleTasks] = useState(true)
+    function toggleTasks() {
+      setVisibleTasks(!visibleTasks);
     }
-    return result;
-  }
 
-  const fields0 = listAllProperties(edititem).map(p => // remove js prototype properties
-    (p.substring(0, 2) !== '__') && 
-    (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
-    (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && 
-    (p !== 'toLocaleString') && 
-    //(p !== 'id') &&
-    //   (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
-    //   (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
-    //   (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') && (p !== 'pasteViewsOnly') && (p !== 'deleteViewsOnly') &&
-    //   (p !== 'datatypes') && (p !== 'relshiptypes') && (p !== 'inputrels') &&(p !== 'outputrels') &&
-      (p.slice(-3) !== 'Ref') &&
-      // (p !== 'unittypes') && (p !== 'objtypegeos') 
-      //  (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
-    p
-  ).filter(Boolean)
-  console.log('64', fields0, fields0.length);
-  
-  function array_move(arr, old_index, new_index) {
-    if (new_index >= arr.length) {
-        var k = new_index - arr.length + 1;
-        while (k--) {
-            arr.push(undefined);
-        }
-    }
-    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
-    return arr; // for testing
-  };
-  const fields1 = array_move(fields0, 2, fields0.length-1) // move id to the end
-  const fields2 = array_move(fields1, 0, fields0.length-1) // move id to the end
-  console.log('78', fields2);
-  const fields = [  
-    ...fields2.slice(0, 2),
-    'type',
-    'modViews',
-    ...fields1.slice(2 + 1, fields1.length),
-  ]
-  console.log('78', fields);
+  const modellingtabs = (<>
+      <Nav tabs >
+        <NavItem>
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+            className={classnames({ active: activeTab === '1' })}
+            onClick={() => { toggleTab('1') }}
+          >
+            {(activeTab === "1") ? 'Objects' : 'Objects'}
+          </NavLink>
+        </NavItem>
+        <NavItem >
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+            className={classnames({ active: activeTab === '2' })}
+            onClick={() => { toggleTab('2')}}
+          >
+            {(activeTab === "2") ? 'Relationships' : 'Relationships'}
+          </NavLink>
+        </NavItem>
+      </Nav>
+      <TabContent  activeTab={activeTab} >  
 
-  function properties(p) {
-    switch (p) {
-      case 'name':
-        return (
-          {
-            Header: p,
-            Footer: (p === 'name') ?  <hr /> : <br />,
-            accessor: p,
-            filter: (p === 'name') ? (rows, id, filterType) => rows.filter(row => row.values[id].startsWith(filterType)) : null,
-          }
-        )
-        break; 
-      case 'id':
-        return (
-       {
-         Header: p,
-         accessor: p,
-        } 
-        )
-        break; 
-        default:
-          return (
-            {
-            Header: p,
-            accessor: p,
-          }
-        )
-        break;
-      }
-    }
-  
-  const fieldColumns = fields.map(f => properties(f))
-  console.log('95', fieldColumns);
-  
-  const columns = useMemo(
-    () => [
-      {
-        Header: 'Objects',
-        Footer: info => {
-          const count = useMemo(
-            () => info.rows.length,
-            [info.rows]
-          )
-          return `Count: ${count}`
-        },
-        columns: 
-          fieldColumns
-          // {
-          //   Header: 'Name',
-          //   Footer: <hr />,
-          //   accessor: 'name',
-          //   filter: (rows, id, filterType) => rows.filter(row => row.values[id].startsWith(filterType)),
+        {/* Objects */}
+        <TabPane  tabId="1">
+          <div className="workpad p-1 pt-2 bg-white" >
+            <Row >
+              <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
+                <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
+                   <ObjectTable ph={props} />  
+                </div>
+              </Col>
+            </Row>
+          </div>         
+        </TabPane>
+        {/* Relships */}
+        <TabPane tabId="2">
+          <div className="workpad p-1 pt-2 bg-white">
+           <Row >
+              <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
+                <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
+                   <RelshipTable ph={props} />  
+                </div>
+              </Col>
+            </Row>
+          </div>         
+        </TabPane>
+      </TabContent>
+    </>
+    )      
 
-          // },
-          // {
-          //   Header: 'Type',
-          //   accessor: 'type',
-          // },
-          // // {
-          // //   Header: 'OvNumers',
-          // //   accessor: 'countObjViews',
-          // // },
-          // {
-          //   Header: 'Model Views',
-          //   accessor: 'modViews',
-          // },
-          // {
-          //   Header: 'Desc',
-          //   accessor: 'description',
-          // },
-          // {
-          //   Header: 'Id',
-          //   accessor: 'id',
-          // },
-        ,
-      }
-    ],[]
+  
+  const modelType = (activeTab === '1') ? 'metamodel' : 'model'
+  const EditFocusModelMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Mod' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModel buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+    // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
+  // if (debug) console.log('177 Modelling', EditFocusModelDiv);
+  
+  return (
+    <>
+      {/* <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
+      <div className="diagramtabs" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
+        <div style={{ transform: "scale(0.9)"}}>
+          <span className="sourceName pr-1 float-right mr-0 mt-1" 
+            style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
+              Current source: {props.phSource}
+          </span> 
+          {/* <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {loadserver} {loadlocal}  
+          </span>  */}
+          <span className="editfocus float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
+          </span>
+        </div> 
+        {/* <div className="modellingContent pt-1" > */}
+        <div className="modellingContent pt-1 pr-2"  >
+          {/* {modellingtabs} */}
+          {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+        </div>
+        <style jsx>{`
+
+        `}</style>
+      </div>
+    </>
   )
-  console.log('50', 
-    curmmod.objecttypes.find(ot => (ot.id === objects[0].typeRef)).name
-  );
-  
-  const data = useMemo( 
-  () => 
-    objects?.map(o => o &&
-      {
-        id: o.id,
-        name: o.name,
-        description: o.description,
-        type: curmmod.objecttypes.find(ot => (ot.id === o.typeRef)).name,
-        modViews: modelviews.map(mv => mv.objectviews.find(ov => ov.objectRef === o.id) && mv.name+', ').filter(Boolean), 
-        // countObjViews: modelviews.filter(mv => mv.objectviews.find(ov => ov.objectRef === o.id)).length 
-      } 
-    ),[]
-  )
-
-    const {
-      getTableProps,
-      getTableBodyProps,           
-      headerGroups,
-      footerGroups,
-      rows,
-      prepareRow,
-    } = useTable(
-      {
-        columns,
-        data,
-        initialState: {
-          filters: [
-            {
-              id: "name",
-              value: "",
-            },
-          ],
-        },
-      },
-      useFilters,
-      useGlobalFilter,
-      useSortBy,
-      useRowSelect,
-      (hooks) => {
-        hooks.visibleColumns.push((columns) => [
-          {
-            id: "selection",
-            Header: ({ getToggleAllRowsSelectedProps }) => (
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            ),
-            Cell: ({ row }) => (
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            ),
-          },
-          ...columns,
-        ]);
-      }
-    );
-  
-    return (
-      <table style={{borderSpacing: "5px", border: "2px solid gray"}} {...getTableProps()}>
-        <thead style={{borderSpacing: "5px", border: "2px solid gray"}}>
-          {headerGroups.map((headerGroup) => (
-            <tr className="bg-secondary border" {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th className="pl-2" {...column.getHeaderProps(column.getSortByToggleProps())}>
-                  {column.render("Header")}
-                  <span>
-                    {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
-                  </span>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody className="bg-primary" {...getTableBodyProps()}>
-          {rows.map((row, i) => {
-            prepareRow(row);
-            return (
-              <tr className="bg-secondary p-2" {...row.getRowProps()}>
-                {row.cells.map((cell) => {
-                  return <td  {...cell.getCellProps()}
-                    className="bg-white pl-1"
-                    style={{borderSpacing: "5px", border: "2px solid gray"}}
-                  >
-                    {cell.render("Cell")}
-                  </td>;
-                })}
-              </tr>
-            );
-          })}
-        </tbody>
-        <tfoot>
-          {footerGroups.map((group) => (
-            <tr {...group.getFooterGroupProps()}>
-              {group.headers.map((column) => (
-                <td {...column.getFooterProps()}>
-                  {column.Footer && column.render("Footer")}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tfoot>
-      </table>
-    );
-  }
-  
-
-export default Table;
+} 
+export default Page(connect(state => state)(page));

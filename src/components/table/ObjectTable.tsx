@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTable, useSortBy, useRowSelect, useFilters, useGlobalFilter } from 'react-table';
 import IndeterminateCheckbox from "./IndeterminateCheckbox";
+import Selector from '../utils/Selector'
 // import { columns, data } from './table/dataSource';
 
 function ObjectTable(props) {
@@ -17,6 +18,7 @@ function ObjectTable(props) {
 
   const models = props.ph.phData?.metis.models
   const focusModelId = props.phFocus?.focusModel.id
+  const modelindex = models?.findIndex((m: any) => m?.id === focusModelId)
   // const focusModelviewId = props.phFocus?.focusModelview.id
   const curmod = models?.find(m => m.i === focusModelId)
   const modelviews = curmod.modelviews
@@ -199,9 +201,38 @@ function ObjectTable(props) {
         ]);
       }
     );
+    const selmods = [
+      models[modelindex],
+      ...models.slice(0, modelindex),
+      ...models.slice(modelindex+1, models.length)
+    ]
+    
+    
+    const [refresh, setRefresh] = useState(true)
+
+  
+    // function toggleRefresh() { setRefresh(!refresh); }
+
+  
+    // console.log('36 Modeller', focusModelview, selmods, modelviews);
+    let selmodels = selmods.filter(Boolean) //selmods?.models?.map((m: any) => m)
+    console.log('219', selmodels);
+    
+
+    const selector = (selmodels) &&
+      <>
+        {/* <div className="modeller-selection" > */}
+          {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
+          <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+        {/* </div>  */}
+      </>
   
     return (
       <>
+            <div>
+        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller</h5>
+        {selector}
+      </div><br />
         <div>
           <label>id</label>
           <input

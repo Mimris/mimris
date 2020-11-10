@@ -11,6 +11,8 @@ import Page from './page';
 
 import ObjectTable from './table/ObjectTable'
 import RelshipTable from './table/RelshipTable'
+import LoadServer from '../components/LoadServer'
+import LoadLocal from '../components/LoadLocal'
 import EditFocusModel from '../components/EditFocusModel'
 import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
@@ -119,7 +121,9 @@ const page = (props:any) => {
     </>
     )      
 
-  
+  const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' ph={props} phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
+  const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
+
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
   const EditFocusModelMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Mod' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -137,9 +141,9 @@ const page = (props:any) => {
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
               Current source: {props.phSource}
           </span> 
-          {/* <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+          <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {loadserver} {loadlocal}  
-          </span>  */}
+          </span> 
           <span className="editfocus float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
           </span>

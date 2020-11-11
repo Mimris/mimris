@@ -433,7 +433,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                         const relview = relviews[0];
                         if (relview) {
                             const link = myGoModel.findLinkByViewId(relview.id);
-                            if (nolinkde) link.deleted = deletedFlag;
+                            if (link) link.deleted = deletedFlag;
                             relview.deleted = deletedFlag;
                             const gqlRelview = new gql.gqlRelshipView(relview);
                             deletedLinks.push(gqlRelview);

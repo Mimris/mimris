@@ -35,6 +35,7 @@ import {
   SET_FOCUS_COLLECTION, 
   SET_FOCUS_TASK, 
   SET_FOCUS_SOURCE, 
+  SET_FOCUS_REFRESH, 
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
   UPDATE_METAMODEL_PROPERTIES,
@@ -292,6 +293,13 @@ export const setfocusSource = (data) => {
   // console.log('action-type-data', data);
   return {
     type: SET_FOCUS_SOURCE,
+    data: JSON.parse(data.value)
+  }
+}
+export const setfocusRefresh = (data) => {
+  // console.log('action-type-data', data);
+  return {
+    type: SET_FOCUS_REFRESH,
     data: JSON.parse(data.value)
   }
 }

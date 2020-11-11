@@ -69,10 +69,10 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.mapNodeKeyIdx = new Map<go.Key, number>();
     this.mapLinkKeyIdx = new Map<go.Key, number>();
     this.refreshNodeIndex(this.state.nodeDataArray); 
-    this.refreshLinkIndex(this.state.linkDataArray); // sf added ™|| []" to avoid crash if !linkDataArray
+    this.refreshLinkIndex(this.state.linkDataArray); 
     // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    //this.handleModelChange = this.handleModelChange.bind(this);
+    // this.handleModelChange = this.handleModelChange.bind(this);
     //this.handleInputChange = this.handleInputChange.bind(this);
     //this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
@@ -488,7 +488,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const nodes = e.subject;
         this.setState(
           produce((draft: AppState) => {
-            const nn = nodes.first();
+            // const nn = nodes.first();
             const part = nodes.first().data;
             if (debug) console.log('492 myMetis', myMetis);
             if (debug) console.log('493 part', part);
@@ -549,18 +549,19 @@ class GoJSApp extends React.Component<{}, AppState> {
                 modifiedObjects.push(gqlObj);
                 if (debug) console.log('551 New object', gqlObj);
               }
-              myDiagram.model.addNodeDataCollection(myGoModel.nodes);
+              // myDiagram.model.addNodeDataCollection(myGoModel.nodes);
               //myDiagram.commitTransaction("ObjectDropped");
-              myDiagram.requestUpdate();
+              // myDiagram.requestUpdate();
 
-              this.setState({nodeDataArray: myGoModel.nodes});
+              draft.nodeDataArray = myGoModel.nodes;
               // this.state.nodeDataArray = myGoModel.nodes;
-
-              this.refreshNodeIndex(this.state.nodeDataArray);
-              console.log('553 nodeCollection', this.state.nodeDataArray, myGoModel.nodes);
+              
+              // this.refreshNodeIndex(this.state.nodeDataArray);
             }
           })
           )
+
+          console.log('553 nodeCollection', this.state.nodeDataArray, myGoModel.nodes);
         }
         break;
       case "ObjectSingleClicked": {
@@ -750,8 +751,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         )
       }
       break;
-      case 'LinkDrawn': {
-        console.log('753 nodeCollection', this.state.nodeDataArray);
+      case 'LinkDrawn': { 
+        const sel = e.subject.part;
+        console.log('753 nodeCollection', this.state.nodeDataArray, e.subject.part.data);
         const link = e.subject;
         const data = link.data;
         if (debug) console.log('746 LinkDrawn', link, data, myGoModel);

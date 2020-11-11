@@ -53,23 +53,27 @@ const page = (props:any) => {
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+  const curmod = metis.models.find(m => m.i === focusModel.id)
+  const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview.id)
+  const curobjviews = curmodview?.objectviews
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
   let phFocus = props.phFocus;
   let phData = props.phData
 
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
-    // useEffect(() => {
-    //   genGojsModel(props, dispatch);
-    //   //focusModel = props.phFocus?.focusModel
-    //   // const data = 'TEST';
-    //   // dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
-    //   console.log('68 Diagram useEffect 1 ', props ); 
-    //   setRefresh(!refresh)
-    // }, [props.phData.metis.models])
+    useEffect(() => {
+      genGojsModel(props, dispatch);
+      //focusModel = props.phFocus?.focusModel
+      console.log('68 Modelling useEffect 1 ', curmodview ); 
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 111000);
+    }, [curmod])
 
     useEffect(() => {
-      console.log('71 Diagram useEffect 2', props); 
+      console.log('76 Modelling useEffect 2', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -78,7 +82,25 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id])
 
     useEffect(() => {
-      console.log('80 Modelling useEffect 3', props); 
+      console.log('76 Modelling useEffect 3', props); 
+      genGojsModel(props, dispatch);
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 1);
+    }, [props.phFocus.focusRefresh.id])
+
+    useEffect(() => {
+      console.log('85 Modelling useEffect 4', props); 
+      genGojsModel(props, dispatch);
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 1);
+    }, [props.metis])
+
+    useEffect(() => {
+      console.log('94 Modelling useEffect 5', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])

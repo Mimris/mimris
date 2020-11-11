@@ -21,7 +21,6 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
-  const debug = false
   // if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
@@ -54,6 +53,9 @@ const page = (props:any) => {
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
+  const curmod = metis.models.find(m => m.i === focusModel.id)
+  const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview.id)
+  const curobjviews = curmodview?.objectviews
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
   let phFocus = props.phFocus;
   let phData = props.phData
@@ -61,14 +63,17 @@ const page = (props:any) => {
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
     useEffect(() => {
-      // if (debug) console.log('68 Diagram useEffect 1 ', props ); 
-      // genGojsModel(props, dispatch);
+      genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
-      // setRefresh(!refresh)
-    }, [props.phData.metis])
+      console.log('68 Modelling useEffect 1 ', curmodview ); 
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 111000);
+    }, [curmod])
 
     useEffect(() => {
-      if (debug) console.log('86 Diagram useEffect 2', props); 
+      console.log('76 Modelling useEffect 2', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -77,7 +82,25 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id])
 
     useEffect(() => {
-      // if (debug) console.log('93 Modelling useEffect 3', props); 
+      console.log('76 Modelling useEffect 3', props); 
+      genGojsModel(props, dispatch);
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 1);
+    }, [props.phFocus.focusRefresh.id])
+
+    useEffect(() => {
+      console.log('85 Modelling useEffect 4', props); 
+      genGojsModel(props, dispatch);
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 1);
+    }, [props.metis])
+
+    useEffect(() => {
+      console.log('94 Modelling useEffect 5', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])
@@ -356,10 +379,10 @@ const page = (props:any) => {
 
   
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
-  const EditFocusModelMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='M' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Mod' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModelODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModel buttonLabel='O' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModelRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='R' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModel buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModelRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // if (debug) console.log('177 Modelling', EditFocusModelDiv);
   

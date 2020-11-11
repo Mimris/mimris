@@ -51,6 +51,7 @@
     "react-iframe-comm": "^1.2.2",
     "react-redux": "^7.2.1",
     "react-select": "^3.1.0",
+    "react-table": "^7.6.1",
     "reactstrap": "^8.4.1",
     "redux": "4.0.1",
     "redux-logger": "^3.0.6",

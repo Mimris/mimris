@@ -80,12 +80,10 @@ export class goModel {
             let i = 0;
             while (i < this.nodes.length) {
                 const node = this.nodes[i];
-                // if (node.class === 'goObjectNode') {
-                    const n = node as goObjectNode;
-                    if (n.objectview && n.objectview.getId() === objviewId) {
-                        return (n);
-                    }
-                // }
+                const n = node as goObjectNode;
+                if (n.objectview && n.objectview.getId() === objviewId) {
+                    return (n);
+                }
                 i++;
             }
         }
@@ -125,14 +123,12 @@ export class goModel {
         const cnt = nodes.length;
         for (let i = 0; i < cnt; i++) {
             const n = nodes[i];
-            // if (n.class === "goObjectNode") {
-                const node = n as goObjectNode;
-                if (!node.isGroup)
-                    continue;
-                const objview = node.objectview;
-                if (objview && objview.getId() === groupKey)
-                    return node;
-            // }
+            const node = n as goObjectNode;
+            if (!node.isGroup)
+                continue;
+            const objview = node.objectview;
+            if (objview && objview.getId() === groupKey)
+                return node;
         }
         return null;
     }
@@ -144,6 +140,21 @@ export class goModel {
                 const link: goLink = this.links[i] as goLink;
                 if (link.getKey() === key) {
                     return (link);
+                }
+                i++;
+            }
+        }
+        return retval;
+    }
+    findLinkByViewId(relviewId: string): goRelshipLink | null {
+        const retval: goRelshipLink | null = null;
+        if (!utils.isArrayEmpty(this.links)) {
+            let i = 0;
+            while (i < this.links.length) {
+                const link = this.links[i];
+                const l = link as goRelshipLink;
+                if (l.relshipview && l.relshipview.id === relviewId) {
+                    return (l);
                 }
                 i++;
             }
@@ -245,11 +256,13 @@ export class goNode extends goMetaObject {
     parentModel: goModel | null;
     loc: string;
     size: string;
+    deleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
         this.parentModel = model;  // goModel
         this.loc = "";
         this.size = "";
+        this.deleted = false;
     }
     // Methods
     setLoc(loc: string) {
@@ -268,6 +281,7 @@ export class goNode extends goMetaObject {
 
 export class goObjectNode extends goNode {
     objectview: akm.cxObjectView | null;
+    objectview_0: akm.cxObjectView | null;
     object: akm.cxObject | null;
     objecttype: akm.cxObjectType | null;
     typename: string;
@@ -280,6 +294,7 @@ export class goObjectNode extends goNode {
         super(key, null);
         this.category = constants.gojs.C_OBJECT;
         this.objectview = objview;
+        this.objectview_0 = objview;
         this.object = null;
         this.objecttype = null;
         this.typename = "";
@@ -442,9 +457,11 @@ export class goObjectTypeNode extends goNode {
 
 export class goLink extends goMetaObject {
     parentModel: goModel;
+    deleted: boolean;
     constructor(key: string, model: goModel) {
         super(key);
         this.parentModel = model;  // goModel
+        this.deleted = false;
     }
     // Methods
 }
@@ -482,17 +499,20 @@ export class goRelshipLink extends goLink {
                 this.name = this.relship.getName();
                 if (this.name.length == 0)
                     this.name = this.typename;
-            }
+                if (debug) console.log('507 relshipLink', this);
+                }
             this.typeview = relview.getTypeView();
             const fromObjview = relview.getFromObjectView();
             if (fromObjview) {
-                let node: goNode | null = model.findNodeByViewId(fromObjview.getId());
+                let node: goNode | null = model.findNodeByViewId(fromObjview.id);
+                if (debug) console.log('512 fromNode', node);
                 if (node) {
                     this.fromNode = node;
                     this.from = node.key;
                     const toObjview: akm.cxObjectView | null = relview.getToObjectView();
                     if (toObjview) {
-                        node = model.findNodeByViewId(toObjview.getId());
+                        node = model.findNodeByViewId(toObjview.id);
+                        if (debug) console.log('519 toNode', node);
                         if (node) {
                             this.toNode = node;
                             this.to = node.key;
@@ -500,6 +520,7 @@ export class goRelshipLink extends goLink {
                     }
                 }
             }
+            if (debug) console.log('527 relshipLink', this);
         }
     }
     // Methods

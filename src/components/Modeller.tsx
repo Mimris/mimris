@@ -80,9 +80,6 @@ const Modeller = (props: any) => {
   useEffect(() => {
     setActiveTab('0')
     if (debug) console.log('82 Modeller useEffect 1', activeTab); 
-    //   const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
-    //   dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) 
-      // genGojsModel(props, dispatch);
     // function refres() {
     //   setRefresh(!refresh)
     //   }
@@ -95,6 +92,8 @@ const Modeller = (props: any) => {
       genGojsModel(props, dispatch);
       // setRefresh(!refresh)
     }, [activeTab])
+
+
     
   //   useEffect(() => {
   //     if (debug) console.log('81 Modeller useEffect 2', activeTab); 
@@ -112,13 +111,14 @@ const Modeller = (props: any) => {
     if (mv) { 
         const strindex = index.toString()
         const data = {id: mv.id, name: mv.name}
+        const data2 = {id: Math.random().toString(36).substring(7), name: strindex+'name'}
         genGojsModel(props, dispatch);
         // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
         return (
           <NavItem key={strindex}>
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none" }}
               className={classnames({ active: activeTab == strindex })}
-              onClick={() => {  dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) }}
+              onClick={() => {  dispatch({ type: 'SET_FOCUS_MODELVIEW', data });  dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'}  })  }}
               // onClick={() => { toggleTab(strindex); dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefresh() }}
             >
               {mv.name}
@@ -141,10 +141,12 @@ const Modeller = (props: any) => {
         </TabPane>
       </TabContent>
     </>
+
   const metamodelTabDiv = 
     <>
       <div className="workpad bg-white  p-1 pt-2"> 
-        {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
+        {gojsapp}
+        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
       </div>         
     </>
 

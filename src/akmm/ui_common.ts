@@ -582,7 +582,7 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
 }
 
 export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, nodes: any[]) {
-    if (sel.class === "goObjectNode") {
+    if (sel.class === "goObjectNode" || "n") {
         let node = goModel?.findNode(sel.key);
         if (node) {
             node.loc = sel.loc;
@@ -616,7 +616,7 @@ export function onClipboardPasted(selection: any, context: any) {
     while (it.next()) {
         let selected = it.value.data;
         if (debug) console.log('446 onClipboardPasted', selected);
-        if (selected.class === 'goObjectNode') {
+        if (selected.class === 'goObjectNode' || 'n') {
             let node = selected;
             const objview = createObject(node, context);
         }
@@ -640,7 +640,7 @@ export function onClipboardPasted(selection: any, context: any) {
         // Identify groups in the selection
         let selected = it1.value.data;
         if (debug) console.log('471 onClipboardPasted', selected);
-        if (selected.class === 'goObjectNode') {
+        if (selected.class === 'goObjectNode' || 'n') {
             let node = selected;
             if (node.isGroup) {
                 groupsToPaste[i] = node;
@@ -661,7 +661,7 @@ export function onClipboardPasted(selection: any, context: any) {
         for (i = 0; i < len; i++) {
             let selected = it.value.data;
             let group = groupsToPaste[i].key;
-            if (selected.class === 'goObjectNode') {
+            if (selected.class === 'goObjectNode' || 'n') {
                 let node = selected;
                 if (node.group !== undefined) {
                     let grp = node.group;  // key

@@ -667,7 +667,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.class === 'goObjectNode') {
+              if (node.class === 'goObjectNode' || 'n') {
                 return o.diagram.commandHandler.canDeleteSelection();
               } else {
                 return false;

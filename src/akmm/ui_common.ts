@@ -1,5 +1,5 @@
 // @ts-nocheck
-const debug = true;
+const debug = false;
 
 import * as utils from './utilities';
 import * as akm from './metamodeller';

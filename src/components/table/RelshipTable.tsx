@@ -4,7 +4,7 @@ import IndeterminateCheckbox from "./IndeterminateCheckbox";
 // import { columns, data } from './table/dataSource';
 
 function RelshipTable(props) {
-  console.log('6', props);
+  // console.log('6', props);
 
   const [idSelected, setIdSelected] = useState(true);
   const [hiddenColumns, setHiddenColumns] = useState(['id']);
@@ -59,7 +59,7 @@ function RelshipTable(props) {
       //  (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
     p
   ).filter(Boolean)
-  console.log('64', fields0, fields0.length);
+  // console.log('64', fields0, fields0.length);
   
   function array_move(arr, old_index, new_index) {
     if (new_index >= arr.length) {
@@ -74,7 +74,7 @@ function RelshipTable(props) {
 
   // const fields1 = array_move(fields0, 2, fields0.length-1) // move id to the end
   // const fields2 = array_move(fields1, 0, fields0.length-1) // move id to the end
-  console.log('78', fields0);
+  // console.log('78', fields0);
 
   const fields = [  
     'fromObjName',
@@ -86,7 +86,7 @@ function RelshipTable(props) {
     'modViews',
     ...fields0.slice(2, fields0.length),
   ]
-  console.log('84', fields);
+  // console.log('84', fields);
 
   function properties(p) {
     switch (p) {
@@ -121,7 +121,7 @@ function RelshipTable(props) {
     }
   
   const fieldColumns = fields.map(f => properties(f))
-  console.log('95', fieldColumns);
+  // console.log('95', fieldColumns);
   
   const columns = useMemo(
     () => [
@@ -140,9 +140,9 @@ function RelshipTable(props) {
       }
     ],[]
   )
-  console.log('50', 
-    curmmod.relshiptypes.find(rt => (rt.id === relships[0].typeRef)).name
-  );
+  // console.log('50', 
+  //   curmmod.relshiptypes.find(rt => (rt.id === relships[0].typeRef)).name
+  // );
   
   const data = useMemo( () => 
     relships?.map(r => r &&
@@ -162,7 +162,7 @@ function RelshipTable(props) {
     ),[]
   )
 
-  console.log('156', data[0], idSelected);
+  // console.log('156', data[0], idSelected);
 
     const {
       getTableProps,

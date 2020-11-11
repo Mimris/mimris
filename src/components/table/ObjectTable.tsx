@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTable, useSortBy, useRowSelect, useFilters, useGlobalFilter } from 'react-table';
 import IndeterminateCheckbox from "./IndeterminateCheckbox";
-import Selector from '../utils/Selector'
+// import Selector from '../utils/Selector'
 // import { columns, data } from './table/dataSource';
 
 function ObjectTable(props) {
@@ -14,7 +14,7 @@ function ObjectTable(props) {
     setIdSelected( !idSelected );
     (idSelected) ? setHiddenColumns(['id']) : setHiddenColumns(['']) 
   }
-  console.log('15', hiddenColumns);
+  // console.log('15', hiddenColumns);
 
   const models = props.ph.phData?.metis.models
   const focusModelId = props.phFocus?.focusModel.id
@@ -60,7 +60,7 @@ function ObjectTable(props) {
       //  (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
     p
   ).filter(Boolean)
-  console.log('64', fields0, fields0.length);
+  // console.log('64', fields0, fields0.length);
   
   function array_move(arr, old_index, new_index) {
     if (new_index >= arr.length) {
@@ -74,7 +74,7 @@ function ObjectTable(props) {
   };
   const fields1 = array_move(fields0, 2, fields0.length-1) // move id to the end
   const fields2 = array_move(fields1, 0, fields0.length-1) // move id to the end
-  console.log('78', fields2);
+  // console.log('78', fields2);
 
   const fields = [  
     ...fields2.slice(0, 2),
@@ -82,7 +82,7 @@ function ObjectTable(props) {
     'modViews',
     ...fields1.slice(2, fields1.length),
   ]
-  console.log('78', fields);
+  // console.log('78', fields);
 
   function properties(p) {
     switch (p) {
@@ -117,7 +117,7 @@ function ObjectTable(props) {
   }
   
   const fieldColumns = fields.map(f => properties(f))
-  console.log('95', fieldColumns);
+  // console.log('95', fieldColumns);
   
   const columns = useMemo(
     () => [
@@ -136,9 +136,9 @@ function ObjectTable(props) {
       }
     ],[]
   )
-  console.log('50', 
-    curmmod.objecttypes.find(ot => (ot.id === objects[0].typeRef)).name
-  );
+  // console.log('50', 
+  //   curmmod.objecttypes.find(ot => (ot.id === objects[0].typeRef)).name
+  // );
   
   const data = useMemo( () => 
     objects?.map(o => o &&
@@ -157,7 +157,7 @@ function ObjectTable(props) {
   // const finalData = {data: data0, id: true}
   // const { data, id } = finalData;
   
-  console.log('149', data[0], idSelected);
+  // console.log('149', data[0], idSelected);
 
   // const hiddencolumns = (idSelected) ? ['id'] : ['']
 
@@ -201,38 +201,32 @@ function ObjectTable(props) {
         ]);
       }
     );
-    const selmods = [
-      models[modelindex],
-      ...models.slice(0, modelindex),
-      ...models.slice(modelindex+1, models.length)
-    ]
-    
-    
-    const [refresh, setRefresh] = useState(true)
 
-  
+
+    // const selmods = [
+    //   models[modelindex],
+    //   ...models.slice(0, modelindex),
+    //   ...models.slice(modelindex+1, models.length)
+    // ]
+    // const [refresh, setRefresh] = useState(true)
     // function toggleRefresh() { setRefresh(!refresh); }
-
-  
     // console.log('36 Modeller', focusModelview, selmods, modelviews);
-    let selmodels = selmods.filter(Boolean) //selmods?.models?.map((m: any) => m)
-    console.log('219', selmodels);
-    
-
-    const selector = (selmodels) &&
-      <>
-        {/* <div className="modeller-selection" > */}
-          {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
-          <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
-        {/* </div>  */}
-      </>
+    // let selmodels = selmods.filter(Boolean) //selmods?.models?.map((m: any) => m)
+    // console.log('219', selmodels);
+    // const selector = (selmodels) &&
+    //   <>
+    //     {/* <div className="modeller-selection" > */}
+    //       {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
+    //       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+    //     {/* </div>  */}
+    //   </>
   
     return (
       <>
-            <div>
-        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller</h5>
-        {selector}
-      </div><br />
+        {/* <div>
+          <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", position: "relative", overflow: "hidden" }}>Object instance list</h5>
+          {selector}
+        </div><br /> */}
         <div>
           <label>id</label>
           <input

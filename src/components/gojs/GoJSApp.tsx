@@ -1,8 +1,8 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
-const debug = true;
+const debug = false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';

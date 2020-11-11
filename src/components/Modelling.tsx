@@ -65,7 +65,7 @@ const page = (props:any) => {
     useEffect(() => {
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
-      console.log('68 Modelling useEffect 1 ', curmodview ); 
+      if (debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
       function refres() {
         setRefresh(!refresh)
       }
@@ -73,7 +73,7 @@ const page = (props:any) => {
     }, [curmod])
 
     useEffect(() => {
-      console.log('76 Modelling useEffect 2', props); 
+      if (debug) console.log('76 Modelling useEffect 2', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -82,7 +82,7 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id])
 
     useEffect(() => {
-      console.log('76 Modelling useEffect 3', props); 
+      if (debug) console.log('76 Modelling useEffect 3', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -91,7 +91,7 @@ const page = (props:any) => {
     }, [props.phFocus.focusRefresh.id])
 
     useEffect(() => {
-      console.log('85 Modelling useEffect 4', props); 
+      if (debug) console.log('85 Modelling useEffect 4', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -100,7 +100,7 @@ const page = (props:any) => {
     }, [props.metis])
 
     useEffect(() => {
-      console.log('94 Modelling useEffect 5', props); 
+      if (debug) console.log('94 Modelling useEffect 5', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])

@@ -305,49 +305,49 @@ export const setfocusRefresh = (data) => {
 }
 
 export const update_model_properties = (data) => {
-  console.log('76 actions update_model_properties', data.payload);
+  // console.log('76 actions update_model_properties', data.payload);
   return {
     type: UPDATE_MODEL_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }
 export const update_modelview_properties = (data) => {
-  console.log('76 actions update_modelview_properties', data.payload);
+  // console.log('76 actions update_modelview_properties', data.payload);
   return {
     type: UPDATE_MODELVIEW_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }
 export const update_metamodel_properties = (data) => {
-  console.log('76 actions update_metamodel_properties', data.payload);
+  // console.log('76 actions update_metamodel_properties', data.payload);
   return {
     type: UPDATE_METAMODEL_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }
 export const update_objectview_properties = (data) => {
-  console.log('269 actions update_objectview_properties', data.payload);
+  // console.log('269 actions update_objectview_properties', data.payload);
   return {
     type: UPDATE_OBJECTVIEW_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }
 export const update_relshipview_properties = (data) => {
-  console.log('76 actions update_relshipview_properties', data.payload);
+  // console.log('76 actions update_relshipview_properties', data.payload);
   return {
     type: UPDATE_RELSHIPVIEW_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }
 export const update_objecttype_properties = (data) => {
-  console.log('205 actions update_objecttype_properties', data.payload);
+  // console.log('205 actions update_objecttype_properties', data.payload);
   return {
     type: UPDATE_OBJECTTYPE_PROPERTIES,
     data: JSON.parse(data.value)
   }
 }
 export const update_targetmodel_properties = (data) => {
-  console.log('205 actions update_targetmodel_properties', data.payload);
+  // console.log('205 actions update_targetmodel_properties', data.payload);
   return {
     type: UPDATE_TARGETMODEL_PROPERTIES,
     data: JSON.parse(data.value)

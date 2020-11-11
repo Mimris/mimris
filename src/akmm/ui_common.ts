@@ -836,8 +836,8 @@ export function createRelationship(data: any, context: any) {
     let reltype;
     //reltype = myMetamodel?.findRelationshipTypeByName(typename);
     if (!reltype) {
-        const fromType = fromNode.objecttype;
-        const toType   = toNode.objecttype;
+        const fromType = fromNode?.objecttype;
+        const toType   = toNode?.objecttype;
         const choices: string[]  = [];
         if ((myMetis) && (fromType && toType)) {
             let defText = "";

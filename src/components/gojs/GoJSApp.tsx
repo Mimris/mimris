@@ -432,7 +432,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (debug) console.log('394 modifiedRelships', modifiedRelships);
                 }
               }
-              if (data.class === "goRelshipLink") {
+              if (data.class === "goRelshipLink" || 'l') {
                 const myLink = this.getLink(context.myGoModel, key);
                 if (debug) console.log('396 SelectionDeleted', myLink);
                 uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
@@ -702,7 +702,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             while (it1.next()) {
               // Then handle the relationships
               const data = it1.value.data;
-              if (data.class === 'goRelshipLink') {
+              if (data.class === 'goRelshipLink' || 'l') {
                 /* if (debug) */console.log('685 ClipboardPasted', data);
                 let relview = uic.pasteRelationship(data, pastedNodes, context);
                 /* if (debug) */console.log('688 relview', data, relview);
@@ -753,7 +753,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': { 
         const sel = e.subject.part;
-        console.log('753 nodeCollection', this.state.nodeDataArray, e.subject.part.data);
+        console.log('753 nodeCollection', this.state.nodeDataArray, this.state.linkDataArray, e.subject.part.data);
         const link = e.subject;
         const data = link.data;
         if (debug) console.log('746 LinkDrawn', link, data, myGoModel);
@@ -784,7 +784,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('773 LinkDrawn', gqlRelship);
                 modifiedRelships.push(gqlRelship);
               }
-            } else if (fromNode?.class === 'goObjectTypeNode') {
+            } else if (fromNode?.class === 'goObjectTypeNode' || 't') {
               if (debug) console.log('660 link', fromNode, data);
               link.category = 'Relationship type';
               link.class = 'goRelshipTypeLink';

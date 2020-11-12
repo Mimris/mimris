@@ -190,6 +190,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
     }
+    if (debug) console.log('193 Objecttype palette', myGoPaletteModel);
     return myGoPaletteModel;
   }
 
@@ -211,6 +212,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       node.addData(viewdata);
       nodeArray.push(node);
     }
+    if (debug) console.log('214 Object palette', nodeArray);
     return nodeArray;
   }
 
@@ -224,7 +226,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
         let objview = objviews[i];
-        if (!objview.deleted) {
+        if (!objview.deleted && objview.object && objview.typeview) {
           let node = new gjs.goObjectNode(utils.createGuid(), objview);
           myGoModel.addNode(node);
           if (debug) console.log('245 buildGoModel - node', node, myGoModel);
@@ -243,7 +245,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
         let relview = relviews[i];
-        if (!relview.deleted) {
+        if (!relview.deleted && relview.relship && relview.typeview) {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           myGoModel.addLink(link);

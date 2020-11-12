@@ -59,17 +59,20 @@ const page = (props:any) => {
 
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
-    // useEffect(() => {
-    //   genGojsModel(props, dispatch);
-    //   //focusModel = props.phFocus?.focusModel
-    //   // const data = 'TEST';
-    //   // dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
-    //   console.log('68 Diagram useEffect 1 ', props ); 
-    //   setRefresh(!refresh)
-    // }, [props.phData.metis.models])
+    useEffect(() => {
+      genGojsModel(props, dispatch);
+      //focusModel = props.phFocus?.focusModel
+      // const data = 'TEST';
+      // dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
+      if (debug) console.log('68 Diagram useEffect 1 ', props ); 
+      //function refres() {
+        // setRefresh(!refresh)
+      //}
+      //setTimeout(refres, 1);
+    }, [props.phData.metis.models])
 
     useEffect(() => {
-      console.log('71 Diagram useEffect 2', props); 
+      if (debug) console.log('71 Diagram useEffect 2', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -78,7 +81,7 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id])
 
     useEffect(() => {
-      console.log('80 Modelling useEffect 3', props); 
+      if (debug) console.log('80 Modelling useEffect 3', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])

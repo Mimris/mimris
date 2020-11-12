@@ -76,16 +76,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
-      // diagram.addModelChangedListener(function(evt) {
-      //   // ignore unimportant Transaction events
-      //   if (!evt.isTransactionFinished) return;
-      //   var txn = evt.object;  // a Transaction
-      //   if (txn === null) return;
-      //   // iterate over all of the actual ChangedEvents of the Transaction
-      //   txn.changes?.each(function(e) {
-      //       return onModelChanged(e, evt, myDiagram);  
-      //   });
-      // });  
+      diagram.addModelChangedListener(this.props.onModelChange);
     }
   }
 
@@ -111,6 +102,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
+
+      diagram.removeChangedListener(this.props.onModelChange);
+
     }
   }
 
@@ -262,8 +256,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
 
 
-    // A Context Menu is an Adornment with a bunch of buttons in them
-    // Nodes context menu
+    // A CONTEXT is an Adornment with a bunch of buttons in them
+    // Nodes CONTEXT MENU
     if (true) {
       var partContextMenu =
         $(go.Adornment, "Vertical",
@@ -694,7 +688,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    // A Context menu for links    
+    // A CONTEXT MENU for links    
     if (true) {
       var linkContextMenu =
         $(go.Adornment, "Vertical",
@@ -931,7 +925,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    // A context menu for the background of the Diagram, when not over any Part
+    // A CONTEXT MENU for the background of the Diagram, when not over any Part
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
@@ -1722,7 +1716,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           linkDataArray={this.props?.linkDataArray}
           myMetis={this.props.myMetis}
           modelData={this.props.modelData}
-          onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
       </>

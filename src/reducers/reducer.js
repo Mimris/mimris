@@ -37,6 +37,7 @@ import {
   SET_FOCUS_COLLECTION,
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
+  SET_FOCUS_REFRESH,
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
   UPDATE_METAMODEL_PROPERTIES,
@@ -122,7 +123,7 @@ function reducer(state = InitialState, action) {
         phData: action.data
       }
     case LOAD_TOSTORE_PHSOURCE:
-      // if (debug) console.log('176 SET_FOCUS_SOURCE', action.data);   
+      // if (debug) console.log('176 LOAD_TOSTORE_PHSOURCE', action.data);   
       return {
         ...state,
         phSource: action.data
@@ -186,7 +187,8 @@ function reducer(state = InitialState, action) {
           focusModel: action.data
         }
       }
-    case SET_FOCUS_MODELVIEW:
+      case SET_FOCUS_MODELVIEW:
+         console.log('190 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
         ...state,
         phFocus: {
@@ -474,6 +476,16 @@ function reducer(state = InitialState, action) {
         phFocus: {
           ...state.phFocus,
           focusSource: action.data
+        }
+      }
+
+    case SET_FOCUS_REFRESH:
+      console.log('483 SET_FOCUS_REFRESH', action);
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusRefresh: action.data
         }
       }
 

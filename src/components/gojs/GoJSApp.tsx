@@ -69,7 +69,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.mapNodeKeyIdx = new Map<go.Key, number>();
     this.mapLinkKeyIdx = new Map<go.Key, number>();
     this.refreshNodeIndex(this.state.nodeDataArray); 
-    this.refreshLinkIndex(this.state.linkDataArray); // sf added ™|| []" to avoid crash if !linkDataArray
+    this.refreshLinkIndex(this.state.linkDataArray); 
     // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleModelChange = this.handleModelChange.bind(this);

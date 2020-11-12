@@ -84,6 +84,7 @@ const Modeller = (props: any) => {
     //   setRefresh(!refresh)
     //   }
     //   setTimeout(refres, 5000);
+
   }, [focusModel.id])
   
   useEffect(() => {
@@ -91,6 +92,7 @@ const Modeller = (props: any) => {
       if (debug) console.log('94 Modeller useEffect 2', activeTab); 
       genGojsModel(props, dispatch);
       // setRefresh(!refresh)
+
     }, [activeTab])
 
 

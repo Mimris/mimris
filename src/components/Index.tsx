@@ -65,7 +65,7 @@ const page = (props) => {
                     <br />Click on the "Local" button </strong>
                     <br />Select "Download Current Model to File". </strong>
                     <br />... the model is downloaded to the "downloads" folder. 
-                    <hr />
+                    <br /><br />
                     <strong><strong>In case of hang or crash </strong></strong><br />
                     <strong> 
                       - Reload the webpage! ...then before anything else:<br />

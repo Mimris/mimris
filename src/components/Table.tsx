@@ -18,10 +18,11 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
-  const debug = false
+  const debug = true
   // if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
-  const [refresh, setRefresh] = useState(true);
+  const [refresh, setRefresh] = useState(false);
+  function toggleRefresh() { setRefresh(!refresh); }
   
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
@@ -72,7 +73,8 @@ const page = (props:any) => {
       setVisibleTasks(!visibleTasks);
     }
 
-  const modellingtabs = (<>
+  const tabletabs = (
+    <>
       <Nav tabs >
         <NavItem>
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
@@ -92,7 +94,6 @@ const page = (props:any) => {
         </NavItem>
       </Nav>
       <TabContent  activeTab={activeTab} >  
-
         {/* Objects */}
         <TabPane  tabId="1">
           <div className="workpad p-1 pt-2 bg-white" >
@@ -119,7 +120,7 @@ const page = (props:any) => {
         </TabPane>
       </TabContent>
     </>
-    )      
+  )      
 
   const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' ph={props} phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
   const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
@@ -134,8 +135,8 @@ const page = (props:any) => {
   
   return (
     <>
-      {/* <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
       <div className="diagramtabs" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
+        <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
         <div style={{ transform: "scale(0.9)"}}>
           <span className="sourceName pr-1 float-right mr-0 mt-1" 
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
@@ -151,7 +152,7 @@ const page = (props:any) => {
         {/* <div className="modellingContent pt-1" > */}
         <div className="modellingContent pt-1 pr-2"  >
           {/* {modellingtabs} */}
-          {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
+          {refresh ? <> {tabletabs} </> : <>{tabletabs}</>}
         </div>
         <style jsx>{`
 

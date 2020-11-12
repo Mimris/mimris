@@ -1,17 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import { useTable, useSortBy, useRowSelect, useFilters, useGlobalFilter } from 'react-table';
 import IndeterminateCheckbox from "./IndeterminateCheckbox";
 // import Selector from '../utils/Selector'
 // import { columns, data } from './table/dataSource';
 
+
 function ObjectTable(props) {
+  const debug = false
   // console.log('6', props);
-  
+  const dispatch = useDispatch();
   const [idSelected, setIdSelected] = useState(true);
   const [hiddenColumns, setHiddenColumns] = useState(['id']);
 
   function handleInputChange() {
     setIdSelected( !idSelected );
+
+    // const data = {}
+    // dispatch({ type: 'SET_FOCUS_OBJECT', data });
     (idSelected) ? setHiddenColumns(['id']) : setHiddenColumns(['']) 
   }
   // console.log('15', hiddenColumns);
@@ -117,7 +123,7 @@ function ObjectTable(props) {
   }
   
   const fieldColumns = fields.map(f => properties(f))
-  // console.log('95', fieldColumns);
+  // console.log('120', fieldColumns);
   
   const columns = useMemo(
     () => [
@@ -150,6 +156,8 @@ function ObjectTable(props) {
         type: curmmod.objecttypes.find(ot => (ot.id === o.typeRef)).name,
         modViews: modelviews.map(mv => mv.objectviews.find(ov => ov.objectRef === o.id) && mv.name+', ').filter(Boolean), 
         // countObjViews: modelviews.filter(mv => mv.objectviews.find(ov => ov.objectRef === o.id)).length 
+        deleted: (o.deleted) && 'deleted',
+        modified: (o.modified) && 'modified'
       } 
     ),[]
   )
@@ -157,7 +165,7 @@ function ObjectTable(props) {
   // const finalData = {data: data0, id: true}
   // const { data, id } = finalData;
   
-  // console.log('149', data[0], idSelected);
+  if (debug) console.log('149', data);
 
   // const hiddencolumns = (idSelected) ? ['id'] : ['']
 
@@ -168,6 +176,8 @@ function ObjectTable(props) {
       footerGroups,
       rows,
       prepareRow,
+      selectedFlatRows,
+      state: { selectedRowIds },
     } = useTable(
       {
         columns,
@@ -201,7 +211,8 @@ function ObjectTable(props) {
         ]);
       }
     );
-
+    
+    
 
     // const selmods = [
     //   models[modelindex],
@@ -220,7 +231,24 @@ function ObjectTable(props) {
     //       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
     //     {/* </div>  */}
     //   </>
-  
+
+
+    useEffect(() => {
+      console.log('237 ObjectTable useEffect 1',selectedFlatRows.map(d => d.original.id,)); 
+      const selectedrows = selectedFlatRows.map(d => d,)
+      const selectedrow = selectedrows[0]
+      console.log('240', selectedrows, selectedrow?.original?.id);
+      
+      const data = (selectedrow) && {id: selectedrow?.original?.id, name: selectedrow?.original?.name}
+      // const data = {id: selectedFlatRows.map(d => d.original.id,), name: selectedFlatRows.map(d => d.original.name,)}
+      console.log('244 ObjectTable useEffect 1', data); 
+      dispatch({ type: 'SET_FOCUS_OBJECT', data });
+    }, [Object.keys(selectedRowIds).length])
+
+      console.log('248',  selectedFlatRows.map(d => d.original.id,),);
+      
+
+      
     return (
       <>
         {/* <div>
@@ -279,7 +307,22 @@ function ObjectTable(props) {
               </tr>
             ))}
           </tfoot>
-        </table>            
+        </table>        
+        <p>Selected Rows: {Object.keys(selectedRowIds).length} </p>   
+        <pre>
+          <code>
+            {JSON.stringify(
+              {
+                selectedRowIds: selectedRowIds,
+                'selectedFlatRows[].original': selectedFlatRows.map(
+                  d => d.original.id,
+                ),
+              },
+              null,
+              2
+            )}
+          </code>
+        </pre>
       </>
     );
   }

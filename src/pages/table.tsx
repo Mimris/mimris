@@ -1,5 +1,5 @@
 //@ts-nocheck
-// import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 // import { connect } from 'react-redux';
 import { connect, useDispatch }  from 'react-redux';
 import { loadData } from '../actions/actions'
@@ -27,9 +27,15 @@ const page = (props: any) => {
   //   setVisibleTasks(!visibleTasks);
   // }
  // /**
+
 // * Set up the Context items and link to select Context modal,
 // */
   const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
+  useEffect(() => {
+    return () => {
+      <SetContext ph={props} />
+    };
+  }, [props.phFocus.focusModel.id])
 
   return (
     <div>

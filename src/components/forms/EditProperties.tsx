@@ -12,7 +12,7 @@ import { colorOptions } from './data';
 
 const EditProperties = (props) => {
   const debug = true
-  if (debug) console.log('8 EditProperties', props);
+  console.log('8 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);

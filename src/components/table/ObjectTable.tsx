@@ -6,8 +6,8 @@ import IndeterminateCheckbox from "./IndeterminateCheckbox";
 // import { columns, data } from './table/dataSource';
 
 
-function ObjectTable(props) {
-  const debug = false
+function ObjectTable(props) {  // props = ph = all phData 
+  const debug = true
   // console.log('6', props);
   const dispatch = useDispatch();
   const [idSelected, setIdSelected] = useState(true);
@@ -15,7 +15,6 @@ function ObjectTable(props) {
 
   function handleInputChange() {
     setIdSelected( !idSelected );
-
     // const data = {}
     // dispatch({ type: 'SET_FOCUS_OBJECT', data });
     (idSelected) ? setHiddenColumns(['id']) : setHiddenColumns(['']) 

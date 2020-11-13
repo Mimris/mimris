@@ -264,9 +264,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Set Object type",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
-              if (debug) console.log('273 node', node);
+              /* if (debug) */console.log('273 node', node);
               const objtypes = myMetis.getObjectTypes();
-              if (debug) console.log('275 Set object type', objtypes);
+              /* if (debug) */console.log('275 Set object type', objtypes);
               let defText  = "";
               if (objtypes) {
                   node.choices = [];
@@ -289,6 +289,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "dispatch":     e.diagram.dispatch
               }
               const objview = uic.setObjectType(node, objtype, context);
+              /* if (debug) */console.log('292 objview', objview);
               const gqlObjview = new gql.gqlObjectView(objview);
               const modifiedObjectViews = new Array();
               modifiedObjectViews.push(gqlObjview);
@@ -309,7 +310,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === 'Object') {
+              if (node.class === 'goObjectNode') {
                 return true;
               } else {
                 return false;

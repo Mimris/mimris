@@ -1273,7 +1273,7 @@ export function createLink(data: any, context: any): any {
 }
 
 export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: any, context: any) {
-    if (lnk.class === 'goRelshipLink') {
+    if (lnk.class === 'goRelshipLink' || 'l') {
         if (fromNode && toNode) {
             const myMetis = context.myMetis;
             const myGoModel = context.myGoModel;

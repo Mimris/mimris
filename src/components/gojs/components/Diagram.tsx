@@ -2,7 +2,7 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
-const debug = false;
+const debug = true;
 
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
@@ -310,7 +310,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
             function (o: any) {
               const node = o.part.data;
-              if (node.class === 'goObjectNode') {
+              if (node.class === 'goObjectNode' || 'n') {
                 return true;
               } else {
                 return false;
@@ -760,7 +760,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) { 
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
-              if (link.class === 'goRelshipLink') {
+              if (link.class === 'goRelshipLink' || 'l') {
                 const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {                   
@@ -802,7 +802,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) {
               const link = o.part.data;
-              if (link.class === 'goRelshipLink') {
+              if (link.class === 'goRelshipLink' || 'l') {
                 const currentRelship = link.relship;
                 const currentRelshipView = link.relshipview;
                 if (currentRelship && currentRelshipView) {                   
@@ -822,7 +822,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Reset Typeview",
             function (e: any, obj: any) { 
               const link = obj.part.data;
-              if (link.class === 'goRelshipLink') {
+              if (link.class === 'goRelshipLink' || 'l') {
                 const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {                   
@@ -845,7 +845,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) {
               const link = o.part.data;
-              if (link.class === 'goRelshipLink') {
+              if (link.class === 'goRelshipLink' || 'l') {
                 const currentRelship = link.relship;
                 const currentRelshipView = link.relshipview;
                 if (currentRelship && currentRelshipView) {                   
@@ -1665,7 +1665,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     function findImage(image: string) {
       // if (image.substring(0,4) === 'http') { // its an URL
       if (image.includes('//')) { // its an URL   
-        if (debug) console.log('1269 Diagram', image);
+        // if (debug) console.log('1269 Diagram', image);
         return image
       } else if (image.includes('/')) { // its a local image
         if (debug) console.log('1270 Diagram', image);   

@@ -54,7 +54,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             // Create the corresponding object view
             objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
             if (objview) {
-                objview.setIsGroup(objtype?.isContainer());
+                objview.setIsGroup(data.isGroup);
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
                 data.objectview = objview;
@@ -79,15 +79,23 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     objtypeView = new akm.cxObjectTypeView(key, key, objtype, "");
                 }
                 if (objtypeView) {
-                    //objtypeView.setIsGroup1(data.isGroup);
                     objview.setTypeView(objtypeView);
-                    let node = new gjs.goObjectNode(data.key, objview);
-                    if (debug) console.log('88 createObject', node);
-                    myGoModel.addNode(node);
+                    const node = new gjs.goObjectNode(data.key, objview);
+                    if (debug) console.log('84 createObject', node, data);
                     updateNode(node, objtypeView, myDiagram);
                     node.loc = data.loc;
                     node.size = data.size;
-                    if (debug) console.log('93 createObject', myGoModel);
+                    node.isGroup = data.isGroup;
+                    const group = getGroupByLocation(myGoModel, objview.loc);
+                    if (group) {
+                        node.group = group.key;
+                        objview.group = group.objectview.id;
+                        myDiagram.model.setDataProperty(data, "group", node.group);
+                       if (debug) console.log('94 group', group, node)
+                    }
+                    if (debug) console.log('96 group', group, objview);
+                    myGoModel.addNode(node);
+                    if (debug) console.log('98 createObject', myGoModel);
                     return objview;
                 }
             }
@@ -598,6 +606,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                 objview.size = sel.size;
                 objview.modified = true;
                 const group = getGroupByLocation(goModel, objview.loc);
+                if (debug) console.log('609 Moved node', group, objview);
                 if (group) {
                     objview.group = group.objectview.id;
                     node.group = group.key;
@@ -605,12 +614,13 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     objview.group = "";
                     node.group = "";
                 }
-                if (debug) console.log('469 Moved node', node, objview)
+                if (debug) console.log('614 Moved node', node, objview)
                 const modNode = new gql.gqlObjectView(objview);
                 nodes.push(modNode);
             }
         }
-        // if (debug) console.log('176 GoJsApp resized nodes :', nodes);
+        if (debug) console.log('622 goModel :', goModel);
+        return node;
     }
 }
 
@@ -683,7 +693,7 @@ export function onClipboardPasted(selection: any, context: any) {
 // Function to connect node object to group object
 export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjectNode | null {
     const nodes = model.nodes;
-    
+    if (debug) console.log('687 ', nodes, loc);
     const groups = new Array();
     for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i] as gjs.goObjectNode;
@@ -840,7 +850,7 @@ export function createRelationship(data: any, context: any) {
         return;
     let typename = 'isRelatedTo' as string | null;
     let reltype;
-    //reltype = myMetamodel?.findRelationshipTypeByName(typename);
+    //reltype = myMetis?.findRelationshipTypeByName(typename);
     if (!reltype) {
         const fromType = fromNode?.objecttype;
         const toType   = toNode?.objecttype;
@@ -874,7 +884,7 @@ export function createRelationship(data: any, context: any) {
         return;
     }
     console.log('870 createRelationship', reltype);
-    if (!isLinkAllowed(reltype, fromNode.object, toNode.object)) {
+    if (!isLinkAllowed(reltype, fromNode?.object, toNode?.object)) {
         alert("Relationship given is not allowed!");
         myDiagram.model.removeLinkData(data);
         return;

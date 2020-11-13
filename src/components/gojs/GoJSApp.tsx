@@ -440,7 +440,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
               }
-              if (data.class === "goObjectNode" || 'n') {
+              if (data.class === 'goObjectNode' || 'i' || 'n') {
                 const myNode = this.getNode(context.myGoModel, key);
                 if (myNode) {
                   uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
@@ -451,7 +451,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (debug) console.log('394 modifiedRelships', modifiedRelships);
                 }
               }
-              if (data.class === "goRelshipLink" || 'l') {
+              if (data.class === 'goRelshipLink' || 'i') {
                 const myLink = this.getLink(context.myGoModel, key);
                 if (debug) console.log('396 SelectionDeleted', myLink);
                 uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
@@ -651,7 +651,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         while (it.next()) {
           const node = it.value.data;
           // First handle the objects
-          if (node.class === 'goObjectNode' || 'n') {
+          if (node.class === 'goObjectNode' || 'i' || 'n') {
             if (debug) console.log('654 ClipboardPasted', node, myGoModel);
             const objview = uic.createObject(node, context);
             if (debug) console.log('655 ClipboardPasted', node, objview);
@@ -680,7 +680,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         while (it1.next()) {
           // Then handle the relationships
           const data = it1.value.data;
-          if (data.class === 'goRelshipLink' || 'l') {
+          if (data.class === 'goRelshipLink' || 'i') {
             if (debug) console.log('685 ClipboardPasted', data);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
             if (debug) console.log('688 relview', data, relview);
@@ -713,7 +713,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         data.from = myFromNode?.key;
         data.to = myToNode?.key;
         if (debug) console.log('862 LinkDrawn', myFromNode, myToNode, data);
-        if (fromNode?.class === 'goObjectNode' || 'n') {
+        if (fromNode?.class === 'goObjectNode' || 'i' || 'n') {
           const relview = uic.createRelationship(data, context);
           if (relview) {
             const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
@@ -728,7 +728,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('875 LinkDrawn', gqlRelship);
             modifiedRelships.push(gqlRelship);
           }
-        } else if (fromNode?.class === 'goObjectTypeNode') {
+        } else if (fromNode?.class === 'goObjectTypeNode' || 'i') {
           if (debug) console.log('879 link', fromNode, data);
           link.category = 'Relationship type';
           link.class = 'goRelshipTypeLink';

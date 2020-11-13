@@ -127,6 +127,15 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
                 <Card className="bg-info" body outline color="primary" >
                   <CardHeader>Blog </CardHeader>
                   <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
+                    <CardText>
+                       Bugfix and new features:
+                       <br /> - added Tables in top menu. 
+                       <br /> - faster response when modelling <br />(not neccessary to refresh so often)
+                       <br /> <br /> - AKMM on akmclient-beta.heroku.com! sf  
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
                     <CardText>
                       Bugfix and added download upload of models from file. AKMM on akmclient-beta.heroku.com! sf  

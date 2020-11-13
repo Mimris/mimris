@@ -7,7 +7,7 @@ import EditProperties  from './forms/EditProperties'
 
 const EditFocusModel = (props) => {
 
-  const debug = true
+  const debug = false
 
   if (debug) console.log('10 EditFocusModel', props);
   

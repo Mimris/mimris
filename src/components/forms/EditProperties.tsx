@@ -11,7 +11,7 @@ import { colorOptions } from './data';
 // import { loadData, setFocusObject, setfocusSource, setFocusOrg, setFocusProj, setFocusRole, setFocusTask } from '../../actions/actions'
 
 const EditProperties = (props) => {
-  const debug = true
+  const debug = false
   console.log('8 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item

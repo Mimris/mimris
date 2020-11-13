@@ -7,7 +7,7 @@ import IndeterminateCheckbox from "./IndeterminateCheckbox";
 
 
 function ObjectTable(props) {  // props = ph = all phData 
-  const debug = true
+  const debug = false
   // console.log('6', props);
   const dispatch = useDispatch();
   const [idSelected, setIdSelected] = useState(true);

@@ -146,7 +146,7 @@ const Modeller = (props: any) => {
 
   const metamodelTabDiv = 
     <>
-      <div className="workpad bg-white  p-1 pt-2"> 
+      <div className="workpad p-1 pt-2"> 
         {gojsapp}
         {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
       </div>         

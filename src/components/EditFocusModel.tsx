@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { useSelector, useDispatch } from 'react-redux'
-
 // import { FaJoint } from 'react-icons/fa';
 // import { setFocusObject } from '../actions/actions';
 import EditProperties  from './forms/EditProperties'
 
 const EditFocusModel = (props) => {
+
   const debug = false
+
   if (debug) console.log('10 EditFocusModel', props);
   
   const refresh = props.refresh
@@ -57,18 +58,18 @@ const EditFocusModel = (props) => {
     && (curmetamodel) && <EditProperties item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
 
   const editovpropertyDiv = (props.modelType === 'model') 
-    ? (props.buttonLabel === 'O')
+    ? (props.buttonLabel === 'Obj')
       ? (curobjview) && <EditProperties item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
       : (currelview) && <EditProperties item={currelview} curobj={currel} type={'UPDATE_RELSHIPVIEW_PROPERTIES'} />
-    : (props.buttonLabel === 'O')
+    : (props.buttonLabel === 'Obj')
       ? (curmmobj) && <EditProperties item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
       : (curmmrel) && <EditProperties item={curmmrel} curobj={curmmrel} type={'UPDATE_RELSHIPTYPE_PROPERTIES'} />
 
   const editopropertyDiv = (props.modelType === 'model') 
-    ? (props.buttonLabel === 'O')
+    ? (props.buttonLabel === 'Obj')
       ? (curobj) && <EditProperties item={curobj} type={'UPDATE_OBJECT_PROPERTIES'} />
       : (currel) && <EditProperties item={currel} type={'UPDATE_RELSHIP_PROPERTIES'} />
-    : (props.buttonLabel === 'O')
+    : (props.buttonLabel === 'Obj')
       ? (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
       : <></>
 
@@ -76,10 +77,10 @@ const EditFocusModel = (props) => {
     // ? (curotypeview.id !== curmmotypeview?.id) 
     //   ? <div className="helptext p-4 text-info">This Objectview has no local typeview.<br /> Right-Click the object's icon and select "Add local typeview" to create a local Typevew</div>
     //   : (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
-    ? (props.buttonLabel === 'O')
+    ? (props.buttonLabel === 'Obj')
       ? (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
       : (currtypeview) && <EditProperties key={currtypeview.id} item={currtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
-    : (props.buttonLabel === 'O')
+    : (props.buttonLabel === 'Obj')
       ? (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
       : (curmmrtypeview) && <EditProperties item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
 
@@ -90,7 +91,7 @@ const EditFocusModel = (props) => {
       <div> Name :<span className="titlename font-weight-bolder ml-4" >{props.ph.phFocus.focusModel?.name}</span></div>
       </>
     : (props.modelType === 'model') 
-        ? (props.buttonLabel == 'O') 
+        ? (props.buttonLabel == 'Obj') 
           ?
             <>
             <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjectview?.id} </span></div>
@@ -101,7 +102,7 @@ const EditFocusModel = (props) => {
             <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusRelshipview?.id} </span></div>
             <div> Name :<span className="titlename font-weight-bolder ml-4" >{currelview?.name}</span></div>
             </>
-        : (props.buttonLabel === 'O')
+        : (props.buttonLabel === 'Obj')
           ?
             <>
             <div >Id : <span className="font-weight-bolder ml-5">{props.ph.phFocus.focusObjecttype?.id} </span></div>
@@ -114,34 +115,34 @@ const EditFocusModel = (props) => {
             </>
 
   const modalheader = (props.modelType === 'modelview' || 'modelview' ) 
-    ? (props.buttonLabel === 'M') ? 'Edit Model Properties:' : 'Edit Properties:'
+    ? (props.buttonLabel === 'Mod') ? 'Edit Model Properties:' : 'Edit Properties:'
     : (props.modelType === 'model')  
-      ? (props.buttonLabel === 'O') ? 'Edit Objectview:' : 'Edit Relshipview'
-      : (props.buttonLabel === 'O') ? 'Edit Objecttype:' : 'Edit Relshiptype'
+      ? (props.buttonLabel === 'Obj') ? 'Edit Objectview:' : 'Edit Relshipview'
+      : (props.buttonLabel === 'Obj') ? 'Edit Objecttype:' : 'Edit Relshiptype'
 
-  const modelheader = (props.buttonLabel === 'M')  && 'Model'
-  const modelviewheader = (props.buttonLabel === 'M')  && 'Modelview'
-  const metamodelheader = (props.buttonLabel === 'M')  && 'Metamodel'
+  const modelheader = (props.buttonLabel === 'Mod')  && 'Model'
+  const modelviewheader = (props.buttonLabel === 'Mod')  && 'Modelview'
+  const metamodelheader = (props.buttonLabel === 'Mod')  && 'Metamodel'
  
 
   const objectviewheader = (props.modelType === 'model') 
-    ? (props.buttonLabel === 'O')
+    ? (props.buttonLabel === 'Obj')
       ? 'Objectview:' : 'Relshipview'
-    : (props.buttonLabel === 'O')
+    : (props.buttonLabel === 'Obj')
       ? 'Objecttype:' : 'Relshiptype' 
 
   const objectheader = (props.modelType === 'model') 
-    ? (props.buttonLabel === 'O')
+    ? (props.buttonLabel === 'Obj')
       ?'Object:' 
       :'Relship:' 
-    : (props.buttonLabel === 'O')
+    : (props.buttonLabel === 'Obj')
       ? 'Objecttypegeos'
       : ''
 
   const typeviewheader = (props.modelType === 'model') 
-    ? (props.buttonLabel === 'O')
+    ? (props.buttonLabel === 'Obj')
       ? 'Typeview:' : 'Typeview'
-    : (props.buttonLabel === 'O')
+    : (props.buttonLabel === 'Obj')
       ? 'Typeview:' : 'Typeview'
 
   // console.log('34 EditFocusModel', curmmobj, curmmotypegeos, curmmotypeview);

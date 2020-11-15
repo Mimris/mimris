@@ -61,7 +61,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     const diagram = this.diagramRef?.current?.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
-      //diagram.addDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
@@ -88,7 +87,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     const diagram = this.diagramRef.current.getDiagram();
     if (diagram instanceof go.Diagram) {
       diagram.removeDiagramListener('TextEdited', this.props.onDiagramEvent);
-      //diagram.removeDiagramListener('ChangedSelection', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
@@ -143,7 +141,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
             "initialAutoScale": go.Diagram.UniformToFill,
-            'undoManager.isEnabled': false,  // must be set to allow for model change listening
+            'undoManager.isEnabled': true,  // must be set to allow for model change listening
             'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
             // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
             // 'draggingTool.horizontalGuidelineColor': 'blue',
@@ -668,12 +666,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
               }
             }),
-          // makeButton("Undo",
-          //   function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
-          //   function (o: any) { return o.diagram.commandHandler.canUndo(); }),
-          // makeButton("Redo",
-          //   function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
-          //   function (o: any) { return o.diagram.commandHandler.canRedo(); }),
+          makeButton("Undo",
+            function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
+            function (o: any) { return o.diagram.commandHandler.canUndo(); }),
+          makeButton("Redo",
+            function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
+            function (o: any) { return o.diagram.commandHandler.canRedo(); }),
           // makeButton("Group",
           //   function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
           //   function (o: any) { 
@@ -921,12 +919,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
               }
             }),
-          // makeButton("Undo",
-            //            function(e, obj) { e.diagram.commandHandler.undo(); },
-            //            function(o) { return o.diagram.commandHandler.canUndo(); }),
-          // makeButton("Redo",
-            //            function(e, obj) { e.diagram.commandHandler.redo(); },
-            //            function(o) { return o.diagram.commandHandler.canRedo(); })
+          makeButton("Undo",
+                       function(e, obj) { e.diagram.commandHandler.undo(); },
+                       function(o) { return o.diagram.commandHandler.canUndo(); }),
+          makeButton("Redo",
+                       function(e, obj) { e.diagram.commandHandler.redo(); },
+                       function(o) { return o.diagram.commandHandler.canRedo(); })
         );
     }
 
@@ -1142,49 +1140,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           // function (o: any) { 
           //   return false; 
           // }),
-          makeButton("Zoom All",
-          function (e: any, obj: any) {
-            e.diagram.commandHandler.zoomToFit();
-          },
-          function (o: any) { return true; }),
-          makeButton("Zoom Selection",
-          function (e: any, obj: any) {
-            let selected = myDiagram.selection;
-            let x1 = 0;
-            let y1 = 0;
-            let x2 = 0;
-            let y2 = 0;
-            let w = 0;
-            let h = 0;
-            myDiagram.selection.each(function(node) {
-                if (x1 == 0) x1 = node.actualBounds.x;
-                if (y1 == 0) y1 = node.actualBounds.y;
-                if (w == 0)  w  = node.actualBounds.width;
-                if (h == 0)  h  = node.actualBounds.height;
-                x2 = x1 + w;
-                y2 = y1 + h;
-                const X1 = node.actualBounds.x;
-                if (X1 < x1) x1 = X1;
-                const Y1 = node.actualBounds.y;
-                if (Y1 < y1) y1 = Y1;
-                const W = node.actualBounds.width;
-                const X2 = X1 + W;
-                const H = node.actualBounds.height;
-                const Y2 = Y1 + H;
-                // Compare
-                if (X2 > x2) x2 = X2;
-                if (Y2 > y2) y2 = Y2;
-                w = x2 - x1;
-                h = y2 - y1;
-            });
-            const rect = new go.Rect(x1, y1, w, h);
-            myDiagram.zoomToRect(rect);
-          },
-          function (o: any) { 
-            if (myDiagram.selection.count > 0)
-              return true; 
-            return false;
-          }),
           makeButton("Paste",
             function (e: any, obj: any) {
               const myModel = myMetis.currentModel;
@@ -1215,8 +1170,51 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { return o.diagram.commandHandler.canUndo(); }),
           makeButton("Redo",
             function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
-            function (o: any) { return o.diagram.commandHandler.canRedo(); })
-        )
+            function (o: any) { return o.diagram.commandHandler.canRedo(); }),
+          makeButton("Zoom All",
+            function (e: any, obj: any) {
+              e.diagram.commandHandler.zoomToFit();
+            },
+            function (o: any) { return true; }),
+          makeButton("Zoom Selection",
+            function (e: any, obj: any) {
+              let selected = myDiagram.selection;
+              let x1 = 0;
+              let y1 = 0;
+              let x2 = 0;
+              let y2 = 0;
+              let w = 0;
+              let h = 0;
+              myDiagram.selection.each(function(node) {
+                  if (x1 == 0) x1 = node.actualBounds.x;
+                  if (y1 == 0) y1 = node.actualBounds.y;
+                  if (w == 0)  w  = node.actualBounds.width;
+                  if (h == 0)  h  = node.actualBounds.height;
+                  x2 = x1 + w;
+                  y2 = y1 + h;
+                  const X1 = node.actualBounds.x;
+                  if (X1 < x1) x1 = X1;
+                  const Y1 = node.actualBounds.y;
+                  if (Y1 < y1) y1 = Y1;
+                  const W = node.actualBounds.width;
+                  const X2 = X1 + W;
+                  const H = node.actualBounds.height;
+                  const Y2 = Y1 + H;
+                  // Compare
+                  if (X2 > x2) x2 = X2;
+                  if (Y2 > y2) y2 = Y2;
+                  w = x2 - x1;
+                  h = y2 - y1;
+              });
+              const rect = new go.Rect(x1, y1, w, h);
+              myDiagram.zoomToRect(rect);
+            },
+            function (o: any) { 
+              if (myDiagram.selection.count > 0)
+                return true; 
+              return false;
+            })
+          )
     }
 
     // Define a Node template

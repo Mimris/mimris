@@ -12,7 +12,7 @@ import { colorOptions } from './data';
 
 const EditProperties = (props) => {
   const debug = false
-  console.log('8 EditProperties', props);
+  if (debug) console.log('8 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);
@@ -41,7 +41,7 @@ const EditProperties = (props) => {
   const onSubmit = (e) => {
     
     const data = { ...edititem, ...e }
-    console.log('41 EditProperties', data, props.type);
+    if (debug) console.log('41 EditProperties', data, props.type);
     if (data && data.id) {
       dispatch({ type: props.type, data })
     }

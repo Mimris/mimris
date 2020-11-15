@@ -366,7 +366,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_OBJECT:
-      console.log('235 SET_FOCUS_OBJECT', state, action.data);
+      if (debug) console.log('235 SET_FOCUS_OBJECT', state, action.data);
       // focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
       //   focusSource: {
       //     id: action.data.focusSource.id,

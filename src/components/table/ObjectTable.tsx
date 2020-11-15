@@ -233,18 +233,18 @@ function ObjectTable(props) {  // props = ph = all phData
 
 
     useEffect(() => {
-      console.log('237 ObjectTable useEffect 1',selectedFlatRows.map(d => d.original.id,)); 
+      if (debug) console.log('237 ObjectTable useEffect 1',selectedFlatRows.map(d => d.original.id,)); 
       const selectedrows = selectedFlatRows.map(d => d,)
       const selectedrow = selectedrows[0]
-      console.log('240', selectedrows, selectedrow?.original?.id);
+      if (debug) console.log('240', selectedrows, selectedrow?.original?.id);
       
       const data = (selectedrow) && {id: selectedrow?.original?.id, name: selectedrow?.original?.name}
       // const data = {id: selectedFlatRows.map(d => d.original.id,), name: selectedFlatRows.map(d => d.original.name,)}
-      console.log('244 ObjectTable useEffect 1', data); 
+      if (debug) console.log('244 ObjectTable useEffect 1', data); 
       dispatch({ type: 'SET_FOCUS_OBJECT', data });
     }, [Object.keys(selectedRowIds).length])
 
-      console.log('248',  selectedFlatRows.map(d => d.original.id,),);
+     if (debug) console.log('248',  selectedFlatRows.map(d => d.original.id,),);
       
 
       

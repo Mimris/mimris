@@ -129,14 +129,14 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
                     <CardText>
-                      akmclient-beta.heroku.com
+                      akmclient-beta.herokuapp.com
                        <br /> <br /> - Bugfixes  
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
                     <CardText>
-                    akmclient-beta.heroku.com
+                    akmclient-beta.herokuapp.com
                     <br /><br />Bugfix and new features:
                        <br /> - added Tables in top menu. 
                        <br /> - faster response when modelling <br />(not neccessary to refresh so often)
@@ -146,35 +146,35 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
                     <CardText>
-                      akmclient-beta.heroku.com
+                      akmclient-beta.herokuapp.com
                       <br /><br />Bugfix and added download upload of models from file.  
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
                     <CardText>
-                      akmclient-beta.heroku.com
+                      akmclient-beta.herokuapp.com
                       <br /><br />4th test version!
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.11</CardTitle>
                     <CardText>
-                      akmclient-beta.heroku.com
+                      akmclient-beta.herokuapp.com
                       <br /><br />3rd test version!
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
                     <CardText>
-                      akmclient-beta.heroku.com
+                      akmclient-beta.herokuapp.com
                       <br /><br />2nd test version!
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
                     <CardText>
-                      akmclient-beta.heroku.com
+                      akmclient-beta.herokuapp.com
                       <br /><br />1st test version of AKMM awailable on Heroku! 
                     </CardText>
                   </CardBody>

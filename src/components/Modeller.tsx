@@ -76,24 +76,17 @@ const Modeller = (props: any) => {
 
   const activetabindex = (modelviewindex < 0) ? '0' : modelviewindex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
   if (debug) console.log('79 Modeller', activetabindex);
-  // if (gojsmodel) {console.log('89 Modeller', activetabindex, modelview, props.gojsModel)}
+
   useEffect(() => {
     setActiveTab('0')
     if (debug) console.log('82 Modeller useEffect 1', activeTab); 
-    // function refres() {
-    //   setRefresh(!refresh)
-    //   }
-    //   setTimeout(refres, 5000);
-
   }, [focusModel.id])
   
   useEffect(() => {
-      setActiveTab(activetabindex)
-      if (debug) console.log('94 Modeller useEffect 2', activeTab); 
-      genGojsModel(props, dispatch);
-      // setRefresh(!refresh)
-
-    }, [activeTab])
+    setActiveTab(activetabindex)
+    if (debug) console.log('94 Modeller useEffect 2', activeTab); 
+    genGojsModel(props, dispatch);
+  }, [activeTab])
 
 
     

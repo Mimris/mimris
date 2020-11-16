@@ -1,6 +1,6 @@
 // @ts-nocheck
 // Diagram.tsx
-const debug = false;
+const debug = true;
 
 // import React from "react";
 import { useState, useEffect, useLayoutEffect } from "react";
@@ -62,15 +62,15 @@ const page = (props:any) => {
 
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
-    useEffect(() => {
-      genGojsModel(props, dispatch);
-      //focusModel = props.phFocus?.focusModel
-      if (debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 111000);
-    }, [curmod])
+    // useEffect(() => {
+    //   genGojsModel(props, dispatch);
+    //   //focusModel = props.phFocus?.focusModel
+    //   if (debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
+    //   function refres() {
+    //     setRefresh(!refresh)
+    //   }
+    //   setTimeout(refres, 1);
+    // }, [curmod])
 
     useEffect(() => {
       if (debug) console.log('76 Modelling useEffect 2', props); 
@@ -81,29 +81,29 @@ const page = (props:any) => {
       setTimeout(refres, 1);
     }, [focusModelview?.id, focusModel?.id])
 
-    useEffect(() => {
-      if (debug) console.log('76 Modelling useEffect 3', props); 
-      genGojsModel(props, dispatch);
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1);
-    }, [props.phFocus.focusRefresh?.id])
+    // useEffect(() => {
+    //   if (debug) console.log('76 Modelling useEffect 3', props); 
+    //   genGojsModel(props, dispatch);
+    //   function refres() {
+    //     setRefresh(!refresh)
+    //   }
+    //   setTimeout(refres, 1);
+    // }, [props.phFocus.focusRefresh?.id])
 
-    useEffect(() => {
-      if (debug) console.log('85 Modelling useEffect 4', props); 
-      genGojsModel(props, dispatch);
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1);
-    }, [props.metis])
+    // useEffect(() => {
+    //   if (debug) console.log('85 Modelling useEffect 4', props); 
+    //   genGojsModel(props, dispatch);
+    //   function refres() {
+    //     setRefresh(!refresh)
+    //   }
+    //   setTimeout(refres, 1);
+    // }, [props.metis])
 
-    useEffect(() => {
-      if (debug) console.log('94 Modelling useEffect 5', props); 
-      genGojsModel(props, dispatch)
-      setRefresh(!refresh)
-    }, [props.phSource])
+    // useEffect(() => {
+    //   if (debug) console.log('94 Modelling useEffect 5', props); 
+    //   genGojsModel(props, dispatch)
+    //   setRefresh(!refresh)
+    // }, [props.phSource])
 
   function toggleRefresh() {
     // first find current model which is in reduxStore

@@ -93,17 +93,15 @@ const SelectContext = (props: any) => {
   }
 
   useEffect(() => {
-      const fU = async () => await focusUser;
-      testsession = fU().session;
-      // console.log('69', focusUser, testsession);
-        try {
-          usession =  (testsession) && JSON.parse(testsession);
-          // console.log('71', usession);
-          
-        } catch (error) {
-        {console.error('parserror');
-        }
-      }
+    const fU = async () => await focusUser;
+    testsession = fU().session;
+    // console.log('69', focusUser, testsession);
+    try {
+      usession =  (testsession) && JSON.parse(testsession);
+      // console.log('71', usession);
+    } catch (error) {
+      {console.error('parserror');}
+    }
   }, [focusUser])
 
   let usession, testsession

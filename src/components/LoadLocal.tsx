@@ -70,11 +70,11 @@ const LoadLocal = (props: any) => {
     }
   }
 
-  useEffect(() => {
-    // console.log('59 LoadLocal', props);
-    genGojsModel(props, dispatch);
-    // setRefresh(!refresh)
-  }, [locStatus])
+  // useEffect(() => {
+  //   // console.log('59 LoadLocal', props);
+  //   genGojsModel(props, dispatch);
+  //   // setRefresh(!refresh)
+  // }, [locStatus])
 
   function handleSaveAllToLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});

@@ -1,4 +1,5 @@
 // @ts-nocheck
+const debug = false;
 import React, { useState } from "react";
 // import { Collapse, Button } from 'reactstrap'
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
@@ -9,11 +10,11 @@ import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 
 const Palette = (props) => {
-  
-  // console.log('13 Palette ',  props );
+  const debug = false
+  if (debug) console.log('13 Palette ',  props );
   const gojstypes = props.gojsMetamodel
   const gojsmodelobjects = props.gojsModelObjects // has to be: props.gojsObjects
-  // console.log('16 Palette gojsobjects', gojsmodelobjects );
+  if (debug) console.log('16 Palette gojsobjects', gojsmodelobjects );
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -30,9 +31,9 @@ const Palette = (props) => {
   const toggleTip = () => setTooltipOpen(!tooltipOpen);
   /**  * Get the state and metie from the store,  */
     // const gojstypes = props.phFocus.gojsMetamodel
-    // console.log(' Palette', gojstypes);
-    // console.log('12 Palette', gojstypes.nodeDataArray);
-    // console.log('13 Palette', gojstypes.linkDataArray);
+    if (debug) console.log(' Palette', gojstypes);
+    if (debug) console.log('12 Palette', gojstypes.nodeDataArray);
+    if (debug) console.log('13 Palette', gojstypes.linkDataArray);
     
     const gojsapp = (gojstypes) &&
     <>
@@ -55,6 +56,7 @@ const Palette = (props) => {
         </NavItem>
       </Nav>
       <TabContent activeTab={activeTab} >
+        {/* TYPES */}
         <TabPane tabId="1">
           <div className="workpad p-1 pt-2 bg-white" >
             {/* <Row >
@@ -75,7 +77,7 @@ const Palette = (props) => {
             </Row> */}
           {/* </div> */}
         </TabPane>
-        {/* Modelling */}
+        {/* OBJECTS */}
         <TabPane tabId="2">
           <div className="workpad p-1 pt-2 bg-white">
             {/* <Row >
@@ -101,8 +103,8 @@ const Palette = (props) => {
     
    const palette =
       <> 
-        <button className="btn-sm p-0 mr-2" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
-          onClick={togglePalette}> {visiblePalette ? <span> &lt;  Palette </span> : <span>&gt;</span>} 
+        <button className="btn-sm p-0 pr-2 mr-2 pt-2" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette - Metamodel </span> : <span>&gt;</span>} 
         </button>
 
         <div>
@@ -110,8 +112,7 @@ const Palette = (props) => {
           {visiblePalette 
            ? (refresh) ?<> { gojsapp } </> : <>{gojsapp}</>
             // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
-            
-            : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - M e t a</span> </div>
+            : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - M e t a m o d e l </span> </div>
           }
         </div>
       </>  
@@ -119,12 +120,12 @@ const Palette = (props) => {
   return (
     <>
       {palette}
-      <style jsx>{`
+      {/* <style jsx>{`
         .diagram-component {
           height: 100%;
           width: 100%;
         }
-       `}</style>
+       `}</style> */}
     </>
   )
 }

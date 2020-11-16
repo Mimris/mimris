@@ -11,8 +11,8 @@ import { colorOptions } from './data';
 // import { loadData, setFocusObject, setfocusSource, setFocusOrg, setFocusProj, setFocusRole, setFocusTask } from '../../actions/actions'
 
 const EditProperties = (props) => {
-
-  // console.log('8 EditProperties', props);
+  const debug = false
+  if (debug) console.log('8 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);
@@ -22,6 +22,7 @@ const EditProperties = (props) => {
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.icon)
+  // const otype = pprops.item.typeRef
   // console.log('25 EditProperties', props.item);
   // console.log('26 EditProperties', props.item.fillcolor, colorvalue);
   
@@ -40,7 +41,7 @@ const EditProperties = (props) => {
   const onSubmit = (e) => {
     
     const data = { ...edititem, ...e }
-    console.log('41 EditProperties', data, props.type);
+    if (debug) console.log('41 EditProperties', data, props.type);
     if (data && data.id) {
       dispatch({ type: props.type, data })
     }
@@ -234,15 +235,15 @@ const EditProperties = (props) => {
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
       (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
       (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
-      (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') &&
-      (p !== 'datatypes') && (p !== 'relshiptypes') &&
+      (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') && (p !== 'pasteViewsOnly') && (p !== 'deleteViewsOnly') &&
+      (p !== 'datatypes') && (p !== 'relshiptypes') && (p !== 'inputrels') &&(p !== 'outputrels') &&
       (p.slice(-3) !== 'Ref') &&
       (p !== 'unittypes') && (p !== 'objtypegeos') )
       //  (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
       && p
   ).filter(Boolean)
 
-  const fieldsDiv = fields?.map(f => fieldDiv(f, edititem))
+  const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
   // console.log('223 EditProperties', fieldsDiv);
 
   const previewIcon =  (iconvalue) && (iconvalue.substring(0, 4) === 'http')

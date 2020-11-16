@@ -1,41 +1,57 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
+import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
 import GoJSApp from "./gojs/GoJSApp";
 import Selector from './utils/Selector'
+import genGojsModel from './GenGojsModel'
 
 
 const Modeller = (props: any) => {
-  // console.log('8 Modeller', props);
-  let prevgojsmodel = null
-  let gojsmodel = {}
-  gojsmodel = props.gojsModel;
-
+  const debug = false
+  // if (debug) console.log('8 Modeller', props);
+  // let prevgojsmodel = null
+  // let gojsmodel = {}
+  const gojsmodel = props.gojsModel;
   let myMetis = props.myMetis;
-
+  
+  const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true)
+  const [activeTab, setActiveTab] = useState();
+
   function toggleRefresh() { setRefresh(!refresh); }
 
-  // console.log('28 Modeller', gojsmodel?.nodeDataArray);
+  // if (debug) console.log('21 Modeller', props.gojsModel, gojsmodel);
 
-  const models = props.metis?.models
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
+  const models = props.metis?.models
   const model = models?.find((m: any) => m?.id === focusModel?.id)
-  const modelviews = model?.modelviews
   const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
+  const modelviews = model?.modelviews
   const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusModelview?.id)
 
-  const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
-  const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
-  // console.log('36 Modeller', focusModelview, selmods, modelviews);
-  let selmodels = selmods?.models?.map((m: any) => m)
-  let selmodelviews = selmodviews?.modelviews?.map((mv: any) => mv)
-  // console.log('33 Modeller', focusModel.name, focusModelview.name);
+  // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
+  // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
   
-  const gojsapp = (gojsmodel && !prevgojsmodel) &&
+  // put current modell on top 
+  const selmods = [
+    models[modelindex],
+    ...models.slice(0, modelindex),
+    ...models.slice(modelindex+1, models.length)
+  ]
+  const selmodviews = modelviews
+  
+  // console.log('36 Modeller', focusModelview, selmods, modelviews);
+  let selmodels = selmods //selmods?.models?.map((m: any) => m)
+  let selmodelviews = selmodviews //selmodviews?.modelviews?.map((mv: any) => mv)
+
+  // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
+  // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
+
+  const gojsapp = (gojsmodel) &&
     < GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
@@ -47,32 +63,121 @@ const Modeller = (props: any) => {
       dispatch={props.dispatch}
     />
 
-  const selector = (props.modelType === 'model' || props.modelType === 'modelview') 
-      ? <>
-          {/* <div className="modeller-selection float-right" > */}
-            <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />
-            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
-          {/* </div>  */}
-        </>
-      :
-      <div className="modeller-selection float-right" >
-      </div> 
+    const selector = (props.modelType === 'model' || props.modelType === 'modelview') 
+    ? <>
+        {/* <div className="modeller-selection" > */}
+          {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
+          <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+        {/* </div>  */}
+      </>
+    :
+    <div className="modeller-selection float-right" >
+    </div> 
 
-return (
-  <>
-      {/* <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span> */}
-      <div className="modeller-heading" style={{ margin: "4px", paddingLeft: "2px", zIndex: "99", position: "relative", overflow: "hidden" }}>Model:  <strong className="ml-2 ">{focusModel.name}</strong>
-        {selector}
-      </div>
-        {/* {gojsapp} */}
-        {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
-      <style jsx>{`
-        .diagram-component {
-          height: 101%;
-          width: 98%;
-        }
-       `}</style>
+  const activetabindex = (modelviewindex < 0) ? '0' : modelviewindex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
+  if (debug) console.log('79 Modeller', activetabindex);
+
+  useEffect(() => {
+    setActiveTab('0')
+    if (debug) console.log('82 Modeller useEffect 1', activeTab); 
+  }, [focusModel.id])
+  
+  useEffect(() => {
+    setActiveTab(activetabindex)
+    if (debug) console.log('94 Modeller useEffect 2', activeTab); 
+    genGojsModel(props, dispatch);
+  }, [activeTab])
+
+
+    
+  //   useEffect(() => {
+  //     if (debug) console.log('81 Modeller useEffect 2', activeTab); 
+  //   // const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
+  //   // dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) 
+  //   setActiveTab(activetabindex)
+  //   // function refres() {
+  //     setRefresh(!refresh)
+  //   // }
+  //   // setTimeout(refres, 1000);
+  // }, [focusModelview?.id])
+  
+
+  const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
+    if (mv) { 
+        const strindex = index.toString()
+        const data = {id: mv.id, name: mv.name}
+        const data2 = {id: Math.random().toString(36).substring(7), name: strindex+'name'}
+        genGojsModel(props, dispatch);
+        // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
+        return (
+          <NavItem key={strindex}>
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none" }}
+              className={classnames({ active: activeTab == strindex })}
+              onClick={() => {  dispatch({ type: 'SET_FOCUS_MODELVIEW', data });  dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'}  })  }}
+              // onClick={() => { toggleTab(strindex); dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefresh() }}
+            >
+              {mv.name}
+            </NavLink>
+          </NavItem>
+        )
+    }
+  })
+
+  const modelviewTabDiv = 
+    <>
+      <Nav tabs >
+        {navitemDiv} 
+      </Nav>
+      <TabContent > 
+        <TabPane  >
+          <div className="workpad bg-white mt-0 p-1 pt-2"> 
+            {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
+          </div>         
+        </TabPane>
+      </TabContent>
     </>
+
+  const metamodelTabDiv = 
+    <>
+      <div className="workpad p-1 pt-2"> 
+        {gojsapp}
+        {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
+      </div>         
+    </>
+
+  // console.log('129', activetabindex, modelviewTabDiv);
+  // setDispatchdone(true)
+  // console.log('130 Modeller', focusModelview, props)
+
+  return (
+    (props.modelType === 'model') ?
+    <div className="mt-1 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
+      <div>
+        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller</h5>
+        {selector}
+      </div><br />
+      <div className="mt-2">
+        {modelviewTabDiv} 
+      </div>
+      <style jsx>{`
+      // .diagram-component {
+      //   height: 80%;
+      // }
+      `}</style>
+    </div>
+    :
+    <div className="mt-1" style={{backgroundColor: "#acc"}}>
+      <h5 className="modeller-heading text-dark mr-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+      <div>
+        {selector}
+        {metamodelTabDiv} 
+      </div>
+      <style jsx>{`
+      // .diagram-component {
+      //   height: 80%;
+      // }
+      `}</style>
+    </div>
   )
 }
 

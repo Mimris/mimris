@@ -2,6 +2,7 @@
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
+const debug = false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
@@ -48,7 +49,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   constructor(props: object) {
     super(props);
-    // console.log('48 GoJSApp',props.nodeDataArray);
+    // if (debug) console.log('48 GoJSApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -67,11 +68,11 @@ class GoJSApp extends React.Component<{}, AppState> {
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
     this.mapLinkKeyIdx = new Map<go.Key, number>();
-    this.refreshNodeIndex(this.state.nodeDataArray); //|| []); // sf added ™|| []" to avoid crash if !nodeDataArray
-    this.refreshLinkIndex(this.state.linkDataArray); // sf added ™|| []" to avoid crash if !linkDataArray
+    this.refreshNodeIndex(this.state.nodeDataArray); 
+    this.refreshLinkIndex(this.state.linkDataArray); 
     // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    //this.handleModelChange = this.handleModelChange.bind(this);
+    this.handleModelChange = this.handleModelChange.bind(this);
     //this.handleInputChange = this.handleInputChange.bind(this);
     //this.handleRelinkChange = this.handleRelinkChange.bind(this);
   }
@@ -126,6 +127,28 @@ class GoJSApp extends React.Component<{}, AppState> {
     return null;
   }
 
+    /**
+     * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
+     * This method should iterates over those changes and update state to keep in sync with the GoJS model.
+     * This can be done via setState in React or another preferred state management method.
+     * @param obj a JSON-formatted string
+     */
+  public handleModelChange(obj: go.IncrementalData) {
+    const insertedNodeKeys = obj.insertedNodeKeys;
+    const modifiedNodeData = obj.modifiedNodeData;
+    const removedNodeKeys = obj.removedNodeKeys;
+    const insertedLinkKeys = obj.insertedLinkKeys;
+    const modifiedLinkData = obj.modifiedLinkData;
+    const removedLinkKeys = obj.removedLinkKeys;
+    const modifiedModelData = obj.modelData;
+
+    return;
+
+  }
+
+    // see gojs-react-basic for an example model change handler
+    // when setting state, be sure to set skipsDiagramUpdate: true since GoJS already has this update
+
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
@@ -136,13 +159,13 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
-    // console.log('139 handleDiagramEvent', myMetis);
+    // if (debug) console.log('139 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus.focusModel.id);
     const myModelview = myMetis?.findModelView(this.state.phFocus.focusModelview.id);
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
-    // console.log('145 handleDiagramEvent', myGoMetamodel);
+    // if (debug) console.log('145 handleDiagramEvent', myGoMetamodel);
     const gojsModel = {
       nodeDataArray: myGoModel?.nodes,
       linkDataArray: myGoModel?.links
@@ -157,13 +180,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodes.push(node);
     }
     if (nodes.length > 0) myGoMetamodel.nodes = nodes;
-    // console.log('159 gojsMetamodel', myGoMetamodel);
+    // if (debug) console.log('159 gojsMetamodel', myGoMetamodel);
 
     const gojsMetamodel = {
       nodeDataArray: myGoMetamodel?.nodes,
       linkDataArray: myGoMetamodel?.links
     }
-    // console.log('165 gojsMetamodel', gojsMetamodel);
+    // if (debug) console.log('165 gojsMetamodel', gojsMetamodel);
     const modifiedNodes         = new Array();
     const modifiedLinks         = new Array();
     const modifiedTypeNodes     = new Array();
@@ -192,586 +215,590 @@ class GoJSApp extends React.Component<{}, AppState> {
       "dispatch":         dispatch,
       "done":             done
     }
-    // console.log('195 handleDiagramEvent - context', name, this.state, context);
-    // console.log('196 handleEvent', myMetis);
+    // if (debug) console.log('195 handleDiagramEvent - context', name, this.state, context);
+    // if (debug) console.log('196 handleEvent', myMetis);
 
     switch (name) {
       case 'TextEdited': {
-        let sel = e.subject.part;
-        let field = e.subject.name;
-        this.setState(
-          produce((draft: AppState) => {
+        const sel = e.subject.part;
+        const data = sel.data;
+        const field = e.subject.name;
+        if (debug) console.log('204 data', data);
             if (sel) {
-              if (sel instanceof go.Node) {
-                const key = sel.data.key;
-                let text = sel.data.name;
-                const typename = sel.data.type;
-                // console.log('209 typename', typename);
-                if (typename === 'Object type') {
-                  if (text === 'Edit name') {
-                    text = prompt('Enter name');
-                  }
-                  const myNode = this.getNode(context.myGoMetamodel, key);
-                  if (myNode) {
-                    myNode.name = text;
-                    uic.updateObjectType(myNode, field, text, context);
-                    // console.log('218 TextEdited', myNode);
-                    if (myNode.objtype) {
-                      const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
-                      modifiedTypeNodes.push(gqlObjType);
-                      // console.log('222 TextEdited', gqlObjType);
-                    }
-                  }
-                } else // Object
-                {
-                  if (text === 'Edit name') {
-                    text = prompt('Enter name');
-                    sel.data.name = text;
-                  }
-                  const myNode = this.getNode(context.myGoModel, key);
-                  if (myNode) {
-                    myNode.name = text;
-                    uic.updateObject(myNode, field, text, context);
-                    const gqlNode = new gql.gqlObjectView(myNode.objectview);
-                    modifiedNodes.push(gqlNode);
-                    const gqlObj = new gql.gqlObject(myNode.objectview.object);
-                    modifiedObjects.push(gqlObj);
-                  }
+          if (sel instanceof go.Node) {
+            const key = data.key;
+            let text  = data.name;
+            const typename = data.type;
+            // if (debug) console.log('209 typename', typename);
+            if (typename === 'Object type') {
+              if (text === 'Edit name') {
+                text = prompt('Enter name');
+              }
+              const myNode = this.getNode(context.myGoMetamodel, key);
+              if (myNode) {
+                data.name = text;
+                myNode.name = text;
+                uic.updateObjectType(myNode, field, text, context);
+                data.name = myNode.name;
+                // if (debug) console.log('218 TextEdited', myNode);
+                if (myNode.objtype) {
+                  const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
+                  modifiedTypeNodes.push(gqlObjType);
+                  // if (debug) console.log('222 TextEdited', gqlObjType);
                 }
               }
-              if (sel instanceof go.Link) {
-                // relationship
-                const key = sel.data.key;
-                let text = sel.data.name;
-                let typename = sel.data.type;
-                if (typename === 'Relationship type') {
-                  const myLink = this.getLink(context.myGoMetamodel, key);
-                  // console.log('232 TextEdited', myLink);
-                  if (myLink) {
-                    if (text === 'Edit name') {
-                      text = prompt('Enter name');
-                      typename = text;
-                    }
-                    uic.updateRelationshipType(myLink, "name", text, context);
-                    if (myLink.reltype) {
-                      const gqlReltype = new gql.gqlRelationshipType(myLink.reltype, true);
-                      modifiedTypeLinks.push(gqlReltype);
-                      console.log('242 TextEdited', modifiedTypeLinks);
-                    }
-                  }
-                  context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
-                } else {
-                  const myLink = this.getLink(context.myGoModel, key);
-                  if (myLink) {
-                    if (text === 'Edit name') {
-                      text = prompt('Enter name');
-                      sel.data.name = text;
-                    }
-                    myLink.name = text;
-                    uic.updateRelationship(myLink, field, text, context);
-                    if (myLink.relhipview) {
-                      const gqlLink = new gql.gqlRelshipView(myLink.relshipview);
-                      modifiedLinks.push(gqlLink);
-                    }
-                    context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
-                  }
-                }
+            } else // Object
+            {
+              if (text === 'Edit name') {
+                text = prompt('Enter name');
+                data.name = text;
+              }
+              const myNode = this.getNode(context.myGoModel, key);
+              if (myNode) {
+                myNode.name = text;
+                uic.updateObject(myNode, field, text, context);
+                data.name = myNode.name;
+                const gqlObjview = new gql.gqlObjectView(myNode.objectview);
+                modifiedNodes.push(gqlObjview);
+                const gqlObj = new gql.gqlObject(myNode.objectview.object);
+                modifiedObjects.push(gqlObj);
               }
             }
+            const nodes = myGoModel.nodes;
+            for (let i=0; i<nodes.length; i++) {
+                const node = nodes[i];
+                if (node.key === data.key) {
+                    node.name = data.name;
+                    break;
+                }
+            }
           }
-          ))
+          if (sel instanceof go.Link) {
+            // relationship
+            const key = data.key;
+            let text = data.name;
+            let typename = data.type;
+            if (typename === 'Relationship type') {
+              const myLink = this.getLink(context.myGoMetamodel, key);
+              // if (debug) console.log('232 TextEdited', myLink);
+              if (myLink) {
+                if (text === 'Edit name') {
+                  text = prompt('Enter name');
+                  typename = text;
+                  data.name = text;
+                }
+                uic.updateRelationshipType(myLink, "name", text, context);
+                data.name = myLink.name;
+                if (myLink.reltype) {
+                  const gqlReltype = new gql.gqlRelationshipType(myLink.reltype, true);
+                  modifiedTypeLinks.push(gqlReltype);
+                  if (debug) console.log('242 TextEdited', modifiedTypeLinks);
+                }
+              }
+              context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
+            } else {
+              const myLink = this.getLink(context.myGoModel, key);
+              if (myLink) {
+                if (text === 'Edit name') {
+                  text = prompt('Enter name');
+                  data.name = text;
+                }
+                myLink.name = text;
+                uic.updateRelationship(myLink, field, text, context);
+                if (myLink.relhipview) {
+                  const gqlLink = new gql.gqlRelshipView(myLink.relshipview);
+                  modifiedLinks.push(gqlLink);
+                }
+                context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
+              }
+            }
+            const links = myGoModel.links;
+            for (let i=0; i<links.length; i++) {
+                const link = links[i];
+                if (link.key === key) {
+                    link.name = data.name;
+                    break;
+                }
+            }
+          }
+        }
       }
         break;
       case "SelectionMoved": {
         let selection = e.subject;
-        this.setState(
-          produce((draft: AppState) => {
-            for (let it = selection.iterator; it.next();) {
-              const sel = it.value;
-              const data = sel.data;
-              const typename = data.type;
-              // console.log('274 SelectionMoved', data);
-              if (typename === 'Object type') {
-                  // console.log('268 myMetamodel', context.myMetamodel);  // Object type moved
-                  const objtype = context.myMetis.findObjectType(data.objtype.id);
-                  if (objtype) {
-                      let objtypeGeo = context.myMetamodel.findObjtypeGeoByType(objtype);
-                      if (!objtypeGeo) {
-                          objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, objtype, "", "");
-                      }
-                      objtypeGeo.setLoc(data.loc);
-                      objtypeGeo.setSize(data.size);
-                      objtypeGeo.setModified();
-                      const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
-                      modifiedTypeGeos.push(gqlObjtypeGeo);
+        for (let it = selection.iterator; it.next();) {
+          const sel = it.value;
+          const data = sel.data;
+          const typename = data.type;
+          if (debug) console.log('333 typename', typename, data);
+          if (typename === "Object type") {
+              const objtype = context.myMetis.findObjectType(data.objtype.id);
+              if (debug) console.log('321 objtype', objtype);
+              if (objtype) {
+                  let objtypeGeo = context.myMetamodel.findObjtypeGeoByType(objtype);
+                  if (debug) console.log('324 objtypegeo', objtypeGeo);
+                  if (!objtypeGeo) {
+                      objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, objtype, "", "");
                   }
+                  objtypeGeo.setLoc(data.loc);
+                  objtypeGeo.setSize(data.size);
+                  objtypeGeo.setModified();
+                  const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
+                  if (debug) console.log('332 gqlObjtypeGeo', gqlObjtypeGeo);
+                  modifiedTypeGeos.push(gqlObjtypeGeo);
               }
-              else // Object
-              {
-                // Object moved
-                const key = sel.data.key;
-                uic.changeNodeSizeAndPos(sel.data, myGoModel, modifiedNodes);
-                const myNode = this.getNode(context.myGoModel, key);
-                // console.log('300 SelectionMoved', myNode);
-                // console.log('301 SelectionMoved', modifiedNodes);
+          }
+          else // Object
+          {
+            // Object moved
+            const key = data.key;
+            if (debug) console.log('355 data', data);
+            const node = uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
+            if (debug) console.log('361 node', node);
+            if (node) e.diagram.model.setDataProperty(data, "group", node.group);
+            //const myNode = this.getNode(myGoModel, key);
+            if (debug) console.log('364 myGoModel', myGoModel);
+            if (debug) console.log('301 SelectionMoved', modifiedNodes);
+          }
+          const nodes = myGoModel.nodes;
+          for (let i=0; i<nodes.length; i++) {
+              const node = nodes[i];
+              if (node.key === data.key) {
+                  node.loc = data.loc;
+                  node.size = data.size;
+                  break;
               }
-            }
-          })
-        )
+          }
+        }
       }
-        break;
+      break;
       case "SelectionDeleted": {
         const deletedFlag = true;
         const selection = e.subject;
-        this.setState(
-          produce((draft: AppState) => {
-            for (let it = selection.iterator; it.next();) {
-              const sel  = it.value;
-              const data = sel.data;
-              const key  = data.key;
-              const typename = data.type;
-              if (typename === 'Object type') {
-                // console.log('321 myMetamodel', context.myMetamodel);  
-                const objtype = context.myMetis.findObjectType(data.objtype.id);
-                if (objtype) {
-                  // Check if objtype instances exist
-                  // if (context.myModel.getObjectsByType(objtype, false)) {
-                  //     alert('Objects of type ' + objtype.name + ' exist - Deletion is not allowed!');
-                  //     break;
-                  // } 
-                  objtype.deleted = deletedFlag;
-                  const gqlObjtype = new gql.gqlObjectType(objtype, true);
-                  modifiedTypeNodes.push(gqlObjtype);
-                  console.log('332 modifiedTypeNodes', modifiedTypeNodes);
-                  let objtypeview = objtype.typeview;
-                  if (objtypeview) {
-                      objtypeview.deleted = deletedFlag;
-                      const gqlObjtypeView = new gql.gqlObjectTypeView(objtypeview);
-                      modifiedTypeViews.push(gqlObjtypeView);
-                      console.log('338 modifiedTypeViews', modifiedTypeViews);
-                  }
-                  const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
-                  if (geo) {
-                      geo.deleted = deletedFlag;
-                      const gqlObjtypegeo = new gql.gqlObjectTypegeo(geo);
-                      modifiedTypeGeos.push(gqlObjtypegeo);
-                      console.log('345 modifiedTypeGeos', modifiedTypeGeos);
-                  }
-                }
+        if (debug) console.log('378 selection, selection');
+        for (let it = selection.iterator; it.next();) {
+          const sel  = it.value;
+          const data = sel.data;
+          if (debug) console.log('382 sel, data', sel, data);
+          const key  = data.key;
+          const typename = data.type;
+          if (typename === 'Object type') {
+            // if (debug) console.log('334 myMetamodel', context.myMetamodel);  
+            const objtype = context.myMetis.findObjectType(data.objtype.id);
+            if (objtype) {
+              // Check if objtype instances exist
+              if (context.myMetis.getObjectsByType(objtype, true)) {
+                  alert('Objects of type ' + objtype.name + ' exist - Deletion is not allowed!');
+                  break;
+              } 
+              objtype.deleted = deletedFlag;
+              const gqlObjtype = new gql.gqlObjectType(objtype, true);
+              modifiedTypeNodes.push(gqlObjtype);
+              if (debug) console.log('345 modifiedTypeNodes', modifiedTypeNodes);
+              let objtypeview = objtype.typeview;
+              if (objtypeview) {
+                  objtypeview.deleted = deletedFlag;
+                  const gqlObjtypeView = new gql.gqlObjectTypeView(objtypeview);
+                  modifiedTypeViews.push(gqlObjtypeView);
+                  if (debug) console.log('351 modifiedTypeViews', modifiedTypeViews);
               }
-              if (typename === 'Relationship type') {
-                // console.log('350 myMetamodel', context.myMetamodel);  
-                const reltype = context.myMetis.findRelationshipType(data.reltype.id);
-                if (reltype) {
-                  // Check if objtype instances exist
-                  // if (context.myModel.getRelationshipsByType(reltype)) {
-                  //   alert('Relationships of type ' + reltype.name + ' exist - Deletion is not allowed!');
-                  //   break;
-                  // }
-                  reltype.deleted = deletedFlag;
-                  //uic.deleteRelationshipType(reltype, deletedFlag);
-                  const gqlReltype = new gql.gqlRelationshipType(reltype, true);
-                  modifiedTypeLinks.push(gqlReltype);
-                  console.log('362 modifiedTypeLinks', modifiedTypeLinks);
-                  let reltypeview = reltype.typeview;
-                  if (reltypeview) {
-                      reltypeview.deleted = deletedFlag;
-                      const gqlReltypeView = new gql.gqlRelshipTypeView(reltypeview);
-                      modifiedTypeViews.push(gqlReltypeView);
-                      console.log('368 modifiedTypeViews', modifiedTypeViews);
-                  }
-                }
-              }
-              if (data.class === "goObjectNode") {
-                const myNode = this.getNode(context.myGoModel, key);
-                if (myNode) {
-                  uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedTypeViews, context);
-                  console.log('377 modifiedNodes', modifiedNodes);
-                  console.log('378 modifiedNodes', modifiedObjects);
-                  console.log('379 modifiedTypeViews', modifiedTypeViews);
-                }
-              }
-              if (data.class === "goRelshipLink") {
-                const myLink = this.getLink(context.myGoModel, key);
-                console.log('365 SelectionDeleted', myLink);
-                uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
-                const relview = data.relshipview;
-                if (relview) {
-                  relview.deleted = deletedFlag;
-                  const gqlRelview = new gql.gqlRelshipView(relview);
-                  modifiedLinks.push(gqlRelview);
-                  console.log('369 SelectionDeleted', modifiedLinks);
-                  const relship = relview.relship;
-                  relship.deleted = deletedFlag;
-                  const gqlRel = new gql.gqlRelationship(relship);
-                  modifiedRelships.push(gqlRel);
-                  console.log('374 SelectionDeleted', modifiedRelships);
-                }
+              const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
+              if (geo) {
+                  geo.deleted = deletedFlag;
+                  const gqlObjtypegeo = new gql.gqlObjectTypegeo(geo);
+                  modifiedTypeGeos.push(gqlObjtypegeo);
+                  if (debug) console.log('358 modifiedTypeGeos', modifiedTypeGeos);
               }
             }
-          })
-        )
-      }
-        break;
-      case 'ChangedSelection': {
-        const sel = e.subject.first();
-        this.setState(
-          produce((draft: AppState) => {
-            if (sel) {
-              if (sel instanceof go.Node) {
-                const idx = this.mapNodeKeyIdx.get(sel.key);
-                if (idx !== undefined && idx >= 0) {
-                  const nd = draft.nodeDataArray[idx];
-                  draft.selectedData = nd;
-                  console.log('357 ChangedSelection: node = ', nd);
-                }
-              } else if (sel instanceof go.Link) {
-                // console.log('174 GoJSApp.tsx: sel = ', sel);
-                const idx = this.mapLinkKeyIdx.get(sel.data.key);
-                if (idx !== undefined && idx >= 0) {
-                  const ld = draft.linkDataArray[idx];
-                  draft.selectedData = ld;
-                  // console.log('178 GoJSApp.tsx: link = ', ld);
-                }
+          }
+          if (typename === 'Relationship type' || 'i' ) {
+            // if (debug) console.log('350 myMetamodel', context.myMetamodel);  
+            const reltype = context.myMetis.findRelationshipType(data.reltype?.id);
+            if (reltype) {
+              // Check if reltype instances exist
+              if (context.myMetis.getRelationshipsByType(reltype)) {
+                alert('Relationships of type ' + reltype.name + ' exist - Deletion is not allowed!');
+                break;
               }
-            } else {
-              draft.selectedData = null;
+              reltype.deleted = deletedFlag;
+              //uic.deleteRelationshipType(reltype, deletedFlag);
+              const gqlReltype = new gql.gqlRelationshipType(reltype, true);
+              modifiedTypeLinks.push(gqlReltype);
+              if (debug) console.log('375 modifiedTypeLinks', modifiedTypeLinks);
+              let reltypeview = reltype.typeview;
+              if (reltypeview) {
+                  reltypeview.deleted = deletedFlag;
+                  const gqlReltypeView = new gql.gqlRelshipTypeView(reltypeview);
+                  modifiedTypeViews.push(gqlReltypeView);
+                  if (debug) console.log('381 modifiedTypeViews', modifiedTypeViews);
+              }
             }
-          })
-        );
-        break;
+          }
+          if (data.class === "goObjectNode" || 'i'  || 'n' ) {
+            const myNode = this.getNode(context.myGoModel, key);
+            if (myNode) {
+              if (debug) console.log('440 delete node', myNode);
+              uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
+              if (debug) console.log('390 modifiedNodes', modifiedNodes);
+              if (debug) console.log('391 modifiedObjects', modifiedObjects);
+              if (debug) console.log('392 modifiedTypeViews', modifiedTypeViews);
+              if (debug) console.log('393 modifiedLinks', modifiedLinks);
+              if (debug) console.log('394 modifiedRelships', modifiedRelships);
+              if (debug) console.log('447 myGoModel', context.myGoModel);
+            }
+          }
+          if (data.class === "goRelshipLink" || 'i' ) {
+            const myLink = this.getLink(context.myGoModel, key);
+            if (debug) console.log('396 SelectionDeleted', myLink);
+            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
+            const relview = data.relshipview;
+            if (relview) {
+              relview.deleted = deletedFlag;
+              relview.relship = myMetis.findRelationship(relview.relship.id);
+              const gqlRelview = new gql.gqlRelshipView(relview);
+              modifiedLinks.push(gqlRelview);
+              if (debug) console.log('403 SelectionDeleted', modifiedLinks);
+              const relship = relview.relship;
+              relship.deleted = deletedFlag;
+              const gqlRel = new gql.gqlRelationship(relship);
+              modifiedRelships.push(gqlRel);
+              if (debug) console.log('408 SelectionDeleted', modifiedRelships);
+            }
+          }
+        }
       }
         break;
       case 'ExternalObjectsDropped': {
-        const nodes = e.subject;
-        this.setState(
-          produce((draft: AppState) => {
-            const nn = nodes.first();
-            const part = nodes.first().data;
-            console.log('382 GoJSApp', part);
+        e.subject.each(function(node) {
+          const part = node.data;
+          if (debug) console.log('511 part', part);
+            if (debug) console.log('512 myMetis', myMetis);
+            if (debug) console.log('513 myGoModel', myGoModel, myGoMetamodel);
             if (part.type === 'objecttype') {
-              // if (part.viewkind === 'Object') {
-              //     part.typename = constants.types.OBJECTTYPE_NAME;
-              // } else {
-              //     part.typename = constants.types.CONTAINERTYPE_NAME;
-              // }
-              console.log('458 myMetis', myMetis);
               const otype = uic.createObjectType(part, context);
-              // console.log('429 ExternalObjectsDropped - myMetis', myMetis);
+              // if (debug) console.log('429 ExternalObjectsDropped - myMetis', myMetis);
               if (otype) {
                 otype.typename = constants.types.OBJECTTYPE_NAME;
-                // console.log('431 ExternalObjectsDropped', otype);
+                // if (debug) console.log('431 ExternalObjectsDropped', otype);
                 const gqlObjtype = new gql.gqlObjectType(otype, true);
-                // console.log('434 modifiedTypeNodes', gqlObjtype);
+                // if (debug) console.log('434 modifiedTypeNodes', gqlObjtype);
                 modifiedTypeNodes.push(gqlObjtype);
 
                 const gqlObjtypeView = new gql.gqlObjectTypeView(otype.typeview);
-                // console.log('438 modifiedTypeViews', gqlObjtypeView);
+                // if (debug) console.log('438 modifiedTypeViews', gqlObjtypeView);
                 modifiedTypeViews.push(gqlObjtypeView);
 
                 const loc  = part.loc;
                 const size = part.size;
                 const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
                 const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
-                console.log('445 modifiedTypeGeos', gqlObjtypeGeo);
+                if (debug) console.log('445 modifiedTypeGeos', gqlObjtypeGeo);
                 modifiedTypeGeos.push(gqlObjtypeGeo);
               }
             } else // object
             {
+              if (debug) console.log('537 myModel', myModel);
               if (part.parentModel == null)
                 myMetis.pasteViewsOnly = true;
-              if (part.isGroup)
+              if (part.isGroup) {
                 part.size = "300 200";    // Hack
+                if (debug) console.log('542 part', part);
+              }
               const objview = uic.createObject(part, context);
-              console.log('391 New object', objview);
+              if (debug) console.log('545 New object', objview);
               if (objview) {
-                const myNode = myGoModel?.findNode(part.key);
-                // Check if inside a group
-                const group = uic.getGroupByLocation(myGoModel, objview.loc);
-                // console.log('405 group', group)
-                if (group) {
-                  objview.group = group.objectview?.id;
-                  if (myNode) {
-                    // console.log('399 myNode', myNode, group);
-                    myNode.group = group.key;
-                  }
-                }
-                // console.log('403 New object', myNode);
-                const gqlNode = new gql.gqlObjectView(objview);
-                modifiedNodes.push(gqlNode);
-                // console.log('406 New object', gqlNode, modifiedNodes);
+                const gqlObjview = new gql.gqlObjectView(objview);
+                modifiedNodes.push(gqlObjview);
+                if (debug) console.log('557 New object', gqlObjview, modifiedNodes);
                 const gqlObj = new gql.gqlObject(objview.object);
                 modifiedObjects.push(gqlObj);
-                // console.log('409 New object', gqlObj);
+                if (debug) console.log('560 New object', gqlObj);
               }
             }
-          })
-          )
-        }
-        break;
+            if (debug) console.log('563 myGoModel', myGoModel);
+        })
+        myDiagram.requestUpdate();
+      }
+      break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
-        // console.log('498 GoJSApp :', sel);
-        this.setState(
-          produce((draft: AppState) => {
-            if (sel) {
-              if (sel instanceof go.Node) {
-                const key = sel.data.key;
-                let text = sel.data.name;
-                const typename = sel.data.type;
+        if (debug) console.log('498 GoJSApp :', sel);
+        if (sel) {
+          if (sel instanceof go.Node) {
+            const key = sel.data.key;
+            let text = sel.data.name;
+            const typename = sel.data.type;
 
-                if (typename === 'Object type') {
-                  const myNode = this.getNode(context.myGoMetamodel, key);
-                  // console.log('449 GoJSApp', myNode.objtype);  
-                  if (myNode && myNode.objtype) {
-                    const gqlNode = new gql.gqlObjectType(myNode.objtype, true);
-                    selectedObjectTypes.push(gqlNode);
-                    // console.log('453 GoJSApp', selectedObjectTypes);
-                    } 
-                } else // object
-                {
-                  const objview = sel.data.objectview;
-                  // Do whatever you like
-                  // ..
-                  const gqlObjView = new gql.gqlObjectView(objview);
-                  selectedObjectViews.push(gqlObjView);
-                  // console.log('522 GoJSApp :', context.myGoModel);                
-                }
-              } else if (sel instanceof go.Link) {
-                const key = sel.data.key;
-                let text = sel.data.name;
-                const typename = sel.data.type;
-
-                if (typename === 'Relationship type') {
-                  const myLink = this.getLink(context.myGoMetamodel, key);
-                  // console.log('514 GoJSApp', myLink.reltype);
-                  if (myLink.reltype) {
-                    const gqlLink= new gql.gqlRelationshipType(myLink.reltype, true);
-                    selectedRelationshipTypes.push(gqlLink);
-                    // console.log('518 GoJSApp', selectedRelationshipTypes);
-                  }
-                } else // relation
-                {
-                  const relshipview = sel.data.relshipview;
-                  // Do whatever you like
-                  // ..
-                  const gqlRelshipView = new gql.gqlRelshipView(relshipview);
-                  selectedRelshipViews.push(gqlRelshipView);
-                  // console.log('527 GoJSApp :', gqlRelshipView);                
-                }
-              }
+            if (typename === 'Object type') {
+              const myNode = this.getNode(context.myGoMetamodel, key);
+              // if (debug) console.log('449 GoJSApp', myNode.objtype);  
+              if (myNode && myNode.objtype) {
+                const gqlNode = new gql.gqlObjectType(myNode.objtype, true);
+                selectedObjectTypes.push(gqlNode);
+                // if (debug) console.log('453 GoJSApp', selectedObjectTypes);
+                } 
+            } else // object
+            {
+              let objview = sel.data.objectview;
+              objview = myMetis.findObjectView(objview.id);
+              // Do whatever you like
+              // ..
+              const gqlObjView = new gql.gqlObjectView(objview);
+              selectedObjectViews.push(gqlObjView);
+              // if (debug) console.log('522 GoJSApp :', context.myGoModel);                
             }
-          })
-        )
+          } else if (sel instanceof go.Link) {
+            const key = sel.data.key;
+            let text = sel.data.name;
+            const typename = sel.data.type;
+
+            if (typename === 'Relationship type') {
+              const myLink = this.getLink(context.myGoMetamodel, key);
+              // if (debug) console.log('514 GoJSApp', myLink.reltype);
+              if (myLink.reltype) {
+                const gqlLink= new gql.gqlRelationshipType(myLink.reltype, true);
+                selectedRelationshipTypes.push(gqlLink);
+                // if (debug) console.log('518 GoJSApp', selectedRelationshipTypes);
+              }
+            } else // relation
+            {
+              let relshipview = sel.data.relshipview;
+              relshipview = myMetis.findRelationshipView(relshipview.id);
+              // Do whatever you like
+              // ..
+              const gqlRelshipView = new gql.gqlRelshipView(relshipview);
+              selectedRelshipViews.push(gqlRelshipView);
+              // if (debug) console.log('527 GoJSApp :', gqlRelshipView);                
+            }
+          }
+        }
       }
-        break;
+      break;
       case "PartResized": {
-        const sel = e.subject.part.data;
-        // console.log('439 PartResized', sel);
-        this.setState(
-          produce((draft: AppState) => {
-            uic.changeNodeSizeAndPos(sel, myGoModel, modifiedNodes);
-          })
-        )
+        const data = e.subject.part.data;
+        if (debug) console.log('439 PartResized', sel);
+        uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
+        const nodes = this.state.nodeDataArray;
+        for (let i=0; i<nodes.length; i++) {
+            const node = nodes[i];
+            if (node.key === data.key) {
+                node.loc = data.loc;
+                node.size = data.size;
+                break;
+            }
+        }
       }
       break;
       case 'ClipboardChanged': {
         const nodes = e.subject;
-        console.log('nodes', nodes);
-        this.setState(
-          produce((draft: AppState) => {
-          })
-        )
+        if (debug) console.log('nodes', nodes);
       }
         break;
       case 'ClipboardPasted': {
         const selection = e.subject;
         context.pasted  = true;
-        this.setState(
-          produce((draft: AppState) => {
-            const it = selection.iterator;
-            const pastedNodes = new Array();
-            while (it.next()) {
-              const selected = it.value.data;
-              // First handle the objects
-              if (selected.class === 'goObjectNode') {
-                console.log('526 ClipboardPasted', selected);
-                const node = selected;
-                const objview = uic.createObject(node, context);
-                console.log('531 ClipboardPasted', node);
-                if (objview) {
-                  pastedNodes.push(node);
-                  const gqlNode = new gql.gqlObjectView(objview);
-                  modifiedNodes.push(gqlNode);
-                  console.log('532 ClipboardPasted', modifiedNodes);
-                  const gqlObj = new gql.gqlObject(objview.object);
-                  modifiedObjects.push(gqlObj);
-                  console.log('535 ClipboardPasted', modifiedObjects);
-                }
+        if (debug) console.log('650 myGoModel', myGoModel);
+        const it = selection.iterator;
+        const pastedNodes = new Array();
+          // First handle the objects
+        while (it.next()) {
+        const node = it.value.data;
+        if (node.class === 'goObjectNode' || 'i'  || 'n' ) {
+          if (debug) console.log('654 ClipboardPasted', node, myGoModel);
+            const objview = uic.createObject(node, context);
+            if (debug) console.log('655 ClipboardPasted', node, objview);
+            if (objview) {
+              const group = uic.getGroupByLocation(myGoModel, objview.loc);
+              if (debug) console.log('662 group', group)
+              if (group && node) {
+                objview.group = group.objectview?.id;
+                node.group = group.key;
               }
+              pastedNodes.push(node);
+              const objid = objview.object?.id;
+              objview.object = myMetis.findObject(objid);
+              const gqlObjview = new gql.gqlObjectView(objview);
+              modifiedNodes.push(gqlObjview);
+              if (debug) console.log('672 ClipboardPasted', modifiedNodes);
+              const gqlObj = new gql.gqlObject(objview.object);
+              modifiedObjects.push(gqlObj);
+              if (debug) console.log('675 ClipboardPasted', modifiedObjects);
             }
-            console.log('537 ClipboardPasted', context.myGoModel);
-            const it1 = selection.iterator;
-            while (it1.next()) {
-              // Then handle the relationships
-              const selected = it1.value.data;
-              if (selected.class === 'goRelshipLink') {
-                console.log('543 ClipboardPasted', selected);
-                const link = selected;
-                const relview = uic.pasteRelationship(link, pastedNodes, context);
-                console.log('546 relview', link, relview);
-                if (relview) {
-                  const gqlRelview = new gql.gqlRelshipView(relview);
-                  console.log('549 ClipboardPasted', gqlRelview);
-                  modifiedLinks.push(gqlRelview);
-                  const gqlRelship = new gql.gqlRelationship(relview.relship);
-                  console.log('552 ClipboardPasted', gqlRelship);
-                  modifiedRelships.push(gqlRelship);
-                }
-              }
+          }
+        }
+        if (debug) console.log('681 pastedNodes', pastedNodes);
+        if (debug) console.log('679 ClipboardPasted', context.myGoModel);
+        const it1 = selection.iterator;
+        // Then handle the relationships
+        while (it1.next()) {
+          const data = it1.value.data;
+          if (data.class === 'goRelshipLink' || 'i') {
+            if (debug) console.log('685 ClipboardPasted', data);
+            let relview = uic.pasteRelationship(data, pastedNodes, context);
+            if (debug) console.log('688 relview', data, relview);
+            if (relview) {
+              const relid = relview.relship?.id;
+              relview.relship = myMetis.findRelationship(relid);
+              const gqlRelview = new gql.gqlRelshipView(relview);
+              if (debug) console.log('702 ClipboardPasted', gqlRelview);
+              modifiedLinks.push(gqlRelview);
+              const gqlRelship = new gql.gqlRelationship(relview.relship);
+              if (debug) console.log('705 ClipboardPasted', gqlRelship);
+              modifiedRelships.push(gqlRelship);
             }
-            console.log('511 ClipboardPasted', modifiedLinks, modifiedRelships);       
-          })
-        )
+          }
+        }
+        if (debug) console.log('710 ClipboardPasted', modifiedLinks, modifiedRelships);       
+        myDiagram.requestUpdate();
       }
       break;
       case 'LinkDrawn': {
         const link = e.subject;
+        if (debug) console.log('852 link', link.fromNode.key, link.toNode.key);
+        const data = link.data;
+        if (debug) console.log('854 link, data', link, data);
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        console.log('569 LinkDrawn', link.data);
-        this.setState(
-          produce((draft: AppState) => {
-            if (fromNode?.class === 'goObjectNode') {
-              const relview = uic.createRelationship(link.data, context);
-              if (relview) {
-                const gqlRelview = new gql.gqlRelshipView(relview);
-                console.log('576 LinkDrawn', link, gqlRelview);
-                modifiedLinks.push(gqlRelview);
-                const gqlRelship = new gql.gqlRelationship(relview.relship);
-                console.log('579 LinkDrawn', gqlRelship);
-                modifiedRelships.push(gqlRelship);
-              }
-            } else if (fromNode?.class === 'goObjectTypeNode') {
-              console.log('583 link', fromNode, link.data);
-              link.category = 'Relationship type';
-              link.class = 'goRelshipTypeLink';
-              const reltype = uic.createRelationshipType(link.data, context);
-              if (reltype) {
-                console.log('588 reltype', reltype);
-                const gqlType = new gql.gqlRelationshipType(reltype, true);
-                modifiedTypeLinks.push(gqlType);
-                console.log('591 gqlType', gqlType);
-                const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
-                modifiedLinkTypeViews.push(gqlTypeView);
-                console.log('594 gqlTypeView', gqlTypeView);
-              }
-            }
-          })
-        )
+        if (debug) console.log('857 myGoModel', myGoModel);
+        const myFromNode = myGoModel.findNode(fromNode?.key);
+        const myToNode = myGoModel.findNode(toNode?.key);
+        data.from = myFromNode?.key;
+        data.to = myToNode?.key;
+        if (debug) console.log('862 LinkDrawn', myFromNode, myToNode, data);
+        if (fromNode?.class === 'goObjectNode' || 'i' || 'n') {
+          const relview = uic.createRelationship(data, context);
+          if (relview) {
+            const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
+            myLink.fromNode = myFromNode;
+            myLink.toNode = myToNode;
+            if (debug) console.log('869 relview', relview, myLink);
+            relview.relship = myMetis.findRelationship(relview.relship.id);
+            const gqlRelview = new gql.gqlRelshipView(relview);
+            if (debug) console.log('872 LinkDrawn', link, gqlRelview);
+            modifiedLinks.push(gqlRelview);
+            const gqlRelship = new gql.gqlRelationship(relview.relship);
+            if (debug) console.log('875 LinkDrawn', gqlRelship);
+            modifiedRelships.push(gqlRelship);
+          }
+        } else if (fromNode?.class === 'goObjectTypeNode' || 'i') {
+          if (debug) console.log('879 link', fromNode, data);
+          link.category = 'Relationship type';
+          link.class = 'goRelshipTypeLink';
+          const reltype = uic.createRelationshipType(fromNode, toNode, data, context);
+          if (reltype) {
+            if (debug) console.log('884 reltype', reltype);
+            const gqlType = new gql.gqlRelationshipType(reltype, true);
+            modifiedTypeLinks.push(gqlType);
+            if (debug) console.log('887 gqlType', gqlType);
+            const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
+            modifiedLinkTypeViews.push(gqlTypeView);
+            if (debug) console.log('890 gqlTypeView', gqlTypeView);
+          }
+        }
+        myDiagram.requestUpdate();
       }
       break;
       case "LinkRelinked": {
+        const link = e.subject;
+        const fromNode = link.fromNode?.data;
+        const toNode = link.toNode?.data;
+        if (debug) console.log('684 LinkRelinked', link, fromNode, toNode);
         const newLink = e.subject.data;
-        console.log('644 LinkRelinked', context);
-        this.setState(
-          produce((draft: AppState) => {
-            context.modifiedLinks         = modifiedLinks;
-            context.modifiedRelships      = modifiedRelships;
-            context.modifiedTypeLinks     = modifiedTypeLinks;
-            context.modifiedLinkTypeViews = modifiedLinkTypeViews;
-            uic.onLinkRelinked(newLink, context);
-            console.log('652 LinkRelinked', modifiedLinks);
-            console.log('653 LinkRelinked', modifiedRelships);
-            console.log('654 LinkRelinked', modifiedTypeLinks);
-          })
-        )
+        context.modifiedLinks         = modifiedLinks;
+        context.modifiedRelships      = modifiedRelships;
+        context.modifiedTypeLinks     = modifiedTypeLinks;
+        context.modifiedLinkTypeViews = modifiedLinkTypeViews;
+        uic.onLinkRelinked(newLink, fromNode, toNode, context);
+        if (debug) console.log('652 LinkRelinked', modifiedLinks);
+        if (debug) console.log('653 LinkRelinked', modifiedRelships);
+        if (debug) console.log('654 LinkRelinked', modifiedTypeLinks);
+        myDiagram.requestUpdate();
       }
-        break;
+      break;
       case "BackgroundDoubleClicked": {
-        console.log('432 BackgroundDoubleClicked', e, e.diagram);
+        if (debug) console.log('432 BackgroundDoubleClicked', e, e.diagram);
         break;
       }
       default:
-        // console.log('146 GoJSApp event name: ', name);
+        // if (debug) console.log('146 GoJSApp event name: ', name);
         break;
     }
     
     // this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-    // console.log('684 gojsMetamodel', gojsMetamodel);
+    // if (debug) console.log('684 gojsMetamodel', gojsMetamodel);
     // this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
 
-    // console.log('577 modifiedNodes', modifiedNodes);
+    // if (debug) console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
-    // console.log('583 modifiedTypeNodes', modifiedTypeNodes);
+    // if (debug) console.log('583 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
     })
 
-    // console.log('589 modifiedTypeViews', modifiedTypeViews);
+    // if (debug) console.log('589 modifiedTypeViews', modifiedTypeViews);
     modifiedTypeViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
     })
 
-    // console.log('705 modifiedTypeGeos', modifiedTypeGeos);
+    // if (debug) console.log('705 modifiedTypeGeos', modifiedTypeGeos);
     modifiedTypeGeos?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
     })
 
-    // console.log('694 modifiedLinks', modifiedLinks);
+    // if (debug) console.log('694 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
 
-    // console.log('607 modifiedLinkTypes', modifiedLinkTypes);
+    // if (debug) console.log('607 modifiedLinkTypes', modifiedLinkTypes);
     modifiedTypeLinks?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
     })
 
-    // console.log('613 modifiedLinkTypeViews', modifiedLinkTypeViews);
+    // if (debug) console.log('613 modifiedLinkTypeViews', modifiedLinkTypeViews);
     modifiedLinkTypeViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
     })
 
-    // console.log('619 modifiedObjects', modifiedObjects);
+    // if (debug) console.log('619 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 
-    // console.log('544 modifiedRelships', modifiedRelships);
+    // if (debug) console.log('544 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 
-    // console.log('643 selectedObjectViews', selectedObjectViews);
+    // if (debug) console.log('643 selectedObjectViews', selectedObjectViews);
     selectedObjectViews?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
     })
-    // console.log('677 selectedRelshipViews', selectedRelshipViews);
+    // if (debug) console.log('677 selectedRelshipViews', selectedRelshipViews);
     selectedRelshipViews?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
     })
 
-    // console.log('643 selectedObjectTypes', selectedObjectTypes);
+    // if (debug) console.log('643 selectedObjectTypes', selectedObjectTypes);
     selectedObjectTypes?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
     })
-    // console.log('689 selectedRelationshipTypes', selectedRelationshipTypes);
+    // if (debug) console.log('689 selectedRelationshipTypes', selectedRelationshipTypes);
     selectedRelationshipTypes?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
@@ -780,7 +807,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
 
   public render() {
-    // console.log('360 props', this.state.nodeDataArray);
+    // if (debug) console.log('360 props', this.state.nodeDataArray);
 
     const selectedData = this.state.selectedData;
     let inspector;
@@ -793,15 +820,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         />;
       </>
     }
-    // console.log('638 GOJSApp this.state.nodeDataArray', this.state.nodeDataArray);
-    // console.log('361 this.state.linkDataArray', this.state.linkDataArray);
-    // console.log('362 this.state.myMetis', this.state.myMetis);
-    // console.log('362 this.state.myGoModel', this.state.myGoModel);
-    // console.log('558 this.context', this.context);
-    // console.log('824 dispatch', this.props.dispatch);
-    //console.log('825 dispatch', this.state.dispatch);
+    // if (debug) console.log('638 GOJSApp this.state.nodeDataArray', this.state.nodeDataArray);
+    // if (debug) console.log('361 this.state.linkDataArray', this.state.linkDataArray);
+    // if (debug) console.log('362 this.state.myMetis', this.state.myMetis);
+    // if (debug) console.log('362 this.state.myGoModel', this.state.myGoModel);
+    // if (debug) console.log('558 this.context', this.context);
+    // if (debug) console.log('824 dispatch', this.props.dispatch);
+    //if (debug) console.log('825 dispatch', this.state.dispatch);
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
-    // console.log('827 dispatch', this.state.myMetis.dispatch);
+    // if (debug) console.log('827 dispatch', this.state.myMetis.dispatch);
     return ( (this.state) &&
       <div className="diagramwrapper">
 

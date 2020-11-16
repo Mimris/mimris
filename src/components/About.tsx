@@ -51,22 +51,25 @@ const page = (props) => {
             <CardColumns>
               {/* <Card> */}
               <Card body outline color="warning">
-                <CardHeader>Aktive Knowledge Modelling</CardHeader>
+                <CardHeader>Aktive Knowledge Models</CardHeader>
                 <CardBody className="akm-intro" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
                   <CardText>
-                    Active Knowledge Modelling (AKM) is a innovative and disruptive way to capture and use enterprise knowledge from practical work with  positive effects on productivity, safety,
-                    collaboration and learning.
-                    <br />AKM has existed for more than a decade.
-                    Modern open-source web technology has now reached a maturity level that enables cost efficient large scale usage.
-                    <br /><br />The AKM novelty comes from how the relationships between roles,
-                    tasks and information is captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
-                    <br /><br />The effects from deploying AKM based solutions are many.
-                    <br /><br />Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness.
-                    I.e. supporting  design parameter balancing, and that task execution is in line with applicable regulations and policies.
-                    <br /><br />Secondly, execution of a task can create new tasks with other roles, and as such make AKM models for collaboration more transparent, effective and precise, with direct impact on safety and security.
-                    <br /><br />Integration of systems by adaptive APIs, Interaction with system repositories and databases, Interpretation of complex dependencies by Interaction with shared property objects., eg Markers.
-                </CardText>
+                  Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
+                    <br /><br />
+                      AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
+                    <br /><br />
+                      The AKM novelty comes from how relationships between roles, tasks and information are captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
+                    <br /><br />
+                      The effects from deploying AKM based solutions are many.
+                      Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. I.e. supporting design parameter balancing, and that task execution is in line with applicable regulations and policies.
+                      Secondly, task execution might create new tasks for other roles, and as such AKM makes collaboration more transparent, effective and precise, with direct impact on safety and security.
+                    <br /><br />
+                      <strong>Workspaces</strong>
+                    <br />
+                      Workspaces are composed of roles, tasks, views and information.
+                    <br /><br />
+                 </CardText>
                 </CardBody>
                 {/* </Card> */}
                 {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
@@ -74,46 +77,50 @@ const page = (props) => {
               </Card>
 
               <Card body outline color="danger">
-                <CardHeader>Information, Role, Task, View</CardHeader>
+                <CardHeader>IRTV Modelling</CardHeader>
                 <CardBody style={{ backgroundColor: '#dedede' }} className="homepage3" >
                   <CardTitle style={{ fontWeight: "bolder" }}>Workspaces</CardTitle>
                   <CardText>
-                    Workspaces are composed of roles, tasks, views and information.
+                    IRTV modelling includes the design of symbols and constructs needed to easily communicate proposed solutions and job tasks and services across roles and resources
+                    of project life-cycles.
                   </CardText>
                   <CardImg top width="90%" src="images/irtv2.png" alt="irtv figur" />
                   <CardText><br />
-                    <strong>Role</strong> defines workspaces and describes resources required to execute tasks
+                    <strong>Roles</strong> define workspaces and describes resources required to execute tasks.
                   </CardText>
                   <CardText>
-                    <strong> Tasks </strong> defines work (task patterns) and complex product and process dependencies
+                    <strong> Tasks </strong> defines work, rules (task patterns) and complex product and process dependencies.
                   </CardText>
                   <CardText>
-                    <strong>Information </strong> represents data and knowledge sources and content used.
+                    <strong>Information </strong> represents enterprise data and knowledge sources and content used.
                   </CardText>
                   <CardText>
                     <strong>View’s </strong> defines how information is presented to roles and managed to ease task (work) execution.
                   </CardText>
                   <CardText>
-                    Modelling and executing tasks extends the values and principles of product, process and organisation design.
-                    Work execution and management is improved by capturing context as well as contents in workspace models.
-                    Collaboration is enhanced by sharing views of situations and solutions.
-                    Creating fine-grained executable models and views of products, organisations, processes and systems and ICT platforms.
+                    Modelling and executing tasks extend the values and principles of product, process and organization design. 
+                    Work execution and management is improved by capturing context as well as contents in workspace models. 
+                    Collaboration is enhanced by sharing views of situations and solutions. 
+                    Creating fine-grained executable models and views of products, organizations, processes and systems and ICT platforms.
                   </CardText>
                 </CardBody>
               </Card>
               <Card body outline color="info">
                 {/* <Card style={{ width: '18rem', fontWeight: "bolder" }}> */}
-                <CardHeader>IRTV Modelling</CardHeader>
+                <CardHeader>AKM Modelling</CardHeader>
                 <CardBody className="homepage3" >
                   {/* <CardTitle>IRTV modelling</CardTitle> */}
                   <CardText>
-                    IRTV modelling includes the design of symbols and constructs needed to easily
-                    communicate proposed solutions and job tasks and services across roles and resources of project life-cycles.
-                      <CardImg top width="90%" src="images/irtv1.png" alt="irtv figur" />
-                      With IRTV we can easily model new product structures, such as self-configurable components, systems and product families.
-                      This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces.
-                      Product design, engineering and life-cycle services are currently based on composing and using these disjoint structures:
-                    </CardText>
+                  <CardImg top width="90%" src="images/irtv1.png" alt="irtv figur" />
+                  With AKM we can easily model new product structures, such as self-configurable components, systems and product families. 
+                  This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
+                  <br /><br />
+                  <strong>Product design, engineering and life-cycle services</strong> are currently based on modelling and using these disjoint structures:
+                    <br />- <strong>Product structures:</strong> - functions, components, systems configurations, production and operations, and repair,
+                    <br />- <strong>Organizational hierarchies</strong>, domain teams and discipline groups, and composed project teams,
+                    <br />-  <strong>Processes flows:</strong> -activity-decomposed tasks, BPM delivery flows, IDEF0 patterns, work-patterns (eg. swimlanes),
+                    <br />- <strong>Systems</strong>; - functions, components, modules, systems configurations
+                </CardText>
                 </CardBody>
               </Card>
             </CardColumns>
@@ -121,49 +128,47 @@ const page = (props) => {
               <CardBody className="homepage1" >
                 <CardTitle style={{ fontWeight: "bolder" }}>Knowledge Management</CardTitle>
                 <CardText>
-                  Knowledge management as a science and industrial disciplines go decades back in time. The challenge is manifold; - the capture and modelling of knowledge,
-                  the sharing and use of knowledge in future work and projects. Enterprises that implement effective knowledge management will have huge advantages over competitors.
+                  Knowledge management as a science and industrial discipline go decades back in time. 
+                  The challenge is manifold; - the capture and modelling of knowledge, the validity of modelled knowledge, and the sharing and use of knowledge in future work and projects. 
+                  Enterprises that implement effective knowledge management will have huge advantages over competitors. 
                   Benefits include enhanced safety in operations, design of more effective and less vulnerable work processes and more effective collaboration between resources assigned to roles.
-                  </CardText>
+                </CardText>
               </CardBody>
               <CardBody className="hompage3">
                 <CardTitle style={{ fontWeight: "bolder" }}>Product design, engineering and life-cycle services </CardTitle>
                 <CardText>
-                  Functions for control of capabilities and properties.
-                  Components for controlling shape and features.
-                  Part structures for engineering  parameter control.
-                  Manufacturing structures for adaptation to the machining.
-                  Assembly structures for controlling the assemblying of parts.
-                    </CardText>
+                  These capabilities provide functions for control of outcomes and properties. 
+                  Components for controlling shape and features. 
+                  Part structures for engineering parameter control. 
+                  Manufacturing structures for adaptation to the machining. 
+                  Assembly structures for controlling the composition of parts.
+                </CardText>
               </CardBody>
-
               <CardBody className="hompage3">
                 <CardTitle style={{ fontWeight: "bolder" }}>Organizational composition and control</CardTitle>
                 <CardText>
-                  are currently dominated by hierarchies, but hierarchies are for resource and time calculations and reporting,
-                  and do not support knowledge sharing and learning. We need to design and manage practical resources in role-specific teams, composed of humans, intelligent agents and smart machines.
-                    </CardText>
+                  are currently dominated by hierarchies, but hierrchies are for resource and time calculations and reporting, and do not support knowledge sharing and learning. 
+                  We need to design and manage practical resources ain role-specific teams, composed of humans, intelligent agents and smart machines.
+                </CardText>
               </CardBody>
 
               <CardBody className="hompage4">
                 <CardTitle style={{ fontWeight: "bolder" }}>System design, building and operation</CardTitle>
                 <CardText>
-                  System design, building and operation are currently performed in isolated expert silos, that are not able to support early design,
-                  nor role-oriented emergent teams and their practical workspaces.
-                  Integration of systems by adaptive APIs, Interaction with system repositories and databases, Interpretation of complex dependencies by Interaction with shared property objects., eg Markers.
-                  </CardText>
+                  System design, building and operation are currently performed in isolated expert silos,
+                  that are not able to support early design, nor role-oriented emergent teams and their practical workspaces
+                </CardText>
               </CardBody>
               <CardBody>
                 <CardTitle style={{ fontWeight: "bolder" }}>Process design, engineering and execution</CardTitle>
                 <CardText>
                   are currently based on:
-                    <br />- Activity decomposition and disjoint flows – business and project.
-                    <br />- Jobs are defined by tasks needed, no context is captured.
-                    <br />- Separate progress reporting and communication from processes.
-                    <br />- No balancing of parameters and valuesacross disciplines and roles.
-                    <br />- No capture of practical dependencies and settings.
-                    <br />- Early phase design of workspaces driven by values and  properties, providing bottom up tasks and parameter views, and rich contexts.
-                  </CardText>
+                  <br />- Activity decomposition and disjoint flows – business and project
+                  <br />- Jobs are defined by tasks needed, no context is captured
+                  <br />- Separate progress reporting and communication from processes
+                  <br />- No balancing of parameters and values across disciplines and roles
+                  <br />- No capture of practical dependencies and settings.
+                </CardText>
               </CardBody>
               <Link href="/">
                 <Button color="light"></Button>
@@ -178,11 +183,12 @@ const page = (props) => {
               <CardBody className="hompage4">
                 <CardText>
                   AKM is used to create Visual Collaboration Arena (VCA) that provide role-holder’s with contextualized workspaces and workplaces.
-                    <br />Workspaces captures the dynamic interdependencies between roles, tasks, views and information.
-                    <br />Workplaces is the instantiation of a workspace for a specific type of end user, supporting end user equipment for workspace interaction.
-                    <br />Role holders can be humans or software agents (bots) or a combination of the two that are accountable for the execution of tasks in line with the rules that apply for the task.
-                    <br /><br />The VCA can be understood as an “intelligent agent” that runs tasks observing an environment and execute actions to change the environment.
-                    <br />The environment will be a digital representation of the enterprise aka its digital twin.
+                  <br />Workspaces captures the dynamic interdependencies between roles, tasks, views and information.
+                  <br />Workplaces is the instantiation of a workspace for a specific end user, supporting end user capabilities and data for workspace interaction.
+                  <br />Role holders can be humans or software agents (bots) or a combination of the two that are accountable for the execution of tasks in line with the rules that apply for the task.
+                  <br />
+                  <br />The VCA can be understood as an “intelligent agent” that runs tasks capturing work environments and execute actions to enhance the environments.
+                  <br />The environments will be a digital representation of the knowledge architectures including digital twins and alternative solutions.
                 </CardText>
                 <Link href="/">
                   <Button color="light"></Button>

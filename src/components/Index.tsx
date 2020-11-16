@@ -28,7 +28,6 @@ const page = (props) => {
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
 
   let gojsmodel = state.phFocus?.gojsModel
-
   // useEffect(() => {
   //   // console.log('39', gojsmodel);
   //   genGojsModel(state, dispatch)
@@ -42,14 +41,46 @@ const page = (props) => {
           <div>
             <CardColumns>
               <Card className="card bg-secondary p-0 mb-2" >
-                <CardBody className="homepage2 p-1" style={{backgroundColor: "#cef"}}>
+                <CardBody className="homepage2 p-1" style={{backgroundColor: "#fa0"}}>
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
-                              <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
-                  <CardText className="bg-light p-3">
-                    Select Modelling in the top menu 
-                    (An initial template model is loaded)
-                    <br /><br />Click the Save/Load Model button (upper right) to Load models from repository or LocalStore.
-                    <br /><br />For help: Click "Task / Help" bar to the left!
+                  <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
+                  <CardText className="bg-light text-danger p-3" >
+                    <strong>Select Modelling in the top menu </strong><br />
+                    (An initial example template model is loaded)
+                    <br /><br /><strong>Click the "Local" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the LocalStore.
+                    <br /><br /><strong>Click the "Server" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the Server Repository.
+                    <br /><br /><strong>For help: Click "Task / Help" bar to the left!</strong> <span className="text-secondary" >(Not fully implemented yet !!!)</span>
+                    {/* <br /><br />
+                    <br /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
+                    <br /><br />Start modelling by select "Modelling" in the main menu above.  */}
+                  </CardText>
+                </CardBody>
+              </Card>
+              <Card className="card bg-light p-0 mb-2" >
+                <CardBody className="homepage2 p-1" style={{backgroundColor: "#fd0"}}>
+                  {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
+                  <CardTitle style={{ fontWeight: "bolder" }}>Tips !</CardTitle>
+                  <CardText className="bg-light text-info  p-3" >
+                    <strong><strong>Save current model to a file: <br />
+                    <br />Click on the "Local" button </strong>
+                    <br />Select "Download Current Model to File". </strong>
+                    <br />... the model is downloaded to the "downloads" folder. 
+                    <br /><br />
+                    <strong><strong>In case of hang or crash </strong></strong><br />
+                    <strong> 
+                      - Reload the webpage! ...then before anything else:<br />
+                      - Select "Recover Unseaved Models from MemoryStorage". </strong>
+  
+                    <br /><br /><strong> </strong>
+                    {/* <strong>Save current models to a file: <br />(Requirement:</strong> Chrome browser with RemoteDev DevTools Extensions installed) 
+                    
+                    <br /><br /><strong>Right click the meny bar at the top </strong>
+                    <br />Select "Inpect" (a ).
+                    <br /><br /><strong>Click "Export" at the bottom meny) </strong>
+                    <br />... the Redux store (incl. all actions) will be exported and downloaded to "downloads" folder. 
+                    <br /> (Tip: Rename the file to include date and move/copy it to a folder to keep history of your model).
+                    <br />(The file can be loaded later or sent by email to someone for review) */}
+
                   </CardText>
                 </CardBody>
               </Card>
@@ -57,14 +88,14 @@ const page = (props) => {
                 <Card className="card bg-secondary p-0 mb-2" >
                   <CardBody id="lighten" className="homepage2 bg-secondary p-1" >
                     <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
-                                {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
-                    <CardText className="bg-light p-3">
-                      
-                    AKM Modeller is the tool for building Aktive Knowledge Models, a modelling tool with integrated Modelling and Metamodelling capabilities.
-                    <br /><br />(Not working on Heroku yet!)
-                    <br /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
-                    <br /><br />Start modelling by select "Metamodelling" or "Modelling" in the main menu above. <br />You can also access it from the help menu to the left.
-                    (The task menu can be minimized by clickin on the &lt; -sign)
+                    {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
+                    <CardText className="bg-light p-3">          
+                    AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
+                      <br /><br />
+                    With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
+
+
+The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
                     </CardText>
                   </CardBody>
                 </Card>
@@ -73,9 +104,19 @@ const page = (props) => {
                   <CardBody className="akm-intro" >
                     {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
                     <CardText>
-                      Active Knowledge Modelling (AKM) is a innovative and disruptive way to capture and use enterprise knowledge from practical work with  positive effects on productivity, safety,
-                      collaboration and learning. (more in the About page ....)
-                    
+                      Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
+                      AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
+                      <br /><br />
+                      The AKM novelty comes from how relationships between roles, tasks and information are captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
+                      <br /><br />
+                      The effects from deploying AKM based solutions are many.
+                      Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. I.e. supporting design parameter balancing, and that task execution is in line with applicable regulations and policies.
+                      Secondly, task execution might create new tasks for other roles, and as such AKM makes collaboration more transparent, effective and precise, with direct impact on safety and security.
+                      <br /><br />
+                      <br /><br />
+                      (more in the About page ....)
+                      <br /><br />
+                      {/* <a href='On AKM modelling (7).html'>Paper: On AKM Modelling</a> */}                
                     </CardText>
                   </CardBody>
                   {/* </Card> */}
@@ -83,24 +124,58 @@ const page = (props) => {
                   {/* <Card> */}
                 </Card>
      
-                <Card className="bg-warning" body outline color="primary" >
-                  <CardHeader>Blog </CardHeader>
+                <Card className="bg-info" body outline color="primary" >
+                  <CardHeader>Blog AKMM releases </CardHeader>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.06 06</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
                     <CardText>
-                    1st version of AKMM awailable on Heroku! sf  
+                      akmclient-beta.herokuapp.com
+                       <br /> <br /> - Bugfixes  
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.06.09</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
                     <CardText>
-                      2st version of AKMM with Metamodellin on Heroku! sf  
+                    akmclient-beta.herokuapp.com
+                    <br /><br />Bugfix and new features:
+                       <br /> - added Tables in top menu. 
+                       <br /> - faster response when modelling <br />(not neccessary to refresh so often)
+                       
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Beta Release 2020.06.11</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
                     <CardText>
-                      1st version of AKMM with Metamodellin on  akmclient-beta.heroku.com! sf  
+                      akmclient-beta.herokuapp.com
+                      <br /><br />Bugfix and added download upload of models from file.  
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
+                    <CardText>
+                      akmclient-beta.herokuapp.com
+                      <br /><br />4th test version!
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.11</CardTitle>
+                    <CardText>
+                      akmclient-beta.herokuapp.com
+                      <br /><br />3rd test version!
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
+                    <CardText>
+                      akmclient-beta.herokuapp.com
+                      <br /><br />2nd test version!
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
+                    <CardText>
+                      akmclient-beta.herokuapp.com
+                      <br /><br />1st test version of AKMM awailable on Heroku! 
                     </CardText>
                   </CardBody>
                 </Card>

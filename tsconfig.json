@@ -1,63 +1,23 @@
-
 {
   "compilerOptions": {
-    "outDir": "./dist",
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
-    "alwaysStrict": true,
-    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "lib": ["dom", "es2017", "esnext", "dom.iterable"],
+    "noEmit": true,
+    "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "node",
-    "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "noImplicitAny": false,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "target": "esnext"
+    "isolatedModules": true,
+    "jsx": "preserve"
   },
   "exclude": ["node_modules", "../Server"],
   "include": ["**/*.ts", "**/*.tsx"]
 }
-
-
-
-
-
-// {
-//   "compilerOptions": {
-//     "module": "esnext",
-//     "target": "es6",
-//     "noImplicitAny": true,
-//     "outDir": "./dist",
-//     "sourceMap": true,
-//     "listEmittedFiles": true,
-//     "lib": [
-//       "dom",
-//       "dom.iterable",
-//       "esnext"
-//     ],
-//     "allowJs": true,
-//     "skipLibCheck": true,
-//     "strict": false,
-//     "forceConsistentCasingInFileNames": true,
-//     "noEmit": false,
-//     "esModuleInterop": true,
-//     "moduleResolution": "node",
-//     "resolveJsonModule": true,
-//     "isolatedModules": true,
-//     "jsx": "react"
-//   },
-//   "include": [
-//     "pages/*",
-//     "components/*"
-//   ],
-//   "exclude": [
-//     "node_modules"
-//   ]
-// }

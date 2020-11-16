@@ -262,10 +262,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Change Object type",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
-              /* if (debug) */console.log('273 node', node);
+              if (debug) console.log('273 node', node);
               const myMetamodel = myMetis.currentMetamodel;
               const objtypes = myMetamodel.getObjectTypes();
-              /* if (debug) */console.log('275 Set object type', objtypes);
+              if (debug) console.log('275 Set object type', objtypes);
               let defText  = "";
               if (objtypes) {
                   node.choices = [];
@@ -288,7 +288,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "dispatch":     e.diagram.dispatch
               }
               const objview = uic.setObjectType(node, objtype, context);
-              /* if (debug) */console.log('292 objview', objview);
+              if (debug) console.log('292 objview', objview);
               const gqlObjview = new gql.gqlObjectView(objview);
               const modifiedObjectViews = new Array();
               modifiedObjectViews.push(gqlObjview);
@@ -717,7 +717,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   }
               }
 
-              console.log('726 ', link, customSelectBox.value);             
+              if (debug) console.log('726 ', link, customSelectBox.value);             
               let reltype = customSelectBox.value; //sf prompt does not work in cloud
               // let reltype = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
 

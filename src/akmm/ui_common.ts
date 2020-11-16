@@ -21,15 +21,15 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        /* if (debug) */console.log('24 createObject', myModel.pasteViewsOnly, data);
+        if (debug) console.log('24 createObject', myModel.pasteViewsOnly, data);
         //data.objectview_0 = data.objectview;
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
-        /* if (debug) */console.log('30 createObject', myMetis, data);
+        if (debug) console.log('30 createObject', myMetis, data);
         let obj = data.object;
-        /* if (debug) */console.log('35 createObject', obj);
+        if (debug) console.log('35 createObject', obj);
         if (myModel.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
             if (!pastedobj) {
@@ -43,7 +43,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             let guid = obj.id;
             obj = new akm.cxObject(utils.createGuid(), data.name, objtype, data.description);
         }
-        /* if (debug) */console.log('49 createObject', obj, myMetis);
+        if (debug) console.log('49 createObject', obj, myMetis);
         if (obj) {
             if (!myModel.pasteViewsOnly) {
                 obj.objectviews = null;
@@ -100,7 +100,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     }
                     if (debug) console.log('99 group', group, objview);
                     myGoModel.addNode(node);
-                    /* if (debug) */console.log('101 createObject', myGoModel, myModel);
+                    if (debug) console.log('101 createObject', myGoModel, myModel);
                     return objview;
                 }
             }
@@ -401,16 +401,16 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             }
             myGoModel.nodes = nodes;
         }
-        /* if (debug) */console.log('398 myGoModel', myGoModel);
+        if (debug) console.log('398 myGoModel', myGoModel);
         let node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
-        /* if (debug) */console.log('400 delete node', node);
+        if (debug) console.log('400 delete node', node);
         if (node) {
             node.deleted = deletedFlag;
             const objview = node.objectview;
             objview.deleted = deletedFlag;
             const delNode = new gql.gqlObjectView(objview);
             deletedNodes.push(delNode);
-            /* if (debug) */console.log('408 delete objview', objview);
+            if (debug) console.log('408 delete objview', objview);
             // Handle deleteViewsOnly
             if (myMetis.currentModel.deleteViewsOnly) {
                 return;
@@ -422,11 +422,11 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                 object.deleted = deletedFlag;          
                 const gqlObj = new gql.gqlObject(object);
                 deletedObjects.push(gqlObj);   
-                /* if (debug) */console.log('419 delete object', object);
+                if (debug) console.log('419 delete object', object);
             }         
             // Then handle all object views of the deleted object
             const objviews = object?.objectviews;
-            /* if (debug) */console.log('423 delete objviews', objviews);
+            if (debug) console.log('423 delete objviews', objviews);
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
                 if (objview) {
@@ -440,12 +440,12 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                 }
             }
             let connectedRels = object?.inputrels;
-            /* if (debug) */console.log('434 inputrels', connectedRels);
+            if (debug) console.log('434 inputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
                     rel.deleted = deletedFlag;
-                    /* if (debug) */console.log('439 delete relship', rel);
+                    if (debug) console.log('439 delete relship', rel);
                     const relviews = rel.relshipviews;
                     if (debug) console.log('441 input relviews', relviews);
                         for (let i=0; i<relviews?.length; i++) {
@@ -464,17 +464,17 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                     }
                     const gqlRel = new gql.gqlRelationship(rel);
                     deletedRelships.push(gqlRel);
-                    /* if (debug) */console.log('455 delete rel', rel);
+                    if (debug) console.log('455 delete rel', rel);
                 }
             }
             connectedRels = object?.outputrels;
-            /* if (debug) */console.log('459 outputrels', connectedRels);
+            if (debug) console.log('459 outputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
                     rel.deleted = deletedFlag;
                     const relviews = rel.relshipviews;
-                    /* if (debug) */console.log('465 outputrelviews', relviews);
+                    if (debug) console.log('465 outputrelviews', relviews);
                     for (let i=0; i<relviews?.length; i++) {
                         const relview = relviews[0];
                         if (relview) {
@@ -483,12 +483,12 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
                             relview.deleted = deletedFlag;
                             const gqlRelview = new gql.gqlRelshipView(relview);
                             deletedLinks.push(gqlRelview);
-                            /* if (debug) */console.log('474 delete relview', relview);
+                            if (debug) console.log('474 delete relview', relview);
                         }
                     }
                     const gqlRel = new gql.gqlRelationship(rel);
                     deletedRelships.push(gqlRel);
-                    /* if (debug) */console.log('479 delete rel', rel);
+                    if (debug) console.log('479 delete rel', rel);
                 }
             }
         }
@@ -919,11 +919,11 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myModel   = context.myModel;
     const myModelView = myMetis.currentModelview;
     const pasteViewsOnly = myMetis.currentModel.pasteViewsOnly;
-    /* if (debug) */console.log('910 pasteViewsOnly', pasteViewsOnly);
+    if (debug) console.log('910 pasteViewsOnly', pasteViewsOnly);
     if (debug) console.log('911 myMetis', myMetis, myGoModel);
     //const relshipname = data.name;
     //data.key = utils.createGuid();
-    /* if (debug) */console.log('914 pasteRelationship', data, nodes);
+    if (debug) console.log('914 pasteRelationship', data, nodes);
     // Relationship type must exist
     let reltype = data.relship.type;
     if (reltype) 
@@ -975,7 +975,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     } else {
         relship = myMetis.findRelationship(relship.id);
     }
-    /* if (debug) */console.log('964 relationship', relship);
+    if (debug) console.log('964 relationship', relship);
     const relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
     if (relshipview) {
         relshipview.setTypeView(typeview);              // Uses same typeview as from relview
@@ -985,8 +985,8 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         myModelView.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
     }
-    /* if (debug) */console.log('974 relshipview', relshipview);
-    /* if (debug) */console.log('975 myModel', myModel);
+    if (debug) console.log('974 relshipview', relshipview);
+    if (debug) console.log('975 myModel', myModel);
     myDiagram.requestUpdate();
     return relshipview; 
 }

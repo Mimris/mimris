@@ -437,14 +437,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.class === "goObjectNode" || 'i'  || 'n' ) {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
-              /* if (debug) */console.log('440 delete node', myNode);
+              if (debug) console.log('440 delete node', myNode);
               uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
-              /* if (debug) */console.log('390 modifiedNodes', modifiedNodes);
-              /* if (debug) */console.log('391 modifiedObjects', modifiedObjects);
-              /* if (debug) */console.log('392 modifiedTypeViews', modifiedTypeViews);
-              /* if (debug) */console.log('393 modifiedLinks', modifiedLinks);
-              /* if (debug) */console.log('394 modifiedRelships', modifiedRelships);
-              /* if (debug) */console.log('447 myGoModel', context.myGoModel);
+              if (debug) console.log('390 modifiedNodes', modifiedNodes);
+              if (debug) console.log('391 modifiedObjects', modifiedObjects);
+              if (debug) console.log('392 modifiedTypeViews', modifiedTypeViews);
+              if (debug) console.log('393 modifiedLinks', modifiedLinks);
+              if (debug) console.log('394 modifiedRelships', modifiedRelships);
+              if (debug) console.log('447 myGoModel', context.myGoModel);
             }
           }
           if (data.class === "goRelshipLink" || 'i' ) {
@@ -606,7 +606,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (node.class === 'goObjectNode' || 'i'  || 'n' ) {
           if (debug) console.log('654 ClipboardPasted', node, myGoModel);
             const objview = uic.createObject(node, context);
-            /* if (debug) */console.log('655 ClipboardPasted', node, objview);
+            if (debug) console.log('655 ClipboardPasted', node, objview);
             if (objview) {
               const group = uic.getGroupByLocation(myGoModel, objview.loc);
               if (debug) console.log('662 group', group)
@@ -619,7 +619,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview.object = myMetis.findObject(objid);
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
-              /* if (debug) */console.log('672 ClipboardPasted', modifiedNodes);
+              if (debug) console.log('672 ClipboardPasted', modifiedNodes);
               const gqlObj = new gql.gqlObject(objview.object);
               modifiedObjects.push(gqlObj);
               if (debug) console.log('675 ClipboardPasted', modifiedObjects);

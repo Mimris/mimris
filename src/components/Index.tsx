@@ -125,44 +125,57 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
                 </Card>
      
                 <Card className="bg-info" body outline color="primary" >
-                  <CardHeader>Blog </CardHeader>
+                  <CardHeader>Blog AKMM releases </CardHeader>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
+                    <CardText>
+                      akmclient-beta.heroku.com
+                       <br /> <br /> - Bugfixes  
+                    </CardText>
+                  </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
                     <CardText>
-                       Bugfix and new features:
+                    akmclient-beta.heroku.com
+                    <br /><br />Bugfix and new features:
                        <br /> - added Tables in top menu. 
                        <br /> - faster response when modelling <br />(not neccessary to refresh so often)
-                       <br /> <br /> - AKMM on akmclient-beta.heroku.com! sf  
+                       
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
                     <CardText>
-                      Bugfix and added download upload of models from file. AKMM on akmclient-beta.heroku.com! sf  
+                      akmclient-beta.heroku.com
+                      <br /><br />Bugfix and added download upload of models from file.  
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
                     <CardText>
-                      1st working version of AKMM on akmclient-beta.heroku.com! sf  
+                      akmclient-beta.heroku.com
+                      <br /><br />4th test version!
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.11</CardTitle>
                     <CardText>
-                      3rd test version of AKMM on akmclient-beta.heroku.com! sf  
+                      akmclient-beta.heroku.com
+                      <br /><br />3rd test version!
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
                     <CardText>
-                      2nd version of AKMM on Heroku! sf  
+                      akmclient-beta.heroku.com
+                      <br /><br />2nd test version!
                     </CardText>
                   </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
                     <CardText>
-                      1st version of AKMM awailable on Heroku! sf  
+                      akmclient-beta.heroku.com
+                      <br /><br />1st test version of AKMM awailable on Heroku! 
                     </CardText>
                   </CardBody>
                 </Card>

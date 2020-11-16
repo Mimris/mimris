@@ -11,6 +11,7 @@ import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 
 const LoadLocal = (props: any) => {
+  
   const debug = false
   const dispatch = useDispatch()  
   const refresh = props.refresh
@@ -21,24 +22,12 @@ const LoadLocal = (props: any) => {
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
   if (debug) console.log('20 LoadLocal',  modelNames, metamodelNames);
   
-  // try {  
-  //   if (typeof window === 'undefined'){
-  //     console.log('14', props);
-  //     return <></>
-  //   }
-  // } catch (error) {
-  //   console.log('18 LoadLocal error', error);
-  //   return <> </>
-  // }
-
-  // const [state, setState] = useLocalStorage('state',  window.localStorage.getItem('state') || null);
   if (typeof window === 'undefined') return
   const [locState, setLocState] = useLocalStorage('state', null);
   const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false
   // let memoryStatus = false
 
-  
   function handleDispatchToStoreFromLocal() {  // load store from Local
     locStatus = true
 
@@ -158,7 +147,9 @@ const LoadLocal = (props: any) => {
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-  
+
+  // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+
   const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mb-2 w-100" onClick={handleDispatchToStoreFromLocal} > Load all models from LocalStorage </button >
   const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
@@ -167,7 +158,9 @@ const LoadLocal = (props: any) => {
   const buttonSaveMetamodelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveMetamodelToFile} > Save Current Metamodel to File (Downloads)</button >
 
   const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
+  console.log('172', buttonLabel);
   
+
   return (
     <>
       <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>

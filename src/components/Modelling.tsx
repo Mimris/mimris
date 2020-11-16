@@ -374,8 +374,8 @@ const page = (props:any) => {
     )      
 
   // if (debug) console.log('173 Modelling', activeTab);
-  const loadserver = <LoadServer buttonLabel='Server' className='ContextModal' ph={props} phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh}/> 
-  const loadlocal =  (process.browser) && <LoadLocal buttonLabel='Local' className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh}/> 
+  const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh} /> 
+  const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
   
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
@@ -385,7 +385,7 @@ const page = (props:any) => {
   const EditFocusModelRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // if (debug) console.log('177 Modelling', EditFocusModelDiv);
-  
+
   return (
     <>
       <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
@@ -396,7 +396,8 @@ const page = (props:any) => {
               Current source: {props.phSource}
           </span> 
           <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-            {loadserver} {loadlocal}  
+            {loadserver} 
+            {loadlocal}  
           </span> 
           <span className="editfocus float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}

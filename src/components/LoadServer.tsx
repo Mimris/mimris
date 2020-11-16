@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-snocheck
 import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { useSelector, useDispatch } from 'react-redux'
@@ -55,17 +55,9 @@ const SelectSource = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id) // || models[0]
   const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
-
-  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save current to Server</button >
-  // const buttonSaveModelStoreDiv = <button className="btn-light btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save to Server (not working yet)</button >
-  const buttonLoadModelStoreDiv = <button className="btn-link btn-sm mr-2" onClick={handleLoadModelStore} > Load from Server </button >
   
-  const { buttonLabel, className } = props;
-  const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
+  // console.log('42 LoadServer', selmodels, selmodelviews);
   
-// console.log('42 LoadServer', selmodels, selmodelviews);
-
   const frameId = 'myFrame'
   // let iframe = {}
   // console.log('67 LoadServer', selmodels, selmodelviews);
@@ -73,11 +65,19 @@ const SelectSource = (props: any) => {
   // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
   const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels) &&
   // const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels && selmodelviews) &&
-    <div className="modeller-selection p-2 " >
+  <div className="modeller-selection p-2 " >
       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
     </div> 
   // console.log('75 selectorDiv', selectorDiv);
+  
+  const { buttonLabel, className } = props;
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
+  
+  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save current to Server</button >
+  const buttonLoadModelStoreDiv = <button className="btn-link btn-sm mr-2" onClick={handleLoadModelStore} > Load from Server </button >
+    
   const buttonDiv = 
       <>
         <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
@@ -86,22 +86,23 @@ const SelectSource = (props: any) => {
           <div className="select px-2" style={{ paddingTop: "4px" }}>
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
-          <p> Server access  (wait for the json-file to appear below) : </p>
-          {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
-          <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe>
-          {/* {GetStoreFromHtml} */}
-          {/* <IframeHelper /> */}
-          {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
-          {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
+            <p> Server access  (wait for the json-file to appear below) : </p>
+            {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+            <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe>
+            {/* {GetStoreFromHtml} */}
+            {/* <IframeHelper /> */}
+            {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
+            {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>
           {selectorDiv}
         </div>
       </>
 
-
+console.log('101', buttonLabel);
   return (
     <>
-      <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+      <span><button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button> </span>
+ 
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">

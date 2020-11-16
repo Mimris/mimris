@@ -158,7 +158,7 @@ const LoadLocal = (props: any) => {
   const buttonSaveMetamodelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveMetamodelToFile} > Save Current Metamodel to File (Downloads)</button >
 
   const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
-  console.log('172', buttonLabel);
+  if (debug) console.log('172', buttonLabel);
   
 
   return (

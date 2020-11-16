@@ -103,8 +103,8 @@ const Palette = (props) => {
     
    const palette =
       <> 
-        <button className="btn-sm p-0 mr-2 pt-2" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
-          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette - Metamodel</span> : <span>&gt;</span>} 
+        <button className="btn-sm p-0 pr-2 mr-2 pt-2" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette - Metamodel </span> : <span>&gt;</span>} 
         </button>
 
         <div>

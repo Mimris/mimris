@@ -88,7 +88,7 @@ const page = (props:any) => {
         setRefresh(!refresh)
       }
       setTimeout(refres, 1);
-    }, [props.phFocus.focusRefresh.id])
+    }, [props.phFocus.focusRefresh?.id])
 
     useEffect(() => {
       if (debug) console.log('85 Modelling useEffect 4', props); 

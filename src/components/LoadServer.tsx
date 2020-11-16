@@ -8,6 +8,7 @@ import Selector from './utils/Selector'
 import SaveModelData from './utils/SaveModelData'
 // import GetStoreFromHtml from './utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
+const debug = false
 
 const SelectSource = (props: any) => {
   // console.log('12 LoadServer', props);
@@ -98,7 +99,8 @@ const SelectSource = (props: any) => {
         </div>
       </>
 
-console.log('101', buttonLabel);
+  if (debug) console.log('101', buttonLabel);
+
   return (
     <>
       <span><button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button> </span>

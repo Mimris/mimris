@@ -717,9 +717,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   }
               }
 
-              if (debug) console.log('726 ', link, customSelectBox.value);             
-              let reltype = customSelectBox.value; //sf prompt does not work in cloud
-              // let reltype = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
+              // console.log('726 ', link, customSelectBox.value);             
+              // let reltype = customSelectBox.value; //sf prompt does not work in cloud
+              let reltype = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
 
               const context = {
                 "myMetis":      myMetis,
@@ -1368,7 +1368,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
 
             new go.Binding("text", "name").makeTwoWay(),
-            //new go.Binding("text", "choices"),
+            new go.Binding("text", "choices"),
           ),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
@@ -1569,76 +1569,76 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
         );
     }
 
-    //  sf added #####################################################
-    // Create an HTMLInfo and dynamically create some HTML to show/hide
-    var customEditor = new go.HTMLInfo();
-    var customSelectBox = document.createElement("select");
+    // //  sf added #####################################################
+    // // Create an HTMLInfo and dynamically create some HTML to show/hide
+    // var customEditor = new go.HTMLInfo();
+    // var customSelectBox = document.createElement("select");
 
-    customEditor.show = function (textBlock, myDiagram, tool) {
-      if (!(textBlock instanceof go.TextBlock)) return;
+    // customEditor.show = function (textBlock, myDiagram, tool) {
+    //   if (!(textBlock instanceof go.TextBlock)) return;
 
-      // Populate the select box:
-      customSelectBox.innerHTML = "";
-      textBlock.choices = link?.choices;
-      console.log('1596 ', link?.choices);
+    //   // Populate the select box:
+    //   customSelectBox.innerHTML = "";
+    //   textBlock.choices = link?.choices;
+    //   console.log('1596 ', link?.choices);
 
-      // this sample assumes textBlock.choices is not null
-      if (!textBlock.choices) {
-        if (debug) console.log('626 customEditor - No choices');
-        textBlock.choices = ['Edit name'];
-      }
-      var list = textBlock.choices;
-      for (var i = 0; i < list?.length; i++) {
-        var op = document.createElement("option");
-        op.text = list[i];
-        op.value = list[i];
-        customSelectBox.add(op, null);
-      }
+    //   // this sample assumes textBlock.choices is not null
+    //   if (!textBlock.choices) {
+    //     if (debug) console.log('626 customEditor - No choices');
+    //     textBlock.choices = ['Edit name'];
+    //   }
+    //   var list = textBlock.choices;
+    //   for (var i = 0; i < list?.length; i++) {
+    //     var op = document.createElement("option");
+    //     op.text = list[i];
+    //     op.value = list[i];
+    //     customSelectBox.add(op, null);
+    //   }
 
-      // After the list is populated, set the value:
-      customSelectBox.value = textBlock.text;
+    //   // After the list is populated, set the value:
+    //   customSelectBox.value = textBlock.text;
 
-      // Do a few different things when a user presses a key
-      customSelectBox.addEventListener("keydown", function (e) {
-        var keynum = e.which;
-        if (debug) console.log('597 Diagram.tsx', keynum);
-        if (keynum == 13) { // Accept on Enter
-          //tool.acceptText(go.TextEditingTool.Tab);  // Hack
-          return;
-        } else if (keynum == 9) { // Accept on Tab
-          //tool.acceptText(go.TextEditingTool.Tab);
-          e.preventDefault();
-          return false;
-        } else if (keynum === 27) { // Cancel on Esc
-          tool.doCancel();
-          if (tool.diagram) tool.diagram.focus();
-        }
-      }, false);
+    //   // Do a few different things when a user presses a key
+    //   customSelectBox.addEventListener("keydown", function (e) {
+    //     var keynum = e.which;
+    //     if (debug) console.log('597 Diagram.tsx', keynum);
+    //     if (keynum == 13) { // Accept on Enter
+    //       //tool.acceptText(go.TextEditingTool.Tab);  // Hack
+    //       return;
+    //     } else if (keynum == 9) { // Accept on Tab
+    //       //tool.acceptText(go.TextEditingTool.Tab);
+    //       e.preventDefault();
+    //       return false;
+    //     } else if (keynum === 27) { // Cancel on Esc
+    //       tool.doCancel();
+    //       if (tool.diagram) tool.diagram.focus();
+    //     }
+    //   }, false);
 
-      var loc = textBlock.getDocumentPoint(go.Spot.TopLeft);
-      var pos = myDiagram.transformDocToView(loc);
-      customSelectBox.style.left = pos.x + "px";
-      customSelectBox.style.top = pos.y + "px";
-      customSelectBox.style.position = 'absolute';
-      customSelectBox.style.zIndex = '100'; // place it in front of the Diagram
+    //   var loc = textBlock.getDocumentPoint(go.Spot.TopLeft);
+    //   var pos = myDiagram.transformDocToView(loc);
+    //   customSelectBox.style.left = pos.x + "px";
+    //   customSelectBox.style.top = pos.y + "px";
+    //   customSelectBox.style.position = 'absolute';
+    //   customSelectBox.style.zIndex = '100'; // place it in front of the Diagram
 
-      myDiagram.div?.appendChild(customSelectBox);
-    }
+    //   myDiagram.div?.appendChild(customSelectBox);
+    // }
 
-    customEditor.hide = function (diagram, tool) {
-      myDiagram.div?.removeChild(customSelectBox);
-    }
+    // customEditor.hide = function (diagram, tool) {
+    //   myDiagram.div?.removeChild(customSelectBox);
+    // }
 
 
-    // This is necessary for HTMLInfo instances that are used as text editors
-    customEditor.valueFunction = function () { return customSelectBox.value; }
+    // // This is necessary for HTMLInfo instances that are used as text editors
+    // customEditor.valueFunction = function () { return customSelectBox.value; }
 
-    // // Set the HTMLInfo:
-    myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
+    // // // Set the HTMLInfo:
+    // myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
 
-    myDiagram.toolManager.hoverDelay = 400 //sf  setting the time the cursor need to be still before showing toolTip
+    // myDiagram.toolManager.hoverDelay = 400 //sf  setting the time the cursor need to be still before showing toolTip
 
-    //  sf added #####################################################
+    // //  sf added #####################################################
 
 
     // ---  Define the CONTEXT Menu -----------------

@@ -318,7 +318,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("New Typeview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              /* if (debug) */console.log('313 node', node);
+              console.log('313 node', node);
               const currentObject = myMetis.findObject(node.object.id)
               const currentObjectView =  myMetis.findObjectView(node.objectview.id);
               if (debug) console.log('316 obj and objview', currentObject, currentObjectView);
@@ -382,7 +382,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Reset Typeview", 
           function (e: any, obj: any) {
             const node = obj.part.data;
-            /* if (debug) */console.log('383 node', node);
+            console.log('383 node', node);
             const currentObject = myMetis.findObject(node.object.id)
             const currentObjectView =  myMetis.findObjectView(node.objectview.id);
             if (debug) console.log('386 obj and objview', currentObject, currentObjectView);
@@ -399,20 +399,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 }
                 node.typeview = defaultTypeview;
                 myDiagram.requestUpdate();
+                const gqlObjView = new gql.gqlObjectView(currentObjectView);
+                if (debug) console.log('397 gqlObjView', gqlObjView);
+                const modifiedObjectViews = new Array();
+                modifiedObjectViews.push(gqlObjView);
+                modifiedObjectViews.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                })              
               }
-              const gqlObjView = new gql.gqlObjectView(currentObjectView);
-              if (debug) console.log('397 gqlObjView', gqlObjView);
-              const modifiedObjectViews = new Array();
-              modifiedObjectViews.push(gqlObjView);
-              modifiedObjectViews.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              })              
             }
           },
           function (o: any) {
             const node = o.part.data;
-            /* if (debug) */console.log('413 node', node);
+            console.log('413 node', node);
             const currentObject = node.object; 
             const currentObjectView = node.objectview;
             if (currentObject && currentObjectView) {                   
@@ -792,26 +792,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                       typeview.nameId = undefined;
                       typeview.modified = true;
                       currentRelshipView.typeview = typeview;
+                      const viewdata = typeview.data;
+                      console.log('796 viewdata', typeview.data);
+                      for (let prop in typeview.data) {
+                        myDiagram.model.setDataProperty(link, prop, viewdata[prop]);
+                      }
+                      link.typeview = typeview;
+                      myDiagram.requestUpdate();
                       myMetamodel.addRelationshipTypeView(typeview);
                       myMetis.addRelationshipTypeView(typeview);
                       if (debug) console.log('712 myMetis', currentRelshipView, typeview, myMetis);
-                    }    
-                  const gqlReltypeView = new gql.gqlRelshipTypeView(typeview);
-                  if (debug) console.log('715 gqlReltypeView', gqlReltypeView);
-                  const modifiedTypeViews = new Array();
-                  modifiedTypeViews.push(gqlReltypeView);
-                  modifiedTypeViews.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-                  })
-                  const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
-                  if (debug) console.log('723 gqlRelView', gqlRelView);
-                  const modifiedRelshipViews = new Array();
-                  modifiedRelshipViews.push(gqlRelView);
-                  modifiedRelshipViews.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                  })                
+
+                      const gqlReltypeView = new gql.gqlRelshipTypeView(typeview);
+                      if (debug) console.log('715 gqlReltypeView', gqlReltypeView);
+                      const modifiedTypeViews = new Array();
+                      modifiedTypeViews.push(gqlReltypeView);
+                      modifiedTypeViews.map(mn => {
+                        let data = mn;
+                        e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+                      })
+
+                      const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
+                      if (debug) console.log('723 gqlRelView', gqlRelView);
+                      const modifiedRelshipViews = new Array();
+                      modifiedRelshipViews.push(gqlRelView);
+                      modifiedRelshipViews.map(mn => {
+                        let data = mn;
+                        e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                      })  
+                  }              
                 }
               }
             },
@@ -822,7 +831,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const currentRelshipView = link.relshipview;
                 if (currentRelship && currentRelshipView) {                   
                   const reltype  = currentRelship.type;
-                  const typeView = currentRelshipView.typeview;
+                  const typeView = link.typeview;
                   const defaultTypeview = reltype.typeview;
                   if (typeView && (typeView.id === defaultTypeview.id)) {
                     return true;
@@ -846,6 +855,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   let typeview = currentRelshipView.typeview;
                   const defaultTypeview = reltype.typeview;
                   currentRelshipView.typeview = defaultTypeview;
+                  console.log('856 viewdata', typeview.data);
+                  const viewdata = defaultTypeview.data;
+                  for (let prop in defaultTypeview.data) {
+                    myDiagram.model.setDataProperty(link, prop, defaultTypeview[prop]);
+                  }
+                  link.typeview = defaultTypeview;
+                  myDiagram.requestUpdate();
 
                   const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
                   if (debug) console.log('798 gqlRelView', gqlRelView);
@@ -865,7 +881,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const currentRelshipView = link.relshipview;
                 if (currentRelship && currentRelshipView) {                   
                   const reltype  = currentRelship.type;
-                  const typeView = currentRelshipView.typeview;
+                  const typeView = link.typeview;
                   const defaultTypeview = reltype.typeview;
                   if (typeView && (typeView.id !== defaultTypeview.id)) {
                     return true;

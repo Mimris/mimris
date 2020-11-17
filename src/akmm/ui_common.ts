@@ -1008,6 +1008,7 @@ export function updateRelationship(data: any, name: string, value: string, conte
 }
 
 export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data: any, context: any) {
+    console.log('1011 Entering createRelationshipType');
     const myMetis       = context.myMetis;
     const myMetamodel   = context.myMetamodel;
     const myGoMetamodel = context.myGoMetamodel;

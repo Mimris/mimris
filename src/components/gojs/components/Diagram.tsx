@@ -318,7 +318,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("New Typeview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (debug) console.log('313 node', node);
+              /* if (debug) */console.log('313 node', node);
               const currentObject = myMetis.findObject(node.object.id)
               const currentObjectView =  myMetis.findObjectView(node.objectview.id);
               if (debug) console.log('316 obj and objview', currentObject, currentObjectView);
@@ -335,9 +335,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     typeview.data.fillcolor = "lightgray";
                     typeview.modified = true;
                     currentObjectView.typeview = typeview;
+                    const viewdata = typeview.data;
+                    console.log('339 viewdata', typeview.data);
+                    for (let prop in typeview.data) {
+                        myDiagram.model.setDataProperty(node, prop, viewdata[prop]);
+                    }
+                    node.typeview = typeview;
+                    myDiagram.requestUpdate();
                     myMetamodel.addObjectTypeView(typeview);
                     myMetis.addObjectTypeView(typeview);
-                    if (debug) console.log('329 myMetis', currentObjectView, typeview, myMetis);
                   }              
                 const gqlObjtypeView = new gql.gqlObjectTypeView(typeview);
                 if (debug) console.log('332 gqlObjtypeView', gqlObjtypeView);
@@ -358,11 +364,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               }
             },
             function (o: any) {
-              const currentObject = o.part.data.object; 
-              const currentObjectView = o.part.data.objectview;
+              const node = o.part.data;
+              /* if (debug) */console.log('367 node', node);
+              const currentObject = node.object; 
+              const currentObjectView = node.objectview;
               if (currentObject && currentObjectView) {                   
                 let objtype  = currentObject.type;
-                let typeview = currentObjectView.typeview;
+                let typeview = node.typeview;
                 let defaultTypeview = objtype.typeview;
                 if (debug) console.log('358 typeview, defaultTypeview', typeview, defaultTypeview);
                 if (typeview && (typeview.id === defaultTypeview.id)) {
@@ -374,7 +382,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Reset Typeview", 
           function (e: any, obj: any) {
             const node = obj.part.data;
-            if (debug) console.log('383 node', node);
+            /* if (debug) */console.log('383 node', node);
             const currentObject = myMetis.findObject(node.object.id)
             const currentObjectView =  myMetis.findObjectView(node.objectview.id);
             if (debug) console.log('386 obj and objview', currentObject, currentObjectView);
@@ -386,6 +394,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               if (debug) console.log('392 node', objtype, defaultTypeview, typeview);
               if (!typeview || (typeview.id !== defaultTypeview.id)) {
                 currentObjectView.typeview = defaultTypeview;
+                for (let prop in defaultTypeview.data) {
+                  myDiagram.model.setDataProperty(node, prop, defaultTypeview[prop]);
+                }
+                node.typeview = defaultTypeview;
+                myDiagram.requestUpdate();
               }
               const gqlObjView = new gql.gqlObjectView(currentObjectView);
               if (debug) console.log('397 gqlObjView', gqlObjView);
@@ -398,11 +411,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }
           },
           function (o: any) {
-            const currentObject = o.part.data.object; 
-            const currentObjectView = o.part.data.objectview;
+            const node = o.part.data;
+            /* if (debug) */console.log('413 node', node);
+            const currentObject = node.object; 
+            const currentObjectView = node.objectview;
             if (currentObject && currentObjectView) {                   
               const objtype  = currentObject.type;
-              const typeView = currentObjectView.typeview;
+              const typeView = node.typeview;
               const defaultTypeview = objtype.typeview;
               if (typeView && (typeView.id !== defaultTypeview.id)) {
                 return true;

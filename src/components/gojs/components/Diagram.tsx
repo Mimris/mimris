@@ -309,7 +309,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
             function (o: any) {
               const node = o.part.data;
-              if (node.class === 'goObjectNode' || 'i' || 'n') {
+              if (node.category === 'Object') {
                 return true;
               } else {
                 return false;
@@ -318,7 +318,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("New Typeview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (debug) console.log('313 node', node);
+              console.log('313 node', node);
               const currentObject = myMetis.findObject(node.object.id)
               const currentObjectView =  myMetis.findObjectView(node.objectview.id);
               if (debug) console.log('316 obj and objview', currentObject, currentObjectView);
@@ -335,9 +335,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     typeview.data.fillcolor = "lightgray";
                     typeview.modified = true;
                     currentObjectView.typeview = typeview;
+                    const viewdata = typeview.data;
+                    console.log('339 viewdata', typeview.data);
+                    for (let prop in typeview.data) {
+                        myDiagram.model.setDataProperty(node, prop, viewdata[prop]);
+                    }
+                    node.typeview = typeview;
+                    myDiagram.requestUpdate();
                     myMetamodel.addObjectTypeView(typeview);
                     myMetis.addObjectTypeView(typeview);
-                    if (debug) console.log('329 myMetis', currentObjectView, typeview, myMetis);
                   }              
                 const gqlObjtypeView = new gql.gqlObjectTypeView(typeview);
                 if (debug) console.log('332 gqlObjtypeView', gqlObjtypeView);
@@ -358,11 +364,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               }
             },
             function (o: any) {
-              const currentObject = o.part.data.object; 
-              const currentObjectView = o.part.data.objectview;
+              const node = o.part.data;
+              /* if (debug) */console.log('367 node', node);
+              const currentObject = node.object; 
+              const currentObjectView = node.objectview;
               if (currentObject && currentObjectView) {                   
                 let objtype  = currentObject.type;
-                let typeview = currentObjectView.typeview;
+                let typeview = node.typeview;
                 let defaultTypeview = objtype.typeview;
                 if (debug) console.log('358 typeview, defaultTypeview', typeview, defaultTypeview);
                 if (typeview && (typeview.id === defaultTypeview.id)) {
@@ -374,7 +382,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Reset Typeview", 
           function (e: any, obj: any) {
             const node = obj.part.data;
-            if (debug) console.log('383 node', node);
+            console.log('383 node', node);
             const currentObject = myMetis.findObject(node.object.id)
             const currentObjectView =  myMetis.findObjectView(node.objectview.id);
             if (debug) console.log('386 obj and objview', currentObject, currentObjectView);
@@ -386,23 +394,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               if (debug) console.log('392 node', objtype, defaultTypeview, typeview);
               if (!typeview || (typeview.id !== defaultTypeview.id)) {
                 currentObjectView.typeview = defaultTypeview;
+                for (let prop in defaultTypeview.data) {
+                  myDiagram.model.setDataProperty(node, prop, defaultTypeview[prop]);
+                }
+                node.typeview = defaultTypeview;
+                myDiagram.requestUpdate();
+                const gqlObjView = new gql.gqlObjectView(currentObjectView);
+                if (debug) console.log('397 gqlObjView', gqlObjView);
+                const modifiedObjectViews = new Array();
+                modifiedObjectViews.push(gqlObjView);
+                modifiedObjectViews.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                })              
               }
-              const gqlObjView = new gql.gqlObjectView(currentObjectView);
-              if (debug) console.log('397 gqlObjView', gqlObjView);
-              const modifiedObjectViews = new Array();
-              modifiedObjectViews.push(gqlObjView);
-              modifiedObjectViews.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              })              
             }
           },
           function (o: any) {
-            const currentObject = o.part.data.object; 
-            const currentObjectView = o.part.data.objectview;
+            const node = o.part.data;
+            console.log('413 node', node);
+            const currentObject = node.object; 
+            const currentObjectView = node.objectview;
             if (currentObject && currentObjectView) {                   
               const objtype  = currentObject.type;
-              const typeView = currentObjectView.typeview;
+              const typeView = node.typeview;
               const defaultTypeview = objtype.typeview;
               if (typeView && (typeView.id !== defaultTypeview.id)) {
                 return true;
@@ -584,7 +599,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
             function (o: any) { 
               const node = o.part.data;
-              if (node.class === 'goObjectTypeNode' || 'i') {
+              if (node.category === 'Object') {
                 return false;
               }
               return o.diagram.commandHandler.canCutSelection(); 
@@ -593,7 +608,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) { e.diagram.commandHandler.copySelection(); },
             function (o: any) { 
               const node = o.part.data;
-              if (node.class === 'goObjectTypeNode' || 'i') 
+              if (node.category === 'Object') 
                 return false;
               return o.diagram.commandHandler.canCopySelection(); 
             }),
@@ -627,7 +642,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { 
               // const node = o.part.data;
               // //if (debug) console.log('585 Delete', node);
-              // if (node.class === 'goObjectTypeNode' || 'i) {
+              // if (node.category === 'Object') {
               //     //return o.diagram.commandHandler.canDeleteSelection();                
               //     const objtype = node.objtype;
               //     if (debug) console.log('588 Delete', objtype);
@@ -661,7 +676,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.class === 'goObjectNode' || 'i' || 'n') {
+              if (node.category === 'Object') {
                 return o.diagram.commandHandler.canDeleteSelection();
               } else {
                 return false;
@@ -760,7 +775,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) { 
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
-              if (link.class === 'goRelshipLink' || 'i') {
+              if (link.category === 'Relationship') {
                 const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {                   
@@ -777,44 +792,53 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                       typeview.nameId = undefined;
                       typeview.modified = true;
                       currentRelshipView.typeview = typeview;
+                      const viewdata = typeview.data;
+                      console.log('796 viewdata', typeview.data);
+                      for (let prop in typeview.data) {
+                        myDiagram.model.setDataProperty(link, prop, viewdata[prop]);
+                      }
+                      link.typeview = typeview;
+                      myDiagram.requestUpdate();
                       myMetamodel.addRelationshipTypeView(typeview);
                       myMetis.addRelationshipTypeView(typeview);
                       if (debug) console.log('712 myMetis', currentRelshipView, typeview, myMetis);
-                    }    
-                  const gqlReltypeView = new gql.gqlRelshipTypeView(typeview);
-                  if (debug) console.log('715 gqlReltypeView', gqlReltypeView);
-                  const modifiedTypeViews = new Array();
-                  modifiedTypeViews.push(gqlReltypeView);
-                  modifiedTypeViews.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-                  })
-                  const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
-                  if (debug) console.log('723 gqlRelView', gqlRelView);
-                  const modifiedRelshipViews = new Array();
-                  modifiedRelshipViews.push(gqlRelView);
-                  modifiedRelshipViews.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                  })                
+
+                      const gqlReltypeView = new gql.gqlRelshipTypeView(typeview);
+                      if (debug) console.log('715 gqlReltypeView', gqlReltypeView);
+                      const modifiedTypeViews = new Array();
+                      modifiedTypeViews.push(gqlReltypeView);
+                      modifiedTypeViews.map(mn => {
+                        let data = mn;
+                        e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+                      })
+
+                      const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
+                      if (debug) console.log('723 gqlRelView', gqlRelView);
+                      const modifiedRelshipViews = new Array();
+                      modifiedRelshipViews.push(gqlRelView);
+                      modifiedRelshipViews.map(mn => {
+                        let data = mn;
+                        e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                      })  
+                  }              
                 }
               }
             },
             function (o: any) {
               const link = o.part.data;
-              if (link.class === 'goRelshipLink' || 'i') {
+              if (link.category === 'Relationship') {
                 const currentRelship = link.relship;
                 const currentRelshipView = link.relshipview;
                 if (currentRelship && currentRelshipView) {                   
                   const reltype  = currentRelship.type;
-                  const typeView = currentRelshipView.typeview;
+                  const typeView = link.typeview;
                   const defaultTypeview = reltype.typeview;
                   if (typeView && (typeView.id === defaultTypeview.id)) {
                     return true;
                   }
                 }
               }
-              else if (link.class === 'goRelshipTypeLink' || 'i') {
+              else if (link.category === 'Relationship type') {
                   return false;
               }
               return false;
@@ -822,7 +846,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Reset Typeview",
             function (e: any, obj: any) { 
               const link = obj.part.data;
-              if (link.class === 'goRelshipLink' || 'i') {
+              if (link.category === 'Relationship') {
                 const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {                   
@@ -831,6 +855,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   let typeview = currentRelshipView.typeview;
                   const defaultTypeview = reltype.typeview;
                   currentRelshipView.typeview = defaultTypeview;
+                  console.log('856 viewdata', typeview.data);
+                  const viewdata = defaultTypeview.data;
+                  for (let prop in defaultTypeview.data) {
+                    myDiagram.model.setDataProperty(link, prop, defaultTypeview[prop]);
+                  }
+                  link.typeview = defaultTypeview;
+                  myDiagram.requestUpdate();
 
                   const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
                   if (debug) console.log('798 gqlRelView', gqlRelView);
@@ -845,19 +876,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) {
               const link = o.part.data;
-              if (link.class === 'goRelshipLink' || 'i') {
+              if (link.category === 'Relationship') {
                 const currentRelship = link.relship;
                 const currentRelshipView = link.relshipview;
                 if (currentRelship && currentRelshipView) {                   
                   const reltype  = currentRelship.type;
-                  const typeView = currentRelshipView.typeview;
+                  const typeView = link.typeview;
                   const defaultTypeview = reltype.typeview;
                   if (typeView && (typeView.id !== defaultTypeview.id)) {
                     return true;
                   }
                 }
               }
-              else if (link.class === 'goRelshipTypeLink' || 'i') {
+              else if (link.category === 'Relationship type') {
                   return false;
               }
               return false;
@@ -887,7 +918,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o) { 
             //   const link = o.part.data;
             //   //if (debug) console.log('383 Delete', link);
-            //   if (link.class === 'goRelshipTypeLink' || 'i') {
+            //   if (link.category === 'Relationship type') {
             //     //return o.diagram.commandHandler.canDeleteSelection();                
             //     const reltype = link.reltype;
             //     if (debug) console.log('387 Delete', reltype);

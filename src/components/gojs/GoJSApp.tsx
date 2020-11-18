@@ -434,7 +434,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          if (data.class === "goObjectNode" || 'i'  || 'n' ) {
+          if (data.category === 'Object') {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
               if (debug) console.log('440 delete node', myNode);
@@ -447,7 +447,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('447 myGoModel', context.myGoModel);
             }
           }
-          if (data.class === "goRelshipLink" || 'i' ) {
+          if (data.category === 'Relationship') {
             const myLink = this.getLink(context.myGoModel, key);
             if (debug) console.log('396 SelectionDeleted', myLink);
             uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
@@ -603,7 +603,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           // First handle the objects
         while (it.next()) {
         const node = it.value.data;
-        if (node.class === 'goObjectNode' || 'i'  || 'n' ) {
+        if (node.category === 'Object') {
           if (debug) console.log('654 ClipboardPasted', node, myGoModel);
             const objview = uic.createObject(node, context);
             if (debug) console.log('655 ClipboardPasted', node, objview);
@@ -632,7 +632,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Then handle the relationships
         while (it1.next()) {
           const data = it1.value.data;
-          if (data.class === 'goRelshipLink' || 'i') {
+          if (data.category === 'Relationship') {
             if (debug) console.log('685 ClipboardPasted', data);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
             if (debug) console.log('688 relview', data, relview);
@@ -654,45 +654,42 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': {
         const link = e.subject;
-        if (debug) console.log('852 link', link.fromNode.key, link.toNode.key);
+        if (debug) console.log('657 link', link.fromNode.key, link.toNode.key);
         const data = link.data;
-        if (debug) console.log('854 link, data', link, data);
-        const fromNode = link.fromNode?.data;
-        const toNode = link.toNode?.data;
-        if (debug) console.log('857 myGoModel', myGoModel);
-        const myFromNode = myGoModel.findNode(fromNode?.key);
-        const myToNode = myGoModel.findNode(toNode?.key);
-        data.from = myFromNode?.key;
-        data.to = myToNode?.key;
-        if (debug) console.log('862 LinkDrawn', myFromNode, myToNode, data);
-        if (fromNode?.class === 'goObjectNode' || 'i' || 'n') {
+        if (debug) console.log('659 link, data', link, data);
+        const fromNode = link.fromNode;
+        const toNode = link.toNode;
+        if (debug) console.log('668 LinkDrawn', fromNode.data.class, toNode, data);
+
+        if (fromNode?.data?.category === 'Object') {
+          if (debug) console.log('670 LinkDrawn', fromNode.data.class);
           const relview = uic.createRelationship(data, context);
           if (relview) {
             const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
-            myLink.fromNode = myFromNode;
-            myLink.toNode = myToNode;
-            if (debug) console.log('869 relview', relview, myLink);
+            myLink.fromNode = fromNode;
+            myLink.toNode = toNode;
+            if (debug) console.log('675 relview', relview, myLink);
             relview.relship = myMetis.findRelationship(relview.relship.id);
             const gqlRelview = new gql.gqlRelshipView(relview);
-            if (debug) console.log('872 LinkDrawn', link, gqlRelview);
+            if (debug) console.log('678 LinkDrawn', link, gqlRelview);
             modifiedLinks.push(gqlRelview);
             const gqlRelship = new gql.gqlRelationship(relview.relship);
-            if (debug) console.log('875 LinkDrawn', gqlRelship);
+            if (debug) console.log('681 LinkDrawn', gqlRelship);
             modifiedRelships.push(gqlRelship);
           }
-        } else if (fromNode?.class === 'goObjectTypeNode' || 'i') {
-          if (debug) console.log('879 link', fromNode, data);
+        } else if (fromNode?.data?.category === 'Object type') {
+          if (debug) console.log('685 link', fromNode, data);
           link.category = 'Relationship type';
           link.class = 'goRelshipTypeLink';
-          const reltype = uic.createRelationshipType(fromNode, toNode, data, context);
+          const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
           if (reltype) {
-            if (debug) console.log('884 reltype', reltype);
+            if (debug) console.log('690 reltype', reltype);
             const gqlType = new gql.gqlRelationshipType(reltype, true);
             modifiedTypeLinks.push(gqlType);
-            if (debug) console.log('887 gqlType', gqlType);
+            if (debug) console.log('693 gqlType', gqlType);
             const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
             modifiedLinkTypeViews.push(gqlTypeView);
-            if (debug) console.log('890 gqlTypeView', gqlTypeView);
+            if (debug) console.log('696 gqlTypeView', gqlTypeView);
           }
         }
         myDiagram.requestUpdate();

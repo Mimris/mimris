@@ -27,18 +27,19 @@ export class goModel {
     model: akm.cxModel | null;
     metamodel: akm.cxMetaModel | null;
     nodes: goNode[];
+    abstractNodes: goNode[];
     links: goLink[];
     constructor(key: string, name: string, modelView: akm.cxModelView) {
         this.key = key;
         this.name = name;
         this.modelView = modelView;
         this.nodes = new Array();
+        this.abstractNodes = new Array();
         this.links = new Array();
         this.model = (modelView) ? modelView.model : null;
         this.metamodel = (modelView)
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;
-
         if (debug) console.log('41 constants', constants);
     }
     // Methods
@@ -60,6 +61,17 @@ export class goModel {
         let oldNodes: goObjectNode[] = new Array();
         for (let i = 0; i < this.nodes.length; i++) {
             let n = this.nodes[i] as goObjectNode;
+            oldNodes.push(n);
+        }
+        oldNodes.push(node as goObjectNode);
+        this.nodes = oldNodes;
+    }
+    addAbstractNode(node: goObjectNode | goObjectTypeNode) {
+        node.setParentModel(this);
+        let oldNodes: goObjectNode[] = new Array();
+        for (let i = 0; i < this.nodes.length; i++) {
+            let n = this.nodes[i] as goObjectNode;
+            if (n.abstract)
             oldNodes.push(n);
         }
         oldNodes.push(node as goObjectNode);
@@ -391,22 +403,23 @@ export class goObjectTypeNode extends goNode {
     objtype: akm.cxObjectType | null;
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     typename: string;
+    abstract: boolean;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.category = constants.gojs.C_OBJECTTYPE;
         this.objtype = objtype;
         this.typeview = null;
         this.typename = constants.gojs.C_OBJECTTYPE;
-        // this.isGroup    = false;
+        this.abstract = false;
 
-        if (utils.objExists(objtype)) {
+        if (objtype) {
             this.setName(objtype.getName());
             this.setType(constants.gojs.C_OBJECTTYPE);
             const typeview = objtype.getDefaultTypeView();
-            if (utils.objExists(typeview)) {
+            if (typeview) {
                 this.typeview = typeview;
-                // this.isGroup  = objtype.isContainer();
             }
+            this.abstract = objtype.abstract;
         }
     }
     // Methods
@@ -452,6 +465,9 @@ export class goObjectTypeNode extends goNode {
                     diagram.model.setDataProperty(data, prop, data[prop]);
             }
         }
+    }
+    setAbstract(abstract: boolean) {
+        this.abstract = abstract;
     }
 }
 

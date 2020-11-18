@@ -309,7 +309,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
             function (o: any) {
               const node = o.part.data;
-              if (node.class === 'goObjectNode' || 'i' || 'n') {
+              if (node.category === 'Object') {
                 return true;
               } else {
                 return false;
@@ -599,7 +599,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
             function (o: any) { 
               const node = o.part.data;
-              if (node.class === 'goObjectTypeNode' || 'i') {
+              if (node.category === 'Object') {
                 return false;
               }
               return o.diagram.commandHandler.canCutSelection(); 
@@ -608,7 +608,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) { e.diagram.commandHandler.copySelection(); },
             function (o: any) { 
               const node = o.part.data;
-              if (node.class === 'goObjectTypeNode' || 'i') 
+              if (node.category === 'Object') 
                 return false;
               return o.diagram.commandHandler.canCopySelection(); 
             }),
@@ -642,7 +642,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { 
               // const node = o.part.data;
               // //if (debug) console.log('585 Delete', node);
-              // if (node.class === 'goObjectTypeNode' || 'i) {
+              // if (node.category === 'Object') {
               //     //return o.diagram.commandHandler.canDeleteSelection();                
               //     const objtype = node.objtype;
               //     if (debug) console.log('588 Delete', objtype);
@@ -676,7 +676,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.class === 'goObjectNode' || 'i' || 'n') {
+              if (node.category === 'Object') {
                 return o.diagram.commandHandler.canDeleteSelection();
               } else {
                 return false;
@@ -775,7 +775,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (e: any, obj: any) { 
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
-              if (link.class === 'goRelshipLink' || 'i') {
+              if (link.category === 'Relationship') {
                 const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {                   
@@ -826,7 +826,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) {
               const link = o.part.data;
-              if (link.class === 'goRelshipLink' || 'i') {
+              if (link.category === 'Relationship') {
                 const currentRelship = link.relship;
                 const currentRelshipView = link.relshipview;
                 if (currentRelship && currentRelshipView) {                   
@@ -838,7 +838,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   }
                 }
               }
-              else if (link.class === 'goRelshipTypeLink' || 'i') {
+              else if (link.category === 'Relationship type') {
                   return false;
               }
               return false;
@@ -846,7 +846,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Reset Typeview",
             function (e: any, obj: any) { 
               const link = obj.part.data;
-              if (link.class === 'goRelshipLink' || 'i') {
+              if (link.category === 'Relationship') {
                 const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {                   
@@ -876,7 +876,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) {
               const link = o.part.data;
-              if (link.class === 'goRelshipLink' || 'i') {
+              if (link.category === 'Relationship') {
                 const currentRelship = link.relship;
                 const currentRelshipView = link.relshipview;
                 if (currentRelship && currentRelshipView) {                   
@@ -888,7 +888,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   }
                 }
               }
-              else if (link.class === 'goRelshipTypeLink' || 'i') {
+              else if (link.category === 'Relationship type') {
                   return false;
               }
               return false;
@@ -918,7 +918,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o) { 
             //   const link = o.part.data;
             //   //if (debug) console.log('383 Delete', link);
-            //   if (link.class === 'goRelshipTypeLink' || 'i') {
+            //   if (link.category === 'Relationship type') {
             //     //return o.diagram.commandHandler.canDeleteSelection();                
             //     const reltype = link.reltype;
             //     if (debug) console.log('387 Delete', reltype);

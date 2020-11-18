@@ -1,6 +1,6 @@
 // @ts-nocheck
 // Diagram.tsx
-const debug = true;
+const debug = false;
 
 // import React from "react";
 import { useState, useEffect, useLayoutEffect } from "react";

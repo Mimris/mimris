@@ -744,6 +744,30 @@
                             "properties": [],
                             "deleted": false,
                             "modified": false
+                        },
+                        {
+                            "id": "8cdc6fc4-0f10-49b6-fe42-c207b655d2e1",
+                            "name": "hasInput",
+                            "description": "",
+                            "typeviewRef": "5ede46f0-962f-4f0a-49b1-aeb17d9ba5f8",
+                            "relshipkind": "Association",
+                            "viewkind": "",
+                            "fromobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
+                            "toobjtypeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
+                            "deleted": false,
+                            "modified": true
+                        },
+                        {
+                            "id": "fee451d4-54a0-48e8-3d1c-0c4351e67961",
+                            "name": "hasOutput",
+                            "description": "",
+                            "typeviewRef": "d14cca77-6d9f-4e24-9a02-318465394306",
+                            "relshipkind": "Association",
+                            "viewkind": "",
+                            "fromobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
+                            "toobjtypeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
+                            "deleted": false,
+                            "modified": true
                         }
                     ],
                     "properties": [],
@@ -845,7 +869,7 @@
                             "viewkind": "Object",
                             "figure": "RoundedRectangle",
                             "fillcolor": "white",
-                            "strokecolor": "gray",
+                            "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "info.svg",
                             "deleted": false,
@@ -892,7 +916,7 @@
                             "fillcolor": "white",
                             "strokecolor": "gray",
                             "strokewidth": "1",
-                            "icon": "https://img.icons8.com/color/2x/view-file.png",
+                            "icon": "",
                             "deleted": false,
                             "modified": false
                         },
@@ -1735,7 +1759,7 @@
                             "name": "439eef1e-ab8f-4d8d-4547-18a1ff6960f6",
                             "description": "",
                             "typeRef": "148012eb-16a2-4d03-7d6f-af5e92e187a8",
-                            "strokecolor": "black",
+                            "strokecolor": "#ff0000",
                             "strokewidth": "1",
                             "fromArrow": "",
                             "toArrow": "OpenTriangle",
@@ -1931,7 +1955,7 @@
                             "name": "7d366f20-b016-4597-f657-ad6853315a32",
                             "description": "",
                             "typeRef": "857f3fea-ed22-4e5d-7072-c998d180163d",
-                            "strokecolor": "black",
+                            "strokecolor": "gray",
                             "strokewidth": "1",
                             "fromArrow": "",
                             "toArrow": "OpenTriangle",
@@ -2407,7 +2431,7 @@
                             "name": "fe1c78f7-90a4-471e-e6ba-11d4ae69021d",
                             "description": "",
                             "typeRef": "feaadfb2-5d05-491a-6222-0d81c5cef15a",
-                            "strokecolor": "black",
+                            "strokecolor": "blue",
                             "strokewidth": "1",
                             "fromArrow": "",
                             "toArrow": "OpenTriangle",
@@ -2443,492 +2467,128 @@
                             "toArrowColor": "white",
                             "deleted": false,
                             "modified": false
+                        },
+                        {
+                            "id": "5ede46f0-962f-4f0a-49b1-aeb17d9ba5f8",
+                            "description": "",
+                            "typeRef": "8cdc6fc4-0f10-49b6-fe42-c207b655d2e1",
+                            "strokecolor": "blue",
+                            "strokewidth": "1",
+                            "dash": "",
+                            "fromArrow": "",
+                            "toArrow": "OpenTriangle",
+                            "fromArrowColor": "",
+                            "toArrowColor": "white",
+                            "deleted": false,
+                            "modified": true
+                        },
+                        {
+                            "id": "d14cca77-6d9f-4e24-9a02-318465394306",
+                            "description": "",
+                            "typeRef": "fee451d4-54a0-48e8-3d1c-0c4351e67961",
+                            "strokecolor": "#ff0000",
+                            "strokewidth": "1",
+                            "dash": "",
+                            "fromArrow": "",
+                            "toArrow": "OpenTriangle",
+                            "fromArrowColor": "",
+                            "toArrowColor": "white",
+                            "deleted": false,
+                            "modified": true
                         }
                     ]
                 },
                 {
-                    "id": "552561f1-76a9-4324-6d56-ca549fb63b9a",
-                    "name": "ConceptMetamodel",
+                    "id": "16b9d74c-2045-442f-6183-5a2dda6e2613",
+                    "name": "Solution example model",
                     "description": "",
-                    "datatypes": [],
-                    "objecttypes": [
+                    "metamodelRef": "552561f1-76a9-4324-6d56-ca549fb63b9a",
+                    "isTemplate": false,
+                    "templates": [],
+                    "objects": [
                         {
-                            "id": "87574791-5d5c-4afe-1310-f4e0321c245a",
-                            "name": "Task",
-                            "description": "",
-                            "properties": [
-                                {
-                                    "id": "22a17e67-8eee-4c5b-c9b4-8e4fd717b434",
-                                    "name": "Approved",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                },
-                                {
-                                    "id": "e2fec6e9-fc8f-40ac-55a9-5f856a71de77",
-                                    "name": "Repetetive",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                },
-                                {
-                                    "id": "a32a3db1-f9af-4e8d-9081-2a4070146505",
-                                    "name": "Status",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                },
-                                {
-                                    "id": "cb840dbf-0622-4f83-90cc-6dd7a09aa700",
-                                    "name": "Start",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                },
-                                {
-                                    "id": "6f7ed195-bd29-4121-01e7-6eac44d227c3",
-                                    "name": "End",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                }
-                            ],
-                            "typeviewRef": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "2fe7c1db-4543-4d15-f688-1f55a386131e",
-                            "name": "Role",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "84cc6526-349b-45ad-3099-f9eabd0727ee",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "ccbc200c-4463-4dd5-9fb9-3bba0cddcf85",
-                            "name": "View",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "5fc01401-ae18-4ce3-b46c-bf9aa487d99c",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "46e0b145-75f3-4190-9aa1-4497ea29ceca",
-                            "name": "Employee",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "a8197cb6-f710-48e5-e86e-345732f81b96",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "4feb69e6-c142-4a62-42ab-d72f1bb12cb9",
-                            "name": "Company",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "b3a5be3d-5d13-4e45-5a4b-3f021a7944c1",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "9c17f9da-a2f4-4ef5-d6a0-3ef0c807dc39",
-                            "name": "Person",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "4d44ed02-366b-4e7f-47b9-1de15a0a234a",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "baf643bd-884e-4fa5-85b3-2d6def3171d3",
-                            "name": "Query/Mutation",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "a68d2269-2e40-4469-93f8-e542a7edbb15",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "87574791-5d5c-4afe-1310-f4e0321c245a",
-                            "name": "Task",
-                            "description": "",
-                            "properties": [
-                                {
-                                    "id": "22a17e67-8eee-4c5b-c9b4-8e4fd717b434",
-                                    "name": "Approved",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                },
-                                {
-                                    "id": "e2fec6e9-fc8f-40ac-55a9-5f856a71de77",
-                                    "name": "Repetetive",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                },
-                                {
-                                    "id": "a32a3db1-f9af-4e8d-9081-2a4070146505",
-                                    "name": "Status",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                },
-                                {
-                                    "id": "cb840dbf-0622-4f83-90cc-6dd7a09aa700",
-                                    "name": "Start",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                },
-                                {
-                                    "id": "6f7ed195-bd29-4121-01e7-6eac44d227c3",
-                                    "name": "End",
-                                    "description": "",
-                                    "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                                    "unitCategoryRef": "",
-                                    "deleted": false,
-                                    "modified": false
-                                }
-                            ],
-                            "typeviewRef": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "2fe7c1db-4543-4d15-f688-1f55a386131e",
-                            "name": "Role",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "84cc6526-349b-45ad-3099-f9eabd0727ee",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "ccbc200c-4463-4dd5-9fb9-3bba0cddcf85",
-                            "name": "View",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "5fc01401-ae18-4ce3-b46c-bf9aa487d99c",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "46e0b145-75f3-4190-9aa1-4497ea29ceca",
-                            "name": "Employee",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "a8197cb6-f710-48e5-e86e-345732f81b96",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "4feb69e6-c142-4a62-42ab-d72f1bb12cb9",
-                            "name": "Company",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "b3a5be3d-5d13-4e45-5a4b-3f021a7944c1",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        },
-                        {
-                            "id": "9c17f9da-a2f4-4ef5-d6a0-3ef0c807dc39",
-                            "name": "Person",
-                            "description": "",
-                            "properties": [],
-                            "typeviewRef": "4d44ed02-366b-4e7f-47b9-1de15a0a234a",
-                            "viewkind": "Object",
-                            "abstract": false,
-                            "deleted": false,
-                            "modified": true
-                        }
-                    ],
-                    "objecttypeviews": [
-                        {
-                            "id": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
+                            "id": "2202293f-240e-45e0-84e5-37b823cb430b",
+                            "name": "Get Info",
                             "description": "",
                             "typeRef": "87574791-5d5c-4afe-1310-f4e0321c245a",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "lightgreen",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "automated.jfif",
-                            "deleted": false,
+                            "deleted": true,
                             "modified": false
                         },
                         {
-                            "id": "84cc6526-349b-45ad-3099-f9eabd0727ee",
+                            "id": "18cc25fe-97e4-44bd-5e13-5fde4af8bffb",
+                            "name": "User",
                             "description": "",
                             "typeRef": "2fe7c1db-4543-4d15-f688-1f55a386131e",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "lightyellow",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "https://img.icons8.com/color/2x/person-male.png",
+                            "deleted": true,
+                            "modified": false
+                        },
+                        {
+                            "id": "2be78d67-5871-42a9-0311-84f69ca64561",
+                            "name": "Address",
+                            "description": "",
+                            "typeRef": "",
                             "deleted": false,
                             "modified": false
                         },
                         {
-                            "id": "5fc01401-ae18-4ce3-b46c-bf9aa487d99c",
+                            "id": "cbe7fae9-37ae-47d1-5638-5f8c0d9d00d8",
+                            "name": "Company",
                             "description": "",
-                            "typeRef": "ccbc200c-4463-4dd5-9fb9-3bba0cddcf85",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
+                            "typeRef": "",
                             "deleted": false,
                             "modified": false
                         },
                         {
-                            "id": "a8197cb6-f710-48e5-e86e-345732f81b96",
+                            "id": "6e4ac991-f5ae-4cb2-e389-374c1b93a622",
+                            "name": "Person",
                             "description": "",
-                            "typeRef": "46e0b145-75f3-4190-9aa1-4497ea29ceca",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "b3a5be3d-5d13-4e45-5a4b-3f021a7944c1",
-                            "description": "",
-                            "typeRef": "4feb69e6-c142-4a62-42ab-d72f1bb12cb9",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "4d44ed02-366b-4e7f-47b9-1de15a0a234a",
-                            "description": "",
-                            "typeRef": "9c17f9da-a2f4-4ef5-d6a0-3ef0c807dc39",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "a68d2269-2e40-4469-93f8-e542a7edbb15",
-                            "description": "",
-                            "typeRef": "baf643bd-884e-4fa5-85b3-2d6def3171d3",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
-                            "description": "",
-                            "typeRef": "87574791-5d5c-4afe-1310-f4e0321c245a",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "lightgreen",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "automated.jfif",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "84cc6526-349b-45ad-3099-f9eabd0727ee",
-                            "description": "",
-                            "typeRef": "2fe7c1db-4543-4d15-f688-1f55a386131e",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "lightyellow",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "https://img.icons8.com/color/2x/person-male.png",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "5fc01401-ae18-4ce3-b46c-bf9aa487d99c",
-                            "description": "",
-                            "typeRef": "ccbc200c-4463-4dd5-9fb9-3bba0cddcf85",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "a8197cb6-f710-48e5-e86e-345732f81b96",
-                            "description": "",
-                            "typeRef": "46e0b145-75f3-4190-9aa1-4497ea29ceca",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "b3a5be3d-5d13-4e45-5a4b-3f021a7944c1",
-                            "description": "",
-                            "typeRef": "4feb69e6-c142-4a62-42ab-d72f1bb12cb9",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "4d44ed02-366b-4e7f-47b9-1de15a0a234a",
-                            "description": "",
-                            "typeRef": "9c17f9da-a2f4-4ef5-d6a0-3ef0c807dc39",
-                            "isGroup": false,
-                            "viewkind": "Object",
-                            "figure": "RoundedRectangle",
-                            "fillcolor": "white",
-                            "strokecolor": "gray",
-                            "strokewidth": "1",
-                            "icon": "info.svg",
+                            "typeRef": "",
                             "deleted": false,
                             "modified": false
                         }
                     ],
-                    "properties": [
+                    "relships": [],
+                    "modelviews": [
                         {
-                            "id": "22a17e67-8eee-4c5b-c9b4-8e4fd717b434",
-                            "name": "Approved",
+                            "id": "7ee8e4d0-1f4c-436e-2581-c55e39720263",
+                            "name": "MainView",
                             "description": "",
-                            "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                            "unitCategoryRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "e2fec6e9-fc8f-40ac-55a9-5f856a71de77",
-                            "name": "Repetetive",
-                            "description": "",
-                            "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                            "unitCategoryRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "a32a3db1-f9af-4e8d-9081-2a4070146505",
-                            "name": "Status",
-                            "description": "",
-                            "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                            "unitCategoryRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "cb840dbf-0622-4f83-90cc-6dd7a09aa700",
-                            "name": "Start",
-                            "description": "",
-                            "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                            "unitCategoryRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "6f7ed195-bd29-4121-01e7-6eac44d227c3",
-                            "name": "End",
-                            "description": "",
-                            "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                            "unitCategoryRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "ae410646-c339-403a-3574-e349492a665e",
-                            "name": "",
-                            "description": "",
+                            "modelRef": "16b9d74c-2045-442f-6183-5a2dda6e2613",
+                            "objectviews": [
+                                {
+                                    "id": "1037a233-600e-43fd-b9c9-edf1a57402f9",
+                                    "name": "Get Info",
+                                    "description": "",
+                                    "objectRef": "2202293f-240e-45e0-84e5-37b823cb430b",
+                                    "typeviewRef": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "-370 -410",
+                                    "size": "",
+                                    "deleted": true,
+                                    "modified": true
+                                },
+                                {
+                                    "id": "7cc0b0bf-fe52-4325-1305-7e1ccf64630e",
+                                    "name": "User",
+                                    "description": "",
+                                    "objectRef": "18cc25fe-97e4-44bd-5e13-5fde4af8bffb",
+                                    "typeviewRef": "84cc6526-349b-45ad-3099-f9eabd0727ee",
+                                    "group": "",
+                                    "isGroup": false,
+                                    "loc": "-360 -610",
+                                    "size": "",
+                                    "deleted": true,
+                                    "modified": true
+                                }
+                            ],
+                            "relshipviews": [],
+                            "objecttypeviews": [],
+                            "relshiptypeviews": [],
                             "deleted": false,
                             "modified": false
                         }
                     ],
-                    "relshiptypes": [],
-                    "relshiptypeviews": [],
-                    "unittypes": [],
                     "deleted": false,
                     "modified": false
                 }
@@ -4417,7 +4077,7 @@
                                     "name": "Tasks",
                                     "description": "",
                                     "objectRef": "9e9fb827-bc9b-4999-1fba-40d63629a70c",
-                                    "typeviewRef": "3c6fd19a-e766-4615-3928-fc4b0d072c55",
+                                    "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
                                     "group": "",
                                     "isGroup": true,
                                     "loc": "-590 270",
@@ -4443,7 +4103,7 @@
                                     "name": "Roles",
                                     "description": "",
                                     "objectRef": "039fc67d-e806-456b-ddaf-92a5900e9cc7",
-                                    "typeviewRef": "3c6fd19a-e766-4615-3928-fc4b0d072c55",
+                                    "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
                                     "group": "",
                                     "isGroup": true,
                                     "loc": "-590 20",
@@ -4716,13 +4376,13 @@
                                     "name": "Properties",
                                     "description": "",
                                     "objectRef": "ca6864fb-9f48-4795-cee4-d4db9db2fccd",
-                                    "typeviewRef": "3c6fd19a-e766-4615-3928-fc4b0d072c55",
+                                    "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
                                     "group": "",
                                     "isGroup": true,
                                     "loc": "170 20",
                                     "size": "732 777",
                                     "deleted": false,
-                                    "modified": true
+                                    "modified": false
                                 },
                                 {
                                     "id": "4797cd8b-bc62-4085-e5f1-d9c3d9dd8bb1",
@@ -5847,7 +5507,7 @@
                                     "name": "Properties",
                                     "description": "",
                                     "objectRef": "ca6864fb-9f48-4795-cee4-d4db9db2fccd",
-                                    "typeviewRef": "3c6fd19a-e766-4615-3928-fc4b0d072c55",
+                                    "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
                                     "group": "",
                                     "isGroup": true,
                                     "loc": "-590 -590",
@@ -6840,16 +6500,16 @@
                             "name": "Get Info",
                             "description": "",
                             "typeRef": "87574791-5d5c-4afe-1310-f4e0321c245a",
-                            "deleted": false,
-                            "modified": true
+                            "deleted": true,
+                            "modified": false
                         },
                         {
                             "id": "18cc25fe-97e4-44bd-5e13-5fde4af8bffb",
                             "name": "User",
                             "description": "",
                             "typeRef": "2fe7c1db-4543-4d15-f688-1f55a386131e",
-                            "deleted": false,
-                            "modified": true
+                            "deleted": true,
+                            "modified": false
                         },
                         {
                             "id": "2be78d67-5871-42a9-0311-84f69ca64561",
@@ -6892,9 +6552,9 @@
                                     "typeviewRef": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
                                     "group": "",
                                     "isGroup": false,
-                                    "loc": "-240 -280",
+                                    "loc": "-370 -410",
                                     "size": "",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": true
                                 },
                                 {
@@ -6905,9 +6565,9 @@
                                     "typeviewRef": "84cc6526-349b-45ad-3099-f9eabd0727ee",
                                     "group": "",
                                     "isGroup": false,
-                                    "loc": "-270 -580",
+                                    "loc": "-360 -610",
                                     "size": "",
-                                    "deleted": false,
+                                    "deleted": true,
                                     "modified": true
                                 }
                             ],
@@ -6967,12 +6627,12 @@
             "name": "includes"
         },
         "focusObjecttype": {
-            "id": "aab10852-cbf6-4a09-3f05-8e1fd72f5d7d",
-            "name": "Decision"
+            "id": "6382b0c9-4d4d-41a8-da86-1f7f39de2f7c",
+            "name": "View"
         },
         "focusRelshiptype": {
-            "id": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
-            "name": "member"
+            "id": "857f3fea-ed22-4e5d-7072-c998d180163d",
+            "name": "isRelatedTo"
         },
         "focusObjecttypeview": {
             "id": null,
@@ -7004,8 +6664,8 @@
             "name": ""
         },
         "focusRefresh": {
-            "id": null,
-            "name": ""
+            "id": "d9vjwf",
+            "name": "0name"
         }
     },
     "phUser": {
@@ -7016,5 +6676,5 @@
             "session": null
         }
     },
-    "phSource": "initialState"
+    "phSource": "localStore"
 }

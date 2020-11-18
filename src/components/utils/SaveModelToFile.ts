@@ -21,8 +21,9 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
     reader.onload = async (e) => { 
         const text = (e.target.result)
         const modelff = JSON.parse(text)
+
         //   alert(text)
-        console.log('25 LoadLocal', props);
+        console.log('25 LoadLocal', props, modelff);
     
         let  mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         const mlength = props.phData?.metis?.models.length

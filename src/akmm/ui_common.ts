@@ -1430,3 +1430,42 @@ function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipVie
     }
     return data;
 }
+
+export function checkAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel) {
+    const defObjTypename = 'Generic';
+    const objects = model.objects;
+    for (let i=0; i<objects?.length; i++) {
+        const obj = objects[i];
+        const typeRef = obj.typeRef;
+        const typeName = obj.typeName;
+        /* if (debug) */console.log('1441 obj', obj, model);
+        let objtype = metamodel.findObjectType(typeRef);
+        if (!objtype) {
+            objtype = metamodel.findObjectTypeByName(typeName);
+            if (!objtype) {
+                objtype = metamodel.findObjectTypeByName(defObjTypename);
+            }
+            if (objtype) {
+                obj.type = objtype;
+            }
+        }
+    }
+
+    const defRelTypename = 'isRelatedTo';
+    const relships = model.relships;
+    for (let i=0; i<relships.length; i++) {
+        const rel = relships[i];
+        let typeRef = rel.typeRef;
+        let typeName = rel.typename;
+        let reltype = metamodel.findRelationshipType(typeRef);
+        if (!reltype) {
+            reltype = metamodel.findRelationshipTypeByName(typeName);
+            if (!reltype) {
+                reltype = metamodel.findRelationshipTypeByName(defRelTypename);
+            }
+            if (reltype) {
+                rel.type = reltype;
+            }
+        }
+    }
+} 

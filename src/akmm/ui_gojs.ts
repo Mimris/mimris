@@ -71,7 +71,7 @@ export class goModel {
         let oldNodes: goObjectNode[] = new Array();
         for (let i = 0; i < this.nodes.length; i++) {
             let n = this.nodes[i] as goObjectNode;
-            if (n.abstract)
+            //if (n.abstract)
             oldNodes.push(n);
         }
         oldNodes.push(node as goObjectNode);
@@ -324,11 +324,11 @@ export class goObjectNode extends goNode {
                 if (object.getType()) {
                     this.objecttype = (object.getType() as akm.cxObjectType);
                     this.typename = this.objecttype.getName();
-                    this.type = this.typename;
+                    //this.type = this.typename;
                 } else {
                     this.objecttype = null;
                     this.typename = "";
-                    this.type = "";
+                    //this.type = "";
                 }
 
             }

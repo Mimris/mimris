@@ -4184,6 +4184,7 @@ export class cxModel extends cxMetaObject {
 export class cxInstance extends cxMetaObject {
     type: cxObjectType | cxRelationshipType | null;
     typeRef: string;
+    typeName: string;
     typeview: cxObjectTypeView | cxRelationshipTypeView | null;
     typeviewRef: string;
     fromObject: cxInstance | null;
@@ -4199,7 +4200,8 @@ export class cxInstance extends cxMetaObject {
         this.class = this.constructor.name;
         this.id = id;
         this.type = type;
-        this.typeRef = "";
+        this.typeRef = type?.id;
+        this.typeName = type?.name;
         this.typeview = null;
         this.typeviewRef = "";
         this.fromObject = null;
@@ -4265,6 +4267,8 @@ export class cxInstance extends cxMetaObject {
     }
     setType(type: cxObjectType | cxRelationshipType) {
         this.type = type;
+        this.typeRef = type.id;
+        this.typeName = type.name;
     }
     getType(): cxObjectType | cxRelationshipType | null {
         return this.type;

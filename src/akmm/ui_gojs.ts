@@ -71,7 +71,7 @@ export class goModel {
         let oldNodes: goObjectNode[] = new Array();
         for (let i = 0; i < this.nodes.length; i++) {
             let n = this.nodes[i] as goObjectNode;
-            if (n.abstract)
+            // if (n.abstract) //sf
             oldNodes.push(n);
         }
         oldNodes.push(node as goObjectNode);

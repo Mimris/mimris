@@ -1169,12 +1169,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (o: any) { 
             return false; 
           }),
-          makeButton("Repair Model",
+          makeButton("Verify and Repair Model",
           function (e: any, obj: any) {
             const myModel = myMetis.currentModel;
             const myMetamodel = myMetis.currentMetamodel;
             /* if (debug) */console.log('1176 model, metamodel', myModel, myMetamodel);
-            uic.checkAndRepairModel(myModel, myMetamodel);
+            uic.verifyAndRepairModel(myModel, myMetamodel);
             alert("Current model has been repaired");
           },
           function (o: any) { 

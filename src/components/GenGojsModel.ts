@@ -33,7 +33,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('33 GenGojsModel', myMetis);  
       myMetis.importData(metis, true);
     // }
-      /* if (debug) */console.log('36 GenGojsModel myMetis', myMetis);
+      if (debug) console.log('36 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview

@@ -471,7 +471,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ExternalObjectsDropped': {
         e.subject.each(function(node) {
           const part = node.data;
-          if (debug) console.log('511 part', part);
+          /* if (debug) */console.log('511 part', part);
             if (debug) console.log('512 myMetis', myMetis);
             if (debug) console.log('513 myGoModel', myGoModel, myGoMetamodel);
             if (part.type === 'objecttype') {
@@ -505,7 +505,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('542 part', part);
               }
               const objview = uic.createObject(part, context);
-              if (debug) console.log('545 New object', objview);
+              /* if (debug) */console.log('545 New object', part, objview);
               if (objview) {
                 const gqlObjview = new gql.gqlObjectView(objview);
                 modifiedNodes.push(gqlObjview);
@@ -515,7 +515,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('560 New object', gqlObj);
               }
             }
-            if (debug) console.log('563 myGoModel', myGoModel);
+            /* if (debug) */console.log('563 myGoModel', myGoModel);
         })
         myDiagram.requestUpdate();
       }
@@ -659,10 +659,26 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('659 link, data', link, data);
         const fromNode = link.fromNode;
         const toNode = link.toNode;
-        if (debug) console.log('668 LinkDrawn', fromNode.data.class, toNode, data);
-
-        if (fromNode?.data?.category === 'Object') {
-          if (debug) console.log('670 LinkDrawn', fromNode.data.class);
+        if (debug) console.log('668 LinkDrawn', fromNode, toNode, data);
+        // Handle object types
+        if (fromNode?.data?.category === 'Object type') {
+          if (debug) console.log('685 link', fromNode, data);
+          link.category = 'Relationship type';
+          link.class = 'goRelshipTypeLink';
+          const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
+          if (reltype) {
+            if (debug) console.log('690 reltype', reltype);
+            const gqlType = new gql.gqlRelationshipType(reltype, true);
+            modifiedTypeLinks.push(gqlType);
+            if (debug) console.log('693 gqlType', gqlType);
+            const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
+            modifiedLinkTypeViews.push(gqlTypeView);
+            if (debug) console.log('696 gqlTypeView', gqlTypeView);
+          }
+        }
+        // Handle objects
+        if (fromNode?.category === 'Object') {
+          /* if (debug) */console.log('670 LinkDrawn', fromNode.data.category);
           const relview = uic.createRelationship(data, context);
           if (relview) {
             const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
@@ -676,20 +692,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             const gqlRelship = new gql.gqlRelationship(relview.relship);
             if (debug) console.log('681 LinkDrawn', gqlRelship);
             modifiedRelships.push(gqlRelship);
-          }
-        } else if (fromNode?.data?.category === 'Object type') {
-          if (debug) console.log('685 link', fromNode, data);
-          link.category = 'Relationship type';
-          link.class = 'goRelshipTypeLink';
-          const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
-          if (reltype) {
-            if (debug) console.log('690 reltype', reltype);
-            const gqlType = new gql.gqlRelationshipType(reltype, true);
-            modifiedTypeLinks.push(gqlType);
-            if (debug) console.log('693 gqlType', gqlType);
-            const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
-            modifiedLinkTypeViews.push(gqlTypeView);
-            if (debug) console.log('696 gqlTypeView', gqlTypeView);
           }
         }
         myDiagram.requestUpdate();

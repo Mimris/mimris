@@ -27,14 +27,12 @@ export class goModel {
     model: akm.cxModel | null;
     metamodel: akm.cxMetaModel | null;
     nodes: goNode[];
-    abstractNodes: goNode[];
     links: goLink[];
     constructor(key: string, name: string, modelView: akm.cxModelView) {
         this.key = key;
         this.name = name;
         this.modelView = modelView;
         this.nodes = new Array();
-        this.abstractNodes = new Array();
         this.links = new Array();
         this.model = (modelView) ? modelView.model : null;
         this.metamodel = (modelView)
@@ -61,17 +59,6 @@ export class goModel {
         let oldNodes: goObjectNode[] = new Array();
         for (let i = 0; i < this.nodes.length; i++) {
             let n = this.nodes[i] as goObjectNode;
-            oldNodes.push(n);
-        }
-        oldNodes.push(node as goObjectNode);
-        this.nodes = oldNodes;
-    }
-    addAbstractNode(node: goObjectNode | goObjectTypeNode) {
-        node.setParentModel(this);
-        let oldNodes: goObjectNode[] = new Array();
-        for (let i = 0; i < this.nodes.length; i++) {
-            let n = this.nodes[i] as goObjectNode;
-            // if (n.abstract) //sf
             oldNodes.push(n);
         }
         oldNodes.push(node as goObjectNode);
@@ -324,11 +311,11 @@ export class goObjectNode extends goNode {
                 if (object.getType()) {
                     this.objecttype = (object.getType() as akm.cxObjectType);
                     this.typename = this.objecttype.getName();
-                    this.type = this.typename;
+                    //this.type = this.typename;
                 } else {
                     this.objecttype = null;
                     this.typename = "";
-                    this.type = "";
+                    //this.type = "";
                 }
 
             }
@@ -403,14 +390,12 @@ export class goObjectTypeNode extends goNode {
     objtype: akm.cxObjectType | null;
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     typename: string;
-    abstract: boolean;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.category = constants.gojs.C_OBJECTTYPE;
         this.objtype = objtype;
         this.typeview = null;
         this.typename = constants.gojs.C_OBJECTTYPE;
-        this.abstract = false;
 
         if (objtype) {
             this.setName(objtype.getName());
@@ -419,7 +404,6 @@ export class goObjectTypeNode extends goNode {
             if (typeview) {
                 this.typeview = typeview;
             }
-            this.abstract = objtype.abstract;
         }
     }
     // Methods
@@ -465,9 +449,6 @@ export class goObjectTypeNode extends goNode {
                     diagram.model.setDataProperty(data, prop, data[prop]);
             }
         }
-    }
-    setAbstract(abstract: boolean) {
-        this.abstract = abstract;
     }
 }
 

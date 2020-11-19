@@ -7,6 +7,8 @@ import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
 //import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
+const printf = require('printf');
+
 //import { render } from 'react-dom';
 
 //import * as go from 'gojs';
@@ -51,7 +53,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 obj.outputrels  = null;
             }
             data.object = obj;
-            // myDiagram.model.setDataProperty(data, "object_0", data.object_0);
+            data.category = 'Object';
+            myDiagram.model.setDataProperty(data, 'category', data.category);
             // Include the new object in the current model
             myModel?.addObject(obj);
             if (debug) console.log('55 createObject', obj, myModel, myMetis);
@@ -858,8 +861,8 @@ export function createRelationship(data: any, context: any) {
     let fromNode = myGoModel.findNode(data.from);
     let toNode = myGoModel.findNode(data.to);
     console.log('832 createRelationship', myGoModel, fromNode, toNode);
-    if (!toNode)
-        return;
+    // if (!toNode)
+    //     return;
     let typename = 'isRelatedTo' as string | null;
     let reltype;
     //reltype = myMetis?.findRelationshipTypeByName(typename);
@@ -1430,3 +1433,62 @@ function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipVie
     }
     return data;
 }
+
+export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaModel) {
+    // Handle the objects
+    // Check if the referenced type exists - otherwse find a type that corresponds
+    const defObjTypename = 'Generic';
+    const objects = model.objects;
+    const format = "%s\n";
+    let msg = "Verification report";
+    let report = printf(format, msg);
+    for (let i=0; i<objects?.length; i++) {
+        const obj = objects[i];
+        const typeRef = obj.typeRef;
+        const typeName = obj.typeName;
+        if (debug) console.log('1441 obj', obj, model);
+        let objtype = metamodel.findObjectType(typeRef);
+        msg = "Verifying object type " + typeRef + " (" + typeName + ")";
+        report += printf(format, msg);
+        if (!objtype) {
+            msg = "Object type " + typeRef + " (" + typeName + ") was not found";
+            report += printf(format, msg);
+            objtype = metamodel.findObjectTypeByName(typeName);
+            if (!objtype) {
+                objtype = metamodel.findObjectTypeByName(defObjTypename);
+            }
+            if (objtype) {
+                obj.type = objtype;
+                obj.typeRef = objtype.id;
+                obj.typeName = objtype.name;
+            }
+        }
+    }
+    msg = "Verifying objects completed";
+    report += printf(format, msg);
+    // Handle the relationships
+    // Check if the referenced type exists - otherwse find a type that corresponds
+    const defRelTypename = 'isRelatedTo';
+    const relships = model.relships;
+    for (let i=0; i<relships.length; i++) {
+        const rel = relships[i];
+        console.log('1474 rel', rel);
+        let typeRef = rel.typeRef;
+        let typeName = rel.typeName;
+        let reltype = metamodel.findRelationshipType(typeRef);
+        msg = "Verifying relationship type " + typeRef + " (" + typeName + ")";
+        report += printf(format, msg);
+        if (!reltype) {
+            reltype = metamodel.findRelationshipTypeByName(typeName);
+            if (!reltype) {
+                reltype = metamodel.findRelationshipTypeByName(defRelTypename);
+            }
+            if (reltype) {
+                rel.type = reltype;
+            }
+        }
+    }
+    msg = "Verifying relationships completed";
+    report += printf(format, msg);
+    if (debug) console.log(report);
+} 

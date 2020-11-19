@@ -24,7 +24,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   if (metis != null) {
     // let myMetis = null;
-    if (debug) console.log('24 glb.metis', glb.metis, metis);
+    // console.log('24 glb.metis', glb.metis, metis);
     // if (!glb.metis) {
     //   myMetis = new akm.cxMetis();
     //   myMetis.importData(metis, true);

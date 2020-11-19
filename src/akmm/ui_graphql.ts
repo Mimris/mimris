@@ -711,6 +711,7 @@ export class gqlObject {
     name:           string;
     description:    string;
     typeRef:        string;
+    typeName:       string;
     propertyValues: any[];
     deleted:        boolean;
     modified:       boolean;
@@ -719,6 +720,7 @@ export class gqlObject {
         this.name           = object.name;
         this.description    = object.description ? object.description : "";
         this.typeRef        = object.type ? object.type.id : "";
+        this.typeName       = object.type ? object.type.name : "";
         this.propertyValues = [];
         this.deleted        = object.deleted;
         this.modified       = object.modified;
@@ -1318,28 +1320,35 @@ export class gqlImportMetis {
         glb.metis.addModel(model);
         if (debug) console.log("Importing model: " + item.id + ", " + item.name);
         const objects = item.objects;
-        if (utils.objExists(objects) && (objects.length > 0)) {
+        if (objects && (objects.length > 0)) {
             objects.forEach(function (this: gqlImportMetis, obj: akm.cxObject) {
                 this.importObject(obj, model);
             });
         }
         const relships = item.relships;
-        if (utils.objExists(relships) && (relships.length > 0)) {
+        if (relships && (relships.length > 0)) {
             relships.forEach(function (this: gqlImportMetis, rel: akm.cxRelationship) {
                 this.importRelship(rel, model);
             });
         }
         const modelviews = item.modelviews;
-        if (utils.objExists(modelviews) && (modelviews.length > 0)) {
+        if (modelviews && (modelviews.length > 0)) {
             modelviews.forEach(function (this: gqlImportMetis, mv: akm.cxModelView) {
                 this.importModelView(mv, model);
             });
         }
     }
     importObject(item: any, model: akm.cxModel) {
-        if (utils.objExists(item.typeRef)) {
-            const objtype = glb.metis.findObjectType(item.typeRef);
-            if (utils.objExists(objtype)) {
+        if (item.typeRef) {
+            let objtype = glb.metis.findObjectType(item.typeRef);
+            const metamodel = model.metamodel;
+            if (!objtype) {
+                objtype = metamodel.findObjectTypeByName(item.name);
+                if (!objtype) {
+                    objtype = metamodel.findObjectTypeByName('Generic');
+                }
+            }
+            if (objtype) {
                 let obj = new akm.cxObject(item.id, item.name, objtype, item.description);
                 obj.setType(objtype);
                 glb.metis.addObject(obj);
@@ -1349,8 +1358,15 @@ export class gqlImportMetis {
         }
     }
     importRelship(item: any, model: akm.cxModel) {
-        if (utils.objExists(item.typeRef)) {
-            const reltype = glb.metis.findRelationshipType(item.typeRef);
+        if (item.typeRef) {
+            let reltype = glb.metis.findRelationshipType(item.typeRef);
+            const metamodel = model.metamodel;
+            if (!reltype) {
+                reltype = metamodel.findRelationshipTypeByName(item.name);
+                if (!reltype) {
+                    reltype = metamodel.findRelationshipTypeByName('isRelatedTo');
+                }
+            }
             const fromObj = glb.metis.findObject(item.fromObjectRef);
             const toObj = glb.metis.findObject(item.toObjectRef);
             if (reltype && fromObj && toObj) {

@@ -70,6 +70,8 @@ export class cxMetis {
                 if (debug) console.log('55 importData', this);
             }
         }
+        if (debug) console.log('73 Imported metamodel type', this);
+
         // Handle models next
         const models: any[] = importedData?.models;
         if (models && models.length) {
@@ -347,8 +349,9 @@ export class cxMetis {
         objecttypes = item.objecttypes;
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
-                if (objtype && !objtype.deleted)
+                if (objtype && !objtype.deleted) {
                     this.importObjectType(objtype, metamodel);
+                }
             });
         }
         objtypegeos = item.objtypegeos;
@@ -401,6 +404,7 @@ export class cxMetis {
             objtype = new cxObjectType(item.id, item.name, item.description);
         }
         if (objtype) {
+            if (debug) console.log('405 Object type', objtype);
             objtype.deleted = item.deleted;
             let otype = (objtype as any);
             for (const prop in item) {
@@ -4184,6 +4188,7 @@ export class cxModel extends cxMetaObject {
 export class cxInstance extends cxMetaObject {
     type: cxObjectType | cxRelationshipType | null;
     typeRef: string;
+    typeName: string;
     typeview: cxObjectTypeView | cxRelationshipTypeView | null;
     typeviewRef: string;
     fromObject: cxInstance | null;
@@ -4199,7 +4204,8 @@ export class cxInstance extends cxMetaObject {
         this.class = this.constructor.name;
         this.id = id;
         this.type = type;
-        this.typeRef = "";
+        this.typeRef = type?.id;
+        this.typeName = type?.name;
         this.typeview = null;
         this.typeviewRef = "";
         this.fromObject = null;
@@ -4265,6 +4271,8 @@ export class cxInstance extends cxMetaObject {
     }
     setType(type: cxObjectType | cxRelationshipType) {
         this.type = type;
+        this.typeRef = type.id;
+        this.typeName = type.name;
     }
     getType(): cxObjectType | cxRelationshipType | null {
         return this.type;

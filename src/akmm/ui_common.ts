@@ -5,6 +5,7 @@ import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
+import { FaNode } from 'react-icons/fa';
 //import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
 const printf = require('printf');
@@ -29,7 +30,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
-        if (debug) console.log('30 createObject', myMetis, data);
+        /* if (debug) */console.log('30 createObject', myMetis, data);
         let obj = data.object;
         if (debug) console.log('35 createObject', obj);
         if (myModel.pasteViewsOnly) {
@@ -45,7 +46,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             let guid = obj.id;
             obj = new akm.cxObject(utils.createGuid(), data.name, objtype, data.description);
         }
-        if (debug) console.log('49 createObject', obj, myMetis);
+        /* if (debug) */console.log('49 createObject', obj, myMetis);
         if (obj) {
             if (!myModel.pasteViewsOnly) {
                 obj.objectviews = null;
@@ -72,13 +73,10 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 myModelview.addObjectView(objview);
                 myMetis.addObjectView(objview);
                 // Then update the node with its new properties
-                // First set category and name
-                myDiagram.model.setDataProperty(data, "category", constants.C_OBJECT);
+                // First set name and reference to the objectview
                 myDiagram.model.setDataProperty(data, "type", data.name);
-                // Then set reference to the object view                        
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
-                // Get the object typeview
                 let objtypeView = objtype?.getDefaultTypeView();
                 if (context.pasted) 
                     objtypeView = data.typeview;
@@ -91,15 +89,16 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     const node = new gjs.goObjectNode(data.key, objview);
                     if (debug) console.log('87 createObject', node, data);
                     updateNode(node, objtypeView, myDiagram);
-                    node.loc = data.loc;
-                    node.size = data.size;
-                    node.isGroup = data.isGroup;
+                    node.loc      = data.loc;
+                    node.size     = data.size;
+                    node.isGroup  = data.isGroup;
+                    myDiagram.model.setDataProperty(data, 'category', node.category);
                     const group = getGroupByLocation(myGoModel, objview.loc);
                     if (group) {
                         node.group = group.key;
                         objview.group = group.objectview.id;
                         myDiagram.model.setDataProperty(data, "group", node.group);
-                       if (debug) console.log('97 group', group, node)
+                        console.log('97 group', group, node)
                     }
                     if (debug) console.log('99 group', group, objview);
                     myGoModel.addNode(node);
@@ -610,6 +609,7 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
 }
 
 export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, nodes: any[]) {
+    /* if (debug) */console.log('613 sel', sel);
     if (sel.category === 'Object') {
         let node = goModel?.findNode(sel.key);
         if (node) {
@@ -621,7 +621,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                 objview.size = sel.size;
                 objview.modified = true;
                 const group = getGroupByLocation(goModel, objview.loc);
-                if (debug) console.log('609 Moved node', group, objview);
+                /* if (debug) */console.log('609 Moved node', group, objview);
                 if (group) {
                     objview.group = group.objectview.id;
                     node.group = group.key;
@@ -629,7 +629,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     objview.group = "";
                     node.group = "";
                 }
-                if (debug) console.log('614 Moved node', node, objview)
+                /* if (debug) */console.log('614 Moved node', node, objview)
                 const modNode = new gql.gqlObjectView(objview);
                 nodes.push(modNode);
             }

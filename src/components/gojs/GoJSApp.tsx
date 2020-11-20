@@ -471,7 +471,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ExternalObjectsDropped': {
         e.subject.each(function(node) {
           const part = node.data;
-          /* if (debug) */console.log('511 part', part);
+          if (debug) console.log('511 part', part);
             if (debug) console.log('512 myMetis', myMetis);
             if (debug) console.log('513 myGoModel', myGoModel, myGoMetamodel);
             if (part.type === 'objecttype') {
@@ -497,6 +497,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             } else // object
             {
+              part.category = 'Object';
               if (debug) console.log('537 myModel', myModel);
               if (part.parentModel == null)
                 myMetis.pasteViewsOnly = true;
@@ -515,7 +516,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('560 New object', gqlObj);
               }
             }
-            /* if (debug) */console.log('563 myGoModel', myGoModel);
+            if (debug) console.log('563 myGoModel', myGoModel);
         })
         myDiagram.requestUpdate();
       }
@@ -575,9 +576,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "PartResized": {
+        const part = e.subject.part;
         const data = e.subject.part.data;
-        if (debug) console.log('439 PartResized', sel);
+        /* if (debug) */console.log('579 PartResized', part, data);
         uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
+        /* if (debug) */console.log('581 modifiedNodes', myGoModel, modifiedNodes);
         const nodes = this.state.nodeDataArray;
         for (let i=0; i<nodes.length; i++) {
             const node = nodes[i];

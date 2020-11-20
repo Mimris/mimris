@@ -30,18 +30,16 @@ const Selector = ( props: any ) => {
     (focus) 
       ? [
         <option  key={focus}  value={`${focus}...`} > {focus} </option>,
-        selArray.map((m: any, index) => (m.name !== 'Select '+props.selName+'...') &&
+        selArray.map((m: any, index) => ((m) && m.name !== 'Select '+props.selName+'...') &&
         // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
         <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})} > {m.name} </option>)]
       : [
         <option key={focus+1} value={`${focus}...`} >Select {props.selName}... </option>,
-        selArray.map((m: any) => (m.name !== 'Select '+props.selName+'...') &&
+        selArray.map((m: any) => ((m) && m.name !== 'Select '+props.selName+'...') &&
         // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
         <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)]
     )
     
-    
-
   // console.log('38 selector', options);
   const selectDiv = 
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))

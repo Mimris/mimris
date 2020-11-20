@@ -89,7 +89,7 @@ const SelectSource = (props: any) => {
             <hr />
             <p> Server access  (wait for the json-file to appear below) : </p>
             {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
-            <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe>
+            {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe> */}
             {/* {GetStoreFromHtml} */}
             {/* <IframeHelper /> */}
             {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}

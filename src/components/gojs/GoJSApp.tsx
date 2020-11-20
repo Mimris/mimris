@@ -375,7 +375,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "SelectionDeleted": {
         const deletedFlag = true;
         const selection = e.subject;
-        if (debug) console.log('378 selection, selection');
+        /* if (debug) */console.log('378 selection', selection);
         for (let it = selection.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
@@ -437,7 +437,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === 'Object') {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
-              if (debug) console.log('440 delete node', myNode);
+              /* if (debug) */console.log('440 delete node', myNode);
               uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
               if (debug) console.log('390 modifiedNodes', modifiedNodes);
               if (debug) console.log('391 modifiedObjects', modifiedObjects);

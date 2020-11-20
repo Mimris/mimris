@@ -609,8 +609,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { 
               const node = o.part.data;
               if (node.category === 'Object') 
-                return false;
-              return o.diagram.commandHandler.canCopySelection(); 
+                return o.diagram.commandHandler.canCopySelection(); 
             }),
           makeButton("Paste",
             function (e: any, obj: any) {

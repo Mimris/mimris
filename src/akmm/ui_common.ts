@@ -357,7 +357,7 @@ export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedF
 
 }
 
-export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, deletedLinks: any, deletedRelships: any, deletedTypeviews: any, context: any) {
+export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any, deletedObjects: any, deletedLinks: any, deletedRelships: any, deletedTypeviews: any, context: any) {
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const myDiagram   = context.myDiagram;
@@ -410,8 +410,8 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             node.deleted = deletedFlag;
             const objview = node.objectview;
             objview.deleted = deletedFlag;
-            const delNode = new gql.gqlObjectView(objview);
-            deletedNodes.push(delNode);
+            const gqlObjview = new gql.gqlObjectView(objview);
+            deletedObjviews.push(gqlObjview);
             if (debug) console.log('408 delete objview', objview);
             // Handle deleteViewsOnly
             if (myMetis.currentModel.deleteViewsOnly) {
@@ -428,19 +428,27 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedNodes: any, d
             }         
             // Then handle all object views of the deleted object
             const objviews = object?.objectviews;
-            if (debug) console.log('423 delete objviews', objviews);
+            const nodes = new Array();
+            /* if (debug) */console.log('432 selection', myDiagram.selection);
+            //myDiagram.clearSelection();
+            /* if (debug) */console.log('423 delete objviews', objviews);
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
                 if (objview) {
                     objview.deleted = deletedFlag;
-                    deleteObjectView(objview, deletedFlag, deletedNodes, deletedObjects, deletedTypeviews, context);
-                    const node = myGoModel.findNodeByViewId(objview.id);
-                    if (node) {
-                        node.deleted = deletedFlag;
-                        myDiagram.model.removeNodeData(node); 
+                    deleteObjectView(objview, deletedFlag, deletedObjviews, deletedObjects, deletedTypeviews, context);
+                    const n = myGoModel.findNodeByViewId(objview.id);
+                    if (n && n.key !== node.key) {
+                        n.deleted = deletedFlag;
+                        n.isSelected = true;
+                        nodes.push(n);
+                        //myDiagram.select(node); 
                     }
                 }
             }
+            /* if (debug) */console.log('446 nodes to delete', nodes, myDiagram.selection);
+            if (nodes.length>0) myDiagram.removeParts(myDiagram.selection);
+            myDiagram.requestUpdate();
             let connectedRels = object?.inputrels;
             if (debug) console.log('434 inputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {

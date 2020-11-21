@@ -1037,7 +1037,7 @@ function reducer(state = InitialState, action) {
       if (!curmmtot) return state;
       const curmmindextot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.targetMetamodelRef) 
       const curtot = curmmtot?.objecttypes?.find(ot => ot.id === action?.data?.id)
-      const lengthtot = curmmtot?.objecttypes.length
+      const lengthtot = curmmtot?.objecttypes?.length
       let indextot = curmmtot?.objecttypes?.findIndex(ot => ot.id === curtot?.id)
       if (indextot < 0) {indextot = lengthtot} 
       //  if (debug) console.log('607 reducer', lengthtot, indextot);
@@ -1174,7 +1174,7 @@ function reducer(state = InitialState, action) {
       if (curmmtpot) {
         const curmmtpindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmotpot.targetMetamodelRef) 
         const curtpot = curmmtpot?.properties?.find(ot => ot.id === action?.data?.id)
-        const lengthottp = curmmtpot?.properties.length
+        const lengthottp = curmmtpot?.properties?.length
         let indextpot = curmmtpot?.properties?.findIndex(ot => ot.id === curtpot?.id)
         if (debug) console.log('911 UPDATE_TARGETPROPERTY_PROPERTIES', indextpot, lengthottp)//, curmotpot, curmmtpot);   
         if (indextpot < 0) {indextpot = lengthottp} 
@@ -1487,7 +1487,7 @@ function reducer(state = InitialState, action) {
       const curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot.targetMetamodelRef)
       const curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot.targetMetamodelRef) 
       const curddot = curmmddot?.datatypes?.find(ot => ot.id === action?.data?.id)
-      const lengthotdd = curmmddot?.datatypes.length
+      const lengthotdd = curmmddot?.datatypes?.length
       let indexddot = curmmddot?.datatypes?.findIndex(ot => ot.id === curddot?.id)
       if (indexddot < 0) {indexddot = lengthotdd} 
       if (debug) console.log('607 reducer', lengthotdd, indexddot);   

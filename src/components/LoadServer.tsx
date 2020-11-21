@@ -88,12 +88,12 @@ const SelectSource = (props: any) => {
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
             <hr />
             <p> Server access  (wait for the json-file to appear below) : </p>
-            {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
-            <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe>
-            {/* {GetStoreFromHtml} */}
-            {/* <IframeHelper /> */}
-            {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
-            {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
+                {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+            {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akmmodels" name={frameId}></iframe> */}
+                {/* {GetStoreFromHtml} */}
+                {/* <IframeHelper /> */}
+                {/* <p href="http://localhost:4000/profile" target="myFrame" >Click to Login</p> */}
+                {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           </div>
           {selectorDiv}
         </div>
@@ -106,7 +106,8 @@ const SelectSource = (props: any) => {
       <span><button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button> </span>
  
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
+        {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader> */}
+        <ModalHeader >Model Server: </ModalHeader>
         <ModalBody className="pt-0">
           Current Source: <strong>{props.ph?.phSource}</strong>
           <div className="source bg-light pt-2 "> Models: <strong> {modelNames}</strong></div>

@@ -3,6 +3,21 @@
         "metis": {
             "metamodels": [
                 {
+                    "id": "bf1c98f1-3a50-4894-4b43-ce891d23bdec",
+                    "name": "Target Concept example metamodel",
+                    "description": "",
+                    "datatypes": [],
+                    "objecttypes": [],
+                    "objecttypeviews": [],
+                    "objtypegeos": [],
+                    "properties": [],
+                    "relshiptypes": [],
+                    "relshiptypeviews": [],
+                    "unittypes": [],
+                    "deleted": false,
+                    "modified": false
+                },
+                {
                     "id": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
                     "name": "IRTV Metamodel",
                     "description": "",
@@ -2497,100 +2512,6 @@
                             "modified": true
                         }
                     ]
-                },
-                {
-                    "id": "16b9d74c-2045-442f-6183-5a2dda6e2613",
-                    "name": "Solution example model",
-                    "description": "",
-                    "metamodelRef": "552561f1-76a9-4324-6d56-ca549fb63b9a",
-                    "isTemplate": false,
-                    "templates": [],
-                    "objects": [
-                        {
-                            "id": "2202293f-240e-45e0-84e5-37b823cb430b",
-                            "name": "Get Info",
-                            "description": "",
-                            "typeRef": "87574791-5d5c-4afe-1310-f4e0321c245a",
-                            "deleted": true,
-                            "modified": false
-                        },
-                        {
-                            "id": "18cc25fe-97e4-44bd-5e13-5fde4af8bffb",
-                            "name": "User",
-                            "description": "",
-                            "typeRef": "2fe7c1db-4543-4d15-f688-1f55a386131e",
-                            "deleted": true,
-                            "modified": false
-                        },
-                        {
-                            "id": "2be78d67-5871-42a9-0311-84f69ca64561",
-                            "name": "Address",
-                            "description": "",
-                            "typeRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "cbe7fae9-37ae-47d1-5638-5f8c0d9d00d8",
-                            "name": "Company",
-                            "description": "",
-                            "typeRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "6e4ac991-f5ae-4cb2-e389-374c1b93a622",
-                            "name": "Person",
-                            "description": "",
-                            "typeRef": "",
-                            "deleted": false,
-                            "modified": false
-                        }
-                    ],
-                    "relships": [],
-                    "modelviews": [
-                        {
-                            "id": "7ee8e4d0-1f4c-436e-2581-c55e39720263",
-                            "name": "MainView",
-                            "description": "",
-                            "modelRef": "16b9d74c-2045-442f-6183-5a2dda6e2613",
-                            "objectviews": [
-                                {
-                                    "id": "1037a233-600e-43fd-b9c9-edf1a57402f9",
-                                    "name": "Get Info",
-                                    "description": "",
-                                    "objectRef": "2202293f-240e-45e0-84e5-37b823cb430b",
-                                    "typeviewRef": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
-                                    "group": "",
-                                    "isGroup": false,
-                                    "loc": "-370 -410",
-                                    "size": "",
-                                    "deleted": true,
-                                    "modified": true
-                                },
-                                {
-                                    "id": "7cc0b0bf-fe52-4325-1305-7e1ccf64630e",
-                                    "name": "User",
-                                    "description": "",
-                                    "objectRef": "18cc25fe-97e4-44bd-5e13-5fde4af8bffb",
-                                    "typeviewRef": "84cc6526-349b-45ad-3099-f9eabd0727ee",
-                                    "group": "",
-                                    "isGroup": false,
-                                    "loc": "-360 -610",
-                                    "size": "",
-                                    "deleted": true,
-                                    "modified": true
-                                }
-                            ],
-                            "relshipviews": [],
-                            "objecttypeviews": [],
-                            "relshiptypeviews": [],
-                            "deleted": false,
-                            "modified": false
-                        }
-                    ],
-                    "deleted": false,
-                    "modified": false
                 }
             ],
             "models": [
@@ -6488,89 +6409,24 @@
                     "deleteViewsOnly": true
                 },
                 {
-                    "id": "16b9d74c-2045-442f-6183-5a2dda6e2613",
+                    "id": "514ef389-f54c-4369-7ed8-af3ea324bd89",
                     "name": "Solution example model",
                     "description": "",
-                    "metamodelRef": "552561f1-76a9-4324-6d56-ca549fb63b9a",
+                    "metamodelRef": "bf1c98f1-3a50-4894-4b43-ce891d23bdec",
+                    "targetMetamodelRef": "",
+                    "sourceModelRef": "",
+                    "targetModelRef": "",
                     "isTemplate": false,
                     "templates": [],
-                    "objects": [
-                        {
-                            "id": "2202293f-240e-45e0-84e5-37b823cb430b",
-                            "name": "Get Info",
-                            "description": "",
-                            "typeRef": "87574791-5d5c-4afe-1310-f4e0321c245a",
-                            "deleted": true,
-                            "modified": false
-                        },
-                        {
-                            "id": "18cc25fe-97e4-44bd-5e13-5fde4af8bffb",
-                            "name": "User",
-                            "description": "",
-                            "typeRef": "2fe7c1db-4543-4d15-f688-1f55a386131e",
-                            "deleted": true,
-                            "modified": false
-                        },
-                        {
-                            "id": "2be78d67-5871-42a9-0311-84f69ca64561",
-                            "name": "Address",
-                            "description": "",
-                            "typeRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "cbe7fae9-37ae-47d1-5638-5f8c0d9d00d8",
-                            "name": "Company",
-                            "description": "",
-                            "typeRef": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "6e4ac991-f5ae-4cb2-e389-374c1b93a622",
-                            "name": "Person",
-                            "description": "",
-                            "typeRef": "",
-                            "deleted": false,
-                            "modified": false
-                        }
-                    ],
+                    "objects": [],
                     "relships": [],
                     "modelviews": [
                         {
-                            "id": "7ee8e4d0-1f4c-436e-2581-c55e39720263",
-                            "name": "MainView",
+                            "id": "777dccf7-30f2-4353-df3c-f59362d552c0",
+                            "name": "Main",
                             "description": "",
-                            "modelRef": "16b9d74c-2045-442f-6183-5a2dda6e2613",
-                            "objectviews": [
-                                {
-                                    "id": "1037a233-600e-43fd-b9c9-edf1a57402f9",
-                                    "name": "Get Info",
-                                    "description": "",
-                                    "objectRef": "2202293f-240e-45e0-84e5-37b823cb430b",
-                                    "typeviewRef": "8dcd7395-ef55-4bf0-e8e0-b142b0039a14",
-                                    "group": "",
-                                    "isGroup": false,
-                                    "loc": "-370 -410",
-                                    "size": "",
-                                    "deleted": true,
-                                    "modified": true
-                                },
-                                {
-                                    "id": "7cc0b0bf-fe52-4325-1305-7e1ccf64630e",
-                                    "name": "User",
-                                    "description": "",
-                                    "objectRef": "18cc25fe-97e4-44bd-5e13-5fde4af8bffb",
-                                    "typeviewRef": "84cc6526-349b-45ad-3099-f9eabd0727ee",
-                                    "group": "",
-                                    "isGroup": false,
-                                    "loc": "-360 -610",
-                                    "size": "",
-                                    "deleted": true,
-                                    "modified": true
-                                }
-                            ],
+                            "modelRef": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
+                            "objectviews": [],
                             "relshipviews": [],
                             "objecttypeviews": [],
                             "relshiptypeviews": [],
@@ -6604,7 +6460,7 @@
         },
         "focusModel": {
             "id": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
-            "name": "Example Concept Model"
+            "name": "Concept example model"
         },
         "focusModelview": {
             "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",

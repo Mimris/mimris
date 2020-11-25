@@ -74,14 +74,15 @@ const Modeller = (props: any) => {
     <div className="modeller-selection float-right" >
     </div> 
 
-  activetabindex = (modelviewindex < 0) ? '0' : (modelviewindex) ? modelviewindex : '0' //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
+  activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : 0 //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
   if (debug) console.log('78 Modeller', activetabindex);
 
-  (selmodviews && props.phSource === 'Model server') &&  useEffect(() =>  {
+  // (selmodviews && props.phSource === 'Model server') &&  
+  useEffect(() =>  {
     const data = {id: selmodviews[0].id, name: selmodviews[0].name}
-    if (activeTab != undefined) {
+    if (activeTab != undefined || 0) {
       dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-      setActiveTab('0')
+      setActiveTab(0)
     }
     if (debug) console.log('86 Modeller useEffect 1', activeTab); 
   }, [focusModel])

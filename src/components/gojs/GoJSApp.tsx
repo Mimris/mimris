@@ -372,7 +372,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       }
       break;
-      case "SelectionDeleted": {
+      case "SelectionDeleting": {
+      //case "SelectionDeleted": {
         const deletedFlag = true;
         const selection = e.subject;
         /* if (debug) */console.log('378 selection', selection);
@@ -437,7 +438,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === 'Object') {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
-              /* if (debug) */console.log('440 delete node', myNode);
+              /* if (debug) */console.log('440 delete node', data, myNode);
               uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
               if (debug) console.log('390 modifiedNodes', modifiedNodes);
               if (debug) console.log('391 modifiedObjects', modifiedObjects);
@@ -605,28 +606,30 @@ class GoJSApp extends React.Component<{}, AppState> {
         const pastedNodes = new Array();
           // First handle the objects
         while (it.next()) {
-        const node = it.value.data;
-        if (node.category === 'Object') {
-          if (debug) console.log('654 ClipboardPasted', node, myGoModel);
-            const objview = uic.createObject(node, context);
-            if (debug) console.log('655 ClipboardPasted', node, objview);
-            if (objview) {
-              const group = uic.getGroupByLocation(myGoModel, objview.loc);
-              if (debug) console.log('662 group', group)
-              if (group && node) {
-                objview.group = group.objectview?.id;
-                node.group = group.key;
+          const data = it.value.data;
+          data.key = utils.createGuid();
+          if (data.category === 'Object') {
+              if (debug) console.log('654 ClipboardPasted', data, myGoModel);
+              const objview = uic.createObject(data, context);
+              if (debug) console.log('655 ClipboardPasted', data, objview);
+              if (objview) {
+                const node = new gjs.goObjectNode(utils.createGuid(), objview);
+                const group = uic.getGroupByLocation(myGoModel, objview.loc);
+                if (debug) console.log('662 group', group)
+                if (group && node) {
+                  objview.group = group.objectview?.id;
+                  node.group = group.key;
+                }
+                pastedNodes.push(node);
+                const objid = objview.object?.id;
+                objview.object = myMetis.findObject(objid);
+                const gqlObjview = new gql.gqlObjectView(objview);
+                modifiedNodes.push(gqlObjview);
+                if (debug) console.log('672 ClipboardPasted', modifiedNodes);
+                const gqlObj = new gql.gqlObject(objview.object);
+                modifiedObjects.push(gqlObj);
+                if (debug) console.log('675 ClipboardPasted', modifiedObjects);
               }
-              pastedNodes.push(node);
-              const objid = objview.object?.id;
-              objview.object = myMetis.findObject(objid);
-              const gqlObjview = new gql.gqlObjectView(objview);
-              modifiedNodes.push(gqlObjview);
-              if (debug) console.log('672 ClipboardPasted', modifiedNodes);
-              const gqlObj = new gql.gqlObject(objview.object);
-              modifiedObjects.push(gqlObj);
-              if (debug) console.log('675 ClipboardPasted', modifiedObjects);
-            }
           }
         }
         if (debug) console.log('681 pastedNodes', pastedNodes);
@@ -635,6 +638,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Then handle the relationships
         while (it1.next()) {
           const data = it1.value.data;
+          data.key = utils.createGuid();
           if (data.category === 'Relationship') {
             if (debug) console.log('685 ClipboardPasted', data);
             let relview = uic.pasteRelationship(data, pastedNodes, context);

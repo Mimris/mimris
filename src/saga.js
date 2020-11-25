@@ -1,8 +1,8 @@
 import { all, call, delay, put, take, takeLatest } from 'redux-saga/effects';
 import es6promise from 'es6-promise'
 import 'isomorphic-unfetch'
-import { failure, loadDataSuccess, loadDataModelListSuccess } from './actions/actions';
-import { LOAD_DATA, LOAD_DATAMODELLIST, FAILURE } from './actions/types';
+import { failure, loadDataSuccess, loadDataModelSuccess, loadDataModelListSuccess } from './actions/actions';
+import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './actions/types';
 es6promise.polyfill()
 
 // const localhost = 'https://akmserver.herokuapp.com/'
@@ -109,6 +109,36 @@ function * loadDataModelListSaga() {
     }
   }
 
+function * loadDataModelSaga() {
+
+  const _crf = getCookie("XSRF-TOKEN", document) || "";
+  const _csrf = getCookie("_csrf", document) || "";
+  const sessionCookie = getCookie("session", document) || "";
+  const modelId = props.phFocus.focusModel.id
+  try {
+    let res = ''  
+    res = yield fetch(`${localhost}akmmodel/id=${modelId}`,
+      {
+        mode: 'no-cors',
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+          "Access-Control-Allow-Credentials": 'include', 
+        },
+        credentials: 'include'
+      }
+    )
+      const model = yield res.clone().json()
+      console.log('134 Saga', model);
+      yield put(loadDataModelSuccess({ model }))
+    } catch (err) {
+      console.log('137 saga', failure(err));  
+      yield put(failure(err))
+    }
+  }
+
 // ToDo:  Make save model as dispatch
 // function * saveDataSaga() {
 //   const _crf = getCookie("XSRF-TOKEN", document) || "";
@@ -145,6 +175,7 @@ function* rootSaga() {
     // console.log('45'),
     takeLatest(LOAD_DATA, loadDataSaga),
     takeLatest(LOAD_DATAMODELLIST, loadDataModelListSaga),
+    takeLatest(LOAD_DATAMODEL, loadDataModelSaga()),
     // takeLatest(SAVE_DATA, saveDataSaga)
     // take(LOAD_DATA, loadDataSaga)
   ])

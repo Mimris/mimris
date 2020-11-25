@@ -221,7 +221,7 @@ const EditFocusModel = (props) => {
   const toggle = () => setModal(!modal);
   return (
     <>
-      < button className="btn-primary float-right px-3 mr-1"  onClick={toggle} > {buttonLabel}
+      < button className="btn-dark float-right px-3 mr-1"  onClick={toggle} > {buttonLabel}
       </button >
       <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} >
         <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>

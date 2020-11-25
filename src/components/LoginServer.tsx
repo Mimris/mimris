@@ -4,14 +4,14 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { useSelector, useDispatch } from 'react-redux'
 import { useDispatch } from 'react-redux'
 import Select from 'react-select'
-import { loadData, loadDataModelList, loadDataModel } from '../actions/actions'
+import { loadData, loadDataModelList } from '../actions/actions'
 import Selector from './utils/Selector'
 import SaveModelData from './utils/SaveModelData'
 // import GetStoreFromHtml from './utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
 const debug = false
 
-const SelectSource = (props: any) => {
+const LoginServer = (props: any) => {
   console.log('15 LoadServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
@@ -20,50 +20,17 @@ const SelectSource = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  // let modellist, selmodellist 
+  let modellist, selmodellist 
 
-  const modellist = props.ph.phList.modList
-  let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  console.log('44', props.ph.phList.modList, selmodellist);
+  modellist = props.ph.phList.modList
+  let selmodellist1 = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
+  console.log('44', props.ph.phList.modList, selmodellist1);
+
 
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
   // console.log('20 LoadLocal', modelNames, metamodelNames);
-
-
-  function handleLoadModelStore() { 
-    dispatch(loadDataModel());
-    console.log('48', props.ph.phList);
-  }
-
-  
-
-  function handleSaveModelStore() {
-    // saving current model and metamodel
-    const focusmodel = props.phFocus.focusModel
-    const model = props.phData.metis.models.find(m => m.id === focusmodel.id)
-    const metamodel = props.phData.metis.metamodels.find(mm => mm.id === model.metamodelRef)
-    const currentTargetMetamodel = (model.targetMetamodelRef) && props.phData.metis.metamodels.find(mm => mm.id === model.targetMetamodelRef)
-    const currentTargetModel = (model.targetModelRef) && props.phData.metis.models.find(mm => mm.id === model.targetModelRef)
-    // const phData = props.phData
-    const data = {
-      metis: {
-        metamodels: [
-          metamodel,
-          (currentTargetMetamodel) && currentTargetMetamodel,
-        ],
-        models: [
-          model,
-          (currentTargetModel) && currentTargetModel,
-        ]
-      }
-    }
-    // console.log('72 LoadServer', data);
-    SaveModelData(data)
-  }
-
- 
  
   const models = props.phData?.metis?.models
   const focusModel = props.phFocus?.focusModel
@@ -72,75 +39,39 @@ const SelectSource = (props: any) => {
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
   
   // console.log('42 LoadServer', selmodels, selmodelviews);
+  useEffect(() => {
+    dispatch(loadDataModelList())
+    console.log('44 useEffect', props.ph.phList);
+    
+  }, [])
   
-  const frameId = 'myFrame'
-  // let iframe = {}
-  // console.log('67 LoadServer', selmodels, selmodelviews);
-  // console.log('68 LoadServer', props.ph.phSource);
-  // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
-  const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels) &&
-  // const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels && selmodelviews) &&
-  <div className="modeller-selection p-2 " >
-      <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
-      <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
-    </div> 
-  // console.log('75 selectorDiv', selectorDiv);
   
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
-  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save current to Server</button >
-  const buttonLoadModelStoreDiv = <button className="btn-link btn-sm mr-2" onClick={handleLoadModelStore} > Load a model from Server </button >
-    
-  const buttonDiv = 
-      <>
-        <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
-        <div className="store-div pb-1 mb-0">
-          <h6>Model repository (Firebase) </h6>
-          <div className="select px-2" style={{ paddingTop: "4px" }}>
-            {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
-          </div>
-          {/* {selectorDiv} */}
-        </div>
-      </>
-
+  
   if (debug) console.log('101', buttonLabel);
-  let selectedOption = null
-  const handleChange = (selectedOption) => {
-    console.log('111', selectedOption);
-    const data = {id: selectedOption.value, name: selectedOption.label}
-    console.log('114', data);
-    dispatch({ type: 'SET_FOCUS_MODEL', data }) ;  
-  };
+  
+  const frameId = 'myFrame'
 
+  if (!selmodellist) 
   return (
     <>
       <span><button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button> </span>
- 
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
+        <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server login: </ModalHeader>
         <ModalBody className="pt-0">
-          Current Source: <strong>{props.ph?.phSource}</strong>
-          <div className="source bg-light pt-2 "> Models: <strong> {modelNames}</strong></div>
-          <div className="source bg-light pt-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
-          <div className="source bg-light pt-2 ">
-             {buttonDiv}
-          </div>
-          {/* {selmodellistDiv} */}
-          <Select 
-            options={selmodellist} 
-            name='Model'
-            value={selectedOption}
-            onChange={handleChange}
-          /> 
+            <p> Login to the Model server.  <br /> (if you are already logged in, you will see a list (in JSON format) of all models in the repository (firestore) here. </p>
+              {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
+            <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akm-model-list" name={frameId}></iframe>
+              {/* {GetStoreFromHtml} */}
+              {/* <IframeHelper /> */}
+              <a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a>
+              {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
+          {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={modeldata} >Load</Button> */}
         </ModalBody>
         <ModalFooter>
-          <div style={{ fontSize: "smaller" }}>
-            NB! Clicking "Load" will overwrite current store (memory).
-            To keep current version, exit and go to "Local" then click "Save" to save to LocalStore.
-          </div>
-          {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
           <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>
         </ModalFooter>
       </Modal>
@@ -225,9 +156,11 @@ const SelectSource = (props: any) => {
             `}</style>
     </>
   )
-  
 }
 
-export default SelectSource
+export default LoginServer
 
 
+
+
+  

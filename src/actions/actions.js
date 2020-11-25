@@ -4,6 +4,8 @@ import {
   LOAD_DATA_SUCCESS, 
   LOAD_DATAMODELLIST, 
   LOAD_DATAMODELLIST_SUCCESS, 
+  LOAD_DATAMODEL, 
+  LOAD_DATAMODEL_SUCCESS, 
   LOAD_TOSTORE_PHDATA, 
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS, 
@@ -95,6 +97,17 @@ export const loadDataModelListSuccess = (data) => {
   console.log('37 --loadDataModelListSuccess ', data);
   return {
     type: LOAD_DATAMODELLIST_SUCCESS,
+    data
+  }
+}
+export const loadDataModel = () => {
+  return { type: LOAD_DATAMODEL }
+}
+
+export const loadDataModelSuccess = (data) => {
+  console.log('106 --loadDataModelSuccess ', data);
+  return {
+    type: LOAD_DATAMODEL_SUCCESS,
     data
   }
 }

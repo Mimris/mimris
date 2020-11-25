@@ -6,6 +6,8 @@ import {
   LOAD_DATA_SUCCESS,
   LOAD_DATAMODELLIST,
   LOAD_DATAMODELLIST_SUCCESS,
+  LOAD_DATAMODEL,
+  LOAD_DATAMODEL_SUCCESS,
   LOAD_TOSTORE_PHDATA,
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS,
@@ -124,6 +126,13 @@ function reducer(state = InitialState, action) {
       return {
         ...state,
         phList: action.data,   
+        phSource: 'Model server'
+      }
+    case LOAD_DATAMODEL_SUCCESS:
+      if (debug) console.log('132 LOAD_DATAMODEL_SUCCESS', action);
+      return {
+        ...state,
+        phData: action.data,   
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:

@@ -12,7 +12,7 @@ import SaveModelData from './utils/SaveModelData'
 const debug = false
 
 const SelectSource = (props: any) => {
-  console.log('15 LoadServer', props);
+  // console.log('15 LoadServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -20,24 +20,20 @@ const SelectSource = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  // let modellist, selmodellist 
-
   const modellist = props.ph.phList.modList
   let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  console.log('44', props.ph.phList.modList, selmodellist);
-
+  // console.log('44', props.ph.phList.modList, selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
   // console.log('20 LoadLocal', modelNames, metamodelNames);
 
-
   function handleLoadModelStore() { 
-    dispatch(loadDataModel());
-    console.log('48', props.ph.phList);
+    const data = props.ph.phFocus.focusModel
+    dispatch({ type: 'LOAD_DATAMODEL', data }) 
+    // dispatch(loadDataModel());
+    console.log('48 LoadServer', data);
   }
-
-  
 
   function handleSaveModelStore() {
     // saving current model and metamodel
@@ -62,8 +58,6 @@ const SelectSource = (props: any) => {
     // console.log('72 LoadServer', data);
     SaveModelData(data)
   }
-
- 
  
   const models = props.phData?.metis?.models
   const focusModel = props.phFocus?.focusModel
@@ -85,6 +79,14 @@ const SelectSource = (props: any) => {
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
     </div> 
   // console.log('75 selectorDiv', selectorDiv);
+
+  let selectedOption = null
+  const handleChange = (selectedOption) => {
+    console.log('111 LoadServer', selectedOption);
+    const data = {id: selectedOption.value, name: selectedOption.label}
+    console.log('114 LoadServer', data);
+    dispatch({ type: 'SET_FOCUS_MODEL', data }) ;  
+  };
   
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
@@ -105,14 +107,6 @@ const SelectSource = (props: any) => {
         </div>
       </>
 
-  if (debug) console.log('101', buttonLabel);
-  let selectedOption = null
-  const handleChange = (selectedOption) => {
-    console.log('111', selectedOption);
-    const data = {id: selectedOption.value, name: selectedOption.label}
-    console.log('114', data);
-    dispatch({ type: 'SET_FOCUS_MODEL', data }) ;  
-  };
 
   return (
     <>

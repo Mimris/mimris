@@ -9,7 +9,7 @@ import genGojsModel from './GenGojsModel'
 
 
 const Modeller = (props: any) => {
-  const debug = true
+  const debug = false
   if (debug) console.log('13 Modeller', props);
   // let prevgojsmodel = null
   // let gojsmodel = {}

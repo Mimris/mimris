@@ -12,7 +12,7 @@ import SaveModelData from './utils/SaveModelData'
 const debug = false
 
 const LoginServer = (props: any) => {
-  console.log('15 LoadServer', props);
+  if (debug) console.log('15 LoginServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -21,12 +21,9 @@ const LoginServer = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
   
   let modellist, selmodellist 
-
   modellist = props.ph.phList.modList
   let selmodellist1 = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  console.log('44', props.ph.phList.modList, selmodellist1);
-
-
+  // console.log('27', props.ph.phList.modList, selmodellist1);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
@@ -37,21 +34,14 @@ const LoginServer = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id) // || models[0]
   const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
-  
-  // console.log('42 LoadServer', selmodels, selmodelviews);
+
   useEffect(() => {
     dispatch(loadDataModelList())
-    console.log('44 useEffect', props.ph.phList);
-    
   }, [])
-  
   
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
-  
-  
-  if (debug) console.log('101', buttonLabel);
   
   const frameId = 'myFrame'
 
@@ -62,12 +52,17 @@ const LoginServer = (props: any) => {
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server login: </ModalHeader>
         <ModalBody className="pt-0">
-            <p> Login to the Model server.  <br /> (if you are already logged in, you will see a list (in JSON format) of all models in the repository (firestore) here. </p>
+            <br />
+            <p>   
+            If you are already logged in, you will see a Model list 
+            of all models in the repository below.(in JSON format)
+            <br /><br />
+            (It may take some time for the list to appear!)</p>
               {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
             <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akm-model-list" name={frameId}></iframe>
               {/* {GetStoreFromHtml} */}
               {/* <IframeHelper /> */}
-              <a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a>
+              <a href="http://localhost:4000/profile" target="myFrame" >Click here to Logout</a>
               {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={modeldata} >Load</Button> */}
         </ModalBody>

@@ -126,13 +126,26 @@ function reducer(state = InitialState, action) {
       return {
         ...state,
         phList: action.data,   
-        phSource: 'Model server'
       }
     case LOAD_DATAMODEL_SUCCESS:
-      if (debug) console.log('132 LOAD_DATAMODEL_SUCCESS', action);
+      console.log('132 LOAD_DATAMODEL_SUCCESS', action);
+      let loadmodindex = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
+      if (debug) console.log('431 reducer', loadmodindex)
+      if (loadmodindex < 0) {loadmodindex = state.phData.metis.models.length}
+      if (debug) console.log('433 reducer', loadmodindex)
       return {
         ...state,
-        phData: action.data,   
+          phData: {
+            ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models.slice(0,loadmodindex),
+                action.data.model,
+                ...state.phData.metis.models.slice(loadmodindex + 1),
+              ]
+            },
+          }, 
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:

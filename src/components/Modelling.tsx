@@ -21,7 +21,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
 const page = (props:any) => {
-  // if (debug) console.log('17 Modelling', props);
+  console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -82,7 +82,7 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id])
 
     useEffect(() => {
-      if (debug) console.log('76 Modelling useEffect 3', props); 
+      if (debug) console.log('85 Modelling useEffect 3', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -91,7 +91,7 @@ const page = (props:any) => {
     }, [props.phFocus.focusRefresh?.id])
 
     useEffect(() => {
-      if (debug) console.log('85 Modelling useEffect 4', props); 
+      if (debug) console.log('94 Modelling useEffect 4', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -100,7 +100,7 @@ const page = (props:any) => {
     }, [props.metis])
 
     useEffect(() => {
-      if (debug) console.log('94 Modelling useEffect 5', props); 
+      if (debug) console.log('103 Modelling useEffect 5', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])
@@ -378,10 +378,9 @@ const page = (props:any) => {
     )      
 
   // if (debug) console.log('173 Modelling', activeTab);
-  const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} phFocus={phFocus}  phData={phData} refresh={refresh} setRefresh={setRefresh} /> 
+  const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
-  
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
   const EditFocusModelMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Mod' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />

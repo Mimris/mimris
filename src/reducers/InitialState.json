@@ -6440,6 +6440,7 @@
             ]
         }
     },
+    "phList": {},
     "phFocus": {
         "focusTab": "Concept Modelling",
         "focusTemplateModel": {

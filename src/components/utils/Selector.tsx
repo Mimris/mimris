@@ -11,7 +11,7 @@ const Selector = ( props: any ) => {
 
   const type = props.type
   let selArray = props.selArray
-  // console.log('14 Selector', props);
+  console.log('14 Selector', props);
   
   // if (selArray.length === 1) selArray = [...selArray,...selArray]g
   const handleChange = (event: any) => {
@@ -62,14 +62,14 @@ const Selector = ( props: any ) => {
               {options}
             </select>
             </div>
-      :
-        <div key={props.type} className="select" >
-          <div  className="title "> {props.selName}:</div>
-          <select key={focus} className="list-obj " defaultValue={`Select ${props.selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
-            onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
-            {options}
-          </select>
-        </div>
+    :
+      <div key={props.type} className="select" >
+        <div  className="title "> {props.selName}:</div>
+        <select key={focus} className="list-obj " defaultValue={`Select ${props.selName} ...`} style={{ width: "98%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+          onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
+          {options}
+        </select>
+      </div>
 
   return (
     <div className="mod-modview float-right">

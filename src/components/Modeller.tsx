@@ -9,13 +9,13 @@ import genGojsModel from './GenGojsModel'
 
 
 const Modeller = (props: any) => {
-  const debug = false
-  // if (debug) console.log('8 Modeller', props);
+  const debug = true
+  if (debug) console.log('13 Modeller', props);
   // let prevgojsmodel = null
   // let gojsmodel = {}
   const gojsmodel = props.gojsModel;
   let myMetis = props.myMetis;
-  
+  let activetabindex = '0'
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState();
@@ -74,26 +74,24 @@ const Modeller = (props: any) => {
     <div className="modeller-selection float-right" >
     </div> 
 
-  let activetabindex = (modelviewindex < 0) ? '0' : modelviewindex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
-  if (debug) console.log('79 Modeller', activetabindex);
+  activetabindex = (modelviewindex < 0) ? '0' : (modelviewindex) ? modelviewindex : '0' //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
+  if (debug) console.log('78 Modeller', activetabindex);
 
-  (selmodviews) &&  useEffect(() =>  {
-
+  (selmodviews && props.phSource === 'Model server') &&  useEffect(() =>  {
     const data = {id: selmodviews[0].id, name: selmodviews[0].name}
-    if (activeTab !== undefined)
-    dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-    setActiveTab('0')
-    if (debug) console.log('82 Modeller useEffect 1', activeTab); 
-  }, [focusModel.id])
+    if (activeTab != undefined) {
+      dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+      setActiveTab('0')
+    }
+    if (debug) console.log('86 Modeller useEffect 1', activeTab); 
+  }, [focusModel])
   
   useEffect(() => {
     setActiveTab(activetabindex)
-    if (debug) console.log('94 Modeller useEffect 2', activeTab); 
+    if (debug) console.log('91 Modeller useEffect 2', activeTab); 
     genGojsModel(props, dispatch);
   }, [activeTab])
 
-
-    
   //   useEffect(() => {
   //     if (debug) console.log('81 Modeller useEffect 2', activeTab); 
   //   // const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
@@ -105,7 +103,6 @@ const Modeller = (props: any) => {
   //   // setTimeout(refres, 1000);
   // }, [focusModelview?.id])
   
-
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
     if (mv) { 
         const strindex = index.toString()

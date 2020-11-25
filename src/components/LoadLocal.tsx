@@ -12,7 +12,7 @@ import { SaveModelToFile, ReadModelFromFile, ReadMetamodelFromFile } from './uti
 
 const LoadLocal = (props: any) => {
   
-  const debug = false
+  const debug = true
   const dispatch = useDispatch()  
   const refresh = props.refresh
   const setRefresh = props.setRefresh

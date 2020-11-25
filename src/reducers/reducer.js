@@ -4,6 +4,8 @@ import {
   FAILURE,
   LOAD_DATA,
   LOAD_DATA_SUCCESS,
+  LOAD_DATAMODELLIST,
+  LOAD_DATAMODELLIST_SUCCESS,
   LOAD_TOSTORE_PHDATA,
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS,
@@ -75,6 +77,7 @@ const InitState = JSON.parse(JSON.stringify(InitStateJson))
 
 export const InitialState = {
   phData: InitState.phData,
+  phList: InitState.phList,
   phFocus: InitState.phFocus,
   phGojs: null,
   phMymetis: null,
@@ -114,6 +117,13 @@ function reducer(state = InitialState, action) {
       return {
         ...state,
         phData: action.data,   
+        phSource: 'Model server'
+      }
+    case LOAD_DATAMODELLIST_SUCCESS:
+      if (debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
+      return {
+        ...state,
+        phList: action.data,   
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:

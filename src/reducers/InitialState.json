@@ -6676,5 +6676,5 @@
             "session": null
         }
     },
-    "phSource": "localStore"
+    "phSource": "initialState"
 }

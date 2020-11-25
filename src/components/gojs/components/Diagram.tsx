@@ -51,7 +51,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     super(props);
     this.diagramRef = React.createRef();
   }
-
+  SelectionDeleting
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
@@ -63,7 +63,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
-      diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      //diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
@@ -89,7 +90,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
-      diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      //diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkRelinked', this.props.onDiagramEvent);
@@ -365,7 +367,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) {
               const node = o.part.data;
-              /* if (debug) */console.log('367 node', node);
+              if (debug) console.log('367 node', node);
               const currentObject = node.object; 
               const currentObjectView = node.objectview;
               if (currentObject && currentObjectView) {                   
@@ -412,7 +414,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
           function (o: any) {
             const node = o.part.data;
-            console.log('413 node', node);
+            if (debug) console.log('413 node', node);
             const currentObject = node.object; 
             const currentObjectView = node.objectview;
             if (currentObject && currentObjectView) {                   
@@ -1172,8 +1174,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (e: any, obj: any) {
             const myModel = myMetis.currentModel;
             const myMetamodel = myMetis.currentMetamodel;
-            /* if (debug) */console.log('1176 model, metamodel', myModel, myMetamodel);
-            uic.verifyAndRepairModel(myModel, myMetamodel);
+            const myGoModel = myMetis.gojsModel;
+            myDiagram.myGoModel = myGoModel;
+            /* if (debug) */console.log('1179 model, metamodel', myModel, myMetamodel, myDiagram.myGoModel);
+            uic.verifyAndRepairModel(myModel, myMetamodel, myDiagram);
+            /* if (debug) */console.log('1181 myMetis', myMetis);
             alert("Current model has been repaired");
           },
           function (o: any) { 

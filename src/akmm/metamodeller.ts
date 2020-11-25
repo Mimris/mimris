@@ -569,7 +569,11 @@ export class cxMetis {
                 obj.setType(objtype);
                 obj.deleted = item.deleted;
                 if (model) model.addObject(obj);
+            } else {
+                obj.typeName = item.typeName;
+                obj.typeRef  = item.typeRef;
             }
+
         }
     }
     importRelship(item: any, model: cxModel | null) {
@@ -588,7 +592,10 @@ export class cxMetis {
                     rel.deleted = item.deleted;
                     model.addRelationship(rel);
                 }
-            }
+            } else {
+                rel.typeName = item.typeName;
+                rel.typeRef  = item.typeRef;
+            } 
         }
     }
     importModelView(item: any, model: cxModel) {
@@ -4510,6 +4517,7 @@ export class cxRelationship extends cxInstance {
         this.toObject = toObj;
         this.fromobjectRef = "";
         this.toobjectRef = "";
+        if (!this.typeName) this.typeName = name;
     }
     // Methods
     addRelationshipView(relview: cxRelationshipView) {

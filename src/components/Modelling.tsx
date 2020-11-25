@@ -14,6 +14,7 @@ import TargetModeller from "./TargetModeller";
 import TargetMeta from "./TargetMeta";
 import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
+import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
 import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModel from '../components/EditFocusModel'
@@ -378,6 +379,7 @@ const page = (props:any) => {
     )      
 
   // if (debug) console.log('173 Modelling', activeTab);
+  const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
@@ -400,6 +402,7 @@ const page = (props:any) => {
           </span> 
           <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {loadserver} 
+            {loginserver} 
             {loadlocal}  
           </span> 
           <span className="editfocus float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>

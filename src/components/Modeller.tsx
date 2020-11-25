@@ -78,6 +78,7 @@ const Modeller = (props: any) => {
   if (debug) console.log('78 Modeller', activetabindex);
 
   // (selmodviews && props.phSource === 'Model server') &&  
+  // (selmodviews) &&  
   useEffect(() =>  {
     const data = {id: selmodviews[0].id, name: selmodviews[0].name}
     if (activeTab != undefined || 0) {

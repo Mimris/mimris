@@ -80,11 +80,12 @@ const Modeller = (props: any) => {
   // (selmodviews && props.phSource === 'Model server') &&  
   // (selmodviews) &&  
   useEffect(() =>  {
-    const data = {id: selmodviews[0].id, name: selmodviews[0].name}
-    if (activeTab != undefined || 0) {
-      dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-      setActiveTab(0)
-    }
+    if (selmodviews)
+      if (activeTab != undefined || 0) {
+        const data = {id: selmodviews[0].id, name: selmodviews[0].name}
+        dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+        setActiveTab(0)
+      }
     if (debug) console.log('86 Modeller useEffect 1', activeTab); 
   }, [focusModel])
   

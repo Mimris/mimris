@@ -93,7 +93,7 @@ const SelectSource = (props: any) => {
   };
   console.log('94', props.ph.phFocus);
   
-  const selectedOptionDiv =  <span className="bg-light p-1 pl-1 pr-5 " >{focusModel.name}</span>
+  const selectedOptionDiv =  <span className="bg-light p-1 pl-1 pr-5 w-100 " >{focusModel.name}</span>
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);

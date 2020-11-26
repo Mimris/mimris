@@ -97,9 +97,7 @@ const SelectSource = (props: any) => {
     
   const buttonDiv = 
       <>
-        <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
         <div className="store-div pb-1 mb-0">
-          <h6>Model repository (Firebase) </h6>
           <div className="select px-2" style={{ paddingTop: "4px" }}>
             {buttonSaveModelStoreDiv}  {buttonLoadModelStoreDiv}
           </div>
@@ -116,23 +114,23 @@ const SelectSource = (props: any) => {
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Model Server: </ModalHeader>
         <ModalBody className="pt-0">
           Current Source: <strong>{props.ph?.phSource}</strong>
-          <div className="source bg-light pt-2 "> Models: <strong> {modelNames}</strong></div>
-          <div className="source bg-light pt-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
-          <div className="source bg-light pt-2 ">
-             {buttonDiv}
-          </div>
-          {/* {selmodellistDiv} */}
+          <div className="source bg-light py-2 "> Metamodels:<br /> <strong> {metamodelNames}</strong></div>
+          <div className="source bg-light py-2 "> Models:<br /> <strong> {modelNames}</strong></div>
+          <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "2px" }} />
+          <h6>Model repository (Firebase) </h6>
           <Select 
             options={selmodellist} 
             name='Model'
             value={selectedOption}
             onChange={handleChange}
           /> 
+          <div className="source bg-light pt-2 ">
+             {buttonDiv}
+          </div>
         </ModalBody>
         <ModalFooter>
           <div style={{ fontSize: "smaller" }}>
-            NB! Clicking "Load" will overwrite current store (memory).
-            To keep current version, exit and go to "Local" then click "Save" to save to LocalStore.
+            NB! Clicking "Load a model from Server" will add the model to current store (redux memory).
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
           <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>

@@ -133,24 +133,24 @@ const EditFocusModel = (props) => {
 
   const objectviewheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'Obj')
-      ? 'Objectview:' : 'Relshipview'
+      ? 'Objectview' : 'Relshipview'
     : (props.buttonLabel === 'Obj')
-      ? 'Objecttype:' : 'Relshiptype' 
+      ? 'Objecttype' : 'Relshiptype' 
 
-  const objectheader = (props.modelType === 'model' || 'objects') 
-    ? (props.modelType === 'objects') &&  'Object'
-    :  (props.buttonLabel === 'Obj')
-      ?'Object:' 
-      :'Relship:' 
+  const objectheader = (props.modelType === 'model' || 'objects') &&
+    // ? (props.modelType === 'objects') && 'Object'
+    (props.buttonLabel === 'Obj')
+      ?'Object' 
+      :'Relship' 
     // : (props.buttonLabel === 'Obj')
     //   ? 'Objecttypegeos'
     //   : ''
 
   const typeviewheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'Obj')
-      ? 'Typeview:' : 'Typeview'
+      ? 'Typeview' : 'Typeview'
     : (props.buttonLabel === 'Obj')
-      ? 'Typeview:' : 'Typeview'
+      ? 'Typeview' : 'Typeview'
 
   // console.log('34 EditFocusModel', curmmobj, curmmotypegeos, curmmotypeview);
   let dialogDiv

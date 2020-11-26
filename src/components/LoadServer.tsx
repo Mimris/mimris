@@ -38,11 +38,11 @@ const SelectSource = (props: any) => {
 
   function handleSaveModelStore() {
     // saving current model and metamodel
-    const focusmodel = props.phFocus.focusModel
-    const model = props.phData.metis.models.find(m => m.id === focusmodel.id)
-    const metamodel = props.phData.metis.metamodels.find(mm => mm.id === model.metamodelRef)
-    const currentTargetMetamodel = (model.targetMetamodelRef) && props.phData.metis.metamodels.find(mm => mm.id === model.targetMetamodelRef)
-    const currentTargetModel = (model.targetModelRef) && props.phData.metis.models.find(mm => mm.id === model.targetModelRef)
+    const focusmodel = props.ph.phFocus.focusModel
+    const model = props.ph.phData.metis.models.find(m => m.id === focusmodel.id)
+    const metamodel = props.ph.phData.metis.metamodels.find(mm => mm.id === model.metamodelRef)
+    const currentTargetMetamodel = (model.targetMetamodelRef) && props.ph.phData.metis.metamodels.find(mm => mm.id === model.targetMetamodelRef)
+    const currentTargetModel = (model.targetModelRef) && props.ph.phData.metis.models.find(mm => mm.id === model.targetModelRef)
     // const phData = props.phData
     const data = {
       metis: {
@@ -60,8 +60,8 @@ const SelectSource = (props: any) => {
     SaveModelData(data)
   }
  
-  const models = props.phData?.metis?.models
-  const focusModel = props.phFocus?.focusModel
+  const models = props.ph.phData?.metis?.models
+  const focusModel = props.ph.phFocus?.focusModel
   const model = models?.find((m: any) => m?.id === focusModel?.id) // || models[0]
   const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
@@ -82,18 +82,23 @@ const SelectSource = (props: any) => {
   // console.log('75 selectorDiv', selectorDiv);
 
   let selectedOption = null
+
   const handleChange = (selectedOption) => {
     console.log('111 LoadServer', selectedOption);
     const data = {id: selectedOption.value, name: selectedOption.label}
     console.log('114 LoadServer', data);
     dispatch({ type: 'SET_FOCUS_MODEL', data }) ;  
+
+
   };
+  console.log('94', props.ph.phFocus);
   
+  const selectedOptionDiv =  <span className="bg-light p-1 pl-1 pr-5 " >{focusModel.name}</span>
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
   
-  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSaveModelStore} > Save current to Server</button >
+  const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm mx-2 float-right" onClick={handleSaveModelStore} > Save current to Server</button >
   const buttonLoadModelStoreDiv = <button className="btn-link btn-sm mr-2" onClick={handleLoadModelStore} > Load a model from Server </button >
     
   const buttonDiv = 
@@ -125,6 +130,7 @@ const SelectSource = (props: any) => {
             value={selectedOption}
             onChange={handleChange}
           /> 
+          Selected: {selectedOptionDiv}
           <div className="source bg-light pt-2 ">
              {buttonDiv}
           </div>

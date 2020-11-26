@@ -102,7 +102,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   private getNode(goModel: any, key: string) {
     const nodes = goModel?.nodes;
     if (nodes) {
-      for (let i = 0; i < nodes.length; i++) {
+      for (let i = 0; i < nodes?.length; i++) {
         const node = nodes[i];
         if (node) {
           if (node.key === key)
@@ -179,7 +179,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       if (objtype.deleted)  continue;
       nodes.push(node);
     }
-    if (nodes.length > 0) myGoMetamodel.nodes = nodes;
+    if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
     // if (debug) console.log('159 gojsMetamodel', myGoMetamodel);
 
     const gojsMetamodel = {
@@ -264,8 +264,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 modifiedObjects.push(gqlObj);
               }
             }
-            const nodes = myGoModel.nodes;
-            for (let i=0; i<nodes.length; i++) {
+            const nodes = myGoModel?.nodes;
+            for (let i=0; i<nodes?.length; i++) {
                 const node = nodes[i];
                 if (node.key === data.key) {
                     node.name = data.name;
@@ -360,8 +360,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('364 myGoModel', myGoModel);
             if (debug) console.log('301 SelectionMoved', modifiedNodes);
           }
-          const nodes = myGoModel.nodes;
-          for (let i=0; i<nodes.length; i++) {
+          const nodes = myGoModel?.nodes;
+          for (let i=0; i<nodes?.length; i++) {
               const node = nodes[i];
               if (node.key === data.key) {
                   node.loc = data.loc;
@@ -542,7 +542,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else // object
             {
               let objview = sel.data.objectview;
-              objview = myMetis.findObjectView(objview.id);
+              objview = myMetis.findObjectView(objview?.id);
               // Do whatever you like
               // ..
               const gqlObjView = new gql.gqlObjectView(objview);
@@ -583,7 +583,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
         /* if (debug) */console.log('581 modifiedNodes', myGoModel, modifiedNodes);
         const nodes = this.state.nodeDataArray;
-        for (let i=0; i<nodes.length; i++) {
+        for (let i=0; i<nodes?.length; i++) {
             const node = nodes[i];
             if (node.key === data.key) {
                 node.loc = data.loc;

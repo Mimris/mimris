@@ -85,7 +85,7 @@ const Modeller = (props: any) => {
         const data = {id: selmodviews[0].id, name: selmodviews[0].name}
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
         setActiveTab(0)
-      }
+    }
     if (debug) console.log('86 Modeller useEffect 1', activeTab); 
   }, [focusModel])
   

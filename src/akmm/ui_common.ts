@@ -449,7 +449,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 }
             }
             if (debug) console.log('446 nodes to delete', myDiagram.selection);
-            // if (nodes.length>0) myDiagram.removeParts(myDiagram.selection);
+            // if (nodes?.length>0) myDiagram.removeParts(myDiagram.selection);
             myDiagram.requestUpdate();
             let connectedRels = object?.inputrels;
             if (debug) console.log('434 inputrels', connectedRels);
@@ -720,7 +720,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
     const nodes = model.nodes;
     if (debug) console.log('687 ', nodes, loc);
     const groups = new Array();
-    for (let i = 0; i < nodes.length; i++) {
+    for (let i = 0; i < nodes?.length; i++) {
         const node = nodes[i] as gjs.goObjectNode;
         if (debug) console.log('690 getGroup', node);
         if (node.isGroup) {
@@ -951,14 +951,14 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     if (debug) console.log('926 fromNode, toNode', fromNodeRef, toNodeRef);
     let fromNode;
     let toNode;
-    for (let i=0; i<nodes.length; i++) {
+    for (let i=0; i<nodes?.length; i++) {
         const n = nodes[i];
         if (n.key === fromNodeRef) {
             fromNode = n;
             break;
         }
     }
-    for (let i=0; i<nodes.length; i++) {
+    for (let i=0; i<nodes?.length; i++) {
         const n = nodes[i];
         if (n.key === toNodeRef) {
             toNode = n;

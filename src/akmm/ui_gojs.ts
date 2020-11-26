@@ -57,7 +57,7 @@ export class goModel {
     addNode(node: goObjectNode | goObjectTypeNode) {
         node.setParentModel(this);
         let oldNodes: goObjectNode[] = new Array();
-        for (let i = 0; i < this.nodes.length; i++) {
+        for (let i = 0; i < this.nodes?.length; i++) {
             let n = this.nodes[i] as goObjectNode;
             oldNodes.push(n);
         }
@@ -77,7 +77,7 @@ export class goModel {
         const retval: goObjectNode | null = null;
         if (!utils.isArrayEmpty(this.nodes)) {
             let i = 0;
-            while (i < this.nodes.length) {
+            while (i < this.nodes?.length) {
                 const node = this.nodes[i];
                 const n = node as goObjectNode;
                 if (n.objectview && n.objectview.getId() === objviewId) {
@@ -92,7 +92,7 @@ export class goModel {
         const retval: goObjectNode | null = null;
         if (!utils.isArrayEmpty(this.nodes)) {
             let i = 0;
-            while (i < this.nodes.length) {
+            while (i < this.nodes?.length) {
                 const node: goObjectNode = this.nodes[i] as goObjectNode;
                 if (node.getKey() === key) {
                     return (node);
@@ -106,7 +106,7 @@ export class goModel {
         let retval: goObjectTypeNode | null = null;
         if (!utils.isArrayEmpty(this.nodes)) {
             let i = 0;
-            while (i < this.nodes.length) {
+            while (i < this.nodes?.length) {
                 const node: goObjectTypeNode = this.nodes[i] as goObjectTypeNode;
                 if (node.getObjectTypeId() === objtypeId) {
                     retval = node;
@@ -119,7 +119,7 @@ export class goModel {
     }
     findGroup(groupKey: string) {
         const nodes = this.nodes;
-        const cnt = nodes.length;
+        const cnt = nodes?.length;
         for (let i = 0; i < cnt; i++) {
             const n = nodes[i];
             const node = n as goObjectNode;
@@ -373,7 +373,7 @@ export class goObjectNode extends goNode {
     getGroupFromObjviewId(objviewId: string, model: goModel): string {
         // Loop through nodes to find object view
         const nodes = model.nodes;
-        for (let i = 0; i < nodes.length; i++) {
+        for (let i = 0; i < nodes?.length; i++) {
             const node = nodes[i] as goObjectNode;
             let objview = node.objectview;
             if (objview) {

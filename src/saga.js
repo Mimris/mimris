@@ -91,7 +91,7 @@ function * loadDataModelListSaga() {
       {
         // mode: 'no-cors',
         headers: {
-          "Access-Control-Allow-Origin": "*",
+          // "Access-Control-Allow-Origin": "*",
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           // 'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login

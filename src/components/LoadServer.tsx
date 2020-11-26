@@ -21,8 +21,9 @@ const SelectSource = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
   
   const modellist = props.ph.phList.modList
+  // let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
   let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  // console.log('44', props.ph.phList.modList, selmodellist);
+  console.log('26', props, props.ph.phList.modList, selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)

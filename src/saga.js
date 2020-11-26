@@ -54,9 +54,9 @@ function getCookie(cname, document) {
 
 function * loadDataSaga() {
 
-  const _crf = getCookie("XSRF-TOKEN", document) || "";
-  const _csrf = getCookie("_csrf", document) || "";
-  const sessionCookie = getCookie("session", document) || "";
+  // const _crf = getCookie("XSRF-TOKEN", document) || "";
+  // const _csrf = getCookie("_csrf", document) || "";
+  // const sessionCookie = getCookie("session", document) || "";
   try {
     let res = ''  
     res = yield fetch(`${localhost}akmmodels/`,
@@ -66,10 +66,10 @@ function * loadDataSaga() {
           "Access-Control-Allow-Origin": "*",
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
-          "Access-Control-Allow-Credentials": 'include', 
+          // 'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+          // "Access-Control-Allow-Credentials": 'include', 
         },
-        credentials: 'include'
+        // credentials: 'include'
       }
     )
       const metis = yield res.clone().json()
@@ -83,9 +83,9 @@ function * loadDataSaga() {
 
 function * loadDataModelListSaga() {
 
-  const _crf = getCookie("XSRF-TOKEN", document) || "";
-  const _csrf = getCookie("_csrf", document) || "";
-  const sessionCookie = getCookie("session", document) || "";
+  // const _crf = getCookie("XSRF-TOKEN", document) || "";
+  // const _csrf = getCookie("_csrf", document) || "";
+  // const sessionCookie = getCookie("session", document) || "";
   try {
     let res = ''  
     res = yield fetch(`${localhost}akm-model-list/`,
@@ -95,10 +95,10 @@ function * loadDataModelListSaga() {
           "Access-Control-Allow-Origin": "*",
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
-          "Access-Control-Allow-Credentials": 'include', 
+          // 'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+          // "Access-Control-Allow-Credentials": 'include', 
         },
-        credentials: 'include'
+        // credentials: 'include'
       }
     )
       const modList = yield res.clone().json()
@@ -112,9 +112,9 @@ function * loadDataModelListSaga() {
 
 function * loadDataModelSaga(data) {
 
-  const _crf = getCookie("XSRF-TOKEN", document) || "";
-  const _csrf = getCookie("_csrf", document) || "";
-  const sessionCookie = getCookie("session", document) || "";
+  // const _crf = getCookie("XSRF-TOKEN", document) || "";
+  // const _csrf = getCookie("_csrf", document) || "";
+  // const sessionCookie = getCookie("session", document) || "";
 
   const modelId = data.data.id
   console.log('118 saga', data.data, modelId);
@@ -127,10 +127,10 @@ function * loadDataModelSaga(data) {
             "Access-Control-Allow-Origin": "*",
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
-            "Access-Control-Allow-Credentials": 'include', 
+            // 'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,
+            // "Access-Control-Allow-Credentials": 'include', 
           },
-          credentials: 'include'
+          // credentials: 'include'
         }
       )
       const model = yield res.clone().json()

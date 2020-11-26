@@ -153,29 +153,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             // "draggingTool.dragsLink": true,
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
-            "linkingTool.archetypeLinkData": {
-              "key": utils.createGuid(),
-              "category": "Relationship",
-              "type": "isRelatedTo",
-              "name": "",
-              "description": "",
-              "relshipkind": constants.relkinds.REL
-            },
-            "clickCreatingTool.archetypeNodeData": {
-              "key": utils.createGuid(),
-              "category": "Object",
-              "name": "Generic Object",
-              "description": "",
-              "strokecolor": "black",
-              "strokewidth": "6",
-              "icon": "default.png"
-            },
-            // allow Ctrl-G to call groupSelection()
-            "commandHandler.archetypeGroupData": {
-              text: "Group",
-              isGroup: true,
-              color: "blue"
-            },
+            // "linkingTool.archetypeLinkData": {
+            //   "key": utils.createGuid(),
+            //   "category": "Relationship",
+            //   "type": "isRelatedTo",
+            //   "name": "",
+            //   "description": "",
+            //   "relshipkind": constants.relkinds.REL
+            // },
+            // "clickCreatingTool.archetypeNodeData": {
+            //   "key": utils.createGuid(),
+            //   "category": "Object",
+            //   "name": "Generic Object",
+            //   "description": "",
+            //   "strokecolor": "black",
+            //   "strokewidth": "6",
+            //   "icon": "default.png"
+            // },
+            // // allow Ctrl-G to call groupSelection()
+            // "commandHandler.archetypeGroupData": {
+            //   text: "Group",
+            //   isGroup: true,
+            //   color: "blue"
+            // },
             "linkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,
@@ -723,7 +723,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType);
               let   defText  = "";
               link.choices = [];
-              if (debug) console.log('675 createRelationship', reltypes, myMetis);
+              /* if (debug) */console.log('675 createRelationship', reltypes, myMetis);
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {
                       const rtype = reltypes[i];
@@ -733,18 +733,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   }
               }
 
-              // console.log('726 ', link, customSelectBox.value);             
-              // let reltype = customSelectBox.value; //sf prompt does not work in cloud
-              let reltype = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
-
               const context = {
                 "myMetis":      myMetis,
-                "myMetamodel":  myMetis.currentMetamodel,
-                "myModel":      myMetis.currentModel,
-                "myModelView":  myMetis.currentModelview,
                 "myDiagram":    e.diagram,
-                "dispatch":     e.diagram.dispatch
               }
+              const typename = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
+              const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+              /* if (debug) */console.log('747 reltype', reltype, fromType, toType);
               const relview = uic.setRelationshipType(link, reltype, context);
               if (!relview) return;
               const gqlRelView = new gql.gqlRelshipView(relview);

@@ -638,19 +638,20 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Then handle the relationships
         while (it1.next()) {
           const data = it1.value.data;
-          data.key = utils.createGuid();
           if (data.category === 'Relationship') {
-            if (debug) console.log('685 ClipboardPasted', data);
+            /* if (debug) */console.log('641 ClipboardPasted', data);
+            data.key = utils.createGuid();
+            /* if (debug) */console.log('644 ClipboardPasted', data);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
-            if (debug) console.log('688 relview', data, relview);
+            /* if (debug) */console.log('646 relview', data, relview);
             if (relview) {
               const relid = relview.relship?.id;
               relview.relship = myMetis.findRelationship(relid);
               const gqlRelview = new gql.gqlRelshipView(relview);
-              if (debug) console.log('702 ClipboardPasted', gqlRelview);
+              /* if (debug) */console.log('702 ClipboardPasted', gqlRelview);
               modifiedLinks.push(gqlRelview);
               const gqlRelship = new gql.gqlRelationship(relview.relship);
-              if (debug) console.log('705 ClipboardPasted', gqlRelship);
+              /* if (debug) */console.log('705 ClipboardPasted', gqlRelship);
               modifiedRelships.push(gqlRelship);
             }
           }
@@ -722,7 +723,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundDoubleClicked": {
-        if (debug) console.log('432 BackgroundDoubleClicked', e, e.diagram);
+        /* if (debug) */console.log('432 BackgroundDoubleClicked', e, e.diagram);
         break;
       }
       default:

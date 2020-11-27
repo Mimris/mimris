@@ -895,7 +895,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
-      // if (debug) console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
+      console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === curmrv?.id) // current model index
       const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview

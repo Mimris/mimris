@@ -1171,9 +1171,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             const myMetamodel = myMetis.currentMetamodel;
             const myGoModel = myMetis.gojsModel;
             myDiagram.myGoModel = myGoModel;
-            /* if (debug) */console.log('1179 model, metamodel', myModel, myMetamodel, myDiagram.myGoModel);
+            if (debug) console.log('1179 model, metamodel', myModel, myMetamodel, myDiagram.myGoModel);
             uic.verifyAndRepairModel(myModel, myMetamodel, myDiagram);
-            /* if (debug) */console.log('1181 myMetis', myMetis);
+            if (debug) console.log('1181 ui_common myMetis', myMetis);
             alert("Current model has been repaired");
           },
           function (o: any) { 

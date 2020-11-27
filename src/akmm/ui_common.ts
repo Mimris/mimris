@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = true;
 
 import * as utils from './utilities';

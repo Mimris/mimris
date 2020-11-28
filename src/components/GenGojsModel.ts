@@ -158,10 +158,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
           dispatch({ type: 'SET_GOJS_TARGETMODEL', gojsTargetModel })
           dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
-          // dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
-          // // dispatch({ type: 'SET_MYMETIS_METAMODEL', myMetis })
-          // dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
-          // dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
+          dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
+          dispatch({ type: 'SET_MYMETIS_METAMODEL', myMetis })
+          dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
+          dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
     }
   }
 

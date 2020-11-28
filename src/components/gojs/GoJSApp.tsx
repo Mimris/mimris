@@ -664,11 +664,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         if (debug) console.log('657 link', link.fromNode.key, link.toNode.key);
         const data = link.data;
-        if (debug) console.log('659 link, data', link, data);
+        /* if (debug) */console.log('659 link, data', link, data);
         const fromNode = link.fromNode;
         const toNode = link.toNode;
         if (debug) console.log('668 LinkDrawn', fromNode, toNode, data);
-        // Handle object types
+        // Handle relationship types
         if (fromNode?.data?.category === 'Object type') {
           if (debug) console.log('685 link', fromNode, data);
           link.category = 'Relationship type';
@@ -684,7 +684,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('696 gqlTypeView', gqlTypeView);
           }
         }
-        // Handle objects
+        // Handle relationships
         if (fromNode?.category === 'Object') {
           /* if (debug) */console.log('670 LinkDrawn', fromNode.data.category);
           const relview = uic.createRelationship(data, context);
@@ -692,13 +692,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
             myLink.fromNode = fromNode;
             myLink.toNode = toNode;
-            if (debug) console.log('675 relview', relview, myLink);
+            /* if (debug) */console.log('675 relview', relview, myLink);
             relview.relship = myMetis.findRelationship(relview.relship.id);
             const gqlRelview = new gql.gqlRelshipView(relview);
-            if (debug) console.log('678 LinkDrawn', link, gqlRelview);
+            /* if (debug) */console.log('678 LinkDrawn', link, gqlRelview);
             modifiedLinks.push(gqlRelview);
             const gqlRelship = new gql.gqlRelationship(relview.relship);
-            if (debug) console.log('681 LinkDrawn', gqlRelship);
+            /* if (debug) */console.log('681 LinkDrawn', gqlRelship);
             modifiedRelships.push(gqlRelship);
           }
         }

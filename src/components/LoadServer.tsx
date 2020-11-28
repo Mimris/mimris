@@ -27,13 +27,13 @@ const SelectSource = (props: any) => {
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  // console.log('20 LoadLocal', modelNames, metamodelNames);
+  // if (debug) console.log('20 LoadLocal', modelNames, metamodelNames);
 
   function handleLoadModelStore() { 
     const data = props.ph.phFocus.focusModel
     dispatch({ type: 'LOAD_DATAMODEL', data }) 
     // dispatch(loadDataModel());
-    console.log('48 LoadServer', data);
+    if (debug) console.log('48 LoadServer', data);
   }
 
   function handleSaveModelStore() {
@@ -56,7 +56,7 @@ const SelectSource = (props: any) => {
         ]
       }
     }
-    // console.log('72 LoadServer', data);
+    // if (debug) console.log('72 LoadServer', data);
     SaveModelData(data)
   }
  
@@ -66,32 +66,32 @@ const SelectSource = (props: any) => {
   const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
   
-  // console.log('42 LoadServer', selmodels, selmodelviews);
+  // if (debug) console.log('42 LoadServer', selmodels, selmodelviews);
   
   const frameId = 'myFrame'
   // let iframe = {}
-  // console.log('67 LoadServer', selmodels, selmodelviews);
-  // console.log('68 LoadServer', props.ph.phSource);
-  // console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
+  // if (debug) console.log('67 LoadServer', selmodels, selmodelviews);
+  // if (debug) console.log('68 LoadServer', props.ph.phSource);
+  // if (debug) console.log('45 LoadServer', frames[frameId]?.documentElement.innerHTML)
   const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels) &&
   // const selectorDiv = (props.ph?.phSource === 'Model server') && (selmodels && selmodelviews) &&
   <div className="modeller-selection p-2 " >
       <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focustype='focusModel' refresh={refresh} setRefresh={setRefresh} /> <br /><hr />
       <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelviews' focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} />  <br />
     </div> 
-  // console.log('75 selectorDiv', selectorDiv);
+  // if (debug) console.log('75 selectorDiv', selectorDiv);
 
   let selectedOption = null
 
   const handleChange = (selectedOption) => {
-    console.log('111 LoadServer', selectedOption);
+    if (debug) console.log('111 LoadServer', selectedOption);
     const data = {id: selectedOption.value, name: selectedOption.label}
-    console.log('114 LoadServer', data);
+    if (debug) console.log('114 LoadServer', data);
     dispatch({ type: 'SET_FOCUS_MODEL', data }) ;  
 
 
   };
-  console.log('94', props.ph.phFocus);
+  if (debug) console.log('94', props.ph.phFocus);
   
   const selectedOptionDiv =  <span className="bg-light p-1 pl-1 pr-5 w-100 " >{focusModel.name}</span>
 

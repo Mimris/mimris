@@ -83,6 +83,7 @@ function * loadDataModelListSaga() {
   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
   const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
   const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
+  
   console.log('86 saga');
   try {
     let res = ''  

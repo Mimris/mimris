@@ -1474,14 +1474,14 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 myDiagram.requestUpdate();
                 objviews.map(mn => {
                     let data = mn
-                    this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                    myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
                 })
             }
         }
     }
     objects?.map(mn => {
         let data = (mn) && mn
-        this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+        myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
     msg = "Verifying objects completed";
     report += printf(format, msg);
@@ -1576,7 +1576,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                         rel.name = rel.type.name;
                         rview.name = rel.type.name;
                         const gqlRelview = new gql.gqlRelshipView(rview);
-                        if (debug) console.log('1616 relshipview', gqlRelview);
+                        if (!debug) console.log('1616 relshipview', gqlRelview);
                         modifiedLinks.push(gqlRelview);
                         const myLink = myGoModel.findLinkByViewId(rview.id);
                         if (myLink) {
@@ -1593,14 +1593,14 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         myDiagram.requestUpdate();                        
         modifiedLinks?.map(mn => {
             let data = mn;
-            if (debug) console.log('1629 data (relshipview)', data);
-            this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+            if (!debug) console.log('1629 data (relshipview)', data);
+            myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })
     }
     modifiedRelships?.map(mn => {
         let data = (mn) && mn
         if (debug) console.log('1564 data (relship)', data);
-        this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 
     msg = "Verifying relationships completed";

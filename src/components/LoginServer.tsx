@@ -12,7 +12,7 @@ import SaveModelData from './utils/SaveModelData'
 const debug = false
 
 const LoginServer = (props: any) => {
-  if (debug) console.log('15 LoginServer', props);
+  if (!debug) console.log('15 LoginServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -20,10 +20,10 @@ const LoginServer = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  let modellist, selmodellist 
+  let modellist
   modellist = props.ph.phList.modList
-  let selmodellist1 = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  // console.log('27', props.ph.phList.modList, selmodellist1);
+  let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
+  console.log('27', props.ph.phList.modList, selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)

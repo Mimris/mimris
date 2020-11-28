@@ -12,7 +12,7 @@ import SaveModelData from './utils/SaveModelData'
 const debug = false
 
 const SelectSource = (props: any) => {
-  // console.log('15 LoadServer', props);
+  console.log('15 LoadServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -23,7 +23,7 @@ const SelectSource = (props: any) => {
   const modellist = props.ph.phList.modList
   // let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
   let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  console.log('26', props, props.ph.phList.modList, selmodellist);
+  console.log('26 LoadServer', props, props.ph.phList, selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
@@ -94,6 +94,7 @@ const SelectSource = (props: any) => {
   console.log('94', props.ph.phFocus);
   
   const selectedOptionDiv =  <span className="bg-light p-1 pl-1 pr-5 w-100 " >{focusModel.name}</span>
+
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);

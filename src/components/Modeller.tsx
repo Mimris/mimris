@@ -9,7 +9,7 @@ import genGojsModel from './GenGojsModel'
 
 
 const Modeller = (props: any) => {
-  const debug = true
+  const debug = false
   if (debug) console.log('13 Modeller', props);
   // let prevgojsmodel = null
   // let gojsmodel = {}
@@ -44,7 +44,7 @@ const Modeller = (props: any) => {
   ]
   const selmodviews = modelviews
   
-  console.log('36 Modeller', focusModelview, selmods, modelviews);
+  if (debug) console.log('36 Modeller', focusModelview, selmods, modelviews);
   let selmodels = selmods //selmods?.models?.map((m: any) => m)
   let selmodelviews = selmodviews //selmodviews?.modelviews?.map((mv: any) => mv)
 
@@ -96,17 +96,17 @@ const Modeller = (props: any) => {
   }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('99 Modeller useEffect 3', props.phSource); 
+    if (!debug) console.log('99 Modeller useEffect 3', props.phSource); 
     genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel.id)
     if (model) {
       const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
       dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 10000);
     }
-    function refres() {
-      setRefresh(!refresh)
-    }
-    setTimeout(refres, 10000);
   }, [props.phFocus.focusRefresh])
 
   //   useEffect(() => {

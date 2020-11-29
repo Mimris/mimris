@@ -20,10 +20,9 @@ const LoginServer = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  let modellist
-  modellist = props.ph.phList.modList
-  let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  console.log('27', props.ph.phList.modList, selmodellist);
+  const modellist = (props.ph.phList) && props.ph.phList.modList
+  const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
+  console.log('27 LoginServer', props.ph.phList.modList, selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
@@ -45,7 +44,7 @@ const LoginServer = (props: any) => {
   
   const frameId = 'myFrame'
 
-  if (!selmodellist) 
+  // if (!selmodellist) 
   return (
     <>
       <span><button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button> </span>

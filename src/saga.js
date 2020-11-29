@@ -35,21 +35,21 @@ const login = true
 // }
 
 // This version is for login server with credetial
-// function getCookie(cname, document) {
-//   var name = cname + "=";
-//   var decodedCookie = decodeURIComponent(document.cookie);
-//   var ca = decodedCookie.split(';');
-//   for (var i = 0; i < ca.length; i++) {
-//     var c = ca[i];
-//     while (c.charAt(0) == ' ') {
-//       c = c.substring(1);
-//     }
-//     if (c.indexOf(name) == 0) {
-//       return c.substring(name.length, c.length);
-//     }
-//   }
-//   return "";
-// }
+function getCookie(cname, document) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
 
 function * loadDataSaga() {
   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
@@ -58,18 +58,18 @@ function * loadDataSaga() {
   try {
     let res = ''  
     res = yield fetch(`${localhost}akmmodels/`,
-      {
-        mode: 'no-cors', // comment in for  server login
-        headers: {
-          "Access-Control-Allow-Origin": "*", // comment in for  server login
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
-          "Access-Control-Allow-Credentials": 'include', // comment in for  server login
-        },
-        credentials: 'include' // comment in for  server login
-      }
-    )
+        {
+          mode: 'no-cors', // comment in for  server login
+          headers: {
+            "Access-Control-Allow-Origin": "*", // comment in for  server login
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
+            "Access-Control-Allow-Credentials": 'include', // comment in for  server login
+          },
+          credentials: 'include' // comment in for  server login
+        }
+      )
       const metis = yield res.clone().json()
       // console.log('75 Saga', metis);
       yield put(loadDataSuccess({ metis }))
@@ -80,11 +80,12 @@ function * loadDataSaga() {
   }
 
 function * loadDataModelListSaga() {
+  console.log('83 saga', getCookie);
   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
   const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
   const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
   
-  console.log('86 saga');
+  console.log('86 saga', sessionCookie, document);
   try {
     let res = ''  
     res = yield fetch(`${localhost}akm-model-list/`,

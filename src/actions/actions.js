@@ -90,7 +90,7 @@ export const loadDataSuccess = (data) => {
 }
 
 export const loadDataModelList = () => {
-  console.log('93 --loadDataModelList ');
+  console.log('93 actions --loadDataModelList ');
   return { type: LOAD_DATAMODELLIST }
 }
 

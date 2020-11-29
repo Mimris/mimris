@@ -6,8 +6,8 @@ import { failure, loadDataSuccess, loadDataModelSuccess, loadDataModelListSucces
 import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './actions/types';
 es6promise.polyfill()
 
-// const localhost = 'https://akmserver.herokuapp.com/'
-const localhost = 'http://localhost:4000/'
+const localhost = 'https://akmserver.herokuapp.com/'
+// const localhost = 'http://localhost:4000/'
 const login = true
 
 

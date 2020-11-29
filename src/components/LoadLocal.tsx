@@ -23,12 +23,15 @@ const LoadLocal = (props: any) => {
   if (debug) console.log('20 LoadLocal',  modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return
+
   const [locState, setLocState] = useLocalStorage('state', null);
+
+
   const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false
   // let memoryStatus = false
 
-  function handleDispatchToStoreFromLocal() {  // load store from Local
+  function handleDispatchToStoreFromLocal() {  // load store from LocalStore (state)
     locStatus = true
 
     // console.log('43 LoadLocal', locState);
@@ -50,7 +53,7 @@ const LoadLocal = (props: any) => {
       }
     } else alert('No Modeles saved to Local Storage')
   }
-  function handleDispatchToStoreFromMemory() {  // load store from Local
+  function handleDispatchToStoreFromMemory() {  // load store from LocalStore (memoryState)
     // memoryStatus = true
     if (debug) console.log('63 LoadLocal', memoryState);
     const phData = memoryState.phData
@@ -90,26 +93,31 @@ const LoadLocal = (props: any) => {
   }
 
   function handleSaveCurrentModelToLocalStore() {
+    console.log('96', locState, props.ph);
+    
+    if (!locState) setLocState(props.ph) // first time no localStorge saved so we use whats in redux
+    console.log('99', locState, props.ph);
+
     // first find current model which is in reduxStore
     let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    let curmindex = locState.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
+    let curmindex = locState?.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
     // find lenght of modellarray in lodalStore
-    const curmlength = locState.phData.metis.models?.length   
+    const curmlength = locState.phData?.metis.models?.length   
     if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     // then find metamodel which is in reduxStore
     let reduxmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current metamodel index
     let curmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxmmod?.id) // current model index
     // then find lenght of modellarray in lodalStore
-    const curmmlength = locState.phData.metis.metamodels?.length   
+    const curmmlength = locState.phData?.metis.metamodels?.length   
     if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     
     // then find currentTargetMetamodel
     let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
     let curtmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
-    const curtmmlength = locState.phData.metis.metamodels?.length   
+    const curtmmlength = locState.phData?.metis.metamodels?.length   
     if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
 
-    const data = {
+    const data = (locState.phData) && {
       phData: {
         ...locState.phData,
         metis: {

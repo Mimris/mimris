@@ -51,7 +51,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     super(props);
     this.diagramRef = React.createRef();
   }
-
+  SelectionDeleting
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
@@ -63,7 +63,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
-      diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      //diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      diagram.addDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
@@ -89,7 +90,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       diagram.removeDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
-      diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      //diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkRelinked', this.props.onDiagramEvent);
@@ -168,12 +170,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "strokewidth": "6",
               "icon": "default.png"
             },
-            // allow Ctrl-G to call groupSelection()
-            "commandHandler.archetypeGroupData": {
-              text: "Group",
-              isGroup: true,
-              color: "blue"
-            },
+            // // allow Ctrl-G to call groupSelection()
+            // "commandHandler.archetypeGroupData": {
+            //   text: "Group",
+            //   isGroup: true,
+            //   color: "blue"
+            // },
             "linkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.isUnconnectedLinkValid": false,
             "relinkingTool.portGravity": 20,
@@ -365,7 +367,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             },
             function (o: any) {
               const node = o.part.data;
-              /* if (debug) */console.log('367 node', node);
+              if (debug) console.log('367 node', node);
               const currentObject = node.object; 
               const currentObjectView = node.objectview;
               if (currentObject && currentObjectView) {                   
@@ -412,7 +414,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           },
           function (o: any) {
             const node = o.part.data;
-            console.log('413 node', node);
+            if (debug) console.log('413 node', node);
             const currentObject = node.object; 
             const currentObjectView = node.objectview;
             if (currentObject && currentObjectView) {                   
@@ -514,25 +516,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
                   }
-                if (debug) console.log('441 myMetis', myMetis);
+                /* if (debug) */console.log('441 myMetis', myMetis);
                 const contextmenu = obj.part;  
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = myMetis.currentTargetMetamodel;
-                if (debug) console.log('446 context', context);
+                /* if (debug) */console.log('446 context', context);
                 //if (!context.myTargetMetamodel) {
                   context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-                  if (context.myTargetMetamodel?.name === "EKA Metamodel") {  
-                      alert("EKA Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                  if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                      alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
                       context.myTargetMetamodel = null;
                   } else if (context.myTargetMetamodel == undefined)  // sf
                     context.myTargetMetamodel = null;
                 //}
                 myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-                if (debug) console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
+                /* if (debug) */console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
                 if (context.myTargetMetamodel) {  
                   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                  if (debug) console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
+                  /* if (debug) */console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
                   const gqlModel = new gql.gqlModel(context.myModel, true);
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);
@@ -540,10 +542,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     let data = mn;
                     e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                   })
-                  if (debug) console.log('467 gqlModel', gqlModel);
+                  /* if (debug) */console.log('467 gqlModel', gqlModel);
                   const currentObjview = part.data.objectview;
                   const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                  if (debug) console.log('470 Generate Object Type', objtype, myMetis);
+                  /* if (debug) */console.log('470 Generate Object Type', objtype, myMetis);
                   // First handle properties
                   const modifiedProperties = new Array();
                   const props = objtype.properties;
@@ -555,10 +557,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                         e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
                       });
                   }
-                  if (debug) console.log('489 modifiedProperties', currentObjview, objtype.properties, modifiedProperties);
+                  /* if (debug) */console.log('489 modifiedProperties', currentObjview, objtype.properties, modifiedProperties);
 
                   const gqlObjectType = new gql.gqlObjectType(objtype);
-                  if (debug) console.log('491 Generate Object Type', gqlObjectType);
+                  /* if (debug) */console.log('491 Generate Object Type', gqlObjectType);
                   const modifiedTypeNodes = new Array();
                   modifiedTypeNodes.push(gqlObjectType);
                   modifiedTypeNodes.map(mn => {
@@ -568,7 +570,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   if (debug) console.log('498 myMetis', modifiedTypeNodes, myMetis);
 
                   const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-                  if (debug) console.log('501 Generate Object Type', gqlObjTypeview);
+                  /* if (debug) */console.log('501 Generate Object Type', gqlObjTypeview);
                   const modifiedTypeViews = new Array();
                   modifiedTypeViews.push(gqlObjTypeview);
                   modifiedTypeViews?.map(mn => {
@@ -577,14 +579,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   })
                   const geo = context.myTargetMetamodel.findObjtypeGeoByType(objtype);
                   const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-                  if (debug) console.log('510 Generate Object Type', gqlObjTypegeo, myMetis);
+                  /* if (debug) */console.log('510 Generate Object Type', gqlObjTypegeo, myMetis);
                   const modifiedGeos = new Array();
                   modifiedGeos.push(gqlObjTypegeo);
                   modifiedGeos?.map(mn => {
                     let data = (mn) && mn
                     e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
                   })
-                  if (debug) console.log('517 myMetis', modifiedGeos, myMetis);                                    // Then handle the object type
+                  /* if (debug) */console.log('517 myMetis', modifiedGeos, myMetis);                                    // Then handle the object type
                 }
               },  
             function(o: any) { 
@@ -609,8 +611,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             function (o: any) { 
               const node = o.part.data;
               if (node.category === 'Object') 
-                return false;
-              return o.diagram.commandHandler.canCopySelection(); 
+                return o.diagram.commandHandler.canCopySelection(); 
             }),
           makeButton("Paste",
             function (e: any, obj: any) {
@@ -722,7 +723,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType);
               let   defText  = "";
               link.choices = [];
-              if (debug) console.log('675 createRelationship', reltypes, myMetis);
+              /* if (debug) */console.log('675 createRelationship', reltypes, myMetis);
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {
                       const rtype = reltypes[i];
@@ -732,18 +733,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   }
               }
 
-              // console.log('726 ', link, customSelectBox.value);             
-              // let reltype = customSelectBox.value; //sf prompt does not work in cloud
-              let reltype = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
-
               const context = {
                 "myMetis":      myMetis,
-                "myMetamodel":  myMetis.currentMetamodel,
-                "myModel":      myMetis.currentModel,
-                "myModelView":  myMetis.currentModelview,
                 "myDiagram":    e.diagram,
-                "dispatch":     e.diagram.dispatch
               }
+              const typename = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
+              const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+              /* if (debug) */console.log('747 reltype', reltype, fromType, toType);
               const relview = uic.setRelationshipType(link, reltype, context);
               if (!relview) return;
               const gqlRelView = new gql.gqlRelshipView(relview);
@@ -1172,9 +1168,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Verify and Repair Model",
           function (e: any, obj: any) {
             const myModel = myMetis.currentModel;
+            const myModelview = myMetis.currentModelview;
             const myMetamodel = myMetis.currentMetamodel;
-            /* if (debug) */console.log('1176 model, metamodel', myModel, myMetamodel);
-            uic.verifyAndRepairModel(myModel, myMetamodel);
+            const myGoModel = myMetis.gojsModel;
+            myDiagram.myGoModel = myGoModel;
+            /* if (debug) */console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
+            uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram);
+            /* if (debug) */console.log('1181 myMetis', myMetis);
             alert("Current model has been repaired");
           },
           function (o: any) { 

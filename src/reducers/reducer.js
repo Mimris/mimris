@@ -4,6 +4,10 @@ import {
   FAILURE,
   LOAD_DATA,
   LOAD_DATA_SUCCESS,
+  LOAD_DATAMODELLIST,
+  LOAD_DATAMODELLIST_SUCCESS,
+  LOAD_DATAMODEL,
+  LOAD_DATAMODEL_SUCCESS,
   LOAD_TOSTORE_PHDATA,
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS,
@@ -75,6 +79,7 @@ const InitState = JSON.parse(JSON.stringify(InitStateJson))
 
 export const InitialState = {
   phData: InitState.phData,
+  phList: InitState.phList,
   phFocus: InitState.phFocus,
   phGojs: null,
   phMymetis: null,
@@ -114,6 +119,33 @@ function reducer(state = InitialState, action) {
       return {
         ...state,
         phData: action.data,   
+        phSource: 'Model server'
+      }
+    case LOAD_DATAMODELLIST_SUCCESS:
+      if (debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
+      return {
+        ...state,
+        phList: action.data,   
+      }
+    case LOAD_DATAMODEL_SUCCESS:
+      console.log('132 LOAD_DATAMODEL_SUCCESS', action);
+      let loadmodindex = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
+      if (debug) console.log('431 reducer', loadmodindex)
+      if (loadmodindex < 0) {loadmodindex = state.phData.metis.models.length}
+      if (debug) console.log('433 reducer', loadmodindex)
+      return {
+        ...state,
+          phData: {
+            ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              models: [
+                ...state.phData.metis.models.slice(0,loadmodindex),
+                action.data.model,
+                ...state.phData.metis.models.slice(loadmodindex + 1),
+              ]
+            },
+          }, 
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
@@ -863,7 +895,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
-      // if (debug) console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
+      console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === curmrv?.id) // current model index
       const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -1037,7 +1069,7 @@ function reducer(state = InitialState, action) {
       if (!curmmtot) return state;
       const curmmindextot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.targetMetamodelRef) 
       const curtot = curmmtot?.objecttypes?.find(ot => ot.id === action?.data?.id)
-      const lengthtot = curmmtot?.objecttypes.length
+      const lengthtot = curmmtot?.objecttypes?.length
       let indextot = curmmtot?.objecttypes?.findIndex(ot => ot.id === curtot?.id)
       if (indextot < 0) {indextot = lengthtot} 
       //  if (debug) console.log('607 reducer', lengthtot, indextot);
@@ -1174,7 +1206,7 @@ function reducer(state = InitialState, action) {
       if (curmmtpot) {
         const curmmtpindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmotpot.targetMetamodelRef) 
         const curtpot = curmmtpot?.properties?.find(ot => ot.id === action?.data?.id)
-        const lengthottp = curmmtpot?.properties.length
+        const lengthottp = curmmtpot?.properties?.length
         let indextpot = curmmtpot?.properties?.findIndex(ot => ot.id === curtpot?.id)
         if (debug) console.log('911 UPDATE_TARGETPROPERTY_PROPERTIES', indextpot, lengthottp)//, curmotpot, curmmtpot);   
         if (indextpot < 0) {indextpot = lengthottp} 
@@ -1487,7 +1519,7 @@ function reducer(state = InitialState, action) {
       const curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot.targetMetamodelRef)
       const curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot.targetMetamodelRef) 
       const curddot = curmmddot?.datatypes?.find(ot => ot.id === action?.data?.id)
-      const lengthotdd = curmmddot?.datatypes.length
+      const lengthotdd = curmmddot?.datatypes?.length
       let indexddot = curmmddot?.datatypes?.findIndex(ot => ot.id === curddot?.id)
       if (indexddot < 0) {indexddot = lengthotdd} 
       if (debug) console.log('607 reducer', lengthotdd, indexddot);   

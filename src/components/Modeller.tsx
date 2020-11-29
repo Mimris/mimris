@@ -10,12 +10,12 @@ import genGojsModel from './GenGojsModel'
 
 const Modeller = (props: any) => {
   const debug = false
-  // if (debug) console.log('8 Modeller', props);
+  if (debug) console.log('13 Modeller', props);
   // let prevgojsmodel = null
   // let gojsmodel = {}
   const gojsmodel = props.gojsModel;
   let myMetis = props.myMetis;
-  
+  let activetabindex = '0'
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState();
@@ -44,7 +44,7 @@ const Modeller = (props: any) => {
   ]
   const selmodviews = modelviews
   
-  // console.log('36 Modeller', focusModelview, selmods, modelviews);
+  if (debug) console.log('36 Modeller', focusModelview, selmods, modelviews);
   let selmodels = selmods //selmods?.models?.map((m: any) => m)
   let selmodelviews = selmodviews //selmodviews?.modelviews?.map((mv: any) => mv)
 
@@ -74,13 +74,20 @@ const Modeller = (props: any) => {
     <div className="modeller-selection float-right" >
     </div> 
 
-  const activetabindex = (modelviewindex < 0) ? '0' : modelviewindex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
-  if (debug) console.log('79 Modeller', activetabindex);
+  activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : 0 //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
+  if (debug) console.log('78 Modeller', activetabindex);
 
-  useEffect(() => {
-    setActiveTab('0')
-    if (debug) console.log('82 Modeller useEffect 1', activeTab); 
-  }, [focusModel.id])
+  // (selmodviews && props.phSource === 'Model server') &&  
+  // (selmodviews) &&  
+  useEffect(() =>  {
+    if (selmodviews)
+      if (activeTab != undefined || 0) {
+        const data = {id: selmodviews[0].id, name: selmodviews[0].name}
+        dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+        setActiveTab(0)
+    }
+    if (debug) console.log('89 Modeller useEffect 1', activeTab); 
+  }, [focusModel])
   
   useEffect(() => {
     setActiveTab(activetabindex)
@@ -88,8 +95,20 @@ const Modeller = (props: any) => {
     genGojsModel(props, dispatch);
   }, [activeTab])
 
+  useEffect(() => {
+    if (!debug) console.log('99 Modeller useEffect 3', props.phSource); 
+    genGojsModel(props, dispatch);
+    const model = models.find(m => m.id === focusModel.id)
+    if (model) {
+      const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
+      dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 10000);
+    }
+  }, [props.phFocus.focusRefresh])
 
-    
   //   useEffect(() => {
   //     if (debug) console.log('81 Modeller useEffect 2', activeTab); 
   //   // const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
@@ -101,19 +120,18 @@ const Modeller = (props: any) => {
   //   // setTimeout(refres, 1000);
   // }, [focusModelview?.id])
   
-
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
     if (mv) { 
         const strindex = index.toString()
         const data = {id: mv.id, name: mv.name}
         const data2 = {id: Math.random().toString(36).substring(7), name: strindex+'name'}
-        genGojsModel(props, dispatch);
+        // genGojsModel(props, dispatch);
         // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
         return (
           <NavItem key={strindex}>
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none" }}
               className={classnames({ active: activeTab == strindex })}
-              onClick={() => {  dispatch({ type: 'SET_FOCUS_MODELVIEW', data });  dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'}  })  }}
+              onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
               // onClick={() => { toggleTab(strindex); dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefresh() }}
             >
               {mv.name}
@@ -131,7 +149,8 @@ const Modeller = (props: any) => {
       <TabContent > 
         <TabPane  >
           <div className="workpad bg-white mt-0 p-1 pt-2"> 
-            {refresh ? <> {gojsapp} </> : <>{gojsapp}</>}
+            {gojsapp}
+            {/* {refresh ? <> {gojsapp} </> : <>{gojsapp}</>} */}
           </div>         
         </TabPane>
       </TabContent>

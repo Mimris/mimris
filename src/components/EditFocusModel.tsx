@@ -133,24 +133,24 @@ const EditFocusModel = (props) => {
 
   const objectviewheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'Obj')
-      ? 'Objectview:' : 'Relshipview'
+      ? 'Objectview' : 'Relshipview'
     : (props.buttonLabel === 'Obj')
-      ? 'Objecttype:' : 'Relshiptype' 
+      ? 'Objecttype' : 'Relshiptype' 
 
-  const objectheader = (props.modelType === 'model' || 'objects') 
-    ? (props.modelType === 'objects') &&  'Object'
-    :  (props.buttonLabel === 'Obj')
-      ?'Object:' 
-      :'Relship:' 
+  const objectheader = (props.modelType === 'model' || 'objects') &&
+    // ? (props.modelType === 'objects') && 'Object'
+    (props.buttonLabel === 'Obj')
+      ?'Object' 
+      :'Relship' 
     // : (props.buttonLabel === 'Obj')
     //   ? 'Objecttypegeos'
     //   : ''
 
   const typeviewheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'Obj')
-      ? 'Typeview:' : 'Typeview'
+      ? 'Typeview' : 'Typeview'
     : (props.buttonLabel === 'Obj')
-      ? 'Typeview:' : 'Typeview'
+      ? 'Typeview' : 'Typeview'
 
   // console.log('34 EditFocusModel', curmmobj, curmmotypegeos, curmmotypeview);
   let dialogDiv
@@ -221,7 +221,7 @@ const EditFocusModel = (props) => {
   const toggle = () => setModal(!modal);
   return (
     <>
-      < button className="btn-primary float-right px-3 mr-1"  onClick={toggle} > {buttonLabel}
+      < button className="btn-dark float-right px-3 mr-1"  onClick={toggle} > {buttonLabel}
       </button >
       <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} >
         <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>

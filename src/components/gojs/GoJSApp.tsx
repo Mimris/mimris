@@ -102,7 +102,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   private getNode(goModel: any, key: string) {
     const nodes = goModel?.nodes;
     if (nodes) {
-      for (let i = 0; i < nodes.length; i++) {
+      for (let i = 0; i < nodes?.length; i++) {
         const node = nodes[i];
         if (node) {
           if (node.key === key)
@@ -179,7 +179,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       if (objtype.deleted)  continue;
       nodes.push(node);
     }
-    if (nodes.length > 0) myGoMetamodel.nodes = nodes;
+    if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
     // if (debug) console.log('159 gojsMetamodel', myGoMetamodel);
 
     const gojsMetamodel = {
@@ -264,8 +264,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 modifiedObjects.push(gqlObj);
               }
             }
-            const nodes = myGoModel.nodes;
-            for (let i=0; i<nodes.length; i++) {
+            const nodes = myGoModel?.nodes;
+            for (let i=0; i<nodes?.length; i++) {
                 const node = nodes[i];
                 if (node.key === data.key) {
                     node.name = data.name;
@@ -360,8 +360,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('364 myGoModel', myGoModel);
             if (debug) console.log('301 SelectionMoved', modifiedNodes);
           }
-          const nodes = myGoModel.nodes;
-          for (let i=0; i<nodes.length; i++) {
+          const nodes = myGoModel?.nodes;
+          for (let i=0; i<nodes?.length; i++) {
               const node = nodes[i];
               if (node.key === data.key) {
                   node.loc = data.loc;
@@ -372,10 +372,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       }
       break;
-      case "SelectionDeleted": {
+      case "SelectionDeleting": {
+      //case "SelectionDeleted": {
         const deletedFlag = true;
         const selection = e.subject;
-        if (debug) console.log('378 selection, selection');
+        /* if (debug) */console.log('378 selection', selection);
         for (let it = selection.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
@@ -437,7 +438,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === 'Object') {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
-              if (debug) console.log('440 delete node', myNode);
+              /* if (debug) */console.log('440 delete node', data, myNode);
               uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
               if (debug) console.log('390 modifiedNodes', modifiedNodes);
               if (debug) console.log('391 modifiedObjects', modifiedObjects);
@@ -471,7 +472,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ExternalObjectsDropped': {
         e.subject.each(function(node) {
           const part = node.data;
-          /* if (debug) */console.log('511 part', part);
+          if (debug) console.log('511 part', part);
             if (debug) console.log('512 myMetis', myMetis);
             if (debug) console.log('513 myGoModel', myGoModel, myGoMetamodel);
             if (part.type === 'objecttype') {
@@ -497,6 +498,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             } else // object
             {
+              part.category = 'Object';
               if (debug) console.log('537 myModel', myModel);
               if (part.parentModel == null)
                 myMetis.pasteViewsOnly = true;
@@ -515,7 +517,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('560 New object', gqlObj);
               }
             }
-            /* if (debug) */console.log('563 myGoModel', myGoModel);
+            if (debug) console.log('563 myGoModel', myGoModel);
         })
         myDiagram.requestUpdate();
       }
@@ -540,7 +542,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else // object
             {
               let objview = sel.data.objectview;
-              objview = myMetis.findObjectView(objview.id);
+              objview = myMetis.findObjectView(objview?.id);
               // Do whatever you like
               // ..
               const gqlObjView = new gql.gqlObjectView(objview);
@@ -575,11 +577,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "PartResized": {
+        const part = e.subject.part;
         const data = e.subject.part.data;
-        if (debug) console.log('439 PartResized', sel);
+        /* if (debug) */console.log('579 PartResized', part, data);
         uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
+        /* if (debug) */console.log('581 modifiedNodes', myGoModel, modifiedNodes);
         const nodes = this.state.nodeDataArray;
-        for (let i=0; i<nodes.length; i++) {
+        for (let i=0; i<nodes?.length; i++) {
             const node = nodes[i];
             if (node.key === data.key) {
                 node.loc = data.loc;
@@ -602,28 +606,30 @@ class GoJSApp extends React.Component<{}, AppState> {
         const pastedNodes = new Array();
           // First handle the objects
         while (it.next()) {
-        const node = it.value.data;
-        if (node.category === 'Object') {
-          if (debug) console.log('654 ClipboardPasted', node, myGoModel);
-            const objview = uic.createObject(node, context);
-            if (debug) console.log('655 ClipboardPasted', node, objview);
-            if (objview) {
-              const group = uic.getGroupByLocation(myGoModel, objview.loc);
-              if (debug) console.log('662 group', group)
-              if (group && node) {
-                objview.group = group.objectview?.id;
-                node.group = group.key;
+          const data = it.value.data;
+          data.key = utils.createGuid();
+          if (data.category === 'Object') {
+              if (debug) console.log('654 ClipboardPasted', data, myGoModel);
+              const objview = uic.createObject(data, context);
+              if (debug) console.log('655 ClipboardPasted', data, objview);
+              if (objview) {
+                const node = new gjs.goObjectNode(utils.createGuid(), objview);
+                const group = uic.getGroupByLocation(myGoModel, objview.loc);
+                if (debug) console.log('662 group', group)
+                if (group && node) {
+                  objview.group = group.objectview?.id;
+                  node.group = group.key;
+                }
+                pastedNodes.push(node);
+                const objid = objview.object?.id;
+                objview.object = myMetis.findObject(objid);
+                const gqlObjview = new gql.gqlObjectView(objview);
+                modifiedNodes.push(gqlObjview);
+                if (debug) console.log('672 ClipboardPasted', modifiedNodes);
+                const gqlObj = new gql.gqlObject(objview.object);
+                modifiedObjects.push(gqlObj);
+                if (debug) console.log('675 ClipboardPasted', modifiedObjects);
               }
-              pastedNodes.push(node);
-              const objid = objview.object?.id;
-              objview.object = myMetis.findObject(objid);
-              const gqlObjview = new gql.gqlObjectView(objview);
-              modifiedNodes.push(gqlObjview);
-              if (debug) console.log('672 ClipboardPasted', modifiedNodes);
-              const gqlObj = new gql.gqlObject(objview.object);
-              modifiedObjects.push(gqlObj);
-              if (debug) console.log('675 ClipboardPasted', modifiedObjects);
-            }
           }
         }
         if (debug) console.log('681 pastedNodes', pastedNodes);
@@ -633,17 +639,19 @@ class GoJSApp extends React.Component<{}, AppState> {
         while (it1.next()) {
           const data = it1.value.data;
           if (data.category === 'Relationship') {
-            if (debug) console.log('685 ClipboardPasted', data);
+            /* if (debug) */console.log('641 ClipboardPasted', data);
+            data.key = utils.createGuid();
+            /* if (debug) */console.log('644 ClipboardPasted', data);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
-            if (debug) console.log('688 relview', data, relview);
+            /* if (debug) */console.log('646 relview', data, relview);
             if (relview) {
               const relid = relview.relship?.id;
               relview.relship = myMetis.findRelationship(relid);
               const gqlRelview = new gql.gqlRelshipView(relview);
-              if (debug) console.log('702 ClipboardPasted', gqlRelview);
+              /* if (debug) */console.log('702 ClipboardPasted', gqlRelview);
               modifiedLinks.push(gqlRelview);
               const gqlRelship = new gql.gqlRelationship(relview.relship);
-              if (debug) console.log('705 ClipboardPasted', gqlRelship);
+              /* if (debug) */console.log('705 ClipboardPasted', gqlRelship);
               modifiedRelships.push(gqlRelship);
             }
           }
@@ -656,11 +664,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         if (debug) console.log('657 link', link.fromNode.key, link.toNode.key);
         const data = link.data;
-        if (debug) console.log('659 link, data', link, data);
+        /* if (debug) */console.log('659 link, data', link, data);
         const fromNode = link.fromNode;
         const toNode = link.toNode;
         if (debug) console.log('668 LinkDrawn', fromNode, toNode, data);
-        // Handle object types
+        // Handle relationship types
         if (fromNode?.data?.category === 'Object type') {
           if (debug) console.log('685 link', fromNode, data);
           link.category = 'Relationship type';
@@ -676,7 +684,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('696 gqlTypeView', gqlTypeView);
           }
         }
-        // Handle objects
+        // Handle relationships
         if (fromNode?.category === 'Object') {
           /* if (debug) */console.log('670 LinkDrawn', fromNode.data.category);
           const relview = uic.createRelationship(data, context);
@@ -684,13 +692,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
             myLink.fromNode = fromNode;
             myLink.toNode = toNode;
-            if (debug) console.log('675 relview', relview, myLink);
+            /* if (debug) */console.log('675 relview', relview, myLink);
             relview.relship = myMetis.findRelationship(relview.relship.id);
             const gqlRelview = new gql.gqlRelshipView(relview);
-            if (debug) console.log('678 LinkDrawn', link, gqlRelview);
+            /* if (debug) */console.log('678 LinkDrawn', link, gqlRelview);
             modifiedLinks.push(gqlRelview);
             const gqlRelship = new gql.gqlRelationship(relview.relship);
-            if (debug) console.log('681 LinkDrawn', gqlRelship);
+            /* if (debug) */console.log('681 LinkDrawn', gqlRelship);
             modifiedRelships.push(gqlRelship);
           }
         }
@@ -715,7 +723,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundDoubleClicked": {
-        if (debug) console.log('432 BackgroundDoubleClicked', e, e.diagram);
+        /* if (debug) */console.log('432 BackgroundDoubleClicked', e, e.diagram);
         break;
       }
       default:

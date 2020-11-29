@@ -569,7 +569,11 @@ export class cxMetis {
                 obj.setType(objtype);
                 obj.deleted = item.deleted;
                 if (model) model.addObject(obj);
+            } else {
+                obj.typeName = item.typeName;
+                obj.typeRef  = item.typeRef;
             }
+
         }
     }
     importRelship(item: any, model: cxModel | null) {
@@ -588,7 +592,10 @@ export class cxMetis {
                     rel.deleted = item.deleted;
                     model.addRelationship(rel);
                 }
-            }
+            } else {
+                rel.typeName = item.typeName;
+                rel.typeRef  = item.typeRef;
+            } 
         }
     }
     importModelView(item: any, model: cxModel) {
@@ -1488,15 +1495,17 @@ export class cxMetis {
             return null;
         } else {
             let i = 0;
-            let reltype = null;
+            let reltype: cxRelationshipType | null = null;
             while (i < types.length) {
                 reltype = types[i];
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
-                    const fromType = reltype.fromObjType;
-                    const toType   = reltype.toObjType;
-                    if ((fromType?.id === fromObjType?.id) && (toType?.id === toObjType?.id))
-                        return reltype;
+                    console.log('1503 reltype', reltype, fromObjType, toObjType);
+                    if (reltype.isAllowedFromType(fromObjType)) {
+                        if (reltype.isAllowedToType(toObjType)) {
+                            return reltype;
+                        }
+                    }
                 }
                 i++;
             }
@@ -2558,10 +2567,12 @@ export class cxMetaModel extends cxMetaObject {
                 reltype = types[i];
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
-                    const fromType = reltype.fromObjtype;
-                    const toType   = reltype.toObjtype;
-                    if ((fromType?.id === fromObjType?.id) && (toType?.id === toObjType?.id))
-                        return reltype;
+                    if (debug) console.log('2568 reltype', reltype, fromObjType, toObjType);
+                    if (reltype.isAllowedFromType(fromObjType)) {
+                        if (reltype.isAllowedToType(toObjType)) {
+                            return reltype;
+                        }
+                    }
                 }
                 i++;
             }
@@ -4510,6 +4521,7 @@ export class cxRelationship extends cxInstance {
         this.toObject = toObj;
         this.fromobjectRef = "";
         this.toobjectRef = "";
+        if (!this.typeName) this.typeName = name;
     }
     // Methods
     addRelationshipView(relview: cxRelationshipView) {

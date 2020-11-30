@@ -58,7 +58,8 @@ const LoginServer = (props: any) => {
             <br /><br />
             (It may take some time for the list to appear!)</p>
               {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
-            <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akm-model-list" name={frameId}></iframe>
+            {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akm-model-list" name={frameId}></iframe> */}
+            <iframe style={{width:"100%", height:"33vh"}} src="https://akmserver.herokuapp.com/akm-model-list" name={frameId}></iframe>
               {/* {GetStoreFromHtml} */}
               {/* <IframeHelper /> */}
               <a href="http://localhost:4000/profile" target="myFrame" >Click here to Logout</a>

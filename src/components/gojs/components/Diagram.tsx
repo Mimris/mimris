@@ -683,16 +683,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
               }
             }),
-            makeButton("Select all objects of this type",
+          makeButton("Select all objects of this type",
             function (e: any, obj: any) {
               const node = obj.part.data;
-              console.log('689 node', node);
+              if (debug) console.log('689 node', node);
               const currentObject = myMetis.findObject(node.object.id)
               const currentType = currentObject?.type;
               const myModel = myMetis.currentModel;
               const myGoModel = myMetis.gojsModel;
               const objects = myModel.getObjectsByType(currentType, false);
-              let firstTime = true;
               for (let i=0; i<objects.length; i++) {
                 const o = objects[i];
                 if (o) {
@@ -977,6 +976,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               } else {
                 return false;
               }
+            }),
+          makeButton("Select all relationships of this type",
+            function (e: any, obj: any) {
+              const link = obj.part.data;
+              if (debug) console.log('984 link', link);
+              const currentRelship = myMetis.findRelationship(link.relship.id)
+              const currentType = currentRelship?.type;
+              const myModel = myMetis.currentModel;
+              const myGoModel = myMetis.gojsModel;
+              const relships = myModel.getRelationshipsByType(currentType, false);
+              for (let i=0; i<relships.length; i++) {
+                const r = relships[i];
+                if (r) {
+                  const rviews = r.relshipviews;
+                  if (rviews) {
+                    for (let j=0; j<rviews.length; j++) {
+                      const rv = rviews[j];
+                      if (rv) {
+                        const link = myGoModel.findLinkByViewId(rv?.id);
+                        const gjsLink = myDiagram.findLinkForKey(link?.key)
+                        if (gjsLink) gjsLink.isSelected = true;
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) { 
+              return true;
             }),
           makeButton("Undo",
                        function(e, obj) { e.diagram.commandHandler.undo(); },

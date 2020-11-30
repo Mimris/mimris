@@ -7,6 +7,7 @@ import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './action
 es6promise.polyfill()
 
 const akmmhost = 'https://akmserver.herokuapp.com/'
+
 // const akmmhost = 'http://localhost:4000/'
 
 

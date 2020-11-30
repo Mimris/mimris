@@ -8,7 +8,6 @@ es6promise.polyfill()
 
 const localhost = 'https://akmserver.herokuapp.com/'
 // const localhost = 'http://localhost:4000/'
-const login = true
 
 
 // // this version is without login

@@ -6,8 +6,8 @@ import { failure, loadDataSuccess, loadDataModelSuccess, loadDataModelListSucces
 import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './actions/types';
 es6promise.polyfill()
 
-const localhost = 'https://akmserver.herokuapp.com/'
-// const localhost = 'http://localhost:4000/'
+const akmmhost = 'https://akmserver.herokuapp.com/'
+// const akmmhost = 'http://localhost:4000/'
 
 
 // // this version is without login
@@ -56,7 +56,7 @@ function * loadDataSaga() {
   const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
   try {
     let res = ''  
-    res = yield fetch(`${localhost}akmmodels/`,
+    res = yield fetch(`${akmmhost}akmmodels/`,
         {
           mode: 'no-cors', // comment in for  server login
           headers: {
@@ -87,7 +87,7 @@ function * loadDataModelListSaga() {
   console.log('86 saga', sessionCookie, document);
   try {
     let res = ''  
-    res = yield fetch(`${localhost}akm-model-list/`,
+    res = yield fetch(`${akmmhost}akm-model-list/`,
       {
         mode: 'no-cors', // comment in for  server login
         headers: {
@@ -118,7 +118,7 @@ function * loadDataModelSaga(data) {
   console.log('118 saga', data.data, modelId);
   try {
       let res = ''  
-      res = yield fetch(`${localhost}akmmodel?id=${modelId}`,
+      res = yield fetch(`${akmmhost}akmmodel?id=${modelId}`,
         {
           mode: 'no-cors', // comment in for  server login
           headers: {

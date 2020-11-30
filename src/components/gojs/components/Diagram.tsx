@@ -683,6 +683,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
               }
             }),
+            makeButton("Select all objects of this type",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              console.log('689 node', node);
+              const currentObject = myMetis.findObject(node.object.id)
+              const currentType = currentObject?.type;
+              const myModel = myMetis.currentModel;
+              const myGoModel = myMetis.gojsModel;
+              const objects = myModel.getObjectsByType(currentType, false);
+              let firstTime = true;
+              for (let i=0; i<objects.length; i++) {
+                const o = objects[i];
+                if (o) {
+                  const oviews = o.objectviews;
+                  if (oviews) {
+                    for (let j=0; j<oviews.length; j++) {
+                      const ov = oviews[j];
+                      if (ov) {
+                        const node = myGoModel.findNodeByViewId(ov?.id);
+                        const gjsNode = myDiagram.findNodeForKey(node?.key)
+                        if (gjsNode) gjsNode.isSelected = true;
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) { 
+            return true;
+            }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
             function (o: any) { return o.diagram.commandHandler.canUndo(); }),
@@ -1211,6 +1241,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Redo",
             function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
             function (o: any) { return o.diagram.commandHandler.canRedo(); }),
+          makeButton("Select all objects of type",
+            function (e: any, obj: any) {
+              const myModel = myMetis.currentModel;
+              const myModelview = myMetis.currentModelview;
+              const myGoModel = myMetis.gojsModel;
+              const typename = prompt("Enter object type name", "");
+              const objects = myModel.getObjectsByTypename(typename, false);
+              let firstTime = true;
+              for (let i=0; i<objects.length; i++) {
+                const o = objects[i];
+                if (o) {
+                  const oviews = o.objectviews;
+                  if (oviews) {
+                    for (let j=0; j<oviews.length; j++) {
+                      const ov = oviews[j];
+                      if (ov) {
+                        const node = myGoModel.findNodeByViewId(ov?.id);
+                        const gjsNode = myDiagram.findNodeForKey(node?.key)
+                        if (gjsNode) {
+                          if (firstTime) {
+                            myDiagram.select(gjsNode);   
+                            firstTime = false;                                  
+                          } else {
+                            gjsNode.isSelected = true;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) { 
+            return true;
+            }),
           makeButton("Zoom All",
             function (e: any, obj: any) {
               e.diagram.commandHandler.zoomToFit();
@@ -1253,9 +1318,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               if (myDiagram.selection.count > 0)
                 return true; 
               return false;
-            })
-          )
-    }
+            }),
+        )
+  }
 
     // Define a Node template
     let nodeTemplate;

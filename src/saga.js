@@ -15,7 +15,7 @@ const akmmhost = 'https://akmserver.herokuapp.com/'
 // function * loadDataSaga() {
 //   try {
 //     let res = ''  
-//     res = yield fetch(`${localhost}akmmodels/`,
+//     res = yield fetch(`${akmmhost}akmmodels/`,
 //       {
 //         // mode: 'no-cors',
 //         headers: {

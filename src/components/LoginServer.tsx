@@ -62,7 +62,7 @@ const LoginServer = (props: any) => {
             <iframe style={{width:"100%", height:"33vh"}} src="https://akmserver.herokuapp.com/akm-model-list" name={frameId}></iframe>
               {/* {GetStoreFromHtml} */}
               {/* <IframeHelper /> */}
-              <a href="http://localhost:4000/profile" target="myFrame" >Click here to Logout</a>
+              <a href="https://akmserver.herokuapp.com/profile" target="myFrame" >Click here to Logout</a>
               {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
           {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={modeldata} >Load</Button> */}
         </ModalBody>

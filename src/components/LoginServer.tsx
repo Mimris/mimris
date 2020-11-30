@@ -35,7 +35,10 @@ const LoginServer = (props: any) => {
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
 
   useEffect(() => {
+    
     dispatch(loadDataModelList())
+    console.log('40 LoginServer useffect 1', props.ph.phList);
+    
   }, [])
   
   const { buttonLabel, className } = props;

@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
-import { loadData } from '../actions/actions'
+import { loadData, loadDataModelList } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -45,7 +45,12 @@ const page = (props:any) => {
   // if (!props.phData) {
   //   dispatch(loadData())
   // }
-  
+  useEffect(() => {
+    if (!props.phList) {
+      console.log('47 modelling - modellist loaded', props);
+      dispatch(loadDataModelList()) // load list of models in repository
+    }
+  }, [])
   
   const state = useSelector(state => state)
   // console.log('51 modelling', state, props.phData);

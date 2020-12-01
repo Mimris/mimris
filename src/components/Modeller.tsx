@@ -107,10 +107,10 @@ const Modeller = (props: any) => {
         function refres() {
           setRefresh(!refresh)
         }
-        setTimeout(refres, 10000);
+        setTimeout(refres, 10);
       }
     }
-  }, [props.phFocus.focusModel.id])
+  }, [activeTab])
 
   //   useEffect(() => {
   //     if (debug) console.log('81 Modeller useEffect 2', activeTab); 

@@ -161,15 +161,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "description": "",
               "relshipkind": constants.relkinds.REL
             },
-            "clickCreatingTool.archetypeNodeData": {
-              "key": utils.createGuid(),
-              "category": "Object",
-              "name": "Generic Object",
-              "description": "",
-              "strokecolor": "black",
-              "strokewidth": "6",
-              "icon": "default.png"
-            },
+            // "clickCreatingTool.archetypeNodeData": {
+            //   "key": utils.createGuid(),
+            //   "category": "Object",
+            //   "name": "Generic",
+            //   "description": "",
+            //   "fillcolor": "grey",
+            //   "strokecolor": "black",
+            //   "strokewidth": "6",
+            //   "icon": "default.png"
+            // },
             // // allow Ctrl-G to call groupSelection()
             // "commandHandler.archetypeGroupData": {
             //   text: "Group",
@@ -683,6 +684,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return false;
               }
             }),
+          makeButton("Select all objects of this type",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              if (debug) console.log('689 node', node);
+              const currentObject = myMetis.findObject(node.object.id)
+              const currentType = currentObject?.type;
+              const myModel = myMetis.currentModel;
+              const myGoModel = myMetis.gojsModel;
+              const objects = myModel.getObjectsByType(currentType, false);
+              for (let i=0; i<objects.length; i++) {
+                const o = objects[i];
+                if (o) {
+                  const oviews = o.objectviews;
+                  if (oviews) {
+                    for (let j=0; j<oviews.length; j++) {
+                      const ov = oviews[j];
+                      if (ov) {
+                        const node = myGoModel.findNodeByViewId(ov?.id);
+                        const gjsNode = myDiagram.findNodeForKey(node?.key);
+                        if (gjsNode) gjsNode.isSelected = true;
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) { 
+            return true;
+            }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
             function (o: any) { return o.diagram.commandHandler.canUndo(); }),
@@ -891,14 +921,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Generate Relationship Type",             
             function (e: any, obj: any) { 
+              const context = {
+                "myMetis":            myMetis,
+                "myMetamodel":        myMetis.currentMetamodel,
+                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+                "myModel":            myMetis.currentModel,
+                "myCurrentModelview": myMetis.currentModelview,
+                "myDiagram":          e.diagram,
+                "myProperties":       new Array(),
+                "dispatch":           e.diagram.dispatch
+                }
+              /* if (debug) */console.log('935 myMetis', myMetis);
+              const contextmenu = obj.part;  
+              const part = contextmenu.adornedPart; 
+              const currentRel = part.data.relship;
+              context.myTargetMetamodel = myMetis.currentTargetMetamodel;
+              /* if (debug) */console.log('940 context', currentRel, context);
+              //if (!context.myTargetMetamodel) {
+                context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+                if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                    alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                    context.myTargetMetamodel = null;
+                } else if (context.myTargetMetamodel == undefined)  // sf
+                  context.myTargetMetamodel = null;
+              //}
+              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+              /* if (debug) */console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
+              if (context.myTargetMetamodel) {  
+                myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
+                /* if (debug) */console.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
+                const gqlModel = new gql.gqlModel(context.myModel, true);
+                const modifiedModels = new Array();
+                modifiedModels.push(gqlModel);
+                modifiedModels.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                })
+                const currentRelview = part.data.relshipview;
+                /* if (debug) */console.log('962 currentRelview', currentRelview);
+                const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
+                /* if (debug) */console.log('964 Generate Relationship Type', reltype, myMetis);
+              }
             },
             function(o: any) { 
-              const test = false;
-              if (test)
-                return true;
-              else
-                return false;
-          }),
+              const rel = o.part.data.relship;
+              const fromObj = rel.fromObject;
+              const toObj = rel.toObject;
+              let reltype = rel.type;
+              if (fromObj.type.name === constants.types.AKM_INFORMATION) {
+                if (toObj.type.name === constants.types.AKM_INFORMATION)
+                  return true;
+              } else
+                  return false;
+            }),
           makeButton("Cut",
             function (e, obj) { 
               e.diagram.commandHandler.cutSelection(); 
@@ -947,6 +1022,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               } else {
                 return false;
               }
+            }),
+          makeButton("Select all relationships of this type",
+            function (e: any, obj: any) {
+              const link = obj.part.data;
+              if (debug) console.log('984 link', link);
+              const currentRelship = myMetis.findRelationship(link.relship.id)
+              const currentType = currentRelship?.type;
+              const myModel = myMetis.currentModel;
+              const myGoModel = myMetis.gojsModel;
+              const relships = myModel.getRelationshipsByType(currentType, false);
+              for (let i=0; i<relships.length; i++) {
+                const r = relships[i];
+                if (r) {
+                  const rviews = r.relshipviews;
+                  if (rviews) {
+                    for (let j=0; j<rviews.length; j++) {
+                      const rv = rviews[j];
+                      if (rv) {
+                        const link = myGoModel.findLinkByViewId(rv?.id);
+                        const gjsLink = myDiagram.findLinkForKey(link?.key)
+                        if (gjsLink) gjsLink.isSelected = true;
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) { 
+              return true;
             }),
           makeButton("Undo",
                        function(e, obj) { e.diagram.commandHandler.undo(); },
@@ -1211,6 +1315,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           makeButton("Redo",
             function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
             function (o: any) { return o.diagram.commandHandler.canRedo(); }),
+          makeButton("Select all objects of type",
+            function (e: any, obj: any) {
+              const myModel = myMetis.currentModel;
+              const myModelview = myMetis.currentModelview;
+              const myGoModel = myMetis.gojsModel;
+              const typename = prompt("Enter object type name", "");
+              const objects = myModel.getObjectsByTypename(typename, false);
+              let firstTime = true;
+              for (let i=0; i<objects.length; i++) {
+                const o = objects[i];
+                if (o) {
+                  const oviews = o.objectviews;
+                  if (oviews) {
+                    for (let j=0; j<oviews.length; j++) {
+                      const ov = oviews[j];
+                      if (ov) {
+                        const node = myGoModel.findNodeByViewId(ov?.id);
+                        const gjsNode = myDiagram.findNodeForKey(node?.key)
+                        if (gjsNode) {
+                          if (firstTime) {
+                            myDiagram.select(gjsNode);   
+                            firstTime = false;                                  
+                          } else {
+                            gjsNode.isSelected = true;
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) { 
+            return true;
+            }),
           makeButton("Zoom All",
             function (e: any, obj: any) {
               e.diagram.commandHandler.zoomToFit();
@@ -1253,9 +1392,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               if (myDiagram.selection.count > 0)
                 return true; 
               return false;
-            })
-          )
-    }
+            }),
+        )
+  }
 
     // Define a Node template
     let nodeTemplate;

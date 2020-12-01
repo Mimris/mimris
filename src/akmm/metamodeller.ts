@@ -1500,7 +1500,7 @@ export class cxMetis {
                 reltype = types[i];
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
-                    console.log('1503 reltype', reltype, fromObjType, toObjType);
+                    if (debug) console.log('1503 reltype', reltype, fromObjType, toObjType);
                     if (reltype.isAllowedFromType(fromObjType)) {
                         if (reltype.isAllowedToType(toObjType)) {
                             return reltype;

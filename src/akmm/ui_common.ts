@@ -25,7 +25,6 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
         if (debug) console.log('24 createObject', myModel.pasteViewsOnly, data);
-        //data.objectview_0 = data.objectview;
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
@@ -67,7 +66,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
                 data.objectview = objview;
-                // if (debug) console.log('47 createObject', data);
+                if (debug) console.log('47 createObject', data);
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
                 myModelview.addObjectView(objview);
@@ -870,7 +869,7 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    if (debug) console.log('824 createRelationship', data);
+    /* if (debug) */console.log('824 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     //const myMetamodel = context.myMetamodel;
@@ -878,7 +877,7 @@ export function createRelationship(data: any, context: any) {
     //data.key = utils.createGuid();
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
-    if (debug) console.log('832 createRelationship', myGoModel, fromNode, toNode);
+    /* if (debug) */console.log('832 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode.object;
     const toObj = toNode.object;
     let typename = 'isRelatedTo' as string | null;
@@ -890,7 +889,7 @@ export function createRelationship(data: any, context: any) {
         if ((myMetis) && (fromType && toType)) {
             let defText = "";
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
-            if (debug) console.log('845 createRelationship', reltypes, fromType, toType, myMetis);
+            /* if (debug) */console.log('845 createRelationship', reltypes, fromType, toType, myMetis);
             if (reltypes) {
                 for (let i=0; i<reltypes.length; i++) {
                     const rtype = reltypes[i];
@@ -934,49 +933,34 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myModel   = context.myModel;
     const myModelView = myMetis.currentModelview;
     const pasteViewsOnly = myMetis.currentModel.pasteViewsOnly;
-    if (debug) console.log('910 pasteViewsOnly', pasteViewsOnly);
-    if (debug) console.log('911 myMetis', myMetis, myGoModel);
-    //const relshipname = data.name;
-    //data.key = utils.createGuid();
-    if (debug) console.log('914 pasteRelationship', data, nodes);
+    if (debug) console.log('937 pasteViewsOnly', pasteViewsOnly);
+    if (debug) console.log('938 myMetis', myMetis, myGoModel);
+    if (debug) console.log('939 pasteRelationship', data);
     // Relationship type must exist
     let reltype = data.relship.type;
+    reltype = myMetis.findRelationshipType(reltype?.id);
     // if (reltype) 
     //     reltype = myMetis.findRelationshipType(reltype.id);
-    if (debug) console.log('919 pasteRelationship', reltype);
+    if (debug) console.log('945 pasteRelationship', reltype);
     if (!reltype)
         return;
     //const reltypeview = reltype.getDefaultTypeView();
     // Find source objects
     const fromNodeRef = data.from;
     const toNodeRef   = data.to;
-    if (debug) console.log('926 fromNode, toNode', fromNodeRef, toNodeRef);
-    let fromNode;
-    let toNode;
-    for (let i=0; i<nodes?.length; i++) {
-        const n = nodes[i];
-        if (n.key === fromNodeRef) {
-            fromNode = n;
-            break;
-        }
-    }
-    for (let i=0; i<nodes?.length; i++) {
-        const n = nodes[i];
-        if (n.key === toNodeRef) {
-            toNode = n;
-            break;
-        }
-    }
-    if (debug) console.log('943 fromNode, toNode', fromNode, toNode);
+    const fromNode = myDiagram.findNodeForKey(fromNodeRef).data;
+    const toNode = myDiagram.findNodeForKey(toNodeRef).data;
+    if (debug) console.log('954 fromNode, toNode', fromNode, toNode);
     const fromObjview = fromNode?.objectview;
     const toObjview   = toNode?.objectview;
     let   relship     = data.relship;
     const typeview    = data.relshipview.typeview;
-    if (debug) console.log('948 pasteRelationship', fromObjview, toObjview);
-    // myDiagram.model.setDataProperty(data, "name", relship?.name);
+    if (debug) console.log('959 pasteRelationship', fromObjview, toObjview);
     if (!pasteViewsOnly) {
-        const fromObj = fromObjview?.object;
-        const toObj = toObjview?.object;
+        let fromObj = fromObjview?.object;
+        fromObj = myMetis.findObject(fromObj?.id);
+        let toObj = toObjview?.object;
+        toObj = myMetis.findObject(toObj?.id);
         if (fromObj && toObj) {
             relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
             relship.setModified();
@@ -990,7 +974,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     } else {
         relship = myMetis.findRelationship(relship.id);
     }
-    if (debug) console.log('964 relationship', relship);
+    if (debug) console.log('979 relationship', relship);
     const relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
     if (relshipview) {
         relshipview.setTypeView(typeview);              // Uses same typeview as from relview
@@ -1000,8 +984,8 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         myModelView.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
     }
-    if (debug) console.log('974 relshipview', relshipview);
-    if (debug) console.log('975 myModel', myModel);
+    if (debug) console.log('989 relshipview', relshipview);
+    if (debug) console.log('990 myModel', myModel);
     myDiagram.requestUpdate();
     return relshipview; 
 }
@@ -1056,7 +1040,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                 myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                 myMetamodel.addRelationshipType(reltype2);
                 myMetis.addRelationshipType(reltype2);
-                if (debug) console.log('903 reltype2', reltype2);
+                /* if (debug) */console.log('903 reltype2', reltype2);
                 const reltypeView = reltype.getDefaultTypeView();
                 //reltype2.setDefaultTypeView(reltypeView);
                 if (reltypeView) {
@@ -1080,7 +1064,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                     myDiagram.model.setDataProperty(data, "typeview", reltypeView2);
                     myDiagram.requestUpdate();
                 }
-                if (debug) console.log('927 reltype2', reltype2);
+                /* if (debug) */console.log('927 reltype2', reltype2, myMetis);
                 return reltype2;
             } else {   // New relationship type - create it                
                 if (debug) console.log('1074 reltype', reltype);
@@ -1448,6 +1432,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     let report = printf(format, msg);
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
+        obj.inputrels = new Array();
+        obj.outputrels = new Array();
         const typeRef = obj.typeRef;
         const typeName = obj.typeName;
         if (debug) console.log('1441 obj', obj, model);
@@ -1637,10 +1623,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     })
 
     msg = "Verifying relationships completed";
-    if (debug) console.log('1616 myMetis', metamodel.metis);
     if (debug) console.log('1617 myGoModel', myGoModel);
     report += printf(format, msg);
     if (debug) console.log(report);
-
-    myDiagram.requestUpdate();                        
+    myDiagram.requestUpdate();    
+    alert(report);                    
 } 

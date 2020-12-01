@@ -96,7 +96,7 @@ const Modeller = (props: any) => {
   }, [activeTab])
 
   useEffect(() => {
-    if (!debug) console.log('99 Modeller useEffect 3', props); 
+    if (debug) console.log('99 Modeller useEffect 3', props); 
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel.id)
     if (model) {

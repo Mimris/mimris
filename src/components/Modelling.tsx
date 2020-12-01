@@ -83,7 +83,7 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id])
 
     useEffect(() => {
-      if (!debug) console.log('85 Modelling useEffect 3', props); 
+      if (debug) console.log('85 Modelling useEffect 3', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)

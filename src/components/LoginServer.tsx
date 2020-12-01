@@ -17,8 +17,8 @@ const akmmodellist = akmmhost+'akm-model-list'
 const profile = akmmhost+'profile'
 
 function LoginServer(props: any) {
-  if (!debug)
-    console.log('15 LoginServer', props);
+
+  if (debug)   console.log('15 LoginServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
   const dispatch = useDispatch();
   const refresh = props.refresh;
@@ -28,7 +28,7 @@ function LoginServer(props: any) {
   const modellist = props?.ph?.phList?.modList;
   // const modellist = (props.ph.phList) && props.ph.phList.modList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) && { value: ml.id, label: ml.name });
-  console.log('27 LoginServer', props.ph.phList, selmodellist);
+  if (debug) console.log('27 LoginServer', props.ph.phList, selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>);
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>);
@@ -43,7 +43,7 @@ function LoginServer(props: any) {
     dispatch(loadDataModelList());
     function refres() {
       // setRefresh(!refresh)
-      console.log('40 LoginServer useffect 1', props, props.ph.phList);
+      if (debug) console.log('40 LoginServer useffect 1', props, props.ph.phList);
     }
     setTimeout(refres, 100);
   }, []);

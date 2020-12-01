@@ -16,7 +16,7 @@ import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
 const debug = false
 const page = (props:any) => {
   
-  if (debug) console.log('16 diagram',props)
+  if (debug) console.log('(debugram',props)
 
   const [refresh, setRefresh] = useState(true);
   const dispatch = useDispatch()
@@ -48,14 +48,14 @@ const page = (props:any) => {
   // }
 
   useEffect(() => {
-    if (debug) console.log('47 modelling - useEffect', props);
+    console.log('47 modelling - useEffect', props);
     if (!props.phList) {
       dispatch(loadDataModelList()) // load list of models in repository
     }
   }, [])
   
   const state = useSelector(state => state)
-  if (debug) console.log('57 modelling', (props.phList) && props.phList);
+  console.log('57 modelling', (props.phList) && props.phList);
   
   const [visible,setVisible] = useState(false)
   function toggle() { setVisible(!visible); }

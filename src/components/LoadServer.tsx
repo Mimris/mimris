@@ -12,7 +12,7 @@ import SaveModelData from './utils/SaveModelData'
 const debug = false
 
 const SelectSource = (props: any) => {
-  console.log('15 LoadServer', props);
+  if (debug) console.log('15 LoadServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -21,10 +21,10 @@ const SelectSource = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
   
   const modellist = (props.ph.phList) && props?.ph?.phList?.modList
-  console.log('26 LoadServer', props.ph, props.ph.phList.modList, modellist);
+  if (debug) console.log('26 LoadServer', props.ph, props.ph.phList?.modList, modellist);
   // const modellist = (props.ph.phList) && (props.ph.phList.modList != null) && props?.ph?.phList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) 
-  console.log('27 LoadServer',  selmodellist);
+  if (debug) console.log('27 LoadServer',  selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
@@ -34,7 +34,7 @@ const SelectSource = (props: any) => {
     const data = props.ph.phFocus.focusModel
     dispatch({ type: 'LOAD_DATAMODEL', data }) 
     // dispatch(loadDataModel());
-    if (!debug) console.log('48 LoadServer', data);
+    if (debug) console.log('48 LoadServer', data);
   }
 
   function handleSaveModelStore() {

@@ -70,6 +70,8 @@ import {
   UPDATE_OBJECTVIEW_NAME
 } from './types';
 
+const debug = false
+
 export const failure = (error) => {
   return {
     type: FAILURE,
@@ -90,12 +92,12 @@ export const loadDataSuccess = (data) => {
 }
 
 export const loadDataModelList = () => {
-  console.log('93 actions loadDataModelList ');
+  if (debug) console.log('93 actions loadDataModelList ');
   return { type: LOAD_DATAMODELLIST }
 }
 
 export const loadDataModelListSuccess = (data) => {
-  console.log('37 loadDataModelListSuccess ', data);
+  if (debug) console.log('37 loadDataModelListSuccess ', data);
   return {
     type: LOAD_DATAMODELLIST_SUCCESS,
     data
@@ -108,7 +110,7 @@ export const loadDataModel = (data) => {
 }
 
 export const loadDataModelSuccess = (data) => {
-  console.log('110 actions loadDataModelSuccess ', data);
+  if (debug) console.log('110 actions loadDataModelSuccess ', data);
   return {
     type: LOAD_DATAMODEL_SUCCESS,
     data

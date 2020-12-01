@@ -128,7 +128,7 @@ function reducer(state = InitialState, action) {
         phList: action.data,   
       }
     case LOAD_DATAMODEL_SUCCESS:
-      console.log('132 LOAD_DATAMODEL_SUCCESS', action);
+      if (debug) console.log('132 LOAD_DATAMODEL_SUCCESS', action);
       let loadmodindex = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
       if (debug) console.log('431 reducer', loadmodindex)
       if (loadmodindex < 0) {loadmodindex = state.phData.metis.models.length}
@@ -220,7 +220,7 @@ function reducer(state = InitialState, action) {
         }
       }
       case SET_FOCUS_MODELVIEW:
-         console.log('190 SET_FOCUS_MODELVIEW', state, action.data); 
+        if (debug) console.log('223 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
         ...state,
         phFocus: {

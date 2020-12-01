@@ -1093,6 +1093,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                         myDiagram.requestUpdate();
                         if (debug) console.log('1098 myMetamodel', myMetamodel);
                     }
+                    console.log('1096 reltype', reltype);
                     return reltype;
                 }
             }

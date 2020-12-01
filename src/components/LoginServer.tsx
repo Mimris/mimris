@@ -20,9 +20,10 @@ const LoginServer = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  const modellist = (props.ph.phList) && props.ph.phList.modList
+  const modellist = props?.ph?.phList?.modList
+  // const modellist = (props.ph.phList) && props.ph.phList.modList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  console.log('27 LoginServer', props.ph.phList.modList, selmodellist);
+  console.log('27 LoginServer', props.ph.phList, selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
@@ -34,11 +35,13 @@ const LoginServer = (props: any) => {
   const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
 
-  useEffect(() => {
-    
+  useEffect(() => {  
     dispatch(loadDataModelList())
-    console.log('40 LoginServer useffect 1', props.ph.phList);
-    
+    function refres() {
+      // setRefresh(!refresh)
+      console.log('40 LoginServer useffect 1', props, props.ph.phList);
+    }
+    setTimeout(refres, 100);
   }, [])
   
   const { buttonLabel, className } = props;
@@ -61,12 +64,12 @@ const LoginServer = (props: any) => {
             <br /><br />
             (It may take some time for the list to appear!)</p>
               {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/profile" name="myFrame"></iframe> */}
-            {/* <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akm-model-list" name={frameId}></iframe> */}
-            <iframe style={{width:"100%", height:"33vh"}} src="https://akmserver.herokuapp.com/akm-model-list" name={frameId}></iframe>
+            <iframe style={{width:"100%", height:"33vh"}} src="http://localhost:4000/akm-model-list" name={frameId}></iframe>
+            {/* <iframe style={{width:"100%", height:"33vh"}} src="https://akmserver.herokuapp.com/akm-model-list" name={frameId}></iframe> */}
               {/* {GetStoreFromHtml} */}
               {/* <IframeHelper /> */}
-              <a href="https://akmserver.herokuapp.com/profile" target="myFrame" >Click here to Logout</a>
-              {/* <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p> */}
+              {/* <a href="https://akmserver.herokuapp.com/profile" target="myFrame" >Click here to Logout</a> */}
+              <p><a href="http://localhost:4000/profile" target="myFrame" >Click to Login</a></p>
           {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={modeldata} >Load</Button> */}
         </ModalBody>
         <ModalFooter>

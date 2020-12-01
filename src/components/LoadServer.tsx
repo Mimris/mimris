@@ -1,4 +1,4 @@
-// @ts-snocheck
+// @ts- snocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { useSelector, useDispatch } from 'react-redux'
@@ -20,10 +20,9 @@ const SelectSource = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  const modellist = props.ph.phList.modList
-  // let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  console.log('26 LoadServer', props, props.ph.phList, selmodellist);
+  const modellist = (props.ph.phList) && (props.ph.phList.modList != null) && props?.ph?.phList?.modList
+  const selmodellist = (modellist) ? modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) : null
+  console.log('26 LoadServer', props.ph, props.ph.phList, selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
@@ -33,7 +32,7 @@ const SelectSource = (props: any) => {
     const data = props.ph.phFocus.focusModel
     dispatch({ type: 'LOAD_DATAMODEL', data }) 
     // dispatch(loadDataModel());
-    if (debug) console.log('48 LoadServer', data);
+    if (!debug) console.log('48 LoadServer', data);
   }
 
   function handleSaveModelStore() {

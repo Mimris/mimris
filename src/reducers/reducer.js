@@ -79,7 +79,7 @@ const InitState = JSON.parse(JSON.stringify(InitStateJson))
 
 export const InitialState = {
   phData: InitState.phData,
-  phList: InitState.phList,
+  phList: null,
   phFocus: InitState.phFocus,
   phGojs: null,
   phMymetis: null,

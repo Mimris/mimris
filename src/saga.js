@@ -6,8 +6,8 @@ import { failure, loadDataSuccess, loadDataModelSuccess, loadDataModelListSucces
 import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './actions/types';
 es6promise.polyfill()
 
+const debug = false
 const akmmhost = 'https://akmserver.herokuapp.com/'  //TODO: put this as a phFocus variable
-
 // const akmmhost = 'http://localhost:4000/'
 
 // // this version is without login
@@ -79,7 +79,7 @@ function * loadDataSaga() {
   }
 
 function * loadDataModelListSaga() {
-  console.log('83 saga');
+  if (debug) console.log('83 saga');
   // const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
   // const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
   // const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
@@ -99,9 +99,9 @@ function * loadDataModelListSaga() {
         // credentials: 'include' // comment in for  server login
       }
     )
-      console.log('102 saga', yield res.clone().json());
+      if (debug) console.log('102 saga', yield res.clone().json());
       const modList = yield res.clone().json()
-      console.log('104 Saga', modList);
+      if (debug) console.log('104 Saga', modList);
       yield put(loadDataModelListSuccess( modList ))
     } catch (err) {
       console.log('107 saga', failure(err));  
@@ -114,7 +114,7 @@ function * loadDataModelSaga(data) {
   // const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
   // const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
   const modelId = data.data.id
-  console.log('118 saga', data.data, modelId);
+  if (debug) console.log('118 saga', data.data, modelId);
   try {
       let res = ''  
       res = yield fetch(`${akmmhost}akmmodel?id=${modelId}`,
@@ -131,7 +131,7 @@ function * loadDataModelSaga(data) {
         }
       )
       const model = yield res.clone().json()
-      console.log('134 Saga', model);
+      if (debug) console.log('134 Saga', model);
       yield put(loadDataModelSuccess({ model }))
     } catch (err) {
       console.log('137 saga', failure(err));  

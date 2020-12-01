@@ -166,7 +166,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     if (debug) console.log('167 myMetis', myMetis);
     const obj = myMetis.findObject(object.id);
-    console.log('169 obj', obj);
+    if (debug) console.log('169 obj', obj);
     let proptypes  = new Array();
     let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
     if (!objtype) {

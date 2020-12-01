@@ -1266,7 +1266,7 @@ function reducer(state = InitialState, action) {
                 relshiptypes: [
                   ...curmmtrt?.relshiptypes?.slice(0, indexrt),
                   {
-                    ...curmmttrt?.relshiptypes[indexrt],
+                    ...curmmtrt?.relshiptypes[indexrt],
                     id: action.data.id,
                     name: action.data.name,
                     description: action.data.description,
@@ -1277,7 +1277,7 @@ function reducer(state = InitialState, action) {
                     fromobjtypeRef: action.data.fromobjtypeRef,
                     toobjtypeRef: action.data.toobjtypeRef,
                     // properties: {
-                    //   ...curmmrt.relshiptypes[indexrt]?.properties,
+                    //   ...curmmtrt.relshiptypes[indexrt]?.properties,
                     //   properties: action.data.properties,
                     // },             
                     deleted: action.data.deleted,  

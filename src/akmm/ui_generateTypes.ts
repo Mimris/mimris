@@ -305,10 +305,10 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     if (!reltype) {
         // New relationship type - Create it
         reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, rel.description);
-        
         myTargetMetamodel.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
         console.log('311 relshiptype', reltype);
+        // Create relationship typeview
         let reltypeview = new akm.cxRelationshipTypeView(utils.createGuid(), rel.name, reltype, rel.description);
         reltypeview.applyRelationshipViewParameters(relview);
         reltype.typeview = reltypeview;

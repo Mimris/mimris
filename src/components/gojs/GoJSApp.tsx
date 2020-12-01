@@ -667,7 +667,7 @@ class GoJSApp extends React.Component<{}, AppState> {
          if (debug) console.log('659 link, data', link, data);
         const fromNode = link.fromNode;
         const toNode = link.toNode;
-        if (debug) console.log('668 LinkDrawn', fromNode, toNode, data);
+        /* if (debug) */console.log('668 LinkDrawn', fromNode, toNode, data);
         // Handle relationship types
         if (fromNode?.data?.category === 'Object type') {
           if (debug) console.log('685 link', fromNode, data);
@@ -675,13 +675,16 @@ class GoJSApp extends React.Component<{}, AppState> {
           link.class = 'goRelshipTypeLink';
           const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
           if (reltype) {
-            if (debug) console.log('690 reltype', reltype);
+            /* if (debug) */console.log('678 reltype', reltype);
             const gqlType = new gql.gqlRelationshipType(reltype, true);
             modifiedTypeLinks.push(gqlType);
-            if (debug) console.log('693 gqlType', gqlType);
-            const gqlTypeView = new gql.gqlRelshipTypeView(reltype.typeview);
-            modifiedLinkTypeViews.push(gqlTypeView);
-            if (debug) console.log('696 gqlTypeView', gqlTypeView);
+            /* if (debug) */console.log('681 gqlType', gqlType);
+            const reltypeview = reltype.typeview;
+            if (reltypeview) {
+              const gqlTypeView = new gql.gqlRelshipTypeView(reltypeview);
+              modifiedLinkTypeViews.push(gqlTypeView);
+              /* if (debug) */console.log('686 gqlTypeView', gqlTypeView);
+            }
           }
         }
         // Handle relationships
@@ -692,13 +695,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
             myLink.fromNode = fromNode;
             myLink.toNode = toNode;
-             if (debug) console.log('675 relview', relview, myLink);
+            /* if (debug) */console.log('675 relview', relview, myLink);
             relview.relship = myMetis.findRelationship(relview.relship.id);
             const gqlRelview = new gql.gqlRelshipView(relview);
-             if (debug) console.log('678 LinkDrawn', link, gqlRelview);
+            /* if (debug) */console.log('678 LinkDrawn', link, gqlRelview);
             modifiedLinks.push(gqlRelview);
             const gqlRelship = new gql.gqlRelationship(relview.relship);
-             if (debug) console.log('681 LinkDrawn', gqlRelship);
+            /* if (debug) */console.log('681 LinkDrawn', gqlRelship);
             modifiedRelships.push(gqlRelship);
           }
         }

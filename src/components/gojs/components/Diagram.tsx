@@ -959,8 +959,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 })
                 const currentRelview = part.data.relshipview;
                 /* if (debug) */console.log('962 currentRelview', currentRelview);
-                const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
-                /* if (debug) */console.log('964 Generate Relationship Type', reltype, myMetis);
+                const reltypeview = gen.generateRelshipType(currentRel, currentRelview, context);
+                /* if (debug) */console.log('964 Generate Relationship Type', reltypeview, myMetis);
+                const reltype = reltypeview.type;
+                  // First handle properties
+                  const modifiedProperties = new Array();
+                  const props = reltype.properties;
+                  for (let i=0; i<props?.length; i++) {
+                    const gqlProp = new gql.gqlProperty(props[i]);
+                    modifiedProperties.push(gqlProp);
+                    modifiedProperties.map(mn => {
+                      let data = mn;
+                      e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
+                    });
+                  }
+                  if (debug) console.log('976 reltype', reltype);
+
+                  const gqlRelshipType = new gql.gqlRelationshipType(reltype);
+                  if (debug) console.log('979 Generate Relationship Type', reltype,gqlRelshipType);
+                  const modifiedTypeLinks = new Array();
+                  modifiedTypeLinks.push(gqlRelshipType);
+                  modifiedTypeLinks.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
+                  });
+                  const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
+                  if (debug) console.log('987 Generate Relationship Type', gqlRelTypeview);
+                  const modifiedTypeViews = new Array();
+                  modifiedTypeViews.push(gqlRelTypeview);
+                  modifiedTypeViews?.map(mn => {
+                    let data = (mn) && mn
+                    e.diagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
+                  })
+                  /* if (debug) */console.log('994 myMetis', myMetis);
+
               }
             },
             function(o: any) { 

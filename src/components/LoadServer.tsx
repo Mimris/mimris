@@ -20,8 +20,8 @@ const SelectSource = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  const modellist = (props.ph.phList) && props?.ph?.phList?.modlist
-  console.log('26 LoadServer', props.ph, props.ph.phList, modellist);
+  const modellist = (props.ph.phList) && props?.ph?.phList?.modList
+  console.log('26 LoadServer', props.ph, props.ph.phList.modList, modellist);
   // const modellist = (props.ph.phList) && (props.ph.phList.modList != null) && props?.ph?.phList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) 
   console.log('27 LoadServer',  selmodellist);

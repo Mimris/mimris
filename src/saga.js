@@ -6,7 +6,7 @@ import { failure, loadDataSuccess, loadDataModelSuccess, loadDataModelListSucces
 import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './actions/types';
 es6promise.polyfill()
 
-const akmmhost = 'https://akmserver.herokuapp.com/'
+const akmmhost = 'https://akmserver.herokuapp.com/'  //TODO: put this as a phFocus variable
 
 // const akmmhost = 'http://localhost:4000/'
 

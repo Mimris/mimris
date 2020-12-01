@@ -88,7 +88,7 @@ function * loadDataModelListSaga() {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,
       {
-        // mode: 'no-cors', // comment in for  server login
+        mode: 'no-cors', // comment in for  server login
         headers: {
           // "Access-Control-Allow-Origin": "*", // comment in for  server login
           'Accept': 'application/json',

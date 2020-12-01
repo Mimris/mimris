@@ -376,7 +376,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       //case "SelectionDeleted": {
         const deletedFlag = true;
         const selection = e.subject;
-        /* if (debug) */console.log('378 selection', selection);
+         if (debug) console.log('378 selection', selection);
         for (let it = selection.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
@@ -438,7 +438,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === 'Object') {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
-              /* if (debug) */console.log('440 delete node', data, myNode);
+               if (debug) console.log('440 delete node', data, myNode);
               uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
               if (debug) console.log('390 modifiedNodes', modifiedNodes);
               if (debug) console.log('391 modifiedObjects', modifiedObjects);
@@ -507,7 +507,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('542 part', part);
               }
               const objview = uic.createObject(part, context);
-              /* if (debug) */console.log('545 New object', part, objview);
+               if (debug) console.log('545 New object', part, objview);
               if (objview) {
                 const gqlObjview = new gql.gqlObjectView(objview);
                 modifiedNodes.push(gqlObjview);
@@ -579,9 +579,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "PartResized": {
         const part = e.subject.part;
         const data = e.subject.part.data;
-        /* if (debug) */console.log('579 PartResized', part, data);
+         if (debug) console.log('579 PartResized', part, data);
         uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
-        /* if (debug) */console.log('581 modifiedNodes', myGoModel, modifiedNodes);
+         if (debug) console.log('581 modifiedNodes', myGoModel, modifiedNodes);
         const nodes = this.state.nodeDataArray;
         for (let i=0; i<nodes?.length; i++) {
             const node = nodes[i];
@@ -613,7 +613,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const objview = uic.createObject(data, context);
               if (debug) console.log('655 ClipboardPasted', data, objview);
               if (objview) {
-                const node = new gjs.goObjectNode(utils.createGuid(), objview);
+                const node = new gjs.goObjectNode(data.key, objview);
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
                 if (debug) console.log('662 group', group)
                 if (group && node) {
@@ -639,19 +639,19 @@ class GoJSApp extends React.Component<{}, AppState> {
         while (it1.next()) {
           const data = it1.value.data;
           if (data.category === 'Relationship') {
-            /* if (debug) */console.log('641 ClipboardPasted', data);
+            if (debug) console.log('641 ClipboardPasted', data);
             data.key = utils.createGuid();
-            /* if (debug) */console.log('644 ClipboardPasted', data);
+            if (debug) console.log('644 ClipboardPasted', data, pastedNodes);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
-            /* if (debug) */console.log('646 relview', data, relview);
+            if (debug) console.log('646 relview', data, relview);
             if (relview) {
               const relid = relview.relship?.id;
               relview.relship = myMetis.findRelationship(relid);
               const gqlRelview = new gql.gqlRelshipView(relview);
-              /* if (debug) */console.log('702 ClipboardPasted', gqlRelview);
+              if (debug) console.log('702 ClipboardPasted', gqlRelview, relview);
               modifiedLinks.push(gqlRelview);
               const gqlRelship = new gql.gqlRelationship(relview.relship);
-              /* if (debug) */console.log('705 ClipboardPasted', gqlRelship);
+              if (debug) console.log('705 ClipboardPasted', gqlRelship, relview.relship);
               modifiedRelships.push(gqlRelship);
             }
           }
@@ -664,7 +664,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         if (debug) console.log('657 link', link.fromNode.key, link.toNode.key);
         const data = link.data;
-        /* if (debug) */console.log('659 link, data', link, data);
+         if (debug) console.log('659 link, data', link, data);
         const fromNode = link.fromNode;
         const toNode = link.toNode;
         if (debug) console.log('668 LinkDrawn', fromNode, toNode, data);
@@ -686,19 +686,19 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
         // Handle relationships
         if (fromNode?.category === 'Object') {
-          /* if (debug) */console.log('670 LinkDrawn', fromNode.data.category);
+           if (debug) console.log('670 LinkDrawn', fromNode.data.category);
           const relview = uic.createRelationship(data, context);
           if (relview) {
             const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
             myLink.fromNode = fromNode;
             myLink.toNode = toNode;
-            /* if (debug) */console.log('675 relview', relview, myLink);
+             if (debug) console.log('675 relview', relview, myLink);
             relview.relship = myMetis.findRelationship(relview.relship.id);
             const gqlRelview = new gql.gqlRelshipView(relview);
-            /* if (debug) */console.log('678 LinkDrawn', link, gqlRelview);
+             if (debug) console.log('678 LinkDrawn', link, gqlRelview);
             modifiedLinks.push(gqlRelview);
             const gqlRelship = new gql.gqlRelationship(relview.relship);
-            /* if (debug) */console.log('681 LinkDrawn', gqlRelship);
+             if (debug) console.log('681 LinkDrawn', gqlRelship);
             modifiedRelships.push(gqlRelship);
           }
         }
@@ -723,7 +723,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundDoubleClicked": {
-        /* if (debug) */console.log('432 BackgroundDoubleClicked', e, e.diagram);
+         /* if (debug) */console.log('432 BackgroundDoubleClicked', e, e.diagram);
         break;
       }
       default:

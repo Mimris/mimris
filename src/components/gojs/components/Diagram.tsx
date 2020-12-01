@@ -161,15 +161,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               "description": "",
               "relshipkind": constants.relkinds.REL
             },
-            "clickCreatingTool.archetypeNodeData": {
-              "key": utils.createGuid(),
-              "category": "Object",
-              "name": "Generic Object",
-              "description": "",
-              "strokecolor": "black",
-              "strokewidth": "6",
-              "icon": "default.png"
-            },
+            // "clickCreatingTool.archetypeNodeData": {
+            //   "key": utils.createGuid(),
+            //   "category": "Object",
+            //   "name": "Generic",
+            //   "description": "",
+            //   "fillcolor": "grey",
+            //   "strokecolor": "black",
+            //   "strokewidth": "6",
+            //   "icon": "default.png"
+            // },
             // // allow Ctrl-G to call groupSelection()
             // "commandHandler.archetypeGroupData": {
             //   text: "Group",
@@ -701,7 +702,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                       const ov = oviews[j];
                       if (ov) {
                         const node = myGoModel.findNodeByViewId(ov?.id);
-                        const gjsNode = myDiagram.findNodeForKey(node?.key)
+                        const gjsNode = myDiagram.findNodeForKey(node?.key);
                         if (gjsNode) gjsNode.isSelected = true;
                       }
                     }
@@ -920,14 +921,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Generate Relationship Type",             
             function (e: any, obj: any) { 
+              const context = {
+                "myMetis":            myMetis,
+                "myMetamodel":        myMetis.currentMetamodel,
+                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+                "myModel":            myMetis.currentModel,
+                "myCurrentModelview": myMetis.currentModelview,
+                "myDiagram":          e.diagram,
+                "myProperties":       new Array(),
+                "dispatch":           e.diagram.dispatch
+                }
+              /* if (debug) */console.log('935 myMetis', myMetis);
+              const contextmenu = obj.part;  
+              const part = contextmenu.adornedPart; 
+              const currentRel = part.data.relship;
+              context.myTargetMetamodel = myMetis.currentTargetMetamodel;
+              /* if (debug) */console.log('940 context', currentRel, context);
+              //if (!context.myTargetMetamodel) {
+                context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+                if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                    alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                    context.myTargetMetamodel = null;
+                } else if (context.myTargetMetamodel == undefined)  // sf
+                  context.myTargetMetamodel = null;
+              //}
+              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+              /* if (debug) */console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
+              if (context.myTargetMetamodel) {  
+                myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
+                /* if (debug) */console.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
+                const gqlModel = new gql.gqlModel(context.myModel, true);
+                const modifiedModels = new Array();
+                modifiedModels.push(gqlModel);
+                modifiedModels.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                })
+                const currentRelview = part.data.relshipview;
+                /* if (debug) */console.log('962 currentRelview', currentRelview);
+                const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
+                /* if (debug) */console.log('964 Generate Relationship Type', reltype, myMetis);
+              }
             },
             function(o: any) { 
-              const test = false;
-              if (test)
-                return true;
-              else
-                return false;
-          }),
+              const rel = o.part.data.relship;
+              const fromObj = rel.fromObject;
+              const toObj = rel.toObject;
+              let reltype = rel.type;
+              if (fromObj.type.name === constants.types.AKM_INFORMATION) {
+                if (toObj.type.name === constants.types.AKM_INFORMATION)
+                  return true;
+              } else
+                  return false;
+            }),
           makeButton("Cut",
             function (e, obj) { 
               e.diagram.commandHandler.cutSelection(); 

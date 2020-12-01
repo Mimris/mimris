@@ -96,18 +96,21 @@ const Modeller = (props: any) => {
   }, [activeTab])
 
   useEffect(() => {
-    if (!debug) console.log('99 Modeller useEffect 3', props.phSource); 
-    genGojsModel(props, dispatch);
+    if (!debug) console.log('99 Modeller useEffect 3', props); 
+    // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel.id)
     if (model) {
-      const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
-      dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-      function refres() {
-        setRefresh(!refresh)
+      const modelview = model?.modelviews[0]
+      if (activeTab === 0) {
+        const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
+        dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+        function refres() {
+          setRefresh(!refresh)
+        }
+        setTimeout(refres, 10);
       }
-      setTimeout(refres, 10000);
     }
-  }, [props.phFocus.focusRefresh])
+  }, [activeTab])
 
   //   useEffect(() => {
   //     if (debug) console.log('81 Modeller useEffect 2', activeTab); 

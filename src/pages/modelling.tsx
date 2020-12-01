@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
-import { loadData } from '../actions/actions'
+import { loadData, loadDataModelList } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
@@ -15,7 +15,7 @@ import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
 // import { loadState, saveState } from '../components/utils/LocalStorage'
 
 const page = (props:any) => {
-  // console.log('16 diagram',props)
+  console.log('16 diagram',props)
 
   const [refresh, setRefresh] = useState(true);
   const dispatch = useDispatch()
@@ -45,10 +45,16 @@ const page = (props:any) => {
   // if (!props.phData) {
   //   dispatch(loadData())
   // }
-  
+
+  useEffect(() => {
+    console.log('47 modelling - useEffect', props);
+    if (!props.phList) {
+      dispatch(loadDataModelList()) // load list of models in repository
+    }
+  }, [])
   
   const state = useSelector(state => state)
-  // console.log('51 modelling', state, props.phData);
+  console.log('57 modelling', (props.phList) && props.phList);
   
   const [visible,setVisible] = useState(false)
   function toggle() { setVisible(!visible); }

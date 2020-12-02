@@ -37,7 +37,9 @@ const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a ph
 // This version is for login server with credetial
 function getCookie(cname, document) {
   var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
+  console.log('40 ',  document);
+  var decodedCookie = decodeURIComponent(akmmhost.cookie);
+  // var decodedCookie = decodeURIComponent(document.cookie);
   var ca = decodedCookie.split(';');
   for (var i = 0; i < ca.length; i++) {
     var c = ca[i];

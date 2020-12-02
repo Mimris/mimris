@@ -516,26 +516,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   "myDiagram":          e.diagram,
                   "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
-                  }
-                /* if (debug) */console.log('441 myMetis', myMetis);
+                }
+                if (debug) console.log('441 myMetis', myMetis);
                 const contextmenu = obj.part;  
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
                 context.myTargetMetamodel = myMetis.currentTargetMetamodel;
-                /* if (debug) */console.log('446 context', context);
-                //if (!context.myTargetMetamodel) {
+                if (debug) console.log('446 context', context);
                   context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-                  if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
                       alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
                       context.myTargetMetamodel = null;
-                  } else if (context.myTargetMetamodel == undefined)  // sf
+                } else if (context.myTargetMetamodel == undefined)  // sf
                     context.myTargetMetamodel = null;
-                //}
                 myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-                /* if (debug) */console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
+                if (debug) console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
                 if (context.myTargetMetamodel) {  
                   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                  /* if (debug) */console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
+                  if (debug) console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
                   const gqlModel = new gql.gqlModel(context.myModel, true);
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);
@@ -543,10 +541,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     let data = mn;
                     e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                   })
-                  /* if (debug) */console.log('467 gqlModel', gqlModel);
+                  if (debug) console.log('467 gqlModel', gqlModel);
                   const currentObjview = part.data.objectview;
                   const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                  /* if (debug) */console.log('470 Generate Object Type', objtype, myMetis);
+                  if (debug) console.log('470 Generate Object Type', objtype, myMetis);
                   // First handle properties
                   const modifiedProperties = new Array();
                   const props = objtype.properties;
@@ -558,10 +556,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                         e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
                       });
                   }
-                  /* if (debug) */console.log('489 modifiedProperties', currentObjview, objtype.properties, modifiedProperties);
+                  if (debug) console.log('489 modifiedProperties', currentObjview, objtype.properties, modifiedProperties);
 
                   const gqlObjectType = new gql.gqlObjectType(objtype);
-                  /* if (debug) */console.log('491 Generate Object Type', gqlObjectType);
+                  if (debug) console.log('491 Generate Object Type', gqlObjectType);
                   const modifiedTypeNodes = new Array();
                   modifiedTypeNodes.push(gqlObjectType);
                   modifiedTypeNodes.map(mn => {
@@ -571,7 +569,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   if (debug) console.log('498 myMetis', modifiedTypeNodes, myMetis);
 
                   const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-                  /* if (debug) */console.log('501 Generate Object Type', gqlObjTypeview);
+                  if (debug) console.log('501 Generate Object Type', gqlObjTypeview);
                   const modifiedTypeViews = new Array();
                   modifiedTypeViews.push(gqlObjTypeview);
                   modifiedTypeViews?.map(mn => {
@@ -580,14 +578,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   })
                   const geo = context.myTargetMetamodel.findObjtypeGeoByType(objtype);
                   const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-                  /* if (debug) */console.log('510 Generate Object Type', gqlObjTypegeo, myMetis);
+                  if (debug) console.log('510 Generate Object Type', gqlObjTypegeo, myMetis);
                   const modifiedGeos = new Array();
                   modifiedGeos.push(gqlObjTypegeo);
                   modifiedGeos?.map(mn => {
                     let data = (mn) && mn
                     e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
                   })
-                  /* if (debug) */console.log('517 myMetis', modifiedGeos, myMetis);                                    // Then handle the object type
+                  if (debug) console.log('517 myMetis', modifiedGeos, myMetis);                                    // Then handle the object type
                 }
               },  
             function(o: any) { 
@@ -931,25 +929,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "myProperties":       new Array(),
                 "dispatch":           e.diagram.dispatch
                 }
-              /* if (debug) */console.log('935 myMetis', myMetis);
+                if (debug) console.log('935 myMetis', myMetis);
               const contextmenu = obj.part;  
               const part = contextmenu.adornedPart; 
               const currentRel = part.data.relship;
               context.myTargetMetamodel = myMetis.currentTargetMetamodel;
-              /* if (debug) */console.log('940 context', currentRel, context);
-              //if (!context.myTargetMetamodel) {
-                context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-                if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                    alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                    context.myTargetMetamodel = null;
-                } else if (context.myTargetMetamodel == undefined)  // sf
+              if (debug) console.log('940 context', currentRel, context);
+              context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+              if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                  alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
                   context.myTargetMetamodel = null;
-              //}
+              } else if (context.myTargetMetamodel == undefined)  // sf
+                context.myTargetMetamodel = null;
               myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-              /* if (debug) */console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
+              if (debug) console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
               if (context.myTargetMetamodel) {  
                 myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                /* if (debug) */console.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
+                if (debug) nsole.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
                 const gqlModel = new gql.gqlModel(context.myModel, true);
                 const modifiedModels = new Array();
                 modifiedModels.push(gqlModel);
@@ -958,9 +954,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
                 const currentRelview = part.data.relshipview;
-                /* if (debug) */console.log('962 currentRelview', currentRelview);
+                if (debug) console.log('962 currentRelview', currentRelview);
                 const reltypeview = gen.generateRelshipType(currentRel, currentRelview, context);
-                /* if (debug) */console.log('964 Generate Relationship Type', reltypeview, myMetis);
+                if (debug) console.log('964 Generate Relationship Type', reltypeview, myMetis);
                 const reltype = reltypeview.type;
                   // First handle properties
                   const modifiedProperties = new Array();
@@ -991,7 +987,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     let data = (mn) && mn
                     e.diagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
                   })
-                  /* if (debug) */console.log('994 myMetis', myMetis);
+                  if (debug) console.log('994 myMetis', myMetis);
 
               }
             },
@@ -1308,9 +1304,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             const myMetamodel = myMetis.currentMetamodel;
             const myGoModel = myMetis.gojsModel;
             myDiagram.myGoModel = myGoModel;
-            /* if (debug) */console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
+            if (debug) console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
             uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram);
-            /* if (debug) */console.log('1181 myMetis', myMetis);
+            if (debug) console.log('1181 myMetis', myMetis);
             alert("Current model has been repaired");
           },
           function (o: any) { 

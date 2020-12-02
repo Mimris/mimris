@@ -166,7 +166,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     if (debug) console.log('167 myMetis', myMetis);
     const obj = myMetis.findObject(object.id);
-    if (debug) console.log('169 obj', obj);
     let proptypes  = new Array();
     let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
     if (!objtype) {
@@ -214,9 +213,10 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             parentRelType.setModified(true);
             parentRelType.setRelshipKind('Generalization');
             myMetamodel.addRelationshipType(parentRelType);
+            myTargetMetamodel.addRelationshipType(parentRelType);
             myMetis.addRelationshipType(parentRelType);
         }
-        console.log('219 objtype, parentType, parentRelType', objtype, parentType, parentRelType);
+        if (debug) console.log('219 objtype, parentType, parentRelType', objtype, parentType, parentRelType);
         if (debug) console.log('220 generateObjectType', myMetis);
         // Find properties connected to current object
         const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
@@ -226,7 +226,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         } else {
             for (let i=0; i < rels.length; i++) {
                 let rel = rels[i];
-                console.log('237 rel', rel);
                 if (rel.toObject?.type.name === constants.types.AKM_PROPERTY) {
                     if (rel.name === constants.types.AKM_HAS_PROPERTY) {
                         const proptype = rel.getToObject();
@@ -307,13 +306,14 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, rel.description);
         myTargetMetamodel.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
-        console.log('311 relshiptype', reltype);
+        if (debug) console.log('311 reltype', reltype);
         // Create relationship typeview
         let reltypeview = new akm.cxRelationshipTypeView(utils.createGuid(), rel.name, reltype, rel.description);
         reltypeview.applyRelationshipViewParameters(relview);
         reltype.typeview = reltypeview;
         myTargetMetamodel.addRelationshipTypeView(reltypeview);
         myMetis.addRelationshipTypeView(reltypeview);
+        if (debug) console.log('318 reltypeview', reltypeview);
         return reltypeview;
     }
 }

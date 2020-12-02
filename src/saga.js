@@ -58,7 +58,7 @@ function * loadDataSaga() {
     let res = ''  
     res = yield fetch(`${akmmhost}akmmodels/`,
         {
-          // mode: 'no-cors', // comment in for  server login
+          mode: 'no-cors', // comment in for  server login
           headers: {
             "Access-Control-Allow-Origin": "*", // comment in for  server login
             'Accept': 'application/json',
@@ -88,7 +88,7 @@ function * loadDataModelListSaga() {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,
       {
-        // mode: 'no-cors', // comment in for  server login
+        mode: 'no-cors', // comment in for  server login
         headers: {
           "Access-Control-Allow-Origin": "*", // comment in for  server login
           'Accept': 'application/json',
@@ -119,7 +119,7 @@ function * loadDataModelSaga(data) {
       let res = ''  
       res = yield fetch(`${akmmhost}akmmodel?id=${modelId}`,
         {
-          // mode: 'no-cors', // comment in for  server login
+          mode: 'no-cors', // comment in for  server login
           headers: {
             "Access-Control-Allow-Origin": "*", // comment in for  server login
             'Accept': 'application/json',

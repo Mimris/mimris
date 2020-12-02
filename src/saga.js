@@ -7,7 +7,8 @@ import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './action
 es6promise.polyfill()
 
 const debug = false
-const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver_eq.herokuapp.com/'  //TODO: put this as a phFocus variable
+const akmmhost = 'https://akmserver_eq.herokuapp.com/'  //TODO: put this as a phFocus variable
+// const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver_eq.herokuapp.com/'  //TODO: put this as a phFocus variable
 // const akmmhost = 'http://localhost:4000/'
 
 // // this version is without login
@@ -91,6 +92,7 @@ function * loadDataModelListSaga() {
         // mode: 'no-cors', // comment in for  server login
         headers: {
           // "Access-Control-Allow-Origin": "*", // comment in for  server login
+          "Access-Control-Allow-Origin": "origin", // comment in for  server login
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login

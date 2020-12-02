@@ -23,16 +23,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   if (metis != null) {
     if (debug) console.log('25 GenGojsModel metis:', metis);
-    // let myMetis = null;
-    // console.log('24 glb.metis', glb.metis, metis);
-    // if (!glb.metis) {
-    //   myMetis = new akm.cxMetis();
-    //   myMetis.importData(metis, true);
-    // } else {
-      const myMetis = new akm.cxMetis();
-      if (debug) console.log('33 GenGojsModel', myMetis);  
-      myMetis.importData(metis, true);
-    // }
+    const myMetis = new akm.cxMetis();
+    if (debug) console.log('33 GenGojsModel', myMetis);  
+    myMetis.importData(metis, true);
     if (debug) console.log('36 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
@@ -289,6 +282,8 @@ function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
       for (let i = 0; i < relshiptypes.length; i++) {
         let reltype = relshiptypes[i];
         if (reltype && !reltype.deleted) {
+          if (!reltype.typeview) 
+            reltype.typeview = reltype.newDefaultTypeView(constants.relkinds.REL);
           const key = utils.createGuid();
           const link = new gjs.goRelshipTypeLink(key, myGoMetaModel, reltype);
           if (link.loadLinkContent())

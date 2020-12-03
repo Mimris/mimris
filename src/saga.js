@@ -37,8 +37,8 @@ const akmmhost = 'http://localhost:4000/'
 // This version is for login server with credetial
 function getCookie(cname, document) {
   var name = cname + "=";
-  console.log('40 ',  document.cookie, akmmhost.document.cookie);
-  var decodedCookie = decodeURIComponent(akmmhost.cookie);
+  // console.log('40 ',  document.cookie, akmmhost.document.cookie);
+  var decodedCookie = decodeURIComponent(document.cookie);
   console.log('42', decodeCookie);
   // var decodedCookie = decodeURIComponent(document.cookie);
   var ca = decodedCookie.split(';');
@@ -55,9 +55,9 @@ function getCookie(cname, document) {
 }
 
 function * loadDataSaga() {
-  // const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
-  // const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
-  // const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
+  const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
+  const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
+  const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
   try {
     let res = ''  
     res = yield fetch(`${akmmhost}akmmodels/`,
@@ -92,9 +92,9 @@ function * loadDataModelListSaga() {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,
       {
-        // mode: 'no-cors', // comment in for  server login
+        mode: 'no-cors', // comment in for  server login
         headers: {
-          // "Access-Control-Allow-Origin": "*", // comment in for  server login
+          "Access-Control-Allow-Origin": "*", // comment in for  server login
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login

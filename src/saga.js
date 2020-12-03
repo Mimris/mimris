@@ -125,6 +125,7 @@ function * loadDataModelSaga(data) {
           mode: 'no-cors', // comment in for  server login
           headers: {
             "Access-Control-Allow-Origin": "*", // comment in for  server login
+            "Access-Control-Allow-Header": "origin", // comment in for  server login
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,  // comment in for  server login

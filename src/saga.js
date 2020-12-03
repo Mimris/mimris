@@ -9,7 +9,7 @@ es6promise.polyfill()
 const debug = false
 // const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
 // const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
-const akmmhost = 'http://localhost:4000/'
+const akmmhost = 'https://cors-anywhere.herokuapp.com/http://localhost:4000/'
 
 // // this version is without login
 // function * loadDataSaga() {

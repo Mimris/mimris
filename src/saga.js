@@ -7,9 +7,10 @@ import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './action
 es6promise.polyfill()
 
 const debug = false
-// const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
+const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
 // const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
-const akmmhost = 'https://cors-anywhere.herokuapp.com/http://localhost:4000/'
+// const akmmhost = 'http://localhost:4000/'
+// const akmmhost = 'https://cors-anywhere.herokuapp.com/http://localhost:4000/'
 
 // // this version is without login
 // function * loadDataSaga() {
@@ -37,9 +38,9 @@ const akmmhost = 'https://cors-anywhere.herokuapp.com/http://localhost:4000/'
 // This version is for login server with credetial
 function getCookie(cname, document) {
   var name = cname + "=";
-  // console.log('40 ',  document.cookie, akmmhost.document.cookie);
+  console.log('40 ',  cname, document.cookie);
   var decodedCookie = decodeURIComponent(document.cookie);
-  console.log('42', decodeCookie);
+  console.log('42', decodedCookie);
   // var decodedCookie = decodeURIComponent(document.cookie);
   var ca = decodedCookie.split(';');
   for (var i = 0; i < ca.length; i++) {

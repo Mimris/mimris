@@ -20,7 +20,7 @@ const SelectSource = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  const modellist = (props.ph.phList) && props?.ph?.phList?.modList
+  const modellist = (props.ph) && (props.ph.phList) && props?.ph?.phList?.modList
   if (debug) console.log('26 LoadServer', props.ph, props.ph.phList?.modList, modellist);
   // const modellist = (props.ph.phList) && (props.ph.phList.modList != null) && props?.ph?.phList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) 
@@ -42,8 +42,8 @@ const SelectSource = (props: any) => {
     const focusmodel = props.ph.phFocus.focusModel
     const model = props.ph.phData.metis.models.find(m => m.id === focusmodel.id)
     const metamodel = props.ph.phData.metis.metamodels.find(mm => mm.id === model.metamodelRef)
-    const currentTargetMetamodel = (model.targetMetamodelRef) && props.ph.phData.metis.metamodels.find(mm => mm.id === model.targetMetamodelRef)
-    const currentTargetModel = (model.targetModelRef) && props.ph.phData.metis.models.find(mm => mm.id === model.targetModelRef)
+    const currentTargetMetamodel = (model.targetMetamodelRef) && props?.ph?.phData?.metis?.metamodels.find(mm => mm.id === model.targetMetamodelRef)
+    const currentTargetModel = (model.targetModelRef) && props?.ph?.phData?.metis?.models.find(mm => mm.id === model.targetModelRef)
     // const phData = props.phData
     const data = {
       metis: {
@@ -61,8 +61,8 @@ const SelectSource = (props: any) => {
     SaveModelData(data)
   }
  
-  const models = props.ph.phData?.metis?.models
-  const focusModel = props.ph.phFocus?.focusModel
+  const models = props?.ph?.phData?.metis?.models
+  const focusModel = props?.ph?.phFocus?.focusModel
   const model = models?.find((m: any) => m?.id === focusModel?.id) // || models[0]
   const selmodels = models?.map((m: any) => m) 
   const selmodelviews = model?.modelviews?.map((mv: any) => mv)
@@ -94,7 +94,7 @@ const SelectSource = (props: any) => {
   };
   if (debug) console.log('94', props.ph.phFocus);
   
-  const selectedOptionDiv =  <span className="bg-light p-1 pl-1 pr-5 w-100 " >{focusModel.name}</span>
+  const selectedOptionDiv =  (focusModel) && <span className="bg-light p-1 pl-1 pr-5 w-100 " >{focusModel.name}</span>
 
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);

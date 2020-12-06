@@ -86,12 +86,12 @@ function * loadDataModelListSaga() {
   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
   const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
   const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
-  console.log('86 saga', sessionCookie, document);
+  console.log('89 saga', sessionCookie, document);
   try {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,
       {
-        // mode: 'no-cors', // comment in for  server login
+        mode: 'no-cors', // comment in for  server login
         headers: {
           // "Access-Control-Allow-Origin": "*", // comment in for  server login
           'Accept': 'application/json',

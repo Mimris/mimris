@@ -11,8 +11,8 @@ import SaveModelData from './utils/SaveModelData'
 // import { FaJoint } from 'react-icons/fa';
 
 const debug = false
-// const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver.herokuapp.com/'  //TODO: put this as a phFocus variable
-const akmmhost = 'http://localhost:4000/'
+const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver.herokuapp.com/'  //TODO: put this as a phFocus variable
+// const akmmhost = 'http://localhost:4000/'
 const akmmodellist = akmmhost+'akm-model-list'
 const profile = akmmhost+'profile'
 

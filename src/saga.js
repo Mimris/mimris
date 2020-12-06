@@ -93,6 +93,7 @@ function * loadDataModelListSaga() {
       {
         mode: 'no-cors', // comment in for  server login
         headers: {
+          "Access-Control-Allow-Headers": "*", // comment in for  server login
           "Access-Control-Allow-Origin": "*", // comment in for  server login
           'Accept': 'application/json',
           'Content-Type': 'application/json',

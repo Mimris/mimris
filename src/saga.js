@@ -37,7 +37,7 @@ const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a ph
 // This version is for login server with credetial
 function getCookie(cname, document) {
   var name = cname + "=";
-  console.log('40 ',  document);
+  console.log('40 ',  document, document.cookie);
   // var decodedCookie = decodeURIComponent(akmmhost.cookie);
   var decodedCookie = decodeURIComponent(document.cookie);
   var ca = decodedCookie.split(';');
@@ -86,7 +86,7 @@ function * loadDataModelListSaga() {
   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
   const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
   const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
-  console.log('89 saga', sessionCookie, document);
+  console.log('89 saga', _crf, _csrf, sessionCookie, document);
   try {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,

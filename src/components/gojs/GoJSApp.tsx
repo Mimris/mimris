@@ -507,7 +507,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('542 part', part);
               }
               const objview = uic.createObject(part, context);
-               if (debug) console.log('545 New object', part, objview);
+              if (debug) console.log('545 New object', part, objview);
               if (objview) {
                 const gqlObjview = new gql.gqlObjectView(objview);
                 modifiedNodes.push(gqlObjview);
@@ -607,7 +607,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           // First handle the objects
         while (it.next()) {
           const data = it.value.data;
-          data.key = utils.createGuid();
           if (data.category === 'Object') {
               if (debug) console.log('654 ClipboardPasted', data, myGoModel);
               const objview = uic.createObject(data, context);
@@ -640,7 +639,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = it1.value.data;
           if (data.category === 'Relationship') {
             if (debug) console.log('641 ClipboardPasted', data);
-            data.key = utils.createGuid();
             if (debug) console.log('644 ClipboardPasted', data, pastedNodes);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
             if (debug) console.log('646 relview', data, relview);
@@ -712,25 +710,25 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        if (debug) console.log('684 LinkRelinked', link, fromNode, toNode);
+        if (debug) console.log('713 LinkRelinked', link, fromNode, toNode);
         const newLink = e.subject.data;
         context.modifiedLinks         = modifiedLinks;
         context.modifiedRelships      = modifiedRelships;
         context.modifiedTypeLinks     = modifiedTypeLinks;
         context.modifiedLinkTypeViews = modifiedLinkTypeViews;
         uic.onLinkRelinked(newLink, fromNode, toNode, context);
-        if (debug) console.log('652 LinkRelinked', modifiedLinks);
-        if (debug) console.log('653 LinkRelinked', modifiedRelships);
-        if (debug) console.log('654 LinkRelinked', modifiedTypeLinks);
+        if (debug) console.log('722 LinkRelinked', modifiedLinks);
+        if (debug) console.log('723 LinkRelinked', modifiedRelships);
+        if (debug) console.log('724 LinkRelinked', modifiedTypeLinks);
         myDiagram.requestUpdate();
       }
       break;
       case "BackgroundDoubleClicked": {
-         /* if (debug) */console.log('432 BackgroundDoubleClicked', e, e.diagram);
+         if (debug) console.log('728 BackgroundDoubleClicked', e, e.diagram);
         break;
       }
       default:
-        // if (debug) console.log('146 GoJSApp event name: ', name);
+        // if (debug) console.log('732 GoJSApp event name: ', name);
         break;
     }
     

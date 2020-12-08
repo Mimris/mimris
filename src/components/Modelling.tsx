@@ -114,7 +114,7 @@ const page = (props:any) => {
     const curmlength = memoryLocState?.phData?.metis.models?.length
     if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     // then find metamodel which is in reduxStore
-    let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current model index
+    let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.metamodelRef) // current model index
     let curmmindex = memoryLocState?.phData?.metis?.models?.findIndex(mm => mm?.id === reduxmod?.id) // current model index
     // then find lenght of modellarray in lodalStore
     const curmmlength = memoryLocState?.phData?.metis.metamodels?.length

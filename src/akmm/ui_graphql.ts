@@ -395,6 +395,7 @@ export class gqlDatatype {
         this.datatypeRef    = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
         this.defaultValue   = dtype.defaultValue;
         this.allowedValues  = dtype.allowedValues;
+        this.isOfDatatype   = dtype.isOfDatatype;
         this.deleted        = dtype.deleted;
         this.modified       = dtype.modified;
         // Code

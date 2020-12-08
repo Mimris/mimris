@@ -946,7 +946,7 @@ function reducer(state = InitialState, action) {
         }
       
     case UPDATE_OBJECTTYPE_PROPERTIES:
-      // if (debug) console.log('501 UPDATE_OBJECTTYPE_PROPERTIES', action);
+      if (debug) console.log('949 UPDATE_OBJECTTYPE_PROPERTIES', action);
       const curmodot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodot.metamodelRef)
       const curmmindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodot.metamodelRef) 
@@ -954,7 +954,7 @@ function reducer(state = InitialState, action) {
       const lengthot = curmmot?.objecttypes.length
       let indexot = curmmot?.objecttypes?.findIndex(ot => ot.id === curot?.id)
       if (indexot < 0) {indexot = lengthot} 
-      // if (debug) console.log('607 reducer', lengthot, indexot);
+      if (debug) console.log('957 reducer', lengthot, indexot);
       
       return {
         ...state,
@@ -1062,17 +1062,17 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_TARGETOBJECTTYPE_PROPERTIES:
-      if (debug) console.log('687 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
+      if (debug) console.log('1065 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
       const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmtot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.targetMetamodelRef)
-      // if (debug) console.log('690 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmodtot.targetMetamodelRef, curmmtot);
+      if (debug) console.log('1068 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmodtot.targetMetamodelRef, curmmtot);
       if (!curmmtot) return state;
       const curmmindextot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.targetMetamodelRef) 
       const curtot = curmmtot?.objecttypes?.find(ot => ot.id === action?.data?.id)
       const lengthtot = curmmtot?.objecttypes?.length
       let indextot = curmmtot?.objecttypes?.findIndex(ot => ot.id === curtot?.id)
       if (indextot < 0) {indextot = lengthtot} 
-      //  if (debug) console.log('607 reducer', lengthtot, indextot);
+      if (debug) console.log('1075 reducer', lengthtot, indextot, curmmtot?.objecttypes);
       
       return {
         ...state,
@@ -1085,9 +1085,9 @@ function reducer(state = InitialState, action) {
                 {
                   ...state.phData.metis.metamodels[curmmindextot],
                   objecttypes: [
-                    ...curmmtot?.objecttypes.slice(0, indexot),
+                    ...curmmtot?.objecttypes.slice(0, indextot),
                     {
-                      ...curmmtot?.objecttypes[indexot],  
+                      ...curmmtot?.objecttypes[indextot],  
                       id: action.data.id,           
                       name: action.data.name,
                       description: action.data.description,
@@ -1098,7 +1098,7 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted,
                       modified: action.data.modified,    
                     },
-                    ...curmmtot?.objecttypes.slice(indexot + 1)
+                    ...curmmtot?.objecttypes.slice(indextot + 1)
                   ]
                 },
                 ...state.phData.metis.metamodels.slice(curmmindextot + 1),
@@ -1107,7 +1107,7 @@ function reducer(state = InitialState, action) {
          },
       }
     case UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES:
-      if (debug) console.log('882 UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', action);
+      if (debug) console.log('1110 UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', action);
       const curmodtotv     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmtotv    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtotv.targetMetamodelRef)
       const curmmindextotv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtotv.targetMetamodelRef) 
@@ -1129,9 +1129,9 @@ function reducer(state = InitialState, action) {
                 {
                   ...state.phData.metis.metamodels[curmmindextotv],
                   objecttypeviews: [
-                    ...curmmtotv?.objecttypeviews.slice(0, indexotv),
+                    ...curmmtotv?.objecttypeviews.slice(0, indextotv),
                     {
-                      ...curmmtotv?.objecttypeviews[indexotv],  
+                      ...curmmtotv?.objecttypeviews[indextotv],  
                       id: action.data.id,           
                       // name: action.data.name,
                       description: action.data.description,
@@ -1146,7 +1146,7 @@ function reducer(state = InitialState, action) {
                       deleted: action.data.deleted,
                       modified: action.data.modified,    
                     },
-                    ...curmmtotv?.objecttypeviews.slice(indexotv + 1)
+                    ...curmmtotv?.objecttypeviews.slice(indextotv + 1)
                   ]
                 },
                 ...state.phData.metis.metamodels.slice(curmmindextotv + 1),
@@ -1264,9 +1264,9 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.metamodels[curmmindextrt],
                 relshiptypes: [
-                  ...curmmtrt?.relshiptypes?.slice(0, indexrt),
+                  ...curmmtrt?.relshiptypes?.slice(0, indextrt),
                   {
-                    ...curmmtrt?.relshiptypes[indexrt],
+                    ...curmmtrt?.relshiptypes[indextrt],
                     id: action.data.id,
                     name: action.data.name,
                     description: action.data.description,
@@ -1283,7 +1283,7 @@ function reducer(state = InitialState, action) {
                     deleted: action.data.deleted,  
                     modified: action.data.modified,       
                   },
-                  ...curmmtrt?.relshiptypes?.slice(indexrt + 1)
+                  ...curmmtrt?.relshiptypes?.slice(indextrt + 1)
                 ]
               },
               ...state.phData.metis.metamodels.slice(curmmindextrt + 1),

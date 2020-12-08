@@ -144,7 +144,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             "scrollMode": go.Diagram.InfiniteScroll,
             "initialAutoScale": go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
-            'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
+            //'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
             // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
             // 'draggingTool.horizontalGuidelineColor': 'blue',
             // 'draggingTool.verticalGuidelineColor': 'blue',
@@ -464,7 +464,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   let data = mn;
                   e.diagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
                 })
-
+                if (!debug) console.log('467 gqlDatatype', gqlDatatype);
             },
             function(o: any) { 
               const obj = o.part.data.object;
@@ -539,55 +539,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   modifiedModels.push(gqlModel);
                   modifiedModels.map(mn => {
                     let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                    myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                   })
-                  if (debug) console.log('467 gqlModel', gqlModel);
+                  if (!debug) console.log('467 gqlModel', gqlModel);
                   const currentObjview = part.data.objectview;
                   const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                  if (debug) console.log('470 Generate Object Type', objtype, myMetis);
-                  // First handle properties
-                  const modifiedProperties = new Array();
-                  const props = objtype.properties;
-                  for (let i=0; i<props?.length; i++) {
-                      const gqlProp = new gql.gqlProperty(props[i]);
-                      modifiedProperties.push(gqlProp);
-                      modifiedProperties.map(mn => {
-                        let data = mn;
-                        e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
-                      });
-                  }
-                  if (debug) console.log('489 modifiedProperties', currentObjview, objtype.properties, modifiedProperties);
-
-                  const gqlObjectType = new gql.gqlObjectType(objtype);
-                  if (debug) console.log('491 Generate Object Type', gqlObjectType);
-                  const modifiedTypeNodes = new Array();
-                  modifiedTypeNodes.push(gqlObjectType);
-                  modifiedTypeNodes.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
-                  });
-                  if (debug) console.log('498 myMetis', modifiedTypeNodes, myMetis);
-
-                  const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-                  if (debug) console.log('501 Generate Object Type', gqlObjTypeview);
-                  const modifiedTypeViews = new Array();
-                  modifiedTypeViews.push(gqlObjTypeview);
-                  modifiedTypeViews?.map(mn => {
-                    let data = (mn) && mn
-                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', data })
-                  })
-                  const geo = context.myTargetMetamodel.findObjtypeGeoByType(objtype);
-                  const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-                  if (debug) console.log('510 Generate Object Type', gqlObjTypegeo, myMetis);
-                  const modifiedGeos = new Array();
-                  modifiedGeos.push(gqlObjTypegeo);
-                  modifiedGeos?.map(mn => {
-                    let data = (mn) && mn
-                    e.diagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
-                  })
-                  if (debug) console.log('517 myMetis', modifiedGeos, myMetis);                                    // Then handle the object type
+                  if (!debug) console.log('470 Generate Object Type', objtype, myMetis);
                 }
-              },  
+            },  
             function(o: any) { 
                  let obj = o.part.data.object;
                  let objtype = obj.type;
@@ -595,7 +554,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                      return true;
                  else
                      return false;
-             }),
+            }),
+          makeButton("Generate Metamodel",
+            function (e: any, obj: any) { 
+
+               alert ("Generate Metamodel"); 
+            },
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.isGroup)
+                return true;
+              else
+                return false;
+            }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
             function (o: any) { 
@@ -635,9 +606,39 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
+              const myGoModel = myMetis.gojsModel;
               const currentModel = myMetis.currentModel;
               currentModel.deleteViewsOnly = false;
-              e.diagram.commandHandler.deleteSelection();
+              myDiagram.selection.each(function(sel) {
+                const inst = sel.data;
+                if (inst.category === 'Object') {
+                  const node = myGoModel.findNode(inst.key);
+                  console.log('657 node', node);
+                  if (node.isGroup) {
+                    const groupMembers = node.getGroupMembers(myGoModel);
+                    for (let i=0; i<groupMembers?.length; i++) {
+                      const member = groupMembers[i];
+                      const gjsNode = myDiagram.findNodeForKey(member?.key);
+                      if (gjsNode) gjsNode.isSelected = true;
+                    }                    
+                  }
+                  const object = node.object;
+                  console.log('667 object', object);
+                  const objviews = object?.objectviews;
+                  for (let i=0; i<objviews?.length; i++) {
+                    const objview = objviews[i];
+                    console.log('671 objview', objview);
+                    if (objview) {
+                        const myNode = myGoModel.findNodeByViewId(objview.id);
+                        console.log('674 myNode', myNode);
+                        const n = myDiagram.findNodeForKey(myNode?.key);
+                        console.log('676 n', n);
+                        if (n) n.isSelected = true;                        
+                    }    
+                  }
+                }
+              })
+              e.diagram.commandHandler.deleteSelection();              
             },
             function (o: any) { 
               // const node = o.part.data;
@@ -945,19 +946,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
               if (debug) console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
               if (context.myTargetMetamodel) {  
                 myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                if (debug) nsole.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
+                if (debug) console.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
                 const gqlModel = new gql.gqlModel(context.myModel, true);
                 const modifiedModels = new Array();
                 modifiedModels.push(gqlModel);
                 modifiedModels.map(mn => {
                   let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                  myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
                 const currentRelview = part.data.relshipview;
                 if (debug) console.log('962 currentRelview', currentRelview);
-                const reltypeview = gen.generateRelshipType(currentRel, currentRelview, context);
-                if (debug) console.log('964 Generate Relationship Type', reltypeview, myMetis);
-                const reltype = reltypeview.type;
+                const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
+                if (debug) console.log('964 Generate Relationship Type', reltype, myMetis);
+                const reltypeview = reltype.typeview;
                   // First handle properties
                   const modifiedProperties = new Array();
                   const props = reltype.properties;
@@ -966,7 +967,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                     modifiedProperties.push(gqlProp);
                     modifiedProperties.map(mn => {
                       let data = mn;
-                      e.diagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
+                      myDiagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
                     });
                   }
                   if (debug) console.log('976 reltype', reltype);
@@ -977,7 +978,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   modifiedTypeLinks.push(gqlRelshipType);
                   modifiedTypeLinks.map(mn => {
                     let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
+                    myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
                   });
                   const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
                   if (debug) console.log('987 Generate Relationship Type', gqlRelTypeview);
@@ -985,7 +986,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   modifiedTypeViews.push(gqlRelTypeview);
                   modifiedTypeViews?.map(mn => {
                     let data = (mn) && mn
-                    e.diagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
+                    myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
                   })
                   if (debug) console.log('994 myMetis', myMetis);
 
@@ -1297,6 +1298,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (o: any) { 
             return false; 
           }),
+          makeButton("Generate Metamodel",
+            function (e: any, obj: any) { 
+              const context = {
+                "myMetis":            myMetis,
+                "myMetamodel":        myMetis.currentMetamodel,
+                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+                "myModel":            myMetis.currentModel,
+                "myCurrentModelview": myMetis.currentModelview,
+                "myDiagram":          e.diagram,
+                "myProperties":       new Array(),
+                "dispatch":           e.diagram.dispatch
+              }
+              const targetMetamodel = myMetis.currentTargetMetamodel;
+              const sourceModelview = myMetis.currentModelview;
+              gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
+              console.log('1327 Target metamodel', targetMetamodel);
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("Verify and Repair Model",
           function (e: any, obj: any) {
             const myModel = myMetis.currentModel;

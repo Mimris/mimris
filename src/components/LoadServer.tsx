@@ -1,4 +1,4 @@
-// @ts-snocheck
+// @ts- snocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { useSelector, useDispatch } from 'react-redux'
@@ -12,7 +12,7 @@ import SaveModelData from './utils/SaveModelData'
 const debug = false
 
 const SelectSource = (props: any) => {
-  // if (debug) console.log('15 LoadServer', props);
+  if (debug) console.log('15 LoadServer', props);
   // let state = useSelector((state: any) => state) // Selecting the whole redux store
 
   const dispatch = useDispatch()
@@ -20,10 +20,11 @@ const SelectSource = (props: any) => {
   const setRefresh = props.setRefresh
   function toggleRefresh() { setRefresh(!refresh); }
   
-  const modellist = props.ph.phList.modList
-  // let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  let selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name})
-  if (debug) console.log('26', props, props.ph.phList.modList, selmodellist);
+  const modellist = (props.ph.phList) && props?.ph?.phList?.modList
+  if (debug) console.log('26 LoadServer', props.ph, props.ph.phList?.modList, modellist);
+  // const modellist = (props.ph.phList) && (props.ph.phList.modList != null) && props?.ph?.phList
+  const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) 
+  if (debug) console.log('27 LoadServer',  selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
@@ -93,7 +94,8 @@ const SelectSource = (props: any) => {
   };
   if (debug) console.log('94', props.ph.phFocus);
   
-  const selectedOptionDiv =  <span className="bg-light p-1 pl-1 pr-5 " >{focusModel.name}</span>
+  const selectedOptionDiv =  <span className="bg-light p-1 pl-1 pr-5 w-100 " >{focusModel.name}</span>
+
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -140,7 +142,9 @@ const SelectSource = (props: any) => {
             NB! Clicking "Load a model from Server" will add the model to current store (redux memory).
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
-          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh() }}>Done</Button>
+          <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle()  }}>Done</Button>
+          {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle();  dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} }) }}>Done</Button> */}
+          {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh(); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} }) }}>Done</Button> */}
         </ModalFooter>
       </Modal>
       <style jsx>{`

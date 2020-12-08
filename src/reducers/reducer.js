@@ -79,7 +79,7 @@ const InitState = JSON.parse(JSON.stringify(InitStateJson))
 
 export const InitialState = {
   phData: InitState.phData,
-  phList: InitState.phList,
+  phList: null,
   phFocus: InitState.phFocus,
   phGojs: null,
   phMymetis: null,
@@ -128,7 +128,7 @@ function reducer(state = InitialState, action) {
         phList: action.data,   
       }
     case LOAD_DATAMODEL_SUCCESS:
-      console.log('132 LOAD_DATAMODEL_SUCCESS', action);
+      if (debug) console.log('132 LOAD_DATAMODEL_SUCCESS', action);
       let loadmodindex = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
       if (debug) console.log('431 reducer', loadmodindex)
       if (loadmodindex < 0) {loadmodindex = state.phData.metis.models.length}
@@ -220,7 +220,7 @@ function reducer(state = InitialState, action) {
         }
       }
       case SET_FOCUS_MODELVIEW:
-         console.log('190 SET_FOCUS_MODELVIEW', state, action.data); 
+        if (debug) console.log('223 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
         ...state,
         phFocus: {
@@ -895,7 +895,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
-      // if (debug) console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
+      console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === curmrv?.id) // current model index
       const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview

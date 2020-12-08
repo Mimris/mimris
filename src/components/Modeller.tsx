@@ -44,7 +44,7 @@ const Modeller = (props: any) => {
   ]
   const selmodviews = modelviews
   
-  // console.log('36 Modeller', focusModelview, selmods, modelviews);
+  if (debug) console.log('36 Modeller', focusModelview, selmods, modelviews);
   let selmodels = selmods //selmods?.models?.map((m: any) => m)
   let selmodelviews = selmodviews //selmodviews?.modelviews?.map((mv: any) => mv)
 
@@ -86,13 +86,30 @@ const Modeller = (props: any) => {
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
         setActiveTab(0)
     }
-    if (debug) console.log('86 Modeller useEffect 1', activeTab); 
+    if (debug) console.log('89 Modeller useEffect 1', activeTab); 
   }, [focusModel])
   
   useEffect(() => {
     setActiveTab(activetabindex)
-    if (debug) console.log('91 Modeller useEffect 2', activeTab); 
+    if (debug) console.log('94 Modeller useEffect 2', activeTab); 
     genGojsModel(props, dispatch);
+  }, [activeTab])
+
+  useEffect(() => {
+    if (debug) console.log('99 Modeller useEffect 3', props); 
+    // genGojsModel(props, dispatch);
+    const model = models.find(m => m.id === focusModel.id)
+    if (model) {
+      const modelview = model?.modelviews[0]
+      if (activeTab === 0) {
+        const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
+        dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+        function refres() {
+          setRefresh(!refresh)
+        }
+        setTimeout(refres, 10);
+      }
+    }
   }, [activeTab])
 
   //   useEffect(() => {

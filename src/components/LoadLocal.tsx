@@ -26,14 +26,12 @@ const LoadLocal = (props: any) => {
 
   const [locState, setLocState] = useLocalStorage('state', null);
 
-
   const [memoryState] = useLocalStorage('memorystate', null);
   let locStatus = false
   // let memoryStatus = false
 
   function handleDispatchToStoreFromLocal() {  // load store from LocalStore (state)
     locStatus = true
-
     // console.log('43 LoadLocal', locState);
     if (locState) {
       const phData = locState.phData
@@ -53,6 +51,7 @@ const LoadLocal = (props: any) => {
       }
     } else alert('No Modeles saved to Local Storage')
   }
+  
   function handleDispatchToStoreFromMemory() {  // load store from LocalStore (memoryState)
     // memoryStatus = true
     if (debug) console.log('63 LoadLocal', memoryState);

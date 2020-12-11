@@ -122,7 +122,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_DATAMODELLIST_SUCCESS:
-      if (debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
+      if (!debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
       return {
         ...state,
         phList: action.data,   

@@ -63,7 +63,7 @@ function * loadDataSaga() {
     let res = ''  
     res = yield fetch(`${akmmhost}akmmodels/`,
         {
-          mode: 'no-cors', // comment in for  server login
+          // mode: 'no-cors', // comment in for  server login
           headers: {
             "Access-Control-Allow-Origin": "*", // comment in for  server login
             'Accept': 'application/json',
@@ -93,18 +93,20 @@ function * loadDataModelListSaga() {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,
       {
-        mode: 'no-cors', // comment in for  server login
+        // mode: 'no-cors', // comment in for  server login
         headers: {
+          // "Access-Control-Allow-Origin": "*", // comment in for  server login
           "Access-Control-Allow-Origin": "*", // comment in for  server login
           'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
           "Access-Control-Allow-Credentials": 'include',  // comment in for  server login
         },
-        credentials: 'include' // comment in for  server login
+        // credentials: 'include' // comment in for  server login
+        'withCredentials': true
       }
     )
-      if (debug) console.log('102 saga', yield res.clone().json());
+      if (!debug) console.log('102 saga', yield res.clone().json());
       const modList = yield res.clone().json()
       if (debug) console.log('104 Saga', modList);
       yield put(loadDataModelListSuccess( modList ))
@@ -124,7 +126,7 @@ function * loadDataModelSaga(data) {
       let res = ''  
       res = yield fetch(`${akmmhost}akmmodel?id=${modelId}`,
         {
-          mode: 'no-cors', // comment in for  server login
+          // mode: 'no-cors', // comment in for  server login
           headers: {
             "Access-Control-Allow-Origin": "*", // comment in for  server login
             'Accept': 'application/json',

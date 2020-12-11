@@ -482,7 +482,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 otype.typename = constants.types.OBJECTTYPE_NAME;
                 // if (debug) console.log('431 ExternalObjectsDropped', otype);
                 const gqlObjtype = new gql.gqlObjectType(otype, true);
-                // if (debug) console.log('434 modifiedTypeNodes', gqlObjtype);
+                if (debug) console.log('434 modifiedTypeNodes', gqlObjtype);
                 modifiedTypeNodes.push(gqlObjtype);
 
                 const gqlObjtypeView = new gql.gqlObjectTypeView(otype.typeview);

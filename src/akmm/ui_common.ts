@@ -1458,13 +1458,15 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             }
             myDiagram.requestUpdate();
             modifiedObjectviews?.map(mn => {
-                let data = mn
+                let data = (mn) && mn;
+                data = JSON.parse(JSON.stringify(data));
                 myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             })
         }
     }
     modifiedObjects?.map(mn => {
-        let data = (mn) && mn
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
     msg = "Verifying objects completed";
@@ -1592,12 +1594,14 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         }
     }
     modifiedRelviews?.map(mn => {
-        let data = mn;
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('1629 data (relshipview)', data);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
     modifiedRelships?.map(mn => {
-        let data = (mn) && mn
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('1611 data (relship)', data);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })

@@ -519,6 +519,14 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     let valueObj = rel.toObject;
                     datatype.setDefaultValue(valueObj.name);
                 }
+                else if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
+                    let valueObj = rel.toObject;
+                    datatype.setInputPattern(valueObj.name);
+                }
+                else if (rel.getName() === constants.types.AKM_HAS_VALUEFORMAT) {
+                    let valueObj = rel.toObject;
+                    datatype.setValueFormat(valueObj.name);
+                }
                 for (let i=0; i< values.length; i++) {
                     datatype.addAllowedValue(values[i]);
                 }
@@ -536,7 +544,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
         });
 
-        if (debug) console.log('463 generateDatatype', datatype, myMetis);
+        if (!debug) console.log('463 generateDatatype', datatype, myMetis);
         return datatype;
     }
 }

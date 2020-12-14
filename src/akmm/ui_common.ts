@@ -1435,12 +1435,18 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             report += printf(format, msg);
             const gqlObj = new gql.gqlObject(obj);
             modifiedObjects.push(gqlObj);
-    }
+        }
         if (objtype) {
             const objviews = obj.objectviews;
             for (let i=0; i<objviews?.length; i++) {
                 const oview = objviews[i];
                 oview.name = obj.name;
+                if (obj.deleted && !oview.deleted) {
+                    oview.deleted = true;
+                    msg = "Verifying object " + obj.name + " that is deleted, but objectview is not.\n";
+                    msg += "\tIs repaired by deleting object view";
+                    report += printf(format, msg);
+                }
                 let typeview = oview.typeview;
                 if (!typeview) {
                     oview.typeview = objtype.typeview;
@@ -1569,6 +1575,13 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                         if (debug) console.log('1601 relshipview', rel);
                         rel.name = rel.type.name;
                         rview.name = rel.type.name;
+
+                        if (rel.deleted && !rview.deleted) {
+                            rview.deleted = true;
+                            msg = "Verifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";
+                            msg += "\tIs repaired by deleting relationship view";
+                            report += printf(format, msg);
+                        }                               
                         if (!rview.typeview) {
                             rview.typeview = rel.type.typeview;
                             msg = "Relationship typeview of " + rel.type.name + " set to default";
@@ -1609,7 +1622,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg = "Verifying relationships completed";
     if (debug) console.log('1617 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (debug) console.log(report);
+    if (!debug) console.log(report);
     myDiagram.requestUpdate();    
     alert(report);                    
 } 

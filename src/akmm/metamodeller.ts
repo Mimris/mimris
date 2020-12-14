@@ -1859,14 +1859,18 @@ export class cxRepository extends cxMetaObject {
 }
 
 export class cxDatatype extends cxMetaObject {
-    isOfDatatype: cxDatatype | null;
-    allowedValues: any;   // array of strings ??
-    defaultValue: string;
+    isOfDatatype:       cxDatatype | null;
+    allowedValues:      any;   // array of strings ??
+    defaultValue:       string;
+    inputPattern:       string;
+    valueFormat:        string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.class = 'cxDatatype';
         this.fs_collection = constants.fs.FS_C_DATATYPES;  // Firestore collection
         this.category = constants.gojs.C_DATATYPE;
+        this.inputPattern = "";
+        this.valueFormat = "%s";
         this.isOfDatatype = null;
         this.allowedValues = "";
         this.defaultValue = "";
@@ -1898,6 +1902,18 @@ export class cxDatatype extends cxMetaObject {
     }
     getIsOfDatatype(): cxDatatype | null {
         return this.isOfDatatype;
+    }
+    setInputPattern(val: string) {
+        this.inputPattern = val;
+    }
+    getInputPattern(): string {
+        return this.inputPattern;
+    }
+    setValueFormat(val: string) {
+        this.valueFormat = val;
+    }
+    getValueFormat(): string {
+        return this.valueFormat;
     }
 }
 
@@ -2934,7 +2950,7 @@ export class cxObjectType extends cxType {
         this.viewkind = constants.viewkinds.OBJ;
         this.relshipkind = "";
         this.typeview = null;              // Default type view
-        this.typeviewRef = "";                // Default type view
+        this.typeviewRef = "";             // Default type view
         this.fromObjtype = null;
         this.toObjtype = null;
         this.objtypegeos = null;

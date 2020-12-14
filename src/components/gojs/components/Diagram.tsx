@@ -443,6 +443,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
             return false;
           }),
+          makeButton("Edit Input Pattern",
+          function (e: any, obj: any) {
+            const contextmenu = obj.part;  
+            const node = contextmenu.adornedPart; 
+            const dtype = node.data.object;
+            console.log('451 datatype', dtype, myMetis);
+            const myModel = myMetis.currentModel;
+            const datatype = myModel.findObjectByName(dtype.name);
+            console.log('454 datatype', datatype);
+      },
+          function (o: any) {
+            const obj = o.part.data.object;
+            const objtype = obj?.type;
+            if (objtype?.name === constants.types.AKM_DATATYPE)
+                return false;              
+            return false;
+          }),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
                 const context = {

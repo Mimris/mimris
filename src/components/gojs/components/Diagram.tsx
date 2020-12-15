@@ -7,6 +7,9 @@ const debug = false;
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
+//import ReactModal from 'react-modal';
+//import Popup from 'reactjs-popup';
+//import 'reactjs-popup/dist/index.css';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as gql from '../../../akmm/ui_graphql';
@@ -39,24 +42,33 @@ interface DiagramProps {
   onModelChange:      (e: go.IncrementalData) => void;
 }
 
-export class DiagramWrapper extends React.Component<DiagramProps, {}> {
+interface DiagramState {
+  showModal: boolean;
+}
 
-  
+
+export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
+
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
    */
   private diagramRef: React.RefObject<ReactDiagram>;
+
   /** @internal */
   constructor(props: DiagramProps) {
     super(props);
-    this.diagramRef = React.createRef();
-  }
-  SelectionDeleting
+    this.diagramRef = React.createRef(); 
+    //this.state = { showModal: false };
+
+    // this.initDiagram = this.initDiagram.bind(this);
+    // this.handleOpenModal = this.handleOpenModal.bind(this);
+    // this.handleCloseModal = this.handleCloseModal.bind(this);
+}
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
    */
-  public componentDidMount() {
+  public componentDidMount() { 
     if (!this.diagramRef.current) return;
     const diagram = this.diagramRef?.current?.getDiagram();
     if (diagram instanceof go.Diagram) {
@@ -108,10 +120,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
     }
   }
 
-  // public onModelChanged(e, evt, diagram) {
-  //   if (debug) console.log('onModelChanged called!');
-  // } 
+  // public handleOpenModal() {
+  //   this.setState({ showModal: true });
+  // }
 
+  // public handleCloseModal() {
+  //   this.setState({ showModal: false });
+  // }
 
 
   /**
@@ -123,6 +138,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
 
 
   private initDiagram(): go.Diagram {
+    console.log('141 this', this);
     const $ = go.GraphObject.make;
     // go.GraphObject.fromLinkableDuplicates = true;
     // go.GraphObject.toLinkableDuplicates   = true;
@@ -255,7 +271,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
       str += model.linkDataArray.length + " links";
       return str;
     }
-
 
     // A CONTEXT is an Adornment with a bunch of buttons in them
     // Nodes CONTEXT MENU
@@ -428,6 +443,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
             }
             return false;
           }),
+          makeButton("Edit Input Pattern",
+          function (e: any, obj: any) {
+            const contextmenu = obj.part;  
+            const node = contextmenu.adornedPart; 
+            const dtype = node.data.object;
+            console.log('451 datatype', dtype, myMetis);
+            const myModel = myMetis.currentModel;
+            const datatype = myModel.findObjectByName(dtype.name);
+            console.log('454 datatype', datatype);
+      },
+          function (o: any) {
+            const obj = o.part.data.object;
+            const objtype = obj?.type;
+            if (objtype?.name === constants.types.AKM_DATATYPE)
+                return false;              
+            return false;
+          }),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
                 const context = {
@@ -464,7 +496,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   let data = mn;
                   e.diagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
                 })
-                if (!debug) console.log('467 gqlDatatype', gqlDatatype);
+                if (debug) console.log('467 gqlDatatype', gqlDatatype);
             },
             function(o: any) { 
               const obj = o.part.data.object;
@@ -538,13 +570,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   const modifiedModels = new Array();
                   modifiedModels.push(gqlModel);
                   modifiedModels.map(mn => {
-                    let data = mn;
+                    let data = (mn) && mn;
+                    data = JSON.parse(JSON.stringify(data));
                     myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                   })
-                  if (!debug) console.log('467 gqlModel', gqlModel);
+                  if (debug) console.log('467 gqlModel', gqlModel);
                   const currentObjview = part.data.objectview;
                   const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                  if (!debug) console.log('470 Generate Object Type', objtype, myMetis);
+                  if (debug) console.log('470 Generate Object Type', objtype, myMetis);
                 }
             },  
             function(o: any) { 
@@ -951,7 +984,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const modifiedModels = new Array();
                 modifiedModels.push(gqlModel);
                 modifiedModels.map(mn => {
-                  let data = mn;
+                  let data = (mn) && mn;
+                  data = JSON.parse(JSON.stringify(data));
                   myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
                 const currentRelview = part.data.relshipview;
@@ -959,25 +993,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
                 if (debug) console.log('964 Generate Relationship Type', reltype, myMetis);
                 const reltypeview = reltype.typeview;
-                  // First handle properties
-                  const modifiedProperties = new Array();
-                  const props = reltype.properties;
-                  for (let i=0; i<props?.length; i++) {
-                    const gqlProp = new gql.gqlProperty(props[i]);
-                    modifiedProperties.push(gqlProp);
-                    modifiedProperties.map(mn => {
-                      let data = mn;
-                      myDiagram.dispatch({ type: 'UPDATE_TARGETPROPERTY_PROPERTIES', data })
-                    });
-                  }
-                  if (debug) console.log('976 reltype', reltype);
+                if (debug) console.log('976 reltype', reltype);
 
                   const gqlRelshipType = new gql.gqlRelationshipType(reltype);
                   if (debug) console.log('979 Generate Relationship Type', reltype,gqlRelshipType);
                   const modifiedTypeLinks = new Array();
                   modifiedTypeLinks.push(gqlRelshipType);
                   modifiedTypeLinks.map(mn => {
-                    let data = mn;
+                    let data = (mn) && mn;
+                    data = JSON.parse(JSON.stringify(data));
                     myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
                   });
                   const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
@@ -985,7 +1009,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                   const modifiedTypeViews = new Array();
                   modifiedTypeViews.push(gqlRelTypeview);
                   modifiedTypeViews?.map(mn => {
-                    let data = (mn) && mn
+                    let data = (mn) && mn;
+                    data = JSON.parse(JSON.stringify(data));
                     myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
                   })
                   if (debug) console.log('994 myMetis', myMetis);
@@ -1098,7 +1123,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           function (e: any, obj: any) {
             const context = {
               "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel
+              "myMetamodel":        myMetis.currentMetamodel,
+              "myDiagram":          e.diagram
             }
             const metamodel = gen.askForMetamodel(context, true);
             if (debug) console.log('760 New Metamodel', metamodel);
@@ -1214,38 +1240,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "myMetamodel":        myMetis.currentMetamodel, 
                 "myModel":            myMetis.currentModel,
                 "myModelview":        myMetis.currentModelview,
-                "myTargetMetamodel":  myMetis.currentTargetMetamodel
+                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+                "myDiagram":          e.diagram
               }
-              const currentTargetMetamodel = gen.askForMetamodel(context, false);
-              if (debug) console.log('815 Target Metamodel', myMetis);
-              if (currentTargetMetamodel) {
-                myMetis.currentTargetMetamodel = currentTargetMetamodel;
-                // Update current Model with targetMetamodelRef
-                myMetis.currentModel.targetMetamodelRef = currentTargetMetamodel?.id;
-                // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+              const currentTargetMetamodel = gen.askForTargetMetamodel(context, false);
+              if (debug) console.log('1211 Target Metamodel', myMetis);
+              // if (currentTargetMetamodel) {
+              //   myMetis.currentTargetMetamodel = currentTargetMetamodel;
+              //   // Update current Model with targetMetamodelRef
+              //   myMetis.currentModel.targetMetamodelRef = currentTargetMetamodel?.id;
+              //   // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
 
-                const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
-                // gqlModel.addModelView(myMetis.currentModelview);
-                if (debug) console.log('822 current model', gqlModel, myMetis.currentModelview);
-                const modifiedModels = new Array();
-                modifiedModels.push(gqlModel);
-                modifiedModels.map(mn => {
-                  let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                })
-                if (debug) console.log('829 current model', gqlModel);
+              //   const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
+              //   // gqlModel.addModelView(myMetis.currentModelview);
+              //   if (debug) console.log('822 current model', gqlModel, myMetis.currentModelview);
+              //   const modifiedModels = new Array();
+              //   modifiedModels.push(gqlModel);
+              //   modifiedModels.map(mn => {
+              //     let data = mn;
+              //     e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+              //   })
+              //   if (debug) console.log('829 current model', gqlModel);
 
-                // const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(currentTargetMetamodel);
-                if (debug) console.log('799 set target Metamodel', gqlMetamodel);
-                // const modifiedgqlMetamodels = new Array();
-                // modifiedgqlMetamodels.push(gqlMetamodel);
-                // modifiedgqlMetamodels.map(mn => {
-                //   let data = mn;
-                //   if (debug) console.log('804 set target Metamodel', data);
-                //   e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
-                // })
-              }
-              if (debug) console.log('810 myMetis', myMetis);
+              //   // const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(currentTargetMetamodel);
+              //   if (debug) console.log('799 set target Metamodel', gqlMetamodel);
+              // }
+              // if (debug) console.log('810 myMetis', myMetis);
             },
             function (o: any) {
               return true; 
@@ -1310,6 +1330,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 "myProperties":       new Array(),
                 "dispatch":           e.diagram.dispatch
               }
+              context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+              if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                    alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                    context.myTargetMetamodel = null;
+              } else if (context.myTargetMetamodel == undefined)  // sf
+                  context.myTargetMetamodel = null;
+              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
               const targetMetamodel = myMetis.currentTargetMetamodel;
               const sourceModelview = myMetis.currentModelview;
               gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
@@ -1442,15 +1469,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
                 return true; 
               return false;
             }),
+          // makeButton("Show Modal",
+          //   function (e: any, obj: any) {
+          //     console.log('1457 this', this);
+          //     this.handleOpenModal;
+          //   },
+          //   function (o: any) {
+          //      return true; 
+          //   }),
         )
   }
 
     // Define a Node template
     let nodeTemplate;
-
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+        //{ doubleClick: this.handleOpenModal },
           new go.Binding("deletable"),
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
           {
@@ -1952,6 +1987,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, {}> {
           modelData={this.props.modelData}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
+        {/* <ReactModal 
+          isOpen={this.state.showModal}
+          contentLabel="onRequestClose Example"
+          onRequestClose={this.handleCloseModal}
+          style={{ overlay: { zIndex: 100 } }}
+        >
+          <p>Modal text!</p>
+          <button onClick={this.handleCloseModal}>Close Modal</button>
+        </ReactModal> */}
       </>
     );
   }

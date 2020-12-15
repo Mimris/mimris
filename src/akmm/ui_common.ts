@@ -1435,12 +1435,18 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             report += printf(format, msg);
             const gqlObj = new gql.gqlObject(obj);
             modifiedObjects.push(gqlObj);
-    }
+        }
         if (objtype) {
             const objviews = obj.objectviews;
             for (let i=0; i<objviews?.length; i++) {
                 const oview = objviews[i];
                 oview.name = obj.name;
+                if (obj.deleted && !oview.deleted) {
+                    oview.deleted = true;
+                    msg = "Verifying object " + obj.name + " that is deleted, but objectview is not.\n";
+                    msg += "\tIs repaired by deleting object view";
+                    report += printf(format, msg);
+                }
                 let typeview = oview.typeview;
                 if (!typeview) {
                     oview.typeview = objtype.typeview;
@@ -1458,13 +1464,15 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             }
             myDiagram.requestUpdate();
             modifiedObjectviews?.map(mn => {
-                let data = mn
+                let data = (mn) && mn;
+                data = JSON.parse(JSON.stringify(data));
                 myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             })
         }
     }
     modifiedObjects?.map(mn => {
-        let data = (mn) && mn
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
     msg = "Verifying objects completed";
@@ -1567,6 +1575,13 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                         if (debug) console.log('1601 relshipview', rel);
                         rel.name = rel.type.name;
                         rview.name = rel.type.name;
+
+                        if (rel.deleted && !rview.deleted) {
+                            rview.deleted = true;
+                            msg = "Verifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";
+                            msg += "\tIs repaired by deleting relationship view";
+                            report += printf(format, msg);
+                        }                               
                         if (!rview.typeview) {
                             rview.typeview = rel.type.typeview;
                             msg = "Relationship typeview of " + rel.type.name + " set to default";
@@ -1592,12 +1607,14 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         }
     }
     modifiedRelviews?.map(mn => {
-        let data = mn;
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('1629 data (relshipview)', data);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
     modifiedRelships?.map(mn => {
-        let data = (mn) && mn
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('1611 data (relship)', data);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
@@ -1605,7 +1622,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg = "Verifying relationships completed";
     if (debug) console.log('1617 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (debug) console.log(report);
+    if (!debug) console.log(report);
     myDiagram.requestUpdate();    
     alert(report);                    
 } 

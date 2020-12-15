@@ -35,12 +35,12 @@ const akmmhost = 'http://localhost:4000/'
 //   }
 // }
 
-// This version is for login server with credetial
+// This version is for login server with credential
 function getCookie(cname, document) {
   var name = cname + "=";
-  console.log('40 ',  cname, document.cookie);
+  if (debug) console.log('40 ',  cname, document.cookie);
   var decodedCookie = decodeURIComponent(document.cookie);
-  console.log('42', decodedCookie);
+  if (debug) console.log('42', decodedCookie);
   // var decodedCookie = decodeURIComponent(document.cookie);
   var ca = decodedCookie.split(';');
   for (var i = 0; i < ca.length; i++) {
@@ -78,7 +78,7 @@ function * loadDataSaga() {
       // console.log('75 Saga', metis);
       yield put(loadDataSuccess({ metis }))
     } catch (err) {
-      console.log('72 saga', failure(err));  
+      if (debug) console.log('72 saga', failure(err));  
       yield put(failure(err))
     }
   }
@@ -110,7 +110,7 @@ function * loadDataModelListSaga() {
       if (debug) console.log('104 Saga', modList);
       yield put(loadDataModelListSuccess( modList ))
     } catch (err) {
-      console.log('107 saga', failure(err));  
+      if (debug) console.log('107 saga', failure(err));  
       yield put(failure(err))
     }
   }
@@ -140,7 +140,7 @@ function * loadDataModelSaga(data) {
       if (debug) console.log('134 Saga', model);
       yield put(loadDataModelSuccess({ model }))
     } catch (err) {
-      console.log('137 saga', failure(err));  
+      if (debug) console.log('137 saga', failure(err));  
       yield put(failure(err))
     }
   }

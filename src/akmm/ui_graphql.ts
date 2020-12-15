@@ -169,6 +169,15 @@ export class gqlMetaModel {
                 this.addDataType(datatype);
             }
         }
+        const properties = metamodel.getProperties();
+        if (properties) {
+            const cnt = properties.length;
+            for (let i = 0; i < cnt; i++) {
+                const prop = properties[i];
+                this.addProperty(prop);
+            }
+        }
+
         // let unittypes = metamodel.getUnitCategories();
         // if (unittypes) {
         //     let cnt = unittypes.length;
@@ -307,6 +316,7 @@ export class gqlObjectType {
                 }
             }
         }
+        if (debug) console.log('310 objtype.properties', p, this.properties);
         //this.loc  = (includeViews) ? objtype.loc : "";
         //this.size = (includeViews) ? objtype.size : "";
     }

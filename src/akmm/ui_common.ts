@@ -394,25 +394,15 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
     } else 
     if (data.category === constants.gojs.C_OBJECT) {
         const myGoModel = context.myGoModel;
-        // Replace myGoModel.nodes with a new array
-        let nodes = new Array();
-        // if (myGoModel) {
-        //     for (let i = 0; i < myGoModel.nodes?.length; i++) {
-        //         let n = myGoModel.nodes[i];
-        //         nodes.push(n);
-        //     }
-        //     myGoModel.nodes = nodes;
-        // }
-        // if (debug) console.log('398 myGoModel', myGoModel);
-        let node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
-        if (debug) console.log('400 delete node', node);
+        const node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
+        if (debug) console.log('398 delete node', node);
         if (node) {
             node.deleted = deletedFlag;
             const objview = node.objectview;
             objview.deleted = deletedFlag;
             const gqlObjview = new gql.gqlObjectView(objview);
             deletedObjviews.push(gqlObjview);
-            if (debug) console.log('408 delete objview', objview);
+            if (debug) console.log('405 delete objview', objview);
             // If group, delete members of group
             if (node.isGroup) {
             const groupMembers = node.getGroupMembers(myGoModel);
@@ -436,30 +426,19 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             }         
             // Then handle all other object views of the deleted object
             const objviews = object?.objectviews;
-            // const nodes = new Array();
-            if (debug) console.log('432 selection', myDiagram.selection);
-            //myDiagram.clearSelection();
-            if (debug) console.log('423 delete objviews', objviews);
+            if (debug) console.log('429 selection', myDiagram.selection);
+            if (debug) console.log('430 delete objviews', objviews);
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
                 if (objview) {
                     objview.deleted = deletedFlag;
                     deleteObjectView(objview, deletedFlag, deletedObjviews, deletedObjects, deletedTypeviews, context);
-                    const myNode = myGoModel.findNodeByViewId(objview.id);
-                    const n = myDiagram.findNodeForKey(myNode?.key);
-                    if (n) {
-                        myNode.deleted = deletedFlag;
-                        n.isSelected = true;
-                        if (debug) console.log('446 Select node', n);
-                        // myDiagram.remove(n);
-                    }
                 }
             }
-            if (debug) console.log('446 nodes to delete', myDiagram.selection);
-            // if (nodes?.length>0) myDiagram.removeParts(myDiagram.selection);
+            if (debug) console.log('438 nodes to delete', myDiagram.selection);
             myDiagram.requestUpdate();
             let connectedRels = object?.inputrels;
-            if (debug) console.log('434 inputrels', connectedRels);
+            if (debug) console.log('441 inputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
@@ -487,7 +466,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 }
             }
             connectedRels = object?.outputrels;
-            if (debug) console.log('459 outputrels', connectedRels);
+            if (debug) console.log('469 outputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
@@ -937,7 +916,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     if (debug) console.log('938 myMetis', myMetis, myGoModel);
     if (debug) console.log('939 pasteRelationship', data);
     // Relationship type must exist
-    let reltype = data.relship.type;
+    let reltype = data.relshiptype;
     reltype = myMetis.findRelationshipType(reltype?.id);
     // if (reltype) 
     //     reltype = myMetis.findRelationshipType(reltype.id);
@@ -953,7 +932,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     if (debug) console.log('954 fromNode, toNode', fromNode, toNode);
     const fromObjview = fromNode?.objectview;
     const toObjview   = toNode?.objectview;
-    let   relship     = data.relship;
+    let   relship     = data.relshipview.relship;
     const typeview    = data.relshipview.typeview;
     if (debug) console.log('959 pasteRelationship', fromObjview, toObjview);
     if (!pasteViewsOnly) {
@@ -972,7 +951,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
             myMetis.addRelationship(relship);
         }
     } else {
-        relship = myMetis.findRelationship(relship.id);
+        relship = myMetis.findRelationship(relship?.id);
     }
     if (debug) console.log('979 relationship', relship);
     const relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
@@ -1299,9 +1278,9 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     relview.toObjview = toObjView;
                     rel.toObject = myMetis.findObject(toObjView.object.id); 
                     const gqlRelview = new gql.gqlRelshipView(relview);
-                    context.modifiedRelviews.push(gqlRelview);
+                    context.modifiedLinks.push(gqlRelview);
                     const gqlRel = new gql.gqlRelationship(rel);
-                    context.modifiedRelships.push(gqlRel);
+                    context.modifiedLinks.push(gqlRel);
                 }
             }
         }
@@ -1456,12 +1435,18 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             report += printf(format, msg);
             const gqlObj = new gql.gqlObject(obj);
             modifiedObjects.push(gqlObj);
-    }
+        }
         if (objtype) {
             const objviews = obj.objectviews;
             for (let i=0; i<objviews?.length; i++) {
                 const oview = objviews[i];
                 oview.name = obj.name;
+                if (obj.deleted && !oview.deleted) {
+                    oview.deleted = true;
+                    msg = "Verifying object " + obj.name + " that is deleted, but objectview is not.\n";
+                    msg += "\tIs repaired by deleting object view";
+                    report += printf(format, msg);
+                }
                 let typeview = oview.typeview;
                 if (!typeview) {
                     oview.typeview = objtype.typeview;
@@ -1479,13 +1464,15 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             }
             myDiagram.requestUpdate();
             modifiedObjectviews?.map(mn => {
-                let data = mn
+                let data = (mn) && mn;
+                data = JSON.parse(JSON.stringify(data));
                 myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             })
         }
     }
     modifiedObjects?.map(mn => {
-        let data = (mn) && mn
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
     msg = "Verifying objects completed";
@@ -1588,6 +1575,13 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                         if (debug) console.log('1601 relshipview', rel);
                         rel.name = rel.type.name;
                         rview.name = rel.type.name;
+
+                        if (rel.deleted && !rview.deleted) {
+                            rview.deleted = true;
+                            msg = "Verifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";
+                            msg += "\tIs repaired by deleting relationship view";
+                            report += printf(format, msg);
+                        }                               
                         if (!rview.typeview) {
                             rview.typeview = rel.type.typeview;
                             msg = "Relationship typeview of " + rel.type.name + " set to default";
@@ -1613,12 +1607,14 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         }
     }
     modifiedRelviews?.map(mn => {
-        let data = mn;
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('1629 data (relshipview)', data);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
     modifiedRelships?.map(mn => {
-        let data = (mn) && mn
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('1611 data (relship)', data);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
@@ -1626,7 +1622,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg = "Verifying relationships completed";
     if (debug) console.log('1617 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (debug) console.log(report);
+    if (!debug) console.log(report);
     myDiagram.requestUpdate();    
     alert(report);                    
 } 

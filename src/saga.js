@@ -10,6 +10,7 @@ const debug = false
 const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
 // const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
 // const akmmhost = 'http://localhost:4000/'
+// const akmmhost = 'https://cors-anywhere.herokuapp.com/http://localhost:4000/'
 
 // // this version is without login
 // function * loadDataSaga() {
@@ -34,12 +35,13 @@ const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a ph
 //   }
 // }
 
-// This version is for login server with credetial
+// This version is for login server with credential
 function getCookie(cname, document) {
   var name = cname + "=";
-  console.log('40 ',  document, document.cookie);
-  // var decodedCookie = decodeURIComponent(akmmhost.cookie);
+  if (debug) console.log('40 ',  cname, document.cookie);
   var decodedCookie = decodeURIComponent(document.cookie);
+  if (debug) console.log('42', decodedCookie);
+  // var decodedCookie = decodeURIComponent(document.cookie);
   var ca = decodedCookie.split(';');
   for (var i = 0; i < ca.length; i++) {
     var c = ca[i];
@@ -54,9 +56,9 @@ function getCookie(cname, document) {
 }
 
 function * loadDataSaga() {
-  // const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
-  // const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
-  // const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
+  const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
+  const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
+  const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
   try {
     let res = ''  
     res = yield fetch(`${akmmhost}akmmodels/`,
@@ -76,7 +78,7 @@ function * loadDataSaga() {
       // console.log('75 Saga', metis);
       yield put(loadDataSuccess({ metis }))
     } catch (err) {
-      console.log('72 saga', failure(err));  
+      if (debug) console.log('72 saga', failure(err));  
       yield put(failure(err))
     }
   }
@@ -91,12 +93,11 @@ function * loadDataModelListSaga() {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,
       {
-        method: "POST",
         mode: 'no-cors', // comment in for  server login
         headers: {
-          "Access-Control-Allow-Headers": "*", // comment in for  server login
+          // "Access-Control-Allow-Origin": "*", // comment in for  server login
           "Access-Control-Allow-Origin": "*", // comment in for  server login
-          Accept: 'application/json',
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
           'Cookie': `_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
           "Access-Control-Allow-Credentials": 'include',  // comment in for  server login
@@ -104,12 +105,12 @@ function * loadDataModelListSaga() {
         credentials: 'include' // comment in for  server login
       }
     )
-      if (debug) console.log('102 saga', yield res.clone().json());
+      if (!debug) console.log('102 saga', yield res.clone().json());
       const modList = yield res.clone().json()
       if (debug) console.log('104 Saga', modList);
       yield put(loadDataModelListSuccess( modList ))
     } catch (err) {
-      console.log('107 saga', failure(err));  
+      if (debug) console.log('107 saga', failure(err));  
       yield put(failure(err))
     }
   }
@@ -140,7 +141,7 @@ function * loadDataModelSaga(data) {
       if (debug) console.log('134 Saga', model);
       yield put(loadDataModelSuccess({ model }))
     } catch (err) {
-      console.log('137 saga', failure(err));  
+      if (debug) console.log('137 saga', failure(err));  
       yield put(failure(err))
     }
   }

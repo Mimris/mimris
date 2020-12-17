@@ -8,6 +8,14 @@ import GoJSPaletteTargetApp from "./gojs/GoJSPaletteTargetApp";
 const TargetMeta = (props) => {
   // const page = (props) => {
   // console.log('10 TargetMeta', props);
+  let focusModel = props.phFocus?.focusModel
+  const models = props.metis?.models
+  const metamodels = props.metis?.metamodels
+  const model = models?.find((m: any) => m?.id === focusModel?.id)
+  const targetmetamodel = metamodels?.find((m: any) => m?.id === model.targetMetamodelRef)
+  const targetmodel = models?.find((m: any) => m?.id === model.targetModelRef)
+  // console.log('16', props, targetmodel?.name, model.targetModelRef);
+  
   
   const gojstypes = props.gojsTargetMetamodel
 
@@ -37,16 +45,22 @@ const TargetMeta = (props) => {
       dispatch={props.dispatch}
     />
 
+  const targetmmnamediv = (targetmetamodel) ? <span>{targetmetamodel?.name}</span> : <span>No target metamodel</span> 
+  const targetmnamediv = (targetmodel) ? <span>Target model: {targetmodel?.name}</span> : <span>No target model</span> 
   const palette =
     <>
-      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-3 mr-2 " style={{ textAlign: "left",  backgroundColor: "#9a9", outline: "0", borderStyle: "none" }}
-        onClick={togglePalette}> {visiblePalette ? <span> -&gt; Target <br /> Concept Metamodel</span> : <span>&lt;</span>}
+      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#9a9", outline: "0", borderStyle: "none" }}
+        onClick={togglePalette}> {visiblePalette ? <span> -&gt; Target Metamodel</span> : <span>&lt;</span>}
       </button>
       {visiblePalette
-        ? <div className="m-1"> {gojsapp} </div>
+        ? <>
+            <div className="mmname bg-light mx-1 px-1" style={{fontSize: "8px"}}>{targetmmnamediv}</div>
+            <div className="m-1"> {gojsapp} </div>
+            <div className="mmname bg-light mx-1 px-1" style={{fontSize: "8px"}}>{targetmnamediv}</div>
+          </>
         // ? <div> {gojsapp} <div style={{ minWidth: "292px", height: "100%" }}></div></div>
         // : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - T a r g e t - M e t a m o d e l</span> </div>
-        : <div className="btn-vertical m-0 pl-2 p-0" style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> T a r g e t - C o n c e p t - M e t a m o d e l</span> </div>
+        : <div className="btn-vertical m-0 pl-2 p-0" style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> T a r g e t -  M e t a m o d e l</span> </div>
       }
     </>
 

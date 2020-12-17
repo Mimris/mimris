@@ -229,7 +229,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_TARGETMODEL:
-      // if (debug) console.log('121 red', state, action.data); 
+      if (debug) console.log('121 red', state, action.data); 
       return {
         ...state,
         phFocus: {
@@ -992,7 +992,7 @@ function reducer(state = InitialState, action) {
       if (debug) console.log('992 UPDATE_METAMODEL_PROPERTIES', action);
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_mm.metamodelRef) //current meta model
-      const curmmindex_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_mm.metamodelRef)  // current metamodel index
+      const curmmindex_mm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === curm_mm.metamodelRef)  // current metamodel index
       if (curmmindex_mm <0) curmmindex_mm = state.phData.metis.metamodels.length
       return {
         ...state,
@@ -1025,13 +1025,14 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_TARGETMETAMODEL_PROPERTIES:
-      if (debug) console.log('1028 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
+      if (!debug) console.log('1028 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
       const curm_tmm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef) //current meta model
-      let curmmindex_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index
-      if (curmmindex_tmm <0) curmmindex_tmm = state.phData.metis.metamodels.length
-      if (debug) console.log('1033 curmm_tmm', curmm_tmm, curmmindex_tmm)
-      if (debug) console.log('1034 metamodels', state.phData?.metis?.metamodels);
+      let curmmindex_tmm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index
+      if (!debug) console.log('1031 curmm_tmm', curmm_tmm, curmmindex_tmm)
+      if (curmmindex_tmm < 0) curmmindex_tmm = state.phData.metis.metamodels.length
+      if (!debug) console.log('1033 curmm_tmm', curmm_tmm, curmmindex_tmm)
+      if (!debug) console.log('1034 metamodels', state.phData?.metis?.metamodels[curmmindex_tmm]);
       return {
         ...state,
         phData: {

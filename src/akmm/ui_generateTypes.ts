@@ -136,6 +136,17 @@ export function askForTargetMetamodel(context: any, create: boolean) {
             if (confirm("Create new targetmetamodel '" + mmname + "' ?")) {
                 metamodel = new akm.cxMetaModel(utils.createGuid(), mmname, "");
                 myMetis.addMetamodel(metamodel);
+
+                const gqlMetamodel = new gql.gqlMetaModel(metamodel, false);
+                if (debug) console.log('152 Target metamodel', gqlMetamodel);
+                const modifiedMetamodels = new Array();
+                modifiedMetamodels.push(gqlMetamodel);
+                modifiedMetamodels.map(mn => {
+                    let data = (mn) && mn;
+                    data = JSON.parse(JSON.stringify(data));
+                    myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data });
+                });
+
             } else {
                 alert("Operation was cancelled!");
                 return;
@@ -147,16 +158,6 @@ export function askForTargetMetamodel(context: any, create: boolean) {
             myMetis.currentTargetMetamodel = currentTargetMetamodel;
             // Update current Model with targetMetamodelRef
             myMetis.currentModel.targetMetamodelRef = currentTargetMetamodel?.id;
-
-            const gqlMetamodel = new gql.gqlMetaModel(currentTargetMetamodel, false);
-            if (debug) console.log('152 Target metamodel', gqlMetamodel);
-            const modifiedMetamodels = new Array();
-            modifiedMetamodels.push(gqlMetamodel);
-            modifiedMetamodels.map(mn => {
-                let data = (mn) && mn;
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data });
-            });
 
             const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
             if (debug) console.log('822 current model', gqlModel, myMetis.currentModelview);
@@ -256,7 +257,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         let parentRelType: akm.cxRelationshipType | null = null;
         if (objtype) {
             objtype.setModified(true);
-            const types = ['Role', 'Task', 'View', 'Query', 'Property'];
+            const types = ['Role', 'Task', 'View', 'Query', 'Property', 'Container'];
             for (let i=0; i<types.length; i++) {
                 const typename = types[i];
                 if (obj.name === typename) {
@@ -418,17 +419,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         });
         if (debug) console.log('411 myMetis', modifiedTypeLinks, myMetis);                                    // Then handle the object type
 
-        const gqlMetamodel = new gql.gqlMetaModel(myTargetMetamodel, true);
-        if (debug) console.log('414 Target metamodel', myTargetMetamodel, gqlMetamodel);
-        const modifiedMetamodels = new Array();
-        modifiedMetamodels.push(gqlMetamodel);
-        modifiedMetamodels.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data });
-        });
-
-        if (debug) console.log('423 generateObjectType', modifiedMetamodels);
         return objtype;
     }
 }
@@ -696,7 +686,29 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
         }
     }
 
+    // Add system types 
+    const objtypes = ['Container', 'Property', 'Datatype'];
+    for (let i=0; i<objtypes.length; i++) {
+        const typename = objtypes[i];
+        const objtype = myMetis.findObjectTypeByName(typename);
+        if (objtype) {
+            metamodel.addObjectType(objtype);
+        }
+    }
 
+
+    const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
+    if (debug) console.log('414 Target metamodel', metamodel, gqlMetamodel);
+    const modifiedMetamodels = new Array();
+    modifiedMetamodels.push(gqlMetamodel);
+    modifiedMetamodels.map(mn => {
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data });
+    });
+
+    if (debug) console.log('423 generateObjectType', modifiedMetamodels);
+    
     // Look up the relationships between Roles and Tasks
         // For each relship, get relship type and add to metamodel
     // Look up the relationships between Tasks and Informations

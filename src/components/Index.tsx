@@ -125,7 +125,7 @@ const page = (props) => {
                 <Card className="bg-info" body outline color="primary" >
                   <CardHeader>Blog AKMM releases </CardHeader>
                   <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.12.18</CardTitle>
+                    <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.12.18</CardTitle>
                     <CardText>
                       akmclient-beta.herokuapp.com
                        <br /> <br /> - Bugfixes

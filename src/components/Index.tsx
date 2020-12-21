@@ -93,9 +93,7 @@ const page = (props) => {
                     AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
                       <br /><br />
                     With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
-
-
-The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
+                    The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
                     </CardText>
                   </CardBody>
                 </Card>
@@ -126,6 +124,13 @@ The AKM Modeller can enhance the design and operation of Products, Organizations
      
                 <Card className="bg-info" body outline color="primary" >
                   <CardHeader>Blog AKMM releases </CardHeader>
+                  <CardBody className="homepage1 bg-light" >
+                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.12.18</CardTitle>
+                    <CardText>
+                      akmclient-beta.herokuapp.com
+                       <br /> <br /> - Bugfixes
+                    </CardText>
+                  </CardBody>
                   <CardBody className="homepage1 bg-light" >
                     <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.18</CardTitle>
                     <CardText>

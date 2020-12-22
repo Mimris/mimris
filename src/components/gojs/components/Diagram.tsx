@@ -7,8 +7,8 @@ const debug = false;
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
-//import ReactModal from 'react-modal';
-//import Popup from 'reactjs-popup';
+// import * as ReactModal from 'react-modal';
+// import Popup from 'reactjs-popup';
 //import 'reactjs-popup/dist/index.css';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
@@ -42,9 +42,9 @@ interface DiagramProps {
   onModelChange:      (e: go.IncrementalData) => void;
 }
 
-interface DiagramState {
-  showModal: boolean;
-}
+// interface DiagramState {
+//   showModal: boolean;
+// }
 
 
 export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
@@ -58,7 +58,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   constructor(props: DiagramProps) {
     super(props);
     this.diagramRef = React.createRef(); 
-    //this.state = { showModal: false };
+
+    // this.state = { showModal: false };
 
     // this.initDiagram = this.initDiagram.bind(this);
     // this.handleOpenModal = this.handleOpenModal.bind(this);
@@ -122,6 +123,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   // public handleOpenModal() {
   //   this.setState({ showModal: true });
+  //   console.log('126 Diagram', this.state);
+    
   // }
 
   // public handleCloseModal() {
@@ -1471,8 +1474,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           // makeButton("Show Modal",
           //   function (e: any, obj: any) {
-          //     console.log('1457 this', this);
-          //     this.handleOpenModal;
+          //     // setState({ showModal: true });
+          //     // this.setState((state) => { return { showModal: true }});
+          //     console.log('1479 this..', e, obj);
+          //     // handleOpenModal();
           //   },
           //   function (o: any) {
           //      return true; 
@@ -1972,9 +1977,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public render() {
-    if (debug) console.log('1296 Diagram', this.props.nodeDataArray);
-    if (debug) console.log('1082 Diagram', this.props.linkDataArray);
-    
+    if (debug) console.log('1278 Diagram', this.props.nodeDataArray);
+    if (debug) console.log('1079 Diagram', this.props.linkDataArray);
+
     return (
       <>
         <ReactDiagram
@@ -1988,7 +1993,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
         {/* <ReactModal 
+          // isOpen={true}
           isOpen={this.state.showModal}
+          areaHideApp={false}
           contentLabel="onRequestClose Example"
           onRequestClose={this.handleCloseModal}
           style={{ overlay: { zIndex: 100 } }}

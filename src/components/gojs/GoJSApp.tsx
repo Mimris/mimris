@@ -7,6 +7,7 @@ const debug = false;
 import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';
+import * as ReactModal from 'react-modal';
 
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
@@ -39,6 +40,7 @@ interface AppState {
   myGoMetamodel: gjs.goModel;
   phFocus: any;
   dispatch: any;
+  showModal: boolean;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
@@ -63,7 +65,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       myGoModel: this.props.myGoModel,
       myGoMetamodel: this.props.myGoMetamodel,
       phFocus: this.props.phFocus,
-      dispatch: this.props.dispatch
+      dispatch: this.props.dispatch,
+      showModal: false
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -75,9 +78,17 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.handleModelChange = this.handleModelChange.bind(this);
     //this.handleInputChange = this.handleInputChange.bind(this);
     //this.handleRelinkChange = this.handleRelinkChange.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.handleOpenModal = this.handleOpenModal.bind(this);
   }
 
-
+  public handleOpenModal () {
+    this.setState({ showModal: true });
+  }
+  
+  public handleCloseModal () {
+    this.setState({ showModal: false });
+  }
 
   /**
    * Update map of node keys to their index in the array.
@@ -522,9 +533,17 @@ class GoJSApp extends React.Component<{}, AppState> {
         myDiagram.requestUpdate();
       }
       break;
+      case "ObjectDoubleClicked": {
+        let sel = e.subject.part;
+        if (!debug) console.log('591 ObjectDoubleClicked', sel, name);
+        this.state.selectedData = sel.data
+        this.handleOpenModal()
+      }
+      break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
-        if (debug) console.log('498 GoJSApp :', sel);
+        this.state.selectedData = sel.data
+        this.handleOpenModal()
         if (sel) {
           if (sel instanceof go.Node) {
             const key = sel.data.key;
@@ -814,20 +833,26 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
 
+
   public render() {
-    // if (debug) console.log('360 props', this.state.nodeDataArray);
 
     const selectedData = this.state.selectedData;
     let inspector;
     if (selectedData !== null) {
-      inspector = <>
-        <p>Selected Object Properties:</p>
-        <SelectionInspector
-          selectedData={this.state.selectedData}
-          onInputChange={this.handleInputChange}
-        />;
-      </>
+      inspector = 
+        <div className="p-2" style={{backgroundColor: "#ddd"}}>
+          <p>Selected Object Properties:</p>
+          <SelectionInspector 
+            selectedData={this.state.selectedData}
+            onInputChange={this.handleInputChange}
+          />;
+        </div>
     }
+
+    // const handleCloseModal = () => {
+    //   console.log('839',modalOpen);
+    //   modalOpen = false
+    // }
     // if (debug) console.log('638 GOJSApp this.state.nodeDataArray', this.state.nodeDataArray);
     // if (debug) console.log('361 this.state.linkDataArray', this.state.linkDataArray);
     // if (debug) console.log('362 this.state.myMetis', this.state.myMetis);
@@ -837,6 +862,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     //if (debug) console.log('825 dispatch', this.state.dispatch);
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     // if (debug) console.log('827 dispatch', this.state.myMetis.dispatch);
+
     return ( (this.state) &&
       <div className="diagramwrapper">
 
@@ -861,6 +887,20 @@ class GoJSApp extends React.Component<{}, AppState> {
             onChange={this.handleRelinkChange} />
         </label> */}
         {/* {inspector} */}
+        <ReactModal className="bg-dark m-5 p-1 w-50 flex"
+          isOpen={this.state.showModal}
+          // areaHideApp={false}
+          contentLabel="onRequestClose Example"
+          onRequestClose={this.handleCloseModal}
+          style={{ overlay: { zIndex: 100 } }}
+          >
+            <div className="bg-light p-2">
+              <button className="btn-sm float-right" onClick={this.handleCloseModal}>Close Modal</button>
+              <p className="">Edit Object View</p>
+              {/* <button onClick={this.handleCloseModal}>Close Modal</button> */}
+              {inspector}
+            </div>
+        </ReactModal>
       </div>
     );
   }

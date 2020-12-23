@@ -46,7 +46,7 @@ function LoginServer(props: any) {
     dispatch(loadDataModelList());
     function refres() {
       // setRefresh(!refresh)
-      if (!debug) console.log('40 LoginServer useffect 1', props, props.ph.phList);
+      if (debug) console.log('40 LoginServer useffect 1', props, props.ph.phList);
     }
     setTimeout(refres, 1);
   }, []);

@@ -1622,7 +1622,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg = "Verifying relationships completed";
     if (debug) console.log('1617 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (!debug) console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
     alert(report);                    
 } 

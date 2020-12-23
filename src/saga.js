@@ -88,7 +88,7 @@ function * loadDataModelListSaga() {
   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
   const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
   const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
-  console.log('89 saga', _crf, _csrf, sessionCookie, document);
+  // console.log('89 saga', _crf, _csrf, sessionCookie, document);
   try {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,
@@ -105,7 +105,7 @@ function * loadDataModelListSaga() {
         credentials: 'include' // comment in for  server login
       }
     )
-      if (!debug) console.log('102 saga', yield res.clone().json());
+      if (debug) console.log('102 saga', yield res.clone().json());
       const modList = yield res.clone().json()
       if (debug) console.log('104 Saga', modList);
       yield put(loadDataModelListSuccess( modList ))

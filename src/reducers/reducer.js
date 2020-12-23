@@ -122,7 +122,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_DATAMODELLIST_SUCCESS:
-      if (!debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
+      if (debug) console.log('122 LOAD_DATAMODELLIST_SUCCESS', action);
       return {
         ...state,
         phList: action.data,   
@@ -1025,14 +1025,14 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_TARGETMETAMODEL_PROPERTIES:
-      if (!debug) console.log('1028 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
+      if (debug) console.log('1028 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
       const curm_tmm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef) //current meta model
       let curmmindex_tmm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index
-      if (!debug) console.log('1031 curmm_tmm', curmm_tmm, curmmindex_tmm)
+      if (debug) console.log('1031 curmm_tmm', curmm_tmm, curmmindex_tmm)
       if (curmmindex_tmm < 0) curmmindex_tmm = state.phData.metis.metamodels.length
-      if (!debug) console.log('1033 curmm_tmm', curmm_tmm, curmmindex_tmm)
-      if (!debug) console.log('1034 metamodels', state.phData?.metis?.metamodels[curmmindex_tmm]);
+      if (debug) console.log('1033 curmm_tmm', curmm_tmm, curmmindex_tmm)
+      if (debug) console.log('1034 metamodels', state.phData?.metis?.metamodels[curmmindex_tmm]);
       return {
         ...state,
         phData: {

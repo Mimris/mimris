@@ -21,10 +21,10 @@ const SelectSource = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); }
   
   const modellist = (props.ph) && (props.ph.phList) && props?.ph?.phList?.modList
-  if (!debug) console.log('26 LoadServer', props.ph, props.ph.phList?.modList, modellist);
+  if (debug) console.log('26 LoadServer', props.ph, props.ph.phList?.modList, modellist);
   // const modellist = (props.ph.phList) && (props.ph.phList.modList != null) && props?.ph?.phList
   const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) 
-  if (!debug) console.log('27 LoadServer',  selmodellist);
+  if (debug) console.log('27 LoadServer',  selmodellist);
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)

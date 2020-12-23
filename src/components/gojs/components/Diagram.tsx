@@ -37,6 +37,7 @@ interface DiagramProps {
   modelData:          go.ObjectData;
   myMetis:            akm.cxMetis;
   dispatch:           any;  
+  handleOpenModal:    any;
   skipsDiagramUpdate: boolean;
   onDiagramEvent:     (e: go.DiagramEvent) => void;
   onModelChange:      (e: go.IncrementalData) => void;
@@ -58,10 +59,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   constructor(props: DiagramProps) {
     super(props);
     this.diagramRef = React.createRef(); 
-
+    this.initDiagram = this.initDiagram.bind(this);
     // this.state = { showModal: false };
-
-    // this.initDiagram = this.initDiagram.bind(this);
     // this.handleOpenModal = this.handleOpenModal.bind(this);
     // this.handleCloseModal = this.handleCloseModal.bind(this);
 }
@@ -86,6 +85,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
@@ -113,6 +113,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
@@ -141,7 +142,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
 
   private initDiagram(): go.Diagram {
-    console.log('141 this', this);
+    // console.log('141 this', this);
     const $ = go.GraphObject.make;
     // go.GraphObject.fromLinkableDuplicates = true;
     // go.GraphObject.toLinkableDuplicates   = true;
@@ -225,6 +226,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
     myDiagram.dispatch = this.myMetis?.dispatch;
+    myDiagram.handleOpenModal = this.myMetis?.handleOpenModal;
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -306,7 +308,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myModel":      myMetis.currentModel,
                 "myModelView":  myMetis.currentModelview,
                 "myDiagram":    e.diagram,
-                "dispatch":     e.diagram.dispatch
+                "dispatch":     e.diagram.dispatch,
+                "handleOpenModal":     e.diagram.handleOpenModal
               }
               const objview = uic.setObjectType(node, objtype, context);
               if (debug) console.log('292 objview', objview);
@@ -1472,16 +1475,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true; 
               return false;
             }),
-          // makeButton("Show Modal",
-          //   function (e: any, obj: any) {
-          //     // setState({ showModal: true });
-          //     // this.setState((state) => { return { showModal: true }});
-          //     console.log('1479 this..', e, obj);
-          //     // handleOpenModal();
-          //   },
-          //   function (o: any) {
-          //      return true; 
-          //   }),
+          makeButton("Show Modal",
+            function (e: any, obj: any) {
+              // setState({ showModal: true });
+              // this.setState((state) => { return { showModal: true }});
+              console.log('1479 this..', e.diagram, obj);
+              // e.diagram.commandHandler.deleteSelection()
+               e.diagram.handleOpenModal();
+            },
+            function (o: any) {
+               return true; 
+            }),
         )
   }
 

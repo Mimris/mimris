@@ -534,7 +534,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
         });
 
-        if (!debug) console.log('463 generateDatatype', datatype, myMetis);
+        if (debug) console.log('463 generateDatatype', datatype, myMetis);
         return datatype;
     }
 }

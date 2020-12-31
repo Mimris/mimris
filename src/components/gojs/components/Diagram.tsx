@@ -7,9 +7,6 @@ const debug = false;
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
-//import ReactModal from 'react-modal';
-//import Popup from 'reactjs-popup';
-//import 'reactjs-popup/dist/index.css';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as gql from '../../../akmm/ui_graphql';
@@ -31,6 +28,12 @@ import svgs from '../../utils/Svgs'
 
 const AllowTopLevel = true;
 
+// const PopupExample = () => (
+//   <Popup trigger={<button> Trigger</button>} position="right center">
+//     <div>Popup content here !!</div>
+//   </Popup>
+// );
+
 interface DiagramProps {
   nodeDataArray:      Array<go.ObjectData>;
   linkDataArray:      Array<go.ObjectData>;
@@ -43,7 +46,6 @@ interface DiagramProps {
 }
 
 interface DiagramState {
-  showModal: boolean;
 }
 
 
@@ -57,13 +59,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   /** @internal */
   constructor(props: DiagramProps) {
     super(props);
-    this.diagramRef = React.createRef(); 
-    //this.state = { showModal: false };
 
-    // this.initDiagram = this.initDiagram.bind(this);
-    // this.handleOpenModal = this.handleOpenModal.bind(this);
-    // this.handleCloseModal = this.handleCloseModal.bind(this);
-}
+    this.myMetis = props.myMetis;
+    this.diagramRef = React.createRef(); 
+    this.initDiagram = this.initDiagram.bind(this);
+
+    if (debug) console.log('67 props', props);
+  }
+
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
@@ -80,7 +83,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
-      diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -107,7 +109,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkRelinked', this.props.onDiagramEvent);
-      diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -120,15 +121,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  // public handleOpenModal() {
-  //   this.setState({ showModal: true });
-  // }
-
-  // public handleCloseModal() {
-  //   this.setState({ showModal: false });
-  // }
-
-
   /**
    * Diagram initialization method, which is passed to the ReactDiagram component.
    * This method is responsible for making the diagram and initializing the model, any templates,
@@ -138,7 +130,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
 
   private initDiagram(): go.Diagram {
-    console.log('141 this', this);
+    if (debug) console.log('141 this', this);
     const $ = go.GraphObject.make;
     // go.GraphObject.fromLinkableDuplicates = true;
     // go.GraphObject.toLinkableDuplicates   = true;
@@ -216,12 +208,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
-    myDiagram.myMetis = this.myMetis;
-    myDiagram.myGoModel = this.myGoModel;
-    myDiagram.myGoMetamodel = this.myGoMetamodel;
-    myDiagram.layout.isInitial = false;
-    myDiagram.layout.isOngoing = false;
-    myDiagram.dispatch = this.myMetis?.dispatch;
+    myDiagram.myMetis           = this.myMetis;
+    myDiagram.myGoModel         = this.myGoModel;
+    myDiagram.myGoMetamodel     = this.myGoMetamodel;
+    myDiagram.layout.isInitial  = false;
+    myDiagram.layout.isOngoing  = false;
+    myDiagram.dispatch          = this.myMetis?.dispatch;
+
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -309,10 +302,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (debug) console.log('292 objview', objview);
               const gqlObjview = new gql.gqlObjectView(objview);
               const modifiedObjectViews = new Array();
-              modifiedObjectViews.push(gqlObjview);
               modifiedObjectViews.map(mn => {
                 let data = mn;
                 e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+              modifiedObjectViews.push(gqlObjview);
               })
               const object = myMetis.findObject(objview?.object?.id);
                 if (object) {
@@ -441,23 +434,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true;
               }
             }
-            return false;
-          }),
-          makeButton("Edit Input Pattern",
-          function (e: any, obj: any) {
-            const contextmenu = obj.part;  
-            const node = contextmenu.adornedPart; 
-            const dtype = node.data.object;
-            console.log('451 datatype', dtype, myMetis);
-            const myModel = myMetis.currentModel;
-            const datatype = myModel.findObjectByName(dtype.name);
-            console.log('454 datatype', datatype);
-      },
-          function (o: any) {
-            const obj = o.part.data.object;
-            const objtype = obj?.type;
-            if (objtype?.name === constants.types.AKM_DATATYPE)
-                return false;              
             return false;
           }),
           makeButton("Generate Datatype",
@@ -778,8 +754,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let fromNode = myGoModel?.findNode(link.from);
               let toNode   = myGoModel?.findNode(link.to);
               if (debug) console.log('669 from and toNode', fromNode, toNode);
-              const fromType = fromNode?.objecttype;
-              const toType   = toNode?.objecttype;
+              let fromType = fromNode?.objecttype;
+              let toType   = toNode?.objecttype;
+              fromType = myMetis.findObjectType(fromType?.id);
+              toType   = myMetis.findObjectType(toType?.id);
               if (debug) console.log('672 link', fromType, toType);
               const myMetamodel = myMetis.currentMetamodel;
               const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType);
@@ -1469,14 +1447,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true; 
               return false;
             }),
-          // makeButton("Show Modal",
-          //   function (e: any, obj: any) {
-          //     console.log('1457 this', this);
-          //     this.handleOpenModal;
-          //   },
-          //   function (o: any) {
-          //      return true; 
-          //   }),
         )
   }
 
@@ -1485,7 +1455,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        //{ doubleClick: this.handleOpenModal },
           new go.Binding("deletable"),
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
           {
@@ -1985,17 +1954,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           linkDataArray={this.props?.linkDataArray}
           myMetis={this.props.myMetis}
           modelData={this.props.modelData}
+          onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
-        {/* <ReactModal 
-          isOpen={this.state.showModal}
-          contentLabel="onRequestClose Example"
-          onRequestClose={this.handleCloseModal}
-          style={{ overlay: { zIndex: 100 } }}
-        >
-          <p>Modal text!</p>
-          <button onClick={this.handleCloseModal}>Close Modal</button>
-        </ReactModal> */}
       </>
     );
   }

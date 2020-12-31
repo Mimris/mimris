@@ -17,7 +17,7 @@ import LoadServer from '../components/LoadServer'
 import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
 import useLocalStorage  from '../hooks/use-local-storage'
-import EditFocusModel from '../components/EditFocusModel'
+import EditFocusModal from '../components/EditFocusModal'
 import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
@@ -384,12 +384,13 @@ const page = (props:any) => {
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
-  const EditFocusModelMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Mod' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModelODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModel buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModelRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Object' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Relship' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-  // if (debug) console.log('177 Modelling', EditFocusModelDiv);
+  // if (debug) console.log('177 Modelling', EditFocusModalDiv);
+  const editLabel = <span className="text-gray m-1">Edit : </span>
 
   return (
     <>
@@ -405,8 +406,8 @@ const page = (props:any) => {
             {loginserver} 
             {loadlocal}  
           </span> 
-          <span className="editfocus float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-            {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
+          <span className="editfocus float-right d-flex" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {editLabel} {EditFocusModalRDiv} {EditFocusModalODiv}{EditFocusModalMDiv}
           </span>
         </div> 
         {/* <div className="modellingContent pt-1" > */}

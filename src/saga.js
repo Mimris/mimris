@@ -7,8 +7,8 @@ import { LOAD_DATA, LOAD_DATAMODELLIST, LOAD_DATAMODEL, FAILURE } from './action
 es6promise.polyfill()
 
 const debug = false
-// const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
-const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
+const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
+// const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
 // const akmmhost = 'http://localhost:4000/'
 // const akmmhost = 'https://cors-anywhere.herokuapp.com/http://localhost:4000/'
 
@@ -68,7 +68,7 @@ function * loadDataSaga() {
             "Access-Control-Allow-Origin": "*", // comment in for  server login
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
+            'Cookie': `_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
             "Access-Control-Allow-Credentials": 'include', // comment in for  server login
           },
           credentials: 'include' // comment in for  server login
@@ -88,17 +88,18 @@ function * loadDataModelListSaga() {
   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
   const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
   const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
-  // console.log('86 saga', sessionCookie, document);
+  // console.log('89 saga', _crf, _csrf, sessionCookie, document);
   try {
     let res = ''  
     res = yield fetch(`${akmmhost}akm-model-list/`,
       {
         mode: 'no-cors', // comment in for  server login
         headers: {
+          // "Access-Control-Allow-Origin": "*", // comment in for  server login
           "Access-Control-Allow-Origin": "*", // comment in for  server login
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
+          'Cookie': `_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
           "Access-Control-Allow-Credentials": 'include',  // comment in for  server login
         },
         credentials: 'include' // comment in for  server login
@@ -127,6 +128,7 @@ function * loadDataModelSaga(data) {
           mode: 'no-cors', // comment in for  server login
           headers: {
             "Access-Control-Allow-Origin": "*", // comment in for  server login
+            "Access-Control-Allow-Header": "origin", // comment in for  server login
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'Cookie':`_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`,  // comment in for  server login

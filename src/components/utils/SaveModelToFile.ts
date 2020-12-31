@@ -2,7 +2,9 @@
 
 
 export const SaveModelToFile = (model, name, type) => {
-    const fileName = type+"-"+name;
+    const today = new Date().toISOString().slice(0, 19)
+    const fileName = type+"_"+name+'_'+today;
+  
     const json = JSON.stringify(model);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);

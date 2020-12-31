@@ -1,16 +1,19 @@
+// EditProperties.tsx
+
+// Gets all attributes on an selected objectview passed as "props.item" 
+// and dispatch the edited values to "props.type" in phData
 
 //@ts-nocheck
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSelector, useDispatch } from 'react-redux'
-import { mainModule } from 'process';
+// import { mainModule } from 'process';
 import FieldDiv from './FieldDiv'
-import SelectColor from './SelectColor'
-import { colorOptions } from './data';
-// import { update_objecttypeview_properties } from '../actions/actions'
-// import { loadData, setFocusObject, setfocusSource, setFocusOrg, setFocusProj, setFocusRole, setFocusTask } from '../../actions/actions'
+// import SelectColor from './SelectColor'
+// import { colorOptions } from './data';
 
 const EditProperties = (props) => {
+
   const debug = false
   if (debug) console.log('8 EditProperties', props);
   const dispatch = useDispatch()
@@ -22,24 +25,12 @@ const EditProperties = (props) => {
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.icon)
-  // const otype = pprops.item.typeRef
-  // console.log('25 EditProperties', props.item);
-  // console.log('26 EditProperties', props.item.fillcolor, colorvalue);
-  
-  // let collection
-  // if (!props.collection || !props.collection.length) {
-  //   collection = [objects[1]]
-  //   // console.log('27', collection);
-  // } else {
-  //   collection = props.collection
-  // }
 
   useEffect((colorvalue) => {
     setColorvalue(colorvalue)
   }, [colorvalue]);
 
-  const onSubmit = (e) => {
-    
+  const onSubmit = (e) => { // dispatch the edititem to phData
     const data = { ...edititem, ...e }
     if (debug) console.log('41 EditProperties', data, props.type);
     if (data && data.id) {
@@ -73,9 +64,25 @@ const EditProperties = (props) => {
   }
   const handleChangesicon = (event) => {
     const iconvalue= event.target.value
-    // console.log('66 EditProperties', iconvalue); 
     setIconvalue(iconvalue)
   }
+
+  const fields = listAllProperties(edititem).map(p => // filter away js prototype properties and some others
+    ( (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
+      (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
+      (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
+      (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
+      (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') && (p !== 'pasteViewsOnly') && (p !== 'deleteViewsOnly') &&
+      (p !== 'datatypes') && (p !== 'relshiptypes') && (p !== 'inputrels') &&(p !== 'outputrels') &&
+      (p.slice(-3) !== 'Ref') &&
+      (p !== 'unittypes') && (p !== 'objtypegeos') ) &&
+      //  (p !== 'viewkind') && 
+      (p !== 'relshipviews') && (p !== 'objecttypes')
+      && p // and return the rest
+    ).filter(Boolean)
+
+  const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
+  // console.log('223 EditProperties', fieldsDiv);
 
   function fieldDiv(p, curitem) {
     switch (p) {
@@ -210,8 +217,8 @@ const EditProperties = (props) => {
                   <option value="tiger.svg">tiger.svg</option>
                 </select>
               </label>
-              <span className="ml-4">Url :</span>
-              <input className="input pt-1 float-right" onChange={handleChangesicon}
+              <span className="ml-1">Url :</span>
+              <input className="input ml-1 pt-1 w-50" onChange={handleChangesicon}
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
@@ -222,7 +229,6 @@ const EditProperties = (props) => {
             {/* <div><img src={iconvalue}/></div> */}
           </>
       )
-    
         break; 
       default:
         return <FieldDiv key={curitem.id + p} p={p} curitem={curitem} register={register} errors={errors} />
@@ -230,35 +236,18 @@ const EditProperties = (props) => {
       }
   }
 
-  const fields = listAllProperties(edititem).map(p => // remove js prototype properties
-    ((p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
-      (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
-      (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
-      (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
-      (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') && (p !== 'pasteViewsOnly') && (p !== 'deleteViewsOnly') &&
-      (p !== 'datatypes') && (p !== 'relshiptypes') && (p !== 'inputrels') &&(p !== 'outputrels') &&
-      (p.slice(-3) !== 'Ref') &&
-      (p !== 'unittypes') && (p !== 'objtypegeos') ) &&
-      //  (p !== 'viewkind') && 
-      (p !== 'relshipviews') && (p !== 'objecttypes')
-      && p
-  ).filter(Boolean)
-
-  const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
-  // console.log('223 EditProperties', fieldsDiv);
-
-  const previewIcon =  (iconvalue) && (iconvalue.substring(0, 4) === 'http')
+  const previewIcon =  (iconvalue) && (iconvalue.substring(0, 4) === 'http') // preview choosen icon can be localserver-icon or link
     ? <div className="ml-2"><img src={iconvalue} /></div>
     // : (iconvalue.includes('/')
-    //   ? <div><img src={iconvalue} /></div>
-      : <div><img src={`./../images/${iconvalue}`}/></div>
+    // ? <div><img src={iconvalue} /></div>
+    : <div ><img src={`./../images/${iconvalue}`}/></div>
 
   return (
     <div className="edit bg-light">
       <div className="edit-dialog" >
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldsDiv}
-          {previewIcon}
+          <span  className="img float-right">{previewIcon}</span>
           <button className="btn-primary" type="submit">Save</button>
         </form>
       </div>

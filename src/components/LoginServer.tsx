@@ -11,8 +11,8 @@ import SaveModelData from './utils/SaveModelData'
 // import { FaJoint } from 'react-icons/fa';
 
 const debug = false
-// const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
-const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
+const akmmhost = 'https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
+// const akmmhost = 'https://cors-anywhere.herokuapp.com/https://akmserver-eq.herokuapp.com/'  //TODO: put this as a phFocus variable
 // const akmmhost = 'http://cors-anywhere.herokuapp.com/http://localhost:4000/'
 // const akmmhost = 'http://localhost:4000/'
 
@@ -48,7 +48,7 @@ function LoginServer(props: any) {
       // setRefresh(!refresh)
       if (debug) console.log('40 LoginServer useffect 1', props, props.ph.phList);
     }
-    setTimeout(refres, 100);
+    setTimeout(refres, 1);
   }, []);
 
   const { buttonLabel, className } = props;
@@ -72,6 +72,7 @@ function LoginServer(props: any) {
             (It may take some time for the list to appear!)</p>
           {/* <iframe style={{ width: "100%", height: "33vh" }} src="http://localhost:4000/akm-model-list" name={frameId}></iframe> */}
           <iframe style={{ width: "100%", height: "33vh" }} src={akmmodellist} name={frameId}></iframe>
+          {/* <iframe style={{ width: "100%", height: "33vh" }} src={profile} name={frameId}></iframe> */}
           {/* <p><a href="http://localhost:4000/profile" target="myFrame">Click to Login/Logout</a></p> */}
           <p><a href={profile} target="myFrame">Click to Login/Logout</a></p>
 

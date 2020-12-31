@@ -419,7 +419,8 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
         });
-        if (debug) console.log('411 myMetis', modifiedTypeLinks, myMetis); 
+        if (debug) console.log('411 myMetis', modifiedTypeLinks, myMetis);                                    // Then handle the object type
+
         return objtype;
     }
 }
@@ -736,6 +737,19 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
 
     if (debug) console.log('709 generateObjectType', modifiedMetamodels);
 
+
+    const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
+    if (debug) console.log('414 Target metamodel', metamodel, gqlMetamodel);
+    const modifiedMetamodels = new Array();
+    modifiedMetamodels.push(gqlMetamodel);
+    modifiedMetamodels.map(mn => {
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data });
+    });
+
+    if (debug) console.log('423 generateObjectType', modifiedMetamodels);
+    
     // Look up the relationships between Roles and Tasks
         // For each relship, get relship type and add to metamodel
     // Look up the relationships between Tasks and Informations

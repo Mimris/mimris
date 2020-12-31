@@ -229,7 +229,7 @@ function reducer(state = InitialState, action) {
         }
       }
     case SET_FOCUS_TARGETMODEL:
-      // if (debug) console.log('121 red', state, action.data); 
+      if (debug) console.log('121 red', state, action.data); 
       return {
         ...state,
         phFocus: {
@@ -1029,9 +1029,10 @@ function reducer(state = InitialState, action) {
       const curm_tmm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef) //current meta model
       let curmmindex_tmm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index
-      if (curmmindex_tmm <0) curmmindex_tmm = state.phData.metis.metamodels.length
+      if (debug) console.log('1031 curmm_tmm', curmm_tmm, curmmindex_tmm)
+      if (curmmindex_tmm < 0) curmmindex_tmm = state.phData.metis.metamodels.length
       if (debug) console.log('1033 curmm_tmm', curmm_tmm, curmmindex_tmm)
-      if (debug) console.log('1034 metamodels', state.phData?.metis?.metamodels);
+      if (debug) console.log('1034 metamodels', state.phData?.metis?.metamodels[curmmindex_tmm]);
       return {
         ...state,
         phData: {

@@ -7,6 +7,9 @@ const debug = false;
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
+// import * as ReactModal from 'react-modal';
+// import Popup from 'reactjs-popup';
+//import 'reactjs-popup/dist/index.css';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as gql from '../../../akmm/ui_graphql';
@@ -40,13 +43,15 @@ interface DiagramProps {
   modelData:          go.ObjectData;
   myMetis:            akm.cxMetis;
   dispatch:           any;  
+  handleOpenModal:    any;
   skipsDiagramUpdate: boolean;
   onDiagramEvent:     (e: go.DiagramEvent) => void;
   onModelChange:      (e: go.IncrementalData) => void;
 }
 
-interface DiagramState {
-}
+// interface DiagramState {
+//   showModal: boolean;
+// }
 
 
 export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
@@ -63,10 +68,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.myMetis = props.myMetis;
     this.diagramRef = React.createRef(); 
     this.initDiagram = this.initDiagram.bind(this);
-
-    if (debug) console.log('67 props', props);
-  }
-
+    // this.state = { showModal: false };
+    // this.handleOpenModal = this.handleOpenModal.bind(this);
+    // this.handleCloseModal = this.handleCloseModal.bind(this);
+}
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
@@ -87,6 +92,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
@@ -113,6 +119,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
@@ -120,6 +127,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     }
   }
+
+  // public handleOpenModal() {
+  //   this.setState({ showModal: true });
+  //   console.log('126 Diagram', this.state);
+    
+  // }
+
+  // public handleCloseModal() {
+  //   this.setState({ showModal: false });
+  // }
+
 
   /**
    * Diagram initialization method, which is passed to the ReactDiagram component.
@@ -130,7 +148,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
 
   private initDiagram(): go.Diagram {
-    if (debug) console.log('141 this', this);
+    // console.log('141 this', this);
     const $ = go.GraphObject.make;
     // go.GraphObject.fromLinkableDuplicates = true;
     // go.GraphObject.toLinkableDuplicates   = true;
@@ -208,13 +226,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
-    myDiagram.myMetis           = this.myMetis;
-    myDiagram.myGoModel         = this.myGoModel;
-    myDiagram.myGoMetamodel     = this.myGoMetamodel;
-    myDiagram.layout.isInitial  = false;
-    myDiagram.layout.isOngoing  = false;
-    myDiagram.dispatch          = this.myMetis?.dispatch;
-
+    myDiagram.myMetis = this.myMetis;
+    myDiagram.myGoModel = this.myGoModel;
+    myDiagram.myGoMetamodel = this.myGoMetamodel;
+    myDiagram.layout.isInitial = false;
+    myDiagram.layout.isOngoing = false;
+    myDiagram.dispatch = this.myMetis?.dispatch;
+    myDiagram.handleOpenModal = this.myMetis?.handleOpenModal;
     myDiagram.toolTip =
       $("ToolTip",
         $(go.TextBlock, { margin: 4 },
@@ -227,11 +245,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     function nodeInfo(d) {  // Tooltip info for a node data object
       if (debug) console.log('223 nodeInfo', d);
       const properties = 
-      (d.object.type.properties.length > 0) && 
-      d.object.type.properties.map(p => {
-          return "\n - " +  p.name +": _______" 
-      })
-      var str = "Name: " + d.name;
+        (d.object.type.properties.length > 0) && 
+        d.object.type.properties.map(p => {
+            return "\n - " +  p.name +": _______" 
+        })
+      let str = "Name: " + d.name;
       if (d.group)
         str += str + "member of " + d.group;
       else
@@ -296,7 +314,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myModel":      myMetis.currentModel,
                 "myModelView":  myMetis.currentModelview,
                 "myDiagram":    e.diagram,
-                "dispatch":     e.diagram.dispatch
+                "dispatch":     e.diagram.dispatch,
+                "handleOpenModal":     e.diagram.handleOpenModal
               }
               const objview = uic.setObjectType(node, objtype, context);
               if (debug) console.log('292 objview', objview);
@@ -1313,31 +1332,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
                     context.myTargetMetamodel = null;
               } else if (context.myTargetMetamodel == undefined)  // sf
-                  context.myTargetMetamodel = null;
-              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-              const targetMetamodel = myMetis.currentTargetMetamodel;
-              const sourceModelview = myMetis.currentModelview;
-              gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-              console.log('1327 Target metamodel', targetMetamodel);
+                context.myTargetMetamodel = null;
+                myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+                const targetMetamodel = myMetis.currentTargetMetamodel;
+                const sourceModelview = myMetis.currentModelview;
+                gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
+                console.log('1327 Target metamodel', targetMetamodel);
             },
             function (o: any) { 
               return true; 
             }),
           makeButton("Verify and Repair Model",
-          function (e: any, obj: any) {
-            const myModel = myMetis.currentModel;
-            const myModelview = myMetis.currentModelview;
-            const myMetamodel = myMetis.currentMetamodel;
-            const myGoModel = myMetis.gojsModel;
-            myDiagram.myGoModel = myGoModel;
-            if (debug) console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
-            uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram);
-            if (debug) console.log('1181 myMetis', myMetis);
-            alert("Current model has been repaired");
-          },
-          function (o: any) { 
-            return true; 
-          }),
+            function (e: any, obj: any) {
+              const myModel = myMetis.currentModel;
+              const myModelview = myMetis.currentModelview;
+              const myMetamodel = myMetis.currentMetamodel;
+              const myGoModel = myMetis.gojsModel;
+              myDiagram.myGoModel = myGoModel;
+              if (debug) console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
+              uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram);
+              if (debug) console.log('1181 myMetis', myMetis);
+              alert("Current model has been repaired");
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("Paste",
             function (e: any, obj: any) {
               const myModel = myMetis.currentModel;
@@ -1346,23 +1365,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
           makeButton("Paste View",
-          function (e: any, obj: any) {
-            const myModel = myMetis.currentModel;
-            myModel.pasteViewsOnly = true;
-            const gqlModel = new gql.gqlModel(myModel, true);
-            const modifiedModels = new Array();
-            modifiedModels.push(gqlModel);
-            modifiedModels.map(mn => {
-              let data = mn;
-              e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-            })
-            if (debug) console.log('1047 Paste View', gqlModel, myMetis);
-            e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-          },
-          function (o: any) { 
-            //return false;
-            return o.diagram.commandHandler.canPasteSelection(); 
-          }),
+            function (e: any, obj: any) {
+              const myModel = myMetis.currentModel;
+              myModel.pasteViewsOnly = true;
+              const gqlModel = new gql.gqlModel(myModel, true);
+              const modifiedModels = new Array();
+              modifiedModels.push(gqlModel);
+              modifiedModels.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+              })
+              if (debug) console.log('1047 Paste View', gqlModel, myMetis);
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            },
+            function (o: any) { 
+              //return false;
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
             function (o: any) { return o.diagram.commandHandler.canUndo(); }),
@@ -1446,6 +1465,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (myDiagram.selection.count > 0)
                 return true; 
               return false;
+            }),
+          makeButton("Show Modal",
+            function (e: any, obj: any) {
+              // setState({ showModal: true });
+              // this.setState((state) => { return { showModal: true }});
+              console.log('1479 this..', e.diagram, obj);
+              // e.diagram.commandHandler.deleteSelection()
+               e.diagram.handleOpenModal();
+            },
+            function (o: any) {
+               return true; 
             }),
         )
   }
@@ -1941,9 +1971,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public render() {
-    if (debug) console.log('1296 Diagram', this.props.nodeDataArray);
-    if (debug) console.log('1082 Diagram', this.props.linkDataArray);
-    
+    if (debug) console.log('1278 Diagram', this.props.nodeDataArray);
+    if (debug) console.log('1079 Diagram', this.props.linkDataArray);
+
     return (
       <>
         <ReactDiagram
@@ -1957,6 +1987,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
+        {/* <ReactModal 
+          // isOpen={true}
+          isOpen={this.state.showModal}
+          areaHideApp={false}
+          contentLabel="onRequestClose Example"
+          onRequestClose={this.handleCloseModal}
+          style={{ overlay: { zIndex: 100 } }}
+        >
+          <p>Modal text!</p>
+          <button onClick={this.handleCloseModal}>Close Modal</button>
+        </ReactModal> */}
       </>
     );
   }

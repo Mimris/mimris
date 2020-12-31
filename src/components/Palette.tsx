@@ -12,9 +12,19 @@ import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 const Palette = (props) => {
   const debug = false
   if (debug) console.log('13 Palette ',  props );
+
+  let focusModel = props.phFocus?.focusModel
+  const models = props.metis?.models
+  const metamodels = props.metis?.metamodels
+  const model = models?.find((m: any) => m?.id === focusModel?.id)
+  const mmodel = metamodels?.find((m: any) => m?.id === model.metamodelRef)
+  // console.log('16', props, mmodel.name, model.metamodelRef);
+
+
   const gojstypes = props.gojsMetamodel
   const gojsmodelobjects = props.gojsModelObjects // has to be: props.gojsObjects
   if (debug) console.log('16 Palette gojsobjects', gojsmodelobjects );
+
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -101,18 +111,22 @@ const Palette = (props) => {
       </TabContent>
     </>
     
+    const mmnamediv = (mmodel) ? <span>{mmodel?.name}</span> : <span>No metamodel</span> 
+
    const palette =
       <> 
         <button className="btn-sm p-0 pr-2 mr-2 pt-2" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
-          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette - Metamodel </span> : <span>&gt;</span>} 
+          onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette </span> : <span>&gt;</span>} 
         </button>
-
+        {/* <span>{props.focusMetamodel?.name}</span> */}
         <div>
         {/* <div style={{ minWidth: "140px" }}> */}
           {visiblePalette 
-           ? (refresh) ?<> { gojsapp } </> : <>{gojsapp}</>
-            // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
-            : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - M e t a m o d e l </span> </div>
+            ?  (refresh) 
+                  ? <><div className="mmname bg-light text-secondary mx-1 px-1 mb-1" style={{fontSize: "8px"}}>{mmnamediv}</div>{ gojsapp } </> 
+                  : <><div className="mmname bg-light text-secondary mx-1 px-1 mb-1" style={{fontSize: "8px"}}>{mmnamediv}</div>{ gojsapp }</>
+              // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
+            : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e </span> </div>
           }
         </div>
       </>  

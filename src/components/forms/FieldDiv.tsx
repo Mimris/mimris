@@ -9,7 +9,6 @@ const FieldDiv = (props) => {
       <>
         <div className="field"  >
           <label className="label mt-1" htmlFor="name">{`${props.p}`}</label>
-
           <input className="input pt-1 float-right "
             type="text"
             id={`${props.curitem.id}+${props.p}`}

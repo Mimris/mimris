@@ -23,7 +23,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const selObj = this.props.selectedData;
     if (!selObj)
       return;
-    if (debug) console.log('24 renderObjectDetails', selObj);
     const category = selObj.category;
     let inst, instview, fields;
     if (category === 'Object') {

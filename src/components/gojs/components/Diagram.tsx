@@ -1466,17 +1466,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true; 
               return false;
             }),
-          makeButton("Show Modal",
-            function (e: any, obj: any) {
-              // setState({ showModal: true });
-              // this.setState((state) => { return { showModal: true }});
-              console.log('1479 this..', e.diagram, obj);
-              // e.diagram.commandHandler.deleteSelection()
-               e.diagram.handleOpenModal();
-            },
-            function (o: any) {
-               return true; 
-            }),
+          // makeButton("Show Modal",
+          //   function (e: any, obj: any) {
+          //     // setState({ showModal: true });
+          //     // this.setState((state) => { return { showModal: true }});
+          //     console.log('1479 this..', e.diagram, obj);
+          //     // e.diagram.commandHandler.deleteSelection()
+          //      e.diagram.handleOpenModal();
+          //   },
+          //   function (o: any) {
+          //      return true; 
+          //   }),
         )
   }
 

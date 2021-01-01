@@ -936,8 +936,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     })
   }
 
-
-  
   public render() {
     
     // const [modal, setModal] = useState(false);
@@ -945,7 +943,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // const toggle = () => this.handleCloseModal();
 
     const selectedData = this.state.selectedData;
-    if (debug) console.log('821 selectedData', selectedData);
+    if (debug) console.log('946 selectedData', selectedData);
     let inspector;
     if (selectedData !== null) {
       inspector = 
@@ -977,6 +975,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           dispatch          ={this.state.dispatch}
           handleOpenModal   ={this.handleOpenModal}
         />
+        {inspector}
         <>
           <Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
             {/* <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} > */}

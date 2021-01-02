@@ -85,18 +85,19 @@ const Modeller = (props: any) => {
         const data = {id: selmodviews[0].id, name: selmodviews[0].name}
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
         setActiveTab(0)
+        genGojsModel(props, dispatch);
     }
-    if (debug) console.log('89 Modeller useEffect 1', activeTab); 
+    if (!debug) console.log('89 Modeller useEffect 1', activeTab); 
   }, [focusModel])
   
   useEffect(() => {
     setActiveTab(activetabindex)
-    if (debug) console.log('94 Modeller useEffect 2', activeTab); 
-    genGojsModel(props, dispatch);
+    if (!debug) console.log('94 Modeller useEffect 2', activeTab); 
+    // genGojsModel(props, dispatch);
   }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('99 Modeller useEffect 3', props); 
+    if (!debug) console.log('99 Modeller useEffect 3', props); 
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel.id)
     if (model) {

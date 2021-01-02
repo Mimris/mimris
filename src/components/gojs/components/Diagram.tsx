@@ -59,7 +59,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   constructor(props: DiagramProps) {
     super(props);
     this.diagramRef = React.createRef(); 
-    this.initDiagram = this.initDiagram.bind(this);
+    // this.initDiagram = this.initDiagram.bind(this);
     // this.state = { showModal: false };
     // this.handleOpenModal = this.handleOpenModal.bind(this);
     // this.handleCloseModal = this.handleCloseModal.bind(this);

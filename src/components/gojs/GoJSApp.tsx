@@ -34,6 +34,7 @@ interface AppState {
   linkDataArray: Array<go.ObjectData>;
   modelData:    go.ObjectData;
   selectedData: go.ObjectData | null;
+  editedData: go.ObjectData | null;
   skipsDiagramUpdate: boolean;
   metis: any;
   myMetis: akm.cxMetis;
@@ -60,6 +61,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         canRelink: true
       },
       selectedData: null,
+      editedData: null,
       skipsDiagramUpdate: false,
       metis: this.props.metis,
       myMetis: this.props.myMetis,
@@ -77,10 +79,19 @@ class GoJSApp extends React.Component<{}, AppState> {
     // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleModelChange = this.handleModelChange.bind(this);
-    //this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
     //this.handleRelinkChange = this.handleRelinkChange.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
+  }
+
+  public handleInputChange (e) {
+    // this.handleOpenModal()
+    // if (e) {
+      this.setState({editedData: e })
+    // }
+    console.log('88 GoJSApp', e, this.state.editedData);
+    
   }
 
   public handleOpenModal () {
@@ -236,7 +247,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const data = sel.data;
         const field = e.subject.name;
         if (debug) console.log('204 data', data);
-            if (sel) {
+        if (sel) {
           if (sel instanceof go.Node) {
             const key = data.key;
             let text  = data.name;
@@ -536,15 +547,127 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "ObjectDoubleClicked": {
         let sel = e.subject.part;
-        if (debug) console.log('591 ObjectDoubleClicked', sel, name);
+        let data = sel.data;
         this.state.selectedData = sel.data
-        // this.state.
         this.handleOpenModal()
+
+        if (!debug) console.log('554 ObjectDoubleClicked', sel.data, data, this.state.editedData);
+        if (this.state.editedData) {
+          data = this.state.editedData
+        }
+        if (!debug) console.log('558 ObjectDoubleClicked', sel.data, data, this.state.editedData);
+
+        if (sel) {
+          if (sel instanceof go.Node) {
+            const key = data.key;
+            let text  = data.name;
+            const field = e.subject.name;
+            const typename = data.type;
+            if (!debug) console.log('559 GoJSApp', data, text);
+            if (typename === 'Object type') {
+              // if (text === 'Edit name') {
+              //   text = prompt('Enter name');
+              // }
+              // const myNode = this.getNode(context.myGoMetamodel, key);
+              // if (myNode) {
+              //   data.name = text;
+              //   myNode.name = text;
+              //   uic.updateObjectType(myNode, field, text, context);
+              //   data.name = myNode.name;
+              //   // if (debug) console.log('218 TextEdited', myNode);
+              //   if (myNode.objtype) {
+              //     const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
+              //     modifiedTypeNodes.push(gqlObjType);
+              //     // if (debug) console.log('222 TextEdited', gqlObjType);
+              //   }
+              // }
+            } else // Object
+            {
+              // if (text === 'Edit name') {
+                //   text = prompt('Enter name');
+                //   data.name = text;
+                // }
+                // data = this.selectedData
+                const myNode = this.getNode(context.myGoModel, key);
+                if (myNode) {
+                  myNode.name = text;
+                  uic.updateObject(myNode, field, text, context);
+                  data.name = myNode.name;
+                  if (!debug) console.log('588 GoJSApp text', text, data.name);
+                const gqlObjview = new gql.gqlObjectView(myNode.objectview);
+                modifiedNodes.push(gqlObjview);
+                const gqlObj = new gql.gqlObject(myNode.objectview.object);
+                modifiedObjects.push(gqlObj);
+              }
+            }
+            const nodes = myGoModel?.nodes;
+            for (let i=0; i<nodes?.length; i++) {
+                const node = nodes[i];
+                if (node.key === data.key) {
+                    node.name = data.name;
+                    break;
+                }
+            }
+          }
+          if (sel instanceof go.Link) {
+            // relationship
+            const key = data.key;
+            let text = data.name;
+            let typename = data.type;
+            if (typename === 'Relationship type') {
+              const myLink = this.getLink(context.myGoMetamodel, key);
+              // if (debug) console.log('232 TextEdited', myLink);
+              if (myLink) {
+                if (text === 'Edit name') {
+                  text = prompt('Enter name');
+                  typename = text;
+                  data.name = text;
+                }
+                uic.updateRelationshipType(myLink, "name", text, context);
+                data.name = myLink.name;
+                if (myLink.reltype) {
+                  const gqlReltype = new gql.gqlRelationshipType(myLink.reltype, true);
+                  modifiedTypeLinks.push(gqlReltype);
+                  if (debug) console.log('242 TextEdited', modifiedTypeLinks);
+                }
+              }
+              context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
+            } else {
+              const myLink = this.getLink(context.myGoModel, key);
+              if (myLink) {
+                if (text === 'Edit name') {
+                  text = prompt('Enter name');
+                  data.name = text;
+                }
+                myLink.name = text;
+                uic.updateRelationship(myLink, field, text, context);
+                if (myLink.relhipview) {
+                  const gqlLink = new gql.gqlRelshipView(myLink.relshipview);
+                  modifiedLinks.push(gqlLink);
+                }
+                context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
+              }
+            }
+            const links = myGoModel.links;
+            for (let i=0; i<links.length; i++) {
+                const link = links[i];
+                if (link.key === key) {
+                    link.name = data.name;
+                    break;
+                }
+            }
+          }
+        }
+
+
+
+
       }
       break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
         // this.state.selectedData = sel.data
+        if (debug) console.log('547 ObjectSingleClicked', sel.data, this.state.selectedData);
         // this.handleOpenModal()
         if (sel) {
           if (sel instanceof go.Node) {
@@ -843,6 +966,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // const toggle = () => this.handleCloseModal();
 
     const selectedData = this.state.selectedData;
+    // if (!debug) console.log('959 GoJSApp', this.state.selectedData);
     let inspector;
     if (selectedData !== null) {
       inspector = 
@@ -868,11 +992,12 @@ class GoJSApp extends React.Component<{}, AppState> {
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}
+          handleInputChange ={this.handleInputChange}
           myMetis           ={this.state.myMetis}
           myGoModel         ={this.state.myGoModel}
           myGoMetamodel     ={this.state.myGoMetamodel}
           dispatch          ={this.state.dispatch}
-          handleOpenModal   ={this.handleOpenModal}
+          // handleOpenModal   ={this.handleOpenModal}
         />
         <>
           <Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
@@ -888,8 +1013,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             </div>
             <ModalBody >
               <EditProperties 
-                item={this.state.selectedData} 
-                curobj={this.state.selectedData} 
+                item={selectedData} 
+                curobj={selectedData} 
+                handleInputChange={this.handleInputChange}
                 type={'UPDATE_OBJECTVIEW_PROPERTIES'} 
               />
               {/* {inspector} */}

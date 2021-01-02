@@ -579,7 +579,7 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
             if (!objview) 
                 continue;
             let obj = objview.object;
-            const  types = ['Information', 'Role', 'Task', 'View', 'Query', 'Property']; // + Property ??
+            const  types = ['Information', 'Role', 'Task', 'View', 'Query', 'Property', 'Container']; // + Property ??
             for (let i=0; i<types.length; i++) {
                 const type = myMetis.findObjectTypeByName(types[i]);
                 if (obj && obj.type) {
@@ -687,7 +687,7 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
     }
 
     // Add system types 
-    const objtypes = ['Container', 'Property', 'Datatype'];
+    const objtypes = ['Property', 'Datatype'];
     for (let i=0; i<objtypes.length; i++) {
         const typename = objtypes[i];
         const objtype = myMetis.findObjectTypeByName(typename);
@@ -698,7 +698,7 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
 
 
     const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
-    if (debug) console.log('414 Target metamodel', metamodel, gqlMetamodel);
+    if (!debug) console.log('414 Target metamodel', metamodel, gqlMetamodel);
     const modifiedMetamodels = new Array();
     modifiedMetamodels.push(gqlMetamodel);
     modifiedMetamodels.map(mn => {

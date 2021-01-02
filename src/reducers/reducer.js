@@ -108,7 +108,9 @@ let focusCollection
 function reducer(state = InitialState, action) {
   
   switch (action.type) {
+    
     case FAILURE:
+      if (!debug) console.log('113 FAILURE', action);
       return {
         ...state,
         ...{ error: action.error }
@@ -220,7 +222,7 @@ function reducer(state = InitialState, action) {
         }
       }
       case SET_FOCUS_MODELVIEW:
-        if (debug) console.log('223 SET_FOCUS_MODELVIEW', state, action.data); 
+        if (!debug) console.log('223 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
         ...state,
         phFocus: {
@@ -716,7 +718,7 @@ function reducer(state = InitialState, action) {
     }
     
     case UPDATE_OBJECTVIEW_PROPERTIES:
-      if (debug) console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      if (!debug) console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -1025,7 +1027,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_TARGETMETAMODEL_PROPERTIES:
-      if (debug) console.log('1028 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
+      if (!debug) console.log('1028 UPDATE_TARGEMETAMODEL_PROPERTIES', action);
       const curm_tmm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmm_tmm = state.phData?.metis?.metamodels?.find(mm => mm.id === curm_tmm.targetMetamodelRef) //current meta model
       let curmmindex_tmm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === curm_tmm.targetMetamodelRef)  // current metamodel index

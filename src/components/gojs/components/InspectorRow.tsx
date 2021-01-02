@@ -5,10 +5,12 @@
 import * as React from 'react';
 // import './Inspector.css';
 
+const debug = false;
 interface InspectorRowProps {
   id: string;
   value: string;
-  onInputChange: (key: string, value: string, isBlur: boolean) => void;
+  obj: any;
+  onInputChange: (key: string, value: string, obj: any, isBlur: boolean) => void;
 }
 
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
@@ -18,7 +20,9 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
 
   private handleInputChange(e: any) {
-    this.props.onInputChange(this.props.id, e.target.value, e.type === 'blur');
+    if (debug) console.log('21 InspectorRow: this.props', this.props);
+    if (debug) console.log('22 InspectorRow: e.target', e.target, e);
+    this.props.onInputChange(this.props.id, e.target.value,  this.props.obj, e.type === 'blur');
   }
 
   private formatLocation(loc: string): string {

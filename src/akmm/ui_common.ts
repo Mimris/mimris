@@ -97,7 +97,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                         node.group = group.key;
                         objview.group = group.objectview.id;
                         myDiagram.model.setDataProperty(data, "group", node.group);
-                        console.log('97 group', group, node)
+                        if (debug) console.log('97 group', group, node)
                     }
                     if (debug) console.log('99 group', group, objview);
                     myGoModel.addNode(node);
@@ -549,7 +549,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
     }
     myGoModel.links = links;
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
-    if (debug) console.log('531 deleteLink', link);
+    if (!debug) console.log('531 deleteLink', link);
     if (link) {
         // Handle deleteViewsOnly
         if (myMetis.currentModel.deleteViewsOnly) {
@@ -856,19 +856,25 @@ export function createRelationship(data: any, context: any) {
     //data.key = utils.createGuid();
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
-    /* if (debug) */console.log('832 createRelationship', myGoModel, fromNode, toNode);
+    if (debug) console.log('859 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode.object;
     const toObj = toNode.object;
     let typename = 'isRelatedTo' as string | null;
     let reltype;
     if (!reltype) {
-        const fromType = fromNode?.objecttype;
-        const toType   = toNode?.objecttype;
+        let fromType = fromNode?.objecttype;
+        let toType   = toNode?.objecttype;
+        fromType = myMetis.findObjectType(fromType?.id);
+        fromType.allObjecttypes = myMetis.objecttypes;
+        fromType.allRelationshiptypes = myMetis.relshiptypes;
+        toType   = myMetis.findObjectType(toType?.id);
+        toType.allObjecttypes = myMetis.objecttypes;
+        toType.allRelationshiptypes = myMetis.relshiptypes;
         const choices: string[]  = [];
-        if ((myMetis) && (fromType && toType)) {
+        if (fromType && toType) {
             let defText = "";
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
-            /* if (debug) */console.log('845 createRelationship', reltypes, fromType, toType, myMetis);
+            if (debug) console.log('873 createRelationship', reltypes, fromType, toType);
             if (reltypes) {
                 for (let i=0; i<reltypes.length; i++) {
                     const rtype = reltypes[i];
@@ -879,6 +885,7 @@ export function createRelationship(data: any, context: any) {
                 if (choices.length == 1) defText = choices[0];
                 typename = prompt('Enter type name, one of ' + choices, defText);
                 reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+                if (debug) console.log('888 reltype', reltype);
             }
         }
     }
@@ -887,19 +894,13 @@ export function createRelationship(data: any, context: any) {
         myDiagram.model.removeLinkData(data);
         return;
     }
-    if (debug) console.log('904 createRelationship', reltype);
-    if (!isLinkAllowed(reltype, fromNode?.object, toNode?.object)) {
-        alert("Relationship given is not allowed!");
-        myDiagram.model.removeLinkData(data);
-        return;
-    }
-    //alert("Relationship given IS allowed!");
+    if (debug) console.log('896 createRelationship', reltype);
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
     if (relshipview) relshipview.setTypeView(reltypeview);
-    if (debug) console.log('924 myGoModel', myGoModel);
+    if (debug) console.log('908 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -927,11 +928,11 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     // Find source objects
     const fromNodeRef = data.from;
     const toNodeRef   = data.to;
-    const fromNode = myDiagram.findNodeForKey(fromNodeRef).data;
-    const toNode = myDiagram.findNodeForKey(toNodeRef).data;
+    const fromNode = myDiagram.findNodeForKey(fromNodeRef);
+    const toNode = myDiagram.findNodeForKey(toNodeRef);
     if (debug) console.log('954 fromNode, toNode', fromNode, toNode);
-    const fromObjview = fromNode?.objectview;
-    const toObjview   = toNode?.objectview;
+    const fromObjview = fromNode?.data.objectview;
+    const toObjview   = toNode?.data.objectview;
     let   relship     = data.relshipview.relship;
     const typeview    = data.relshipview.typeview;
     if (debug) console.log('959 pasteRelationship', fromObjview, toObjview);

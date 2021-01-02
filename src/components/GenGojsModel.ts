@@ -96,7 +96,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       //   ({ key: ot.id, text: ot.name, color: 'lightyellow', loc: `0 ${index * (-40)}` }))
       //   : []
         
-      if (debug) console.log('98 gojsModel', myMetamodelPalette.nodes);
+      if (debug) console.log('98 gojsModel', myPalette.nodes, myPalette.links);
       if (debug) console.log('98 myMetamodelPalette', myMetamodelPalette.nodes);
       if (debug) console.log('98 myTargetMetamelPalette', myTargetMetamodelPalette);
       
@@ -218,10 +218,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    if (debug) console.log('217 GenGojsModel', metis, modelview);
+    if (debug) console.log('221 GenGojsModel', metis, model, modelview);
     
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
-    if (debug) console.log('221 GenGojsModel', myGoModel);
+    if (debug) console.log('224 GenGojsModel', myGoModel);
     
     let objviews = modelview?.getObjectViews();
     if (objviews) {
@@ -230,7 +230,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!objview.deleted && objview.object) {
           let node = new gjs.goObjectNode(utils.createGuid(), objview);
           myGoModel.addNode(node);
-          if (debug) console.log('245 buildGoModel - node', node, myGoModel);
+          if (debug) console.log('233 buildGoModel - node', node, myGoModel);
 
         }
       }
@@ -242,6 +242,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
+    if (debug) console.log('245 relviews', relviews);
     if (relviews) {
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
@@ -250,11 +251,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           myGoModel.addLink(link);
-          if (debug) console.log('177 buildGoModel - link', link, myGoModel);
+          if (debug) console.log('254 buildGoModel - link', link, myGoModel);
         }
       }
     }
-    if (debug) console.log('180 myGoModel', myGoModel);
+    if (debug) console.log('258 myGoModel', myGoModel);
     return myGoModel;
   }
 
@@ -273,6 +274,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
   if (metamodel?.objecttypes) {
+    if (debug) console.log('276 metamodel', metamodel);
     let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
     const objtypes = metamodel?.getObjectTypes();
     if (objtypes) {
@@ -281,6 +283,7 @@ function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
         if (objtype && !objtype.deleted) {
           const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
           node.loadNodeContent(metamodel);
+          if (debug) console.log('284 node', node);
           myGoMetaModel.addNode(node);
         }
       }

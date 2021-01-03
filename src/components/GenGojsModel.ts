@@ -82,7 +82,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis?.setCurrentModelview(myModelview);
       myMetis?.setCurrentTargetModel(myTargetModel);
       myMetis?.setCurrentTargetModelview(myTargetModelview);
-      if (debug) console.log('89 GenGojsModel  myMetis', myMetis);
+      if (!debug) console.log('89 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)
       //   ? curmodview.objectviews.map((mv: any, index: any) =>

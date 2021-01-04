@@ -170,12 +170,12 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   public handleInputChange(propname: string, value: string, obj: any, isBlur: boolean) {
     if (!debug) console.log('149 GoJSApp handleInputChange:', propname, value, isBlur, obj);
-    if (!debug) console.log('150 this.state', this.state);
+    if (debug) console.log('150 this.state', this.state);
     this.setState(
       produce((draft: AppState) => {
         const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-        if (!debug) console.log('150 this.state', data);
-        data[propname] = value;
+        if (!debug) console.log('150 data', data);
+          data[propname] = value;
         if (isBlur) {
           const key = data.key;
           if (obj.category === 'Relationship') {  // negative keys are links
@@ -194,33 +194,34 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       })
     );
-    if (!debug) console.log('173 this.state', this.state);
+    if (debug) console.log('173 this.state', this.state);
     const myMetis = this.state.myMetis;
     let inst, instview, myInst, myInstview;
     // Handle objects
     if (obj.category === 'Object') {
-        inst = obj.object;
-        myInst = myMetis.findObject(inst.id);
-        instview = obj.objectview;
-        myInstview = myMetis.findObjectView(instview.id);
-
+      inst = obj.object;
+      myInst = myMetis.findObject(inst.id);
+      instview = obj.objectview;
+      myInstview = myMetis.findObjectView(instview.id);
+      
       switch(propname) {
         case 'name':
           myInst.name = value;
           myInstview.name = value;
           break;
-        case 'description':
-          myInst.description = value;
-          myInstview.description = value;
-          break;
-        default:
-          // Handle properties
-          break;
-      }
-      // Prepare and to dispatch of objectview
-      const modifiedObjectViews = new Array();
-      const gqlObjview = new gql.gqlObjectView(myInstview);
-      modifiedObjectViews.push(gqlObjview);
+          case 'description':
+            myInst.description = value;
+            myInstview.description = value;
+            break;
+            default:
+              // Handle properties
+              break;
+            }
+            // Prepare and to dispatch of objectview
+            const modifiedObjectViews = new Array();
+            const gqlObjview = new gql.gqlObjectView(myInstview);
+            modifiedObjectViews.push(gqlObjview);
+            if (!debug) console.log('224 modifiedObjectViews', modifiedObjectViews);
       modifiedObjectViews.map(mn => {
         let data = mn;
         this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
@@ -233,7 +234,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = mn;
         this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       });
-      if (!debug) console.log('236 modifiedObjects', modifiedObjectViews, modifiedObjects);
+      if (debug) console.log('236 modifiedObjects', modifiedObjectViews, modifiedObjects);
     }
 
     if (obj.category === 'Relationship') {
@@ -764,9 +765,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
 
-
-
-
       }
       break;
       case "ObjectSingleClicked": {
@@ -1068,7 +1066,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // const toggle = () => this.handleCloseModal();
 
     const selectedData = this.state.selectedData;
-    if (!debug) console.log('1072 selectedData', selectedData);
+    if (!debug) console.log('1072 selectedData', this.state.selectedData, this.props);
     let inspector;
     if (selectedData !== null) {
       inspector = 
@@ -1081,12 +1079,25 @@ class GoJSApp extends React.Component<{}, AppState> {
         </div>
     }
 
+    let editProperties; 
+    if (selectedData !== null) {
+      editProperties =
+        <>
+        <EditProperties 
+          item={selectedData} 
+          curobj={selectedData} 
+          type={'UPDATE_OBJECTVIEW_PROPERTIES'} 
+          selectedData={this.state.selectedData}
+          onInputChange={this.handleInputChange}
+        />
+        </>
+    }
+
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     // if (debug) console.log('827 dispatch', this.state.myMetis.dispatch);
 
     return ( (this.state) &&
       <div className="diagramwrapper">
-
         <DiagramWrapper
           nodeDataArray     ={this.state.nodeDataArray}
           linkDataArray     ={this.state.linkDataArray}
@@ -1094,7 +1105,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}
-          handleInputChange ={this.handleInputChange}
+          // onInputChange     ={this.handleInputChange}
           myMetis           ={this.state.myMetis}
           myGoModel         ={this.state.myGoModel}
           myGoMetamodel     ={this.state.myGoMetamodel}
@@ -1115,13 +1126,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               </ModalHeader>
             </div>
             <ModalBody >
-              <EditProperties 
-                item={selectedData} 
-                curobj={selectedData} 
-                handleInputChange={this.handleInputChange}
-                type={'UPDATE_OBJECTVIEW_PROPERTIES'} 
-              />
-              {/* {inspector} */}
+              {editProperties}
             </ModalBody>
             <ModalFooter>
               <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>

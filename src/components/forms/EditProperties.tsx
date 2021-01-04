@@ -33,7 +33,7 @@ const EditProperties = (props) => {
   const onSubmit = (e) => { // dispatch the edititem to phData
     const data = e 
     // const data = { ...edititem, ...e }
-    props.handleInputChange(e)
+    props.onInputChange(e)
     if (!debug) console.log('36 EditProperties', props);
     // if (data && data.id) {
     //   props.handleInputChange(e)

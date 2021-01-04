@@ -735,7 +735,7 @@ function reducer(state = InitialState, action) {
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
       // if (debug) console.log('506  reduser', curm);
 
-      if (debug) if (debug) console.log('657', {
+      if (debug) console.log('657', {
         ...state,
         phData: {
           ...state.phData,

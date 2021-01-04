@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 // this Kernel code
@@ -4391,9 +4391,14 @@ export class cxInstance extends cxMetaObject {
         return retval;
     }
     setStringValue2(propname: string, value: any) {
-        let inst: any = this;
+        const inst: any = this;
         inst[propname] = value;
         return true;
+    }
+    getStringValue2(propname: string) {
+        const inst: any = this;
+        const value = inst[propname];
+        return value;
     }
     findInputRelships(model: cxModel, rkind: string) {
         const rels = model.relships;

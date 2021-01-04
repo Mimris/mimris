@@ -18,6 +18,7 @@ import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
 const glb = require('../../../akmm/akm_globals');
+const printf = require('printf');
 
 //import * as uic from '../../../Server/src/akmm/ui_common'; 
 
@@ -234,33 +235,56 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.dispatch = this.myMetis?.dispatch;
     myDiagram.handleOpenModal = this.myMetis?.handleOpenModal;
     myDiagram.toolTip =
-      $("ToolTip",
-        $(go.TextBlock, { margin: 4 },
-          // use a converter to display information about the diagram model
-          new go.Binding("text", "", diagramInfo))
+      $("ToolTip", { margin: 4 },
+        $(go.TextBlock, new go.Binding("text", "", diagramInfo),
+          {
+            font: "bold arial 72px sans-serif" // Seems not supported
+          }
+        ),
+        // use a converter to display information about the diagram model
       );
     //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (!debug) console.log('223 nodeInfo', d);
-      const properties = 
-        (d.object.type.properties.length > 0) && 
-        d.object.type.properties.map(p => {
-          return "\n - " +  p[0] +": "+p[1]
-        })
-      let str = "Name: " + d.name;
-      str += "\n" + "Description: " + (d.description || "");
-      str += "\n" + "Location: " + d.loc ;
+      if (debug) console.log('223 nodeInfo', d);
+      const format1 = "%s\n";
+      const format2 = "%-10s: %s\n";
+      let msg = "";
+      let str = "Type: " + d.type;
+      msg += printf(format1, str);
+      str = "Name: " + d.name;
+      msg += printf(format1, str);
+      str = "Description: " + d.object.description;
+      msg += printf(format1, str);
       if (d.group) {
-        str += "\n Attributes: " + properties ; 
-        str += "\n Type: " + d.object.typeName;
-        str += "\n member of " + d.group;
-      } else {
-        str += "\n " + "Attributes: " + properties ; 
-        str += "\n" + "Type: " + d.object.typeName ;
+        str = str + "member of " + d.group;
+        msg += printf(format1, str);
       }
-      return str;
+
+      str = "Attributes:"; 
+      msg += printf(format1, str);      
+      console.log('262', msg);
+      const obj = d.object;
+      const props = obj.type.properties;
+      // let properties = "";
+      for (let i=0; i<props.length; i++) {
+        const prop = props[i];
+        const value = obj.getStringValue2(prop.name);
+        const p = prop.name + ': ' + value;
+        str = printf(format2, prop.name, value);
+        console.log('271', str);
+        msg += str;
+        // properties += p;
+      }
+      console.log('275', msg);
+      // const properties = 
+      //   (d.object.type.properties.length > 0) && 
+      //   d.object.type.properties.map(p => {
+      //       return "\n - " +  p.name +": _______" 
+      //   })
+      console.log('281', msg);
+      return msg;
     }
 
     function linkInfo(d: any) {  // Tooltip info for a link data object
@@ -599,6 +623,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true;
               else
                 return false;
+            }),
+          makeButton("Edit Attribute",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              if (node.category === 'Object') {
+                const object = node.object;
+                if (!object) return;
+                const objtype = object?.type;
+                if (objtype) {
+                  const choices: string[]  = [];
+                  choices.push('description');
+                  const props = objtype.properties;
+                  for (let i=0; i<props?.length; i++) {
+                    const prop = props[i];
+                    choices.push(prop.name);                      
+                  }
+                  let defText = "";
+                  if (choices.length > 0) defText = choices[0];
+                  const propname = prompt('Enter attribute name, one of ' + choices, defText);
+                  let defValue = "";
+                  if (propname.length > 0) {
+                    if (propname === 'description') {
+                        defValue = object?.getDescription();
+                    } else {
+                        defValue = object?.getStringValue2(propname);
+                    }
+                    const value = prompt('Enter value of ' + propname, defValue);
+                    if (value) {
+                      if (debug) console.log('654', propname, value);
+                      if (propname === 'description') {
+                        object.description = value;
+                      } else {
+                        object.setStringValue2(propname, value);
+                      }
+                      if (debug) console.log('618 object', object);
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.category === 'Object') {
+                const object = node.object;
+                const objtype = object?.type;
+                if (objtype) {
+                  const props = objtype.properties;
+                  if (props && props.length>0) {
+                    return true;
+                  }
+                }
+              }
+              return false; 
             }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
@@ -1029,6 +1106,52 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   return true;
               } else
                   return false;
+            }),
+          makeButton("Edit Attribute",
+            function (e: any, obj: any) { 
+              const link = obj.part.data;
+              if (link.category === 'Relationship') {
+                const relship = link.relship;
+                const reltype = relship?.type;
+                if (reltype) {
+                  const choices: string[]  = [];
+                  choices.push('description');
+                  const props = reltype.properties;
+                  for (let i=0; i<props?.length; i++) {
+                    const prop = props[i];
+                    choices.push(prop.name);                      
+                  }
+                  let defText = "";
+                  if (choices.length > 0) defText = choices[0];
+                  const propname = prompt('Enter attribute name, one of ' + choices, defText);
+                  if (propname.length > 0) {
+                    let defValue = relship.getStringValue2(propname);
+                    const value = prompt('Enter value of ' + propname, defValue);
+                    if (value) {
+                      if (propname === 'description') {
+                        relship.description = value;
+                      } else {
+                        relship.setStringValue2(propname, value);
+                      }
+                      if (debug) console.log('618 relship', relship);
+                    }
+                  }
+                }
+              }
+            },
+            function (o: any) { 
+              const link = o.part.data;
+              if (link.category === 'Relationship') {
+                const relship = link.relship;
+                const reltype = relship?.type;
+                if (reltype) {
+                  const props = reltype.properties;
+                  if (props && props.length>0) {
+                    return true;
+                  }
+                }
+              }
+              return false; 
             }),
           makeButton("Cut",
             function (e, obj) { 

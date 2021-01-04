@@ -601,7 +601,7 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
             if (!objview) 
                 continue;
             let obj = objview.object;
-            const  types = ['Information', 'Role', 'Task', 'View', 'Query', 'Property']; // + Property ??
+            const  types = ['Information', 'Role', 'Task', 'View', 'Query', 'Property', 'Container']; // + Property ??
             for (let i=0; i<types.length; i++) {
                 const type = myMetis.findObjectTypeByName(types[i]);
                 if (obj && obj.type) {

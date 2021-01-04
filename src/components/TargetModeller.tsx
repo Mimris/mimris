@@ -98,6 +98,7 @@ const TargetModeller = (props: any) => {
     // if (gojsmodel) {console.log('89 Modeller', activetabindex, modelview, props.gojsModel)}
 
     useEffect(() => {
+      console.log('101 TargetModeller useEffect 1',activetabindex);
       setActiveTab(activetabindex)
       // toggleTab(activetabindex)
     }, [activetabindex])

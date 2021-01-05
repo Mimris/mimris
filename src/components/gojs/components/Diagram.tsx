@@ -251,39 +251,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
-      let str = "Type: " + d.type;
+      let str = "Type: " + d.object.type.name;
       msg += printf(format1, str);
       str = "Name: " + d.name;
       msg += printf(format1, str);
       str = "Description: " + d.object.description;
       msg += printf(format1, str);
       if (d.group) {
-        str = str + "member of " + d.group;
+        const group = myMetis.gojsModel.findNode(d.group);
+        str = "member of " + group.name;
         msg += printf(format1, str);
       }
-
       str = "Attributes:"; 
       msg += printf(format1, str);      
-      console.log('262', msg);
       const obj = d.object;
       const props = obj.type.properties;
-      // let properties = "";
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
         const value = obj.getStringValue2(prop.name);
         const p = prop.name + ': ' + value;
         str = printf(format2, prop.name, value);
-        console.log('271', str);
         msg += str;
-        // properties += p;
       }
-      console.log('275', msg);
-      // const properties = 
-      //   (d.object.type.properties.length > 0) && 
-      //   d.object.type.properties.map(p => {
-      //       return "\n - " +  p.name +": _______" 
-      //   })
-      console.log('281', msg);
       return msg;
     }
 
@@ -642,8 +631,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   let defText = "";
                   if (choices.length > 0) defText = choices[0];
                   const propname = prompt('Enter attribute name, one of ' + choices, defText);
-                  let defValue = "";
-                  if (propname.length > 0) {
+                  if (propname && propname.length > 0) {
+                    let defValue = "";
                     if (propname === 'description') {
                         defValue = object?.getDescription();
                     } else {

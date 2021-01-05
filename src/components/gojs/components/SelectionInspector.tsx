@@ -20,6 +20,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    * Render the object data, passing down property keys and values.
    */
   private renderObjectDetails() {
+    const myMetis = this.props.myMetis;
     const selObj = this.props.selectedData;
     if (!selObj)
       return;
@@ -27,38 +28,75 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let inst, instview, fields;
     if (category === 'Object') {
       inst = selObj.object;
+      inst = myMetis.findObject(inst?.id);
       instview = selObj.objectview;
+      instview = myMetis.findObjectView(instview?.id);
     } else if (category === 'Relationship') {
       inst = selObj.relship;
+      inst = myMetis.findRelationship(inst?.id);
       instview = selObj.relshipview;
+      instview = myMetis.findRelationshipView(instview?.id);
     }
+    if (!inst)
+      return;
+    const type = inst.type;
+    const props = type.properties;
+    for (let i=0; i<props?.length; i++) {
+      const prop = props[i];
+      inst[prop.name] = "";
+    }
+    if (!debug) console.log('46 inst', inst);
     const dets = [];
     for (const k in inst) {
       let row;
       if (k ) {
         let val = selObj[k]; 
-        if (k === 'description' && !val) val = " "; 
-        if (debug) console.log('43 k, val', k, val, typeof(val));
+        if (!debug) console.log('52 SelectionInspector: k, val, selObj', k, val, selObj);
         if (true) { // Filter values
           if (typeof(val) === 'object') continue;
           if (k === 'class') continue;
           if (k === 'category') continue;
           if (k === 'nameId') continue;
           if (k === 'fs_collection') continue;
+          if (k === 'type') continue;
           if (k === 'typeRef') continue;
-          //if (k === 'typeName') continue;
+          // if (k === 'typeName') continue;
+          if (k === 'typeviewRef') continue;
+          if (k === 'fromObject') continue;
+          if (k === 'toObject') continue;
+          if (k === 'fromobjectRef') continue;
+          if (k === 'toobjectRef') continue;
+          if (k === 'relshipkind') continue;
+          if (k === 'viewkind') continue;
+          if (k === 'valueset') continue;
+          if (k === 'inputrels') continue;
+          if (k === 'outputrels') continue;
+          if (k === 'allProperties') continue;
+          if (k === 'objectviews') continue;
+          if (k === 'relshipviews') continue;
           if (k === 'deleted') continue;
           if (k === 'modified') continue;
         }
-        if (!val) continue;
-        if (debug) console.log('56 SelectionInspector: k, val', k, val, typeof(val), selObj);
+        if (k === 'id') {
+          val = inst.id;
+        } else if (k === 'typename') {
+          val = inst.type.name;
+        } else if (k === 'name') {
+          val = inst.name;
+        } else if (k === 'description') {
+          val = inst.description;
+          if (!val) val = "";
+        } else {
+          val = inst.getStringValue2(k);
+          if (!val) val = "";
+        }
         row  = <InspectorRow
                 key={k}
                 id={k}
                 value={val}
                 obj= {selObj}
                 onInputChange={this.props.onInputChange} 
-               />;
+               />
       }
       if (k === 'key') {
         dets.unshift(row); // key always at start

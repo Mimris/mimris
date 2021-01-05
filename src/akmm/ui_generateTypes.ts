@@ -702,7 +702,8 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
     }
 
     // Add system types 
-    const objtypes = ['Container', 'Information', 'Property', 'Datatype'];
+    const objtypes = [];
+    // const objtypes = ['Container', 'Information', 'Property', 'Datatype'];
     for (let i=0; i<objtypes.length; i++) {
         const typename = objtypes[i];
         const objtype = myMetis.findObjectTypeByName(typename);

@@ -215,8 +215,16 @@ class GoJSApp extends React.Component<{}, AppState> {
           break;
         default:
           // Handle properties
+          if (!debug) console.log('218 myInst', myInst);
+          const type = inst.type;
+          const props = type.properties;
+          for (let i=0; i<props?.length; i++) {
+            const prop = props[i];
+            myInst.getStringValue2(prop.name)
+          }
           break;
       }
+      if (!debug) console.log('227 myMetis', myMetis);
       // Prepare and to dispatch of objectview
       const modifiedObjectViews = new Array();
       const gqlObjview = new gql.gqlObjectView(myInstview);
@@ -1075,6 +1083,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         <div className="p-2" style={{backgroundColor: "#ddd"}}>
           <p>Selected Object Properties:</p>
           <SelectionInspector 
+            myMetis={this.state.myMetis}
             selectedData={this.state.selectedData}
             onInputChange={this.handleInputChange}
           />;

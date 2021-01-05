@@ -2779,12 +2779,12 @@
                         },
                         {
                             "id": "9d9df6ce-0fef-4a5e-f307-3b0541e38dfa",
-                            "name": "User",
-                            "description": "",
+                            "name": "Users",
+                            "description": "aaaaaa",
                             "typeRef": "1ce4ebe9-27d2-46bb-f998-9ff0de6c9558",
                             "propertyValues": [],
                             "deleted": false,
-                            "modified": false
+                            "modified": true
                         },
                         {
                             "id": "14175a35-09f2-447c-1807-e74596b30816",
@@ -3034,10 +3034,30 @@
                         {
                             "id": "036c2c60-7c22-4efb-3a87-a56d638a27e3",
                             "name": "hasAllowed",
+                            "typeRef": "ccde5452-b601-4112-e4df-69294587c99a",
+                            "fromobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                            "toobjectRef": "7e2b081d-f598-40f1-005f-ada2658a1070",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "036c2c60-7c22-4efb-3a87-a56d638a27e3",
+                            "name": "hasAllowed",
                             "description": "",
                             "typeRef": "ccde5452-b601-4112-e4df-69294587c99a",
                             "fromobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
                             "toobjectRef": "7e2b081d-f598-40f1-005f-ada2658a1070",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "1f48c2ff-c9da-4984-07b4-b1870543602d",
+                            "name": "hasAllowed",
+                            "typeRef": "ccde5452-b601-4112-e4df-69294587c99a",
+                            "fromobjectRef": "f17f0412-9448-412a-4ee0-fbfff476f73a",
+                            "toobjectRef": "8952fded-1e0c-485f-8d66-695c3ae6eb57",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3056,10 +3076,30 @@
                         {
                             "id": "89119f24-9c0a-492a-bec6-6b472924e167",
                             "name": "isRelatedTo",
+                            "typeRef": "857f3fea-ed22-4e5d-7072-c998d180163d",
+                            "fromobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
+                            "toobjectRef": "7709e53b-d025-4c1b-4378-4640a9dfcd89",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "89119f24-9c0a-492a-bec6-6b472924e167",
+                            "name": "isRelatedTo",
                             "description": "",
                             "typeRef": "857f3fea-ed22-4e5d-7072-c998d180163d",
                             "fromobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
                             "toobjectRef": "7709e53b-d025-4c1b-4378-4640a9dfcd89",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "8c3c47eb-d00e-4e39-fc79-824ee2ee3c88",
+                            "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
+                            "toobjectRef": "bfe4be92-f8eb-4f74-b657-d2df76dddfb9",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3078,10 +3118,30 @@
                         {
                             "id": "95ddf71e-09e1-4592-dae3-7bf42a44b5d6",
                             "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
+                            "toobjectRef": "ff2109bf-c2ce-45d0-f9c3-bdd86d2a3250",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "95ddf71e-09e1-4592-dae3-7bf42a44b5d6",
+                            "name": "hasProperty",
                             "description": "",
                             "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
                             "fromobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
                             "toobjectRef": "ff2109bf-c2ce-45d0-f9c3-bdd86d2a3250",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "9945676d-13d8-4f21-d4b0-03385ac972d1",
+                            "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
+                            "toobjectRef": "2808c16a-16e8-4fe3-9cb9-e186cc57139e",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3100,10 +3160,30 @@
                         {
                             "id": "9ce03983-d7d8-40d1-4f5a-3eb17af1ef19",
                             "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
+                            "toobjectRef": "48893cb1-d4ef-4d12-1723-07b93edd7f46",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "9ce03983-d7d8-40d1-4f5a-3eb17af1ef19",
+                            "name": "hasProperty",
                             "description": "",
                             "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
                             "fromobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
                             "toobjectRef": "48893cb1-d4ef-4d12-1723-07b93edd7f46",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "bbe33a19-abad-4c99-1c36-d7cc6b8b8010",
+                            "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "bdfabf60-7c64-42cf-3538-7e65f7ed33d5",
+                            "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3122,6 +3202,16 @@
                         {
                             "id": "cda47e8e-bafa-4efd-d571-0484437f1620",
                             "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "46c3f7ce-1d2d-46c3-e2be-28d690f74939",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "cda47e8e-bafa-4efd-d571-0484437f1620",
+                            "name": "hasProperty",
                             "description": "",
                             "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
                             "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
@@ -3133,10 +3223,30 @@
                         {
                             "id": "dd47a135-c5e9-4f05-dcfe-3e75fd6e567b",
                             "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "7709e53b-d025-4c1b-4378-4640a9dfcd89",
+                            "toobjectRef": "f17f0412-9448-412a-4ee0-fbfff476f73a",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "dd47a135-c5e9-4f05-dcfe-3e75fd6e567b",
+                            "name": "isOf",
                             "description": "",
                             "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
                             "fromobjectRef": "7709e53b-d025-4c1b-4378-4640a9dfcd89",
                             "toobjectRef": "f17f0412-9448-412a-4ee0-fbfff476f73a",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "efe2d79f-1b17-4784-e419-6596b80e7de6",
+                            "name": "Part",
+                            "typeRef": "0c2653b4-f201-48bb-d738-75d97de01d36",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3177,10 +3287,30 @@
                         {
                             "id": "8da008e6-352c-4501-dae9-e7d50bb02763",
                             "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "f72d4d3a-0c09-4fed-24d9-b3738efa6707",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "8da008e6-352c-4501-dae9-e7d50bb02763",
+                            "name": "hasProperty",
                             "description": "",
                             "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
                             "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
                             "toobjectRef": "f72d4d3a-0c09-4fed-24d9-b3738efa6707",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "bf1eb956-41a8-4c1d-75ce-c7a90967453f",
+                            "name": "worksOn",
+                            "typeRef": "cb1b2c69-7f9a-4a9d-9f75-a1bc9e1ae370",
+                            "fromobjectRef": "3f7c7e21-e8fc-4995-9ef9-630f0d5a3200",
+                            "toobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3199,10 +3329,30 @@
                         {
                             "id": "98962aff-8bbc-4f6f-62fd-4a257da51278",
                             "name": "performs",
+                            "typeRef": "ab5ef7f2-2e3b-4fb6-7d63-e59d073171a1",
+                            "fromobjectRef": "9d9df6ce-0fef-4a5e-f307-3b0541e38dfa",
+                            "toobjectRef": "ec7cb5ad-ba7e-458f-f50e-1ba799641fc3",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "98962aff-8bbc-4f6f-62fd-4a257da51278",
+                            "name": "performs",
                             "description": "",
                             "typeRef": "ab5ef7f2-2e3b-4fb6-7d63-e59d073171a1",
                             "fromobjectRef": "9d9df6ce-0fef-4a5e-f307-3b0541e38dfa",
                             "toobjectRef": "ec7cb5ad-ba7e-458f-f50e-1ba799641fc3",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "ad375274-a6cc-4b36-96d3-4ad817c60a4d",
+                            "name": "performs",
+                            "typeRef": "ab5ef7f2-2e3b-4fb6-7d63-e59d073171a1",
+                            "fromobjectRef": "9d9df6ce-0fef-4a5e-f307-3b0541e38dfa",
+                            "toobjectRef": "3f7c7e21-e8fc-4995-9ef9-630f0d5a3200",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3221,6 +3371,16 @@
                         {
                             "id": "5002d6c3-a178-40ae-0cba-840759014792",
                             "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "toobjectRef": "cf3888ab-2b0a-4fdb-3eaf-a84c4f10e30d",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "5002d6c3-a178-40ae-0cba-840759014792",
+                            "name": "hasProperty",
                             "description": "",
                             "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
                             "fromobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
@@ -3232,9 +3392,29 @@
                         {
                             "id": "bcb4a9fe-d825-4a06-89dd-ff6b8a61612b",
                             "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
+                            "toobjectRef": "bdfabf60-7c64-42cf-3538-7e65f7ed33d5",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "bcb4a9fe-d825-4a06-89dd-ff6b8a61612b",
+                            "name": "hasProperty",
                             "description": "",
                             "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
                             "fromobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
+                            "toobjectRef": "bdfabf60-7c64-42cf-3538-7e65f7ed33d5",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "944356cf-1d90-405d-0786-31cadebb9e44",
+                            "name": "hasProperty",
+                            "typeRef": "5677c999-ce4a-471f-a5c7-f8c599188e10",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
                             "toobjectRef": "bdfabf60-7c64-42cf-3538-7e65f7ed33d5",
                             "propvalues": [],
                             "deleted": false,
@@ -3254,12 +3434,11 @@
                         {
                             "id": "3d622545-0a80-4663-45a9-aa012e2190f9",
                             "name": "member",
-                            "description": "",
                             "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
                             "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
                             "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
                             "propvalues": [],
-                            "deleted": true,
+                            "deleted": false,
                             "modified": false
                         },
                         {
@@ -3279,6 +3458,27 @@
                             "description": "",
                             "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
                             "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "propvalues": [],
+                            "deleted": true,
+                            "modified": false
+                        },
+                        {
+                            "id": "3d622545-0a80-4663-45a9-aa012e2190f9",
+                            "name": "member",
+                            "description": "",
+                            "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
+                            "fromobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
+                            "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "3ff28633-42e8-4b0d-b1e2-908e1bb3658a",
+                            "name": "member",
+                            "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
+                            "fromobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
                             "toobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
                             "propvalues": [],
                             "deleted": false,
@@ -3320,6 +3520,16 @@
                         {
                             "id": "61037161-a4e6-4c71-c37f-dbd8a7471a05",
                             "name": "hasAllowed",
+                            "typeRef": "ccde5452-b601-4112-e4df-69294587c99a",
+                            "fromobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                            "toobjectRef": "543db63b-cd08-42ef-c189-0d1c3528e957",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "61037161-a4e6-4c71-c37f-dbd8a7471a05",
+                            "name": "hasAllowed",
                             "description": "",
                             "typeRef": "ccde5452-b601-4112-e4df-69294587c99a",
                             "fromobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
@@ -3331,9 +3541,29 @@
                         {
                             "id": "d1f107ac-96ba-49a3-94d6-5311f5859bc0",
                             "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "cf3888ab-2b0a-4fdb-3eaf-a84c4f10e30d",
+                            "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "d1f107ac-96ba-49a3-94d6-5311f5859bc0",
+                            "name": "isOf",
                             "description": "",
                             "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
                             "fromobjectRef": "cf3888ab-2b0a-4fdb-3eaf-a84c4f10e30d",
+                            "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "a6807df6-6472-4b9e-bcdc-9d07ec7cf06a",
+                            "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "f72d4d3a-0c09-4fed-24d9-b3738efa6707",
                             "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
                             "propvalues": [],
                             "deleted": false,
@@ -3353,9 +3583,29 @@
                         {
                             "id": "71224769-c97e-41b9-9ab9-11d20923a3b4",
                             "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "46c3f7ce-1d2d-46c3-e2be-28d690f74939",
+                            "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "71224769-c97e-41b9-9ab9-11d20923a3b4",
+                            "name": "isOf",
                             "description": "",
                             "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
                             "fromobjectRef": "46c3f7ce-1d2d-46c3-e2be-28d690f74939",
+                            "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "5ad378f2-a350-494f-812f-4f809b00bd72",
+                            "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "48893cb1-d4ef-4d12-1723-07b93edd7f46",
                             "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
                             "propvalues": [],
                             "deleted": false,
@@ -3375,10 +3625,30 @@
                         {
                             "id": "e36f9747-3a2d-4c27-499e-4f288308f72c",
                             "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "2808c16a-16e8-4fe3-9cb9-e186cc57139e",
+                            "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "e36f9747-3a2d-4c27-499e-4f288308f72c",
+                            "name": "isOf",
                             "description": "",
                             "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
                             "fromobjectRef": "2808c16a-16e8-4fe3-9cb9-e186cc57139e",
                             "toobjectRef": "5e2deded-eb1f-4331-51b8-9773dd729dcf",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "f285742c-0660-4aef-acff-0a359b6ff9be",
+                            "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "bfe4be92-f8eb-4f74-b657-d2df76dddfb9",
+                            "toobjectRef": "a494ecaa-f581-40f9-d99b-828bbaceb6fe",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3397,10 +3667,30 @@
                         {
                             "id": "131b9885-adf6-43bf-95b0-4673fa50b4fc",
                             "name": "hasAllowed",
+                            "typeRef": "ccde5452-b601-4112-e4df-69294587c99a",
+                            "fromobjectRef": "a494ecaa-f581-40f9-d99b-828bbaceb6fe",
+                            "toobjectRef": "46d94144-b152-400e-6c36-2f729011b5c6",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "131b9885-adf6-43bf-95b0-4673fa50b4fc",
+                            "name": "hasAllowed",
                             "description": "",
                             "typeRef": "ccde5452-b601-4112-e4df-69294587c99a",
                             "fromobjectRef": "a494ecaa-f581-40f9-d99b-828bbaceb6fe",
                             "toobjectRef": "46d94144-b152-400e-6c36-2f729011b5c6",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "25079a0b-8184-4bcb-6485-6d819af2640d",
+                            "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "ff2109bf-c2ce-45d0-f9c3-bdd86d2a3250",
+                            "toobjectRef": "a494ecaa-f581-40f9-d99b-828bbaceb6fe",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3419,10 +3709,30 @@
                         {
                             "id": "58d31204-d003-4f75-27ce-8bb93c459450",
                             "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
+                            "toobjectRef": "907b2cce-169b-4ac1-865c-e92927a29c84",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "58d31204-d003-4f75-27ce-8bb93c459450",
+                            "name": "has",
                             "description": "",
                             "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
                             "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
                             "toobjectRef": "907b2cce-169b-4ac1-865c-e92927a29c84",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "4dd7e208-fd77-48fb-1e82-32e027705473",
+                            "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
+                            "toobjectRef": "e2119a61-6dfc-4252-5800-b4c6682758f3",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3441,10 +3751,30 @@
                         {
                             "id": "17fd78aa-697a-4fd4-dcf2-f12b580d702a",
                             "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
+                            "toobjectRef": "d81725f3-e58c-4e06-4e6b-0b4634a7e1aa",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "17fd78aa-697a-4fd4-dcf2-f12b580d702a",
+                            "name": "has",
                             "description": "",
                             "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
                             "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
                             "toobjectRef": "d81725f3-e58c-4e06-4e6b-0b4634a7e1aa",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "a511295c-9672-49c2-9ed2-2e346ab2df0e",
+                            "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
+                            "toobjectRef": "9e51a20e-50ba-4084-24c5-9b966d2b0482",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3463,6 +3793,16 @@
                         {
                             "id": "c5f9abf8-3001-4c24-0bf6-eced2b649032",
                             "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
+                            "toobjectRef": "a50582aa-abec-4791-7afb-4b023b7e5a76",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "c5f9abf8-3001-4c24-0bf6-eced2b649032",
+                            "name": "has",
                             "description": "",
                             "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
                             "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
@@ -3474,9 +3814,29 @@
                         {
                             "id": "77bf3c6b-fce4-4b8a-830e-1048ec21bb5c",
                             "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "907b2cce-169b-4ac1-865c-e92927a29c84",
+                            "toobjectRef": "8bc830ac-8e38-4958-c7b1-59813b5c4f16",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "77bf3c6b-fce4-4b8a-830e-1048ec21bb5c",
+                            "name": "isOf",
                             "description": "",
                             "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
                             "fromobjectRef": "907b2cce-169b-4ac1-865c-e92927a29c84",
+                            "toobjectRef": "8bc830ac-8e38-4958-c7b1-59813b5c4f16",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "b0f3713a-971c-4a96-2782-60e42b85ea4a",
+                            "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "e2119a61-6dfc-4252-5800-b4c6682758f3",
                             "toobjectRef": "8bc830ac-8e38-4958-c7b1-59813b5c4f16",
                             "propvalues": [],
                             "deleted": false,
@@ -3496,6 +3856,16 @@
                         {
                             "id": "9e5b3523-f2fd-4916-f580-e622a7984c23",
                             "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "d81725f3-e58c-4e06-4e6b-0b4634a7e1aa",
+                            "toobjectRef": "7fa6c68a-6cd3-4a3f-b37e-7830e947e84f",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "9e5b3523-f2fd-4916-f580-e622a7984c23",
+                            "name": "isOf",
                             "description": "",
                             "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
                             "fromobjectRef": "d81725f3-e58c-4e06-4e6b-0b4634a7e1aa",
@@ -3507,9 +3877,29 @@
                         {
                             "id": "9823035d-6610-4409-ac2a-fde0e1388acd",
                             "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "9e51a20e-50ba-4084-24c5-9b966d2b0482",
+                            "toobjectRef": "a494ecaa-f581-40f9-d99b-828bbaceb6fe",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "9823035d-6610-4409-ac2a-fde0e1388acd",
+                            "name": "isOf",
                             "description": "",
                             "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
                             "fromobjectRef": "9e51a20e-50ba-4084-24c5-9b966d2b0482",
+                            "toobjectRef": "a494ecaa-f581-40f9-d99b-828bbaceb6fe",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "593a7522-d707-40f4-a759-1daac9b82304",
+                            "name": "isOf",
+                            "typeRef": "197e4aef-406c-4b91-9f7a-28fd3290e0eb",
+                            "fromobjectRef": "a50582aa-abec-4791-7afb-4b023b7e5a76",
                             "toobjectRef": "a494ecaa-f581-40f9-d99b-828bbaceb6fe",
                             "propvalues": [],
                             "deleted": false,
@@ -3529,10 +3919,30 @@
                         {
                             "id": "a9d774d7-6f73-42b7-b2cc-f8d7f85f7c36",
                             "name": "applies",
+                            "typeRef": "2358ec2f-d75c-44b1-7e4c-ea38bf89b026",
+                            "fromobjectRef": "3f7c7e21-e8fc-4995-9ef9-630f0d5a3200",
+                            "toobjectRef": "63f034c7-e620-4d12-b112-d1ee5d2f88c6",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "a9d774d7-6f73-42b7-b2cc-f8d7f85f7c36",
+                            "name": "applies",
                             "description": "",
                             "typeRef": "2358ec2f-d75c-44b1-7e4c-ea38bf89b026",
                             "fromobjectRef": "3f7c7e21-e8fc-4995-9ef9-630f0d5a3200",
                             "toobjectRef": "63f034c7-e620-4d12-b112-d1ee5d2f88c6",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "93390858-0bd2-496c-c286-bd72f5e434ab",
+                            "name": "includes",
+                            "typeRef": "92344509-b679-4d32-000f-1a670828ea7f",
+                            "fromobjectRef": "63f034c7-e620-4d12-b112-d1ee5d2f88c6",
+                            "toobjectRef": "624f1558-f266-4ec4-042d-c3bbca9ddd0f",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3551,10 +3961,30 @@
                         {
                             "id": "ce0b6a61-2654-41f1-e934-5800ca89623e",
                             "name": "includes",
+                            "typeRef": "92344509-b679-4d32-000f-1a670828ea7f",
+                            "fromobjectRef": "63f034c7-e620-4d12-b112-d1ee5d2f88c6",
+                            "toobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "ce0b6a61-2654-41f1-e934-5800ca89623e",
+                            "name": "includes",
                             "description": "",
                             "typeRef": "92344509-b679-4d32-000f-1a670828ea7f",
                             "fromobjectRef": "63f034c7-e620-4d12-b112-d1ee5d2f88c6",
                             "toobjectRef": "e7a1bce5-dcb8-42ef-2c3b-b7c0243601ac",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "d282e3cc-43c7-48dc-f1e5-88feeff6e515",
+                            "name": "applies",
+                            "typeRef": "2358ec2f-d75c-44b1-7e4c-ea38bf89b026",
+                            "fromobjectRef": "3f7c7e21-e8fc-4995-9ef9-630f0d5a3200",
+                            "toobjectRef": "63f034c7-e620-4d12-b112-d1ee5d2f88c6",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3573,10 +4003,30 @@
                         {
                             "id": "12bec5c1-6be6-4d50-8b0d-ba56568bd1d3",
                             "name": "applies",
+                            "typeRef": "2358ec2f-d75c-44b1-7e4c-ea38bf89b026",
+                            "fromobjectRef": "ec7cb5ad-ba7e-458f-f50e-1ba799641fc3",
+                            "toobjectRef": "b0b25448-6979-454d-cecf-155031333cfa",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "12bec5c1-6be6-4d50-8b0d-ba56568bd1d3",
+                            "name": "applies",
                             "description": "",
                             "typeRef": "2358ec2f-d75c-44b1-7e4c-ea38bf89b026",
                             "fromobjectRef": "ec7cb5ad-ba7e-458f-f50e-1ba799641fc3",
                             "toobjectRef": "b0b25448-6979-454d-cecf-155031333cfa",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "7e6075c7-dbca-4246-7630-552e32d237ca",
+                            "name": "includes",
+                            "typeRef": "92344509-b679-4d32-000f-1a670828ea7f",
+                            "fromobjectRef": "b0b25448-6979-454d-cecf-155031333cfa",
+                            "toobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3595,9 +4045,29 @@
                         {
                             "id": "0283a079-4304-4452-9e12-5a32ea2648b8",
                             "name": "applies",
+                            "typeRef": "2358ec2f-d75c-44b1-7e4c-ea38bf89b026",
+                            "fromobjectRef": "3f7c7e21-e8fc-4995-9ef9-630f0d5a3200",
+                            "toobjectRef": "f74d33bb-3b4b-427b-000b-9de35b3c1a25",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "0283a079-4304-4452-9e12-5a32ea2648b8",
+                            "name": "applies",
                             "description": "",
                             "typeRef": "2358ec2f-d75c-44b1-7e4c-ea38bf89b026",
                             "fromobjectRef": "3f7c7e21-e8fc-4995-9ef9-630f0d5a3200",
+                            "toobjectRef": "f74d33bb-3b4b-427b-000b-9de35b3c1a25",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "76ade8e4-3173-49f0-e1d3-dac1e9a02511",
+                            "name": "member",
+                            "typeRef": "6d6aa1f9-4f2b-44f4-c009-65b52490bf22",
+                            "fromobjectRef": "63f034c7-e620-4d12-b112-d1ee5d2f88c6",
                             "toobjectRef": "f74d33bb-3b4b-427b-000b-9de35b3c1a25",
                             "propvalues": [],
                             "deleted": false,
@@ -3617,9 +4087,29 @@
                         {
                             "id": "cbab27e3-cf91-4a5f-a9d2-697fdf09a1e8",
                             "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "377ccb23-f85c-4f3a-9621-cc07e8f92caf",
+                            "toobjectRef": "91c2aa18-ca7f-4cf0-0bf7-2a14c6076b73",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "cbab27e3-cf91-4a5f-a9d2-697fdf09a1e8",
+                            "name": "has",
                             "description": "",
                             "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
                             "fromobjectRef": "377ccb23-f85c-4f3a-9621-cc07e8f92caf",
+                            "toobjectRef": "91c2aa18-ca7f-4cf0-0bf7-2a14c6076b73",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "25392852-4e39-4e3e-caee-ba73f2d78003",
+                            "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "173ba019-7e93-49ae-ccd0-2c0f332087f7",
                             "toobjectRef": "91c2aa18-ca7f-4cf0-0bf7-2a14c6076b73",
                             "propvalues": [],
                             "deleted": false,
@@ -3639,10 +4129,30 @@
                         {
                             "id": "dcd0d74b-debc-4222-5ded-0216041e10a4",
                             "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "173ba019-7e93-49ae-ccd0-2c0f332087f7",
+                            "toobjectRef": "907b2cce-169b-4ac1-865c-e92927a29c84",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "dcd0d74b-debc-4222-5ded-0216041e10a4",
+                            "name": "has",
                             "description": "",
                             "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
                             "fromobjectRef": "173ba019-7e93-49ae-ccd0-2c0f332087f7",
                             "toobjectRef": "907b2cce-169b-4ac1-865c-e92927a29c84",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "35fee8fb-96ab-43b1-e8ed-e94f4dac26ca",
+                            "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "toobjectRef": "91c2aa18-ca7f-4cf0-0bf7-2a14c6076b73",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3661,10 +4171,30 @@
                         {
                             "id": "e6c3dfad-3609-4718-99e5-fd7682dee0e0",
                             "name": "has",
+                            "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
+                            "fromobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "toobjectRef": "907b2cce-169b-4ac1-865c-e92927a29c84",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "e6c3dfad-3609-4718-99e5-fd7682dee0e0",
+                            "name": "has",
                             "description": "",
                             "typeRef": "042001c4-19ae-44df-98ec-7837634fd5ee",
                             "fromobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
                             "toobjectRef": "907b2cce-169b-4ac1-865c-e92927a29c84",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "6869c5ca-90a6-4449-eb45-15b5f8be3fa0",
+                            "name": "manages",
+                            "typeRef": "857f3fea-ed22-4e5d-7072-c998d180163d",
+                            "fromobjectRef": "14175a35-09f2-447c-1807-e74596b30816",
+                            "toobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3683,10 +4213,30 @@
                         {
                             "id": "45b27c84-0465-48cc-7794-966fe8ade3e5",
                             "name": "applies",
+                            "typeRef": "857f3fea-ed22-4e5d-7072-c998d180163d",
+                            "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
+                            "toobjectRef": "7b4489ec-2e1d-459c-6a21-bc85be58b4a0",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "45b27c84-0465-48cc-7794-966fe8ade3e5",
+                            "name": "applies",
                             "description": "",
                             "typeRef": "857f3fea-ed22-4e5d-7072-c998d180163d",
                             "fromobjectRef": "a3424a5d-f152-4588-3229-a32769338424",
                             "toobjectRef": "7b4489ec-2e1d-459c-6a21-bc85be58b4a0",
+                            "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "5a13dd4a-66a7-4bd7-87ca-34b575be9397",
+                            "name": "member",
+                            "typeRef": "857f3fea-ed22-4e5d-7072-c998d180163d",
+                            "fromobjectRef": "7b4489ec-2e1d-459c-6a21-bc85be58b4a0",
+                            "toobjectRef": "edd6c22e-9802-420d-a92f-f60ef0a99209",
                             "propvalues": [],
                             "deleted": false,
                             "modified": false
@@ -3699,6 +4249,15 @@
                             "fromobjectRef": "7b4489ec-2e1d-459c-6a21-bc85be58b4a0",
                             "toobjectRef": "edd6c22e-9802-420d-a92f-f60ef0a99209",
                             "propvalues": [],
+                            "deleted": false,
+                            "modified": false
+                        },
+                        {
+                            "id": "911e1700-fdcb-4781-3c8b-078c75ae6f86",
+                            "name": "worksOn",
+                            "typeRef": "cb1b2c69-7f9a-4a9d-9f75-a1bc9e1ae370",
+                            "fromobjectRef": "ec7cb5ad-ba7e-458f-f50e-1ba799641fc3",
+                            "toobjectRef": "e9b9ed56-bd09-403e-14b5-080c5d123c61",
                             "deleted": false,
                             "modified": false
                         },
@@ -3983,15 +4542,14 @@
                                 {
                                     "id": "fba99792-d629-4aae-419d-ce6b75824902",
                                     "name": "Find person",
-                                    "description": "",
                                     "objectRef": "3f7c7e21-e8fc-4995-9ef9-630f0d5a3200",
                                     "typeviewRef": "ed54d580-f6a8-445f-3a3f-6689c7fcf5c6",
                                     "group": "c7968937-4180-4642-a5ca-5630273cb56b",
                                     "isGroup": false,
-                                    "loc": "-570 420",
+                                    "loc": "-560 430",
                                     "size": "",
                                     "deleted": false,
-                                    "modified": false
+                                    "modified": true
                                 },
                                 {
                                     "id": "c7968937-4180-4642-a5ca-5630273cb56b",
@@ -4034,8 +4592,8 @@
                                 },
                                 {
                                     "id": "e9f50e2b-d4e6-4fec-43b3-5b504d5cbb41",
-                                    "name": "User",
-                                    "description": "",
+                                    "name": "Users",
+                                    "description": "aaaaaa",
                                     "objectRef": "9d9df6ce-0fef-4a5e-f307-3b0541e38dfa",
                                     "typeviewRef": "01bee2c4-ed53-4107-18c6-77bd23d58307",
                                     "group": "880cc737-9d9d-4336-088a-97089f3304bd",
@@ -4043,7 +4601,7 @@
                                     "loc": "-560 80",
                                     "size": "",
                                     "deleted": false,
-                                    "modified": false
+                                    "modified": true
                                 },
                                 {
                                     "id": "7ff6cad2-4346-4d08-52e5-907dbc010c15",
@@ -5029,7 +5587,7 @@
                                 },
                                 {
                                     "id": "ea306a73-ac6c-4d65-8194-fc7577e5a01c",
-                                    "name": "Part",
+                                    "name": "part",
                                     "description": "",
                                     "relshipRef": "efe2d79f-1b17-4784-e419-6596b80e7de6",
                                     "typeviewRef": "3e3ae0f7-2600-4d00-4433-e2257f75e2f3",
@@ -5216,7 +5774,7 @@
                                 },
                                 {
                                     "id": "0655cb32-9f31-4474-bdd9-4c056e00412e",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "bcb4a9fe-d825-4a06-89dd-ff6b8a61612b",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5227,7 +5785,7 @@
                                 },
                                 {
                                     "id": "3aa9ceb0-8f8e-4a25-96c0-68abdc7af5eb",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "8c3c47eb-d00e-4e39-fc79-824ee2ee3c88",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5238,7 +5796,7 @@
                                 },
                                 {
                                     "id": "4ac9948b-9f73-4dde-44e9-c2d7db24d09f",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "5002d6c3-a178-40ae-0cba-840759014792",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5260,7 +5818,7 @@
                                 },
                                 {
                                     "id": "0b522643-aef9-4f39-5f5d-8a05cb785ad9",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "8da008e6-352c-4501-dae9-e7d50bb02763",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5271,7 +5829,7 @@
                                 },
                                 {
                                     "id": "a9c50d7b-c789-4528-c3cf-d463485a19c7",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "cda47e8e-bafa-4efd-d571-0484437f1620",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5282,7 +5840,7 @@
                                 },
                                 {
                                     "id": "04ce6119-139a-4cfc-f5e8-8b790329da61",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "9945676d-13d8-4f21-d4b0-03385ac972d1",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5293,7 +5851,7 @@
                                 },
                                 {
                                     "id": "f5ff4c96-9645-48c6-0d96-1268928e548c",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "95ddf71e-09e1-4592-dae3-7bf42a44b5d6",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5304,7 +5862,7 @@
                                 },
                                 {
                                     "id": "11a7ba81-4537-4f04-ed25-80333abdd25b",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "9ce03983-d7d8-40d1-4f5a-3eb17af1ef19",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5315,7 +5873,7 @@
                                 },
                                 {
                                     "id": "31722421-d3dc-4387-bf41-e8050f8a67a0",
-                                    "name": "hasProperty",
+                                    "name": "has",
                                     "description": "",
                                     "relshipRef": "944356cf-1d90-405d-0786-31cadebb9e44",
                                     "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
@@ -5344,7 +5902,7 @@
                                     "fromobjviewRef": "6549f56b-0a60-4028-6499-eed364d9126a",
                                     "toobjviewRef": "f7633027-1b2d-4d39-a79c-0f826b1836b0",
                                     "deleted": false,
-                                    "modified": true
+                                    "modified": false
                                 }
                             ],
                             "objecttypeviews": [],
@@ -6440,7 +6998,6 @@
             ]
         }
     },
-    "phList": {},
     "phFocus": {
         "focusTab": "Concept Modelling",
         "focusTemplateModel": {
@@ -6472,8 +7029,8 @@
             "name": "Property 1"
         },
         "focusObjectview": {
-            "id": "3fb7f15c-329d-4f85-2e88-1a6c95934865",
-            "name": "Properties"
+            "id": "e9f50e2b-d4e6-4fec-43b3-5b504d5cbb41",
+            "name": "Users"
         },
         "focusRelship": {
             "id": null,

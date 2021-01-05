@@ -101,22 +101,22 @@ const LoadLocal = (props: any) => {
     let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
     let curmindex = locState?.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
     // find lenght of modellarray in lodalStore
-    const curmlength = locState.phData?.metis.models?.length   
+    const curmlength = locState?.phData?.metis.models?.length   
     if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     // then find metamodel which is in reduxStore
     let reduxmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current metamodel index
-    let curmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxmmod?.id) // current model index
+    let curmmindex = locState?.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxmmod?.id) // current model index
     // then find lenght of modellarray in lodalStore
-    const curmmlength = locState.phData?.metis.metamodels?.length   
+    const curmmlength = locState?.phData?.metis.metamodels?.length   
     if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     
     // then find currentTargetMetamodel
     let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
-    let curtmmindex = locState.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
-    const curtmmlength = locState.phData?.metis.metamodels?.length   
+    let curtmmindex = locState?.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
+    const curtmmlength = locState?.phData?.metis.metamodels?.length   
     if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
 
-    const data = (locState.phData) && {
+    const data = (locState) && {
       phData: {
         ...locState.phData,
         metis: {
@@ -137,7 +137,7 @@ const LoadLocal = (props: any) => {
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     };
-    // if (debug) console.log('59 LoadLocal', data);
+    if (debug) console.log('59 LoadLocal', data);
     (reduxmod) && setLocState(data)
   }
 

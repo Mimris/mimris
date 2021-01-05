@@ -106,7 +106,7 @@ const LoadLocal = (props: any) => {
       if (debug) console.log('106 LoadLocal', locState);
     }
   
-    if ( debug) console.log('108', locState, props.ph);
+    if (debug) console.log('108', locState, props.ph);
     
     // first find current model which is in reduxStore
     let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
@@ -149,7 +149,7 @@ const LoadLocal = (props: any) => {
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     };
-    if (!debug) console.log('140 LoadLocal', data, locState);
+    if (debug) console.log('140 LoadLocal', data, locState);
     (reduxmod) && setLocState(data)
   }
 

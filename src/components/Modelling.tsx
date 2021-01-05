@@ -378,7 +378,7 @@ const page = (props:any) => {
     </>
     )      
 
-  // if (debug) console.log('173 Modelling', activeTab);
+  if (debug) console.log('383 Modelling', activeTab);
   const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 

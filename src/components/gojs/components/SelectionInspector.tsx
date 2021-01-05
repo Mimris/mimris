@@ -51,14 +51,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'modified') continue;
         }
         if (!val) continue;
-        if (debug) console.log('56 SelectionInspector: k, val', k, val, typeof(val), selObj);
+        if (!debug) console.log('54 SelectionInspector: k, val', k, val, typeof(val), selObj);
         row  = <InspectorRow
                 key={k}
                 id={k}
                 value={val}
                 obj= {selObj}
                 onInputChange={this.props.onInputChange} 
-               />;
+               />
       }
       if (k === 'key') {
         dets.unshift(row); // key always at start
@@ -67,7 +67,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       }
     }
     if (debug) console.log('70 SelectionInspector ', dets);
-    
     return dets;
   }
 
@@ -80,6 +79,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           </tbody>
         </table>
       </div>
-    );
+    )
   }
 }

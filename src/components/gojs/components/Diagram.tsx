@@ -258,7 +258,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       str = "Description: " + d.object.description;
       msg += printf(format1, str);
       if (d.group) {
-        str = str + "member of " + d.group;
+        str = "member of " + d.group;
         msg += printf(format1, str);
       }
 

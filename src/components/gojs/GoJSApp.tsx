@@ -1083,13 +1083,13 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (selectedData !== null) {
       editProperties =
         <>
-        <EditProperties 
-          item={selectedData} 
-          curobj={selectedData} 
-          type={'UPDATE_OBJECTVIEW_PROPERTIES'} 
-          selectedData={this.state.selectedData}
-          onInputChange={this.handleInputChange}
-        />
+          <EditProperties 
+            item={selectedData} 
+            curobj={selectedData} 
+            type={'UPDATE_OBJECTVIEW_PROPERTIES'} 
+            selectedData={this.state.selectedData}
+            onInputChange={this.handleInputChange}
+          />
         </>
     }
 
@@ -1126,7 +1126,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               </ModalHeader>
             </div>
             <ModalBody >
-              {editProperties}
+              {/* {editProperties} */}
+              {inspector}
             </ModalBody>
             <ModalFooter>
               <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>

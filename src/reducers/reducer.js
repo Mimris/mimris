@@ -634,12 +634,12 @@ function reducer(state = InitialState, action) {
         }
 
     case UPDATE_OBJECT_PROPERTIES:
-      if  (debug) if (debug) console.log('5888 UPDATE_OBJECT_PROPERTIES', action);     
+      if (!debug) console.log('637 UPDATE_OBJECT_PROPERTIES', action);     
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object
       let curoindexo = (curmo) && curmo.objects?.findIndex(o => o.id === curoo?.id) // curretn objectindex
-      if (debug) if (debug) console.log('593 UPDATE_OBJECT_PROPERTIES', curmindexo);
+      if (debug) console.log('593 UPDATE_OBJECT_PROPERTIES', curmindexo);
 
       const lengtho = curmo?.objects.length
       if (curoindexo < 0) { curoindexo = lengtho } // ovindex = -1, i.e.  not fond, which means adding a new objectview
@@ -647,7 +647,7 @@ function reducer(state = InitialState, action) {
       // const { id, ...rest } = (action.data)
       // const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
 
-    if (debug) if (debug) console.log('601 UPDATE_OBJECT_PROPERTIES', state.phData.metis.models, {
+    if (debug) console.log('601 UPDATE_OBJECT_PROPERTIES', state.phData.metis.models, {
       ...state,
       phData: {
         ...state.phData,
@@ -717,7 +717,7 @@ function reducer(state = InitialState, action) {
       }
     }
     
-    case UPDATE_OBJECTVIEW_PROPERTIES:
+  case UPDATE_OBJECTVIEW_PROPERTIES:
       if (!debug) console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
@@ -735,7 +735,7 @@ function reducer(state = InitialState, action) {
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
       // if (debug) console.log('506  reduser', curm);
 
-      if (debug) if (debug) console.log('657', {
+      if (debug) console.log('657', {
         ...state,
         phData: {
           ...state.phData,

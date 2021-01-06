@@ -87,16 +87,27 @@ const LoadLocal = (props: any) => {
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     }
-    if (debug) console.log('59 LoadLocal', data);
+    if (debug) console.log('90 LoadLocal', data);
     setLocState(data)
   }
 
   function handleSaveCurrentModelToLocalStore() {
-    console.log('96', locState, props.ph);
+    if (debug) console.log('95', locState, props.ph);
     
-    if (!locState) setLocState(props.ph) // first time no localStorge saved so we use whats in redux
-    console.log('99', locState, props.ph);
-
+    if (!locState) {
+      const data = {
+        phData:   props.ph.phData,
+        phFocus:  props.ph.phFocus,
+        phUser:   props.ph.phUser,
+        phSource: 'localStore'
+      }
+      if (debug) console.log('104 LoadLocal', data);
+      setLocState(data)
+      if (debug) console.log('106 LoadLocal', locState);
+    }
+  
+    if (debug) console.log('108', locState, props.ph);
+    
     // first find current model which is in reduxStore
     let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
     let curmindex = locState?.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
@@ -115,6 +126,7 @@ const LoadLocal = (props: any) => {
     let curtmmindex = locState?.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
     const curtmmlength = locState?.phData?.metis.metamodels?.length   
     if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
+    if (debug) console.log('130', reduxmmod, reduxmod);
 
     const data = (locState) && {
       phData: {
@@ -137,7 +149,7 @@ const LoadLocal = (props: any) => {
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     };
-    if (debug) console.log('59 LoadLocal', data);
+    if (debug) console.log('140 LoadLocal', data, locState);
     (reduxmod) && setLocState(data)
   }
 

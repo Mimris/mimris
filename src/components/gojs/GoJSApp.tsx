@@ -1095,19 +1095,19 @@ class GoJSApp extends React.Component<{}, AppState> {
         </div>
     }
 
-    let editProperties; 
-    if (selectedData !== null) {
-      editProperties =
-        <>
-        <EditProperties 
-          item={selectedData} 
-          curobj={selectedData} 
-          type={'UPDATE_OBJECTVIEW_PROPERTIES'} 
-          selectedData={this.state.selectedData}
-          onInputChange={this.handleInputChange}
-        />
-        </>
-    }
+    // let editProperties; 
+    // if (selectedData !== null) {
+    //   editProperties =
+    //     <>
+    //       <EditProperties 
+    //         item={selectedData} 
+    //         curobj={selectedData} 
+    //         type={'UPDATE_OBJECTVIEW_PROPERTIES'} 
+    //         selectedData={this.state.selectedData}
+    //         onInputChange={this.handleInputChange}
+    //       />
+    //     </>
+    // }
 
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     // if (debug) console.log('827 dispatch', this.state.myMetis.dispatch);

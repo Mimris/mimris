@@ -266,8 +266,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
+      if (debug) console.log('269 nodeInfo', obj, props);
+      
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
+        if (debug) console.log('273 nodeInfo', prop);
         const value = obj.getStringValue2(prop.name);
         const p = prop.name + ': ' + value;
         str = printf(format2, prop.name, value);

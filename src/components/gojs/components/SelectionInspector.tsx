@@ -106,7 +106,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       }
     }
     if (debug) console.log('70 SelectionInspector ', dets);
-    
     return dets;
   }
 
@@ -119,6 +118,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           </tbody>
         </table>
       </div>
-    );
+    )
   }
 }

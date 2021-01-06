@@ -211,11 +211,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           break;
         case 'description':
           myInst.description = value;
-          myInstview.description = value;
+          if (debug) console.log('214 myInst', myInst);
           break;
         default:
           // Handle properties
-          if (!debug) console.log('218 myInst', myInst);
+          if (debug) console.log('218 myInst', myInst);
           const type = inst.type;
           const props = type.properties;
           for (let i=0; i<props?.length; i++) {
@@ -224,7 +224,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           break;
       }
-      if (!debug) console.log('227 myMetis', myMetis);
+      if (debug) console.log('227 myMetis', myMetis);
       // Prepare and to dispatch of objectview
       const modifiedObjectViews = new Array();
       const gqlObjview = new gql.gqlObjectView(myInstview);
@@ -259,6 +259,13 @@ class GoJSApp extends React.Component<{}, AppState> {
           break;
         default:
           // Handle properties
+          if (debug) console.log('262 myInst', myInst);
+          const type = inst.type;
+          const props = type.properties;
+          for (let i=0; i<props?.length; i++) {
+            const prop = props[i];
+            myInst.getStringValue2(prop.name)
+          }
           break;
       }
       // Prepare and to dispatch of objectview
@@ -278,6 +285,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       })
     }
+    if (!debug) console.log('288 myMetis', myMetis);
   }
 
     // see gojs-react-basic for an example model change handler
@@ -661,8 +669,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectDoubleClicked": {
         let sel = e.subject.part;
         let data = sel.data;
-        this.state.selectedData = sel.data
-        this.handleOpenModal()
+        this.state.selectedData = sel.data;
+        this.handleOpenModal();
 
         if (!debug) console.log('554 ObjectDoubleClicked', sel.data, data, this.state.editedData);
         if (this.state.editedData) {
@@ -721,6 +729,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     break;
                 }
             }
+            if (debug) console.log('723 nodes', nodes);
           }
           if (sel instanceof go.Link) {
             // relationship
@@ -771,7 +780,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-
       }
       break;
       case "ObjectSingleClicked": {
@@ -1073,7 +1081,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // const toggle = () => this.handleCloseModal();
 
     const selectedData = this.state.selectedData;
-    if (!debug) console.log('1072 selectedData', this.state.selectedData, this.props);
+    if (debug) console.log('1075 selectedData', this.state.selectedData, this.props);
     let inspector;
     if (selectedData !== null) {
       inspector = 
@@ -1134,7 +1142,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               </ModalHeader>
             </div>
             <ModalBody >
-              {editProperties}
+              {inspector}
             </ModalBody>
             <ModalFooter>
               <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>

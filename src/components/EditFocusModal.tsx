@@ -9,7 +9,7 @@ const EditFocusModal = (props) => {
 
   const debug = false
 
-  if (!debug) console.log('10 EditFocusModal', props);
+  if (debug) console.log('10 EditFocusModal', props);
   
   const refresh = props.refresh
   const setRefresh = props.setRefresh

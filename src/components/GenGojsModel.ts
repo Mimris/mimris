@@ -14,7 +14,6 @@ const constants = require('../akmm/constants');
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
   const debug = false
-  if (debug) console.log('17 GenGojsModel props:', props);
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
   // const modelviews = (metis) && metis.modelviews
@@ -22,7 +21,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    if (debug) console.log('25 GenGojsModel metis:', metis);
+    if (debug) console.log('25 GenGojsModel metis:', props.phData, metis);
     const myMetis = new akm.cxMetis();
     if (debug) console.log('33 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
@@ -82,7 +81,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis?.setCurrentModelview(myModelview);
       myMetis?.setCurrentTargetModel(myTargetModel);
       myMetis?.setCurrentTargetModelview(myTargetModelview);
-      if (!debug) console.log('89 GenGojsModel  myMetis', myMetis);
+      if (debug) console.log('89 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)
       //   ? curmodview.objectviews.map((mv: any, index: any) =>
@@ -239,6 +238,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let node = nodes[i] as gjs.goObjectNode;
         node.loadNodeContent(myGoModel);
       }
+      if (debug) console.log('243 nodes', nodes);
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();

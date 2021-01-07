@@ -92,8 +92,7 @@ const LoadLocal = (props: any) => {
   }
 
   function handleSaveCurrentModelToLocalStore() {
-    if (debug) console.log('95', locState, props.ph);
-    
+    if (debug) console.log('95', locState, props.ph); 
     if (!locState) {
       const data = {
         phData:   props.ph.phData,

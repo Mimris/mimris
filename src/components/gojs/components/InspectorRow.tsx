@@ -47,7 +47,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
         <td>{this.props.id}</td>
         <td>
           <input
-            disabled={this.props.id === 'key'}
+            // disabled={this.props.id === 'key'}
             value={val}
             onChange={this.handleInputChange}
             onBlur={this.handleInputChange}>

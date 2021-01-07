@@ -85,14 +85,14 @@ class GoJSApp extends React.Component<{}, AppState> {
     this.handleOpenModal = this.handleOpenModal.bind(this);
   }
 
-  public handleInputChange (e) {
-    // this.handleOpenModal()
-    // if (e) {
-      this.setState({editedData: e })
-    // }
-    console.log('88 GoJSApp', e, this.state.editedData);
+  // public handleInputChange (e) {
+  //   // this.handleOpenModal()
+  //   // if (e) {
+  //     this.setState({editedData: e })
+  //   // }
+  //   console.log('88 GoJSApp', e, this.state.editedData);
     
-  }
+  // }
 
   public handleOpenModal () {
     this.setState({ showModal: true });

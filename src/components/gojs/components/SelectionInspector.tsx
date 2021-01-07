@@ -12,7 +12,7 @@ import { InspectorRow } from './InspectorRow';
 const debug = false;
 interface SelectionInspectorProps {
   selectedData: any;
-  onInputChange: (id: string, value: string, obj: any, isBlur: boolean) => void;
+  onInputChange: (id: string, value: string, selectedData: any, isBlur: boolean) => void;
 }
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
@@ -105,7 +105,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    if (debug) console.log('70 SelectionInspector ', dets);
+    if (!debug) console.log('108 SelectionInspector ', dets);
     return dets;
   }
 

@@ -247,22 +247,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (!debug) console.log('223 nodeInfo', d, myMetis);
+      if (debug) console.log('250 nodeInfo', d, myMetis);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
-      let str = "Type: " + d.object.type.name;
-      msg += printf(format1, str);
-      str = "Name: " + d.name;
-      msg += printf(format1, str);
-      str = "Description: " + d.object.description;
-      msg += printf(format1, str);
+      msg += printf(format2, "Type", d.object.type.name);
+      msg += printf(format2, "Name", d.name);
+      msg += printf(format2, "Description", d.object.description);
       if (d.group) {
         const group = myMetis.gojsModel.findNode(d.group);
-        str = "member of " + group.name;
-        msg += printf(format1, str);
+        msg += printf(format2, "member of", group.name);
       }
-      str = "Attributes:"; 
+      if (debug) console.log('262 nodeInfo', msg);
+      let str = "Attributes:"; 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
@@ -273,8 +270,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('273 nodeInfo', prop);
         const value = obj.getStringValue2(prop.name);
         const p = prop.name + ': ' + value;
-        str = printf(format2, prop.name, value);
-        msg += str;
+        msg += printf(format2, prop.name, value);
       }
       return msg;
     }

@@ -10,7 +10,7 @@ interface InspectorRowProps {
   id: string;
   value: string;
   obj: any;
-  onInputChange: (key: string, value: string, obj: any, isBlur: boolean) => void;
+  onInputChange: (id: string, value: string, obj: any, isBlur: boolean) => void;
 }
 
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
@@ -20,7 +20,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
 
   private handleInputChange(e: any) {
-    if (debug) console.log('21 InspectorRow: this.props', this.props);
+    if (!debug) console.log('21 InspectorRow: this.props', this.props);
     if (debug) console.log('22 InspectorRow: e.target', e.target, e);
     this.props.onInputChange(this.props.id, e.target.value,  this.props.obj, e.type === 'blur');
   }

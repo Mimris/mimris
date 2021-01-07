@@ -21,7 +21,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    if (debug) console.log('25 GenGojsModel metis:', props.phData, metis);
+    if (!debug) console.log('25 GenGojsModel metis:', props.phData, metis);
     const myMetis = new akm.cxMetis();
     if (debug) console.log('33 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
@@ -51,7 +51,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
       
       const myMetamodel = myModel?.metamodel;
-      if (debug) console.log('53 GenGojsModel myMetamodel :', myMetamodel);
+      if (!debug) console.log('53 GenGojsModel myMetamodel :', myMetamodel);
       if (debug) console.log('61 GenGojsModel myMetamodelRef :', curmod.metamodelRef, curmetamodel);
       if (debug) console.log('62 GenGojsModel myTargetMetamodelRef :', curmod.targetMetamodelRef, curtargetmodel);
       let myTargetMetamodel = curtargetmetamodel || null;
@@ -262,7 +262,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   function buildGoMetaPalette() {
     const myGoMetaPalette = new gjs.goModel(utils.createGuid(), "myMetaPalette", null);
     const nodeArray = new Array();
-    const palNode1 = new gjs.paletteNode("01", "objecttype", "Object type", "Object type", "");
+    const palNode1 = new gjs.paletteNode(utils.createGuid(), "objecttype", "Object type", "Object type", "");
     nodeArray.push(palNode1);
     let links = '[]';
     let linkArray = JSON.parse(links);

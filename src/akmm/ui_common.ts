@@ -1011,8 +1011,8 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
             if (debug) console.log('1035 reltype', reltype);
             if (reltype) {  // Existing type - create a copy                  
                 const relkind = reltype.getRelshipKind();
-                const fromObjType = fromTypeNode.objtype;
-                const toObjType = toTypeNode.objtype;
+                const fromObjType = fromTypeNode.objecttype;
+                const toObjType = toTypeNode.objecttype;
                 const reltype2 = new akm.cxRelationshipType(utils.createGuid(), reltype.name, fromObjType, toObjType, "");
                 reltype2.setModified();
                 reltype2.setRelshipKind(relkind);

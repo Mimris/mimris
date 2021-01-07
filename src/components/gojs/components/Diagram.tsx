@@ -247,7 +247,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (debug) console.log('223 nodeInfo', d);
+      if (!debug) console.log('223 nodeInfo', d, myMetis);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";

@@ -1776,7 +1776,10 @@ export class cxMetaObject {
         this.deleted = false;
         this.modified = false;
         if (name == null) this.name = id;
-        if (description == null) this.description = "";
+        if (description == null) 
+            this.description = "";
+        else
+            this.description = description;
     }
     // Methods
     getNameId(): string {

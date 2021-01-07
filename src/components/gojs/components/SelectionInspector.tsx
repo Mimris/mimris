@@ -21,6 +21,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
+    if (!debug) console.log('24  myMetis', myMetis);
     const selObj = this.props.selectedData;
     if (!selObj)
       return;
@@ -51,7 +52,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let row;
       if (k ) {
         let val = selObj[k]; 
-        if (!debug) console.log('52 SelectionInspector: k, val, selObj', k, val, selObj);
+        if (debug) console.log('52 SelectionInspector: k, val, selObj', k, val, selObj);
         if (true) { // Filter values
           if (typeof(val) === 'object') continue;
           if (k === 'class') continue;

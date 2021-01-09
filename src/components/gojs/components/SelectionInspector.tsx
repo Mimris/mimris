@@ -21,7 +21,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
-    if (!debug) console.log('24  myMetis', myMetis);
+    if (!debug) console.log('24  myMetis', myMetis, this.props.selectedData);
     const selObj = this.props.selectedData;
     if (!selObj)
       return;
@@ -52,7 +52,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let row;
       if (k ) {
         let val = selObj[k]; 
-        if (debug) console.log('52 SelectionInspector: k, val, selObj', k, val, selObj);
+        if (!debug) console.log('52 SelectionInspector: k, val, selObj', k, val, selObj);
         if (true) { // Filter values
           if (typeof(val) === 'object') continue;
           if (k === 'class') continue;
@@ -92,12 +92,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (!val) val = "";
         }
         row  = <InspectorRow
-                key={k}
-                id={k}
-                value={val}
-                obj= {selObj}
-                onInputChange={this.props.onInputChange} 
-               />
+          key={k}
+          id={k}
+          value={val}
+          obj= {selObj}
+          onInputChange={this.props.onInputChange} 
+        />
       }
       if (k === 'key') {
         dets.unshift(row); // key always at start
@@ -108,8 +108,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (!debug) console.log('108 SelectionInspector ', dets);
     return dets;
   }
-
+  
   public render() {
+    if (!debug) console.log('113 SelectionInspector ', this.renderObjectDetails());
+
     return (
       <div id='myInspectorDiv' className='inspector'>
         <table>

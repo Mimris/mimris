@@ -15,7 +15,7 @@ import FieldDiv from './FieldDiv'
 const EditProperties = (props) => {
 
   const debug = false
-  if (!debug) console.log('8 EditProperties', props);
+  if (debug) console.log('8 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);
@@ -34,12 +34,12 @@ const EditProperties = (props) => {
     const data = e 
     // const data = { ...edititem, ...e }
     props.onInputChange(e)
-    if (!debug) console.log('36 EditProperties', props);
+    if (debug) console.log('36 EditProperties', props);
     // if (data && data.id) {
     //   props.handleInputChange(e)
     dispatch({ type: props.type, data })
     // }
-    if (!debug) console.log('41 EditProperties', edititem, e, props.item);
+    if (debug) console.log('41 EditProperties', edititem, e, props.item);
   }
 
   function listAllProperties(o) { // list all obj properties incl prototype properties

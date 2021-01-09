@@ -549,7 +549,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
     }
     myGoModel.links = links;
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
-    if (!debug) console.log('531 deleteLink', link);
+    if (debug) console.log('531 deleteLink', link);
     if (link) {
         // Handle deleteViewsOnly
         if (myMetis.currentModel.deleteViewsOnly) {

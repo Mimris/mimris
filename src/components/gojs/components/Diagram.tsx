@@ -247,7 +247,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (debug) console.log('250 nodeInfo', d, myMetis);
+      if (debug) console.log('250 nodeInfo', d.object);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
@@ -272,6 +272,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const p = prop.name + ': ' + value;
         msg += printf(format2, prop.name, value);
       }
+      if (debug) console.log('275 nodeInfo', obj);
       return msg;
     }
 
@@ -527,7 +528,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myModelView":        myMetis.currentModelview,
                 "myDiagram":          e.diagram,
                 "dispatch":           e.diagram.dispatch
-            }
+              }
               const contextmenu = obj.part;  
               const part       = contextmenu.adornedPart; 
               const currentObj = part.data.object;
@@ -540,7 +541,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let data = mn;
                 e.diagram.dispatch({ type: 'UPDATE_UNIT_PROPERTIES', data })
               })
-          },
+            },
             function(o: any) { 
               let obj = o.part.data.object;
               let objtype = obj.type;
@@ -616,12 +617,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) { 
               const node = obj.part.data;
               if (node.category === 'Object') {
-                const object = node.object;
+                let object = node.object;
                 if (!object) return;
+                object = myMetis.findObject(object.id);
                 const objtype = object?.type;
                 if (objtype) {
                   const choices: string[]  = [];
                   choices.push('description');
+                  if (objtype.name === 'ViewFormat')
+                    choices.push('value');
+                  if (objtype.name === 'InputPattern')
+                    choices.push('value');
                   const props = objtype.properties;
                   for (let i=0; i<props?.length; i++) {
                     const prop = props[i];
@@ -643,10 +649,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       if (propname === 'description') {
                         object.description = value;
                       } else {
+                        console.log('651 prop, value', propname, value);
                         object.setStringValue2(propname, value);
                       }
-                      if (debug) console.log('618 object', object);
-                    }
+                      if (debug) console.log('654 object', object);
+                      const modifiedObjects = new Array();
+                      const gqlObj = new gql.gqlObject(object);
+                      if (debug) console.log('656 object, gqlObj', object, gqlObj);
+                      modifiedObjects.push(gqlObj);
+                      modifiedObjects?.map(mn => {
+                        let data = (mn) && mn
+                        myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+                      })
+                                              }
                   }
                 }
               }
@@ -687,7 +702,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               currentModel.pasteViewsOnly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
-            function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
+            function (o: any) {
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
           makeButton("Paste View",
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel;
@@ -812,10 +829,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
-            function (o: any) { return o.diagram.commandHandler.canUndo(); }),
+            function (o: any) { 
+              return o.diagram.commandHandler.canUndo(); 
+            }),
           makeButton("Redo",
             function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
-            function (o: any) { return o.diagram.commandHandler.canRedo(); }),
+            function (o: any) { 
+              return o.diagram.commandHandler.canRedo(); 
+            }),
           // makeButton("Group",
           //   function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
           //   function (o: any) { 

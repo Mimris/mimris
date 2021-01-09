@@ -737,16 +737,27 @@ export class gqlObject {
         this.modified       = object.modified;
 
         // Code
-        const values = object.valueset;
-        if (debug) console.log('638 gqlObject - values', values);
-        if (values) {
-            this.propvalues = new Array();
-            const cnt = values.length;
-            for (let i = 0; i < cnt; i++) {
-                const val = values[i];
-                this.addPropertyValue(val);
-            }
+        if (debug) console.log('740 this', this);
+        const objtype = object.type;
+        const props = objtype.properties;
+        for (let i=0; i<props?.length; i++) {
+          const prop = props[i];
+          const propname = prop.name;
+          const value = object.getStringValue2(propname);
+          if (debug) console.log('747 propname, value', propname, value);
+          this[propname] = value;                      
         }
+        if (debug) console.log('750 this', this);
+        // const values = object.valueset;
+        // if (debug) console.log('638 gqlObject - values', values);
+        // if (values) {
+        //     this.propvalues = new Array();
+        //     const cnt = values.length;
+        //     for (let i = 0; i < cnt; i++) {
+        //         const val = values[i];
+        //         this.addPropertyValue(val);
+        //     }
+        // }
     }
     addPropertyValue(val: akm.cxPropertyValue) {
         if (!val)

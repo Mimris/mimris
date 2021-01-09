@@ -21,9 +21,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
 
   private handleInputChange(e: any) {
     if (debug) console.log('21 InspectorRow: this.props', this.props);
-    if (!debug) console.log('22 InspectorRow: e.target', e.target.value, e.target, e);
-    this.props.onInputChange(this.props.id, e.target.value,  this.props.obj, e.onBlur);
-    // this.props.onInputChange(this.props.id, e.target.value,  this.props.obj, e.type === 'blur');
+    if (debug) console.log('22 InspectorRow: e.target', e.target, e);
+    this.props.onInputChange(this.props.id, e.target.value,  this.props.obj, e.type === 'blur');
   }
   
   private formatLocation(loc: string): string {
@@ -40,7 +39,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   
   public render() {
     let val = this.props.value;
-    if (!debug) console.log('43 InspectorRow: val', val);
+    if (debug) console.log('43 InspectorRow: val', val);
     if (this.props.id === 'loc') {
       val = this.formatLocation(this.props.value);
     }

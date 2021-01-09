@@ -262,7 +262,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   function buildGoMetaPalette() {
     const myGoMetaPalette = new gjs.goModel(utils.createGuid(), "myMetaPalette", null);
     const nodeArray = new Array();
-    const palNode1 = new gjs.paletteNode(utils.createGuid(), "objecttype", "Object type", "Object type", "");
+    const palNode1 = new gjs.paletteNode('01', "objecttype", "Object type", "Object type", "");
     nodeArray.push(palNode1);
     let links = '[]';
     let linkArray = JSON.parse(links);

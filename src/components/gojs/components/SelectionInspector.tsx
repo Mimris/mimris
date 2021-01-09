@@ -44,17 +44,18 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const props = type.properties;
     for (let i=0; i<props?.length; i++) {
       const prop = props[i];
-      inst[prop.name] = "";
+      const v = inst[prop.name];
+      if (!v) inst[prop.name] = "";
     }
-    if (!debug) console.log('46 inst', inst);
+    if (!debug) console.log('49 inst', inst, selObj);
     const dets = [];
     for (const k in inst) {
       let row;
       if (k ) {
         let val = selObj[k]; 
-        if (debug) console.log('52 SelectionInspector: k, val, selObj', k, val, selObj);
         if (true) { // Filter values
           if (typeof(val) === 'object') continue;
+          if (k === 'id') continue;
           if (k === 'class') continue;
           if (k === 'category') continue;
           if (k === 'nameId') continue;
@@ -78,19 +79,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'deleted') continue;
           if (k === 'modified') continue;
         }
-        if (k === 'id') {
-          val = inst.id;
-        } else if (k === 'typename') {
-          val = inst.type.name;
-        } else if (k === 'name') {
-          val = inst.name;
-        } else if (k === 'description') {
-          val = inst.description;
-          if (!val) val = "";
-        } else {
-          val = inst.getStringValue2(k);
-          if (!val) val = "";
-        }
+        val = inst[k];
+        if (!debug) console.log('81 SelectionInspector: k, val', k, val);
+        if (!val) val = "";
+        if (!debug) console.log('83 propname, value:', k, inst[k], inst);
         row  = <InspectorRow
                 key={k}
                 id={k}
@@ -105,7 +97,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    if (!debug) console.log('108 SelectionInspector ', dets);
+    if (!debug) console.log('114 SelectionInspector ', dets);
     return dets;
   }
 

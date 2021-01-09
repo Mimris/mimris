@@ -660,18 +660,15 @@ function reducer(state = InitialState, action) {
               objects: [
                 ...curmo.objects.slice(0, curoindexo),
                 {
-                  ...curmo.objects[curoindexo],  
-                  id: action.data.id,
-                  name: action.data.name,
-                  description: action.data.description,
-                  typeRef: action.data.typeRef,
-                  objectviews: action.data.objectviews,
-                  // propertyValues: {
-                  //   ...curmo.objects[curoindexo]?.propertyValues,
-                  //   propertyValues: action.data.propertyValues,
-                  // },
-                  deleted: action.data.deleted,
-                  modified: action.data.modified,    
+                  ...curmo.objects[curoindexo], 
+                  ...action.data, 
+                  // id: action.data.id,
+                  // name: action.data.name,
+                  // description: action.data.description,
+                  // typeRef: action.data.typeRef,
+                  // objectviews: action.data.objectviews,
+                  // deleted: action.data.deleted,
+                  // modified: action.data.modified,    
                 },
                 ...curmo.objects.slice(curoindexo + 1, curmo.objects.length)
               ],

@@ -1005,7 +1005,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
     typename = data.name;
     if (debug) console.log('1027 data', data, myGoMetamodel);
     if (typename) {
-        if (debug) console.log('1031 from and to type nodes', fromTypeNode, toTypeNode);
+        if (!debug) console.log('1031 from and to type nodes', fromTypeNode, toTypeNode);
         if (fromTypeNode && toTypeNode) {
             let reltype   = myMetis.findRelationshipTypeByName(typename);
             if (debug) console.log('1035 reltype', reltype);

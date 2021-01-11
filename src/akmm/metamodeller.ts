@@ -58,6 +58,7 @@ export class cxMetis {
     currentTemplateModelview:   cxModelView | null = null;
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
+    selectedData:       any = null;
     // Constructor
     constructor() {
     }
@@ -4577,12 +4578,16 @@ export class cxInstance extends cxMetaObject {
 
 export class cxObject extends cxInstance {
     objectviews: cxObjectView[] | null;
+    viewFormat: string;
+    inputPattern: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, type, description);
         this.class = 'cxObject';
         this.fs_collection = constants.fs.FS_C_OBJECTS;    // Firestore collection
         this.category = constants.gojs.C_OBJECT;
         this.objectviews = null;
+        this.viewFormat = "";
+        this.inputPattern = "";
     }
     // Methods
     addObjectView(objview: cxObjectView) {
@@ -4600,6 +4605,18 @@ export class cxObject extends cxInstance {
     }
     getObjectType(): cxObjectType | null {
         return this.type;
+    }
+    setViewFormat(fmt) {
+        this.viewFormat = fmt;
+    }
+    getViewFormat() {
+        return this.viewFormat;
+    }
+    setInputPattern(pattern) {
+        this.inputPattern = pattern;
+    }
+    getInputPattern() {
+        return this.inputPattern;
     }
 }
 

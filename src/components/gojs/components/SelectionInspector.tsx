@@ -78,6 +78,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'relshipviews') continue;
           if (k === 'deleted') continue;
           if (k === 'modified') continue;
+          if (type.name !== 'ViewFormat') {
+            if (k === 'viewFormat') continue;
+          }
+          if (type.name !== 'InputPattern') {
+            if (k === 'inputPattern') continue;
+          }
         }
         val = inst[k];
         if (!debug) console.log('81 SelectionInspector: k, val', k, val);

@@ -40,8 +40,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   public render() {
     let val = this.props.value;
     if (debug) console.log('43 InspectorRow: val', val);
-    if (this.props.id === 'loc') {
-      val = this.formatLocation(this.props.value);
+    if (val === 'Not valid') {
+      alert ('Input is not valid: ' + val );
     }
     return (  
       <tr>

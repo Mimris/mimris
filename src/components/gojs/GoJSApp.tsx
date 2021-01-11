@@ -214,6 +214,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           myInst.description = value;
           if (debug) console.log('214 myInst', myInst);
           break;
+        case 'viewFormat':
+          myInst.viewFormat = value;
+          if (debug) console.log('214 myInst', myInst);
+          break;
+        case 'inputPattern':
+          myInst.inputPattern = value;
+          if (debug) console.log('214 myInst', myInst);
+          break;
         default:
           // Handle properties
           if (debug) console.log('218 myInst', myInst);
@@ -679,6 +687,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let sel = e.subject.part;
         let data = sel.data;
         this.state.selectedData = sel.data;
+        return;
         this.handleOpenModal();
 
         if (debug) console.log('554 ObjectDoubleClicked', sel.data, data, this.state.editedData);
@@ -1138,7 +1147,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myGoModel         ={this.state.myGoModel}
           myGoMetamodel     ={this.state.myGoMetamodel}
           dispatch          ={this.state.dispatch}
-          // handleOpenModal   ={this.handleOpenModal}
+          //handleOpenModal   ={this.handleOpenModal}
         />
         {inspector}
         <>

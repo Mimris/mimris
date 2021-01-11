@@ -7,9 +7,11 @@ const debug = false;
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import * as ReactModal from 'react-modal';
 // import Popup from 'reactjs-popup';
 //import 'reactjs-popup/dist/index.css';
+import { SelectionInspector } from '../components/SelectionInspector';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
 import * as gql from '../../../akmm/ui_graphql';
@@ -44,15 +46,14 @@ interface DiagramProps {
   modelData:          go.ObjectData;
   myMetis:            akm.cxMetis;
   dispatch:           any;  
-  handleOpenModal:    any;
   skipsDiagramUpdate: boolean;
   onDiagramEvent:     (e: go.DiagramEvent) => void;
   onModelChange:      (e: go.IncrementalData) => void;
 }
 
-// interface DiagramState {
-//   showModal: boolean;
-// }
+interface DiagramState {
+  showModal: boolean;
+}
 
 
 export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
@@ -68,10 +69,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     this.myMetis = props.myMetis;
     this.diagramRef = React.createRef(); 
-    // this.initDiagram = this.initDiagram.bind(this);
-    // this.state = { showModal: false };
-    // this.handleOpenModal = this.handleOpenModal.bind(this);
-    // this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.state = { showModal: false };
+    this.initDiagram = this.initDiagram.bind(this);
+    this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
 }
   /**
    * Get the diagram reference and add any desired diagram listeners.
@@ -129,15 +130,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  // public handleOpenModal() {
-  //   this.setState({ showModal: true });
-  //   console.log('126 Diagram', this.state);
-    
-  // }
+  public handleOpenModal() {
+    this.setState({ showModal: true });
+    console.log('126 Diagram', this.state);
+  } 
 
-  // public handleCloseModal() {
-  //   this.setState({ showModal: false });
-  // }
+  public handleCloseModal() {
+    this.setState({ showModal: false });
+  }
 
 
   /**
@@ -233,7 +233,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.layout.isInitial = false;
     myDiagram.layout.isOngoing = false;
     myDiagram.dispatch = this.myMetis?.dispatch;
-    myDiagram.handleOpenModal = this.myMetis?.handleOpenModal;
+    myDiagram.handleOpenModal = this.handleOpenModal;
+    myDiagram.handleCloseModal = this.handleCloseModal;
     myDiagram.toolTip =
       $("ToolTip", { margin: 4 },
         $(go.TextBlock, new go.Binding("text", "", diagramInfo),
@@ -625,9 +626,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const choices: string[]  = [];
                   choices.push('description');
                   if (objtype.name === 'ViewFormat')
-                    choices.push('value');
+                    choices.push('viewFormat');
                   if (objtype.name === 'InputPattern')
-                    choices.push('value');
+                    choices.push('inputPattern');
                   const props = objtype.properties;
                   for (let i=0; i<props?.length; i++) {
                     const prop = props[i];
@@ -677,6 +678,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     return true;
                   }
                 }
+              }
+              return false; 
+            }),
+          makeButton("Edit Object",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              myMetis.selectedData = node;
+              myDiagram.handleOpenModal();
+
+                // 
+            },
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.category === 'Object') {
+                return true;
               }
               return false; 
             }),
@@ -1622,6 +1638,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+        { doubleClick: this.handleOpenModal },
           new go.Binding("deletable"),
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
           {
@@ -2111,6 +2128,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('1278 Diagram', this.props.nodeDataArray);
     if (debug) console.log('1079 Diagram', this.props.linkDataArray);
 
+    let inspector;
+    if (!debug) console.log('2132 myMetis', this.props.myMetis);
+    if (this.props.myMetis.selectedData !== null) {
+      inspector = 
+        <div className="p-2" style={{backgroundColor: "#ddd"}}>
+          <p>Selected Object Properties:</p>
+          <SelectionInspector 
+            myMetis={this.props.myMetis}
+            selectedData={this.props.myMetis.selectedData}
+            onInputChange={this.handleInputChange}
+          />;
+        </div>
+    }
+
     return (
       <>
         <ReactDiagram
@@ -2124,6 +2155,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
+          <Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
+            {/* <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} > */}
+            <div className="bg-light">
+              <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
+                onClick={() => { this.handleCloseModal() }} ><span>x</span>
+              </Button>
+              <ModalHeader className="bg-light" style={{width: "70%"}}>
+                <span className="text-secondary">Edit attributes :</span> 
+                <span className="name pl-2" style={{minWidth: "50%"}} >{this.state.selectedData?.name} </span>
+              </ModalHeader>
+            </div>
+            <ModalBody >
+              {inspector}
+            </ModalBody>
+            <ModalFooter>
+              <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
+            </ModalFooter>
+          </Modal>
         {/* <ReactModal 
           // isOpen={true}
           isOpen={this.state.showModal}

@@ -21,12 +21,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
-    if (debug) console.log('24  myMetis', myMetis, this.props.selectedData);
+    if (!debug) console.log('24  myMetis', myMetis, this.props.selectedData);
     const selObj = this.props.selectedData;
     if (!selObj)
       return;
     const category = selObj.category;
-    let inst, instview, fields;
+    let inst, instview;
     if (category === 'Object') {
       inst = selObj.object;
       inst = myMetis.findObject(inst?.id);
@@ -60,9 +60,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'category') continue;
           if (k === 'nameId') continue;
           if (k === 'fs_collection') continue;
+          if (k === 'parentModel') continue;
           if (k === 'type') continue;
           if (k === 'typeRef') continue;
           // if (k === 'typeName') continue;
+          if (k === 'typeview') continue;
           if (k === 'typeviewRef') continue;
           if (k === 'fromObject') continue;
           if (k === 'toObject') continue;

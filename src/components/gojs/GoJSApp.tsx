@@ -803,7 +803,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
         this.state.selectedData = sel.data
-        if (!debug) console.log('498 GoJSApp :', sel.data, sel.data.name, sel.data.object);
+        if (debug) console.log('498 GoJSApp :', sel.data, sel.data.name, sel.data.object);
         if (sel) {
           if (sel instanceof go.Node) {
             const key = sel.data.key;
@@ -1097,12 +1097,8 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   public render() {
     
-    // const [modal, setModal] = useState(false);
-    // this.state.modal = (modal) ? !modal : modal
-    // const toggle = () => this.handleCloseModal();
-
     const selectedData = this.state.selectedData;
-    if (debug) console.log('1075 selectedData', this.state.selectedData, this.props);
+    if (debug) console.log('1075 selectedData', selectedData, this.props);
     let inspector;
     if (selectedData !== null) {
       inspector = 
@@ -1116,23 +1112,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         </div>
     }
 
-    // let editProperties; 
-    // if (selectedData !== null) {
-    //   editProperties =
-    //     <>
-    //       <EditProperties 
-    //         item={selectedData} 
-    //         curobj={selectedData} 
-    //         type={'UPDATE_OBJECTVIEW_PROPERTIES'} 
-    //         selectedData={this.state.selectedData}
-    //         onInputChange={this.handleInputChange}
-    //       />
-    //     </>
-    // }
-
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
-    // if (debug) console.log('827 dispatch', this.state.myMetis.dispatch);
-
+    if (debug) console.log('1120 dispatch', this.state.myMetis.dispatch);
     return ( (this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper
@@ -1147,7 +1128,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           myGoModel         ={this.state.myGoModel}
           myGoMetamodel     ={this.state.myGoMetamodel}
           dispatch          ={this.state.dispatch}
-          //handleOpenModal   ={this.handleOpenModal}
         />
         {inspector}
         <>
@@ -1178,27 +1158,3 @@ class GoJSApp extends React.Component<{}, AppState> {
 }
 
 export default GoJSApp;
-
-        {/* <label>
-          Allow Relinking?
-          <input
-            type='checkbox'
-            id='relink'
-            checked={this.state.modelData.canRelink}
-            onChange={this.handleRelinkChange} />
-        </label> */}
-        {/* {inspector} */}
-        {/* <ReactModal className="bg-dark m-5 p-1 w-50 flex"
-          isOpen={this.state.showModal}
-          // areaHideApp={false}
-          contentLabel="onRequestClose Example"
-          onRequestClose={this.handleCloseModal}
-          style={{ overlay: { zIndex: 100 } }}
-          >
-            <div className="bg-light p-2">
-              <button className="btn-sm float-right" onClick={this.handleCloseModal}>Close Modal</button>
-              <p className="">Edit Object View</p>
-
-              {inspector}
-            </div>
-        </ReactModal> */}

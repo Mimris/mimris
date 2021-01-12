@@ -2173,17 +2173,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
             </ModalFooter>
           </Modal>
-        {/* <ReactModal 
-          // isOpen={true}
-          isOpen={this.state.showModal}
-          areaHideApp={false}
-          contentLabel="onRequestClose Example"
-          onRequestClose={this.handleCloseModal}
-          style={{ overlay: { zIndex: 100 } }}
-        >
-          <p>Modal text!</p>
-          <button onClick={this.handleCloseModal}>Close Modal</button>
-        </ReactModal> */}
       </>
     );
   }

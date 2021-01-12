@@ -257,6 +257,9 @@ export class cxMetis {
                                     const item = objs[i];
                                     if (includeDeleted || !item.deleted) { 
                                         const obj = new cxObject(item.id, item.name, null, item.description);
+                                        for (let k in item) {
+                                            obj[k] = item[k];
+                                        }
                                         if (!obj) continue;
                                         model.addObject(obj);
                                         this.addObject(obj);
@@ -859,8 +862,10 @@ export class cxMetis {
             //obj.setMetis(this);
             if (this.objects == null)
                 this.objects = new Array();
-            if (!this.findObject(obj.id))
+            if (!this.findObject(obj.id)) {
+                if (debug) console.log('863 addObject:', obj);
                 this.objects.push(obj);
+            }
         }
     }
     addRelationship(rel: cxRelationship) {
@@ -4588,6 +4593,14 @@ export class cxObject extends cxInstance {
         this.objectviews = null;
         this.viewFormat = "";
         this.inputPattern = "";
+
+        // Handle properties
+        const props = this.type?.properties;
+        for (let i=0; i<props?.length; i++) {
+          const prop = props[i];
+          this[prop.name] = "";
+        } 
+        if (debug) console.log('4600 obj', this);   
     }
     // Methods
     addObjectView(objview: cxObjectView) {

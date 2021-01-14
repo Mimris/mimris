@@ -176,7 +176,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       })
     );
     if (!debug) console.log('197 this.state', this.state);
-    const myMetis = this.state.myMetis;
+    const myMetis = this.myMetis;
     let inst, instview, myInst, myInstview;
     // Handle objects
     if (obj.category === 'Object') {

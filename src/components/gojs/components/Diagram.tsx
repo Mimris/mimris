@@ -519,7 +519,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       }  
                   }
               }
-              let objtype = prompt('Enter one of: ' + node.choices, defText);
+              // let objtype = prompt('Enter one of: ' + node.choices, defText);
+              let objtype = myDiagram.handleOpenModal(node.choices);
               const context = {
                 "myMetis":      myMetis,
                 "myMetamodel":  myMetis.currentMetamodel,

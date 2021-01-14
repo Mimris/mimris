@@ -11,6 +11,7 @@ import { InspectorRow } from './InspectorRow';
 
 const debug = false;
 interface SelectionInspectorProps {
+  myMetis: any;
   selectedData: any;
   onInputChange: (id: string, value: string, selectedData: any, isBlur: boolean) => void;
 }
@@ -21,7 +22,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
-    if (!debug) console.log('24  myMetis', myMetis, this.props.selectedData);
+    if (debug) console.log('24  myMetis', this.props.myMetis, this.props.selectedData);
     const selObj = this.props.selectedData;
     if (!selObj)
       return;
@@ -47,7 +48,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (!debug) console.log('49 inst', props, inst, selObj);
+    if (debug) console.log('49 inst', props, inst, selObj);
     const dets = [];
     for (const k in inst) {
       let row;
@@ -89,7 +90,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         val = inst[k];
-        if (!debug) console.log('81 SelectionInspector: k, val', k, val);
+        if (debug) console.log('81 SelectionInspector: k, val', k, val);
         if (!val) val = "";
         if (debug) console.log('83 propname, value:', k, inst[k], inst);
         row  = <InspectorRow

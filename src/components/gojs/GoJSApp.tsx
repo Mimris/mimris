@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -55,8 +55,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     super(props);
     // if (debug) console.log('48 GoJSApp',props.nodeDataArray);
     this.state = {
-      nodeDataArray: this.props?.nodeDataArray,
-      linkDataArray: this.props?.linkDataArray,
+      nodeDataArray: this.props.nodeDataArray,
+      linkDataArray: this.props.linkDataArray,
       modelData: {
         canRelink: true
       },
@@ -114,9 +114,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   /**
    * Update map of link keys to their index in the array.
-   */
-  private refreshLinkIndex(linkArr: Array<go.ObjectData>) {
-    this.mapLinkKeyIdx.clear();
+   */  private refreshLinkIndex(linkArr: Array<go.ObjectData>) {    this.mapLinkKeyIdx.clear();
     linkArr.forEach((l: go.ObjectData, idx: number) => {
       this.mapLinkKeyIdx.set(l.key, idx);
     });
@@ -1107,16 +1105,18 @@ class GoJSApp extends React.Component<{}, AppState> {
   public render() {
     
     const selectedData = this.state.selectedData;
-    if (debug) console.log('1075 selectedData', selectedData, this.props);
+    if (debug) console.log('1099 selectedData', this.state.selectedData, this.props.myMetis);
     let inspector;
     if (selectedData !== null) {
+      if (debug) console.log('1102 selectedData', this.state.selectedData, this.props.myMetis);
+    // if (selectedData !== null && this.state.myMetis !== null) {
       inspector = 
         <div className="p-2" style={{backgroundColor: "#ddd"}}>
           <p>Selected Object Properties:</p>
           <SelectionInspector 
-            myMetis={this.state.myMetis}
-            selectedData={this.state.selectedData}
-            onInputChange={this.handleInputChange}
+            myMetis       ={this.state.myMetis}
+            selectedData  ={this.state.selectedData}
+            onInputChange ={this.handleInputChange}
           />;
         </div>
     }
@@ -1132,7 +1132,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}
-          onInputChange     ={this.handleInputChange}
+          // onInputChange     ={this.handleInputChange}
           myMetis           ={this.state.myMetis}
           myGoModel         ={this.state.myGoModel}
           myGoMetamodel     ={this.state.myGoMetamodel}

@@ -58,6 +58,9 @@ interface DiagramState {
 
 
 export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
+  // Maps to store key -> arr index for quick lookups
+  private mapNodeKeyIdx: Map<go.Key, number>;
+  private mapLinkKeyIdx: Map<go.Key, number>;
 
   /**
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
@@ -74,6 +77,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showModal: false,
       selectedData: null 
     };
+    // init maps
+    this.mapNodeKeyIdx = new Map<go.Key, number>();
+    this.mapLinkKeyIdx = new Map<go.Key, number>();
 
     this.initDiagram = this.initDiagram.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
@@ -154,7 +160,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.setState(
       produce((draft: AppState) => {
         const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-        if (debug) console.log('177 data', data);
+        if (!debug) console.log('177 data', data, this);
         data[propname] = value;
         if (debug) console.log('179 data', data[propname], value);
         if (isBlur) {
@@ -280,6 +286,53 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     if (debug) console.log('288 myMetis', myMetis);
   }
+
+    /**
+   * Update map of node keys to their index in the array.
+   */
+  private refreshNodeIndex(nodeArr: Array<go.ObjectData>) {
+    this.mapNodeKeyIdx.clear();
+    nodeArr.forEach((n: go.ObjectData, idx: number) => {
+      this.mapNodeKeyIdx.set(n.key, idx);
+    });
+  }
+
+  /**
+   * Update map of link keys to their index in the array.
+   */  private refreshLinkIndex(linkArr: Array<go.ObjectData>) {    this.mapLinkKeyIdx.clear();
+    linkArr.forEach((l: go.ObjectData, idx: number) => {
+      this.mapLinkKeyIdx.set(l.key, idx);
+    });
+  }
+
+  private getNode(goModel: any, key: string) {
+    const nodes = goModel?.nodes;
+    if (nodes) {
+      for (let i = 0; i < nodes?.length; i++) {
+        const node = nodes[i];
+        if (node) {
+          if (node.key === key)
+            return node;
+        }
+      }
+    }
+    return null;
+  }
+
+  private getLink(goModel: any, key: string) {
+    const links = goModel.links;
+    if (links) {
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        if (link) {
+          if (link.key === key)
+            return link;
+        }
+      }
+    }
+    return null;
+  }
+
 
   /**
    * Diagram initialization method, which is passed to the ReactDiagram component.

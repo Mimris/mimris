@@ -5,6 +5,7 @@
 const debug = false;
 
 import * as go from 'gojs';
+import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
@@ -69,10 +70,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     this.myMetis = props.myMetis;
     this.diagramRef = React.createRef(); 
-    this.state = { showModal: false };
+    this.state = { 
+      showModal: false,
+      selectedData: null 
+    };
+
     this.initDiagram = this.initDiagram.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
 }
   /**
    * Get the diagram reference and add any desired diagram listeners.
@@ -130,15 +136,150 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  public handleOpenModal() {
-    this.setState({ showModal: true });
-    console.log('126 Diagram', this.state);
+  public handleOpenModal(node) {
+    this.setState({ 
+      selectedData: node,
+      showModal: true
+    });
+    console.log('143 Diagram', this.state.selectedData);
   } 
 
   public handleCloseModal() {
     this.setState({ showModal: false });
   }
 
+  public handleInputChange(propname: string, value: string, obj: any, isBlur: boolean) {
+    if (debug) console.log('151 GoJSApp handleInputChange:', propname, value, obj, isBlur);
+    if (debug) console.log('152 this.state', this.state);
+    this.setState(
+      produce((draft: AppState) => {
+        const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
+        if (debug) console.log('177 data', data);
+        data[propname] = value;
+        if (debug) console.log('179 data', data[propname], value);
+        if (isBlur) {
+          const key = data.key;
+          if (obj.category === 'Relationship') {  // negative keys are links
+            const idx = this.mapLinkKeyIdx.get(key);
+            if (idx !== undefined) {
+              draft.linkDataArray[idx] = data;
+              draft.skipsDiagramUpdate = false;
+            }
+          } else if (obj.category === 'Object') {
+            const idx = this.mapNodeKeyIdx.get(key);
+            if (idx !== undefined) {
+              draft.nodeDataArray[idx] = data;
+              draft.skipsDiagramUpdate = false;
+            }
+          }
+        }
+      })
+    );
+    if (!debug) console.log('197 this.state', this.state);
+    const myMetis = this.state.myMetis;
+    let inst, instview, myInst, myInstview;
+    // Handle objects
+    if (obj.category === 'Object') {
+      inst = obj.object;
+      myInst = myMetis.findObject(inst.id);
+      instview = obj.objectview;
+      myInstview = myMetis.findObjectView(instview.id);
+      if (debug) console.log('206 myInst', myInst, myInstview);
+      switch(propname) {
+        case 'name':
+          myInst.name = value;
+          myInstview.name = value;
+          break;
+        case 'description':
+          myInst.description = value;
+          if (debug) console.log('214 myInst', myInst);
+          break;
+        case 'viewFormat':
+          myInst.viewFormat = value;
+          if (debug) console.log('214 myInst', myInst);
+          break;
+        case 'inputPattern':
+          myInst.inputPattern = value;
+          if (debug) console.log('214 myInst', myInst);
+          break;
+        default:
+          // Handle properties
+          if (debug) console.log('218 myInst', myInst);
+          const type = inst.type;
+          const props = type.properties;
+          for (let i=0; i<props?.length; i++) {
+            const prop = props[i];
+            if (prop.name === propname) {
+              myInst[propname] = value;
+              break;
+            }
+          }
+          if (debug) console.log('225 myInst', myInst);
+          break;
+      }
+      if (debug) console.log('227 myMetis', myMetis);
+      // Prepare and to dispatch of objectview
+      const modifiedObjectViews = new Array();
+      const gqlObjview = new gql.gqlObjectView(myInstview);
+      modifiedObjectViews.push(gqlObjview);
+      modifiedObjectViews.map(mn => {
+        let data = mn;
+        this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      })
+      // Prepare and to dispatch of object
+      const modifiedObjects = new Array();
+      const gqlObj = new gql.gqlObject(myInst);
+      modifiedObjects.push(gqlObj);
+      modifiedObjects.map(mn => {
+        let data = mn;
+        this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+      });
+      if (debug) console.log('236 modifiedObjects', modifiedObjectViews, modifiedObjects);
+    }
+
+    if (obj.category === 'Relationship') {
+        inst = obj.relship;
+        myInst = myMetis.findRelationship(inst.id);
+        instview = obj.relshipview;
+        myInstview = myMetis.findRelationshipView(instview.id);    
+      switch(propname) {
+        case 'name':
+          myInst.name = value;
+          myInstview.name = value;
+          break;
+        case 'description':
+          myInst.description = value;
+          break;
+        default:
+          // Handle properties
+          if (debug) console.log('262 myInst', myInst);
+          const type = inst.type;
+          const props = type.properties;
+          for (let i=0; i<props?.length; i++) {
+            const prop = props[i];
+            myInst.getStringValue2(prop.name)
+          }
+          break;
+      }
+      // Prepare and to dispatch of objectview
+      const modifiedRelshipViews = new Array();
+      const gqlRelview = new gql.gqlRelshipView(myInstview);
+      modifiedRelshipViews.push(gqlRelview);
+      modifiedRelshipViews.map(mn => {
+        let data = mn;
+        this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+      })
+      // Prepare and to dispatch of object
+      const modifiedRelships = new Array();
+      const gqlRel = new gql.gqlRelationship(myInst);
+      modifiedRelships.push(gqlRel);
+      modifiedRelships.map(mn => {
+        let data = mn;
+        this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+      })
+    }
+    if (debug) console.log('288 myMetis', myMetis);
+  }
 
   /**
    * Diagram initialization method, which is passed to the ReactDiagram component.
@@ -146,7 +287,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    * and maybe doing other initialization tasks like customizing tools.
    * The model's data should not be set here, as the ReactDiagram component handles that.
    */
-
 
   private initDiagram(): go.Diagram {
     // console.log('141 this', this);
@@ -684,9 +824,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              myMetis.selectedData = node;
-              myDiagram.handleOpenModal();
-
+              myDiagram.handleOpenModal(node);
                 // 
             },
             function (o: any) { 
@@ -2129,15 +2267,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('1079 Diagram', this.props.linkDataArray);
 
     let inspector;
-    if (!debug) console.log('2132 myMetis', this.props.myMetis);
-    if (this.props.myMetis.selectedData !== null) {
+    if (debug) console.log('2172 Diagram ', this.state.selectedData, this.state.myMetis);
+    if (this.state.selectedData !== null && this.myMetis != null) {
+      if (debug) console.log('2174 Diagram ', this.state.selectedData, this.state.myMetis);
       inspector = 
-        <div className="p-2" style={{backgroundColor: "#ddd"}}>
+      <div className="p-2" style={{backgroundColor: "#ddd"}}>
           <p>Selected Object Properties:</p>
           <SelectionInspector 
-            myMetis={this.props.myMetis}
-            selectedData={this.props.myMetis.selectedData}
-            onInputChange={this.handleInputChange}
+            myMetis       ={this.myMetis}
+            selectedData  ={this.state.selectedData}
+            onInputChange ={this.handleInputChange}
           />;
         </div>
     }

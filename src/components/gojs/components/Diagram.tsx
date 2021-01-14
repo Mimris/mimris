@@ -519,7 +519,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       }  
                   }
               }
-              let objtype = prompt('Enter one of: ' + node.choices, defText);
+              // let objtype = prompt('Enter one of: ' + node.choices, defText);
+              let objtype = myDiagram.handleOpenModal(node);
               const context = {
                 "myMetis":      myMetis,
                 "myMetamodel":  myMetis.currentMetamodel,
@@ -1864,7 +1865,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        // { doubleClick: this.handleOpenModal },
           new go.Binding("deletable"),
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
           {

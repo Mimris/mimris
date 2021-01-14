@@ -147,7 +147,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedData: node,
       showModal: true
     });
-    console.log('143 Diagram', this.state.selectedData);
+    console.log('143 Diagram', this, node);
   } 
 
   public handleCloseModal() {
@@ -1864,7 +1864,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        { doubleClick: this.handleOpenModal },
+        // { doubleClick: this.handleOpenModal },
           new go.Binding("deletable"),
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
           {

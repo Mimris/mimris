@@ -1,4 +1,4 @@
-
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -55,8 +55,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     super(props);
     // if (debug) console.log('48 GoJSApp',props.nodeDataArray);
     this.state = {
-      nodeDataArray: this.props.nodeDataArray,
-      linkDataArray: this.props.linkDataArray,
+      nodeDataArray: this.props?.nodeDataArray,
+      linkDataArray: this.props?.linkDataArray,
       modelData: {
         canRelink: true
       },
@@ -114,7 +114,9 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   /**
    * Update map of link keys to their index in the array.
-   */  private refreshLinkIndex(linkArr: Array<go.ObjectData>) {    this.mapLinkKeyIdx.clear();
+   */
+  private refreshLinkIndex(linkArr: Array<go.ObjectData>) {
+    this.mapLinkKeyIdx.clear();
     linkArr.forEach((l: go.ObjectData, idx: number) => {
       this.mapLinkKeyIdx.set(l.key, idx);
     });
@@ -694,117 +696,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         let sel = e.subject.part;
         let data = sel.data;
         this.state.selectedData = sel.data;
-        return;
-        this.handleOpenModal();
-
-        if (debug) console.log('554 ObjectDoubleClicked', sel.data, data, this.state.editedData);
-        if (this.state.editedData) {
-          data = this.state.editedData
-        }
-        if (debug) console.log('558 ObjectDoubleClicked', sel.data, data, this.state.editedData);
-
-        if (sel) {
-          if (sel instanceof go.Node) {
-            const key = data.key;
-            let text  = data.name;
-            const field = e.subject.name;
-            const typename = data.type;
-            if (debug) console.log('559 GoJSApp', data, text);
-            if (typename === 'Object type') {
-              // if (text === 'Edit name') {
-              //   text = prompt('Enter name');
-              // }
-              // const myNode = this.getNode(context.myGoMetamodel, key);
-              // if (myNode) {
-              //   data.name = text;
-              //   myNode.name = text;
-              //   uic.updateObjectType(myNode, field, text, context);
-              //   data.name = myNode.name;
-              //   // if (debug) console.log('218 TextEdited', myNode);
-              //   if (myNode.objtype) {
-              //     const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
-              //     modifiedTypeNodes.push(gqlObjType);
-              //     // if (debug) console.log('222 TextEdited', gqlObjType);
-              //   }
-              // }
-            } else // Object
-            {
-              // if (text === 'Edit name') {
-                //   text = prompt('Enter name');
-                //   data.name = text;
-                // }
-                // data = this.selectedData
-                const myNode = this.getNode(context.myGoModel, key);
-                if (myNode) {
-                  myNode.name = text;
-                  uic.updateObject(myNode, field, text, context);
-                  // data.name = myNode.name;
-                  if (debug) console.log('588 GoJSApp text', text, data.name);
-                const gqlObjview = new gql.gqlObjectView(myNode.objectview);
-                modifiedNodes.push(gqlObjview);
-                const gqlObj = new gql.gqlObject(myNode.objectview.object);
-                modifiedObjects.push(gqlObj);
-              }
-            }
-            const nodes = myGoModel?.nodes;
-            for (let i=0; i<nodes?.length; i++) {
-                const node = nodes[i];
-                if (node.key === data.key) {
-                    node.name = data.name;
-                    break;
-                }
-            }
-            if (debug) console.log('723 nodes', nodes);
-          }
-          if (sel instanceof go.Link) {
-            // relationship
-            const key = data.key;
-            let text = data.name;
-            let typename = data.type;
-            if (typename === 'Relationship type') {
-              const myLink = this.getLink(context.myGoMetamodel, key);
-              // if (debug) console.log('232 TextEdited', myLink);
-              if (myLink) {
-                if (text === 'Edit name') {
-                  text = prompt('Enter name');
-                  typename = text;
-                  data.name = text;
-                }
-                uic.updateRelationshipType(myLink, "name", text, context);
-                data.name = myLink.name;
-                if (myLink.reltype) {
-                  const gqlReltype = new gql.gqlRelationshipType(myLink.reltype, true);
-                  modifiedTypeLinks.push(gqlReltype);
-                  if (debug) console.log('242 TextEdited', modifiedTypeLinks);
-                }
-              }
-              context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
-            } else {
-              const myLink = this.getLink(context.myGoModel, key);
-              if (myLink) {
-                if (text === 'Edit name') {
-                  text = prompt('Enter name');
-                  data.name = text;
-                }
-                myLink.name = text;
-                uic.updateRelationship(myLink, field, text, context);
-                if (myLink.relhipview) {
-                  const gqlLink = new gql.gqlRelshipView(myLink.relshipview);
-                  modifiedLinks.push(gqlLink);
-                }
-                context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
-              }
-            }
-            const links = myGoModel.links;
-            for (let i=0; i<links.length; i++) {
-                const link = links[i];
-                if (link.key === key) {
-                    link.name = data.name;
-                    break;
-                }
-            }
-          }
-        }
+        if (!debug) console.log('699 data', data, sel);
+        this.handleOpenModal(sel);
       }
       break;
       case "ObjectSingleClicked": {
@@ -1105,18 +998,16 @@ class GoJSApp extends React.Component<{}, AppState> {
   public render() {
     
     const selectedData = this.state.selectedData;
-    if (debug) console.log('1099 selectedData', this.state.selectedData, this.props.myMetis);
+    if (debug) console.log('1075 selectedData', selectedData, this.props);
     let inspector;
     if (selectedData !== null) {
-      if (debug) console.log('1102 selectedData', this.state.selectedData, this.props.myMetis);
-    // if (selectedData !== null && this.state.myMetis !== null) {
       inspector = 
         <div className="p-2" style={{backgroundColor: "#ddd"}}>
           <p>Selected Object Properties:</p>
           <SelectionInspector 
-            myMetis       ={this.state.myMetis}
-            selectedData  ={this.state.selectedData}
-            onInputChange ={this.handleInputChange}
+            myMetis={this.state.myMetis}
+            selectedData={this.state.selectedData}
+            onInputChange={this.handleInputChange}
           />;
         </div>
     }
@@ -1132,7 +1023,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}
-          // onInputChange     ={this.handleInputChange}
+          onInputChange     ={this.handleInputChange}
           myMetis           ={this.state.myMetis}
           myGoModel         ={this.state.myGoModel}
           myGoMetamodel     ={this.state.myGoMetamodel}

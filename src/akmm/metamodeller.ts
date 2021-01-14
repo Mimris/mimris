@@ -2072,6 +2072,7 @@ export class cxMetaModel extends cxMetaObject {
         this.class = 'cxMetaModel';
         this.category = constants.gojs.C_METAMODEL;
         this.metamodels = null;
+        this.containers = null;
         this.objecttypes = null;
         this.objtypegeos = null;
         this.objecttypeviews = null;
@@ -2306,6 +2307,9 @@ export class cxMetaModel extends cxMetaObject {
     getSubMetamodels() {
         return this.metamodels;
     }
+    getMetaContainers() {
+        return this.containers;
+    }
     getUnits() {
         return this.units;
     }
@@ -2440,6 +2444,15 @@ export class cxMetaModel extends cxMetaObject {
                 this.metamodels = new Array();
             if (!this.findSubMetamodel(metamodel.id))
                 this.metamodels.push(metamodel);
+        }
+    }
+    addMetaContainer(container: cxMetaContainer) {
+        // Check if input is of correct class and not already in list (TBD)
+        if (container.class === "cxMetaContainer") {
+            if (this.containers == null)
+                this.containers = new Array();
+            if (!this.findMetaContainer(container.id))
+                this.containers.push(container);
         }
     }
     addUnit(unit: cxUnit) {
@@ -2807,6 +2820,19 @@ export class cxMetaModel extends cxMetaObject {
             if (submeta.isDeleted()) continue;
             if (submeta.id === id)
                 return submeta;
+        }
+        return null;
+    }
+    findMetaContainer(id: string) {
+        let containers = this.getMetaContainers();
+        if (!containers) return null;
+        let i = 0;
+        let container = null;
+        for (i = 0; i < containers.length; i++) {
+            container = containers[i];
+            if (container.isDeleted()) continue;
+            if (container.id === id)
+                return container;
         }
         return null;
     }

@@ -632,29 +632,38 @@ class GoJSApp extends React.Component<{}, AppState> {
           // const part = n.data;
           const node = myDiagram.findNodeForKey(n.data.key);
           const part = node.data;
-          if (debug) console.log('622 found node', node);
-          if (debug) console.log('623 part', part, node);
-          if (debug) console.log('624 myMetis', myMetis);
-          if (debug) console.log('625 myGoModel', myGoModel, myGoMetamodel);
+          if (debug) console.log('640 found node', node);
+          if (!debug) console.log('641 part', part, node, n);
+          if (debug) console.log('642 myMetis', myMetis);
+          if (debug) console.log('643 myGoModel', myGoModel, myGoMetamodel);
+
+          if (part.category === 'Container') {
+            console.log("636 Category === 'Container'");
+            if (part.type === 'container') {
+                part.viewkind = 'Container';
+            }
+            const cont = uic.createMetaContainer(part, context);
+            if (!debug) console.log('646 cont: ', cont);
+          }
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
-            if (debug) console.log('628 ExternalObjectsDropped - myMetis', myMetis);
+            if (debug) console.log('650 ExternalObjectsDropped - myMetis', myMetis);
             if (otype) {
               otype.typename = constants.types.OBJECTTYPE_NAME;
-              if (debug) console.log('630 ExternalObjectsDropped', otype);
+              if (debug) console.log('649 ExternalObjectsDropped', otype);
               const gqlObjtype = new gql.gqlObjectType(otype, true);
-              if (debug) console.log('633 modifiedTypeNodes', gqlObjtype);
+              if (debug) console.log('651 modifiedTypeNodes', gqlObjtype);
               modifiedTypeNodes.push(gqlObjtype);
 
               const gqlObjtypeView = new gql.gqlObjectTypeView(otype.typeview);
-              if (debug) console.log('637 modifiedTypeViews', gqlObjtypeView);
+              if (debug) console.log('655 modifiedTypeViews', gqlObjtypeView);
               modifiedTypeViews.push(gqlObjtypeView);
 
               const loc  = part.loc;
               const size = part.size;
               const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
               const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
-              if (debug) console.log('644 modifiedTypeGeos', gqlObjtypeGeo);
+              if (debug) console.log('663 modifiedTypeGeos', gqlObjtypeGeo);
               modifiedTypeGeos.push(gqlObjtypeGeo);
             }
           } else // object
@@ -665,20 +674,20 @@ class GoJSApp extends React.Component<{}, AppState> {
               myMetis.pasteViewsOnly = true;
             if (part.isGroup) {
               part.size = "300 200";    // Hack
-              if (debug) console.log('542 part', part);
+              if (debug) console.log('673 part', part);
             }
             const objview = uic.createObject(part, context);
-            if (debug) console.log('545 New object', part, objview);
+            if (debug) console.log('676 New object', part, objview);
             if (objview) {
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
-              if (debug) console.log('557 New object', gqlObjview, modifiedNodes);
+              if (debug) console.log('680 New object', gqlObjview, modifiedNodes);
               const gqlObj = new gql.gqlObject(objview.object);
               modifiedObjects.push(gqlObj);
-              if (debug) console.log('560 New object', gqlObj);
+              if (debug) console.log('683 New object', gqlObj);
             }
           }
-          if (debug) console.log('563 myGoModel', myGoModel);
+          if (debug) console.log('686 myGoModel', myGoModel);
         })
         myDiagram.requestUpdate();
       }

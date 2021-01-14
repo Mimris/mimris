@@ -21,7 +21,7 @@ import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
 const glb = require('../../../akmm/akm_globals');
 const printf = require('printf');
-
+const RegexParser = require("regex-parser");
 //import * as uic from '../../../Server/src/akmm/ui_common'; 
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
@@ -153,7 +153,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const $ = go.GraphObject.make;
     // go.GraphObject.fromLinkableDuplicates = true;
     // go.GraphObject.toLinkableDuplicates   = true;
-
+    let defPattern = "";
     // define myDiagram
     let myDiagram;
     const myMetis = this.myMetis;
@@ -695,6 +695,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true;
               }
               return false; 
+            }),
+          makeButton("Test InputPattern",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              if (node.category === 'Object') {
+                let object = node.object;
+                object = myMetis.findObject(object.id);
+                const objtype = object?.type;
+                let patt = defPattern;
+                patt = prompt('Enter input pattern', defPattern);
+                if (patt.length>0) {
+                  defPattern = patt;
+                  const regex = new RegexParser(patt);
+                  console.log('710 regex:', regex);
+                  const value = prompt('Value to check');
+                  if (regex.test(value)) {
+                    alert('Value: ' + value + ' IS valid');
+                  } else {
+                    alert('Value: ' + value + ' IS NOT valid');
+                  }
+                }                                
+              }
+            },
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.category === 'Object') {
+                let object = node.object;
+                if (!object) return;
+                object = myMetis.findObject(object.id);
+                const objtype = object?.type;
+                if (objtype?.name === 'InputPattern') {
+                  return true;
+                }
+              }
+              return false;               
             }),
           makeButton("Cut",
             function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },

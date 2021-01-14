@@ -412,7 +412,8 @@ export class goObjectTypeNode extends goNode {
         this.objtype = objtype;
         this.typeview = null;
         this.typename = constants.gojs.C_OBJECTTYPE;
-
+        
+        if (!debug) console.log('416 this', this);
         if (objtype) {
             this.setName(objtype.getName());
             this.setType(constants.gojs.C_OBJECTTYPE);

@@ -2053,6 +2053,7 @@ export class cxEnumeration extends cxMetaObject {
 export class cxMetaModel extends cxMetaObject {
     isEKA: boolean;
     metamodels: cxMetaModel[] | null;
+    containers: cxMetaContainer[] | null;
     objecttypes: cxObjectType[] | null;
     objtypegeos: cxObjtypeGeo[] | null;
     objecttypeviews: cxObjectTypeView[] | null;
@@ -2857,6 +2858,17 @@ export class cxMetaModel extends cxMetaObject {
     }
 }
 
+export class cxMetaContainer extends cxMetaObject {
+    members: cxObjectType[] | null;
+    subcontainers: cxMetaContainer[] | null;
+    constructor(id: string, name: string, description: string) {
+        super(id, name, description);
+        this.category = constants.gojs.C_CONTAINER;
+        this.members = null;
+        this.subcontainers = null;
+    }
+}
+
 export class cxType extends cxMetaObject {
     abstract: boolean;
     supertypes: cxType[] | null;
@@ -3404,6 +3416,7 @@ export class cxRelationshipType extends cxObjectType {
     toObjtype: cxObjectType | null;
     relshipkind: string;
     viewkind: string;
+    cardinality: string;
     constructor(id: string, name: string, fromObjtype: cxObjectType | null, toObjtype: cxObjectType | null, description: string) {
         super(id, name, description);
         this.class = 'cxRelationshipType';
@@ -3414,6 +3427,7 @@ export class cxRelationshipType extends cxObjectType {
         this.toObjtype = toObjtype;
         this.relshipkind = constants.relkinds.REL;
         this.viewkind = "";
+        this.cardinality = "*";
     }
     // Methods
     setDefaultTypeView(typeview: cxRelationshipTypeView) {
@@ -3432,6 +3446,14 @@ export class cxRelationshipType extends cxObjectType {
     }
     getDefaultTypeView() {
         return this.typeview;
+    }
+    setCardinality(cardinality: string) {
+        // Check if valid format
+        if (true)
+            this.cardinality = cardinality; 
+    }
+    getCardinality() : string {
+        return this.cardinality;
     }
     isInstantiable() {
         let retval = true;

@@ -110,6 +110,19 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
     return null;
 }
 
+export function createMetaContainer(data: any, context: any): any {
+    const myMetamodel = context.myMetamodel;
+    const myMetis     = context.myMetis;
+    const myGoModel   = context.myGoMetamodel;
+    const myDiagram   = context.myDiagram;
+    let cont;
+    if (data.category === constants.gojs.C_CONTAINER) {
+        if (!debug) console.log('119 createMetaContainer', data);
+        cont = new akm.cxMetaContainer(utils.createGuid(), data.name, "");
+    }
+    return cont;
+}
+
 export function createObjectType(data: any, context: any): any {
     const myMetamodel = context.myMetamodel;
     const myMetis     = context.myMetis;

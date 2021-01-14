@@ -61,6 +61,8 @@
     "redux-logger": "^3.0.6",
     "redux-saga": "1.0.1",
     "redux-saga-restart": "^1.0.0",
+    "regex": "^0.1.1",
+    "regex-parser": "^2.2.11",
     "request": "^2.88.2",
     "save": "^2.4.0",
     "sqlite": "^3.0.6",

@@ -26,6 +26,7 @@ export let relkinds = {
 
 export let gojs = {
      C_UNITCATEGORY        : "Unit category",
+     C_CONTAINER           : "Container",
      C_DATATYPE            : "Datatype",
      C_ENUMERATION         : "Enumeration",
      C_METAMODEL           : "Metamodel",

@@ -117,7 +117,7 @@ export function createMetaContainer(data: any, context: any): any {
     const myDiagram   = context.myDiagram;
     let cont;
     if (data.category === constants.gojs.C_CONTAINER) {
-        if (!debug) console.log('119 createMetaContainer', data);
+        if (debug) console.log('119 createMetaContainer', data);
         cont = new akm.cxMetaContainer(utils.createGuid(), data.name, "");
         myMetamodel.addMetaContainer(cont);
     }

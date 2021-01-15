@@ -42,13 +42,13 @@ interface AppState {
   myGoMetamodel: gjs.goModel;
   phFocus: any;
   dispatch: any;
-  showModal: boolean;
+  // showModal: boolean;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
   // Maps to store key -> arr index for quick lookups
-  private mapNodeKeyIdx: Map<go.Key, number>;
-  private mapLinkKeyIdx: Map<go.Key, number>;
+  // private mapNodeKeyIdx: Map<go.Key, number>;
+  // private mapLinkKeyIdx: Map<go.Key, number>;
 
 
   constructor(props: object) {
@@ -69,20 +69,20 @@ class GoJSApp extends React.Component<{}, AppState> {
       myGoMetamodel: this.props.myGoMetamodel,
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
-      showModal: false
+      // showModal: false
     };
     // init maps
-    this.mapNodeKeyIdx = new Map<go.Key, number>();
-    this.mapLinkKeyIdx = new Map<go.Key, number>();
-    this.refreshNodeIndex(this.state.nodeDataArray); 
-    this.refreshLinkIndex(this.state.linkDataArray); 
+    // this.mapNodeKeyIdx = new Map<go.Key, number>();
+    // this.mapLinkKeyIdx = new Map<go.Key, number>();
+    // this.refreshNodeIndex(this.state.nodeDataArray); 
+    // this.refreshLinkIndex(this.state.linkDataArray); 
     // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleModelChange = this.handleModelChange.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
+    // this.handleInputChange = this.handleInputChange.bind(this);
     //this.handleRelinkChange = this.handleRelinkChange.bind(this);
-    this.handleCloseModal = this.handleCloseModal.bind(this);
-    this.handleOpenModal = this.handleOpenModal.bind(this);
+    // this.handleCloseModal = this.handleCloseModal.bind(this);
+    // this.handleOpenModal = this.handleOpenModal.bind(this);
   }
 
   // public handleInputChange (e) {
@@ -94,61 +94,61 @@ class GoJSApp extends React.Component<{}, AppState> {
     
   // }
 
-  public handleOpenModal () {
-    this.setState({ showModal: true });
-  }
+  // public handleOpenModal () {
+  //   this.setState({ showModal: true });
+  // }
   
-  public handleCloseModal () {
-    this.setState({ showModal: false });
-  }
+  // public handleCloseModal () {
+  //   this.setState({ showModal: false });
+  // }
 
   /**
    * Update map of node keys to their index in the array.
    */
-  private refreshNodeIndex(nodeArr: Array<go.ObjectData>) {
-    this.mapNodeKeyIdx.clear();
-    nodeArr.forEach((n: go.ObjectData, idx: number) => {
-      this.mapNodeKeyIdx.set(n.key, idx);
-    });
-  }
+  // private refreshNodeIndex(nodeArr: Array<go.ObjectData>) {
+  //   this.mapNodeKeyIdx.clear();
+  //   nodeArr.forEach((n: go.ObjectData, idx: number) => {
+  //     this.mapNodeKeyIdx.set(n.key, idx);
+  //   });
+  // }
 
-  /**
-   * Update map of link keys to their index in the array.
-   */
-  private refreshLinkIndex(linkArr: Array<go.ObjectData>) {
-    this.mapLinkKeyIdx.clear();
-    linkArr.forEach((l: go.ObjectData, idx: number) => {
-      this.mapLinkKeyIdx.set(l.key, idx);
-    });
-  }
+  // /**
+  //  * Update map of link keys to their index in the array.
+  //  */
+  // private refreshLinkIndex(linkArr: Array<go.ObjectData>) {
+  //   this.mapLinkKeyIdx.clear();
+  //   linkArr.forEach((l: go.ObjectData, idx: number) => {
+  //     this.mapLinkKeyIdx.set(l.key, idx);
+  //   });
+  // }
 
-  private getNode(goModel: any, key: string) {
-    const nodes = goModel?.nodes;
-    if (nodes) {
-      for (let i = 0; i < nodes?.length; i++) {
-        const node = nodes[i];
-        if (node) {
-          if (node.key === key)
-            return node;
-        }
-      }
-    }
-    return null;
-  }
+  // private getNode(goModel: any, key: string) {
+  //   const nodes = goModel?.nodes;
+  //   if (nodes) {
+  //     for (let i = 0; i < nodes?.length; i++) {
+  //       const node = nodes[i];
+  //       if (node) {
+  //         if (node.key === key)
+  //           return node;
+  //       }
+  //     }
+  //   }
+  //   return null;
+  // }
 
-  private getLink(goModel: any, key: string) {
-    const links = goModel.links;
-    if (links) {
-      for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        if (link) {
-          if (link.key === key)
-            return link;
-        }
-      }
-    }
-    return null;
-  }
+  // private getLink(goModel: any, key: string) {
+  //   const links = goModel.links;
+  //   if (links) {
+  //     for (let i = 0; i < links.length; i++) {
+  //       const link = links[i];
+  //       if (link) {
+  //         if (link.key === key)
+  //           return link;
+  //       }
+  //     }
+  //   }
+  //   return null;
+  // }
 
     /**
      * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
@@ -168,138 +168,138 @@ class GoJSApp extends React.Component<{}, AppState> {
     return;
   }
 
-  public handleInputChange(propname: string, value: string, obj: any, isBlur: boolean) {
-    if (debug) console.log('172 GoJSApp handleInputChange:', propname, value, obj, isBlur);
-    if (debug) console.log('173 this.state', this.state);
-    this.setState(
-      produce((draft: AppState) => {
-        const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-        if (debug) console.log('177 data', data);
-        data[propname] = value;
-        if (debug) console.log('179 data', data[propname], value);
-        if (isBlur) {
-          const key = data.key;
-          if (obj.category === 'Relationship') {  // negative keys are links
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          } else if (obj.category === 'Object') {
-            const idx = this.mapNodeKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.nodeDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          }
-        }
-      })
-    );
-    if (debug) console.log('197 this.state', this.state);
-    const myMetis = this.state.myMetis;
-    let inst, instview, myInst, myInstview;
-    // Handle objects
-    if (obj.category === 'Object') {
-      inst = obj.object;
-      myInst = myMetis.findObject(inst.id);
-      instview = obj.objectview;
-      myInstview = myMetis.findObjectView(instview.id);
-      if (debug) console.log('206 myInst', myInst, myInstview);
-      switch(propname) {
-        case 'name':
-          myInst.name = value;
-          myInstview.name = value;
-          break;
-        case 'description':
-          myInst.description = value;
-          if (debug) console.log('214 myInst', myInst);
-          break;
-        case 'viewFormat':
-          myInst.viewFormat = value;
-          if (debug) console.log('214 myInst', myInst);
-          break;
-        case 'inputPattern':
-          myInst.inputPattern = value;
-          if (debug) console.log('214 myInst', myInst);
-          break;
-        default:
-          // Handle properties
-          if (debug) console.log('218 myInst', myInst);
-          const type = inst.type;
-          const props = type.properties;
-          for (let i=0; i<props?.length; i++) {
-            const prop = props[i];
-            if (prop.name === propname) {
-              myInst[propname] = value;
-              break;
-            }
-          }
-          if (debug) console.log('225 myInst', myInst);
-          break;
-      }
-      if (debug) console.log('227 myMetis', myMetis);
-      // Prepare and to dispatch of objectview
-      const modifiedObjectViews = new Array();
-      const gqlObjview = new gql.gqlObjectView(myInstview);
-      modifiedObjectViews.push(gqlObjview);
-      modifiedObjectViews.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-      })
-      // Prepare and to dispatch of object
-      const modifiedObjects = new Array();
-      const gqlObj = new gql.gqlObject(myInst);
-      modifiedObjects.push(gqlObj);
-      modifiedObjects.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-      });
-      if (debug) console.log('236 modifiedObjects', modifiedObjectViews, modifiedObjects);
-    }
+  // public handleInputChange(propname: string, value: string, obj: any, isBlur: boolean) {
+  //   if (debug) console.log('172 GoJSApp handleInputChange:', propname, value, obj, isBlur);
+  //   if (debug) console.log('173 this.state', this.state);
+  //   this.setState(
+  //     produce((draft: AppState) => {
+  //       const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
+  //       if (debug) console.log('177 data', data);
+  //       data[propname] = value;
+  //       if (debug) console.log('179 data', data[propname], value);
+  //       if (isBlur) {
+  //         const key = data.key;
+  //         if (obj.category === 'Relationship') {  // negative keys are links
+  //           const idx = this.mapLinkKeyIdx.get(key);
+  //           if (idx !== undefined) {
+  //             draft.linkDataArray[idx] = data;
+  //             draft.skipsDiagramUpdate = false;
+  //           }
+  //         } else if (obj.category === 'Object') {
+  //           const idx = this.mapNodeKeyIdx.get(key);
+  //           if (idx !== undefined) {
+  //             draft.nodeDataArray[idx] = data;
+  //             draft.skipsDiagramUpdate = false;
+  //           }
+  //         }
+  //       }
+  //     })
+  //   );
+  //   if (debug) console.log('197 this.state', this.state);
+  //   const myMetis = this.state.myMetis;
+  //   let inst, instview, myInst, myInstview;
+  //   // Handle objects
+  //   if (obj.category === 'Object') {
+  //     inst = obj.object;
+  //     myInst = myMetis.findObject(inst.id);
+  //     instview = obj.objectview;
+  //     myInstview = myMetis.findObjectView(instview.id);
+  //     if (debug) console.log('206 myInst', myInst, myInstview);
+  //     switch(propname) {
+  //       case 'name':
+  //         myInst.name = value;
+  //         myInstview.name = value;
+  //         break;
+  //       case 'description':
+  //         myInst.description = value;
+  //         if (debug) console.log('214 myInst', myInst);
+  //         break;
+  //       case 'viewFormat':
+  //         myInst.viewFormat = value;
+  //         if (debug) console.log('214 myInst', myInst);
+  //         break;
+  //       case 'inputPattern':
+  //         myInst.inputPattern = value;
+  //         if (debug) console.log('214 myInst', myInst);
+  //         break;
+  //       default:
+  //         // Handle properties
+  //         if (debug) console.log('218 myInst', myInst);
+  //         const type = inst.type;
+  //         const props = type.properties;
+  //         for (let i=0; i<props?.length; i++) {
+  //           const prop = props[i];
+  //           if (prop.name === propname) {
+  //             myInst[propname] = value;
+  //             break;
+  //           }
+  //         }
+  //         if (debug) console.log('225 myInst', myInst);
+  //         break;
+  //     }
+  //     if (debug) console.log('227 myMetis', myMetis);
+  //     // Prepare and to dispatch of objectview
+  //     const modifiedObjectViews = new Array();
+  //     const gqlObjview = new gql.gqlObjectView(myInstview);
+  //     modifiedObjectViews.push(gqlObjview);
+  //     modifiedObjectViews.map(mn => {
+  //       let data = mn;
+  //       this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+  //     })
+  //     // Prepare and to dispatch of object
+  //     const modifiedObjects = new Array();
+  //     const gqlObj = new gql.gqlObject(myInst);
+  //     modifiedObjects.push(gqlObj);
+  //     modifiedObjects.map(mn => {
+  //       let data = mn;
+  //       this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+  //     });
+  //     if (debug) console.log('236 modifiedObjects', modifiedObjectViews, modifiedObjects);
+  //   }
 
-    if (obj.category === 'Relationship') {
-        inst = obj.relship;
-        myInst = myMetis.findRelationship(inst.id);
-        instview = obj.relshipview;
-        myInstview = myMetis.findRelationshipView(instview.id);    
-      switch(propname) {
-        case 'name':
-          myInst.name = value;
-          myInstview.name = value;
-          break;
-        case 'description':
-          myInst.description = value;
-          break;
-        default:
-          // Handle properties
-          if (debug) console.log('262 myInst', myInst);
-          const type = inst.type;
-          const props = type.properties;
-          for (let i=0; i<props?.length; i++) {
-            const prop = props[i];
-            myInst.getStringValue2(prop.name)
-          }
-          break;
-      }
-      // Prepare and to dispatch of objectview
-      const modifiedRelshipViews = new Array();
-      const gqlRelview = new gql.gqlRelshipView(myInstview);
-      modifiedRelshipViews.push(gqlRelview);
-      modifiedRelshipViews.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      })
-      // Prepare and to dispatch of object
-      const modifiedRelships = new Array();
-      const gqlRel = new gql.gqlRelationship(myInst);
-      modifiedRelships.push(gqlRel);
-      modifiedRelships.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-      })
-    }
-    if (debug) console.log('288 myMetis', myMetis);
-  }
+  //   if (obj.category === 'Relationship') {
+  //       inst = obj.relship;
+  //       myInst = myMetis.findRelationship(inst.id);
+  //       instview = obj.relshipview;
+  //       myInstview = myMetis.findRelationshipView(instview.id);    
+  //     switch(propname) {
+  //       case 'name':
+  //         myInst.name = value;
+  //         myInstview.name = value;
+  //         break;
+  //       case 'description':
+  //         myInst.description = value;
+  //         break;
+  //       default:
+  //         // Handle properties
+  //         if (debug) console.log('262 myInst', myInst);
+  //         const type = inst.type;
+  //         const props = type.properties;
+  //         for (let i=0; i<props?.length; i++) {
+  //           const prop = props[i];
+  //           myInst.getStringValue2(prop.name)
+  //         }
+  //         break;
+  //     }
+  //     // Prepare and to dispatch of objectview
+  //     const modifiedRelshipViews = new Array();
+  //     const gqlRelview = new gql.gqlRelshipView(myInstview);
+  //     modifiedRelshipViews.push(gqlRelview);
+  //     modifiedRelshipViews.map(mn => {
+  //       let data = mn;
+  //       this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+  //     })
+  //     // Prepare and to dispatch of object
+  //     const modifiedRelships = new Array();
+  //     const gqlRel = new gql.gqlRelationship(myInst);
+  //     modifiedRelships.push(gqlRel);
+  //     modifiedRelships.map(mn => {
+  //       let data = mn;
+  //       this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+  //     })
+  //   }
+  //   if (debug) console.log('288 myMetis', myMetis);
+  // }
 
     // see gojs-react-basic for an example model change handler
     // when setting state, be sure to set skipsDiagramUpdate: true since GoJS already has this update
@@ -633,7 +633,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const node = myDiagram.findNodeForKey(n.data.key);
           const part = node.data;
           if (debug) console.log('640 found node', node);
-          if (!debug) console.log('641 part', part, node, n);
+          if (debug) console.log('641 part', part, node, n);
           if (debug) console.log('642 myMetis', myMetis);
           if (debug) console.log('643 myGoModel', myGoModel, myGoMetamodel);
 
@@ -643,7 +643,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 part.viewkind = 'Container';
             }
             const cont = uic.createMetaContainer(part, context);
-            if (!debug) console.log('646 cont: ', cont);
+            if (debug) console.log('646 cont: ', cont);
           }
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
@@ -696,8 +696,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         let sel = e.subject.part;
         let data = sel.data;
         this.state.selectedData = sel.data;
-        if (!debug) console.log('699 data', data, sel);
-        this.handleOpenModal(sel);
+        if (debug) console.log('699 data', data, sel);
+        myDiagram.handleOpenModal(data, 'editProperties');
       }
       break;
       case "ObjectSingleClicked": {
@@ -1030,9 +1030,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           dispatch          ={this.state.dispatch}
         />
         {inspector}
-        <>
+        {/* <>
           <Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
-            {/* <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} > */}
             <div className="bg-light">
               <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
                 onClick={() => { this.handleCloseModal() }} ><span>x</span>
@@ -1050,7 +1049,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             </ModalFooter>
           </Modal>
  
-        </>
+        </> */}
       </div>
       
     );

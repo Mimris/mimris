@@ -151,13 +151,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  public handleOpenModal(data, modalContent) {
+  public handleOpenModal(data, modalContentType) {
     this.setState({ 
-      modalType: modalContent,
+      modalType: modalContentType,
       selectedData: data,
       showModal: true,
     });
-    console.log('143 Diagram', this.state, data, modalContent);
+    if (debug) console.log('143 Diagram', this.state, data, modalContentType);
   } 
   
   public handleCloseModal() {
@@ -170,7 +170,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   // }
   public handleSelectDropdownChange = (selectedOption) => {
     this.setState({ selectedOption }); // this will update the state of selected therefore updating value in react-select
-    console.log(`172 Diagram Selected: ${selectedOption.label}`, this, this.state.selectedOption); 
+    console.log(`172 Diagram Selected: ${selectedOption.label}`, this, this.myMetis); 
+    const myMetis = this.myMetis
   }
 
   public handleInputChange(propname: string, value: string, obj: any, isBlur: boolean) {
@@ -537,9 +538,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   }  
                 }
               }
+              // --------------------------------------------------------------------------------------------
               // let objtype = prompt('Enter one of: ' + node.choices, defText);
               myDiagram.handleOpenModal(node.choices, 'selectDropdown');
-              if (!debug) console.log('532 Set object type', e.diagram, myDiagram, obj);
+              if (!debug) console.log('532 Set object type', e.diagram, myDiagram.selectedOption, obj);
               let objtype = myDiagram.selectedOption;
               // let objtype = (myDiagram.selectedOption) ? myDiagram.selectedOption : 'Generic';
 
@@ -2388,7 +2390,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
         const { selectedOption } = this.state;
         const value = selectedOption && selectedOption.value
-        if (!debug) console.log('2173 Diagram ', options, selectedOption, this.state.selectedOptions, value);
+        if (!debug) console.log('2173 Diagram ', options, selectedOption, this.state.selectedOption, value);
         header = 'Select Objecttype: '
         modalContent = 
           <div className="d-flex justify-content-center">

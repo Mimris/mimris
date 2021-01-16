@@ -272,7 +272,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     let linkArray = JSON.parse(links);
     myGoMetaPalette.nodes = nodeArray;
     myGoMetaPalette.links = linkArray;
-    if (!debug) console.log('275 myGoMetaPalette', myGoMetaPalette);
+    if (debug) console.log('275 myGoMetaPalette', myGoMetaPalette);
     return myGoMetaPalette;
   }
 }

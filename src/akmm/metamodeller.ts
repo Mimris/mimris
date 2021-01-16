@@ -4951,7 +4951,6 @@ export class cxObjectView extends cxMetaObject {
     objectRef: string;
     typeview: cxObjectTypeView | null;
     typeviewRef: string;
-    icon: string;
     group: string;
     isGroup: boolean;
     groupLayout: string;
@@ -4960,6 +4959,11 @@ export class cxObjectView extends cxMetaObject {
     visible: boolean;
     loc: string;
     size: string;
+    figure: string;
+    fillcolor: string;
+    strokecolor: string;
+    strokewidth: string;
+    icon: string;
     constructor(id: string, name: string, object: cxObject | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTVIEWS;  // Firestore collection
@@ -4969,7 +4973,6 @@ export class cxObjectView extends cxMetaObject {
         this.objectRef = "";
         this.typeview = null;              // Override default type view
         this.typeviewRef = "";
-        this.icon = "";
         this.group = "";
         this.isGroup = false;
         this.groupLayout = "";
@@ -4978,6 +4981,11 @@ export class cxObjectView extends cxMetaObject {
         this.visible = true;
         this.loc = "";
         this.size = "";
+        this.figure = "";
+        this.fillcolor = "";
+        this.strokecolor = "";
+        this.strokewidth = "";
+        this.icon = "";
     }
     // Methods
     setObject(object: cxObject) {

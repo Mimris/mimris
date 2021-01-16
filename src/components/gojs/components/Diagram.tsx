@@ -75,6 +75,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.diagramRef = React.createRef(); 
     this.state = { 
       showModal: false,
+      modalContext: null,
       selectedData: null 
     };
     // init maps
@@ -142,20 +143,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  public handleOpenModal(node) {
+  public handleOpenModal(node, modalContext) {
     this.setState({ 
       selectedData: node,
+      modalContext: modalContext,
       showModal: true
     });
-    console.log('143 Diagram', this, node);
+    console.log('143 Diagram', this.state);
   } 
 
   public handleCloseModal() {
     this.setState({ showModal: false });
   }
 
-  public handleInputChange(propname: string, value: string, obj: any, isBlur: boolean) {
-    if (debug) console.log('151 GoJSApp handleInputChange:', propname, value, obj, isBlur);
+  public handleInputChange(propname: string, value: string, obj: any, context: any, isBlur: boolean) {
+    if (!debug) console.log('151 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
     if (debug) console.log('152 this.state', this.state);
     this.setState(
       produce((draft: AppState) => {
@@ -183,50 +185,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     );
     if (!debug) console.log('197 this.state', this.state);
     const myMetis = this.myMetis;
-    let inst, instview, myInst, myInstview;
+    let inst, instview, myInst, myInstview, myItem;
     // Handle objects
     if (obj.category === 'Object') {
       inst = obj.object;
       myInst = myMetis.findObject(inst.id);
+      myItem = myInst; // default
       instview = obj.objectview;
       myInstview = myMetis.findObjectView(instview.id);
       if (debug) console.log('206 myInst', myInst, myInstview);
-      switch(propname) {
-        case 'name':
-          myInst.name = value;
-          myInstview.name = value;
-          break;
-        case 'description':
-          myInst.description = value;
-          if (debug) console.log('214 myInst', myInst);
-          break;
-        case 'viewFormat':
-          myInst.viewFormat = value;
-          if (debug) console.log('214 myInst', myInst);
-          break;
-        case 'inputPattern':
-          myInst.inputPattern = value;
-          if (debug) console.log('214 myInst', myInst);
-          break;
-        default:
-          // Handle properties
-          if (debug) console.log('218 myInst', myInst);
-          const type = inst.type;
-          const props = type.properties;
-          for (let i=0; i<props?.length; i++) {
-            const prop = props[i];
-            if (prop.name === propname) {
-              myInst[propname] = value;
-              break;
-            }
-          }
-          if (debug) console.log('225 myInst', myInst);
-          break;
-      }
-      if (debug) console.log('227 myMetis', myMetis);
+      if (context?.what === "editObjectview") 
+          myItem = myInstview;
+      else if (context?.what === "editTypeview") 
+          myItem = myInstview.typeview;
+      myItem[propname] = value;
+      if (debug) console.log('232 myMetis', myMetis);
       // Prepare and to dispatch of objectview
+      if (!debug) console.log('235 myItem', myItem);
       const modifiedObjectViews = new Array();
       const gqlObjview = new gql.gqlObjectView(myInstview);
+      if (!debug) console.log('238 gqlObjview', gqlObjview);
       modifiedObjectViews.push(gqlObjview);
       modifiedObjectViews.map(mn => {
         let data = mn;
@@ -285,24 +263,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       })
     }
     if (debug) console.log('288 myMetis', myMetis);
-  }
-
-    /**
-   * Update map of node keys to their index in the array.
-   */
-  private refreshNodeIndex(nodeArr: Array<go.ObjectData>) {
-    this.mapNodeKeyIdx.clear();
-    nodeArr.forEach((n: go.ObjectData, idx: number) => {
-      this.mapNodeKeyIdx.set(n.key, idx);
-    });
-  }
-
-  /**
-   * Update map of link keys to their index in the array.
-   */  private refreshLinkIndex(linkArr: Array<go.ObjectData>) {    this.mapLinkKeyIdx.clear();
-    linkArr.forEach((l: go.ObjectData, idx: number) => {
-      this.mapLinkKeyIdx.set(l.key, idx);
-    });
   }
 
   private getNode(goModel: any, key: string) {
@@ -622,6 +582,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
+          makeButton("Edit Typeview",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              const modalContext = {
+                what: "editTypeview"
+              }
+              myDiagram.handleOpenModal(node, modalContext);
+                // 
+            }, 
+            function (o: any) {
+              const node = o.part.data;
+              if (debug) console.log('413 node', node);
+              const currentObject = node.object; 
+              const currentObjectView = node.objectview;
+              if (currentObject && currentObjectView) {                   
+                const objtype  = currentObject.type;
+                const typeView = node.typeview;
+                const defaultTypeview = objtype.typeview;
+                if (typeView && (typeView.id !== defaultTypeview.id)) {
+                  return true;
+                }
+              }
+              return false;
+            }),
           makeButton("Reset Typeview", 
           function (e: any, obj: any) {
             const node = obj.part.data;
@@ -878,9 +862,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              myDiagram.handleOpenModal(node);
+              const modalContext = {
+                what: "editObject"
+              }
+              myDiagram.handleOpenModal(node, modalContext);
                 // 
             },
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.category === 'Object') {
+                return true;
+              }
+              return false; 
+            }),
+          makeButton("Edit Objectview",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              const modalContext = {
+                what: "editObjectview"
+              }
+              myDiagram.handleOpenModal(node, modalContext);
+                // 
+            }, 
             function (o: any) { 
               const node = o.part.data;
               if (node.category === 'Object') {
@@ -2213,80 +2216,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         );
     }
 
-    // //  sf added #####################################################
-    // // Create an HTMLInfo and dynamically create some HTML to show/hide
-    // var customEditor = new go.HTMLInfo();
-    // var customSelectBox = document.createElement("select");
-
-    // customEditor.show = function (textBlock, myDiagram, tool) {
-    //   if (!(textBlock instanceof go.TextBlock)) return;
-
-    //   // Populate the select box:
-    //   customSelectBox.innerHTML = "";
-    //   textBlock.choices = link?.choices;
-    //   console.log('1596 ', link?.choices);
-
-    //   // this sample assumes textBlock.choices is not null
-    //   if (!textBlock.choices) {
-    //     if (debug) console.log('626 customEditor - No choices');
-    //     textBlock.choices = ['Edit name'];
-    //   }
-    //   var list = textBlock.choices;
-    //   for (var i = 0; i < list?.length; i++) {
-    //     var op = document.createElement("option");
-    //     op.text = list[i];
-    //     op.value = list[i];
-    //     customSelectBox.add(op, null);
-    //   }
-
-    //   // After the list is populated, set the value:
-    //   customSelectBox.value = textBlock.text;
-
-    //   // Do a few different things when a user presses a key
-    //   customSelectBox.addEventListener("keydown", function (e) {
-    //     var keynum = e.which;
-    //     if (debug) console.log('597 Diagram.tsx', keynum);
-    //     if (keynum == 13) { // Accept on Enter
-    //       //tool.acceptText(go.TextEditingTool.Tab);  // Hack
-    //       return;
-    //     } else if (keynum == 9) { // Accept on Tab
-    //       //tool.acceptText(go.TextEditingTool.Tab);
-    //       e.preventDefault();
-    //       return false;
-    //     } else if (keynum === 27) { // Cancel on Esc
-    //       tool.doCancel();
-    //       if (tool.diagram) tool.diagram.focus();
-    //     }
-    //   }, false);
-
-    //   var loc = textBlock.getDocumentPoint(go.Spot.TopLeft);
-    //   var pos = myDiagram.transformDocToView(loc);
-    //   customSelectBox.style.left = pos.x + "px";
-    //   customSelectBox.style.top = pos.y + "px";
-    //   customSelectBox.style.position = 'absolute';
-    //   customSelectBox.style.zIndex = '100'; // place it in front of the Diagram
-
-    //   myDiagram.div?.appendChild(customSelectBox);
-    // }
-
-    // customEditor.hide = function (diagram, tool) {
-    //   myDiagram.div?.removeChild(customSelectBox);
-    // }
-
-
-    // // This is necessary for HTMLInfo instances that are used as text editors
-    // customEditor.valueFunction = function () { return customSelectBox.value; }
-
-    // // // Set the HTMLInfo:
-    // myDiagram.toolManager.textEditingTool.defaultTextEditor = customEditor;
-
-    // myDiagram.toolManager.hoverDelay = 400 //sf  setting the time the cursor need to be still before showing toolTip
-
-    // //  sf added #####################################################
-
-
-    // ---  Define the CONTEXT Menu -----------------
-    // To simplify this code we define a function for creating a context menu button:       
     function makeButton(text: string, action: any, visiblePredicate: any) {
       return $("ContextMenuButton",
         $(go.TextBlock, text),
@@ -2364,6 +2293,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           <SelectionInspector 
             myMetis       ={this.myMetis}
             selectedData  ={this.state.selectedData}
+            modalContext  ={this.state.modalContext}
             onInputChange ={this.handleInputChange}
           />;
         </div>

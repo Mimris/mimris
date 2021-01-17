@@ -780,8 +780,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     })
   }
 
-  public render() {
-    
+  public render() {   
     const selectedData = this.state.selectedData;
     if (debug) console.log('1075 selectedData', selectedData, this.props);
     let inspector;

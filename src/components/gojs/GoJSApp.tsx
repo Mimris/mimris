@@ -46,14 +46,9 @@ interface AppState {
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
-  // Maps to store key -> arr index for quick lookups
-  // private mapNodeKeyIdx: Map<go.Key, number>;
-  // private mapLinkKeyIdx: Map<go.Key, number>;
-
-
   constructor(props: object) {
     super(props);
-    // if (debug) console.log('48 GoJSApp',props.nodeDataArray);
+    if (debug) console.log('48 GoJSApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -69,86 +64,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       myGoMetamodel: this.props.myGoMetamodel,
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
-      // showModal: false
     };
-    // init maps
-    // this.mapNodeKeyIdx = new Map<go.Key, number>();
-    // this.mapLinkKeyIdx = new Map<go.Key, number>();
-    // this.refreshNodeIndex(this.state.nodeDataArray); 
-    // this.refreshLinkIndex(this.state.linkDataArray); 
-    // bind handler methods
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
-    this.handleModelChange = this.handleModelChange.bind(this);
-    // this.handleInputChange = this.handleInputChange.bind(this);
-    //this.handleRelinkChange = this.handleRelinkChange.bind(this);
-    // this.handleCloseModal = this.handleCloseModal.bind(this);
-    // this.handleOpenModal = this.handleOpenModal.bind(this);
   }
-
-  // public handleInputChange (e) {
-  //   // this.handleOpenModal()
-  //   // if (e) {
-  //     this.setState({editedData: e })
-  //   // }
-  //   console.log('88 GoJSApp', e, this.state.editedData);
-    
-  // }
-
-  // public handleOpenModal () {
-  //   this.setState({ showModal: true });
-  // }
-  
-  // public handleCloseModal () {
-  //   this.setState({ showModal: false });
-  // }
-
-  /**
-   * Update map of node keys to their index in the array.
-   */
-  // private refreshNodeIndex(nodeArr: Array<go.ObjectData>) {
-  //   this.mapNodeKeyIdx.clear();
-  //   nodeArr.forEach((n: go.ObjectData, idx: number) => {
-  //     this.mapNodeKeyIdx.set(n.key, idx);
-  //   });
-  // }
-
-  // /**
-  //  * Update map of link keys to their index in the array.
-  //  */
-  // private refreshLinkIndex(linkArr: Array<go.ObjectData>) {
-  //   this.mapLinkKeyIdx.clear();
-  //   linkArr.forEach((l: go.ObjectData, idx: number) => {
-  //     this.mapLinkKeyIdx.set(l.key, idx);
-  //   });
-  // }
-
-  // private getNode(goModel: any, key: string) {
-  //   const nodes = goModel?.nodes;
-  //   if (nodes) {
-  //     for (let i = 0; i < nodes?.length; i++) {
-  //       const node = nodes[i];
-  //       if (node) {
-  //         if (node.key === key)
-  //           return node;
-  //       }
-  //     }
-  //   }
-  //   return null;
-  // }
-
-  // private getLink(goModel: any, key: string) {
-  //   const links = goModel.links;
-  //   if (links) {
-  //     for (let i = 0; i < links.length; i++) {
-  //       const link = links[i];
-  //       if (link) {
-  //         if (link.key === key)
-  //           return link;
-  //       }
-  //     }
-  //   }
-  //   return null;
-  // }
 
     /**
      * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
@@ -167,142 +85,6 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     return;
   }
-
-  // public handleInputChange(propname: string, value: string, obj: any, isBlur: boolean) {
-  //   if (debug) console.log('172 GoJSApp handleInputChange:', propname, value, obj, isBlur);
-  //   if (debug) console.log('173 this.state', this.state);
-  //   this.setState(
-  //     produce((draft: AppState) => {
-  //       const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-  //       if (debug) console.log('177 data', data);
-  //       data[propname] = value;
-  //       if (debug) console.log('179 data', data[propname], value);
-  //       if (isBlur) {
-  //         const key = data.key;
-  //         if (obj.category === 'Relationship') {  // negative keys are links
-  //           const idx = this.mapLinkKeyIdx.get(key);
-  //           if (idx !== undefined) {
-  //             draft.linkDataArray[idx] = data;
-  //             draft.skipsDiagramUpdate = false;
-  //           }
-  //         } else if (obj.category === 'Object') {
-  //           const idx = this.mapNodeKeyIdx.get(key);
-  //           if (idx !== undefined) {
-  //             draft.nodeDataArray[idx] = data;
-  //             draft.skipsDiagramUpdate = false;
-  //           }
-  //         }
-  //       }
-  //     })
-  //   );
-  //   if (debug) console.log('197 this.state', this.state);
-  //   const myMetis = this.state.myMetis;
-  //   let inst, instview, myInst, myInstview;
-  //   // Handle objects
-  //   if (obj.category === 'Object') {
-  //     inst = obj.object;
-  //     myInst = myMetis.findObject(inst.id);
-  //     instview = obj.objectview;
-  //     myInstview = myMetis.findObjectView(instview.id);
-  //     if (debug) console.log('206 myInst', myInst, myInstview);
-  //     switch(propname) {
-  //       case 'name':
-  //         myInst.name = value;
-  //         myInstview.name = value;
-  //         break;
-  //       case 'description':
-  //         myInst.description = value;
-  //         if (debug) console.log('214 myInst', myInst);
-  //         break;
-  //       case 'viewFormat':
-  //         myInst.viewFormat = value;
-  //         if (debug) console.log('214 myInst', myInst);
-  //         break;
-  //       case 'inputPattern':
-  //         myInst.inputPattern = value;
-  //         if (debug) console.log('214 myInst', myInst);
-  //         break;
-  //       default:
-  //         // Handle properties
-  //         if (debug) console.log('218 myInst', myInst);
-  //         const type = inst.type;
-  //         const props = type.properties;
-  //         for (let i=0; i<props?.length; i++) {
-  //           const prop = props[i];
-  //           if (prop.name === propname) {
-  //             myInst[propname] = value;
-  //             break;
-  //           }
-  //         }
-  //         if (debug) console.log('225 myInst', myInst);
-  //         break;
-  //     }
-  //     if (debug) console.log('227 myMetis', myMetis);
-  //     // Prepare and to dispatch of objectview
-  //     const modifiedObjectViews = new Array();
-  //     const gqlObjview = new gql.gqlObjectView(myInstview);
-  //     modifiedObjectViews.push(gqlObjview);
-  //     modifiedObjectViews.map(mn => {
-  //       let data = mn;
-  //       this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-  //     })
-  //     // Prepare and to dispatch of object
-  //     const modifiedObjects = new Array();
-  //     const gqlObj = new gql.gqlObject(myInst);
-  //     modifiedObjects.push(gqlObj);
-  //     modifiedObjects.map(mn => {
-  //       let data = mn;
-  //       this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-  //     });
-  //     if (debug) console.log('236 modifiedObjects', modifiedObjectViews, modifiedObjects);
-  //   }
-
-  //   if (obj.category === 'Relationship') {
-  //       inst = obj.relship;
-  //       myInst = myMetis.findRelationship(inst.id);
-  //       instview = obj.relshipview;
-  //       myInstview = myMetis.findRelationshipView(instview.id);    
-  //     switch(propname) {
-  //       case 'name':
-  //         myInst.name = value;
-  //         myInstview.name = value;
-  //         break;
-  //       case 'description':
-  //         myInst.description = value;
-  //         break;
-  //       default:
-  //         // Handle properties
-  //         if (debug) console.log('262 myInst', myInst);
-  //         const type = inst.type;
-  //         const props = type.properties;
-  //         for (let i=0; i<props?.length; i++) {
-  //           const prop = props[i];
-  //           myInst.getStringValue2(prop.name)
-  //         }
-  //         break;
-  //     }
-  //     // Prepare and to dispatch of objectview
-  //     const modifiedRelshipViews = new Array();
-  //     const gqlRelview = new gql.gqlRelshipView(myInstview);
-  //     modifiedRelshipViews.push(gqlRelview);
-  //     modifiedRelshipViews.map(mn => {
-  //       let data = mn;
-  //       this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-  //     })
-  //     // Prepare and to dispatch of object
-  //     const modifiedRelships = new Array();
-  //     const gqlRel = new gql.gqlRelationship(myInst);
-  //     modifiedRelships.push(gqlRel);
-  //     modifiedRelships.map(mn => {
-  //       let data = mn;
-  //       this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-  //     })
-  //   }
-  //   if (debug) console.log('288 myMetis', myMetis);
-  // }
-
-    // see gojs-react-basic for an example model change handler
-    // when setting state, be sure to set skipsDiagramUpdate: true since GoJS already has this update
 
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
@@ -697,7 +479,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = sel.data;
         this.state.selectedData = sel.data;
         if (debug) console.log('699 data', data, sel);
-        myDiagram.handleOpenModal(data, 'editProperties');
+        const modalContext = {
+          what: "editObject"
+        }
+        myDiagram.handleOpenModal(data, modalContext, null);
       }
       break;
       case "ObjectSingleClicked": {
@@ -1030,26 +815,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           dispatch          ={this.state.dispatch}
         />
         {inspector}
-        {/* <>
-          <Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
-            <div className="bg-light">
-              <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
-                onClick={() => { this.handleCloseModal() }} ><span>x</span>
-              </Button>
-              <ModalHeader className="bg-light" style={{width: "70%"}}>
-                <span className="text-secondary">Edit attributes :</span> 
-                <span className="name pl-2" style={{minWidth: "50%"}} >{this.state.selectedData?.name} </span>
-              </ModalHeader>
-            </div>
-            <ModalBody >
-              {inspector}
-            </ModalBody>
-            <ModalFooter>
-              <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
-            </ModalFooter>
-          </Modal>
- 
-        </> */}
       </div>
       
     );

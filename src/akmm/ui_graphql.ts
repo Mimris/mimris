@@ -1009,6 +1009,11 @@ export class gqlObjectView {
     size:           string;
     deleted:        boolean;
     modified:       boolean;
+    figure:         string;
+    fillcolor:      string;
+    strokecolor:    string;
+    strokewidth:    string;
+    icon:           string;
     constructor(objview: akm.cxObjectView) {
         this.id             = objview?.id;
         this.name           = objview?.name;
@@ -1018,6 +1023,11 @@ export class gqlObjectView {
         this.group          = objview?.group;
         this.isGroup        = objview?.isGroup;
         this.loc            = objview?.loc;
+        this.figure         = objview?.figure;
+        this.fillcolor      = objview?.fillcolor;
+        this.strokecolor    = objview?.strokecolor;
+        this.strokewidth    = objview?.strokewidth;
+        this.icon           = objview?.icon;
         this.size           = objview?.size;
         this.deleted        = objview?.deleted;
         this.modified       = objview?.modified;

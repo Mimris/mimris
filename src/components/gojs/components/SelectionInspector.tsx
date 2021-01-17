@@ -26,7 +26,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (!debug) console.log('24  myMetis', this.props, this.props.selectedData);
     const selObj = this.props.selectedData;
     const modalContext = this.props.modalContext;
-    if (!debug) console.log('29 modalContext', modalContext, selObj);
+    if (debug) console.log('29 modalContext', modalContext, selObj);
     if (!selObj)
       return;
     const category = selObj.category;
@@ -46,7 +46,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     }
     if (!inst)
       return;
- 
     const type = inst.type;
     const props = type.properties;
     for (let i=0; i<props?.length; i++) {
@@ -54,10 +53,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (debug) console.log('49 inst', props, inst, selObj);
+    if (debug) console.log('56 inst', props, inst, selObj);
     const dets = [];
     switch (modalContext?.what) {
       case "editObject":
+        item = inst;
+        break;
       case "editRelationship":
         item = inst;
         break;
@@ -67,8 +68,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       case "editTypeview":
         item = instview.typeview?.data;
         break;  
+      default:
+        item = inst;
     }
-    if (!debug) console.log('71 item', item);
+    if (!debug) console.log('71 item', inst, item);
     for (const k in item) {
       let row;
       if (k) {
@@ -117,9 +120,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
-        if (!debug) console.log('119 SelectionInspector: k, val', k, val);
+        if (debug) console.log('119 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-        if (debug) console.log('121 propname, value:', k, item[k], item);
+        if (!debug) console.log('121 propname, value:', k, item[k], item);
         row  = <InspectorRow
           key={k}
           id={k}
@@ -140,7 +143,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   }
   
   public render() {
-    if (debug) console.log('113 SelectionInspector ', this.renderObjectDetails());
+    if (!debug) console.log('113 SelectionInspector ', this.renderObjectDetails());
 
     return (
       <div id='myInspectorDiv' className='inspector'>

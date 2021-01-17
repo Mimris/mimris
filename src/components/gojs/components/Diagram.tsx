@@ -2319,7 +2319,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         
       }
       break;
-      case 'editObject': {
+      case 'editObject':
+      case 'editObjectview':
+      case 'editTypeview': {
         header = 'Edit Attributes '
         category = this.state.selectedData.category
         if (debug) console.log('2321 Diagram ', this.state.selectedData, this.myMetis);
@@ -2331,6 +2333,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               <SelectionInspector 
                 myMetis       ={this.myMetis}
                 selectedData  ={this.state.selectedData}
+                context       ={this.state.modalContext}
                 onInputChange ={this.handleInputChange}
               />
             </div>

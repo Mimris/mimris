@@ -791,6 +791,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           <SelectionInspector 
             myMetis={this.state.myMetis}
             selectedData={this.state.selectedData}
+            context={this.state.context}
             onInputChange={this.handleInputChange}
           />;
         </div>

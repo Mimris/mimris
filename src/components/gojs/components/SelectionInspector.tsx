@@ -25,8 +25,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const myMetis = this.props.myMetis;
     if (!debug) console.log('24  myMetis', this.props, this.props.selectedData);
     const selObj = this.props.selectedData;
-    const modalContext = this.props.modalContext;
-    if (debug) console.log('29 modalContext', modalContext, selObj);
+    const modalContext = this.props.context;
+    if (!debug) console.log('29 modalContext', modalContext, selObj);
     if (!selObj)
       return;
     const category = selObj.category;

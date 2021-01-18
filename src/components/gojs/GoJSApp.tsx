@@ -480,7 +480,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.state.selectedData = sel.data;
         if (debug) console.log('699 data', data, sel);
         const modalContext = {
-          what: "editObject"
+          what: "editObject",
+          title: "Edit Object"
         }
         myDiagram.handleOpenModal(data, modalContext, null);
       }

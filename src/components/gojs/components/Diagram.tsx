@@ -58,8 +58,6 @@ interface DiagramState {
   showModal: boolean;
   selectedData: any;
   modalContext: any;
-  // modalType: text;
-  // selectedValues: any,
   selectedOption: any;
 }
 
@@ -84,8 +82,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showModal: false,
       selectedData: null, 
       modalContext: null,
-      // modalType: null,
-      // selectedValues: null,
       selectedOption: null
     };
     // init maps
@@ -154,11 +150,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  public handleOpenModal(node, modalContext, modalContent) {
+  public handleOpenModal(node, modalContext) {
     this.setState({ 
       selectedData: node,
       modalContext: modalContext,
-      modalType: modalContent,
       selectedOption: null,
       showModal: true
     });
@@ -181,14 +176,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public handleInputChange(propname: string, value: string, obj: any, context: any, isBlur: boolean) {
-    if (debug) console.log('151 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
-    if (debug) console.log('152 this.state', this.state);
+    if (debug) console.log('184 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
+    if (debug) console.log('185 this.state', this.state);
     this.setState(
       produce((draft: AppState) => {
         const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-        if (debug) console.log('177 data', data, this);
+        if (debug) console.log('189 data', data, this);
         data[propname] = value;
-        if (debug) console.log('179 data', data[propname], value);
+        if (debug) console.log('191 data', data[propname], value);
         if (isBlur) {
           const key = data.key;
           if (obj.category === 'Relationship') {  // negative keys are links
@@ -207,7 +202,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       })
     );
-    if (debug) console.log('197 this.state', this.state);
+    if (debug) console.log('210 this.state', this.state);
     const myMetis = this.myMetis;
     let inst, instview, myInst, myInstview, myItem;
     // Handle objects
@@ -217,18 +212,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myItem = myInst; // default
       instview = obj.objectview;
       myInstview = myMetis.findObjectView(instview.id);
-      if (debug) console.log('206 myInst', myInst, myInstview);
+      if (debug) console.log('220 myInst', myInst, myInstview);
       if (context?.what === "editObjectview") 
           myItem = myInstview;
       else if (context?.what === "editTypeview") 
           myItem = myInstview.typeview;
       myItem[propname] = value;
-      if (debug) console.log('232 myMetis', myMetis);
+      if (debug) console.log('226 myMetis', myMetis);
       // Prepare and to dispatch of objectview
-      if (debug) console.log('235 myItem', myItem);
+      if (debug) console.log('228 myItem', myItem);
       const modifiedObjectViews = new Array();
       const gqlObjview = new gql.gqlObjectView(myInstview);
-      if (debug) console.log('238 gqlObjview', gqlObjview);
+      if (!debug) console.log('231 gqlObjview', gqlObjview);
       modifiedObjectViews.push(gqlObjview);
       modifiedObjectViews.map(mn => {
         let data = mn;
@@ -237,6 +232,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       // Prepare and to dispatch of object
       const modifiedObjects = new Array();
       const gqlObj = new gql.gqlObject(myInst);
+      if (debug) console.log('240 gqlObj', gqlObj);
       modifiedObjects.push(gqlObj);
       modifiedObjects.map(mn => {
         let data = mn;
@@ -506,7 +502,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // --------------------------------------------------------------------------------------------
               // let objtype = prompt('Enter one of: ' + node.choices, defText);
               const modalContext = {
-                what: "selectDropdown"
+                what: "selectDropdown",
+                title: "Select Object Type"
               } 
               myDiagram.handleOpenModal(node.choices, modalContext);
               if (!debug) console.log('532 Set object type', myDiagram, myDiagram.selectedOption);
@@ -617,7 +614,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) { 
               const node = obj.part.data;
               const modalContext = {
-                what: "editTypeview"
+                what: "editTypeview",
+                title: "Edit Typeview"
               }
               myDiagram.handleOpenModal(node, modalContext);
                 // 
@@ -894,7 +892,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) { 
               const node = obj.part.data;
               const modalContext = {
-                what: "editObject"
+                what: "editObject",
+                title: "Edit Object"
               }
               myDiagram.handleOpenModal(node, modalContext);
               // 
@@ -910,7 +909,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) { 
               const node = obj.part.data;
               const modalContext = {
-                what: "editObjectview"
+                what: "editObjectview",
+                title: "Edit Object View"
               }
               myDiagram.handleOpenModal(node, modalContext);
                 // 
@@ -2289,7 +2289,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     
     let modalContent, inspector, selector, header, category;
     const modalContext = this.state.modalContext;
-    if (debug) console.log('2174 Diagram ', modalContext);
+    if (!debug) console.log('2174 Diagram ', modalContext);
 
     switch (modalContext?.what) {      
       case 'selectDropdown': {
@@ -2322,9 +2322,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObject':
       case 'editObjectview':
       case 'editTypeview': {
-        header = 'Edit Attributes '
+        header = modalContext.title;
         category = this.state.selectedData.category
-        if (debug) console.log('2321 Diagram ', this.state.selectedData, this.myMetis);
+        if (!debug) console.log('2321 Diagram ', this.state.selectedData, this.myMetis);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2324 Diagram ', this.state.selectedData, this.myMetis);

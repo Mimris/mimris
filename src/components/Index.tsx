@@ -40,8 +40,20 @@ const page = (props) => {
         <div className="homepage pt-2" >
           <div>
             <CardColumns>
-              <Card className="card p-0 mb-2" >
-                <CardBody className="card-body p-1" style={{backgroundColor: "#fa0"}}>
+              <Card className="card" 
+                                            style={{
+                                              background: "rgba(255,255,255,0.6)",
+                                              borderRadius: "10px",
+                                              border: "1px solid rgba(255,255,255,0.2)",
+                                              position: "relative",
+                                              backdropFilter: "blur(5px)",
+                                              webkitBackdropFilter: "blur(5px)",
+                                              // display: "block",
+                                              // margin: "0 auto",
+                                              padding: "2px"
+                                            }}
+              >
+                <CardBody className="card-body" style={{backgroundColor: "#fa0"}}>
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
                   <CardTitle className="card-title" style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
                   <CardText className="card-text p-3"> 
@@ -55,9 +67,9 @@ const page = (props) => {
                     <br /><br />Start modelling by select "Modelling" in the main menu above.  */}
                   </CardText>
                 </CardBody>
-              </Card>
-              <Card className="card p-0 mb-2" >
-                <CardBody className="card-body p-1" style={{backgroundColor: "#fd0"}}>
+              {/* </Card>
+              <Card className="card p-0 mb-2" > */}
+                <CardBody className="card-body" style={{backgroundColor: "#fd0"}}>
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
                   <CardTitle style={{ fontWeight: "bolder" }}>Tips !</CardTitle>
                   <CardText className="card-text p-3"> 
@@ -85,11 +97,23 @@ const page = (props) => {
                 </CardBody>
               </Card>
 
-              <Card className="card p-0 mb-2" >
-                <CardBody id="lighten" className="card-body p-1" >
-                  <CardHeader className="card-header p-2">AKM Modeller</CardHeader>
+              <Card className="card "
+                              style={{
+                                background: "rgba(255,255,255,0.6)",
+                                borderRadius: "10px",
+                                border: "1px solid rgba(255,255,255,0.2)",
+                                position: "relative",
+                                backdropFilter: "blur(5px)",
+                                webkitBackdropFilter: "blur(5px)",
+                                // display: "block",
+                                // margin: "0 auto",
+                                padding: "2px"
+                              }}
+              >
+                <CardHeader className="card-header">AKM Modeller</CardHeader>
+                <CardBody className="card-body" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
-                  <CardText className="card-text p-3">          
+                  <CardText className="card-text">          
                   AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
                     <br /><br />
                   With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
@@ -97,7 +121,19 @@ const page = (props) => {
                   </CardText>
                 </CardBody>
               </Card>
-              <Card className="card" body outline color="warning">
+              <Card className="card" body outline color="warning"
+                              style={{
+                                background: "rgba(255,255,255,0.6)",
+                                borderRadius: "10px",
+                                border: "1px solid rgba(255,255,255,0.2)",
+                                position: "relative",
+                                backdropFilter: "blur(5px)",
+                                webkitBackdropFilter: "blur(5px)",
+                                // display: "block",
+                                margin: "0 auto",
+                                padding: "2px"
+                              }}              
+              >
                 <CardHeader className="card-header">Aktive Knowledge Modelling</CardHeader>
                 <CardBody className="card-body" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
@@ -143,30 +179,42 @@ const page = (props) => {
 
               </Card>
     
-              <Card className="card bg-info" body outline color="primary" >
-                <CardHeader>Blog AKMM releases </CardHeader>
-                <CardBody className="homepage1 bg-light" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.12.18</CardTitle>
-                  <CardText>
+              <Card className="card" body outline color="primary" 
+                    style={{
+                      background: "rgba(255,255,255,0.6)",
+                      borderRadius: "10px",
+                      border: "1px solid rgba(255,255,255,0.2)",
+                      // position: "relative",
+                      backdropFilter: "blur(5px)",
+                      webkitBackdropFilter: "blur(5px)",
+                      // display: "block",
+                      margin: "0 auto",
+                      padding: "2px"
+                    }}
+              >
+                <CardHeader className="card-header" >Blog AKMM releases </CardHeader>
+                <CardBody className="card-body" >
+                  <CardTitle className="card-title" >Release 2020.12.18</CardTitle>
+                  <CardText >
                     akmclient-beta.herokuapp.com
                       <br /> <br /> - Bugfixes
                   </CardText>
                 </CardBody>
-                <CardBody className="homepage1 bg-light" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.18</CardTitle>
+                <CardBody className="card-body" >
+                  <CardTitle >Test Release 2020.11.18</CardTitle>
                   <CardText>
                     akmclient-beta.herokuapp.com
                       <br /> <br /> - Bugfixes in metamodelling
                   </CardText>
                 </CardBody>
-                <CardBody className="homepage1 bg-light" >
+                <CardBody className="card-body" >
                   <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
                   <CardText>
                     akmclient-beta.herokuapp.com
                       <br /> <br /> - Bugfixes  
                   </CardText>
                 </CardBody>
-                <CardBody className="homepage1 bg-light" >
+                <CardBody className="card-body" >
                   <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
                   <CardText>
                   akmclient-beta.herokuapp.com
@@ -176,35 +224,8 @@ const page = (props) => {
                       
                   </CardText>
                 </CardBody>
-                <CardBody className="homepage1 bg-light" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
-                  <CardText>
-                    akmclient-beta.herokuapp.com
-                    <br /><br />Bugfix and added download upload of models from file.  
-                  </CardText>
-                </CardBody>
-                <CardBody className="homepage1 bg-light" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
-                  <CardText>
-                    akmclient-beta.herokuapp.com
-                    <br /><br />4th test version!
-                  </CardText>
-                </CardBody>
-                <CardBody className="homepage1 bg-light" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.11</CardTitle>
-                  <CardText>
-                    akmclient-beta.herokuapp.com
-                    <br /><br />3rd test version!
-                  </CardText>
-                </CardBody>
-                <CardBody className="homepage1 bg-light" >
-                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
-                  <CardText>
-                    akmclient-beta.herokuapp.com
-                    <br /><br />2nd test version!
-                  </CardText>
-                </CardBody>
-                <CardBody className="homepage1 bg-light" >
+
+                <CardBody className="card-body" >
                   <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
                   <CardText>
                     akmclient-beta.herokuapp.com

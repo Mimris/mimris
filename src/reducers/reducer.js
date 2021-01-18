@@ -758,6 +758,11 @@ function reducer(state = InitialState, action) {
                         size: action.data.size,
                         deleted: action.data.deleted,
                         modified: action.data.modified,
+                        figure: action.data.figure,
+                        fillcolor: action.data.fillcolor,
+                        strokecolor: action.data.strokecolor,
+                        strokewidth: action.data.strokewidth,
+                        icon: action.data.icon,
                       },
                       ...curmv?.objectviews?.slice(ovindex + 1, curmv?.objectviews.length)
                     ]

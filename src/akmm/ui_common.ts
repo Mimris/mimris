@@ -77,8 +77,10 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();
-                if (context.pasted) 
-                    objtypeView = data.typeview;
+                if (context.pasted) {
+                    const id = data.typeview?.id;
+                    objtypeView = myMetis.findObjectTypeView(id);
+                }
                 if (!objtypeView) {
                     const key = utils.createGuid();
                     objtypeView = new akm.cxObjectTypeView(key, key, objtype, "");
@@ -1364,6 +1366,12 @@ function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) 
             }
         }
         if (debug) console.log('994 updateNode', data);
+        const objview = data.objectview;
+        for (prop in viewdata) {
+            if (objview[prop] && objview[prop] !== "") {
+                diagram.model.setDataProperty(data, prop, objview[prop])
+            }
+        }
     }
 }
 
@@ -1379,6 +1387,12 @@ function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram:
                 diagram.model.setDataProperty(data, prop, viewdata[prop])
         }
         if (debug) console.log(data);
+        const relview = data.relshipview;
+        for (prop in viewdata) {
+            if (relview[prop] && relview[prop] !== "") {
+                diagram.model.setDataProperty(data, prop, relview[prop])
+            }
+        }
     }
 } 
 

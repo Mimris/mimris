@@ -32,6 +32,7 @@ import { FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 import svgs from '../../utils/Svgs'
 import { isNullOrUndefined } from 'util';
+import { setMyMetisParameter } from '../../../actions/actions';
 //import { stringify } from 'querystring';
 // import './Diagram.css';
 
@@ -169,10 +170,46 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   //   this.setState({ objType: 'Address' });
   // }
   public handleSelectDropdownChange = (selected) => {
-    const selectedOption = selected.value
-    this.setState({ selectedOption }); // this will update the state of selected therefore updating value in react-select
-    console.log(`179 Diagram Selected: ${selectedOption}`, this.state.selectedOption, this.myMetis); 
-    // const myMetis = this.myMetis
+    const selectedOption = selected.value;
+    const myMetis = this.myMetis;
+    if (debug) console.log('173 this.state', this.state);
+    //this.setState({ selectedOption }); // this will update the state of selected therefore updating value in react-select
+
+    let objtype = (selectedOption) && selectedOption;
+    if (debug) console.log('179 objtype', objtype);
+    const context = {
+      "myMetis":      myMetis,
+      "myMetamodel":  myMetis.currentMetamodel,
+      "myModel":      myMetis.currentModel,
+      "myModelView":  myMetis.currentModelview,
+      "myDiagram":    myMetis.myDiagram
+    }
+    const node = myMetis.currentNode;
+    const typeview = node.typeview;
+    const objview = (objtype) && uic.setObjectType(node, objtype, context);
+    if (!debug) console.log('190 objview', objview);
+    //objview.typeview = typeview;
+    const object = myMetis.findObject(objview.object.id);
+    if (object) {
+      const gqlObject = new gql.gqlObject(object);
+      if (debug) console.log('195 gqlObject', gqlObject);
+      const modifiedObjects = new Array();
+      modifiedObjects.push(gqlObject);
+      modifiedObjects.map(mn => {
+        let data = mn;
+        this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+      })    
+      if (!debug) console.log('202 objview', objview);
+      const gqlObjview = new gql.gqlObjectView(objview);
+      if (!debug) console.log('204 gqlObjview', gqlObjview);
+      const modifiedObjectViews = new Array();
+      modifiedObjectViews.map(mn => {
+        let data = mn;
+        this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      modifiedObjectViews.push(gqlObjview);
+      })
+      myMetis.myDiagram.requestUpdate();
+    }
   }
 
   public handleInputChange(propname: string, value: string, obj: any, context: any, isBlur: boolean) {
@@ -408,6 +445,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.handleOpenModal = this.handleOpenModal;
     myDiagram.handleCloseModal = this.handleCloseModal;
     myDiagram.selectedOption = this.state.selectedOption;
+    myDiagram.state = this.state;
     myDiagram.toolTip =
       $("ToolTip", { margin: 4 },
         $(go.TextBlock, new go.Binding("text", "", diagramInfo),
@@ -483,6 +521,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Change Object type",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
+              const currentType = node.objecttype;
               if (debug) console.log('273 node', node);
               const myMetamodel = myMetis.currentMetamodel;
               const objtypes = myMetamodel.getObjectTypes();
@@ -499,44 +538,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   }  
                 }
               }
-              // --------------------------------------------------------------------------------------------
-              // let objtype = prompt('Enter one of: ' + node.choices, defText);
               const modalContext = {
                 what: "selectDropdown",
-                title: "Select Object Type"
+                title: "Select Object Type",
               } 
+              myMetis.currentNode = node;
+              myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(node.choices, modalContext);
-              if (!debug) console.log('532 Set object type', myDiagram, myDiagram.selectedOption);
-              let objtype = (myDiagram.selectedOption) && myDiagram.selectedOption;
-
-              const context = {
-                "myMetis":      myMetis,
-                "myMetamodel":  myMetis.currentMetamodel,
-                "myModel":      myMetis.currentModel,
-                "myModelView":  myMetis.currentModelview,
-                "myDiagram":    e.diagram,
-                "dispatch":     e.diagram.dispatch,
-                "handleOpenModal": e.diagram.handleOpenModal
-              }
-              const objview = (objtype) && uic.setObjectType(node, objtype, context);
-              if (debug) console.log('292 objview', objview);
-              const gqlObjview = new gql.gqlObjectView(objview);
-              const modifiedObjectViews = new Array();
-              modifiedObjectViews.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              modifiedObjectViews.push(gqlObjview);
-              })
-              const object = myMetis.findObject(objview?.object?.id);
-                if (object) {
-                  const gqlObject = new gql.gqlObject(object);
-                  const modifiedObjects = new Array();
-                  modifiedObjects.push(gqlObject);
-                  modifiedObjects.map(mn => {
-                    let data = mn;
-                    e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-                  })
-                }
+              if (debug) console.log('511 myMetis', myMetis);
           },
             function (o: any) {
               const node = o.part.data;

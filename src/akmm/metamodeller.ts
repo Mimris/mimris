@@ -637,8 +637,15 @@ export class cxMetis {
                     objview.deleted = item.deleted;
                     if (item.typeviewRef) {
                         const objtypeview = this.findObjectTypeView(item.typeviewRef);
-                        if (objtypeview)
+                        if (objtypeview) {
                             objview.setTypeView(objtypeview);
+                            const viewdata = objtypeview.getData();
+                            for (let prop in viewdata) {
+                                if (item[prop] && item[prop] !== "") {
+                                    objview[prop] = item[prop];
+                                }
+                            }
+                        }
                     }
                     object.addObjectView(objview);
                     modelview.addObjectView(objview);
@@ -5003,7 +5010,9 @@ export class cxObjectView extends cxMetaObject {
         }
     }
     setTypeView(typeview: cxObjectTypeView) {
-        this.typeview = typeview;
+        if (typeview) {
+            this.typeview = typeview;
+        }
     }
     getTypeView() {
         return this.typeview;
@@ -5126,7 +5135,9 @@ export class cxRelationshipView extends cxMetaObject {
         if (rel) this.relship = rel;
     }
     setTypeView(typeview: cxRelationshipTypeView) {
-        if (typeview) this.typeview = typeview;
+        if (typeview) {
+            this.typeview = typeview;
+        }
     }
     getTypeView() {
         return this.typeview;

@@ -86,6 +86,35 @@ class GoJSApp extends React.Component<{}, AppState> {
     return;
   }
 
+  private getNode(goModel: any, key: string) {
+    const nodes = goModel?.nodes;
+    if (nodes) {
+      for (let i = 0; i < nodes?.length; i++) {
+        const node = nodes[i];
+        if (node) {
+          if (node.key === key)
+            return node;
+        }
+      }
+    }
+    return null;
+  }
+
+  private getLink(goModel: any, key: string) {
+    const links = goModel.links;
+    if (links) {
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        if (link) {
+          if (link.key === key)
+            return link;
+        }
+      }
+    }
+    return null;
+  }
+
+
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
@@ -153,8 +182,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       "dispatch":         dispatch,
       "done":             done
     }
-    if (debug) console.log('195 handleDiagramEvent - context', name, this.state, context);
-    if (debug) console.log('196 handleEvent', myMetis);
+    if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
+    if (debug) console.log('157 handleEvent', myMetis);
+    if (!debug) console.log('158 this', this);
 
     switch (name) {
 
@@ -481,7 +511,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('699 data', data, sel);
         const modalContext = {
           what: "editObject",
-          title: "Edit Object"
+          title: "Edit"
         }
         myDiagram.handleOpenModal(data, modalContext, null);
       }

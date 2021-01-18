@@ -322,34 +322,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('288 myMetis', myMetis);
   }
 
-  private getNode(goModel: any, key: string) {
-    const nodes = goModel?.nodes;
-    if (nodes) {
-      for (let i = 0; i < nodes?.length; i++) {
-        const node = nodes[i];
-        if (node) {
-          if (node.key === key)
-            return node;
-        }
-      }
-    }
-    return null;
-  }
-
-  private getLink(goModel: any, key: string) {
-    const links = goModel.links;
-    if (links) {
-      for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        if (link) {
-          if (link.key === key)
-            return link;
-        }
-      }
-    }
-    return null;
-  }
-
   /**
    * Diagram initialization method, which is passed to the ReactDiagram component.
    * This method is responsible for making the diagram and initializing the model, any templates,
@@ -584,23 +556,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     myDiagram.requestUpdate();
                     myMetamodel.addObjectTypeView(typeview);
                     myMetis.addObjectTypeView(typeview);
-                  }              
-                const gqlObjtypeView = new gql.gqlObjectTypeView(typeview);
-                if (debug) console.log('332 gqlObjtypeView', gqlObjtypeView);
-                const modifiedTypeViews = new Array();
-                modifiedTypeViews.push(gqlObjtypeView);
-                modifiedTypeViews.map(mn => {
-                  let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-                })
-                const gqlObjView = new gql.gqlObjectView(currentObjectView);
-                if (debug) console.log('340 gqlObjView', gqlObjView);
-                const modifiedObjectViews = new Array();
-                modifiedObjectViews.push(gqlObjView);
-                modifiedObjectViews.map(mn => {
-                  let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-                })              
+                }    
+                if (typeview) {          
+                  const gqlObjtypeView = new gql.gqlObjectTypeView(typeview);
+                  if (debug) console.log('332 gqlObjtypeView', gqlObjtypeView);
+                  const modifiedTypeViews = new Array();
+                  modifiedTypeViews.push(gqlObjtypeView);
+                  modifiedTypeViews.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+                  })
+                  const gqlObjView = new gql.gqlObjectView(currentObjectView);
+                  if (debug) console.log('340 gqlObjView', gqlObjView);
+                  const modifiedObjectViews = new Array();
+                  modifiedObjectViews.push(gqlObjView);
+                  modifiedObjectViews.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                  })              
+                }
               }
             },
             function (o: any) {

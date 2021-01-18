@@ -341,7 +341,8 @@ export function setObjectType(data: any, typename: string, context: any) {
         // Do nothing
     } else {
         const currentObject = myMetis.findObject(data.object?.id);
-        const objtypeview = myMetis.findObjectTypeView(objtype.typeviewRef);
+        //const objtypeview = myMetis.findObjectTypeView(objtype.typeviewRef);
+        const objtypeview = data.typeview;
         if (currentObject) {
             currentObject.setType(objtype);
             //currentObject.setName(typename);

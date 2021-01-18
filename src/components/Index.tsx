@@ -36,15 +36,15 @@ const page = (props) => {
 
   return (
     <>
-      <div className="workpad p-1 bg-light">
-        <div className="homepage1 bg-light ">
+      <div className="workpad p-1 bg-light" >
+        <div className="homepage pt-2" >
           <div>
             <CardColumns>
-              <Card className="card bg-secondary p-0 mb-2" >
-                <CardBody className="homepage2 p-1" style={{backgroundColor: "#fa0"}}>
+              <Card className="card p-0 mb-2" >
+                <CardBody className="card-body p-1" style={{backgroundColor: "#fa0"}}>
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
-                  <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
-                  <CardText className="bg-light text-danger p-3" >
+                  <CardTitle className="card-title" style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
+                  <CardText className="card-text p-3"> 
                     <strong>Select Modelling in the top menu </strong><br />
                     (An initial example template model is loaded)
                     <br /><br /><strong>Click the "Local" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the LocalStore.
@@ -56,11 +56,11 @@ const page = (props) => {
                   </CardText>
                 </CardBody>
               </Card>
-              <Card className="card bg-light p-0 mb-2" >
-                <CardBody className="homepage2 p-1" style={{backgroundColor: "#fd0"}}>
+              <Card className="card p-0 mb-2" >
+                <CardBody className="card-body p-1" style={{backgroundColor: "#fd0"}}>
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
                   <CardTitle style={{ fontWeight: "bolder" }}>Tips !</CardTitle>
-                  <CardText className="bg-light text-info  p-3" >
+                  <CardText className="card-text p-3"> 
                     <strong><strong>Save current model to a file: <br />
                     <br />Click on the "Local" button </strong>
                     <br />Select "Download Current Model to File". </strong>
@@ -85,11 +85,11 @@ const page = (props) => {
                 </CardBody>
               </Card>
 
-              <Card className="card bg-secondary p-0 mb-2" >
-                <CardBody id="lighten" className="homepage2 bg-secondary p-1" >
-                  <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
+              <Card className="card p-0 mb-2" >
+                <CardBody id="lighten" className="card-body p-1" >
+                  <CardHeader className="card-header p-2">AKM Modeller</CardHeader>
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
-                  <CardText className="bg-light p-3">          
+                  <CardText className="card-text p-3">          
                   AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
                     <br /><br />
                   With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
@@ -97,11 +97,11 @@ const page = (props) => {
                   </CardText>
                 </CardBody>
               </Card>
-              <Card body outline color="warning">
-                <CardHeader>Aktive Knowledge Modelling</CardHeader>
-                <CardBody className="akm-intro" >
+              <Card className="card" body outline color="warning">
+                <CardHeader className="card-header">Aktive Knowledge Modelling</CardHeader>
+                <CardBody className="card-body" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
-                  <CardText>
+                  <CardText className="card-text">
                     Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
                     AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
                     <br /><br />
@@ -120,6 +120,27 @@ const page = (props) => {
                 {/* </Card> */}
                 {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
                 {/* <Card> */}
+              </Card>
+              <Card className="card" body outline color="warning"
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  webkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  margin: "0 auto"
+                }}
+                >
+                <CardHeader className="card-header" >Aktive Knowledge Modelling</CardHeader>
+                <CardBody className="card-body" >
+
+                  <CardText> 
+                      test            
+                  </CardText>
+                </CardBody>
+
               </Card>
     
               <Card className="card bg-info" body outline color="primary" >
@@ -196,17 +217,6 @@ const page = (props) => {
           </div>
         </div>
         <style jsx>{`
-          .card {
-            background: rgba(255,255,255,0.4);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.2);
-            position: absolute;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            display: block;
-            margin: 0 auto;
-        }
- 
         `}</style>
       </div>
     </>

@@ -2357,7 +2357,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
 
-        <Modal className="modal1 p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
+        <Modal className="modal1 p-1" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
            <div className="bg-light">
             <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
               onClick={() => { this.handleCloseModal() }} ><span>x</span>

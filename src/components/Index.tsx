@@ -85,119 +85,129 @@ const page = (props) => {
                 </CardBody>
               </Card>
 
-                <Card className="card bg-secondary p-0 mb-2" >
-                  <CardBody id="lighten" className="homepage2 bg-secondary p-1" >
-                    <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
-                    {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
-                    <CardText className="bg-light p-3">          
-                    AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
-                      <br /><br />
-                    With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
-                    The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
-                    </CardText>
-                  </CardBody>
-                </Card>
-                <Card body outline color="warning">
-                  <CardHeader>Aktive Knowledge Modelling</CardHeader>
-                  <CardBody className="akm-intro" >
-                    {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
-                    <CardText>
-                      Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
-                      AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
-                      <br /><br />
-                      The AKM novelty comes from how relationships between roles, tasks and information are captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
-                      <br /><br />
-                      The effects from deploying AKM based solutions are many.
-                      Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. I.e. supporting design parameter balancing, and that task execution is in line with applicable regulations and policies.
-                      Secondly, task execution might create new tasks for other roles, and as such AKM makes collaboration more transparent, effective and precise, with direct impact on safety and security.
-                      <br /><br />
-                      <br /><br />
-                      (more in the About page ....)
-                      <br /><br />
-                      {/* <a href='On AKM modelling (7).html'>Paper: On AKM Modelling</a> */}                
-                    </CardText>
-                  </CardBody>
-                  {/* </Card> */}
-                  {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
-                  {/* <Card> */}
-                </Card>
-     
-                <Card className="bg-info" body outline color="primary" >
-                  <CardHeader>Blog AKMM releases </CardHeader>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.12.18</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                       <br /> <br /> - Bugfixes
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.18</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                       <br /> <br /> - Bugfixes in metamodelling
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                       <br /> <br /> - Bugfixes  
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
-                    <CardText>
+              <Card className="card bg-secondary p-0 mb-2" >
+                <CardBody id="lighten" className="homepage2 bg-secondary p-1" >
+                  <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
+                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
+                  <CardText className="bg-light p-3">          
+                  AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
+                    <br /><br />
+                  With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
+                  The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
+                  </CardText>
+                </CardBody>
+              </Card>
+              <Card body outline color="warning">
+                <CardHeader>Aktive Knowledge Modelling</CardHeader>
+                <CardBody className="akm-intro" >
+                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
+                  <CardText>
+                    Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
+                    AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
+                    <br /><br />
+                    The AKM novelty comes from how relationships between roles, tasks and information are captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
+                    <br /><br />
+                    The effects from deploying AKM based solutions are many.
+                    Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. I.e. supporting design parameter balancing, and that task execution is in line with applicable regulations and policies.
+                    Secondly, task execution might create new tasks for other roles, and as such AKM makes collaboration more transparent, effective and precise, with direct impact on safety and security.
+                    <br /><br />
+                    <br /><br />
+                    (more in the About page ....)
+                    <br /><br />
+                    {/* <a href='On AKM modelling (7).html'>Paper: On AKM Modelling</a> */}                
+                  </CardText>
+                </CardBody>
+                {/* </Card> */}
+                {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
+                {/* <Card> */}
+              </Card>
+    
+              <Card className="card bg-info" body outline color="primary" >
+                <CardHeader>Blog AKMM releases </CardHeader>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Release 2020.12.18</CardTitle>
+                  <CardText>
                     akmclient-beta.herokuapp.com
-                    <br /><br />Bugfix and new features:
-                       <br /> - added Tables in top menu. 
-                       <br /> - faster response when modelling <br />(not neccessary to refresh so often)
-                       
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />Bugfix and added download upload of models from file.  
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />4th test version!
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.11</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />3rd test version!
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />2nd test version!
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />1st test version of AKMM awailable on Heroku! 
-                    </CardText>
-                  </CardBody>
-                </Card>
+                      <br /> <br /> - Bugfixes
+                  </CardText>
+                </CardBody>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.18</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                      <br /> <br /> - Bugfixes in metamodelling
+                  </CardText>
+                </CardBody>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                      <br /> <br /> - Bugfixes  
+                  </CardText>
+                </CardBody>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
+                  <CardText>
+                  akmclient-beta.herokuapp.com
+                  <br /><br />Bugfix and new features:
+                      <br /> - added Tables in top menu. 
+                      <br /> - faster response when modelling <br />(not neccessary to refresh so often)
+                      
+                  </CardText>
+                </CardBody>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                    <br /><br />Bugfix and added download upload of models from file.  
+                  </CardText>
+                </CardBody>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                    <br /><br />4th test version!
+                  </CardText>
+                </CardBody>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.11</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                    <br /><br />3rd test version!
+                  </CardText>
+                </CardBody>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                    <br /><br />2nd test version!
+                  </CardText>
+                </CardBody>
+                <CardBody className="homepage1 bg-light" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                    <br /><br />1st test version of AKMM awailable on Heroku! 
+                  </CardText>
+                </CardBody>
+              </Card>
 
             </CardColumns>
           </div>
         </div>
-      <style jsx>{`
+        <style jsx>{`
+          .card {
+            background: rgba(255,255,255,0.4);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: absolute;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            display: block;
+            margin: 0 auto;
+        }
  
-          `}</style>
+        `}</style>
       </div>
     </>
   )

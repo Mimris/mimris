@@ -2344,7 +2344,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     return (
-      <>
+      <div>
         <ReactDiagram
           ref={this.diagramRef}
           divClassName='diagram-component'
@@ -2356,46 +2356,111 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
-<Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
-  {/* <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} > */}
-  <div className="bg-light">
-    <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
-      onClick={() => { this.handleCloseModal() }} ><span>x</span>
-    </Button>
-    <ModalHeader className="bg-light" style={{width: "70%"}}>
-      <span className="text-secondary">{header} </span> 
-      <span className="name pl-2" style={{minWidth: "50%"}} >{this.state.selectedData?.name} </span>
-      <span className="text-secondary font-weight-light">({category}) </span> 
-    </ModalHeader>
-  </div>
-  <ModalBody >
-    {modalContent}
-  </ModalBody>
-  <ModalFooter>
-    <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
-  </ModalFooter>
-</Modal>
-          {/* <Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "15%", fontSize: "90%"}} >
-            <div className="bg-light">
-              <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
-                onClick={() => { this.handleCloseModal() }} ><span>x</span>
-              </Button>
-              <ModalHeader className="bg-light" style={{width: "70%"}}>
-                <span className="text-secondary">{header}</span> 
-                <span className="name pl-2" style={{minWidth: "50%"}} >{this.state.selectedData?.name} </span>
-              </ModalHeader>
+
+        <Modal className="modal1 p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
+           <div className="bg-light">
+            <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
+              onClick={() => { this.handleCloseModal() }} ><span>x</span>
+            </Button>
+            <ModalHeader className="bg-light" style={{width: "70%"}}>
+              <span className="text-secondary">{header} </span> 
+              <span className="name pl-2" style={{minWidth: "50%"}} >{this.state.selectedData?.name} </span>
+              <span className="text-secondary font-weight-light">({category}) </span> 
+            </ModalHeader>
+          </div>
+          <ModalBody >
+            {modalContent}
+          </ModalBody>
+          <ModalFooter>
+            <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
+          </ModalFooter>
+        </Modal>
+        
+      <style jsx>{`
+            /*******************************
+            * MODAL AS LEFT/RIGHT SIDEBAR
+            * Add "left" or "right" in modal parent div, after className="modal".
+            * Get free snippets on bootpen.com
+            *******************************/
+            .modal {
+                z-index: 1;
+                margin-top: 8%;
+            }
+            .modal .right .modal-dialog {
+              position: fixed;
+              top: 50%;
+              margin: 150px auto 200px auto;
+              width: 380px;
+              height: 60%;
+              color: black;
+              -webkit-transform: translate3d(0%, 0, 0);
+              -ms-transform: translate3d(0%, 0, 0);
+              -o-transform: translate3d(0%, 0, 0);
+              transform: translate3d(0%, 0, 0);
+            }
+
+            .modal.right .modal-content {
+              height: 80%;
+              overflow-y: auto;
+            }
+
+            .modal.right .modal-body {
+              padding: 15px 15px 80px;
+              color: #444;
+            }
+
+            .modal.right.fade .modal-dialog {
+              position: abolute;
+              top: 100px;
+              right: 320px;
+              -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+              -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+              -o-transition: opacity 0.3s linear, left 0.3s ease-out;
+              transition: opacity 0.3s linear, left 0.3s ease-out;
+            }
+            .modal.fade.in {
+              opacity: 1;
+            }
+            .modal.right.fade.show .modal-dialog {
+              right: 0;
+              transform: translate(0,0);
+            }
+
+            /* ----- MODAL STYLE ----- */
+            .modal-content {
+              border-radius: 0;
+              border: none;
+            }
+
+            .modal-header {
+              border-bottom-color: #eeeeee;
+              background-color: #fafafa;
+            }
+            .modal-body {
+               width: 400px;
+            }
+            .modal-backdrop .fade .in {
+              /* display: none; */
+              /* opacity: 0; */
+              /* opacity: 0.5; */
+              /* filter: alpha(opacity=50) !important; */
+              /* background: #fff; */
+                    }
+            .modal-background {
+              display: none;
+            }
+            .btn-context {
+              // font-size: 80%;
+              font-weight: bold;
+            }
+            `}</style> 
             </div>
-            <ModalBody >
-                {modalContent} 
-            </ModalBody>
-            <ModalFooter>
-              <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
-            </ModalFooter>
-          </Modal> */}
-      </>
     );
   }
 }
+
+
+
 
 {/* <ReactDiagram
 ref={this.diagramRef}

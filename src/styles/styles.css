@@ -48,8 +48,100 @@
   margin-bottom: 4px;
 }
 
+.modal1 {
+  background: linear-gradient(90deg,#FFFF00 6%,#FFA500 25%,#F14444 45%,#D53567 55%,#9A109A 94%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background-color: transparent;
+  background: rgba(255,255,255,0.6);
+  border: 10px solid red;
+  /* border-top: white;
+  border-left: white; */
+  padding: 4px;
+}
+.modal-body {
+  background: rgba(255,255,255,0);
+  border-radius: 10px;
+  border: 4px solid rgba(255,255,255,0.5);
+  position: relative;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: block;
+  margin: 20 auto;
+}
+.modal-header {
+  /* background: rgba(255,255,255,0.3); */
+  font-family: Arial;
+  color:  #333;
+  font-size: 20px;
+  padding: 20px 30px;
+  text-shadow: 2px 2px rgba(0,0,0,0.3);
+  /* text-transform: uppercase; */
+}
+.modal-select {
+  width: 420px ;
+}
+.modal-name {
+  background: rgba(255,255,255,0);
+}
+.modal-button {
+  background: rgba(255,255,255,0.4);
+}
 
+.homepage {
+  background: linear-gradient(90deg,#fc7a64 6%,#fda978 25%,#dacf90 40%, #cae281 45%,#6ae6cb 55%,#10859a 94%);
+  /* background: linear-gradient(90deg,#FFFF00 6%,#FFA500 25%,#F14444 45%,#D53567 55%,#9A109A 94%); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+/* #Card {
+  background-color: none;
+  background: none;
+} */
+#Card {
+  background: rgba(255,255,255,0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+  position: relative;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: block;
+  margin: 0 auto;
+}
+.card {
+  margin: 2px;
+}
+.card-body {
+  background: rgba(255,255,255,0.6);
+  border-radius: 10px;
+  border: 4px solid rgba(230,230,230,0.2);
+  margin: 8px;
+  padding: 0 auto;
+  box-shadow: 6px, 6px, 20px rgba(122,122,122,0.9);
+}
 
+.card-header {
+  background: rgba(255,255,255,0.3);
+  font-family: Arial;
+  color:  #333;
+  font-size: 20px;
+  padding: 20px 30px;
+  text-shadow: 2px 2px rgba(0,0,0,0.3);
+  text-transform: uppercase;
+}
+.card-text {
+  box-shadow: 6px, 6px, 20px rgba(122,122,122,0.5);
+  font-size: 18px;
+}
+
+.card-title {
+  font-weight: "bolder" ;
+}
  /* .workarea div:nth-child(3) {
    grid-row:  2;
 } */

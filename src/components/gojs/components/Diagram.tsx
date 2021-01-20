@@ -2340,20 +2340,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     switch (modalContext?.what) {      
       case 'selectDropdown': {
         const options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
-        console.log('2296 options', options);
+        if (debug) console.log('2296 options', options);
         const { selectedOption } = this.state;
-        const value = selectedOption && selectedOption.value
+
+        const value = (selectedOption)  ? selectedOption.value : options[0]
+
         if (debug) console.log('2173 Diagram ', selectedOption, this.state.selectedOption, value);
         header = modalContext.title;
         modalContent = 
-          <div className="d-flex justify-content-center">
-            <Select className="w-100"
+          <div className="modal-selection d-flex justify-content-center">
+            <Select className="modal-select"
+              options={options}
+              onChange={value => this.handleSelectDropdownChange(value)}
               value={value}
-              onChange={this.handleSelectDropdownChange}
-              options={options.map(option => (
-                option && {value: option.value, label: option.label}
-                )
-              )}
             />
           </div>
           {/* <option value={option.value}>{label: option.label, option.value}</option>
@@ -2389,7 +2388,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     return (
-      <>
+      <div>
         <ReactDiagram
           ref={this.diagramRef}
           divClassName='diagram-component'
@@ -2401,46 +2400,37 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
-<Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
-  {/* <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} > */}
-  <div className="bg-light">
-    <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
-      onClick={() => { this.handleCloseModal() }} ><span>x</span>
-    </Button>
-    <ModalHeader className="bg-light" style={{width: "70%"}}>
-      <span className="text-secondary">{header} </span> 
-      <span className="name pl-2" style={{minWidth: "50%"}} >{this.state.selectedData?.name} </span>
-      <span className="text-secondary font-weight-light">({category}) </span> 
-    </ModalHeader>
-  </div>
-  <ModalBody >
-    {modalContent}
-  </ModalBody>
-  <ModalFooter>
-    <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
-  </ModalFooter>
-</Modal>
-          {/* <Modal className="modal__edit p-1 bg-light" isOpen={this.state.showModal} style={{ marginTop: "15%", fontSize: "90%"}} >
-            <div className="bg-light">
-              <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
-                onClick={() => { this.handleCloseModal() }} ><span>x</span>
-              </Button>
-              <ModalHeader className="bg-light" style={{width: "70%"}}>
-                <span className="text-secondary">{header}</span> 
-                <span className="name pl-2" style={{minWidth: "50%"}} >{this.state.selectedData?.name} </span>
-              </ModalHeader>
+
+        <Modal className="modaltemp p-1 " isOpen={this.state.showModal} style={{ marginTop: "28%", fontSize: "90%"}} >
+           <div >
+            <Button className="modal-button btn-sm float-right ml-5" color="link" 
+              onClick={() => { this.handleCloseModal() }} ><span>x</span>
+            </Button>
+            <ModalHeader className="modal-header" style={{width: "70%"}}>
+              <span className="text-secondary">{header} </span> 
+              <span className="modal-name " >{this.state.selectedData?.name} </span>
+              <span className="text-secondary font-weight-light">{category} </span> 
+            </ModalHeader>
+          </div>
+          <ModalBody className="modal-body">
+            {modalContent}
+          </ModalBody>
+          <ModalFooter>
+            <Button className="modal-footer bg-secondary m-0 p-0" color="black" onClick={() => { this.handleCloseModal() }}>Done</Button>
+          </ModalFooter>
+        </Modal>
+        
+      <style jsx>{`
+
+    
+            `}</style> 
             </div>
-            <ModalBody >
-                {modalContent} 
-            </ModalBody>
-            <ModalFooter>
-              <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
-            </ModalFooter>
-          </Modal> */}
-      </>
     );
   }
 }
+
+
+
 
 {/* <ReactDiagram
 ref={this.diagramRef}

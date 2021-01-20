@@ -63,6 +63,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = inst;
         break;
       case "editObjectview":
+      case "editRelshipview":
         item = instview;
         break;
       case "editTypeview":
@@ -99,7 +100,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'toObject') continue;
           if (k === 'fromobjectRef') continue;
           if (k === 'toobjectRef') continue;
-          if (k === 'relshipkind') continue;
+          if (k === 'toobjectRef') continue;
+          if (k === 'relshipRef') continue;
+          if (k === 'toObjviewRef') continue;
+          if (k === 'fromObjviewRef') continue;
           if (k === 'viewkind') continue;
           if (k === 'valueset') continue;
           if (k === 'inputrels') continue;

@@ -321,43 +321,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myInst = myMetis.findRelationship(inst.id);
         instview = obj.relshipview;
         myInstview = myMetis.findRelationshipView(instview.id);    
-      switch(propname) {
-        case 'name':
-          myInst.name = value;
-          myInstview.name = value;
-          break;
-        case 'description':
-          myInst.description = value;
-          break;
-        default:
-          // Handle properties
-          if (debug) console.log('262 myInst', myInst);
-          const type = inst.type;
-          const props = type.properties;
-          for (let i=0; i<props?.length; i++) {
-            const prop = props[i];
-            myInst.getStringValue2(prop.name)
-          }
-          break;
-      }
-      // Prepare and to dispatch of objectview
-      const modifiedRelshipViews = new Array();
-      const gqlRelview = new gql.gqlRelshipView(myInstview);
-      modifiedRelshipViews.push(gqlRelview);
-      modifiedRelshipViews.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      })
-      // Prepare and to dispatch of object
-      const modifiedRelships = new Array();
-      const gqlRel = new gql.gqlRelationship(myInst);
-      modifiedRelships.push(gqlRel);
-      modifiedRelships.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-      })
+        if (debug) console.log('220 myInst', myInst, myInstview);
+        if (context?.what === "editRelshipview") 
+            myItem = myInstview;
+        else if (context?.what === "editTypeview") 
+            myItem = myInstview.typeview;
+        myItem[propname] = value;
+        if (debug) console.log('330 myMetis', myMetis);
+      
+        // Prepare and to dispatch of objectview
+        const modifiedRelshipViews = new Array();
+        const gqlRelview = new gql.gqlRelshipView(myInstview);
+        modifiedRelshipViews.push(gqlRelview);
+        modifiedRelshipViews.map(mn => {
+          let data = mn;
+          this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        })
+        // Prepare and to dispatch of object
+        const modifiedRelships = new Array();
+        const gqlRel = new gql.gqlRelationship(myInst);
+        modifiedRelships.push(gqlRel);
+        modifiedRelships.map(mn => {
+          let data = mn;
+          this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+        });
+      if (debug) console.log('348 myMetis', myMetis);
     }
-    if (debug) console.log('288 myMetis', myMetis);
   }
 
   /**
@@ -987,7 +976,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (!object) return;
                 object = myMetis.findObject(object.id);
                 const objtype = object?.type;
-                if (objtype?.name === 'InputPattern') {
+                if (objtype?.name === 'InputPattern' || objtype?.name === 'Datatype') {
                   return true;
                 }
               }
@@ -1192,27 +1181,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.handleOpenModal(link.choices, modalContext);
               if (debug) console.log('511 myMetis', myMetis);
 
-              // const typename = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
-              // const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-              // if (debug) console.log('747 reltype', reltype, fromType, toType);
-              // const relview = uic.setRelationshipType(link, reltype, context);
-              // if (!relview) return;
-              // const gqlRelView = new gql.gqlRelshipView(relview);
-              // if (debug) console.log('308 SetReltype', link, gqlRelView);
-              // const modifiedRelshipViews = new Array();
-              // modifiedRelshipViews.push(gqlRelView);
-              // modifiedRelshipViews.map(mn => {
-              //   let data = mn;
-              //   e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-              // })
-              // const relship = myMetis.findRelationship(relview?.relship.id);
-              // const gqlRelship = (relship) && new gql.gqlRelationship(relship);
-              // const modifiedRelships = new Array();
-              // modifiedRelships.push(gqlRelship);
-              // modifiedRelships.map(mn => {
-              //   let data = mn;
-              //   (mn) && e.diagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-              // })              
             },
             function (o) {
               const link = o.part.data;
@@ -1291,6 +1259,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               else if (link.category === 'Relationship type') {
                   return false;
+              }
+              return false;
+            }),
+          makeButton("Edit Typeview",
+            function (e: any, obj: any) { 
+              const link = obj.part.data;
+              const modalContext = {
+                what: "editTypeview",
+                title: "Edit Typeview"
+              }
+              myDiagram.handleOpenModal(link, modalContext);
+                // 
+            }, 
+            function (o: any) {
+              const link = o.part.data;
+              if (debug) console.log('413 node', link);
+              const currentRelship = link.relship; 
+              const currentRelshipView = linkrelshipview;
+              if (currentRelship && currentRelshipView) {                   
+                const reltype  = currentRelship.type;
+                const typeView = link.typeview;
+                const defaultTypeview = reltype.typeview;
+                if (typeView && (typeView.id !== defaultTypeview.id)) {
+                  return true;
+                }
               }
               return false;
             }),
@@ -1464,6 +1457,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     return true;
                   }
                 }
+              }
+              return false; 
+            }),
+          makeButton("Edit Relationship",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              const modalContext = {
+                what: "editRelationship",
+                title: "Edit Relationship"
+              }
+              myDiagram.handleOpenModal(node, modalContext);
+              // 
+            },
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.category === 'Relationship') {
+                return true;
+              }
+              return false; 
+            }),
+          makeButton("Edit Relationship View",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              const modalContext = {
+                what: "editRelshipview",
+                title: "Edit Relationship View"
+              }
+              myDiagram.handleOpenModal(node, modalContext);
+                // 
+            }, 
+            function (o: any) { 
+              const link = o.part.data;
+              if (link.category === 'Relationship') {
+                return true;
               }
               return false; 
             }),
@@ -2359,12 +2386,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         */}
       }
       break;
-      case 'editProperties': {
-        
-      }
-      break;
       case 'editObject':
       case 'editObjectview':
+      case 'editRelationship':
+      case 'editRelshipview':
       case 'editTypeview': {
         header = modalContext.title;
         category = this.state.selectedData.category

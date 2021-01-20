@@ -703,16 +703,15 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
 
     // Add system types 
     //const objtypes = [];
-    const objtypes = ['Container'/*, 'Information', 'Property', 'Datatype'*/];
+    const objtypes = ['Container',  'Generic'/*, 'Information', 'Property', 'Datatype'*/];
     for (let i=0; i<objtypes.length; i++) {
         const typename = objtypes[i];
         const objtype = myMetis.findObjectTypeByName(typename);
         if (objtype) {
             metamodel.addObjectType(objtype);
             metamodel.addObjectTypeView(objtype.typeview);
-            let geo = metamodel.findObjtypeGeoByType(objtype);
-            if (!geo) 
-                geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype);
+            let geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype);
+            metamodel.addObjtypeGeo(geo);
             const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
             if (debug) console.log('571 Generate Object Type', gqlObjTypegeo, myMetis);
             modifiedGeos.push(gqlObjTypegeo);

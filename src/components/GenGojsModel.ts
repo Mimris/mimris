@@ -50,7 +50,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myTargetModel = myMetis?.findModel(curtargetmodel?.id);
       let myTargetModelview = (curtargetmodelview) && myMetis.findModelView(focusTargetModelview?.id)
       
-      const myMetamodel = myModel?.metamodel;
+      let myMetamodel = myModel?.metamodel;
+      myMetamodel = myMetis.findMetamodel(myMetamodel.id);
       if (debug) console.log('53 GenGojsModel myMetamodel :', myMetamodel);
       if (debug) console.log('61 GenGojsModel myMetamodelRef :', curmod.metamodelRef, curmetamodel);
       if (debug) console.log('62 GenGojsModel myTargetMetamodelRef :', curmod.targetMetamodelRef, curtargetmodel);
@@ -264,10 +265,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const nodeArray = new Array();
     const palNode1 = new gjs.paletteNode('01', "objecttype", "Object type", "Object type", "");
     nodeArray.push(palNode1);
-    const palNode2 = new gjs.paletteNode('02', "container", "Container", "Group", "");
-    palNode2.isGroup = true;
-    palNode2.fillcolor = "white";
-    nodeArray.push(palNode2);
+    // const palNode2 = new gjs.paletteNode('02', "container", "Container", "Group", "");
+    // palNode2.isGroup = true;
+    // palNode2.fillcolor = "white";
+    // nodeArray.push(palNode2);
     let links = '[]';
     let linkArray = JSON.parse(links);
     myGoMetaPalette.nodes = nodeArray;
@@ -279,16 +280,18 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
   if (metamodel?.objecttypes) {
-    if (debug) console.log('276 metamodel', metamodel);
+    if (debug) console.log('282 metamodel', metamodel);
     let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
     const objtypes = metamodel?.getObjectTypes();
     if (objtypes) {
+      if (debug) console.log('286 objtype', objtypes);
       for (let i = 0; i < objtypes.length; i++) {
         const objtype = objtypes[i];
         if (objtype && !objtype.deleted) {
+          if (debug) console.log('289 objtype', objtype);
           const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
           node.loadNodeContent(metamodel);
-          if (debug) console.log('284 node', node);
+          if (debug) console.log('291 node', node);
           myGoMetaModel.addNode(node);
         }
       }

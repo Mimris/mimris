@@ -158,7 +158,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedOption: null,
       showModal: true
     });
-    if (!debug) console.log('166 Diagram', this.state);
+    if (debug) console.log('166 Diagram', this.state);
   } 
   
   public handleCloseModal() {
@@ -181,7 +181,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     const modalContext = this.state.modalContext;
     const selectedOption = selected.value;
-    if (!debug) console.log('173 this.state', this.state);
+    if (debug) console.log('173 this.state', this.state);
     let typeview;
     switch(modalContext.case) {
       case "Change Object type":    
@@ -190,7 +190,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const node = myMetis.currentNode;
         typeview = node.typeview;
         const objview = (objtype) && uic.setObjectType(node, objtype, context);
-        if (!debug) console.log('190 objview', objview);
+        if (debug) console.log('190 objview', objview);
         myMetis.myDiagram.requestUpdate();
         break;
       case "Change Relationship type":    
@@ -206,15 +206,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         toType   = myMetis.findObjectType(toType?.id);
         if (debug) console.log('207 link', fromType, toType);
         const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-        if (!debug) console.log('209 reltype', reltype, fromType, toType);
+        if (debug) console.log('209 reltype', reltype, fromType, toType);
        //const myMetamodel = myMetis.currentMetamodel;
         const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
-        if (!debug) console.log('212 relview', relview);
+        if (debug) console.log('212 relview', relview);
         myMetis.myDiagram.requestUpdate();
         break;
       case "Edit Attribute":
         const propname = selected.value;
-        if (!debug) console.log('197 propname', propname);
+        if (debug) console.log('197 propname', propname);
         if (propname && propname.length > 0) {
           const node = myMetis.currentNode;
           const object = node.object;
@@ -298,7 +298,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (debug) console.log('228 myItem', myItem);
       const modifiedObjectViews = new Array();
       const gqlObjview = new gql.gqlObjectView(myInstview);
-      if (!debug) console.log('231 gqlObjview', gqlObjview);
+      if (debug) console.log('231 gqlObjview', gqlObjview);
       modifiedObjectViews.push(gqlObjview);
       modifiedObjectViews.map(mn => {
         let data = mn;
@@ -2367,8 +2367,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
       case 'editTypeview': {
         header = modalContext.title;
+<<<<<<< HEAD
         category = `(${this.state.selectedData.category})`
         if (!debug) console.log('2321 Diagram ', this.state.selectedData, this.myMetis);
+=======
+        category = this.state.selectedData.category
+        if (debug) console.log('2321 Diagram ', this.state.selectedData, this.myMetis);
+>>>>>>> 1f474a32b0b28c396d377971e6ae830554575398
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2324 Diagram ', this.state.selectedData, this.myMetis);

@@ -126,7 +126,7 @@ export class cxMetis {
             if (model)
                 this.currentTemplateModel = model;
         }
-        if (!debug) console.log('129 this', this);
+        if (debug) console.log('129 this', this);
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import repositories
@@ -424,7 +424,7 @@ export class cxMetis {
                 if (objtype && objtypeview)
                     objtype.setDefaultTypeView(objtypeview);
                 if (objtypeview) metamodel.addObjectTypeView(objtypeview);
-                if (!debug) console.log('425 objtype, objtypeview', objtype, objtypeview, metamodel);
+                if (debug) console.log('425 objtype, objtypeview', objtype, objtypeview, metamodel);
             }
             if (objtype) metamodel.addObjectType(objtype);
             const properties: any[] = item.properties;
@@ -2363,6 +2363,16 @@ export class cxMetaModel extends cxMetaObject {
                 this.datatypes = new Array();
             if (!this.findDatatype(datatype.id))
                 this.datatypes.push(datatype);
+            else {
+                const types = this.datatypes;
+                for (let i = 0; i < types.length; i++) {
+                    const type = types[i];
+                    if (type.id === datatype.id) {
+                        types[i] = datatype;
+                        break;
+                    }
+                }
+            }
         }
     }
     addViewFormat(fmt: cxViewFormat) {

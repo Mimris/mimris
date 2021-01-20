@@ -4182,6 +4182,16 @@ export class cxModel extends cxMetaObject {
                 this.objects = new Array();
             if (!this.findObject(obj.id))
                 this.objects.push(obj);
+            else {
+                const objects = this.objects;
+                for (let i = 0; i < objects.length; i++) {
+                    const object = objects[i];
+                    if (object.id === obj.id) {
+                        objects[i] = obj;
+                        break;
+                    }
+                }
+            }
         }
     }
     addRelationship(rel: cxRelationship) {
@@ -4190,6 +4200,16 @@ export class cxModel extends cxMetaObject {
                 this.relships = new Array();
             if (!this.findRelationship(rel.id))
                 this.relships.push(rel);
+            else {
+                const relships = this.relships;
+                for (let i = 0; i < relships.length; i++) {
+                    const relship = relships[i];
+                    if (relship.id === rel.id) {
+                        relships[i] = rel;
+                        break;
+                    }
+                }
+            }
         }
     }
     addObjects(...objs: cxObject[]) {
@@ -5184,6 +5204,13 @@ export class cxRelationshipView extends cxMetaObject {
     fromObjviewRef: string;
     toObjview: cxObjectView | null;
     toObjviewRef: string;
+    strokecolor:    string;
+    strokewidth:    string;
+    dash:           string;
+    fromArrow:      string;
+    toArrow:        string;
+    fromArrowColor: string;
+    toArrowColor:   string;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection
@@ -5197,7 +5224,14 @@ export class cxRelationshipView extends cxMetaObject {
         this.typeviewRef = "";                 // Override default type view
         this.fromObjviewRef = "";
         this.toObjviewRef = "";
-    }
+        this.strokecolor = "";
+        this.strokewidth = "";
+        this.dash = "";
+        this.fromArrow = "";
+        this.toArrow = "";
+        this.fromArrowColor = "";
+        this.toArrowColor = "";
+        }
     // Methods
     getRelationship() {
         return this.relship;

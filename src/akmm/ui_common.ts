@@ -347,6 +347,16 @@ export function setObjectType(data: any, typename: string, context: any) {
             currentObject.setType(objtype);
             //currentObject.setName(typename);
             currentObject.setModified();
+
+            const gqlObject = new gql.gqlObject(currentObject);
+            if (debug) console.log('195 gqlObject', gqlObject);
+            const modifiedObjects = new Array();
+            modifiedObjects.push(gqlObject);
+            modifiedObjects.map(mn => {
+              let data = mn;
+              myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            })    
+
             const currentObjectView = myMetis.findObjectView(data.objectview?.id);
             if (currentObjectView) {
                 currentObjectView.setTypeView(objtypeview);
@@ -355,7 +365,16 @@ export function setObjectType(data: any, typename: string, context: any) {
                 myDiagram.model.setDataProperty(data, "typename", typename);
                 if (debug) console.log('301 setObjectType', currentObjectView);
                 updateNode(data, objtypeview, myDiagram);
-            }
+
+                const gqlObjview = new gql.gqlObjectView(currentObjectView);
+                if (!debug) console.log('204 gqlObjview', gqlObjview);
+                const modifiedObjectViews = new Array();
+                modifiedObjectViews.map(mn => {
+                  let data = mn;
+                  myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                modifiedObjectViews.push(gqlObjview);
+                })
+            }        
             return currentObjectView;
         }
     }
@@ -1193,8 +1212,24 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                     myDiagram.model.setDataProperty(data, "name", reltype.name);
                 data.relshiptype = reltype;
                 updateLink(data, reltypeview, myDiagram);
+
+                const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
+                if (debug) console.log('1217 SetReltype', link, gqlRelView);
+                const modifiedRelshipViews = new Array();
+                modifiedRelshipViews.push(gqlRelView);
+                modifiedRelshipViews.map(mn => {
+                    let data = mn;
+                    myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+                })
                 return currentRelshipView;
             }
+            const gqlRelship = (relship) && new gql.gqlRelationship(currentRelship);
+            const modifiedRelships = new Array();
+            modifiedRelships.push(gqlRelship);
+            modifiedRelships.map(mn => {
+              let data = mn;
+              (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+            })              
         }
     }
 }
@@ -1363,14 +1398,14 @@ function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) 
             if (viewdata[prop] != null) {
                 if (prop === 'abstract') continue;
                 if (prop === 'class') continue;
-                diagram.model.setDataProperty(data, prop, viewdata[prop])
+                diagram.model.setDataProperty(data, prop, viewdata[prop]);
             }
         }
         if (debug) console.log('994 updateNode', data);
         const objview = data.objectview;
         for (prop in viewdata) {
             if (objview[prop] && objview[prop] !== "") {
-                diagram.model.setDataProperty(data, prop, objview[prop])
+                diagram.model.setDataProperty(data, prop, objview[prop]);
             }
         }
     }
@@ -1385,13 +1420,13 @@ function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram:
             if (prop === 'relshipkind') continue;
             if (prop === 'class') continue;
             if (viewdata[prop] != null)
-                diagram.model.setDataProperty(data, prop, viewdata[prop])
+                diagram.model.setDataProperty(data, prop, viewdata[prop]);
         }
         if (debug) console.log(data);
         const relview = data.relshipview;
         for (prop in viewdata) {
             if (relview[prop] && relview[prop] !== "") {
-                diagram.model.setDataProperty(data, prop, relview[prop])
+                diagram.model.setDataProperty(data, prop, relview[prop]);
             }
         }
     }

@@ -158,7 +158,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedOption: null,
       showModal: true
     });
-    if (debug) console.log('166 Diagram', this.state);
+    if (!debug) console.log('166 Diagram', this.state);
   } 
   
   public handleCloseModal() {
@@ -170,13 +170,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   //   this.setState({ objType: 'Address' });
   // }
   public handleSelectDropdownChange = (selected) => {
-    const selectedOption = selected.value;
     const myMetis = this.myMetis;
-    if (debug) console.log('173 this.state', this.state);
-    //this.setState({ selectedOption }); // this will update the state of selected therefore updating value in react-select
-
-    let objtype = (selectedOption) && selectedOption;
-    if (debug) console.log('179 objtype', objtype);
+    const myGoModel = myMetis.gojsModel;
     const context = {
       "myMetis":      myMetis,
       "myMetamodel":  myMetis.currentMetamodel,
@@ -184,31 +179,74 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       "myModelView":  myMetis.currentModelview,
       "myDiagram":    myMetis.myDiagram
     }
-    const node = myMetis.currentNode;
-    const typeview = node.typeview;
-    const objview = (objtype) && uic.setObjectType(node, objtype, context);
-    if (!debug) console.log('190 objview', objview);
-    //objview.typeview = typeview;
-    const object = myMetis.findObject(objview.object.id);
-    if (object) {
-      const gqlObject = new gql.gqlObject(object);
-      if (debug) console.log('195 gqlObject', gqlObject);
-      const modifiedObjects = new Array();
-      modifiedObjects.push(gqlObject);
-      modifiedObjects.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-      })    
-      if (!debug) console.log('202 objview', objview);
-      const gqlObjview = new gql.gqlObjectView(objview);
-      if (!debug) console.log('204 gqlObjview', gqlObjview);
-      const modifiedObjectViews = new Array();
-      modifiedObjectViews.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-      modifiedObjectViews.push(gqlObjview);
-      })
-      myMetis.myDiagram.requestUpdate();
+    const modalContext = this.state.modalContext;
+    const selectedOption = selected.value;
+    if (!debug) console.log('173 this.state', this.state);
+    let typeview;
+    switch(modalContext.case) {
+      case "Change Object type":    
+        const objtype = (selectedOption) && selectedOption;
+        if (debug) console.log('179 objtype', objtype);
+        const node = myMetis.currentNode;
+        typeview = node.typeview;
+        const objview = (objtype) && uic.setObjectType(node, objtype, context);
+        if (!debug) console.log('190 objview', objview);
+        myMetis.myDiagram.requestUpdate();
+        break;
+      case "Change Relationship type":    
+        const typename = (selectedOption) && selectedOption;
+        const link = myMetis.currentLink;
+        typeview = link.typeview;
+        let fromNode = myGoModel?.findNode(link.from);
+        let toNode   = myGoModel?.findNode(link.to);
+        if (debug) console.log('205 from and toNode', fromNode, toNode);
+        let fromType = fromNode?.objecttype;
+        let toType   = toNode?.objecttype;
+        fromType = myMetis.findObjectType(fromType?.id);
+        toType   = myMetis.findObjectType(toType?.id);
+        if (debug) console.log('207 link', fromType, toType);
+        const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+        if (!debug) console.log('209 reltype', reltype, fromType, toType);
+       //const myMetamodel = myMetis.currentMetamodel;
+        const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
+        if (!debug) console.log('212 relview', relview);
+        myMetis.myDiagram.requestUpdate();
+        break;
+      case "Edit Attribute":
+        const propname = selected.value;
+        if (!debug) console.log('197 propname', propname);
+        if (propname && propname.length > 0) {
+          const node = myMetis.currentNode;
+          const object = node.object;
+          let defValue = "";
+          if (propname === 'description') {
+              defValue = object?.getDescription();
+          } else {
+              defValue = object?.getStringValue2(propname);
+          }
+          const value = prompt('Enter value of ' + propname, defValue);
+          if (value) {
+            if (debug) console.log('654', propname, value);
+            if (propname === 'description') {
+              object.description = value;
+            } else {
+              console.log('651 prop, value', propname, value);
+              object.setStringValue2(propname, value);
+            }
+            if (debug) console.log('654 object', object);
+            const modifiedObjects = new Array();
+            const gqlObj = new gql.gqlObject(object);
+            if (debug) console.log('656 object, gqlObj', object, gqlObj);
+            modifiedObjects.push(gqlObj);
+            modifiedObjects?.map(mn => {
+              let data = (mn) && mn
+              myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            })
+          }
+        }
+        break;
+      default:
+        break;
     }
   }
 
@@ -501,18 +539,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let defText  = "";
               if (objtypes) {
                 node.choices = [];
+                node.choices.push('Generic');
                 for (let i=0; i<objtypes.length; i++) {
                   const otype = objtypes[i];
                   if (!otype.deleted && !otype.abstract) {
                     node.choices.push(otype.name); 
                     if (otype.name === 'Generic')
-                    defText = otype.name;
+                      continue;
                   }  
                 }
               }
               const modalContext = {
                 what: "selectDropdown",
                 title: "Select Object Type",
+                case: "Change Object type"
               } 
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
@@ -826,34 +866,47 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   }
                   let defText = "";
                   if (choices.length > 0) defText = choices[0];
-                  const propname = prompt('Enter attribute name, one of ' + choices, defText);
-                  if (propname && propname.length > 0) {
-                    let defValue = "";
-                    if (propname === 'description') {
-                        defValue = object?.getDescription();
-                    } else {
-                        defValue = object?.getStringValue2(propname);
-                    }
-                    const value = prompt('Enter value of ' + propname, defValue);
-                    if (value) {
-                      if (debug) console.log('654', propname, value);
-                      if (propname === 'description') {
-                        object.description = value;
-                      } else {
-                        console.log('651 prop, value', propname, value);
-                        object.setStringValue2(propname, value);
-                      }
-                      if (debug) console.log('654 object', object);
-                      const modifiedObjects = new Array();
-                      const gqlObj = new gql.gqlObject(object);
-                      if (debug) console.log('656 object, gqlObj', object, gqlObj);
-                      modifiedObjects.push(gqlObj);
-                      modifiedObjects?.map(mn => {
-                        let data = (mn) && mn
-                        myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-                      })
-                                              }
-                  }
+                  // const propname = prompt('Enter attribute name, one of ' + choices, defText);
+                  // ---------------------------------
+                  const modalContext = {
+                    what: "selectDropdown",
+                    title: "Select Property",
+                    case: "Edit Attribute"
+                  } 
+                  myMetis.currentNode = node;
+                  myMetis.myDiagram = myDiagram;
+                  myDiagram.handleOpenModal(choices, modalContext);
+                  // ---------------------------------
+                  // if (propname && propname.length > 0) {
+                  //   let defValue = "";
+                  //   if (propname === 'description') {
+                  //       defValue = object?.getDescription();
+                  //   } else {
+                  //       defValue = object?.getStringValue2(propname);
+                  //   }
+                  //   const value = prompt('Enter value of ' + propname, defValue);
+                  //   if (value) {
+                  //     if (debug) console.log('654', propname, value);
+                  //     if (propname === 'description') {
+                  //       object.description = value;
+                  //     } else {
+                  //       console.log('651 prop, value', propname, value);
+                  //       object.setStringValue2(propname, value);
+                  //     }
+                  //     if (debug) console.log('654 object', object);
+                  //     const modifiedObjects = new Array();
+                  //     const gqlObj = new gql.gqlObject(object);
+                  //     if (debug) console.log('656 object, gqlObj', object, gqlObj);
+                  //     modifiedObjects.push(gqlObj);
+                  //     modifiedObjects?.map(mn => {
+                  //       let data = (mn) && mn
+                  //       myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+                  //     })
+                  //   }
+                  // }
+                  // ---------------------------------
+
+
                 }
               }
             },
@@ -1115,41 +1168,51 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType);
               let   defText  = "";
               link.choices = [];
-              /* if (debug) */console.log('675 createRelationship', reltypes, myMetis);
+              link.choices.push('isRelatedTo');
+              if (debug) console.log('675 createRelationship', reltypes, myMetis);
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {
                       const rtype = reltypes[i];
                       link.choices.push(rtype.name);  
                       if (rtype.name === 'isRelatedTo')
-                          defText = rtype.name;
+                          continue;
                   }
               }
-
               const context = {
                 "myMetis":      myMetis,
                 "myDiagram":    e.diagram,
               }
-              const typename = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
-              const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-              /* if (debug) */console.log('747 reltype', reltype, fromType, toType);
-              const relview = uic.setRelationshipType(link, reltype, context);
-              if (!relview) return;
-              const gqlRelView = new gql.gqlRelshipView(relview);
-              if (debug) console.log('308 SetReltype', link, gqlRelView);
-              const modifiedRelshipViews = new Array();
-              modifiedRelshipViews.push(gqlRelView);
-              modifiedRelshipViews.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-              })
-              const relship = myMetis.findRelationship(relview?.relship.id);
-              const gqlRelship = (relship) && new gql.gqlRelationship(relship);
-              const modifiedRelships = new Array();
-              modifiedRelships.push(gqlRelship);
-              modifiedRelships.map(mn => {
-                let data = mn;
-                (mn) && e.diagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-              })              
+              const modalContext = {
+                what: "selectDropdown",
+                title: "Select Relationship Type",
+                case: "Change Relationship type"
+              } 
+              myMetis.currentLink = link;
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(link.choices, modalContext);
+              if (debug) console.log('511 myMetis', myMetis);
+
+              // const typename = prompt('Enter one of: ' + link.choices, defText); //sf prompt does not work in cloud
+              // const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+              // if (debug) console.log('747 reltype', reltype, fromType, toType);
+              // const relview = uic.setRelationshipType(link, reltype, context);
+              // if (!relview) return;
+              // const gqlRelView = new gql.gqlRelshipView(relview);
+              // if (debug) console.log('308 SetReltype', link, gqlRelView);
+              // const modifiedRelshipViews = new Array();
+              // modifiedRelshipViews.push(gqlRelView);
+              // modifiedRelshipViews.map(mn => {
+              //   let data = mn;
+              //   e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              // })
+              // const relship = myMetis.findRelationship(relview?.relship.id);
+              // const gqlRelship = (relship) && new gql.gqlRelationship(relship);
+              // const modifiedRelships = new Array();
+              // modifiedRelships.push(gqlRelship);
+              // modifiedRelships.map(mn => {
+              //   let data = mn;
+              //   (mn) && e.diagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+              // })              
             },
             function (o) {
               const link = o.part.data;
@@ -2276,7 +2339,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     switch (modalContext?.what) {      
       case 'selectDropdown': {
-        //console.log('2386 Diagram dropdown', this.state.objType);
         const options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
         if (debug) console.log('2296 options', options);
         const { selectedOption } = this.state;
@@ -2284,7 +2346,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const value = (selectedOption)  ? selectedOption.value : options[0]
 
         if (debug) console.log('2173 Diagram ', selectedOption, this.state.selectedOption, value);
-        header = 'Select Objecttype: '
+        header = modalContext.title;
         modalContent = 
           <div className="modal-selection d-flex justify-content-center">
             <Select className="modal-select"

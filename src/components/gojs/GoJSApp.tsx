@@ -184,7 +184,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('157 handleEvent', myMetis);
-    if (!debug) console.log('158 this', this);
+    if (debug) console.log('158 this', this);
 
     switch (name) {
 

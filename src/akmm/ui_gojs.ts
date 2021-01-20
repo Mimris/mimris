@@ -452,6 +452,7 @@ export class goObjectTypeNode extends goNode {
                     }
                 }
             }
+            if (debug) console.log('455 loadNodeContent', this);
             return true;
         }
         return false;

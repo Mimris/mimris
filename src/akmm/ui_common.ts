@@ -367,7 +367,7 @@ export function setObjectType(data: any, typename: string, context: any) {
                 updateNode(data, objtypeview, myDiagram);
 
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);
-                if (!debug) console.log('204 gqlObjview', gqlObjview);
+                if (debug) console.log('204 gqlObjview', gqlObjview);
                 const modifiedObjectViews = new Array();
                 modifiedObjectViews.map(mn => {
                   let data = mn;

@@ -42,7 +42,7 @@ const page = (props) => {
             <CardColumns>
               <Card className="card" 
                                             style={{
-                                              background: "rgba(255,255,255,0.6)",
+                                              background: "rgba(255,255,255,0.4)",
                                               borderRadius: "10px",
                                               border: "1px solid rgba(255,255,255,0.2)",
                                               position: "relative",
@@ -53,10 +53,10 @@ const page = (props) => {
                                               padding: "2px"
                                             }}
               >
-                <CardBody className="card-body" style={{backgroundColor: "#fa0"}}>
-                  {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
+                  <CardHeader className="card-header ">Modelleing with AKM Modeller:</CardHeader>
+                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,005,0.2)"}}>
                   <CardTitle className="card-title" style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
-                  <CardText className="card-text p-3"> 
+                  <CardText className="card-text"> 
                     <strong>Select Modelling in the top menu </strong><br />
                     (An initial example template model is loaded)
                     <br /><br /><strong>Click the "Local" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the LocalStore.
@@ -69,10 +69,10 @@ const page = (props) => {
                 </CardBody>
               {/* </Card>
               <Card className="card p-0 mb-2" > */}
-                <CardBody className="card-body" style={{backgroundColor: "#fd0"}}>
+                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,225,0.4)"}}>
                   {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
                   <CardTitle style={{ fontWeight: "bolder" }}>Tips !</CardTitle>
-                  <CardText className="card-text p-3"> 
+                  <CardText className="card-text "> 
                     <strong><strong>Save current model to a file: <br />
                     <br />Click on the "Local" button </strong>
                     <br />Select "Download Current Model to File". </strong>
@@ -99,7 +99,7 @@ const page = (props) => {
 
               <Card className="card "
                               style={{
-                                background: "rgba(255,255,255,0.6)",
+                                background: "rgba(255,255,255,0.4)",
                                 borderRadius: "10px",
                                 border: "1px solid rgba(255,255,255,0.2)",
                                 position: "relative",
@@ -123,7 +123,7 @@ const page = (props) => {
               </Card>
               <Card className="card" body outline color="warning"
                               style={{
-                                background: "rgba(255,255,255,0.6)",
+                                background: "rgba(255,255,255,0.4)",
                                 borderRadius: "10px",
                                 border: "1px solid rgba(255,255,255,0.2)",
                                 position: "relative",
@@ -157,31 +157,11 @@ const page = (props) => {
                 {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
                 {/* <Card> */}
               </Card>
-              <Card className="card" body outline color="warning"
-                style={{
-                  background: "rgba(255,255,255,0.4)",
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.2)",
-                  position: "relative",
-                  backdropFilter: "blur(5px)",
-                  webkitBackdropFilter: "blur(5px)",
-                  // display: "block",
-                  margin: "0 auto"
-                }}
-                >
-                <CardHeader className="card-header" >Aktive Knowledge Modelling</CardHeader>
-                <CardBody className="card-body" >
 
-                  <CardText> 
-                      test            
-                  </CardText>
-                </CardBody>
-
-              </Card>
     
               <Card className="card" body outline color="primary" 
                     style={{
-                      background: "rgba(255,255,255,0.6)",
+                      background: "rgba(255,255,255,0.4)",
                       borderRadius: "10px",
                       border: "1px solid rgba(255,255,255,0.2)",
                       // position: "relative",

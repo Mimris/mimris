@@ -2272,26 +2272,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     
     let modalContent, inspector, selector, header, category;
     const modalContext = this.state.modalContext;
-    if (!debug) console.log('2174 Diagram ', modalContext);
+    if (debug) console.log('2174 Diagram ', modalContext);
 
     switch (modalContext?.what) {      
       case 'selectDropdown': {
         //console.log('2386 Diagram dropdown', this.state.objType);
         const options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
-        console.log('2296 options', options);
+        if (debug) console.log('2296 options', options);
         const { selectedOption } = this.state;
-        const value = selectedOption && selectedOption.value
+
+        const value = (selectedOption)  ? selectedOption.value : options[0]
+
         if (debug) console.log('2173 Diagram ', selectedOption, this.state.selectedOption, value);
         header = 'Select Objecttype: '
         modalContent = 
-          <div className="d-flex justify-content-center">
-            <Select className="w-100"
+          <div className="modal-selection d-flex justify-content-center">
+            <Select className="modal-select"
+              options={options}
+              onChange={value => this.handleSelectDropdownChange(value)}
               value={value}
-              onChange={this.handleSelectDropdownChange}
-              options={options.map(option => (
-                option && {value: option.value, label: option.label}
-                )
-              )}
             />
           </div>
           {/* <option value={option.value}>{label: option.label, option.value}</option>
@@ -2306,7 +2305,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
       case 'editTypeview': {
         header = modalContext.title;
-        category = this.state.selectedData.category
+        category = `(${this.state.selectedData.category})`
         if (!debug) console.log('2321 Diagram ', this.state.selectedData, this.myMetis);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
@@ -2340,102 +2339,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
 
-        <Modal className="modal1 p-1" isOpen={this.state.showModal} style={{ marginTop: "96px", fontSize: "90%"}} >
-           <div className="bg-light">
-            <Button className="btn-sm bg-light float-right ml-5" color="link" size="sm"
+        <Modal className="modaltemp p-1 " isOpen={this.state.showModal} style={{ marginTop: "28%", fontSize: "90%"}} >
+           <div >
+            <Button className="modal-button btn-sm float-right ml-5" color="link" 
               onClick={() => { this.handleCloseModal() }} ><span>x</span>
             </Button>
-            <ModalHeader className="bg-light" style={{width: "70%"}}>
+            <ModalHeader className="modal-header" style={{width: "70%"}}>
               <span className="text-secondary">{header} </span> 
-              <span className="name pl-2" style={{minWidth: "50%"}} >{this.state.selectedData?.name} </span>
-              <span className="text-secondary font-weight-light">({category}) </span> 
+              <span className="modal-name " >{this.state.selectedData?.name} </span>
+              <span className="text-secondary font-weight-light">{category} </span> 
             </ModalHeader>
           </div>
-          <ModalBody >
+          <ModalBody className="modal-body">
             {modalContent}
           </ModalBody>
           <ModalFooter>
-            <Button className="modal-footer m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
+            <Button className="modal-footer bg-secondary m-0 p-0" color="black" onClick={() => { this.handleCloseModal() }}>Done</Button>
           </ModalFooter>
         </Modal>
         
       <style jsx>{`
-            /*******************************
-            * MODAL AS LEFT/RIGHT SIDEBAR
-            * Add "left" or "right" in modal parent div, after className="modal".
-            * Get free snippets on bootpen.com
-            *******************************/
-            .modal {
-                z-index: 1;
-                margin-top: 8%;
-            }
-            .modal .right .modal-dialog {
-              position: fixed;
-              top: 50%;
-              margin: 150px auto 200px auto;
-              width: 380px;
-              height: 60%;
-              color: black;
-              -webkit-transform: translate3d(0%, 0, 0);
-              -ms-transform: translate3d(0%, 0, 0);
-              -o-transform: translate3d(0%, 0, 0);
-              transform: translate3d(0%, 0, 0);
-            }
 
-            .modal.right .modal-content {
-              height: 80%;
-              overflow-y: auto;
-            }
-
-            .modal.right .modal-body {
-              padding: 15px 15px 80px;
-              color: #444;
-            }
-
-            .modal.right.fade .modal-dialog {
-              position: abolute;
-              top: 100px;
-              right: 320px;
-              -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
-              -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
-              -o-transition: opacity 0.3s linear, left 0.3s ease-out;
-              transition: opacity 0.3s linear, left 0.3s ease-out;
-            }
-            .modal.fade.in {
-              opacity: 1;
-            }
-            .modal.right.fade.show .modal-dialog {
-              right: 0;
-              transform: translate(0,0);
-            }
-
-            /* ----- MODAL STYLE ----- */
-            .modal-content {
-              border-radius: 0;
-              border: none;
-            }
-
-            .modal-header {
-              border-bottom-color: #eeeeee;
-              background-color: #fafafa;
-            }
-            .modal-body {
-               width: 400px;
-            }
-            .modal-backdrop .fade .in {
-              /* display: none; */
-              /* opacity: 0; */
-              /* opacity: 0.5; */
-              /* filter: alpha(opacity=50) !important; */
-              /* background: #fff; */
-                    }
-            .modal-background {
-              display: none;
-            }
-            .btn-context {
-              // font-size: 80%;
-              font-weight: bold;
-            }
+    
             `}</style> 
             </div>
     );

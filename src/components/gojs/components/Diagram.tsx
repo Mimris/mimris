@@ -2367,13 +2367,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
       case 'editTypeview': {
         header = modalContext.title;
-<<<<<<< HEAD
-        category = `(${this.state.selectedData.category})`
-        if (!debug) console.log('2321 Diagram ', this.state.selectedData, this.myMetis);
-=======
         category = this.state.selectedData.category
         if (debug) console.log('2321 Diagram ', this.state.selectedData, this.myMetis);
->>>>>>> 1f474a32b0b28c396d377971e6ae830554575398
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2324 Diagram ', this.state.selectedData, this.myMetis);

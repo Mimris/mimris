@@ -2373,7 +2373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2324 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
-            <div className="p-2" style={{backgroundColor: "#ddd"}}>
+            <div className="modal-prop" >
               <SelectionInspector 
                 myMetis       ={this.myMetis}
                 selectedData  ={this.state.selectedData}

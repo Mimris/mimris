@@ -55,21 +55,24 @@
   justify-content: center;
 }
 .modal-content {
-  background-color: transparent;
-  background: rgba(255,255,255,0.5);
+  background-color: red;
+  /* background: rgba(255,255,255,0.4); */
   /* border: 10px solid red; */
   /* border-top: white;
   border-left: white; */
+  margin: 4px;
   padding: 4px;
+  /* perspective: 1000px; */
 }
 .modal-body {
-  background: rgba(255,255,255,0.3);
+  background-color: transparent;
+  background: rgba(205,205,205,0.3);
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.5);
   position: relative;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  /* display: block; */
+  display: block;
   margin: 20 auto;
 }
 .modal-header {
@@ -79,6 +82,7 @@
   font-size: 20px;
   padding: 20px 30px;
   text-shadow: 2px 2px rgba(0,0,0,0.3);
+  width: "70%";
   /* text-transform: uppercase; */
 }
 .modal-select {

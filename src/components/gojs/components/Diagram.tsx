@@ -2426,12 +2426,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
 
-        <Modal className="modaltemp p-1 " isOpen={this.state.showModal} style={{ marginTop: "28%", fontSize: "90%"}} >
+        <Modal className="modal" isOpen={this.state.showModal}  >
            <div >
             <Button className="modal-button btn-sm float-right ml-5" color="link" 
               onClick={() => { this.handleCloseModal() }} ><span>x</span>
             </Button>
-            <ModalHeader className="modal-header" style={{width: "70%"}}>
+            <ModalHeader className="modal-header" >
               <span className="text-secondary">{header} </span> 
               <span className="modal-name " >{this.state.selectedData?.name} </span>
               <span className="text-secondary font-weight-light">{category} </span> 

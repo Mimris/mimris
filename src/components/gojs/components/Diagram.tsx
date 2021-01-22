@@ -2413,7 +2413,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     if (debug) console.log('2172 Diagram ', this.state.selectedData, this.state.myMetis);
     
-    let modalContent, inspector, selector, header, category;
+    let modalContent, inspector, selector, header, category, icon;
     const modalContext = this.state.modalContext;
     if (debug) console.log('2174 Diagram ', modalContext);
 
@@ -2445,13 +2445,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editRelshipview':
       case 'editTypeview': {
         header = modalContext.title;
-        category = this.state.selectedData.category
-        if (debug) console.log('2396 Diagram ', this.state.selectedData, this.myMetis);
+        category = this.state.selectedData.category;
+        icon = this.state.selectedData.icon;
+        if (!debug) console.log('2321 Diagram ', modalContext, this.state.selectedData, this.myMetis);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2399 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
-            <div className="p-2" style={{backgroundColor: "#ddd"}}>
+            <div className="modal-prop" >
               <SelectionInspector 
                 myMetis       ={this.myMetis}
                 selectedData  ={this.state.selectedData}
@@ -2479,23 +2480,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
 
-        <Modal className="modaltemp p-1 " isOpen={this.state.showModal} style={{ marginTop: "28%", fontSize: "90%"}} >
-           <div >
-            <Button className="modal-button btn-sm float-right ml-5" color="link" 
-              onClick={() => { this.handleCloseModal() }} ><span>x</span>
-            </Button>
-            <ModalHeader className="modal-header" style={{width: "70%"}}>
-              <span className="text-secondary">{header} </span> 
-              <span className="modal-name " >{this.state.selectedData?.name} </span>
-              <span className="text-secondary font-weight-light">{category} </span> 
-            </ModalHeader>
-          </div>
-          <ModalBody className="modal-body">
-            {modalContent}
-          </ModalBody>
-          <ModalFooter>
-            <Button className="modal-footer bg-secondary m-0 p-0" color="black" onClick={() => { this.handleCloseModal() }}>Done</Button>
-          </ModalFooter>
+        <Modal className="" isOpen={this.state.showModal}  >
+          {/* <div className="modal-dialog w-100 mt-5"> */}
+            {/* <div className="modal-content"> */}
+             <div className="modal-head">
+              <Button className="modal-button btn-sm float-right ml-5" color="link" 
+                onClick={() => { this.handleCloseModal() }} ><span>x</span>
+              </Button>
+              <ModalHeader className="modal-header" >
+                <span className="text-secondary">{header} </span> 
+                <span className="modal-name " >{this.state.selectedData?.name} </span>
+                <span className="text-secondary font-weight-light">{category} </span> 
+              </ModalHeader>
+              </div>
+              <ModalBody className="modal-body">
+                <div className="modal-image"><img src={icon}></img></div>
+      
+                {modalContent}
+              </ModalBody>
+              <ModalFooter className="modal-footer">
+                <Button className="modal-footer bg-secondary m-0 p-0" color="black" onClick={() => { this.handleCloseModal() }}>Done</Button>
+              </ModalFooter>
+            {/* </div> */}
+          {/* </div> */}
         </Modal>
         
       <style jsx>{`

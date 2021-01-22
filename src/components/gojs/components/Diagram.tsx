@@ -2440,7 +2440,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 <span className="text-secondary font-weight-light">{category} </span> 
               </ModalHeader>
               </div>
-              <ModalBody className="modal-body">
+              <ModalBody className="modal-body1">
                 <div className="modal-image"><img src={icon}></img></div>
       
                 {modalContent}

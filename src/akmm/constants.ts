@@ -105,13 +105,15 @@ export let types = {
          AKM_PROPERTY          : "Property",
          AKM_DATATYPE          : "Datatype",
          AKM_VALUE             : "Value",
+         AKM_INPUTPATTERN      : "InputPattern",
+         AKM_VIEWFORMAT        : "ViewFormat",
          AKM_UNIT              : "Unit",
          AKM_HAS_PROPERTY      : "has",
          AKM_IS_OF_DATATYPE    : "isOf",
          AKM_IS_DEFAULTVALUE   : "isDefault",
          AKM_HAS_ALLOWED_VALUE : "hasAllowed",
-         AKM_HAS_INPUTPATTERN  : "hasInputPattern",
-         AKM_HAS_VIEWFORMAT    : "hasViewFormat",
+         AKM_HAS_INPUTPATTERN  : "has",
+         AKM_HAS_VIEWFORMAT    : "has",
     
     // Type properties
          OBJECTTYPE_ID         : "objecttype",

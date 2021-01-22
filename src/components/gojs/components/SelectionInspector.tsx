@@ -105,6 +105,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'toObjviewRef') continue;
           if (k === 'fromObjviewRef') continue;
           if (k === 'viewkind') continue;
+          if (k === 'relshipkind') continue;
           if (k === 'valueset') continue;
           if (k === 'inputrels') continue;
           if (k === 'outputrels') continue;
@@ -116,17 +117,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'visible') continue;
           if (k === 'deleted') continue;
           if (k === 'modified') continue;
-          if (type.name !== 'ViewFormat' && type.name !== 'Datatype') {
+          if (k === 'defaultValue') continue;
+          if (k === 'allowedValues') continue;
+         if (type.name !== 'ViewFormat') {
             if (k === 'viewFormat') continue;
           }
-          if (type.name !== 'InputPattern' && type.name !== 'Datatype') {
+          if (type.name !== 'InputPattern') {
             if (k === 'inputPattern') continue;
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
-        if (debug) console.log('119 SelectionInspector: k, val', k, val);
+        if (debug) console.log('132 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-        if (!debug) console.log('121 propname, value:', k, item[k], item);
+        if (!debug) console.log('134 propname, value:', k, item[k], item);
         row  = <InspectorRow
           key={k}
           id={k}

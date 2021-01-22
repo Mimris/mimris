@@ -1556,6 +1556,8 @@ function reducer(state = InitialState, action) {
                     datatypeRef: action.data.datatypeRef,
                     defaultValue: action.data.defaultValue,
                     allowedValues: action.data.allowedValues,
+                    inputPattern: action.data.inputPattern,
+                    viewFormat: action.data.viewFormat,
                     abstract: action.data.abstract,
                     modified: action.data.modified,    
                   },
@@ -1684,6 +1686,7 @@ function reducer(state = InitialState, action) {
                     isGroup: action.data.isGroup,
                     relshipkind: action.data.relshipkind,
                     viewkind: action.data.viewkind,
+                    cardinality: action.data.cardinality,
                     fromobjtypeRef: action.data.fromobjtypeRef,
                     toobjtypeRef: action.data.toobjtypeRef,
                     // properties: {

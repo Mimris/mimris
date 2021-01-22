@@ -287,23 +287,33 @@ export class goObjectNode extends goNode {
     objecttype: akm.cxObjectType | null;
     typename: string;
     typeview: akm.cxObjectTypeView | null;
+    figure: string;
+    fillcolor: string;
+    strokecolor: string;
+    strokewidth: string;
+    icon: string;
     isGroup: boolean | "";
     groupLayout: string;
     group: string;
     parent: string;
     constructor(key: string, objview: akm.cxObjectView) {
         super(key, null);
-        this.category = constants.gojs.C_OBJECT;
-        this.objectview = objview;
-        this.objectview_0 = objview;
-        this.object = null;
-        this.objecttype = null;
-        this.typename = "";
-        this.typeview = null;
-        this.isGroup = objview.isGroup;
-        this.groupLayout = "Tree";
-        this.group = objview.group;
-        this.parent = "";
+        this.category       = constants.gojs.C_OBJECT;
+        this.objectview     = objview;
+        this.objectview_0   = objview;
+        this.object         = null;
+        this.objecttype     = null;
+        this.typename       = "";
+        this.typeview       = null;
+        this.figure         = objview.figure;
+        this.fillcolor      = objview.fillcolor;
+        this.strokecolor    = objview.strokecolor;
+        this.strokewidth    = objview.strokewidth;
+        this.icon           = objview.icon;
+        this.isGroup        = objview.isGroup;
+        this.groupLayout    = "Tree";
+        this.group          = objview.group;
+        this.parent         = "";
 
         if (objview) {
             const object = objview.getObject();
@@ -336,6 +346,12 @@ export class goObjectNode extends goNode {
             const viewdata: any = typeview.getData();
             this.addData(viewdata);
             if (this.objectview) {
+                const objview = this.objectview;
+                for (let prop in viewdata) {
+                    if (objview[prop] && objview[prop] !== "") {
+                        this[prop] = objview[prop];
+                    }
+                }        
                 const objviewId = this.objectview.group;
                 if (objviewId !== "") {
                     const groupId: string = this.getGroupFromObjviewId(objviewId, model);

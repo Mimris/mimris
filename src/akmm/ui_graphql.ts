@@ -337,6 +337,7 @@ export class gqlRelationshipType {
     viewkind:       string;
     fromobjtypeRef: string;
     toobjtypeRef:   string;
+    cardinality:    string;
     deleted:        boolean;
     modified:       boolean;
     constructor(reltype: akm.cxRelationshipType, includeViews: boolean) {
@@ -349,6 +350,7 @@ export class gqlRelationshipType {
         this.typeviewRef    = "";
         this.description    = (reltype.description) ? reltype.description : "";
         this.properties     = [];
+        this.cardinality    = reltype.cardinality;
         this.deleted        = reltype.deleted;
         this.modified       = reltype.modified;
         if (includeViews) {
@@ -396,6 +398,8 @@ export class gqlDatatype {
     datatypeRef:    string;
     defaultValue:   string;
     allowedValues:  any[];
+    inputPattern:   string;
+    viewFormat:     string;
     deleted:        boolean;
     modified:       boolean;
     constructor(dtype: akm.cxDatatype) {
@@ -406,6 +410,8 @@ export class gqlDatatype {
         this.defaultValue   = dtype.defaultValue;
         this.allowedValues  = dtype.allowedValues;
         this.isOfDatatype   = dtype.isOfDatatype;
+        this.inputPattern   = dtype.inputPattern;
+        this.viewFormat     = dtype.viewFormat;
         this.deleted        = dtype.deleted;
         this.modified       = dtype.modified;
         // Code
@@ -724,6 +730,10 @@ export class gqlObject {
     typeRef:        string;
     typeName:       string;
     propertyValues: any[];
+    inputPattern:   string;
+    viewFormat:     string;
+    allowedValues:  string;
+    defaultValue:   string;
     deleted:        boolean;
     modified:       boolean;
     constructor(object: akm.cxObject) {
@@ -735,11 +745,15 @@ export class gqlObject {
         this.propertyValues = [];
         this.deleted        = object.deleted;
         this.modified       = object.modified;
+        this.inputPattern   = object.inputPattern;
+        this.viewFormat     = object.viewFormat;
+        this.allowedValues  = object.allowedValues;
+        this.defaultValue   = object.defaultValue;
 
         // Code
         if (debug) console.log('740 this', this);
         const objtype = object.type;
-        const props = objtype.properties;
+        const props = objtype?.properties;
         for (let i=0; i<props?.length; i++) {
           const prop = props[i];
           const propname = prop.name;
@@ -748,16 +762,6 @@ export class gqlObject {
           this[propname] = value;                      
         }
         if (debug) console.log('750 this', this);
-        // const values = object.valueset;
-        // if (debug) console.log('638 gqlObject - values', values);
-        // if (values) {
-        //     this.propvalues = new Array();
-        //     const cnt = values.length;
-        //     for (let i = 0; i < cnt; i++) {
-        //         const val = values[i];
-        //         this.addPropertyValue(val);
-        //     }
-        // }
     }
     addPropertyValue(val: akm.cxPropertyValue) {
         if (!val)

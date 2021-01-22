@@ -494,28 +494,28 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
         myTargetMetamodel.addDatatype(datatype);
         myMetis.addDatatype(datatype);        
     }
-    if (debug) console.log('410 datatype', datatype);
+    if (debug) console.log('497 datatype', datatype);
     if (datatype) {
         // Check if it has a parent datatype
         const rels = object.findOutputRelships(myModel, constants.relkinds.REL);
-        if (debug) console.log('414 rels', rels);
         if (rels) {
+            if (debug) console.log('502 rels', rels);
             let values  = new Array();
             for (let i=0; i < rels.length; i++) {
                 const rel = rels[i];
                 const parentObj = rel.toObject;
-                if (debug) console.log('420 parentObj', parentObj);
+                if (debug) console.log('507 parentObj', parentObj);
                 const parentType = parentObj.type;
-                if (debug) console.log('422 parentType', parentType);
+                if (debug) console.log('509 parentType', parentType);
                 if (parentType.name === constants.types.AKM_DATATYPE) {
-                    if (debug) console.log('424 rel', rel);
+                    if (debug) console.log('511 rel', rel);
                     let parentDtype = myMetis.findDatatypeByName(parentObj.name);
-                    if (debug) console.log('342651 dtype', parentDtype);
+                    if (debug) console.log('513 dtype', parentDtype);
                     datatype.setIsOfDatatype(parentDtype);
                 }
             }  
             // Find allowed values if any
-            if (debug) console.log('431 rels', rels);
+            if (debug) console.log('518 rels', rels);
             for (let i=0; i < rels.length; i++) {
                 let rel = rels[i];
                 if (rel.name === constants.types.AKM_HAS_ALLOWED_VALUE) {
@@ -526,28 +526,42 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                             continue;
                     }
                     values.push(valueObj.getName());
+                    if (!debug) console.log('529 rels', rels);
                 }
                 else if (rel.getName() === constants.types.AKM_IS_DEFAULTVALUE) {
                     let valueObj = rel.toObject;
                     datatype.setDefaultValue(valueObj.name);
-                }
-                else if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
-                    let valueObj = rel.toObject;
-                    datatype.setInputPattern(valueObj.name);
-                }
-                else if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
-                    let valueObj = rel.toObject;
-                    datatype.setValueFormat(valueObj.name);
+                    if (!debug) console.log('534 defaultValue', valueObj.name);
                 }
                 for (let i=0; i< values.length; i++) {
                     datatype.addAllowedValue(values[i]);
+                    if (!debug) console.log('546 allowedValue', values[i]);
                 }
             }
+
+            for (let i=0; i < rels.length; i++) {
+                let rel = rels[i];
+                if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
+                    const toObj = rel.getToObject();
+                    if (toObj.type.name === constants.types.AKM_INPUTPATTERN) {
+                        let valueObj = toObj;
+                        datatype.setInputPattern(valueObj.inputPattern);
+                    }
+                }
+                if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
+                    const toObj = rel.getToObject();
+                    if (toObj.type.name === constants.types.AKM_VIEWFORMAT) {
+                        let valueObj = toObj;
+                        datatype.setViewFormat(valueObj.viewFormat);
+                    }
+                }
+
         }
+        if (debug) console.log('560 datatype', datatype);
         myTargetMetamodel.addDatatype(datatype);
         // Update phData
         const gqlDatatype = new gql.gqlDatatype(datatype);
-        if (debug) console.log('455 gqlDatatype', gqlDatatype);
+        if (!debug) console.log('564 gqlDatatype', gqlDatatype);
         const modifiedDatatypes = new Array();
         modifiedDatatypes.push(gqlDatatype);
         modifiedDatatypes.map(mn => {
@@ -556,8 +570,9 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
         });
 
-        if (debug) console.log('463 generateDatatype', datatype, myMetis);
+        if (debug) console.log('573 generateDatatype', datatype, myMetis);
         return datatype;
+    }
     }
 }
 

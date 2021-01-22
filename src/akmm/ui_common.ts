@@ -303,6 +303,7 @@ export function updateObjectType(data: any, name: string, value: string, context
             }
             // Get object typeview
             let objtypeView = objtype.getDefaultTypeView();
+            data.typeview = objtypeView;
             if (!objtypeView) {
                 objtypeView = new akm.cxObjectTypeView(utils.createGuid(), typename, objtype, "");
                 objtypeView.setModified();
@@ -322,6 +323,7 @@ export function updateObjectType(data: any, name: string, value: string, context
             // const modNode = new gql.gqlObjectType(myNode.objtype, true);
             // modifiedTypeNodes.push(modNode);
         }
+        context.myDiagram.requestUpdate();
     }
 }
 
@@ -1390,24 +1392,25 @@ export function setRelshipType() {
 }
 
 // Local functions
-function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
+export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
+    if (!debug) console.log('1394 updateNode', data, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
+        // for (prop in viewdata) {
+        //     if (viewdata[prop] != null) {
+        //         if (prop === 'abstract') continue;
+        //         if (prop === 'class') continue;
+        //         diagram?.model.setDataProperty(data, prop, viewdata[prop]);
+        //     }
+        // }
         for (prop in viewdata) {
-            if (viewdata[prop] != null) {
-                if (prop === 'abstract') continue;
-                if (prop === 'class') continue;
-                diagram.model.setDataProperty(data, prop, viewdata[prop]);
+            if (data[prop] && data[prop] !== "") {
+                if (!debug) console.log('1408 updateNode', prop, data[prop], diagram);
+                diagram?.model.setDataProperty(data, prop, data[prop]);
             }
         }
-        if (debug) console.log('994 updateNode', data);
-        const objview = data.objectview;
-        for (prop in viewdata) {
-            if (objview[prop] && objview[prop] !== "") {
-                diagram.model.setDataProperty(data, prop, objview[prop]);
-            }
-        }
+        diagram?.requestUpdate();
     }
 }
 

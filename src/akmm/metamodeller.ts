@@ -329,6 +329,13 @@ export class cxMetis {
         const metamodel = this.findMetamodel(item.id);
         if (!metamodel) 
             return;
+        let datatypes: any[] = item.datatypes;
+        if (datatypes && datatypes.length) {
+            datatypes.forEach(datatype => {
+                if (datatype && !datatype.deleted)
+                        this.importDatatype(datatype, metamodel);
+            });
+        }
         let objecttypes: any[] = item.objecttypes;
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
@@ -403,6 +410,17 @@ export class cxMetis {
                 if (reltypeview && !reltypeview.deleted)
                     this.importRelshipTypeView(reltypeview, metamodel);
             });
+        }
+    }
+    importDatatype(item: any, metamodel: cxMetaModel) {
+        let dtyperef = item.datatypeRef;
+        let datatype = this.findDatatype(dtyperef);
+        if (debug) console.log('418 datatype', datatype);
+        if (datatype) {
+            for (const prop in item) {
+                datatype[prop] = item[prop];
+            }
+            metamodel.addDatatype(item);
         }
     }
     importObjectType(item: any, metamodel: cxMetaModel) {
@@ -1927,15 +1945,15 @@ export class cxDatatype extends cxMetaObject {
     allowedValues:      any;   // array of strings ??
     defaultValue:       string;
     inputPattern:       string;
-    valueFormat:        string;
+    viewFormat:         string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.class = 'cxDatatype';
         this.fs_collection = constants.fs.FS_C_DATATYPES;  // Firestore collection
         this.category = constants.gojs.C_DATATYPE;
-        this.inputPattern = "";
-        this.valueFormat = "%s";
         this.isOfDatatype = null;
+        this.inputPattern = "";
+        this.viewFormat = "%s";
         this.allowedValues = "";
         this.defaultValue = "";
     }
@@ -1973,11 +1991,11 @@ export class cxDatatype extends cxMetaObject {
     getInputPattern(): string {
         return this.inputPattern;
     }
-    setValueFormat(val: string) {
-        this.valueFormat = val;
+    setViewFormat(val: string) {
+        this.viewFormat = val;
     }
-    getValueFormat(): string {
-        return this.valueFormat;
+    getViewFormat(): string {
+        return this.viewFormat;
     }
 }
 
@@ -4731,6 +4749,8 @@ export class cxObject extends cxInstance {
     objectviews: cxObjectView[] | null;
     viewFormat: string;
     inputPattern: string;
+    allowedValues: string;
+    defaultValue: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, type, description);
         this.class = 'cxObject';
@@ -4739,6 +4759,8 @@ export class cxObject extends cxInstance {
         this.objectviews = null;
         this.viewFormat = "";
         this.inputPattern = "";
+        this.allowedValues = "";
+        this.defaultValue = "";
 
         // Handle properties
         const props = this.type?.properties;
@@ -4776,6 +4798,18 @@ export class cxObject extends cxInstance {
     }
     getInputPattern() {
         return this.inputPattern;
+    }
+    setDefaultValue(val) {
+        this.defaultValue = val;
+    }
+    getDefaultValue() {
+        return this.defaultValue;
+    }
+    setAllowedValues(values) {
+        this.allowedValues = values;
+    }
+    getAllowedValues() {
+        return this.allowedValues;
     }
 }
 

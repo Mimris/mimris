@@ -217,31 +217,66 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('197 propname', propname);
         if (propname && propname.length > 0) {
           const node = myMetis.currentNode;
-          const object = node.object;
+          const link = myMetis.currentLink;
+          let inst = null;
           let defValue = "";
-          if (propname === 'description') {
-              defValue = object?.getDescription();
+          if (node) {
+            inst = node?.object;
           } else {
-              defValue = object?.getStringValue2(propname);
+            inst = link?.relship;
+            if (!inst) {
+                inst = link?.reltype;
+            }
           }
+          if (!inst) 
+              return;
+          defValue = inst[propname];
           const value = prompt('Enter value of ' + propname, defValue);
           if (value) {
-            if (debug) console.log('654', propname, value);
+            if (debug) console.log('236', propname, value);
             if (propname === 'description') {
-              object.description = value;
+              inst.description = value;
             } else {
-              console.log('651 prop, value', propname, value);
-              object.setStringValue2(propname, value);
+              console.log('240 prop, value', propname, value);
+              inst[propname] = value;
             }
-            if (debug) console.log('654 object', object);
-            const modifiedObjects = new Array();
-            const gqlObj = new gql.gqlObject(object);
-            if (debug) console.log('656 object, gqlObj', object, gqlObj);
-            modifiedObjects.push(gqlObj);
-            modifiedObjects?.map(mn => {
-              let data = (mn) && mn
-              myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-            })
+            switch(inst.category) {
+            case 'Relationship':
+              inst = myMetis.findRelationship(inst.id);
+              inst[propname] = value;
+              if (debug) console.log('245 inst', inst);
+              const modifiedRelships = new Array();
+              const gqlRel = new gql.gqlRelationship(inst);
+              if (debug) console.log('248 inst, gqlRel', inst, gqlRel);
+              modifiedRelships.push(gqlRel);
+              modifiedRelships?.map(mn => {
+                let data = (mn) && mn
+                myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+              });
+              break;
+            case 'Relationship type':
+              inst = myMetis.findRelationshipType(inst.id);
+              if (propname === 'cardinality') {
+                const patt = '\\b(n|[0-9])\\b[-]\\b(n|[1-9])\\b';
+                const regex = new RegexParser(patt);
+                console.log('710 regex:', regex, value);
+                if (!regex.test(value)) {
+                  alert('Value: ' + value + ' IS NOT valid');
+                  return;
+                }
+              }
+              inst[propname] = value;
+              if (debug) console.log('256 inst', inst);
+              const modifiedReltypes = new Array();
+              const gqlRelType = new gql.gqlRelationshipType(inst);
+              if (debug) console.log('259 inst, gqlRel', inst, gqlRelType);
+              modifiedReltypes.push(gqlRelType);
+              modifiedReltypes?.map(mn => {
+                let data = (mn) && mn
+                myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+              });
+              break;
+            }
           }
         }
         break;
@@ -287,33 +322,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myItem = myInst; // default
       instview = obj.objectview;
       myInstview = myMetis.findObjectView(instview.id);
-      if (debug) console.log('220 myInst', myInst, myInstview);
-      if (context?.what === "editObjectview") 
+      if (debug) console.log('325 myInst', myInst, myInstview);
+      if (context?.what === "editObjectview") {
           myItem = myInstview;
-      else if (context?.what === "editTypeview") 
+          myItem[propname] = value;
+          if (!debug) console.log('329 obj, myMetis', obj, myMetis);
+          uic.updateNode(obj, obj.typeview, myMetis.myDiagram);
+          // Prepare and to dispatch of objectview
+          if (!debug) console.log('331 myItem', myItem);
+          const modifiedObjectViews = new Array();
+          const gqlObjview = new gql.gqlObjectView(myInstview);
+          if (!debug) console.log('336 gqlObjview', gqlObjview);
+          modifiedObjectViews.push(gqlObjview);
+          modifiedObjectViews.map(mn => {
+            let data = mn;
+            this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+          })
+          } else if (context?.what === "editTypeview") 
           myItem = myInstview.typeview;
-      myItem[propname] = value;
-      if (debug) console.log('226 myMetis', myMetis);
-      // Prepare and to dispatch of objectview
-      if (debug) console.log('228 myItem', myItem);
-      const modifiedObjectViews = new Array();
-      const gqlObjview = new gql.gqlObjectView(myInstview);
-      if (debug) console.log('231 gqlObjview', gqlObjview);
-      modifiedObjectViews.push(gqlObjview);
-      modifiedObjectViews.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-      })
       // Prepare and to dispatch of object
       const modifiedObjects = new Array();
-      const gqlObj = new gql.gqlObject(myInst);
-      if (debug) console.log('240 gqlObj', gqlObj);
+      const gqlObj = new gql.gqlObject(myItem);
+      if (debug) console.log('345 gqlObj', gqlObj);
       modifiedObjects.push(gqlObj);
       modifiedObjects.map(mn => {
         let data = mn;
         this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       });
-      if (debug) console.log('236 modifiedObjects', modifiedObjectViews, modifiedObjects);
+      if (debug) console.log('351 modifiedObjects', modifiedObjectViews, modifiedObjects);
     }
 
     if (obj.category === 'Relationship') {
@@ -961,6 +997,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const regex = new RegexParser(patt);
                   console.log('710 regex:', regex);
                   const value = prompt('Value to check');
+                  console.log('710 regex:', regex);
                   if (regex.test(value)) {
                     alert('Value: ' + value + ' IS valid');
                   } else {
@@ -1430,21 +1467,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   }
                   let defText = "";
                   if (choices.length > 0) defText = choices[0];
-                  const propname = prompt('Enter attribute name, one of ' + choices, defText);
-                  if (propname.length > 0) {
-                    let defValue = relship.getStringValue2(propname);
-                    const value = prompt('Enter value of ' + propname, defValue);
-                    if (value) {
-                      if (propname === 'description') {
-                        relship.description = value;
-                      } else {
-                        relship.setStringValue2(propname, value);
-                      }
-                      if (debug) console.log('618 relship', relship);
-                    }
+                  // const propname = prompt('Enter attribute name, one of ' + choices, defText);
+                  // ---------------------------------
+                  const modalContext = {
+                    what: "selectDropdown",
+                    title: "Select Attribute",
+                    case: "Edit Attribute"
+                  } 
+                  myMetis.currentLink = link;
+                  myMetis.myDiagram = myDiagram;
+                  myDiagram.handleOpenModal(choices, modalContext);
                   }
-                }
-              }
+              } else if (link.category === 'Relationship type') {
+                const choices: string[]  = [];
+                choices.push('description');
+                choices.push('cardinality');
+                let defText = "";
+                if (choices.length > 0) defText = choices[0];
+                // const propname = prompt('Enter attribute name, one of ' + choices, defText);
+                // ---------------------------------
+                const modalContext = {
+                  what: "selectDropdown",
+                  title: "Select Attribute",
+                  case: "Edit Attribute"
+                } 
+                myMetis.currentLink = link;
+                myMetis.myDiagram = myDiagram;
+                myDiagram.handleOpenModal(choices, modalContext);
+              
+              } 
             },
             function (o: any) { 
               const link = o.part.data;
@@ -1457,6 +1508,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     return true;
                   }
                 }
+              } else if (link.category === 'Relationship type') {
+                return true;
               }
               return false; 
             }),
@@ -2355,7 +2408,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public render() {
-    if (debug) console.log('1278 Diagram', this.props.nodeDataArray);
+    if (debug) console.log('2358 Diagram', this.props.nodeDataArray);
     if (debug) console.log('1079 Diagram', this.props.linkDataArray);
 
     if (debug) console.log('2172 Diagram ', this.state.selectedData, this.state.myMetis);
@@ -2392,12 +2445,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editRelshipview':
       case 'editTypeview': {
         header = modalContext.title;
-        category = this.state.selectedData.category
-        icon = this.state.selectedData.icon
+        category = this.state.selectedData.category;
+        icon = this.state.selectedData.icon;
         if (!debug) console.log('2321 Diagram ', modalContext, this.state.selectedData, this.myMetis);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2324 Diagram ', this.state.selectedData, this.myMetis);
+          if (debug) console.log('2399 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
             <div className="modal-prop" >
               <SelectionInspector 

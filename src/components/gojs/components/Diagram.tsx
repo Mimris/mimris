@@ -2468,7 +2468,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     return (
       <div>
-        <ReactDiagram
+        <ReactDiagram style={{height: "66px"}}
           ref={this.diagramRef}
           divClassName='diagram-component'
           initDiagram={this.initDiagram}
@@ -2493,7 +2493,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 <span className="text-secondary font-weight-light">{category} </span> 
               </ModalHeader>
               </div>
-              <ModalBody className="modal-body1">
+              <ModalBody className="modal-body">
                 <div className="modal-image"><img src={icon}></img></div>
       
                 {modalContent}

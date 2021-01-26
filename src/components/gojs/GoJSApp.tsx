@@ -192,29 +192,30 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         const field = e.subject.name;
-        if (debug) console.log('370 data', data);
-        //if (sel) {
+        if (debug) console.log('195 data', data);
+        // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
             let text  = data.name;
             const typename = data.type;
-            if (debug) console.log('376 data', data);
-            if (typename === 'objecttype') {
+            if (debug) console.log('201 data', data);
+            // Object type
+            if (typename === 'Object type') {
               if (text === 'Edit name') {
                 text = prompt('Enter name');
               }
-              const myNode = this.getNode(context.myGoMetamodel, data.id);
-              if (debug) console.log('382 myNode', myNode);
+              const myNode = this.getNode(context.myGoMetamodel, data.key);
+              if (debug) console.log('207 myNode', myNode);
               if (myNode) {
                 data.name = text;
                 myNode.name = text;
                 uic.updateObjectType(myNode, field, text, context);
                 data.name = myNode.name;
-                if (debug) console.log('388 TextEdited', myNode);
+                if (debug) console.log('213 TextEdited', myNode);
                 if (myNode.objtype) {
                   const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
                   modifiedTypeNodes.push(gqlObjType);
-                  if (debug) console.log('392 TextEdited', gqlObjType);
+                  if (debug) console.log('218 TextEdited', gqlObjType);
                 }
               }
             } else // Object
@@ -244,10 +245,11 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
           if (sel instanceof go.Link) {
-            // relationship
+            // Relationship or Relationship tpe
             const key = data.key;
             let text = data.name;
             let typename = data.type;
+            // Relationship type
             if (typename === 'Relationship type') {
               const myLink = this.getLink(context.myGoMetamodel, key);
               // if (debug) console.log('232 TextEdited', myLink);
@@ -266,7 +268,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
               }
               context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
-            } else {
+            }             
+            else { // Relationship
               const myLink = this.getLink(context.myGoModel, key);
               if (myLink) {
                 if (text === 'Edit name') {

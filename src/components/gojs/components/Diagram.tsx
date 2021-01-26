@@ -2519,7 +2519,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     
     let modalContent, inspector, selector, header, category;
     const modalContext = this.state.modalContext;
-    if (!debug) console.log('2174 Diagram ', modalContext);
+    if (debug) console.log('2174 Diagram ', modalContext);
     const icon = modalContext?.icon;
 
     switch (modalContext?.what) {      

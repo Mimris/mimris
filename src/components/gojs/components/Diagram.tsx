@@ -1797,7 +1797,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     const objview = objviews[i];
                     objview.deleted = true;
                     const obj = objview.object;
-                    const oviews = obj.objectviews;
+                    const oviews = obj?.objectviews;
                     if (oviews.length == 1) {
                       obj.deleted = true;
                     }

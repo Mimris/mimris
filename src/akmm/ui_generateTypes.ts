@@ -526,16 +526,16 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                             continue;
                     }
                     values.push(valueObj.getName());
-                    if (!debug) console.log('529 rels', rels);
+                    if (debug) console.log('529 rels', rels);
                 }
                 else if (rel.getName() === constants.types.AKM_IS_DEFAULTVALUE) {
                     let valueObj = rel.toObject;
                     datatype.setDefaultValue(valueObj.name);
-                    if (!debug) console.log('534 defaultValue', valueObj.name);
+                    if (debug) console.log('534 defaultValue', valueObj.name);
                 }
                 for (let i=0; i< values.length; i++) {
                     datatype.addAllowedValue(values[i]);
-                    if (!debug) console.log('546 allowedValue', values[i]);
+                    if (debug) console.log('546 allowedValue', values[i]);
                 }
             }
 
@@ -561,7 +561,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
         myTargetMetamodel.addDatatype(datatype);
         // Update phData
         const gqlDatatype = new gql.gqlDatatype(datatype);
-        if (!debug) console.log('564 gqlDatatype', gqlDatatype);
+        if (debug) console.log('564 gqlDatatype', gqlDatatype);
         const modifiedDatatypes = new Array();
         modifiedDatatypes.push(gqlDatatype);
         modifiedDatatypes.map(mn => {

@@ -1393,7 +1393,7 @@ export function setRelshipType() {
 
 // Local functions
 export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
-    if (!debug) console.log('1394 updateNode', data, diagram);
+    if (debug) console.log('1394 updateNode', data, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
@@ -1406,7 +1406,7 @@ export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram
         // }
         for (prop in viewdata) {
             if (data[prop] && data[prop] !== "") {
-                if (!debug) console.log('1408 updateNode', prop, data[prop], diagram);
+                if (debug) console.log('1408 updateNode', prop, data[prop], diagram);
                 diagram?.model.setDataProperty(data, prop, data[prop]);
             }
         }

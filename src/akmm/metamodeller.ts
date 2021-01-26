@@ -5103,8 +5103,8 @@ export class cxObjectView extends cxMetaObject {
         this.category = constants.gojs.C_OBJECTVIEW;
         this.object = object;
         this.objectRef = "";
-        this.typeview = null;              // Override default type view
-        this.typeviewRef = "";
+        this.typeview = object?.type?.typeview;              
+        this.typeviewRef = this.typeview?.id;
         this.group = "";
         this.isGroup = false;
         this.groupLayout = "";
@@ -5225,6 +5225,17 @@ export class cxObjectView extends cxMetaObject {
             return this.loc;
         return "";
     }
+    clearViewdata() {
+        const viewdata = this.typeview.data;
+        for (let k in viewdata) {
+            if (k === 'class') continue;
+            if (k === 'abstract') continue;
+            if (k === 'isGroup') continue;
+            if (k === 'group') continue;
+            if (k === 'viewkind') continue;
+            this[k] = "";
+        }
+    }
 }
 
 export class cxRelationshipView extends cxMetaObject {
@@ -5251,11 +5262,11 @@ export class cxRelationshipView extends cxMetaObject {
         this.class = 'cxRelationshipView';
         this.category = constants.gojs.C_RELSHIPVIEW;
         this.relship = relship;
-        this.typeview = null;                 // Override default type view
+        this.typeview = relship?.type?.typeview;              
+        this.typeviewRef = this.typeview?.id;
         this.fromObjview = null;
         this.toObjview = null;
         this.relshipRef = "";
-        this.typeviewRef = "";                 // Override default type view
         this.fromObjviewRef = "";
         this.toObjviewRef = "";
         this.strokecolor = "";
@@ -5296,6 +5307,15 @@ export class cxRelationshipView extends cxMetaObject {
     }
     getToObjectView() {
         return this.toObjview;
+    }
+    clearViewdata() {
+        const viewdata = this.typeview.data;
+        for (let k in viewdata) {
+            if (k === 'class') continue;
+            if (k === 'abstract') continue;
+            if (k === 'relshipkind') continue;
+            this[k] = "";
+        }
     }
 }
 

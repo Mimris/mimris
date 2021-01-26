@@ -162,6 +162,51 @@ export class goModel {
         }
         return retval;
     }
+    updateNode(node: goObjectNode) {
+        const nodes = this.nodes;
+        for (let i = 0; i < nodes.length; i++) {
+            const n = nodes[i];
+            if (n.key === node.key) {
+                for (let k in n ) {
+                    if (typeof k === 'string') {
+                        if (node[k] !== n[k])
+                            n[k] = node[k];
+                    }
+                }
+                break;
+            }
+        }
+    }
+    updateTypeNode(node: goObjectTypeNode) {
+        const nodes = this.nodes;
+        for (let i = 0; i < nodes.length; i++) {
+            const n = nodes[i];
+            if (n.key === node.key) {
+                nodes[i] = node;
+                break;
+            }
+        }
+    }
+    updateLink(link: goRelshipLink) {
+        const links = this.links;
+        for (let i = 0; i < links.length; i++) {
+            const l = links[i];
+            if (l.key === link.key) {
+                links[i] = link;
+                break;
+            }
+        }
+    }
+    updateTypeLink(link: goRelshipTypeLink) {
+        const links = this.links;
+        for (let i = 0; i < links.length; i++) {
+            const l = links[i];
+            if (l.key === link.key) {
+                links[i] = link;
+                break;
+            }
+        }
+    }
     loadMetamodel(metamodel: akm.cxMetaModel) {
         if (utils.objExists(metamodel)) {
             this.metamodel = metamodel;

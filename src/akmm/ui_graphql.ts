@@ -1090,7 +1090,6 @@ export class gqlImportMetis {
         this.currentModelRef        = importedData.currentModelRef;
         this.currentModelviewRef    = importedData.currentModelviewRef;
         this.currentTemplateModelRef = importedData.currentTemplateModelRef;
-    
         /* Initialise
         glb.metis.initMetis();
         glb.myMetamodel = undefined;

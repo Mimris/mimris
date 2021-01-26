@@ -17,6 +17,7 @@ interface InspectorRowProps {
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
+    console.log('20 props', props, this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
@@ -49,11 +50,12 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
         <td>{this.props.id}</td>
         <td>
           <input
-            // disabled={this.props.id === 'key'}
+            disabled={this.props.id === 'typeName'}
             id={this.props.id}
             value={val}
             onChange={this.handleInputChange}
-            onBlur={this.handleInputChange}>
+            onBlur={this.handleInputChange}
+            >
           </input>
         </td>
       </tr>

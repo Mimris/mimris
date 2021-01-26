@@ -327,56 +327,57 @@ export function updateObjectType(data: any, name: string, value: string, context
     }
 }
 
-export function setObjectType(data: any, typename: string, context: any) {
+export function setObjectType(data: any, objtype: akm.cxObjectType, context: any) {
     const myMetis     = context.myMetis;
+    const myDiagram   = context.myDiagram;
+    // data, i.e. node
     // const myMetamodel = context.myMetamodel;
     // const myModel     = context.myModel;
     // const myModelView = context.myModelView;
-    const myDiagram   = context.myDiagram;
-    const objtype = myMetis.findObjectTypeByName(typename);
-    if (data.objecttype?.name === typename) {
-        // No type change - do nothing
-        alert('The object type is unchanged');
-    } else if (!objtype) {
-        // Non-existent type 
-        alert('The object type given does not exist');
-        // Do nothing
-    } else {
+    // if (data.objecttype?.name === typename) {
+    //     // No type change - do nothing
+    //     alert('The object type is unchanged');
+    // } else if (!objtype) {
+    //     // Non-existent type 
+    //     alert('The object type given does not exist');
+    //     // Do nothing
+    // } else {
+    if (objtype) {
+        const objtypeview = objtype.getDefaultTypeView();
         const currentObject = myMetis.findObject(data.object?.id);
-        //const objtypeview = myMetis.findObjectTypeView(objtype.typeviewRef);
-        const objtypeview = data.typeview;
         if (currentObject) {
+            const nameIsChanged = (currentObject.name !== currentObject.type.name);
             currentObject.setType(objtype);
             //currentObject.setName(typename);
             currentObject.setModified();
-
-            const gqlObject = new gql.gqlObject(currentObject);
-            if (debug) console.log('195 gqlObject', gqlObject);
-            const modifiedObjects = new Array();
-            modifiedObjects.push(gqlObject);
-            modifiedObjects.map(mn => {
-              let data = mn;
-              myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-            })    
-
-            const currentObjectView = myMetis.findObjectView(data.objectview?.id);
+            const currentObjectView = myMetis.findObjectView(data.objectview.id);
             if (currentObjectView) {
                 currentObjectView.setTypeView(objtypeview);
-                //currentObjectView.setName(typename);
+                currentObjectView.setName(objtype.name);
                 currentObjectView.setModified();
-                myDiagram.model.setDataProperty(data, "typename", typename);
-                if (debug) console.log('301 setObjectType', currentObjectView);
+                currentObjectView.setObject(currentObject);
+                if (!nameIsChanged)
+                    myDiagram.model.setDataProperty(data, "name", objtype.name);
+                data.objecttype = objtype;
                 updateNode(data, objtypeview, myDiagram);
 
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);
-                if (debug) console.log('204 gqlObjview', gqlObjview);
+                if (!debug) console.log('378 gqlObjview', gqlObjview);
                 const modifiedObjectViews = new Array();
                 modifiedObjectViews.map(mn => {
                   let data = mn;
                   myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
                 modifiedObjectViews.push(gqlObjview);
                 })
-            }        
+            }
+            const gqlObject = (currentObject) && new gql.gqlObject(currentObject);
+            if (!debug) console.log('359 gqlObject', gqlObject);
+            const modifiedObjects = new Array();
+            modifiedObjects.push(gqlObject);
+            modifiedObjects.map(mn => {
+              let data = mn;
+              myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            })    
             return currentObjectView;
         }
     }
@@ -1223,15 +1224,15 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                     let data = mn;
                     myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                 })
-                return currentRelshipView;
             }
-            const gqlRelship = (relship) && new gql.gqlRelationship(currentRelship);
+            const gqlRelship = (currentRelship) && new gql.gqlRelationship(currentRelship);
             const modifiedRelships = new Array();
             modifiedRelships.push(gqlRelship);
             modifiedRelships.map(mn => {
               let data = mn;
               (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
             })              
+            return currentRelshipView;
         }
     }
 }
@@ -1392,29 +1393,36 @@ export function setRelshipType() {
 }
 
 // Local functions
-export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
+export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (!debug) console.log('1394 updateNode', data, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
-        // for (prop in viewdata) {
-        //     if (viewdata[prop] != null) {
-        //         if (prop === 'abstract') continue;
-        //         if (prop === 'class') continue;
-        //         diagram?.model.setDataProperty(data, prop, viewdata[prop]);
-        //     }
-        // }
         for (prop in viewdata) {
-            if (data[prop] && data[prop] !== "") {
-                if (!debug) console.log('1408 updateNode', prop, data[prop], diagram);
-                diagram?.model.setDataProperty(data, prop, data[prop]);
+            if (prop === 'abstract') continue;
+            if (prop === 'class') continue;
+            if (prop === 'group') continue;
+            if (prop === 'isGroup') continue;
+            if (prop === 'viewkind') continue;
+            if (viewdata[prop] != null)
+                diagram?.model.setDataProperty(data, prop, viewdata[prop]);
+            if (debug) console.log('1437 updateNode', prop, data[prop], diagram);
+        }
+        const objview = data.objectview;
+        for (prop in viewdata) {
+            if (objview[prop] && objview[prop] !== "") {
+                diagram.model.setDataProperty(data, prop, objview[prop]);
             }
+        }
+        if (goModel) {
+            goModel.updateNode(data);
+            if (!debug) console.log('1448 updateNode', data, goModel);
         }
         diagram?.requestUpdate();
     }
 }
 
-function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram: any) {
+function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram: any, goModel: gjs.goModel) {
     if (reltypeView) {
         let viewdata: any = reltypeView.getData();
         let prop: string;
@@ -1425,12 +1433,15 @@ function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram:
             if (viewdata[prop] != null)
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
         }
-        if (debug) console.log(data);
+        if (debug) console.log('1459 updateLink', data, prop, viewdata[prop]);
         const relview = data.relshipview;
         for (prop in viewdata) {
             if (relview[prop] && relview[prop] !== "") {
                 diagram.model.setDataProperty(data, prop, relview[prop]);
             }
+        }
+        if (goModel) {
+            goModel.updateLink(data);
         }
     }
 } 

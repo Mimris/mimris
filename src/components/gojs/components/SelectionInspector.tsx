@@ -53,8 +53,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (debug) console.log('56 inst', props, inst, selObj);
+    if (!debug) console.log('56 inst', props, inst, selObj);
     const dets = [];
+    let hideNameAndDescr = false;
     switch (modalContext?.what) {
       case "editObject":
         item = inst;
@@ -65,9 +66,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       case "editObjectview":
       case "editRelshipview":
         item = instview;
+        hideNameAndDescr = true;
         break;
       case "editTypeview":
         item = instview.typeview?.data;
+        hideNameAndDescr = true;
         break;  
       default:
         item = inst;
@@ -125,11 +128,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (type.name !== 'InputPattern') {
             if (k === 'inputPattern') continue;
           }
+          if (hideNameAndDescr) {
+            if (k === 'name' || k === 'description') continue;
+          }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
         if (debug) console.log('132 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-        if (!debug) console.log('134 propname, value:', k, item[k], item);
+        if (!debug) console.log('134 propname, value:', k, item[k], val, selObj);
         row  = <InspectorRow
           key={k}
           id={k}

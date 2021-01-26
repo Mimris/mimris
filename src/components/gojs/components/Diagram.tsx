@@ -325,6 +325,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (!debug) console.log('325 myInst', myInst, myInstview);
       if (context?.what === "editObjectview") {
           myItem = myInstview;
+<<<<<<< HEAD
       } else if (context?.what === "editTypeview") {
           myItem = myInst.type?.typeview.data;
       } else {
@@ -356,6 +357,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         let data = mn;
         this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
+=======
+          myItem[propname] = value;
+          if (debug) console.log('329 obj, myMetis', obj, myMetis);
+          uic.updateNode(obj, obj.typeview, myMetis.myDiagram);
+          // Prepare and to dispatch of objectview
+          if (debug) console.log('331 myItem', myItem);
+          const modifiedObjectViews = new Array();
+          const gqlObjview = new gql.gqlObjectView(myInstview);
+          if (debug) console.log('336 gqlObjview', gqlObjview);
+          modifiedObjectViews.push(gqlObjview);
+          modifiedObjectViews.map(mn => {
+            let data = mn;
+            this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+          })
+          } else if (context?.what === "editTypeview") 
+          myItem = myInstview.typeview;
+>>>>>>> e9aa5570d1d19a40fcf0bcf90d2deb05dc59c45e
       // Prepare and to dispatch of object
       const modifiedObjects = new Array();
       const gqlObj = new gql.gqlObject(myItem);
@@ -697,7 +715,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = obj.part.data;
               const modalContext = {
                 what: "editTypeview",
-                title: "Edit Typeview"
+                title: "Edit Typeview",
+                icon: findImage(node.icon)
               }
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
@@ -998,7 +1017,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = obj.part.data;
               const modalContext = {
                 what: "editObject",
-                title: "Edit Object"
+                title: "Edit Object",
+                icon: findImage(node.icon)
               }
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
@@ -1017,7 +1037,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = obj.part.data;
               const modalContext = {
                 what: "editObjectview",
-                title: "Edit Object View"
+                title: "Edit Object View",
+                icon: findImage(node.icon)
               }
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
@@ -2514,9 +2535,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     if (debug) console.log('2172 Diagram ', this.state.selectedData, this.state.myMetis);
     
-    let modalContent, inspector, selector, header, category, icon;
+    let modalContent, inspector, selector, header, category;
     const modalContext = this.state.modalContext;
-    if (debug) console.log('2174 Diagram ', modalContext);
+    if (!debug) console.log('2174 Diagram ', modalContext);
+    const icon = modalContext?.icon;
 
     switch (modalContext?.what) {      
       case 'selectDropdown': {
@@ -2542,14 +2564,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       break;
       case 'editObject':
       case 'editObjectview':
+        header = modalContext.title;
+        category = this.state.selectedData.category;
+        if (!debug) console.log('2321 Diagram ', icon);
+        
+        if (this.state.selectedData !== null && this.myMetis != null) {
+          if (debug) console.log('2399 Diagram ', this.state.selectedData, this.myMetis);
+          modalContent = 
+            <div className="modal-prop">
+              <SelectionInspector 
+                myMetis       ={this.myMetis}
+                selectedData  ={this.state.selectedData}
+                context       ={this.state.modalContext}
+                onInputChange ={this.handleInputChange}
+              />
+            </div>
+        }
       case 'editRelationship':
       case 'editRelshipview':
       case 'editTypeview': {
         header = modalContext.title;
         category = this.state.selectedData.category;
-        icon = this.state.selectedData.icon;
-        if (!debug) console.log('2321 Diagram ', modalContext, this.state.selectedData, this.myMetis);
-        
+        if (debug) console.log('2321 Diagram ', icon);
+      
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2399 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
@@ -2564,12 +2601,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       }
       default:
-          break;
+        break;
     }
 
     return (
       <div>
-        <ReactDiagram
+        <ReactDiagram 
           ref={this.diagramRef}
           divClassName='diagram-component'
           initDiagram={this.initDiagram}
@@ -2580,27 +2617,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
-
         <Modal className="" isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5"> */}
             {/* <div className="modal-content"> */}
-             <div className="modal-head">
-              <Button className="modal-button btn-sm float-right ml-5" color="link" 
-                onClick={() => { this.handleCloseModal() }} ><span>x</span>
-              </Button>
-              <ModalHeader className="modal-header" >
+              <div className="modal-head">
+                <Button className="modal-button btn-sm float-right ml-5" color="link" 
+                  onClick={() => { this.handleCloseModal() }} ><span>x</span>
+                </Button>
+                <ModalHeader className="modal-header" >
                 <span className="text-secondary">{header} </span> 
                 <span className="modal-name " >{this.state.selectedData?.name} </span>
                 <span className="text-secondary font-weight-light">{category} </span> 
               </ModalHeader>
               </div>
-              <ModalBody className="modal-body">
-                <div className="modal-image"><img src={icon}></img></div>
-      
-                {modalContent}
+              <ModalBody >
+                <div className="modal-body1">
+                  <div className="modal-image"><img src={icon}></img></div>
+                  {modalContent}
+                </div>
               </ModalBody>
               <ModalFooter className="modal-footer">
-                <Button className="modal-footer bg-secondary m-0 p-0" color="black" onClick={() => { this.handleCloseModal() }}>Done</Button>
+                <Button className="modal-footer bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
               </ModalFooter>
             {/* </div> */}
           {/* </div> */}

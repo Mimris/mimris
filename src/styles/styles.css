@@ -49,42 +49,44 @@
 }
 
 .modal {
+  background-color: red;
   /* background: linear-gradient(90deg,#FFFF00 6%,#FFA500 25%,#F14444 45%,#D53567 55%,#9A109A 94%); */
   background: rgba(255,255,255,0.3);
   /* display: flex; 
   align-items: center;
   justify-content: center; */
 }
-.modal .modal-dialog {
-  transform-style: preserve-3d;
-  /* background-color: red; */
-  margin-top: 25%;
-  border: 1px solid rgba(255,255,255,0.7);
+.modal-dialog {
+  background-color: transparent;
+  margin: auto;
+  /* margin-top: 45%; */
+  /* border: 1px solid rgba(255,255,255,0.7); */
   padding: 4px;
-  display: flex row;
+  /* display: flex;
   align-items: center;
   justify-content: center;
-  justify-content: space-evenly;
+  justify-content: space-evenly; */
 }
-.modal .modal-content {
-  /* background-color: green; */
-  background: rgba(255,255,255,0.1);
+.modal-content {
+  margin-top: 45%;
+  background-color: transparent;
+  background: rgba(255,255,255,0.6);
   /* border: 10px solid red; */
   /* border-top: white;
   border-left: white; */
-
   /* padding: 8px; */
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
   display: flex;
+  flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  perspective: 1000px;
 }
-.modal .modal-body {
-  background-color: blue;
-  background: rgba(225,225,225,1);
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,1);
+.modal-body1 {
+  /* background-color: blue; */
+  background-color: transparent;
+  background: rgba(225,225,225,.5);
+  /* border-radius: 10px; */
+  /* border: 1px solid rgba(255,255,255,1); */
   position: relative;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
@@ -92,18 +94,19 @@
   /* margin: 20 auto; */
   /* padding: 20px; */
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   justify-content: space-evenly;
 }
 .modal-head {
   background-color: transparent;
-  background: rgba(255,255,255,.7);
+  background: rgba(255,255,255,.2);
   border-radius: 10px 10px 0px 0px;
 }
-.modal-header {
-  /* background-color: transparent;
-  background: rgba(255,255,255,0.8); */
+.modal-header .modal-footer {
+  background-color: transparent;
+  background: rgba(255,255,255,0.2);
   font-family: Arial;
   color:  #333;
   font-size: 20px;
@@ -117,7 +120,7 @@
   width: 420px ;
 }
 .modal-prop {
-  background: rgba(253, 1, 1, 0);
+  /* background: rgba(253, 1, 1, 0); */
   margin-left: 12px;
   padding: 2px;
   display: flex;
@@ -199,8 +202,7 @@
 .card-title {
   font-weight: "bolder" ;
 }
- /* .workarea div:nth-child(3) {
-   grid-row:  2;
+ /* .workarea div:nth-child(3) {   grid-row:  2;
 } */
 
 .task-body {

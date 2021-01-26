@@ -57,20 +57,21 @@
      grid-template-columns: auto 2fr;
      grid-template-areas:
      "contextarea"
-     "taskarea"
-     "workarea";
+     "taskarea workarea";
    }
  }
+ /* .row {
+   background-color: blue;
+ } */
 
-.workplace {
+/* .workplace {
   grid-area: workplace;
   display: grid ;
-  /* // background-color: #00f; */
   grid-template-columns: auto 1fr;
   grid-template-areas:
   "contextarea contextarea"
   "tasksarea workarea";
-}
+} */
 /* .workarea {
   grid-area: workarea;
   display: grid ;

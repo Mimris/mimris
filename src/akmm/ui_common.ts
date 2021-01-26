@@ -1393,12 +1393,18 @@ export function setRelshipType() {
 }
 
 // Local functions
+<<<<<<< HEAD
 export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (!debug) console.log('1394 updateNode', data, diagram);
+=======
+export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any) {
+    if (debug) console.log('1394 updateNode', data, diagram);
+>>>>>>> e9aa5570d1d19a40fcf0bcf90d2deb05dc59c45e
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
         for (prop in viewdata) {
+<<<<<<< HEAD
             if (prop === 'abstract') continue;
             if (prop === 'class') continue;
             if (prop === 'group') continue;
@@ -1412,6 +1418,11 @@ export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram
         for (prop in viewdata) {
             if (objview[prop] && objview[prop] !== "") {
                 diagram.model.setDataProperty(data, prop, objview[prop]);
+=======
+            if (data[prop] && data[prop] !== "") {
+                if (debug) console.log('1408 updateNode', prop, data[prop], diagram);
+                diagram?.model.setDataProperty(data, prop, data[prop]);
+>>>>>>> e9aa5570d1d19a40fcf0bcf90d2deb05dc59c45e
             }
         }
         if (goModel) {

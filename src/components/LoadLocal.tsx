@@ -186,9 +186,9 @@ const LoadLocal = (props: any) => {
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>LocalStorage: </ModalHeader>
         <ModalBody className="pt-0">
           Current Source: <strong> {props.ph.phSource}</strong>
-          <div className="source bg-light pt-2 "> Models: <strong> {modelNames}</strong></div>
-          <div className="source bg-light pt-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
-          <div className="source bg-light pt-2 ">
+          <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
+          <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
+          <div className="source bg-light p-2 ">
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <div className="store-div px-2 pb-1 mb-0">
               <h6>Local Store </h6>

@@ -135,11 +135,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         val = (item.id === inst.id) ? item[k] : selObj[k];
         if (debug) console.log('132 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-<<<<<<< HEAD
         if (!debug) console.log('134 propname, value:', k, item[k], val, selObj);
-=======
-        if (debug) console.log('134 propname, value:', k, item[k], item);
->>>>>>> e9aa5570d1d19a40fcf0bcf90d2deb05dc59c45e
         row  = <InspectorRow
           key={k}
           id={k}

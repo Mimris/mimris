@@ -325,7 +325,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (!debug) console.log('325 myInst', myInst, myInstview);
       if (context?.what === "editObjectview") {
           myItem = myInstview;
-<<<<<<< HEAD
       } else if (context?.what === "editTypeview") {
           myItem = myInst.type?.typeview.data;
       } else {
@@ -357,23 +356,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         let data = mn;
         this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
-=======
-          myItem[propname] = value;
-          if (debug) console.log('329 obj, myMetis', obj, myMetis);
-          uic.updateNode(obj, obj.typeview, myMetis.myDiagram);
-          // Prepare and to dispatch of objectview
-          if (debug) console.log('331 myItem', myItem);
-          const modifiedObjectViews = new Array();
-          const gqlObjview = new gql.gqlObjectView(myInstview);
-          if (debug) console.log('336 gqlObjview', gqlObjview);
-          modifiedObjectViews.push(gqlObjview);
-          modifiedObjectViews.map(mn => {
-            let data = mn;
-            this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-          })
-          } else if (context?.what === "editTypeview") 
-          myItem = myInstview.typeview;
->>>>>>> e9aa5570d1d19a40fcf0bcf90d2deb05dc59c45e
       // Prepare and to dispatch of object
       const modifiedObjects = new Array();
       const gqlObj = new gql.gqlObject(myItem);

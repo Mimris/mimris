@@ -1432,16 +1432,16 @@ function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram:
             if (prop === 'class') continue;
             if (viewdata[prop] != null)
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
-        }
-        if (debug) console.log('1459 updateLink', data, prop, viewdata[prop]);
-        const relview = data.relshipview;
-        for (prop in viewdata) {
-            if (relview[prop] && relview[prop] !== "") {
-                diagram.model.setDataProperty(data, prop, relview[prop]);
+            const relview = data.relshipview;
+            if (relview) {
+                if (relview[prop] && relview[prop] !== "") {
+                    diagram.model.setDataProperty(data, prop, relview[prop]);
+                }
+                if (debug) console.log('1459 updateLink', data, prop, viewdata[prop]);
+                if (goModel) {
+                    goModel.updateLink(data);
+                }
             }
-        }
-        if (goModel) {
-            goModel.updateLink(data);
         }
     }
 } 

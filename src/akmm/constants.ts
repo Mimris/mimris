@@ -108,6 +108,8 @@ export let types = {
          AKM_INPUTPATTERN      : "InputPattern",
          AKM_VIEWFORMAT        : "ViewFormat",
          AKM_UNIT              : "Unit",
+         AKM_HAS_MEMBER        : "hasMember",
+         AKM_HAS_PART          : "hasPart",
          AKM_HAS_PROPERTY      : "has",
          AKM_IS_OF_DATATYPE    : "isOf",
          AKM_IS_DEFAULTVALUE   : "isDefault",

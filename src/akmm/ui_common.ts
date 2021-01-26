@@ -358,7 +358,9 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 currentObjectView.setObject(currentObject);
                 if (!nameIsChanged)
                     myDiagram.model.setDataProperty(data, "name", objtype.name);
+                data.object.type = objtype;
                 data.objecttype = objtype;
+                data.typeview = objtypeview;
                 updateNode(data, objtypeview, myDiagram);
 
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);

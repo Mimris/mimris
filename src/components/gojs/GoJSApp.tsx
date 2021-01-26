@@ -244,8 +244,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
             }
           }
+          // Relationship or Relationship tpe
           if (sel instanceof go.Link) {
-            // Relationship or Relationship tpe
             const key = data.key;
             let text = data.name;
             let typename = data.type;

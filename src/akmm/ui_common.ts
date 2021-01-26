@@ -358,7 +358,9 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 currentObjectView.setObject(currentObject);
                 if (!nameIsChanged)
                     myDiagram.model.setDataProperty(data, "name", objtype.name);
+                data.object.type = objtype;
                 data.objecttype = objtype;
+                data.typeview = objtypeview;
                 updateNode(data, objtypeview, myDiagram);
 
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);
@@ -1432,16 +1434,16 @@ function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram:
             if (prop === 'class') continue;
             if (viewdata[prop] != null)
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
-        }
-        if (debug) console.log('1459 updateLink', data, prop, viewdata[prop]);
-        const relview = data.relshipview;
-        for (prop in viewdata) {
-            if (relview[prop] && relview[prop] !== "") {
-                diagram.model.setDataProperty(data, prop, relview[prop]);
+            const relview = data.relshipview;
+            if (relview) {
+                if (relview[prop] && relview[prop] !== "") {
+                    diagram.model.setDataProperty(data, prop, relview[prop]);
+                }
+                if (debug) console.log('1459 updateLink', data, prop, viewdata[prop]);
+                if (goModel) {
+                    goModel.updateLink(data);
+                }
             }
-        }
-        if (goModel) {
-            goModel.updateLink(data);
         }
     }
 } 

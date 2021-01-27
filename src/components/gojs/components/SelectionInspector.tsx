@@ -80,6 +80,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let row;
       if (k) {
         let val = item[k]; 
+        let valuetype = 'text';
         if (true) { // Filter values
           if (typeof(val) === 'object') continue;
           if (k === 'id') continue;
@@ -133,12 +134,17 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
+        // if (k === 'fillcolor') {
+        //   val = '#e66465';  // For testing
+        //   valuetype = 'color';
+        // }
         if (debug) console.log('132 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-        if (!debug) console.log('134 propname, value:', k, item[k], val, selObj);
+        if (!debug) console.log('134 propname, value:', k, item[k], val, valuetype, selObj);
         row  = <InspectorRow
           key={k}
           id={k}
+          type={valuetype}
           value={val}
           obj= {selObj}
           context= {modalContext}

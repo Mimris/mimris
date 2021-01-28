@@ -366,10 +366,10 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);
                 if (!debug) console.log('378 gqlObjview', gqlObjview);
                 const modifiedObjectViews = new Array();
+                modifiedObjectViews.push(gqlObjview);
                 modifiedObjectViews.map(mn => {
                   let data = mn;
                   myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-                modifiedObjectViews.push(gqlObjview);
                 })
             }
             const gqlObject = (currentObject) && new gql.gqlObject(currentObject);

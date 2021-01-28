@@ -1946,6 +1946,7 @@ export class cxDatatype extends cxMetaObject {
     defaultValue:       string;
     inputPattern:       string;
     viewFormat:         string;
+    valuetype:          string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.class = 'cxDatatype';
@@ -1954,6 +1955,7 @@ export class cxDatatype extends cxMetaObject {
         this.isOfDatatype = null;
         this.inputPattern = "";
         this.viewFormat = "%s";
+        this.valuetype = "text";
         this.allowedValues = "";
         this.defaultValue = "";
     }
@@ -1996,6 +1998,12 @@ export class cxDatatype extends cxMetaObject {
     }
     getViewFormat(): string {
         return this.viewFormat;
+    }
+    setValuetype(val: string) {
+        this.valuetype = val;
+    }
+    getValuetype(): string {
+        return this.valuetype;
     }
 }
 

@@ -859,7 +859,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "myModel":            myMetis.currentModel,
                   "myCurrentModelview": myMetis.currentModelview,
                   "myDiagram":          e.diagram,
-                  "myProperties":       new Array(),
                   "dispatch":           e.diagram.dispatch
                 }
                 if (debug) console.log('441 myMetis', myMetis);
@@ -903,7 +902,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) { 
-
+              const node = obj.part.data;
+              const context = {
+                "myMetis":            myMetis,
+                "myMetamodel":        myMetis.currentMetamodel,
+                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+                "myModel":            myMetis.currentModel,
+                "myCurrentModelview": myMetis.currentModelview,
+                "myCurrentNode":      node,    
+                "myDiagram":          e.diagram,
+                "dispatch":           e.diagram.dispatch
+              }
+              context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+              if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                    alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                    context.myTargetMetamodel = null;
+              } else if (context.myTargetMetamodel == undefined)  // sf
+                context.myTargetMetamodel = null;
+                myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+                const targetMetamodel = myMetis.currentTargetMetamodel;
+                const sourceModelview = myMetis.currentModelview;
+                gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
+                console.log('1327 Target metamodel', targetMetamodel);
                alert ("Generate Metamodel"); 
             },
             function (o: any) { 
@@ -1447,7 +1467,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myModel":            myMetis.currentModel,
                 "myCurrentModelview": myMetis.currentModelview,
                 "myDiagram":          e.diagram,
-                "myProperties":       new Array(),
                 "dispatch":           e.diagram.dispatch
                 }
                 if (debug) console.log('935 myMetis', myMetis);
@@ -1949,7 +1968,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myModel":            myMetis.currentModel,
                 "myCurrentModelview": myMetis.currentModelview,
                 "myDiagram":          e.diagram,
-                "myProperties":       new Array(),
                 "dispatch":           e.diagram.dispatch
               }
               context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);

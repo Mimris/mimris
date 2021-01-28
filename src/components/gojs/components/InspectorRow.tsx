@@ -9,6 +9,7 @@ const debug = false;
 interface InspectorRowProps {
   id: string;
   value: string;
+  valuetype: string;
   obj: any;
   context: any;
   onInputChange: (id: string, value: string, obj: any, context: any, isBlur: boolean) => void;
@@ -17,14 +18,14 @@ interface InspectorRowProps {
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
-    console.log('20 props', props, this);
+    if (!debug) console.log('21 props', props, this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   private handleInputChange(e: any) {
-    if (debug) console.log('21 InspectorRow: this.props', this.props);
+    if (!debug) console.log('21 InspectorRow: this.props', this.props);
     if (debug) console.log('22 InspectorRow: e.target', e.target, e);
-    this.props.onInputChange(this.props.id, e.target.value,  this.props.obj, this.props.context, e.type === 'blur');
+    this.props.onInputChange(this.props.id, e.target.value, this.props.obj, this.props.context, e.type === 'blur');
   }
   
   private formatLocation(loc: string): string {
@@ -40,8 +41,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
   
   public render() {
+    if (!debug) console.log('44 InspectorRow: this.props', this.props);
     let val = this.props.value;
-    if (debug) console.log('43 InspectorRow: val', val);
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );
     }
@@ -53,6 +54,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             disabled={this.props.id === 'typeName'}
             id={this.props.id}
             value={val}
+            type={this.props.valuetype}
             onChange={this.handleInputChange}
             onBlur={this.handleInputChange}
             >

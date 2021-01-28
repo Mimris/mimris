@@ -80,14 +80,14 @@ const LoadLocal = (props: any) => {
 
   function handleSaveAllToLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});
-    if (debug) console.log('72 SelectSource',  props.ph);
+    if (debug) console.log('83 SelectSource',  props.ph.phData);
     const data = {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
       phSource: 'localStore'
     }
-    if (debug) console.log('90 LoadLocal', data);
+    if (!debug) console.log('90 LoadLocal', data);
     setLocState(data)
   }
 

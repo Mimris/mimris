@@ -1045,6 +1045,11 @@ export class gqlRelshipView {
     typeviewRef:    string;
     fromobjviewRef: string;
     toobjviewRef:   string;
+    strokecolor:    string;
+    strokewidth:    string;
+    dash:           string;
+    fromArrow:      string;
+    toArrow:        string;
     deleted:        boolean;
     modified:       boolean;
     constructor(relview: akm.cxRelationshipView) {
@@ -1053,6 +1058,11 @@ export class gqlRelshipView {
         this.description    = "";
         this.relshipRef     = "";
         this.typeviewRef    = "";
+        this.strokecolor    = "";
+        this.strokewidth    = "";
+        this.dash           = "";
+        this.fromArrow      = "";
+        this.toArrow        = "";
         this.fromobjviewRef = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef   = relview && relview.toObjview ? relview.toObjview.id : "";
         this.deleted        = relview.deleted;

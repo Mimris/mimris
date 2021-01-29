@@ -278,7 +278,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 myLink.name = text;
                 uic.updateRelationship(myLink, field, text, context);
-                if (myLink.relhipview) {
+                if (myLink.relshipview) {
                   const gqlLink = new gql.gqlRelshipView(myLink.relshipview);
                   modifiedLinks.push(gqlLink);
                 }
@@ -515,7 +515,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const modalContext = {
           what: "editObject",
           title: "Edit",
-          icon: data.icon
+          icon: findImage(data.icon)
         }
         myDiagram.handleOpenModal(data, modalContext, null);
       }
@@ -813,6 +813,32 @@ class GoJSApp extends React.Component<{}, AppState> {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
     })
+  // }
+
+      // Function to identify images related to an image id
+      function findImage(image: string) {
+        // if (image.substring(0,4) === 'http') { // its an URL
+        if (image.includes('//')) { // its an URL   
+          // if (debug) console.log('1269 Diagram', image);
+          return image
+        } else if (image.includes('/')) { // its a local image
+          if (debug) console.log('1270 Diagram', image);   
+          return image
+        } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
+          const firstcharacter = image.substring(0, 1)
+          const secondcharacter = image.substring(1, 2)
+          if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
+          // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
+          //   const letter = image.substring(0, image.length - 4)
+          //   // const lettersvg = letter
+          //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
+          //   return svgs[letter].svg //svgs[`'${letter}'`]
+        } else { 
+          if (debug) console.log('1283 Diagram', image);
+          return "./../images/" + image //its an image in public/images
+        }
+        return "";
+      }
   }
 
   public render() {   

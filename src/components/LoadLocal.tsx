@@ -21,7 +21,7 @@ const LoadLocal = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal',  modelNames, metamodelNames);
+  if (!debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return
 
@@ -66,8 +66,7 @@ const LoadLocal = (props: any) => {
     } else {
       dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: localMetamodel })
       dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: localModel })
-    }
-      
+    } 
       if (!debug) console.log('59 LoadLocal', localMetamodel, localModel);
   }
   
@@ -77,7 +76,7 @@ const LoadLocal = (props: any) => {
   let loadSelectedFromLocalStoreDiv = <></>
   if (options) 
     loadSelectedFromLocalStoreDiv = 
-      <div className="localstore-selection d-flex justify-content-center">
+      <div className="loadstore selection d-flex justify-content-center border border-dark p-1">
         <p>Select Model to load</p>
         <Select className="modal-select"
           options={options}
@@ -225,8 +224,8 @@ const LoadLocal = (props: any) => {
           <div className="source bg-light p-2 "> Metamodels: <strong> {metamodelNames}</strong></div>
           <div className="source bg-light p-2 ">
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
-            <div className="store-div px-2 pb-1 mb-0">
-              <div className="select bg-light mb-1 p-2  border border-dark">
+            <div className="loadsave px-2 pb-1 mb-0">
+              <div className="loadsave--localStore select border border-dark">
               <h6>Local Store </h6>
                 {buttonLoadLocalStoreDiv}
                 {loadSelectedFromLocalStoreDiv}
@@ -234,23 +233,23 @@ const LoadLocal = (props: any) => {
                 {buttonSaveCurrentToLocalStoreDiv} 
                 {buttonSaveToLocalStoreDiv}
               </div>
-              <div className="select bg-light mb-1 p-2 border border-dark">
-                <h6>Import Metamodel from file </h6>
+              <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                <div className="mb-2"> 
-                  <input type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
+                <div className="selectbox mb-2 border"> 
+                <h6>Import Metamodel from file </h6>
+                  <input className="select-input" type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
                 {buttonSaveMetamodelToFileDiv}
               </div>
-              <div className="select bg-light mb-1 p-2  border border-dark">
-                <h6>Import Model from file </h6>
+              <div className="loadsave--modelToFile select mb-1 p-2  border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                <div className="mb-2">
-                  <input type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+                <div className="selectbox mb-2 border">
+                  <h6>Import Model from file </h6>
+                  <input className="select-input w-100" type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
                 </div>
                 {buttonSaveModelToFileDiv}
               </div>
-              <div className="select bg-light mb-1 p-2  border border-dark">
+              <div className="loadsave--momoryStore select  mb-1 p-2  border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <h6>Crash Recover </h6>
                 <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>

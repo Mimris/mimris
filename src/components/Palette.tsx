@@ -19,11 +19,13 @@ const Palette = (props) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // console.log('16', props, mmodel.name, model.metamodelRef);
-
-
+  
+  
   const gojstypes = props.gojsMetamodel
-  const gojsmodelobjects = props.gojsModelObjects // has to be: props.gojsObjects
-  if (debug) console.log('16 Palette gojsobjects', gojsmodelobjects );
+  const gojsmodelobjects_all = props.gojsModelObjects // has to be: props.gojsObjects
+  if (!debug) console.log('16 Palette', gojsmodelobjects_all);
+  const gojsmodelobjects = gojsmodelobjects_all?.filter(node => node.object && node.object.deleted === false)
+  if (!debug) console.log('16 Palette gojsobjects', gojsmodelobjects );
 
 
   // /** Toggle divs */

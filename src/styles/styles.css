@@ -742,7 +742,33 @@ imgInProp {
   min-height: 30px;
   padding-left: 2px;
 }
-  
+
+.loadsave {
+  background-color: #eee;
+
+  ;
+}
+.loadsave--localStore {
+  background-color:#ddd;
+  padding: 6px;
+}
+.loadsave--metamodelToFile {
+  background-color: rgb(208, 237, 255);
+}
+.loadsave--modelToFile {
+  background-color: rgb(170, 204, 204);
+}
+.selectbox {
+  background-color: rgba(255, 255, 255, 0.5) ;
+  border: 20px;
+  border-color: tomato;
+  padding: 1%;
+}
+.select-input {
+  background-color: #fff;
+  width: 100%;
+}
+
 .boxAnimate {
   cursor: pointer;
   position: relative;

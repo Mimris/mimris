@@ -511,7 +511,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let sel = e.subject.part;
         let data = sel.data;
         this.state.selectedData = sel.data;
-        if (!debug) console.log('699 data', data, sel);
+        if (debug) console.log('699 data', data, sel);
         const modalContext = {
           what: "editObject",
           title: "Edit",

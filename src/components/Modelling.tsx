@@ -114,11 +114,11 @@ const page = (props:any) => {
     const curmlength = memoryLocState?.phData?.metis.models?.length
     if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     // then find metamodel which is in reduxStore
-    let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.metamodelRef) // current model index
-    let curmmindex = memoryLocState?.phData?.metis?.models?.findIndex(mm => mm?.id === reduxmod?.id) // current model index
+    let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.metamodelRef) 
+    let curmmindex = memoryLocState?.phData?.metis?.metamodels?.findIndex(mm => mm?.id === reduxmod?.metamodelRef) 
     // then find lenght of modellarray in lodalStore
     const curmmlength = memoryLocState?.phData?.metis.metamodels?.length
-    if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
+    if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new metamodel
     // if (debug) console.log('73 Modelling', curmindex, reduxmod);
     const data = {
       phData: {
@@ -131,9 +131,9 @@ const page = (props:any) => {
             ...memoryLocState?.phData?.metis.models.slice(curmindex + 1),
           ],
           metamodels: [
-            ...memoryLocState?.phData?.metis.models.slice(0, curmmindex),
+            ...memoryLocState?.phData?.metis.metamodels.slice(0, curmmindex),
             reduxmmod,
-            ...memoryLocState?.phData?.metis.models.slice(curmmindex + 1),
+            ...memoryLocState?.phData?.metis.metamodels.slice(curmmindex + 1),
           ]
         },
       },

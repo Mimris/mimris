@@ -53,7 +53,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (!debug) console.log('56 inst', props, inst, selObj);
+    if (debug) console.log('56 inst', props, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     switch (modalContext?.what) {
@@ -140,7 +140,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         // }
         if (debug) console.log('132 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-        if (!debug) console.log('134 propname, value:', k, item[k], val, valuetype, selObj);
+        if (debug) console.log('134 propname, value:', k, item[k], val, valuetype, selObj);
         row  = <InspectorRow
           key={k}
           id={k}

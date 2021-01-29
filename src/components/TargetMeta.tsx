@@ -12,8 +12,8 @@ const TargetMeta = (props) => {
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
   const model = models?.find((m: any) => m?.id === focusModel?.id)
-  const targetmetamodel = metamodels?.find((m: any) => m?.id === model.targetMetamodelRef)
-  const targetmodel = models?.find((m: any) => m?.id === model.targetModelRef)
+  const targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
+  const targetmodel = models?.find((m: any) => m?.id === model?.targetModelRef)
   // console.log('16', props, targetmodel?.name, model.targetModelRef);
   
   

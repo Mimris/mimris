@@ -364,7 +364,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 updateNode(data, objtypeview, myDiagram);
 
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);
-                if (!debug) console.log('378 gqlObjview', gqlObjview);
+                if (debug) console.log('378 gqlObjview', gqlObjview);
                 const modifiedObjectViews = new Array();
                 modifiedObjectViews.push(gqlObjview);
                 modifiedObjectViews.map(mn => {
@@ -373,7 +373,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 })
             }
             const gqlObject = (currentObject) && new gql.gqlObject(currentObject);
-            if (!debug) console.log('359 gqlObject', gqlObject);
+            if (debug) console.log('359 gqlObject', gqlObject);
             const modifiedObjects = new Array();
             modifiedObjects.push(gqlObject);
             modifiedObjects.map(mn => {
@@ -1396,7 +1396,7 @@ export function setRelshipType() {
 
 // Local functions
 export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
-    if (!debug) console.log('1394 updateNode', data, diagram);
+    if (debug) console.log('1394 updateNode', data, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
@@ -1418,7 +1418,7 @@ export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram
         }
         if (goModel) {
             goModel.updateNode(data);
-            if (!debug) console.log('1448 updateNode', data, goModel);
+            if (debug) console.log('1448 updateNode', data, goModel);
         }
         diagram?.requestUpdate();
     }
@@ -1540,7 +1540,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 if (myNode) {
                     myNode.name = oview.name;
                     const node = myDiagram.findNodeForKey(myNode?.key);
-                    node.data = myNode;
+                    if (node) node.data = myNode; // sf added if (node)
                 }
             }
             myDiagram.requestUpdate();
@@ -1565,79 +1565,81 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     const defRelTypename = 'isRelatedTo';
     const modifiedRelships = new Array();
     const relships = model.relships;
-    for (let i=0; i<relships.length; i++) {
-        const rel = relships[i];
-        if (debug) console.log('1510 rel', rel);
-        const fromObj  = rel.fromObject;
-        const toObj    = rel.toObject
-        let   fromType = fromObj?.type;
-        let   toType   = toObj?.type;
-        let typeRef    = rel.typeRef;
-        let typeName   = rel.typeName;
-        if (!typeName) typeName = rel.name;
-        let reltype = metamodel.findRelationshipType(typeRef);
-        if (debug) console.log('1518 fromType and toType', typeRef, typeName, fromType, toType, reltype);
-        msg = "Verifying relationship type " + typeRef + " (" + typeName + ")";
-        report += printf(format, msg);
-        if (!reltype) {
-            msg = "Relationship type " + typeRef + " (" + typeName + ") was not found";
-            if (debug) console.log('1524 Relationship with unknown type:', typeName);
-            if (typeName === 'hasProperty')  {
-                typeName = 'has';
-                toType = metamodel.findObjectTypeByName('Property');
-            }
-            else if (typeName === 'hasValue') {
-                typeName = 'has';
-                toType = metamodel.findObjectTypeByName('Value');
-            }
-            else if (typeName === 'hasAllowedValue') {
-                typeName = 'hasAllowed';
-                toType = metamodel.findObjectTypeByName('Value');
-            }
-            else if (typeName === 'isOfDatatype') {
-                typeName = 'isOf';
-                toType = metamodel.findObjectTypeByName('Datatype');
-            }
-            else if (typeName === 'hasUnittype') { 
-                typeName = 'has';
-                toType = metamodel.findObjectTypeByName('Unittype');
-            }
-            const reltypes = metamodel.findRelationshipTypesByName(typeName);
-            if (debug) console.log('1530 Relationship with name:', typeName, reltypes);
-            if (reltypes) {
-                for (let i=0; i<reltypes.length; i++) {
-                    const rtype = reltypes[i] as akm.cxRelationshipType;
-                    let fromObjType = fromType;
-                    if (!fromObjType) fromObjType = rtype.fromObjtype;
-                    let toObjType = toType;
-                    if (!toObjType) toObjType   = rtype.toObjtype;
-                    if (debug) console.log('1548 fromType and toType', typeName, fromObjType, toObjType);
-                    if (fromObjType && toObjType) {
-                        if (debug) console.log('1550 findreltypebyname', typeName, fromObjType.name, toObjType.name);
-                        const rtyp = metamodel.findRelationshipTypeByName2(typeName, fromObjType, toObjType);
-                        if (rtyp) {
-                            reltype = rtyp;
-                            rel.type = reltype;
-                            rel.name = typeName;
-                            msg = "Relationship type changed to: " + typeName;
-                            report += printf(format, msg);
-                            if (debug) console.log('1560 Found relationship type:', reltype);
-                            break;
+    if (relships) // sf added
+        for (let i=0; i<relships.length; i++) {
+            const rel = relships[i];
+            if (debug) console.log('1510 rel', rel);
+            const fromObj  = rel.fromObject;
+            const toObj    = rel.toObject
+            let   fromType = fromObj?.type;
+            let   toType   = toObj?.type;
+            let typeRef    = rel.typeRef;
+            let typeName   = rel.typeName;
+            if (!typeName) typeName = rel.name;
+            let reltype = metamodel.findRelationshipType(typeRef);
+            if (debug) console.log('1518 fromType and toType', typeRef, typeName, fromType, toType, reltype);
+            msg = "Verifying relationship type " + typeRef + " (" + typeName + ")";
+            report += printf(format, msg);
+            if (!reltype) {
+                msg = "Relationship type " + typeRef + " (" + typeName + ") was not found";
+                if (debug) console.log('1524 Relationship with unknown type:', typeName);
+                if (typeName === 'hasProperty')  {
+                    typeName = 'has';
+                    toType = metamodel.findObjectTypeByName('Property');
+                }
+                else if (typeName === 'hasValue') {
+                    typeName = 'has';
+                    toType = metamodel.findObjectTypeByName('Value');
+                }
+                else if (typeName === 'hasAllowedValue') {
+                    typeName = 'hasAllowed';
+                    toType = metamodel.findObjectTypeByName('Value');
+                }
+                else if (typeName === 'isOfDatatype') {
+                    typeName = 'isOf';
+                    toType = metamodel.findObjectTypeByName('Datatype');
+                }
+                else if (typeName === 'hasUnittype') { 
+                    typeName = 'has';
+                    toType = metamodel.findObjectTypeByName('Unittype');
+                }
+                const reltypes = metamodel.findRelationshipTypesByName(typeName);
+                if (debug) console.log('1530 Relationship with name:', typeName, reltypes);
+                if (reltypes) {
+                    for (let i=0; i<reltypes.length; i++) {
+                        const rtype = reltypes[i] as akm.cxRelationshipType;
+                        let fromObjType = fromType;
+                        if (!fromObjType) fromObjType = rtype.fromObjtype;
+                        let toObjType = toType;
+                        if (!toObjType) toObjType   = rtype.toObjtype;
+                        if (debug) console.log('1548 fromType and toType', typeName, fromObjType, toObjType);
+                        if (fromObjType && toObjType) {
+                            if (debug) console.log('1550 findreltypebyname', typeName, fromObjType.name, toObjType.name);
+                            const rtyp = metamodel.findRelationshipTypeByName2(typeName, fromObjType, toObjType);
+                            if (rtyp) {
+                                reltype = rtyp;
+                                rel.type = reltype;
+                                rel.name = typeName;
+                                msg = "Relationship type changed to: " + typeName;
+                                report += printf(format, msg);
+                                if (debug) console.log('1560 Found relationship type:', reltype);
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            if (!reltype) {
-                reltype = metamodel.findRelationshipTypeByName(defRelTypename);
-                if (reltype) {
-                    rel.type = reltype;
-                    rel.name = typeName;
+                if (!reltype) {
+                    reltype = metamodel.findRelationshipTypeByName(defRelTypename);
+                    if (reltype) {
+                        rel.type = reltype;
+                        rel.name = typeName;
+                    }
                 }
             }
+            const gqlRel = new gql.gqlRelationship(rel);
+            modifiedRelships.push(gqlRel);
         }
-        const gqlRel = new gql.gqlRelationship(rel);
-        modifiedRelships.push(gqlRel);
-    }
+
 
     // Handle the relationship views in all modelviews
     const modifiedRelviews = new Array();

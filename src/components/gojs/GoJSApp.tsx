@@ -817,6 +817,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
       // Function to identify images related to an image id
       function findImage(image: string) {
+        if (!image) return "";
         // if (image.substring(0,4) === 'http') { // its an URL
         if (image.includes('//')) { // its an URL   
           // if (debug) console.log('1269 Diagram', image);

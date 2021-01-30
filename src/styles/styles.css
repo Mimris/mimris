@@ -85,6 +85,7 @@
   /* background-color: blue; */
   background-color: transparent;
   background: rgba(225,225,225,.5);
+  padding: 4%;
   /* border-radius: 10px; */
   /* border: 1px solid rgba(255,255,255,1); */
   position: relative;
@@ -95,8 +96,8 @@
   /* padding: 20px; */
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: center;
+  /* align-ite ms: center; */
+  /* justify-content: center; */
   justify-content: space-evenly;
 }
 .modal-head {
@@ -138,8 +139,10 @@
   border: 1px solid rgba(255,255,255,1);
   margin-right: 4px;
   padding: 4px;
+  max-width:  150px;
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
 }
+
 /* .modal-button {
   background-color: blue;
   background: rgba(255,255,255,0.4);
@@ -745,8 +748,6 @@ imgInProp {
 
 .loadsave {
   background-color: #eee;
-
-  ;
 }
 .loadsave--localStore {
   background-color:#ddd;

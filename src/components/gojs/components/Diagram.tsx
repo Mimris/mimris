@@ -2376,7 +2376,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               minSize: new go.Size(10, 4),
               margin: new go.Margin(2, 0, 0, 2)
             },
-            new go.Binding("text", "typename")
+            // new go.Binding("text", "typename")
             //new go.Binding("text", "choices")
           ),
           ), // End Horizontal Panel
@@ -2631,7 +2631,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               </div>
               <ModalBody >
                 <div className="modal-body1">
-                  <div className="modal-image"><img src={icon}></img></div>
+                  <div className="modal-pict"><img className="modal-image" src={icon}></img></div>
                   {modalContent}
                 </div>
               </ModalBody>

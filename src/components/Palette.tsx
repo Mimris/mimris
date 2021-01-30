@@ -8,6 +8,7 @@ import { connect, useSelector } from 'react-redux';
 import Page from './page';
 import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
+import { setGojsModelObjects } from "../actions/actions";
 
 const Palette = (props) => {
   const debug = false
@@ -22,10 +23,11 @@ const Palette = (props) => {
   
   
   const gojstypes = props.gojsMetamodel
-  const gojsmodelobjects_all = props.gojsModelObjects // has to be: props.gojsObjects
-  if (!debug) console.log('16 Palette', gojsmodelobjects_all);
-  const gojsmodelobjects = gojsmodelobjects_all?.filter(node => node.object && node.object.deleted === false)
-  if (!debug) console.log('16 Palette gojsobjects', gojsmodelobjects );
+  const nodeArray_all = props.gojsModelObjects?.nodeDataArray 
+  if (debug) console.log('27 Palette', props.gojsModelObjects, nodeArray_all);
+  const objectsNodeDataArray = nodeArray_all?.filter(node => node.object && node.object.deleted === false)
+  if (debug) console.log('29 Palette gojsobjects', nodeArray_all?.filter(n => n.name && n.deleted === true) );
+
 
 
   // /** Toggle divs */
@@ -96,7 +98,7 @@ const Palette = (props) => {
               <Col xs="auto m-0 p-0 pl-3"> */}
                 {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
                   < GoJSPaletteApp
-                    nodeDataArray={gojsmodelobjects?.nodeDataArray}
+                    nodeDataArray={objectsNodeDataArray}
                     linkDataArray={[]}
                     // linkDataArray={gojstypes.linkDataArray}
                     metis={props.metis}

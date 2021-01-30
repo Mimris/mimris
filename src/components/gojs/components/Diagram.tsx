@@ -191,7 +191,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objtype = myMetis.findObjectTypeByName(typename);
         if (debug) console.log('189 objtype', objtype);
         const objview = (objtype) && uic.setObjectType(node, objtype, context);
-        if (debug) console.log('193 objview', objview, myMetis);
+        if (debug) console.log('193 objview', objview, node, myMetis);
         myMetis.myDiagram.requestUpdate();
         break;
       case "Change Relationship type":    
@@ -382,7 +382,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         else
             myItem = myInst;
         myItem[propname] = value;
-        if (debug) console.log('385 myMetis', myMetis);
+        if (!debug) console.log('385 myMetis', myItem, myInstview, myMetis);
         myMetis.myDiagram.requestUpdate();
       
         if (context?.what === "editTypeview") {
@@ -394,9 +394,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             this.props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
-          // Prepare and to dispatch of objectview
+        // Prepare and to dispatch of relshipview
         const modifiedRelshipViews = new Array();
         const gqlRelview = new gql.gqlRelshipView(myInstview);
+        if (!debug) console.log('401 gqlRelview', gqlRelview);
         modifiedRelshipViews.push(gqlRelview);
         modifiedRelshipViews.map(mn => {
           let data = mn;
@@ -523,7 +524,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (debug) console.log('250 nodeInfo', d.object);
+      if (!debug) console.log('250 nodeInfo', d, d.object);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
@@ -534,12 +535,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);
       }
-      if (debug) console.log('262 nodeInfo', msg);
+      if (!debug) console.log('262 nodeInfo', msg);
       let str = "Attributes:"; 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
-      if (debug) console.log('269 nodeInfo', obj, props);
+      if (!debug) console.log('269 nodeInfo', obj, props, msg);
       
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
@@ -548,7 +549,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const p = prop.name + ': ' + value;
         msg += printf(format2, prop.name, value);
       }
-      if (debug) console.log('275 nodeInfo', obj);
+      if (!debug) console.log('275 nodeInfo', obj, msg);
       return msg;
     }
 
@@ -902,6 +903,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) { 
+              // node is a container (group)
               const node = obj.part.data;
               const context = {
                 "myMetis":            myMetis,
@@ -909,6 +911,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myTargetMetamodel":  myMetis.currentTargetMetamodel,
                 "myModel":            myMetis.currentModel,
                 "myCurrentModelview": myMetis.currentModelview,
+                "myGoModel":          myMetis.gojsModel,
                 "myCurrentNode":      node,    
                 "myDiagram":          e.diagram,
                 "dispatch":           e.diagram.dispatch
@@ -917,14 +920,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
                     alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
                     context.myTargetMetamodel = null;
-              } else if (context.myTargetMetamodel == undefined)  // sf
-                context.myTargetMetamodel = null;
-                myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-                const targetMetamodel = myMetis.currentTargetMetamodel;
-                const sourceModelview = myMetis.currentModelview;
-                gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-                console.log('1327 Target metamodel', targetMetamodel);
-               alert ("Generate Metamodel"); 
+              } else if (context.myTargetMetamodel == undefined) { // sf
+                  context.myTargetMetamodel = null;
+              }
+              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+              const targetMetamodel = myMetis.currentTargetMetamodel;
+              const sourceModelview = myMetis.currentModelview;
+              gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
             },
             function (o: any) { 
               const node = o.part.data;
@@ -1975,12 +1977,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
                     context.myTargetMetamodel = null;
               } else if (context.myTargetMetamodel == undefined)  // sf
-                context.myTargetMetamodel = null;
-                myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-                const targetMetamodel = myMetis.currentTargetMetamodel;
-                const sourceModelview = myMetis.currentModelview;
-                gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-                console.log('1327 Target metamodel', targetMetamodel);
+                  context.myTargetMetamodel = null;
+              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+              const targetMetamodel = myMetis.currentTargetMetamodel;
+              const sourceModelview = myMetis.currentModelview;
+              gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
+              console.log('1327 Target metamodel', targetMetamodel);
             },
             function (o: any) { 
               return true; 
@@ -2064,13 +2066,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-            return true;
+              return true;
             }),
           makeButton("Zoom All",
             function (e: any, obj: any) {
               e.diagram.commandHandler.zoomToFit();
             },
-            function (o: any) { return true; }),
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("Zoom Selection",
             function (e: any, obj: any) {
               let selected = myDiagram.selection;

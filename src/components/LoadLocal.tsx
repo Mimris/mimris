@@ -70,7 +70,7 @@ const LoadLocal = (props: any) => {
       if (!debug) console.log('59 LoadLocal', localMetamodel, localModel);
   }
   
-  const options = locState.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});
+  const options = locState?.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});
   if (debug) console.log('61 LoadLocal', options);
   
   let loadSelectedFromLocalStoreDiv = <></>

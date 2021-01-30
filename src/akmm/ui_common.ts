@@ -331,38 +331,34 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
     const myMetis     = context.myMetis;
     const myDiagram   = context.myDiagram;
     // data, i.e. node
-    // const myMetamodel = context.myMetamodel;
-    // const myModel     = context.myModel;
-    // const myModelView = context.myModelView;
-    // if (data.objecttype?.name === typename) {
-    //     // No type change - do nothing
-    //     alert('The object type is unchanged');
-    // } else if (!objtype) {
-    //     // Non-existent type 
-    //     alert('The object type given does not exist');
-    //     // Do nothing
-    // } else {
     if (objtype) {
         const objtypeview = objtype.getDefaultTypeView();
         const currentObject = myMetis.findObject(data.object?.id);
         if (currentObject) {
             const nameIsChanged = (currentObject.name !== currentObject.type.name);
             currentObject.setType(objtype);
-            //currentObject.setName(typename);
             currentObject.setModified();
             const currentObjectView = myMetis.findObjectView(data.objectview.id);
             if (currentObjectView) {
                 currentObjectView.setTypeView(objtypeview);
-                currentObjectView.setName(objtype.name);
                 currentObjectView.setModified();
                 currentObjectView.setObject(currentObject);
-                if (!nameIsChanged)
+                if (!nameIsChanged) {
                     myDiagram.model.setDataProperty(data, "name", objtype.name);
+                }
                 data.object.type = objtype;
                 data.objecttype = objtype;
+                data.typename = objtype.name;
                 data.typeview = objtypeview;
+                // Clear local overrides
+                currentObjectView['figure'] = "";
+                currentObjectView['fillcolor'] = "";
+                currentObjectView['strokecolor'] = "";
+                currentObjectView['strokewidth'] = "";
+                currentObjectView['icon'] = "";
                 updateNode(data, objtypeview, myDiagram);
-
+                if (!debug) console.log('372 node', data);
+                // Dispatch
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);
                 if (debug) console.log('378 gqlObjview', gqlObjview);
                 const modifiedObjectViews = new Array();
@@ -1012,7 +1008,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
 }
 
 export function updateRelationship(data: any, name: string, value: string, context: any) {
-    if (debug) console.log('542 updateRelationship', name, data);
+    if (!debug) console.log('1011 updateRelationship', name, data);
     if ((data === null) || (!data.relship)) {
         return;
     } else {
@@ -1024,6 +1020,7 @@ export function updateRelationship(data: any, name: string, value: string, conte
         currentRelshipView.setName(value);
         currentRelshipView.setModified();
         myDiagram.model.setDataProperty(data, "name", value);
+
     }
 }
 
@@ -1216,6 +1213,12 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                 if (!nameIsChanged)
                     myDiagram.model.setDataProperty(data, "name", reltype.name);
                 data.relshiptype = reltype;
+                // Clear local overrides
+                currentRelshipView['strokecolor'] = "";
+                currentRelshipView['strokewidth'] = "";
+                currentRelshipView['dash']        = "";
+                currentRelshipView['fromArrow']   = "";
+                currentRelshipView['toArrow']     = "";
                 updateLink(data, reltypeview, myDiagram);
 
                 const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
@@ -1395,8 +1398,8 @@ export function setRelshipType() {
 }
 
 // Local functions
-export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
-    if (debug) console.log('1394 updateNode', data, diagram);
+export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
+    if (!debug) console.log('1406 updateNode', node, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
@@ -1407,20 +1410,24 @@ export function updateNode(data: any, objtypeView: akm.cxObjectTypeView, diagram
             if (prop === 'isGroup') continue;
             if (prop === 'viewkind') continue;
             if (viewdata[prop] != null)
-                diagram?.model.setDataProperty(data, prop, viewdata[prop]);
-            if (debug) console.log('1437 updateNode', prop, data[prop], diagram);
+                diagram?.model.setDataProperty(node, prop, viewdata[prop]);
+            if (debug) console.log('1187 updateNode', prop, node[prop], diagram);
         }
-        const objview = data.objectview;
+        const objview = node.objectview;
         for (prop in viewdata) {
             if (objview[prop] && objview[prop] !== "") {
-                diagram.model.setDataProperty(data, prop, objview[prop]);
+                diagram.model.setDataProperty(node, prop, objview[prop]);
             }
         }
+        diagram.model.setDataProperty(node, 'typename', node.typename);
+        // const n = diagram.findNodeForKey(node.key);
+        // console.log('1423 n, node', n, node);
+        // diagram.model.setDataProperty(n, 'typename', node.typename);
         if (goModel) {
-            goModel.updateNode(data);
-            if (debug) console.log('1448 updateNode', data, goModel);
+            goModel.updateNode(node);
+            if (!debug) console.log('1428 updateNode', node, goModel);
         }
-        diagram?.requestUpdate();
+        if (!debug) console.log('1431 updateNode', node, diagram);
     }
 }
 

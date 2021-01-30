@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { useDispatch } from 'react-redux'
+import Select from "react-select"
 // import { loadData } from '../actions/actions'
 // import { loadState, saveState } from './utils/LocalStorage'
 import useLocalStorage  from '../hooks/use-local-storage'
@@ -27,11 +28,11 @@ const LoadLocal = (props: any) => {
   const [locState, setLocState] = useLocalStorage('state', null);
 
   const [memoryState] = useLocalStorage('memorystate', null);
-  let locStatus = false
+  // let locStatus = false
   // let memoryStatus = false
 
   function handleDispatchToStoreFromLocal() {  // load store from LocalStore (state)
-    locStatus = true
+    // locStatus = true
     // console.log('43 LoadLocal', locState);
     if (locState) {
       const phData = locState.phData
@@ -51,6 +52,40 @@ const LoadLocal = (props: any) => {
       }
     } else alert('No Modeles saved to Local Storage')
   }
+
+  function handleSelectLocalModelDropdownChange(e) {
+    if (!debug) console.log('57 LoadLocal', e);
+    const metis = locState.phData.metis
+    // find model in localStore
+    const localModel = metis.models.find(m => m && m.id === e.value)
+    const localMetamodel = metis.metamodel?.find(mm => mm && mm.id === localModel.metamodelRef)
+    // check if metamodel exist in redux
+    const reduxMetamodel = props.ph.phData.metis.metamodels.find(mm => mm && mm.id === localModel.metamodelRef)
+    if (reduxMetamodel) {
+      dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: localModel })
+    } else {
+      dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: localMetamodel })
+      dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: localModel })
+    }
+      
+      if (!debug) console.log('59 LoadLocal', localMetamodel, localModel);
+  }
+  
+  const options = locState?.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});
+  if (debug) console.log('61 LoadLocal', options);
+  
+  let loadSelectedFromLocalStoreDiv = <></>
+  if (options) 
+    loadSelectedFromLocalStoreDiv = 
+      <div className="localstore-selection d-flex justify-content-center">
+        <p>Select Model to load</p>
+        <Select className="modal-select"
+          options={options}
+          onChange={value => handleSelectLocalModelDropdownChange(value)}
+          // value={value}
+        />
+      </div>
+    
   
   function handleDispatchToStoreFromMemory() {  // load store from LocalStore (memoryState)
     // memoryStatus = true
@@ -80,7 +115,7 @@ const LoadLocal = (props: any) => {
 
   function handleSaveAllToLocalStore() {
     // const [state, setState] = useLocalStorage('state', {});
-    if (debug) console.log('72 SelectSource',  props.ph);
+    if (debug) console.log('83 SelectSource',  props.ph.phData);
     const data = {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
@@ -191,9 +226,10 @@ const LoadLocal = (props: any) => {
           <div className="source bg-light p-2 ">
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <div className="store-div px-2 pb-1 mb-0">
-              <h6>Local Store </h6>
               <div className="select bg-light mb-1 p-2  border border-dark">
+              <h6>Local Store </h6>
                 {buttonLoadLocalStoreDiv}
+                {loadSelectedFromLocalStoreDiv}
                 <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#aaa", padding: "2px",  marginTop: "1px" , marginBottom: "6px" }} />
                 {buttonSaveCurrentToLocalStoreDiv} 
                 {buttonSaveToLocalStoreDiv}

@@ -2640,6 +2640,35 @@
             ],
             "models": [
                 {
+                    "id": "f5166d7f-b08e-4a1c-a644-b7d3cfe50d9f",
+                    "name": "EmptyConceptModel",
+                    "description": "",
+                    "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
+                    "targetMetamodelRef": "",
+                    "sourceModelRef": "",
+                    "targetModelRef": "",
+                    "isTemplate": false,
+                    "templates": [],
+                    "objects": [],
+                    "relships": [],
+                    "modelviews": [
+                      {
+                        "id": "8aa8a78b-3afe-441e-7cda-beb20eb7eebd",
+                        "name": "Main",
+                        "description": "",
+                        "modelRef": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
+                        "objectviews": [],
+                        "relshipviews": [],
+                        "objecttypeviews": [],
+                        "relshiptypeviews": [],
+                        "deleted": false,
+                        "modified": false
+                      }
+                    ],
+                    "deleted": false,
+                    "modified": false
+                  },
+                {
                     "id": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
                     "name": "Concept example model",
                     "description": "",
@@ -7141,11 +7170,11 @@
             "name": "Main"
         },
         "focusModel": {
-            "id": "8238d77b-b1cc-4d13-3abf-ce8ff9ffe4f5",
-            "name": "Concept example model"
+            "id": "f5166d7f-b08e-4a1c-a644-b7d3cfe50d9f",
+            "name": "EmptyConceptModel"
         },
         "focusModelview": {
-            "id": "27b74ceb-3694-4e97-e010-ce9b44266cad",
+            "id": "8aa8a78b-3afe-441e-7cda-beb20eb7eebd",
             "name": "Main"
         },
         "focusObject": {

@@ -18,12 +18,12 @@ interface InspectorRowProps {
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
-    if (!debug) console.log('21 props', props, this);
+    if (debug) console.log('21 props', props, this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   private handleInputChange(e: any) {
-    if (!debug) console.log('21 InspectorRow: this.props', this.props);
+    if (debug) console.log('21 InspectorRow: this.props', this.props);
     if (debug) console.log('22 InspectorRow: e.target', e.target, e);
     this.props.onInputChange(this.props.id, e.target.value, this.props.obj, this.props.context, e.type === 'blur');
   }
@@ -41,7 +41,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
   
   public render() {
-    if (!debug) console.log('44 InspectorRow: this.props', this.props);
+    if (debug) console.log('44 InspectorRow: this.props', this.props);
     let val = this.props.value;
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );

@@ -191,8 +191,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objtype = myMetis.findObjectTypeByName(typename);
         if (debug) console.log('189 objtype', objtype);
         const objview = (objtype) && uic.setObjectType(node, objtype, context);
-        if (!debug) console.log('193 objview', objview, node, myMetis);
-        //myMetis.myDiagram.requestUpdate();
+        if (debug) console.log('193 objview', objview, node, myMetis);
+        myMetis.myDiagram.requestUpdate();
         break;
       case "Change Relationship type":    
         typename = (selectedOption) && selectedOption;
@@ -286,7 +286,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public handleInputChange(propname: string, value: string, obj: any, context: any, isBlur: boolean) {
-    if (!debug) console.log('289 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
+    if (debug) console.log('289 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
     if (debug) console.log('290 this.state', this.state);
     this.setState(
       produce((draft: AppState) => {
@@ -312,7 +312,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       })
     );
-    if (!debug) console.log('315 this.state', this.state);
+    if (debug) console.log('315 this.state', this.state);
     const myMetis = this.myMetis;
     let inst, instview, myInst, myInstview, myItem;
     // Handle objects
@@ -322,7 +322,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myInst = myMetis.findObject(inst.id);
       instview = node.objectview;
       myInstview = myMetis.findObjectView(instview.id);
-      if (!debug) console.log('325 myInst', myInst, myInstview);
+      if (debug) console.log('325 myInst', myInst, myInstview);
       if (context?.what === "editObjectview") {
           myItem = myInstview;
       } else if (context?.what === "editTypeview") {
@@ -332,7 +332,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       myItem[propname] = value;
       // myMetis.currentNode = node;
-      // if (!debug) console.log('335 obj, myMetis', node, obj, myItem, myMetis);
+      // if (debug) console.log('335 obj, myMetis', node, obj, myItem, myMetis);
       // uic.updateNode(node, node.typeview, myMetis.myDiagram, myMetis.gojsModel);
       myMetis.myDiagram?.requestUpdate();
 
@@ -350,7 +350,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (debug) console.log('350 myItem', myItem);
       const modifiedObjectViews = new Array();
       const gqlObjview = new gql.gqlObjectView(myInstview);
-      if (!debug) console.log('353 gqlObjview', gqlObjview);
+      if (debug) console.log('353 gqlObjview', gqlObjview);
       modifiedObjectViews.push(gqlObjview);
       modifiedObjectViews.map(mn => {
         let data = mn;
@@ -388,8 +388,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (context?.what === "editTypeview") {
           const modifiedTypeviews = new Array();
           const gqlReltypeview = new gql.gqlRelshipTypeView(myInst.type?.typeview);
-          if (!debug) console.log('391 gqlReltypeview', gqlReltypeview);
-          modifiedTypeviews.push(gqlReltypeview);
+          if (debug) console.log('391 gqlReltypeview', gqlReltypeview);
           modifiedTypeviews.map(mn => {
             let data = mn;
             this.props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
@@ -1819,7 +1818,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     const objview = objviews[i];
                     objview.deleted = true;
                     const obj = objview.object;
-                    const oviews = obj.objectviews;
+                    const oviews = obj?.objectviews;
                     if (oviews.length == 1) {
                       obj.deleted = true;
                     }
@@ -1829,7 +1828,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     const relview = relviews[i];
                     relview.deleted = true;
                 }
-                if (!debug) console.log('1808 myMetis', myMetis);
+                if (debug) console.log('1808 myMetis', myMetis);
                 const modifiedModelviews = new Array();
                 modifiedModelviews.push(gqlModelview);
                 modifiedModelviews.map(mn => {
@@ -2570,7 +2569,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
         header = modalContext.title;
         category = this.state.selectedData.category;
-        if (!debug) console.log('2321 Diagram ', icon);
+        if (debug) console.log('2321 Diagram ', icon);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2399 Diagram ', this.state.selectedData, this.myMetis);

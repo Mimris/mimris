@@ -3711,7 +3711,7 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     // Methods
     applyObjectViewParameters(objview: cxObjectView) {
-        if (utils.objExists(objview)) {
+        if (objview) {
             let prop: any;
             let data: any = this.data;
             let otypeview = objview.typeview;
@@ -3720,6 +3720,13 @@ export class cxObjectTypeView extends cxMetaObject {
                 for (prop in otypeview.data) {
                     data[prop] = otvdata[prop];
                 }
+            }
+            for (prop in otypeview.data) {
+                if (prop === 'figure' && objview[prop] !== "") data[prop] = objview[prop];
+                if (prop === 'fillcolor' && objview[prop] !== "") data[prop] = objview[prop];
+                if (prop === 'strokecolor' && objview[prop] !== "") data[prop] = objview[prop];
+                if (prop === 'strokewidth' && objview[prop] !== "") data[prop] = objview[prop];
+                if (prop === 'icon' && objview[prop] !== "") data[prop] = objview[prop];
             }
         }
     }
@@ -3889,7 +3896,16 @@ export class cxRelationshipTypeView extends cxMetaObject {
                 for (prop in rview.data) {
                     data[prop] = tvdata[prop];
                 }
-            }
+                for (prop in tvdata) {
+                    if (prop === 'strokecolor' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'strokewidth' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'dash' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'fromArrow' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'toArrow' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'fromArrowColor' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'toArrowColor' && rview[prop] !== "") data[prop] = rview[prop];
+                }
+                }
         }
     }
     setType(type: cxRelationshipType) {

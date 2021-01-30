@@ -447,7 +447,7 @@ export class goObjectNode extends goNode {
         }
         return "";
     }
-    getGroupMembers(model: goModel) {
+    getGroupMembers(model: goModel): goObjectNode[] {
         if (!this.isGroup)
             return null;
         const members = new Array();
@@ -457,6 +457,55 @@ export class goObjectNode extends goNode {
             const node = nodes[i] as goObjectNode;
             if (node.group === groupId) {
                 members.push(node);
+            }
+        }
+        return members;
+    }
+    getGroupMembers2(model: goModel): akm.cxObjectView[] {
+        if (!this.isGroup)
+            return null;
+        const members = new Array();
+        const groupId = this.key;
+        const nodes = model.nodes;
+        for (let i=0; i<nodes.length; i++) {
+            const node = nodes[i] as goObjectNode;
+            if (node.group === groupId) {
+                members.push(node.objectview);
+            }
+        }
+        return members;
+    }
+    getGroupLinkMembers(model: goModel): goRelshipLink[] {
+        if (!this.isGroup)
+            return null;
+            const groupId = this.key;
+            const members = new Array();
+            const links = model.links as goRelshipLink[];
+            for (let i=0; i<links.length; i++) {
+                const link = links[i] as goRelshipLink;
+                const fromNode = link.fromNode as goObjectNode;
+                const toNode = link.toNode as goObjectNode;
+                if (debug) console.log('488 groupId, nodes', groupId, fromNode, toNode);
+                if (fromNode.group === groupId && toNode.group === groupId) {
+                    members.push(link);
+                }
+            }
+            return members;
+    }
+    getGroupLinkMembers2(model: goModel): akm.cxRelationshipView[] {
+        if (!this.isGroup)
+            return null;
+        const groupId = this.key;
+        const members = new Array();
+        const links = model.links as goRelshipLink[];
+        for (let i=0; i<links.length; i++) {
+            const link = links[i] as goRelshipLink;
+            const fromNode = link.fromNode as goObjectNode;
+            const toNode = link.toNode as goObjectNode;
+            if (debug) console.log('501 groupId, nodes', groupId, fromNode, toNode);
+            if (fromNode.group === groupId && toNode.group === groupId) {
+                const relview = link.relshipview;
+                members.push(relview);
             }
         }
         return members;

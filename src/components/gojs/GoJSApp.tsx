@@ -278,7 +278,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 myLink.name = text;
                 uic.updateRelationship(myLink, field, text, context);
-                if (myLink.relhipview) {
+                if (myLink.relshipview) {
                   const gqlLink = new gql.gqlRelshipView(myLink.relshipview);
                   modifiedLinks.push(gqlLink);
                 }

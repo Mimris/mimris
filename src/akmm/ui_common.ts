@@ -1008,7 +1008,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
 }
 
 export function updateRelationship(data: any, name: string, value: string, context: any) {
-    if (debug) console.log('542 updateRelationship', name, data);
+    if (!debug) console.log('1011 updateRelationship', name, data);
     if ((data === null) || (!data.relship)) {
         return;
     } else {
@@ -1020,6 +1020,7 @@ export function updateRelationship(data: any, name: string, value: string, conte
         currentRelshipView.setName(value);
         currentRelshipView.setModified();
         myDiagram.model.setDataProperty(data, "name", value);
+
     }
 }
 

@@ -2319,6 +2319,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is te background of all
             }
         ).ofObject(),
+        {
+          toolTip:
+            $(go.Adornment, "Auto",
+              $(go.Shape, { fill: "lightyellow" }),
+              $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling nodeInfo(data)
+                new go.Binding("text", "", nodeInfo))
+            )
+        },
         $(go.Shape, "RoundedRectangle", // surrounds everything
           // {
           //   stroke: "gray", strokeWidth: "1",
@@ -2538,7 +2546,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     if (debug) console.log('2172 Diagram ', this.state.selectedData, this.state.myMetis);
     
-    let modalContent, inspector, selector, header, category;
+    let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
     if (!debug) console.log('2539 Diagram ', modalContext);
     const icon = modalContext?.icon;
@@ -2569,10 +2577,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
         header = modalContext.title;
         category = this.state.selectedData.category;
+        typename = '('+this.state.selectedData.object.typeName+')'
         if (!debug) console.log('2568 Diagram ', icon);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2399 Diagram ', this.state.selectedData, this.myMetis);
+          if (!debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -2586,7 +2595,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editRelationship':
       case 'editRelshipview':
       case 'editTypeview': {
-        header = modalContext.title;
+        header = modalContext.title+':';
         category = this.state.selectedData.category;
         if (!debug) console.log('2587 Diagram ', icon);
       
@@ -2630,7 +2639,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 <ModalHeader className="modal-header" >
                 <span className="text-secondary">{header} </span> 
                 <span className="modal-name " >{this.state.selectedData?.name} </span>
-                <span className="text-secondary font-weight-light">{category} </span> 
+                <span className="modal-objecttype"> {typename} </span> 
               </ModalHeader>
               </div>
               <ModalBody >

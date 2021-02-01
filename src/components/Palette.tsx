@@ -22,7 +22,7 @@ const Palette = (props) => {
   // console.log('16', props, mmodel.name, model.metamodelRef);
   
   const unsorted = props.gojsMetamodel
-  console.log('25', unsorted);
+  if (debug) console.log('25', unsorted);
 
   //rearrange sequence
   let ndarr = unsorted?.nodeDataArray
@@ -30,8 +30,7 @@ const Palette = (props) => {
   let gojstypes = []
   let tmpndarr = ndarr
   if (ndarr) {
-    if (!debug) console.log('32 Palette', ndarr);
-
+    if (debug) console.log('32 Palette', ndarr);
     const indexView = ndarr?.findIndex(i => i?.typename === 'View')
     ndarr = (indexView > 0) ? [ndarr[indexView], ...ndarr.slice(0,indexView), ...ndarr.slice(indexView+1, ndarr.length)] : ndarr
     const indexTask = (ndarr) && ndarr.findIndex(i => i?.typename === 'Task')
@@ -44,17 +43,17 @@ const Palette = (props) => {
     ndarr = (indexContainer > 0) ? [ndarr[indexContainer], ...ndarr.slice(0,indexContainer), ...ndarr.slice(indexContainer+1, ndarr.length)] : ndarr
     const indexGeneric = (ndarr) && ndarr?.findIndex(i => i?.typename === 'Generic')
     ndarr = (indexGeneric > 0) ? [ndarr[indexGeneric], ...ndarr.slice(0,indexGeneric), ...ndarr.slice(indexGeneric+1, ndarr.length)] : ndarr
-    if (!debug) console.log('47 Palette', ndarr);
+    if (debug) console.log('47 Palette', ndarr);
     gojstypes = {nodeDataArray: ndarr, linkDataArray: ldarr}
     // gojstypes = (ndarr) ? {nodeDataArray: ndarr, linkDataArray: ldarr} : unsorted
   }
 
-  if (!debug) console.log('37 Palette', gojstypes, ndarr);
+  if (debug) console.log('37 Palette', gojstypes, ndarr);
 
   const nodeArray_all = props.gojsModelObjects?.nodeDataArray 
-  if (debug) console.log('27 Palette', props.gojsModelObjects, nodeArray_all);
+  if (debug) console.log('27 Palette', nodeArray_all);
   const objectsNodeDataArray = nodeArray_all?.filter(node => node.object && node.object.deleted === false)
-  if (debug) console.log('29 Palette objectsNodeDataArray', nodeArray_all?.filter(n => n.name && n.deleted === true) );
+  if (debug) console.log('29 Palette objectsNodeDataArray', nodeArray_all?.filter(n => n.deleted === false) );
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -71,11 +70,12 @@ const Palette = (props) => {
   const toggleTip = () => setTooltipOpen(!tooltipOpen);
   /**  * Get the state and metie from the store,  */
     // const gojstypes = props.phFocus.gojsMetamodel
-    if (!debug) console.log('48 Palette', gojstypes);
+    if (debug) console.log('48 Palette', gojstypes);
     if (debug) console.log('49 Palette', gojstypes.nodeDataArray);
     if (debug) console.log('50 Palette', gojstypes.linkDataArray);
     
-    const gojsapp = (gojstypes?.nodeDataArray && gojstypes?.nodeDataArray[0]?.typename) &&
+    // const gojsapp = (gojstypes?.nodeDataArray && gojstypes?.nodeDataArray[0]?.typename) &&
+    const gojsapp = (gojstypes?.nodeDataArray) && 
     <>
       <Nav tabs >
         <NavItem >

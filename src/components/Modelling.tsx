@@ -176,7 +176,7 @@ const page = (props:any) => {
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
-            {(activeTab === "1") ? 'Metamodellingg' : 'MM'}
+            {(activeTab === "1") ? 'Metamodelling' : 'MM'}
           </NavLink>
         </NavItem>
         <NavItem >
@@ -184,7 +184,7 @@ const page = (props:any) => {
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
-            {(activeTab === "2") ? 'Concept Modelling' : 'CM'}
+            {(activeTab === "2") ? 'Modelling' : 'Modelling'}
           </NavLink>
         </NavItem>
         {/* <NavItem >

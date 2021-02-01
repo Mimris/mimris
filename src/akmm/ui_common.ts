@@ -1627,6 +1627,11 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                                 reltype = rtyp;
                                 rel.type = reltype;
                                 rel.name = typeName;
+                                const relviews = rel.relshipviews;
+                                for (let i=0; i<relviews.length; i++) {
+                                    const rv = relviews[i];
+                                    rv.name = typename;
+                                }
                                 msg = "Relationship type changed to: " + typeName;
                                 report += printf(format, msg);
                                 if (debug) console.log('1560 Found relationship type:', reltype);

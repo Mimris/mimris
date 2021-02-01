@@ -443,13 +443,13 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     const totype   = myTargetMetamodel.findObjectTypeByName(toObj?.name);
     const relname  = rel.getName();
     let reltype    = myTargetMetamodel.findRelationshipTypeByName2(relname, fromtype, totype);
-    if (debug) console.log('451 reltype', relname, reltype);
+    if (!debug) console.log('451 reltype', rel, relname, reltype);
     if (!reltype) {
         // New relationship type - Create it
         reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, rel.description);
         myTargetMetamodel.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
-        if (debug) console.log('373 reltype', reltype);
+        if (!debug) console.log('373 reltype', reltype);
         // Create relationship typeview
         let reltypeview = new akm.cxRelationshipTypeView(utils.createGuid(), rel.name, reltype, rel.description);
         reltypeview.applyRelationshipViewParameters(relview);

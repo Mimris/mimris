@@ -1500,9 +1500,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (debug) console.log('962 currentRelview', currentRelview);
                 const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
                 if (debug) console.log('964 Generate Relationship Type', reltype, myMetis);
-                const reltypeview = reltype.typeview;
-                if (debug) console.log('976 reltype', reltype);
-
+                if (reltype) {
+                  const reltypeview = reltype.typeview;
+                  if (debug) console.log('976 reltype', reltype);
                   const gqlRelshipType = new gql.gqlRelationshipType(reltype);
                   if (debug) console.log('979 Generate Relationship Type', reltype,gqlRelshipType);
                   const modifiedTypeLinks = new Array();
@@ -1522,7 +1522,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
                   })
                   if (debug) console.log('994 myMetis', myMetis);
-
+                }
               }
             },
             function(o: any) { 
@@ -2577,7 +2577,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
         header = modalContext.title;
         category = this.state.selectedData.category;
-        typename = '('+this.state.selectedData.object.typeName+')'
+        typename = '('+this.state.selectedData.object?.typeName+')'
         if (!debug) console.log('2568 Diagram ', icon);
         
         if (this.state.selectedData !== null && this.myMetis != null) {

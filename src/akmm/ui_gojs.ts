@@ -503,7 +503,7 @@ export class goObjectNode extends goNode {
             const fromNode = link.fromNode as goObjectNode;
             const toNode = link.toNode as goObjectNode;
             if (debug) console.log('501 groupId, nodes', groupId, fromNode, toNode);
-            if (fromNode.group === groupId && toNode.group === groupId) {
+            if (fromNode?.group === groupId && toNode?.group === groupId) {
                 const relview = link.relshipview;
                 members.push(relview);
             }

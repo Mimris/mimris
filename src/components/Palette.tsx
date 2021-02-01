@@ -26,11 +26,17 @@ const Palette = (props) => {
 
   //rearrange sequence
   let ndarr = unsorted?.nodeDataArray
-  let ldarr = unsorted?.linkDataArray
+  let ldarr = unsorted?.linkDataArra
   let gojstypes = []
   let tmpndarr = ndarr
   if (ndarr) {
     if (debug) console.log('32 Palette', ndarr);
+    const indexValue = ndarr?.findIndex(i => i?.typename === 'Value')
+    ndarr = (indexValue > 0) ? [ndarr[indexValue], ...ndarr.slice(0,indexValue), ...ndarr.slice(indexValue+1, ndarr.length)] : ndarr
+    const indexDatatype = ndarr?.findIndex(i => i?.typename === 'Datatype')
+    ndarr = (indexDatatype > 0) ? [ndarr[indexDatatype], ...ndarr.slice(0,indexDatatype), ...ndarr.slice(indexDatatype+1, ndarr.length)] : ndarr
+    const indexProperty = ndarr?.findIndex(i => i?.typename === 'Property')
+    ndarr = (indexProperty > 0) ? [ndarr[indexProperty], ...ndarr.slice(0,indexProperty), ...ndarr.slice(indexProperty+1, ndarr.length)] : ndarr
     const indexView = ndarr?.findIndex(i => i?.typename === 'View')
     ndarr = (indexView > 0) ? [ndarr[indexView], ...ndarr.slice(0,indexView), ...ndarr.slice(indexView+1, ndarr.length)] : ndarr
     const indexTask = (ndarr) && ndarr.findIndex(i => i?.typename === 'Task')
@@ -153,8 +159,8 @@ const Palette = (props) => {
         {/* <div style={{ minWidth: "140px" }}> */}
           {visiblePalette 
             ?  (refresh) 
-                  ? <><div className="mmname bg-light text-secondary mx-4 px-3 mb-1" style={{fontSize: "8px"}}>{mmnamediv}</div>{ gojsapp } </> 
-                  : <><div className="mmname bg-light text-secondary mx-4 px-3 mb-1" style={{fontSize: "8px"}}>{mmnamediv}</div>{ gojsapp }</>
+                  ? <><div className="mmname bg-light text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp } </> 
+                  : <><div className="mmname bg-light text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</>
               // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
             : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e </span> </div>
           }

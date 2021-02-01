@@ -357,7 +357,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 currentObjectView['strokewidth'] = "";
                 currentObjectView['icon'] = "";
                 updateNode(data, objtypeview, myDiagram);
-                if (!debug) console.log('372 node', data);
+                if (debug) console.log('372 node', data);
                 // Dispatch
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);
                 if (debug) console.log('378 gqlObjview', gqlObjview);
@@ -1008,7 +1008,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
 }
 
 export function updateRelationship(data: any, name: string, value: string, context: any) {
-    if (!debug) console.log('1011 updateRelationship', name, data);
+    if (debug) console.log('1011 updateRelationship', name, data);
     if ((data === null) || (!data.relship)) {
         return;
     } else {
@@ -1399,7 +1399,7 @@ export function setRelshipType() {
 
 // Local functions
 export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
-    if (!debug) console.log('1406 updateNode', node, diagram);
+    if (debug) console.log('1406 updateNode', node, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
@@ -1425,9 +1425,9 @@ export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram
         // diagram.model.setDataProperty(n, 'typename', node.typename);
         if (goModel) {
             goModel.updateNode(node);
-            if (!debug) console.log('1428 updateNode', node, goModel);
+            if (debug) console.log('1428 updateNode', node, goModel);
         }
-        if (!debug) console.log('1431 updateNode', node, diagram);
+        if (debug) console.log('1431 updateNode', node, diagram);
     }
 }
 

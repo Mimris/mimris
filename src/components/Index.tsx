@@ -47,7 +47,7 @@ const page = (props) => {
                                               border: "1px solid rgba(255,255,255,0.2)",
                                               position: "relative",
                                               backdropFilter: "blur(5px)",
-                                              webkitBackdropFilter: "blur(5px)",
+                                              WebkitBackdropFilter: "blur(5px)",
                                               // display: "block",
                                               // margin: "0 auto",
                                               padding: "2px"

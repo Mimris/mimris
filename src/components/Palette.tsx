@@ -21,14 +21,40 @@ const Palette = (props) => {
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   // console.log('16', props, mmodel.name, model.metamodelRef);
   
-  
-  const gojstypes = props.gojsMetamodel
+  const unsorted = props.gojsMetamodel
+  console.log('25', unsorted);
+
+  //rearrange sequence
+  let ndarr = unsorted?.nodeDataArray
+  let ldarr = unsorted?.linkDataArray
+  let gojstypes = []
+  let tmpndarr = ndarr
+  if (ndarr) {
+    if (!debug) console.log('32 Palette', ndarr);
+
+    const indexView = ndarr?.findIndex(i => i?.typename === 'View')
+    ndarr = (indexView > 0) ? [ndarr[indexView], ...ndarr.slice(0,indexView), ...ndarr.slice(indexView+1, ndarr.length)] : ndarr
+    const indexTask = (ndarr) && ndarr.findIndex(i => i?.typename === 'Task')
+    ndarr = (indexTask > 0) ? [ndarr[indexTask], ...ndarr.slice(0,indexTask), ...ndarr.slice(indexTask+1, ndarr.length)] : ndarr
+    const indexRole = (ndarr) && ndarr.findIndex(i => i?.typename === 'Role')
+    ndarr = (indexRole > 0) ? [ndarr[indexRole], ...ndarr.slice(0,indexRole), ...ndarr.slice(indexRole+1, ndarr.length)] : ndarr
+    const indexInfo = (ndarr) && ndarr?.findIndex(i => i?.typename === 'Information')
+    ndarr =  (indexInfo > 0) ? [ndarr[indexInfo], ...ndarr.slice(0,indexInfo), ...ndarr.slice(indexInfo+1, ndarr.length)] : ndarr
+    const indexContainer = (ndarr) && ndarr?.findIndex(i => i?.typename === 'Container')
+    ndarr = (indexContainer > 0) ? [ndarr[indexContainer], ...ndarr.slice(0,indexContainer), ...ndarr.slice(indexContainer+1, ndarr.length)] : ndarr
+    const indexGeneric = (ndarr) && ndarr?.findIndex(i => i?.typename === 'Generic')
+    ndarr = (indexGeneric > 0) ? [ndarr[indexGeneric], ...ndarr.slice(0,indexGeneric), ...ndarr.slice(indexGeneric+1, ndarr.length)] : ndarr
+    if (!debug) console.log('47 Palette', ndarr);
+    gojstypes = {nodeDataArray: ndarr, linkDataArray: ldarr}
+    // gojstypes = (ndarr) ? {nodeDataArray: ndarr, linkDataArray: ldarr} : unsorted
+  }
+
+  if (!debug) console.log('37 Palette', gojstypes, ndarr);
+
   const nodeArray_all = props.gojsModelObjects?.nodeDataArray 
   if (debug) console.log('27 Palette', props.gojsModelObjects, nodeArray_all);
   const objectsNodeDataArray = nodeArray_all?.filter(node => node.object && node.object.deleted === false)
-  if (debug) console.log('29 Palette gojsobjects', nodeArray_all?.filter(n => n.name && n.deleted === true) );
-
-
+  if (debug) console.log('29 Palette objectsNodeDataArray', nodeArray_all?.filter(n => n.name && n.deleted === true) );
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)
@@ -45,11 +71,11 @@ const Palette = (props) => {
   const toggleTip = () => setTooltipOpen(!tooltipOpen);
   /**  * Get the state and metie from the store,  */
     // const gojstypes = props.phFocus.gojsMetamodel
-    if (debug) console.log(' Palette', gojstypes);
-    if (debug) console.log('12 Palette', gojstypes.nodeDataArray);
-    if (debug) console.log('13 Palette', gojstypes.linkDataArray);
+    if (!debug) console.log('48 Palette', gojstypes);
+    if (debug) console.log('49 Palette', gojstypes.nodeDataArray);
+    if (debug) console.log('50 Palette', gojstypes.linkDataArray);
     
-    const gojsapp = (gojstypes) &&
+    const gojsapp = (gojstypes?.nodeDataArray && gojstypes?.nodeDataArray[0]?.typename) &&
     <>
       <Nav tabs >
         <NavItem >
@@ -127,8 +153,8 @@ const Palette = (props) => {
         {/* <div style={{ minWidth: "140px" }}> */}
           {visiblePalette 
             ?  (refresh) 
-                  ? <><div className="mmname bg-light text-secondary mx-1 px-1 mb-1" style={{fontSize: "8px"}}>{mmnamediv}</div>{ gojsapp } </> 
-                  : <><div className="mmname bg-light text-secondary mx-1 px-1 mb-1" style={{fontSize: "8px"}}>{mmnamediv}</div>{ gojsapp }</>
+                  ? <><div className="mmname bg-light text-secondary mx-4 px-3 mb-1" style={{fontSize: "8px"}}>{mmnamediv}</div>{ gojsapp } </> 
+                  : <><div className="mmname bg-light text-secondary mx-4 px-3 mb-1" style={{fontSize: "8px"}}>{mmnamediv}</div>{ gojsapp }</>
               // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
             : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e </span> </div>
           }

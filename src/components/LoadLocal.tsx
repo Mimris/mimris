@@ -21,7 +21,7 @@ const LoadLocal = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (!debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return
 
@@ -54,7 +54,7 @@ const LoadLocal = (props: any) => {
   }
 
   function handleSelectLocalModelDropdownChange(e) {
-    if (!debug) console.log('57 LoadLocal', e);
+    if (debug) console.log('57 LoadLocal', e);
     const metis = locState.phData.metis
     // find model in localStore
     const localModel = metis.models.find(m => m && m.id === e.value)
@@ -67,7 +67,7 @@ const LoadLocal = (props: any) => {
       dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: localMetamodel })
       dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: localModel })
     } 
-      if (!debug) console.log('59 LoadLocal', localMetamodel, localModel);
+      if (debug) console.log('59 LoadLocal', localMetamodel, localModel);
   }
   
   const options = locState?.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});

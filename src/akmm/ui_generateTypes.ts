@@ -187,7 +187,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (!object) {
         return;
     }
-    if (!debug) console.log('168 context', context);
+    if (debug) console.log('168 context', context);
     const obj = myMetis.findObject(object.id);
     let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
     // Handle objects of type 'Information'
@@ -216,7 +216,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                         objtype = otype;
                         myTargetMetamodel.addObjectType(objtype);               
                         myMetis.addObjectType(objtype);
-                        if (!debug) console.log('219 objtype', objtype, objtype.typeview);
+                        if (debug) console.log('219 objtype', objtype, objtype.typeview);
                     }
                 }
             }
@@ -694,7 +694,7 @@ function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cx
     }
 
     // Prepare dispatch of the metamodel
-    if (!debug) console.log('676 Target metamodel', metamodel);
+    if (debug) console.log('676 Target metamodel', metamodel);
     const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
     modifiedMetamodels.push(gqlMetamodel);
 
@@ -736,7 +736,7 @@ function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cx
 }
 
 export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, sourcemodelview: akm.cxModelView, context: any) {
-    if (!debug) console.log('718 Context', context);
+    if (debug) console.log('718 Context', context);
     const myMetis   = context.myMetis;
     const currentMetamodel = myMetis.currentMetamodel;
     const metamodel = targetmetamodel;
@@ -757,12 +757,12 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
     let objectviews = modelview.objectviews;
     let relshipviews = modelview.objectviews;
     if (currentNode) {
-        if (!debug) console.log('740 currentNode', currentNode);
+        if (debug) console.log('740 currentNode', currentNode);
         currentNode = context.myGoModel.findNode(currentNode.key);
         objectviews = currentNode.getGroupMembers2(context.myGoModel);
         relshipviews = currentNode.getGroupLinkMembers2(context.myGoModel);
     }
-    if (!debug) console.log('743 objviews. relviews', objectviews, relshipviews);
+    if (debug) console.log('743 objviews. relviews', objectviews, relshipviews);
     generateMetamodel(objectviews, relshipviews, context);
 
 

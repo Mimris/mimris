@@ -28,7 +28,7 @@ const SelectSource = (props: any) => {
 
   const modelNames = props.ph?.phData?.metis?.models.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (!debug) console.log('20 LoadLocal', props.ph.phData.metis, modelNames, metamodelNames);
+  if (debug) console.log('20 LoadLocal', props.ph.phData.metis, modelNames, metamodelNames);
 
   function handleLoadModelStore() { 
     const data = props.ph.phFocus.focusModel

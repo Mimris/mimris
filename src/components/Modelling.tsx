@@ -21,7 +21,9 @@ import EditFocusModal from '../components/EditFocusModal'
 import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
+
 const page = (props:any) => {
+
   if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
@@ -29,7 +31,7 @@ const page = (props:any) => {
   // const setRefresh = props.setRefresh
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   if (!memoryLocState) {setMemoryLocState(props)}
-  
+
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
@@ -394,19 +396,29 @@ const page = (props:any) => {
 
   return (
     <>
-      <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
+      <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}
+        data-toggle="tooltip" data-placement="top" title="Refresh the modelview"
+      >{refresh ? 'refresh' : 'refresh'} </span>
       <div className="diagramtabs" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
         <div style={{ transform: "scale(0.9)"}}>
           <span className="sourceName pr-1 float-right mr-0 mt-1" 
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
               Current source: {props.phSource}
           </span> 
-          <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-            {loadserver} 
-            {loginserver} 
-            {loadlocal}  
+          <span className="loadmodel float-right"  style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" >
+              {loadserver} 
+            </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" >
+             {loginserver} 
+            </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" >
+             {loadlocal}  
+            </span>
           </span> 
-          <span className="editfocus float-right d-flex" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+          <span className="editfocus float-right d-flex"   
+            data-bs-toggle="tooltip" data-bs-placement="top" title="Select and Object or Relationship and click to edit properties" 
+            style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {editLabel} {EditFocusModalRDiv} {EditFocusModalODiv}{EditFocusModalMDiv}
           </span>
         </div> 

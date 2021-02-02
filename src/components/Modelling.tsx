@@ -242,7 +242,7 @@ const page = (props:any) => {
           <div className="workpad p-1 pt-2 bg-white" >
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-                <div className="myPalette pl-1 mb-1 pt-2" style={{ minHeight: "vh", height: "96%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+                <div className="myPalette pl-1 mb-2 pt-0" style={{ minHeight: "vh", height: "96%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
                     gojsModel={gojsmetamodelmodel}
@@ -282,7 +282,7 @@ const page = (props:any) => {
             <Row >
             <Col xs="auto m-0 p-0 pl-3">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-              <div className="myPalette px-1 mb-0 pt-0 " style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+              <div className="myPalette px-1 mt-0 mb-0 pt-0  pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}
@@ -399,7 +399,7 @@ const page = (props:any) => {
       <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}
         data-toggle="tooltip" data-placement="top" title="Refresh the modelview"
       >{refresh ? 'refresh' : 'refresh'} </span>
-      <div className="diagramtabs" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
+      <div className="diagramtabs pl-1 pb-1" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
         <div style={{ transform: "scale(0.9)"}}>
           <span className="sourceName pr-1 float-right mr-0 mt-1" 
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>

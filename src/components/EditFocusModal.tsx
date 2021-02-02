@@ -53,19 +53,19 @@ const EditFocusModal = (props) => {
   if (debug) console.log('42 EditFocusModal', props.modelType, curtableobj, curobj);
   
   const editmpropertyDiv = (props.modelType === 'modelview') 
-    && (curmodel) && <EditProperties item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
+    && (curmodel) && <EditProperties key={curmodel.id} item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
   const editmvpropertyDiv = (props.modelType === 'modelview') 
-    && (curmodelview) && <EditProperties item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
+    && (curmodelview) && <EditProperties key={curmodelview.id} item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
   const editmmpropertyDiv = (props.modelType === 'modelview') 
-    && (curmetamodel) && <EditProperties item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
+    && (curmetamodel) && <EditProperties key={curmetamodel.id} item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
 
   const editovpropertyDiv = (props.modelType === 'model') 
     ? (props.buttonLabel === 'Object')
-      ? (curobjview) && <EditProperties item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
-      : (currelview) && <EditProperties item={currelview} curobj={currel} type={'UPDATE_RELSHIPVIEW_PROPERTIES'} />
+      ? (curobjview) && <EditProperties key={curobjview.id} item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
+      : (currelview) && <EditProperties key={currelview.id} item={currelview} curobj={currel} type={'UPDATE_RELSHIPVIEW_PROPERTIES'} />
     : (props.buttonLabel === 'Object')
-      ? (curmmobj) && <EditProperties item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
-      : (curmmrel) && <EditProperties item={curmmrel} curobj={curmmrel} type={'UPDATE_RELSHIPTYPE_PROPERTIES'} />
+      ? (curmmobj) && <EditProperties key={curmmobj.id} item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
+      : (curmmrel) && <EditProperties key={curmmrel.id} item={curmmrel} curobj={curmmrel} type={'UPDATE_RELSHIPTYPE_PROPERTIES'} />
 
   const editopropertyDiv = (props.modelType === 'model' || 'objects') &&
      (props.modelType === 'model') 
@@ -84,11 +84,11 @@ const EditFocusModal = (props) => {
     //   ? <div className="helptext p-4 text-info">This Objectview has no local typeview.<br /> Right-Click the object's icon and select "Add local typeview" to create a local Typevew</div>
     //   : (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
     ? (props.buttonLabel === 'Object')
-      ? (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+      ? (curotypeview) && <EditProperties key={curotypeview.id} item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
       : (currtypeview) && <EditProperties key={currtypeview.id} item={currtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
     : (props.buttonLabel === 'Object')
-      ? (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
-      : (curmmrtypeview) && <EditProperties item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
+      ? (curmmotypeview) && <EditProperties key={curmmotypeview.id} item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+      : (curmmrtypeview) && <EditProperties key={curmmrtypeview.id} item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
 
   const idNameDiv = (props.modelType === 'modelview') 
     ? 

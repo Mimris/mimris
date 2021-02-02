@@ -335,7 +335,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
         const objtypeview = objtype.getDefaultTypeView();
         const currentObject = myMetis.findObject(data.object?.id);
         if (currentObject) {
-            const nameIsChanged = (currentObject.name !== currentObject.type.name);
+            const nameIsChanged = (currentObject.name !== currentObject.type?.name);
             currentObject.setType(objtype);
             currentObject.setModified();
             const currentObjectView = myMetis.findObjectView(data.objectview.id);

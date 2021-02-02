@@ -133,7 +133,8 @@ const page = (props:any) => {
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // if (debug) console.log('177 Modelling', EditFocusModalDiv);
   
-  return (
+  if (focusModelview.objectviews)  {
+    return (
     <>
       <div className="diagramtabs" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
         <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
@@ -162,5 +163,8 @@ const page = (props:any) => {
       </div>
     </>
   )
+  } else {
+    return (<></>)
+  } 
 } 
 export default Page(connect(state => state)(page));

@@ -153,6 +153,14 @@
   background-color: blue;
   background: rgba(255,255,255,0.4);
 } */
+
+.tooltip {
+  background-color: transparent;
+  background: rgba(255,255,255,0.2);
+  /* color:  #333; */
+  /* text-shadow: 2px 2px rgba(0,0,0,0.3); */
+ 
+}
 .inspector {
   display: flex;
   align-items: stretch;

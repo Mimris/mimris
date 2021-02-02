@@ -27,7 +27,7 @@ const Layout = (props) => {
         {/* <div className="content"> */}
         <div>
         {/* <Content {checked, onChange}> */}
-        {props.children}
+        {props.children} 
         {/* </Content > */}
       </div>
     </div>

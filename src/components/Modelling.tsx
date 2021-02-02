@@ -174,7 +174,7 @@ const page = (props:any) => {
         </NavItem> */}
         <NavItem>
         {/* <NavItem className="text-danger" > */}
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , color: "black"}}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
@@ -182,7 +182,7 @@ const page = (props:any) => {
           </NavLink>
         </NavItem>
         <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , color: "black"}}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
@@ -242,7 +242,7 @@ const page = (props:any) => {
           <div className="workpad p-1 pt-2 bg-white" >
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-                <div className="myPalette pl-1 mb-1 pt-2" style={{ minHeight: "vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+                <div className="myPalette pl-1 mb-1 pt-2" style={{ minHeight: "vh", height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
                     gojsModel={gojsmetamodelmodel}
@@ -258,7 +258,7 @@ const page = (props:any) => {
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
-              <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
+              <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black", backgroundColor: "#7ac" }}>
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmetamodelmodel}
@@ -282,7 +282,7 @@ const page = (props:any) => {
             <Row >
             <Col xs="auto m-0 p-0 pl-3">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-              <div className="myPalette px-1 mb-0 pt-0 text-white" style={{    marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+              <div className="myPalette px-1 mb-0 pt-0 " style={{ marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}
@@ -417,7 +417,7 @@ const page = (props:any) => {
             </span>
           </span> 
           <span className="editfocus float-right d-flex"   
-            data-bs-toggle="tooltip" data-bs-placement="top" title="Select and Object or Relationship and click to edit properties" 
+            data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object or Relationship and click to edit properties" 
             style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
             {editLabel} {EditFocusModalRDiv} {EditFocusModalODiv}{EditFocusModalMDiv}
           </span>

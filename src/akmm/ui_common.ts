@@ -357,7 +357,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 currentObjectView['strokewidth'] = "";
                 currentObjectView['icon'] = "";
                 updateNode(data, objtypeview, myDiagram);
-                if (!debug) console.log('372 node', data);
+                if (debug) console.log('372 node', data);
                 // Dispatch
                 const gqlObjview = new gql.gqlObjectView(currentObjectView);
                 if (debug) console.log('378 gqlObjview', gqlObjview);
@@ -381,8 +381,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
     }
 }
 
-export function deleteObjectType(data: any, context: any) {
-    
+export function deleteObjectType(data: any, context: any) {   
 }
 
 export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedFlag: boolean) {
@@ -1008,7 +1007,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
 }
 
 export function updateRelationship(data: any, name: string, value: string, context: any) {
-    if (!debug) console.log('1011 updateRelationship', name, data);
+    if (debug) console.log('1011 updateRelationship', name, data);
     if ((data === null) || (!data.relship)) {
         return;
     } else {
@@ -1399,7 +1398,7 @@ export function setRelshipType() {
 
 // Local functions
 export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
-    if (!debug) console.log('1406 updateNode', node, diagram);
+    if (debug) console.log('1406 updateNode', node, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
@@ -1425,9 +1424,9 @@ export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram
         // diagram.model.setDataProperty(n, 'typename', node.typename);
         if (goModel) {
             goModel.updateNode(node);
-            if (!debug) console.log('1428 updateNode', node, goModel);
+            if (debug) console.log('1428 updateNode', node, goModel);
         }
-        if (!debug) console.log('1431 updateNode', node, diagram);
+        if (debug) console.log('1431 updateNode', node, diagram);
     }
 }
 
@@ -1498,8 +1497,20 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     const format = "%s\n";
     let msg = "Verification report";
     let report = printf(format, msg);
+    // Handle the objects
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
+        if (!obj.type) {
+            const type = myDiagram.myMetis.findObjectTypeByName(defObjTypename);
+            if (type) {
+                obj.type = type;
+                obj.typeRef = type.id;
+                obj.typeName = type.name;
+                msg = "Verifying object " + obj.name + " ( without type )\n";
+                msg += "Object type has been set to " + defObjTypename;
+                report += printf(format, msg);
+            }
+        }
         obj.inputrels = new Array();
         obj.outputrels = new Array();
         const typeRef = obj.typeRef;
@@ -1571,8 +1582,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     // Check if the referenced type exists - otherwse find a type that corresponds
     const defRelTypename = 'isRelatedTo';
     const modifiedRelships = new Array();
+    const modifiedRelviews = new Array();
     const relships = model.relships;
-    if (relships) // sf added
+    if (relships) { // sf added
         for (let i=0; i<relships.length; i++) {
             const rel = relships[i];
             if (debug) console.log('1510 rel', rel);
@@ -1582,7 +1594,19 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             let   toType   = toObj?.type;
             let typeRef    = rel.typeRef;
             let typeName   = rel.typeName;
+            let relname    = rel.typeName;
             if (!typeName) typeName = rel.name;
+            if (!rel.type) {
+                const type = myDiagram.myMetis.findRelationshipTypeByName(defRelTypename);
+                if (type) {
+                    rel.type = type;
+                    rel.typeRef = type.id;
+                    rel.typeName = type.name;
+                    msg = "Verifying relationship " + rel.name + " ( without type )\n";
+                    msg += "Relationship type has been set to " + defRelTypename;
+                    report += printf(format, msg);
+                }
+            }
             let reltype = metamodel.findRelationshipType(typeRef);
             if (debug) console.log('1518 fromType and toType', typeRef, typeName, fromType, toType, reltype);
             msg = "Verifying relationship type " + typeRef + " (" + typeName + ")";
@@ -1627,11 +1651,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                                 reltype = rtyp;
                                 rel.type = reltype;
                                 rel.name = typeName;
-                                const relviews = rel.relshipviews;
-                                for (let i=0; i<relviews.length; i++) {
-                                    const rv = relviews[i];
-                                    rv.name = typename;
-                                }
                                 msg = "Relationship type changed to: " + typeName;
                                 report += printf(format, msg);
                                 if (debug) console.log('1560 Found relationship type:', reltype);
@@ -1645,16 +1664,22 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     if (reltype) {
                         rel.type = reltype;
                         rel.name = typeName;
-                    }
+                        msg = "Verifying relationship " + obj.name + " ( without type )\n";
+                        msg += "Object type has been set to " + defObjTypename;
+                        report += printf(format, msg);
+                            }
                 }
+            }
+            const relviews = rel.relshipviews;
+            for (let i=0; i<relviews?.length; i++) {
+                const rv = relviews[i];
+                rv.name = rel.name;
             }
             const gqlRel = new gql.gqlRelationship(rel);
             modifiedRelships.push(gqlRel);
         }
-
-
+    }
     // Handle the relationship views in all modelviews
-    const modifiedRelviews = new Array();
     const mviews = model.modelviews;
     for (let i=0; i<mviews.length; i++) {
         const mview = mviews[i];
@@ -1701,6 +1726,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             }
         }
     }
+    if (!debug) console.log('1733 modifiedRelviews', modifiedRelviews);
     modifiedRelviews?.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
@@ -1717,7 +1743,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg = "Verifying relationships completed";
     if (debug) console.log('1617 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (debug) console.log(report);
+    if (!debug) console.log(report);
     myDiagram.requestUpdate();    
     alert(report);                    
 } 

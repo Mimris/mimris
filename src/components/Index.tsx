@@ -41,17 +41,17 @@ const page = (props) => {
           <div>
             <CardColumns>
               <Card className="card" 
-                                            style={{
-                                              background: "rgba(255,255,255,0.4)",
-                                              borderRadius: "10px",
-                                              border: "1px solid rgba(255,255,255,0.2)",
-                                              position: "relative",
-                                              backdropFilter: "blur(5px)",
-                                              webkitBackdropFilter: "blur(5px)",
-                                              // display: "block",
-                                              // margin: "0 auto",
-                                              padding: "2px"
-                                            }}
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "2px"
+                }}
               >
                   <CardHeader className="card-header ">Modelleing with AKM Modeller:</CardHeader>
                 <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,005,0.2)"}}>
@@ -104,7 +104,7 @@ const page = (props) => {
                                 border: "1px solid rgba(255,255,255,0.2)",
                                 position: "relative",
                                 backdropFilter: "blur(5px)",
-                                webkitBackdropFilter: "blur(5px)",
+                                WebkitBackdropFilter: "blur(5px)",
                                 // display: "block",
                                 // margin: "0 auto",
                                 padding: "2px"
@@ -128,7 +128,7 @@ const page = (props) => {
                                 border: "1px solid rgba(255,255,255,0.2)",
                                 position: "relative",
                                 backdropFilter: "blur(5px)",
-                                webkitBackdropFilter: "blur(5px)",
+                                WebkitBackdropFilter: "blur(5px)",
                                 // display: "block",
                                 margin: "0 auto",
                                 padding: "2px"
@@ -166,7 +166,7 @@ const page = (props) => {
                       border: "1px solid rgba(255,255,255,0.2)",
                       // position: "relative",
                       backdropFilter: "blur(5px)",
-                      webkitBackdropFilter: "blur(5px)",
+                      WebkitBackdropFilter: "blur(5px)",
                       // display: "block",
                       margin: "0 auto",
                       padding: "2px"

@@ -47,7 +47,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (!inst)
       return;
     const type = inst.type;
-    const props = type.properties;
+    const props = type?.properties;
     for (let i=0; i<props?.length; i++) {
       const prop = props[i];
       const v = inst[prop.name];
@@ -123,10 +123,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'modified') continue;
           if (k === 'defaultValue') continue;
           if (k === 'allowedValues') continue;
-         if (type.name !== 'ViewFormat') {
+         if (type?.name !== 'ViewFormat') {
             if (k === 'viewFormat') continue;
           }
-          if (type.name !== 'InputPattern') {
+          if (type?.name !== 'InputPattern') {
             if (k === 'inputPattern') continue;
           }
           if (hideNameAndDescr) {

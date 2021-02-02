@@ -50,6 +50,21 @@ export let removeElementFromArray = (arr: any[], id: string) => {
     }
 }
 
+export function camelize(str: string): string {
+    return str.replace(/\W+(.)/g, function(match, chr) {
+        return chr.toUpperCase();
+    });
+}
+
+export function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function uncapitalizeFirstLetter(string) {
+    return string.charAt(0).toLowerCase() + string.slice(1);
+}
+
+
 // -----------  TEMPLATES -----------------
 
 // ---------  Read key value arrays -------

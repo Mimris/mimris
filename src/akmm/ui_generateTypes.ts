@@ -187,7 +187,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (!object) {
         return;
     }
-    if (!debug) console.log('168 context', context);
+    if (debug) console.log('168 context', context);
     const obj = myMetis.findObject(object.id);
     let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
     // Handle objects of type 'Information'
@@ -216,7 +216,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                         objtype = otype;
                         myTargetMetamodel.addObjectType(objtype);               
                         myMetis.addObjectType(objtype);
-                        if (!debug) console.log('219 objtype', objtype, objtype.typeview);
+                        if (debug) console.log('219 objtype', objtype, objtype.typeview);
                     }
                 }
             }
@@ -225,7 +225,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         const proptypes  = new Array();
         if (!objtype) {
             // New object type - Create it
-            objtype = new akm.cxObjectType(utils.createGuid(), obj.name, obj.description);
+            let name = obj.name;
+            name = utils.camelize(name);
+            name = utils.capitalizeFirstLetter(name);
+            if (!debug) console.log('237 name', name);
+            objtype = new akm.cxObjectType(utils.createGuid(), name, obj.description);
             const properties = obj?.type?.properties;
             if (properties !== undefined && properties !== null && properties.length > 0)
                 objtype.properties = properties;
@@ -256,7 +260,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             // To ensure that objtype is a class instance
             objtype = myMetis.findObjectType(objtype.id);
         }
-        if (debug) console.log('213 myMetis', objtype, myMetis);
+        if (!debug) console.log('213 myMetis', objtype, myMetis);
         let parentType: akm.cxObjectType | null = null;
         let parentRelType: akm.cxRelationshipType | null = null;
         if (objtype) {
@@ -441,7 +445,10 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     const fromtype = myTargetMetamodel.findObjectTypeByName(fromObj?.name);
     const toObj    = rel.getToObject();
     const totype   = myTargetMetamodel.findObjectTypeByName(toObj?.name);
-    const relname  = rel.getName();
+    let relname  = rel.getName();
+    let name = obj.name;
+    name = utils.camelize(name);
+    name = utils.uncapitalizeFirstLetter(name);
     let reltype    = myTargetMetamodel.findRelationshipTypeByName2(relname, fromtype, totype);
     if (!debug) console.log('451 reltype', rel, relname, reltype);
     if (!reltype) {
@@ -694,7 +701,7 @@ function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cx
     }
 
     // Prepare dispatch of the metamodel
-    if (!debug) console.log('676 Target metamodel', metamodel);
+    if (debug) console.log('676 Target metamodel', metamodel);
     const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
     modifiedMetamodels.push(gqlMetamodel);
 
@@ -736,7 +743,7 @@ function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cx
 }
 
 export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, sourcemodelview: akm.cxModelView, context: any) {
-    if (!debug) console.log('718 Context', context);
+    if (debug) console.log('718 Context', context);
     const myMetis   = context.myMetis;
     const currentMetamodel = myMetis.currentMetamodel;
     const metamodel = targetmetamodel;
@@ -757,12 +764,12 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
     let objectviews = modelview.objectviews;
     let relshipviews = modelview.objectviews;
     if (currentNode) {
-        if (!debug) console.log('740 currentNode', currentNode);
+        if (debug) console.log('740 currentNode', currentNode);
         currentNode = context.myGoModel.findNode(currentNode.key);
         objectviews = currentNode.getGroupMembers2(context.myGoModel);
         relshipviews = currentNode.getGroupLinkMembers2(context.myGoModel);
     }
-    if (!debug) console.log('743 objviews. relviews', objectviews, relshipviews);
+    if (debug) console.log('743 objviews. relviews', objectviews, relshipviews);
     generateMetamodel(objectviews, relshipviews, context);
 
 

@@ -9,7 +9,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
-import { SaveModelToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
+import { SaveModelToFile, SaveAllToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 
 const LoadLocal = (props: any) => {
   
@@ -21,7 +21,7 @@ const LoadLocal = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (!debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return
 
@@ -54,7 +54,7 @@ const LoadLocal = (props: any) => {
   }
 
   function handleSelectLocalModelDropdownChange(e) {
-    if (!debug) console.log('57 LoadLocal', e);
+    if (debug) console.log('57 LoadLocal', e);
     const metis = locState.phData.metis
     // find model in localStore
     const localModel = metis.models.find(m => m && m.id === e.value)
@@ -67,7 +67,7 @@ const LoadLocal = (props: any) => {
       dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: localMetamodel })
       dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: localModel })
     } 
-      if (!debug) console.log('59 LoadLocal', localMetamodel, localModel);
+      if (debug) console.log('59 LoadLocal', localMetamodel, localModel);
   }
   
   const options = locState?.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});
@@ -186,6 +186,15 @@ const LoadLocal = (props: any) => {
     (reduxmod) && setLocState(data)
   }
 
+  function handleSaveAllToFile() {
+    const data = {
+      phData:   props.ph.phData,
+      phFocus:  props.ph.phFocus,
+      phUser:   props.ph.phUser,
+      phSource: 'localStore'
+    }
+    SaveAllToFile(data, 'localStore', 'Models')
+  }
   function handleSaveModelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
     SaveModelToFile(model, model.name, 'Model')
@@ -206,6 +215,7 @@ const LoadLocal = (props: any) => {
   const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
   const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
 
+  const buttonSaveAllToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveAllToFile} > Save all Models and Metamodels to File (Downloads) </button >
   const buttonSaveModelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveModelToFile} > Save Current Model to File (Downloads) </button >
   const buttonSaveMetamodelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveMetamodelToFile} > Save Current Metamodel to File (Downloads)</button >
 
@@ -244,9 +254,10 @@ const LoadLocal = (props: any) => {
               <div className="loadsave--modelToFile select mb-1 p-2  border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <div className="selectbox mb-2 border">
-                  <h6>Import Model from file </h6>
+                  <h6>Import Model(s) from file </h6>
                   <input className="select-input w-100" type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
                 </div>
+                {buttonSaveAllToFileDiv}
                 {buttonSaveModelToFileDiv}
               </div>
               <div className="loadsave--momoryStore select  mb-1 p-2  border border-dark">

@@ -382,7 +382,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         else
             myItem = myInst;
         myItem[propname] = value;
-        if (!debug) console.log('385 myMetis', myItem, myInstview, myMetis);
+        if (debug) console.log('385 myMetis', myItem, myInstview, myMetis);
         myMetis.myDiagram.requestUpdate();
       
         if (context?.what === "editTypeview") {
@@ -397,7 +397,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // Prepare and to dispatch of relshipview
         const modifiedRelshipViews = new Array();
         const gqlRelview = new gql.gqlRelshipView(myInstview);
-        if (!debug) console.log('401 gqlRelview', gqlRelview);
+        if (debug) console.log('401 gqlRelview', gqlRelview);
         modifiedRelshipViews.push(gqlRelview);
         modifiedRelshipViews.map(mn => {
           let data = mn;
@@ -524,7 +524,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (!debug) console.log('250 nodeInfo', d, d.object);
+      if (debug) console.log('250 nodeInfo', d, d.object);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
@@ -535,12 +535,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);
       }
-      if (!debug) console.log('262 nodeInfo', msg);
+      if (debug) console.log('262 nodeInfo', msg);
       let str = "Attributes:"; 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
-      if (!debug) console.log('269 nodeInfo', obj, props, msg);
+      if (debug) console.log('269 nodeInfo', obj, props, msg);
       
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
@@ -549,7 +549,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const p = prop.name + ': ' + value;
         msg += printf(format2, prop.name, value);
       }
-      if (!debug) console.log('275 nodeInfo', obj, msg);
+      if (debug) console.log('275 nodeInfo', obj, msg);
       return msg;
     }
 
@@ -1140,7 +1140,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (inst.category === 'Object') {
                   const node = myGoModel.findNode(inst.key);
                   console.log('657 node', node);
-                  if (node.isGroup) {
+                  if (node?.isGroup) {
                     const groupMembers = node.getGroupMembers(myGoModel);
                     for (let i=0; i<groupMembers?.length; i++) {
                       const member = groupMembers[i];
@@ -1148,7 +1148,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       if (gjsNode) gjsNode.isSelected = true;
                     }                    
                   }
-                  const object = node.object;
+                  const object = node?.object;
                   console.log('667 object', object);
                   const objviews = object?.objectviews;
                   for (let i=0; i<objviews?.length; i++) {
@@ -1219,6 +1219,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
             return true;
+            }),
+          makeButton("TEST",
+            function (e: any, obj: any) { 
+              const node1 = obj.part;
+              console.log('1226 node1', node1);
+              let data = node1.data;
+              console.log('1228 data', data);
+              const node2 = e.diagram.findNodeForKey(data.key);
+              console.log('1230 nodeForKey (node2)', node2);
+              data = node2.data;
+              console.log('1232 data', data);
+            },
+            function (o: any) { 
+              if (debug)
+                return true; 
+              return false;
             }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
@@ -2548,7 +2564,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
-    if (!debug) console.log('2539 Diagram ', modalContext);
+    if (debug) console.log('2539 Diagram ', modalContext);
     const icon = modalContext?.icon;
 
     switch (modalContext?.what) {      
@@ -2581,7 +2597,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!debug) console.log('2568 Diagram ', icon);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (!debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);
+          if (debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -2597,7 +2613,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editTypeview': {
         header = modalContext.title+':';
         category = this.state.selectedData.category;
-        if (!debug) console.log('2587 Diagram ', icon);
+        if (debug) console.log('2587 Diagram ', icon);
       
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2399 Diagram ', this.state.selectedData, this.myMetis);

@@ -23,7 +23,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   if (metis != null) {
     if (!debug) console.log('25 GenGojsModel phData, metis:', props.phData, metis);
     const myMetis = new akm.cxMetis();
-    if (debug) console.log('33 GenGojsModel', myMetis);  
+    if (!debug) console.log('33 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
     if (debug) console.log('36 GenGojsModel myMetis', myMetis);
     
@@ -243,7 +243,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
-    if (debug) console.log('245 relviews', relviews);
+    if (debug) console.log('245 relviews', relviews, modelview);
     if (relviews) {
       let l = relviews.length;
       for (let i = 0; i < l; i++) {

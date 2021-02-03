@@ -7,7 +7,8 @@ import * as akm from './metamodeller';
 //import * as gojs  from './components/akmm/ui_gojs';
 
 export class gqlExportMetis {
-    repositories:           gqlRepository[];
+    name:                   string;
+    description:            string;
     metamodels:             gqlMetaModel[];
     models:                 gqlModel[];
     //modelviews:             gqlModelView[];
@@ -15,34 +16,25 @@ export class gqlExportMetis {
     //enumerations:           gqlEnumeration[];
     pasteViewsOnly:         boolean;
     deleteViewsOnly:        boolean;
-    currentRepositoryRef:   string;
     currentMetamodelRef:    string;
     currentModelRef:        string;
     currentModelviewRef:    string;
     currentTemplateModelRef: string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
-        this.repositories = [];
+        this.name         = metis.name;
+        this.description  = metis.description;
         this.metamodels   = [];
         this.models       = [];
         //this.modelviews   = [];
         //this.datatypes    = [];
         //this.enumerations = [];
-        this.currentRepositoryRef    = "";
         this.currentMetamodelRef     = "";
         this.currentModelRef         = "";
         this.currentModelviewRef     = "";
         this.currentTemplateModelRef = "";
         // Code
         if (metis) {
-            const repositories = metis.getRepositories();
-            if (repositories) {
-                const cnt = repositories.length;
-                for (let i = 0; i < cnt; i++) {
-                    const repository = repositories[i];
-                    this.addRepository(repository);
-                }
-            }
             const metamodels = metis.getMetamodels();
             if (metamodels) {
                 const cnt = metamodels.length;
@@ -59,8 +51,6 @@ export class gqlExportMetis {
                     this.addModel(model, includeViews);
                 }
             }
-            if (metis.currentRepository)
-                this.currentRepositoryRef = metis.currentRepository.id;
             if (metis.currentMetamodel)
                 this.currentMetamodelRef = metis.currentMetamodel.id;
             if (metis.currentModel)
@@ -73,12 +63,6 @@ export class gqlExportMetis {
         }
     }
     // Functions
-    addRepository(repository: akm.cxRepository) {
-        if (repository) {
-            const gRepository = new gqlRepository(repository);
-            this.repositories.push(gRepository);
-        }
-    }
     addMetamodel(metamodel: akm.cxMetaModel, includeViews: boolean) {
         if (metamodel) {
             const gMetamodel = new gqlMetaModel(metamodel, includeViews);
@@ -92,17 +76,6 @@ export class gqlExportMetis {
         }
     }
 }
-export class gqlRepository {
-    id:                 string;
-    name:               string;
-    description:        string;
-    constructor(repository: akm.cxRepository) {
-        this.id             = repository.id;
-        this.name           = repository.name;
-        this.description    = repository.description;
-    }
-}
-
 export class gqlExportMetaModel {
     metamodels: gqlMetaModel[];
     constructor() {
@@ -169,6 +142,15 @@ export class gqlMetaModel {
                 this.addDataType(datatype);
             }
         }
+        const properties = metamodel.getProperties();
+        if (properties) {
+            const cnt = properties.length;
+            for (let i = 0; i < cnt; i++) {
+                const prop = properties[i];
+                this.addProperty(prop);
+            }
+        }
+
         // let unittypes = metamodel.getUnitCategories();
         // if (unittypes) {
         //     let cnt = unittypes.length;
@@ -307,6 +289,7 @@ export class gqlObjectType {
                 }
             }
         }
+        if (debug) console.log('310 objtype.properties', p, this.properties);
         //this.loc  = (includeViews) ? objtype.loc : "";
         //this.size = (includeViews) ? objtype.size : "";
     }
@@ -327,6 +310,7 @@ export class gqlRelationshipType {
     viewkind:       string;
     fromobjtypeRef: string;
     toobjtypeRef:   string;
+    cardinality:    string;
     deleted:        boolean;
     modified:       boolean;
     constructor(reltype: akm.cxRelationshipType, includeViews: boolean) {
@@ -339,6 +323,7 @@ export class gqlRelationshipType {
         this.typeviewRef    = "";
         this.description    = (reltype.description) ? reltype.description : "";
         this.properties     = [];
+        this.cardinality    = reltype.cardinality;
         this.deleted        = reltype.deleted;
         this.modified       = reltype.modified;
         if (includeViews) {
@@ -386,6 +371,8 @@ export class gqlDatatype {
     datatypeRef:    string;
     defaultValue:   string;
     allowedValues:  any[];
+    inputPattern:   string;
+    viewFormat:     string;
     deleted:        boolean;
     modified:       boolean;
     constructor(dtype: akm.cxDatatype) {
@@ -395,6 +382,9 @@ export class gqlDatatype {
         this.datatypeRef    = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
         this.defaultValue   = dtype.defaultValue;
         this.allowedValues  = dtype.allowedValues;
+        this.isOfDatatype   = dtype.isOfDatatype;
+        this.inputPattern   = dtype.inputPattern;
+        this.viewFormat     = dtype.viewFormat;
         this.deleted        = dtype.deleted;
         this.modified       = dtype.modified;
         // Code
@@ -713,6 +703,10 @@ export class gqlObject {
     typeRef:        string;
     typeName:       string;
     propertyValues: any[];
+    inputPattern:   string;
+    viewFormat:     string;
+    allowedValues:  string;
+    defaultValue:   string;
     deleted:        boolean;
     modified:       boolean;
     constructor(object: akm.cxObject) {
@@ -724,18 +718,23 @@ export class gqlObject {
         this.propertyValues = [];
         this.deleted        = object.deleted;
         this.modified       = object.modified;
+        this.inputPattern   = object.inputPattern;
+        this.viewFormat     = object.viewFormat;
+        this.allowedValues  = object.allowedValues;
+        this.defaultValue   = object.defaultValue;
 
         // Code
-        const values = object.valueset;
-        if (debug) console.log('638 gqlObject - values', values);
-        if (values) {
-            this.propvalues = new Array();
-            const cnt = values.length;
-            for (let i = 0; i < cnt; i++) {
-                const val = values[i];
-                this.addPropertyValue(val);
-            }
+        if (debug) console.log('740 this', this);
+        const objtype = object.type;
+        const props = objtype?.properties;
+        for (let i=0; i<props?.length; i++) {
+          const prop = props[i];
+          const propname = prop.name;
+          const value = object.getStringValue2(propname);
+          if (debug) console.log('747 propname, value', propname, value);
+          this[propname] = value;                      
         }
+        if (debug) console.log('750 this', this);
     }
     addPropertyValue(val: akm.cxPropertyValue) {
         if (!val)
@@ -987,6 +986,11 @@ export class gqlObjectView {
     size:           string;
     deleted:        boolean;
     modified:       boolean;
+    figure:         string;
+    fillcolor:      string;
+    strokecolor:    string;
+    strokewidth:    string;
+    icon:           string;
     constructor(objview: akm.cxObjectView) {
         this.id             = objview?.id;
         this.name           = objview?.name;
@@ -996,6 +1000,11 @@ export class gqlObjectView {
         this.group          = objview?.group;
         this.isGroup        = objview?.isGroup;
         this.loc            = objview?.loc;
+        this.figure         = objview?.figure;
+        this.fillcolor      = objview?.fillcolor;
+        this.strokecolor    = objview?.strokecolor;
+        this.strokewidth    = objview?.strokewidth;
+        this.icon           = objview?.icon;
         this.size           = objview?.size;
         this.deleted        = objview?.deleted;
         this.modified       = objview?.modified;
@@ -1009,6 +1018,13 @@ export class gqlRelshipView {
     typeviewRef:    string;
     fromobjviewRef: string;
     toobjviewRef:   string;
+    strokecolor:    string;
+    strokewidth:    string;
+    dash:           string;
+    fromArrow:      string;
+    toArrow:        string;
+    fromArrowColor: string;
+    toArrowColor:   string;
     deleted:        boolean;
     modified:       boolean;
     constructor(relview: akm.cxRelationshipView) {
@@ -1017,6 +1033,13 @@ export class gqlRelshipView {
         this.description    = "";
         this.relshipRef     = "";
         this.typeviewRef    = "";
+        this.strokecolor    = relview.strokecolor;
+        this.strokewidth    = relview.strokewidth;
+        this.dash           = relview.dash;
+        this.fromArrow      = relview.fromArrow;
+        this.toArrow        = relview.toArrow;
+        this.fromArrowColor = relview.fromArrowColor;
+        this.toArrowColor  = relview.toArrowColor;
         this.fromobjviewRef = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef   = relview && relview.toObjview ? relview.toObjview.id : "";
         this.deleted        = relview.deleted;
@@ -1031,10 +1054,10 @@ export class gqlRelshipView {
     }
 }
 export class gqlImportMetis {
-    repositories:               akm.cxRepository[];
+    name:                       string;
+    description:                string;
     metamodels:                 akm.cxMetaModel[];
     models:                     akm.cxModel[];
-    currentRepositoryRef:       string;
     currentMetamodelRef:        string;
     currentModelRef:            string;
     currentModelviewRef:        string;
@@ -1043,30 +1066,17 @@ export class gqlImportMetis {
     deleteViewsOnly:            boolean;
     imported:                   any;
     constructor(metis: akm.cxMetis, importedData: any) {
-        this.repositories           = [];
+        this.name                   = importedData.name;
+        this.description            = importedData.description;
         this.metamodels             = [];
         this.models                 = [];
         this.imported               = importedData;
         this.pasteViewsOnly         = importedData.pasteViewsOnly;
         this.deleteViewsOnly        = importedData.deleteViewsOnly;
-        this.currentRepositoryRef   = importedData.currentRepositoryRef;
         this.currentMetamodelRef    = importedData.currentMetamodelRef;
         this.currentModelRef        = importedData.currentModelRef;
         this.currentModelviewRef    = importedData.currentModelviewRef;
         this.currentTemplateModelRef = importedData.currentTemplateModelRef;
-    
-        /* Initialise
-        glb.metis.initMetis();
-        glb.myMetamodel = undefined;
-        glb.myModel     = undefined;
-        */
-        // Handle repositories
-       const repositories = importedData.repositories;
-       if (repositories && (repositories.length > 0)) {
-           repositories.forEach(function (this: gqlImportMetis, repository: akm.cxModel) {
-               this?.importRepository(repository);
-           });
-       }
         // Handle metamodels
         const metamodels = importedData.metamodels;
         if (metamodels && (metamodels.length > 0)) {
@@ -1081,13 +1091,6 @@ export class gqlImportMetis {
             models.forEach(function (this: gqlImportMetis, model: akm.cxModel) {
                 this?.importModel(model);
             });
-        }
-    }
-    importRepository(item: akm.cxRepository) {
-        let repository = glb.metis.findRepository(item.id);
-        if (!repository) {
-            repository = new akm.cxRepository(item.id, item.name, item.description);
-            glb.metis.addRepository(repository);
         }
     }
     importMetamodel(item: akm.cxMetaModel) {

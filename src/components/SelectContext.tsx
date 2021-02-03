@@ -37,10 +37,10 @@ const SelectContext = (props: any) => {
   
   // find object with type
   const type = (metamodels, model, objects, curov) => {                                                                                                                                                                                          
-    const mmod = metamodels?.find(mm => mm.id === model.metamodelRef)
+    const mmod = metamodels?.find(mm => (mm) && mm.id === model.metamodelRef)
     const o = objects.find(o => o.id === curov.objectRef)
     // console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
-    const type = mmod.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
+    const type = mmod?.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
     // console.log('43 SelectContext', mmod.objecttypes.name, o, type);
     return type
   }

@@ -69,6 +69,12 @@ const Modeller = (props: any) => {
           {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
           <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
         {/* </div>  */}
+        <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
+            style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
+            Project: 
+            <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span> 
+        </h5>
       </>
     :
     <div className="modeller-selection float-right" >
@@ -85,6 +91,7 @@ const Modeller = (props: any) => {
         const data = {id: selmodviews[0].id, name: selmodviews[0].name}
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
         setActiveTab(0)
+        genGojsModel(props, dispatch);
     }
     if (debug) console.log('89 Modeller useEffect 1', activeTab); 
   }, [focusModel])
@@ -92,7 +99,7 @@ const Modeller = (props: any) => {
   useEffect(() => {
     setActiveTab(activetabindex)
     if (debug) console.log('94 Modeller useEffect 2', activeTab); 
-    genGojsModel(props, dispatch);
+    // genGojsModel(props, dispatch);
   }, [activeTab])
 
   useEffect(() => {
@@ -124,7 +131,7 @@ const Modeller = (props: any) => {
   // }, [focusModelview?.id])
   
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
-    if (mv) { 
+    if (mv && !mv.deleted) { 
         const strindex = index.toString()
         const data = {id: mv.id, name: mv.name}
         const data2 = {id: Math.random().toString(36).substring(7), name: strindex+'name'}
@@ -132,13 +139,14 @@ const Modeller = (props: any) => {
         // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
         return (
           <NavItem key={strindex}>
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none" }}
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab == strindex })}
               onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
               // onClick={() => { toggleTab(strindex); dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefresh() }}
             >
               {mv.name}
             </NavLink>
+ 
           </NavItem>
         )
     }
@@ -147,7 +155,11 @@ const Modeller = (props: any) => {
   const modelviewTabDiv = 
     <>
       <Nav tabs >
-        {navitemDiv} 
+        {navitemDiv}  
+        <button className="btn-sm bg-warning text-white py-0 ml-3 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          title=" Modelling:&#013;Insert an Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Modelling area below.&#013;&#013;
+                  Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
+        </button>
       </Nav>
       <TabContent > 
         <TabPane  >
@@ -173,9 +185,11 @@ const Modeller = (props: any) => {
 
   return (
     (props.modelType === 'model') ?
-    <div className="mt-1 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
+    <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
+        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
+          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+        </h5>
       <div>
-        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller</h5>
         {selector}
       </div><br />
       <div className="mt-2">
@@ -188,8 +202,12 @@ const Modeller = (props: any) => {
       `}</style>
     </div>
     :
-    <div className="mt-1" style={{backgroundColor: "#acc"}}>
-      <h5 className="modeller-heading text-dark mr-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+    <div className="mt-1 mb-5" style={{backgroundColor: "#7ac"}}>
+      <h5 className="modeller-heading text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+      <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
+        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them.">?
+      </button>
       <div>
         {selector}
         {metamodelTabDiv} 

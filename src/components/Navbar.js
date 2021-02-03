@@ -15,7 +15,7 @@ const Navbar = (props) => (
 				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
 			</a>
 			{/* <span ><strong>OrgEngine Teambuilder</strong> */}
-			<span style={{ fontsize: "bigger"}}><strong> AKM Modeller</strong></span>
+			<span style={{ fontsize: "bigger", minWidth: "12%", marginTop: "5px"}}><strong> AKM Modeller</strong></span>
 			<div className="collapse navbar-collapse" id="nav-toggler-metis">
 				<ul className="navbar-nav ml-auto mr-3">
 					<li className="nav-item">
@@ -24,9 +24,9 @@ const Navbar = (props) => (
 					<li className="nav-item">
 						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
 					</li>
-					<li className="nav-item">
+					{/* <li className="nav-item">
 						<Link href="/table"><a className="nav-link">Tables</a></Link>
-					</li>
+					</li> */}
 					<li className="nav-item dropdown">
 						<a className="nav-link dropdown-toggle" href="/other" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More

@@ -29,6 +29,7 @@ export class goModel {
     nodes: goNode[];
     links: goLink[];
     constructor(key: string, name: string, modelView: akm.cxModelView) {
+        // console.log('32 goModel', this);
         this.key = key;
         this.name = name;
         this.modelView = modelView;
@@ -39,6 +40,7 @@ export class goModel {
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;
         if (debug) console.log('41 constants', constants);
+        // console.log('42 goModel', this);
     }
     // Methods
     getModelView() {
@@ -160,6 +162,51 @@ export class goModel {
         }
         return retval;
     }
+    updateNode(node: goObjectNode) {
+        const nodes = this.nodes;
+        for (let i = 0; i < nodes.length; i++) {
+            const n = nodes[i];
+            if (n.key === node.key) {
+                for (let k in n ) {
+                    if (typeof k === 'string') {
+                        if (node[k] !== n[k])
+                            n[k] = node[k];
+                    }
+                }
+                break;
+            }
+        }
+    }
+    updateTypeNode(node: goObjectTypeNode) {
+        const nodes = this.nodes;
+        for (let i = 0; i < nodes.length; i++) {
+            const n = nodes[i];
+            if (n.key === node.key) {
+                nodes[i] = node;
+                break;
+            }
+        }
+    }
+    updateLink(link: goRelshipLink) {
+        const links = this.links;
+        for (let i = 0; i < links.length; i++) {
+            const l = links[i];
+            if (l.key === link.key) {
+                links[i] = link;
+                break;
+            }
+        }
+    }
+    updateTypeLink(link: goRelshipTypeLink) {
+        const links = this.links;
+        for (let i = 0; i < links.length; i++) {
+            const l = links[i];
+            if (l.key === link.key) {
+                links[i] = link;
+                break;
+            }
+        }
+    }
     loadMetamodel(metamodel: akm.cxMetaModel) {
         if (utils.objExists(metamodel)) {
             this.metamodel = metamodel;
@@ -280,28 +327,38 @@ export class goNode extends goMetaObject {
 
 export class goObjectNode extends goNode {
     objectview: akm.cxObjectView | null;
-    objectview_0: akm.cxObjectView | null;
+    //objectview_0: akm.cxObjectView | null;
     object: akm.cxObject | null;
     objecttype: akm.cxObjectType | null;
     typename: string;
     typeview: akm.cxObjectTypeView | null;
+    figure: string;
+    fillcolor: string;
+    strokecolor: string;
+    strokewidth: string;
+    icon: string;
     isGroup: boolean | "";
     groupLayout: string;
     group: string;
     parent: string;
     constructor(key: string, objview: akm.cxObjectView) {
         super(key, null);
-        this.category = constants.gojs.C_OBJECT;
-        this.objectview = objview;
-        this.objectview_0 = objview;
-        this.object = null;
-        this.objecttype = null;
-        this.typename = "";
-        this.typeview = null;
-        this.isGroup = objview.isGroup;
-        this.groupLayout = "Tree";
-        this.group = objview.group;
-        this.parent = "";
+        this.category       = constants.gojs.C_OBJECT;
+        this.objectview     = objview;
+        //this.objectview_0   = objview;
+        this.object         = null;
+        this.objecttype     = null;
+        this.typename       = "";
+        this.typeview       = null;
+        this.figure         = objview.figure;
+        this.fillcolor      = objview.fillcolor;
+        this.strokecolor    = objview.strokecolor;
+        this.strokewidth    = objview.strokewidth;
+        this.icon           = objview.icon;
+        this.isGroup        = objview.isGroup;
+        this.groupLayout    = "Tree";
+        this.group          = objview.group;
+        this.parent         = "";
 
         if (objview) {
             const object = objview.getObject();
@@ -334,6 +391,12 @@ export class goObjectNode extends goNode {
             const viewdata: any = typeview.getData();
             this.addData(viewdata);
             if (this.objectview) {
+                const objview = this.objectview;
+                for (let prop in viewdata) {
+                    if (objview[prop] && objview[prop] !== "") {
+                        this[prop] = objview[prop];
+                    }
+                }        
                 const objviewId = this.objectview.group;
                 if (objviewId !== "") {
                     const groupId: string = this.getGroupFromObjviewId(objviewId, model);
@@ -384,7 +447,7 @@ export class goObjectNode extends goNode {
         }
         return "";
     }
-    getGroupMembers(model: goModel) {
+    getGroupMembers(model: goModel): goObjectNode[] {
         if (!this.isGroup)
             return null;
         const members = new Array();
@@ -394,6 +457,55 @@ export class goObjectNode extends goNode {
             const node = nodes[i] as goObjectNode;
             if (node.group === groupId) {
                 members.push(node);
+            }
+        }
+        return members;
+    }
+    getGroupMembers2(model: goModel): akm.cxObjectView[] {
+        if (!this.isGroup)
+            return null;
+        const members = new Array();
+        const groupId = this.key;
+        const nodes = model.nodes;
+        for (let i=0; i<nodes.length; i++) {
+            const node = nodes[i] as goObjectNode;
+            if (node.group === groupId) {
+                members.push(node.objectview);
+            }
+        }
+        return members;
+    }
+    getGroupLinkMembers(model: goModel): goRelshipLink[] {
+        if (!this.isGroup)
+            return null;
+            const groupId = this.key;
+            const members = new Array();
+            const links = model.links as goRelshipLink[];
+            for (let i=0; i<links.length; i++) {
+                const link = links[i] as goRelshipLink;
+                const fromNode = link.fromNode as goObjectNode;
+                const toNode = link.toNode as goObjectNode;
+                if (debug) console.log('488 groupId, nodes', groupId, fromNode, toNode);
+                if (fromNode.group === groupId && toNode.group === groupId) {
+                    members.push(link);
+                }
+            }
+            return members;
+    }
+    getGroupLinkMembers2(model: goModel): akm.cxRelationshipView[] {
+        if (!this.isGroup)
+            return null;
+        const groupId = this.key;
+        const members = new Array();
+        const links = model.links as goRelshipLink[];
+        for (let i=0; i<links.length; i++) {
+            const link = links[i] as goRelshipLink;
+            const fromNode = link.fromNode as goObjectNode;
+            const toNode = link.toNode as goObjectNode;
+            if (debug) console.log('501 groupId, nodes', groupId, fromNode, toNode);
+            if (fromNode?.group === groupId && toNode?.group === groupId) {
+                const relview = link.relshipview;
+                members.push(relview);
             }
         }
         return members;
@@ -410,7 +522,8 @@ export class goObjectTypeNode extends goNode {
         this.objtype = objtype;
         this.typeview = null;
         this.typename = constants.gojs.C_OBJECTTYPE;
-
+        
+        if (debug) console.log('416 this', this);
         if (objtype) {
             this.setName(objtype.getName());
             this.setType(constants.gojs.C_OBJECTTYPE);
@@ -449,6 +562,7 @@ export class goObjectTypeNode extends goNode {
                     }
                 }
             }
+            if (debug) console.log('455 loadNodeContent', this);
             return true;
         }
         return false;

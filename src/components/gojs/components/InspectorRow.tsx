@@ -5,22 +5,29 @@
 import * as React from 'react';
 // import './Inspector.css';
 
+const debug = false;
 interface InspectorRowProps {
   id: string;
   value: string;
-  onInputChange: (key: string, value: string, isBlur: boolean) => void;
+  valuetype: string;
+  obj: any;
+  context: any;
+  onInputChange: (id: string, value: string, obj: any, context: any, isBlur: boolean) => void;
 }
 
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
+    if (debug) console.log('21 props', props, this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   private handleInputChange(e: any) {
-    this.props.onInputChange(this.props.id, e.target.value, e.type === 'blur');
+    if (debug) console.log('21 InspectorRow: this.props', this.props);
+    if (debug) console.log('22 InspectorRow: e.target', e.target, e);
+    this.props.onInputChange(this.props.id, e.target.value, this.props.obj, this.props.context, e.type === 'blur');
   }
-
+  
   private formatLocation(loc: string): string {
     const locArr = loc.split(' ');
     if (locArr.length === 2) {
@@ -32,21 +39,25 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     }
     return loc;
   }
-
+  
   public render() {
+    if (debug) console.log('44 InspectorRow: this.props', this.props);
     let val = this.props.value;
-    if (this.props.id === 'loc') {
-      val = this.formatLocation(this.props.value);
+    if (val === 'Not valid') {
+      alert ('Input is not valid: ' + val );
     }
     return (  
       <tr>
         <td>{this.props.id}</td>
         <td>
           <input
-            disabled={this.props.id === 'key'}
+            disabled={this.props.id === 'typeName'}
+            id={this.props.id}
             value={val}
+            type={this.props.valuetype}
             onChange={this.handleInputChange}
-            onBlur={this.handleInputChange}>
+            onBlur={this.handleInputChange}
+            >
           </input>
         </td>
       </tr>

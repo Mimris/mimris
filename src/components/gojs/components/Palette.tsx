@@ -76,7 +76,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               maxSelectionCount: 1,
               layout: $(go.GridLayout,
                 {
-                  sorting: go.GridLayout.Ascending,
+                  // sorting: go.GridLayout.Ascending,
+                  sorting: go.GridLayout.Forward,
                   wrappingColumn: 1
                 }),
               draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts

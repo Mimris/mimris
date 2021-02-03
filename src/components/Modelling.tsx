@@ -17,11 +17,13 @@ import LoadServer from '../components/LoadServer'
 import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
 import useLocalStorage  from '../hooks/use-local-storage'
-import EditFocusModel from '../components/EditFocusModel'
+import EditFocusModal from '../components/EditFocusModal'
 import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
 
+
 const page = (props:any) => {
+
   if (debug) console.log('17 Modelling', props);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
@@ -29,7 +31,7 @@ const page = (props:any) => {
   // const setRefresh = props.setRefresh
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   if (!memoryLocState) {setMemoryLocState(props)}
-  
+
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
   let focusModel = useSelector(focusModel => props.phFocus?.focusModel) 
@@ -114,11 +116,11 @@ const page = (props:any) => {
     const curmlength = memoryLocState?.phData?.metis.models?.length
     if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
     // then find metamodel which is in reduxStore
-    let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current model index
-    let curmmindex = memoryLocState?.phData?.metis?.models?.findIndex(mm => mm?.id === reduxmod?.id) // current model index
+    let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.metamodelRef) 
+    let curmmindex = memoryLocState?.phData?.metis?.metamodels?.findIndex(mm => mm?.id === reduxmod?.metamodelRef) 
     // then find lenght of modellarray in lodalStore
     const curmmlength = memoryLocState?.phData?.metis.metamodels?.length
-    if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
+    if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new metamodel
     // if (debug) console.log('73 Modelling', curmindex, reduxmod);
     const data = {
       phData: {
@@ -131,9 +133,9 @@ const page = (props:any) => {
             ...memoryLocState?.phData?.metis.models.slice(curmindex + 1),
           ],
           metamodels: [
-            ...memoryLocState?.phData?.metis.models.slice(0, curmmindex),
+            ...memoryLocState?.phData?.metis.metamodels.slice(0, curmmindex),
             reduxmmod,
-            ...memoryLocState?.phData?.metis.models.slice(curmmindex + 1),
+            ...memoryLocState?.phData?.metis.metamodels.slice(curmmindex + 1),
           ]
         },
       },
@@ -172,19 +174,19 @@ const page = (props:any) => {
         </NavItem> */}
         <NavItem>
         {/* <NavItem className="text-danger" > */}
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+          <NavLink style={{  paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee" , color: "black"}}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
-            {(activeTab === "1") ? 'Metamodellingg' : 'MM'}
+            {(activeTab === "1") ? 'Metamodelling' : 'MM'}
           </NavLink>
         </NavItem>
         <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , borderColor: "#eee gray white #eee", color: "black"}}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
-            {(activeTab === "2") ? 'Concept Modelling' : 'CM'}
+            {(activeTab === "2") ? 'Modelling' : 'Modelling'}
           </NavLink>
         </NavItem>
         {/* <NavItem >
@@ -237,10 +239,10 @@ const page = (props:any) => {
         </TabPane> */}
         {/* Metamodelling */}
         <TabPane  tabId="1">
-          <div className="workpad p-1 pt-2 bg-white" >
+          <div className="workpad p-1" >
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
-                <div className="myPalette pl-1 mb-1 pt-2" style={{ minHeight: "vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+                <div className="myPalette pl-1 mb-2 pt-0" style={{ minHeight: "vh", height: "96%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                   <Palette
                     gojsModel={gojsmetamodelmodel}
@@ -256,7 +258,7 @@ const page = (props:any) => {
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
-              <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "101%", border: "solid 1px black" }}>
+              <div className="myModeller  " style={{ backgroundColor: "#ddd", width: "100%", height: "96%", border: "solid 1px black", backgroundColor: "#7ac" }}>
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmetamodelmodel}
@@ -280,7 +282,7 @@ const page = (props:any) => {
             <Row >
             <Col xs="auto m-0 p-0 pl-3">
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-              <div className="myPalette px-1 mb-0 pt-0 text-white" style={{  minHeight: "7vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}>
+              <div className="myPalette px-1 mt-0 mb-0 pt-0  pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
               {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "170px", minHeight: "10vh", height: "100%", marginRight: "2px", border: "solid 1px black" }}> */}
                 <Palette
                   gojsModel={gojsmodel}
@@ -316,7 +318,7 @@ const page = (props:any) => {
                 </div>
               </Col>
             <Col xs="auto m-0 p-0 pr-0">
-              <div className="myTargetMeta pl-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "4px", backgroundColor: "#9a9", border: "solid 1px black" }}>
+              <div className="myTargetMeta pl-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "4px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                 <TargetMeta
                   gojsModel={gojsmodel}
                   gojsMetamodel={gojsmetamodel}
@@ -355,7 +357,7 @@ const page = (props:any) => {
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
-                <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+                <div className="myModeller mb-1 pt-3 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <TargetModeller
                     gojsModel={gojsmodel}
@@ -378,35 +380,46 @@ const page = (props:any) => {
     </>
     )      
 
-  // if (debug) console.log('173 Modelling', activeTab);
+  if (debug) console.log('383 Modelling', activeTab);
   const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
-  const EditFocusModelMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Mod' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  // const EditFocusModelDiv = <EditFocusModel buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModelODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModel buttonLabel='Obj' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModelRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModel buttonLabel='Rel' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Object' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Relship' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
-  // if (debug) console.log('177 Modelling', EditFocusModelDiv);
+  // if (debug) console.log('177 Modelling', EditFocusModalDiv);
+  const editLabel = <span className="text-gray m-1">Edit : </span>
 
   return (
     <>
-      <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}>{refresh ? 'refresh' : 'refresh'} </span>
-      <div className="diagramtabs" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
+      <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}
+        data-toggle="tooltip" data-placement="top" title="Refresh the modelview"
+      >{refresh ? 'refresh' : 'refresh'} </span>
+      <div className="diagramtabs pl-1 pb-1" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
         <div style={{ transform: "scale(0.9)"}}>
           <span className="sourceName pr-1 float-right mr-0 mt-1" 
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
               Current source: {props.phSource}
           </span> 
-          <span className="loadmodel float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-            {loadserver} 
-            {loginserver} 
-            {loadlocal}  
+          <span className="loadmodel float-right"  style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" >
+              {loadserver} 
+            </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" >
+             {loginserver} 
+            </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" >
+             {loadlocal}  
+            </span>
           </span> 
-          <span className="editfocus float-right" style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
-            {EditFocusModelRDiv} {EditFocusModelODiv}{EditFocusModelMDiv}
+          <span className="editfocus float-right d-flex"   
+            data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object or Relationship and click to edit properties" 
+            style={{ padding: "1px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}>
+            {editLabel} {EditFocusModalRDiv} {EditFocusModalODiv}{EditFocusModalMDiv}
           </span>
         </div> 
         {/* <div className="modellingContent pt-1" > */}

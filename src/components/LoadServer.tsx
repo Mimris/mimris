@@ -26,9 +26,9 @@ const SelectSource = (props: any) => {
   const selmodellist = (modellist) && modellist?.map(ml => (ml) &&  {value: ml.id, label: ml.name}) 
   if (debug) console.log('27 LoadServer',  selmodellist);
 
-  const modelNames = props.ph?.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
+  const modelNames = props.ph?.phData?.metis?.models.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph?.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  // if (debug) console.log('20 LoadLocal', modelNames, metamodelNames);
+  if (debug) console.log('20 LoadLocal', props.ph.phData.metis, modelNames, metamodelNames);
 
   function handleLoadModelStore() { 
     const data = props.ph.phFocus.focusModel
@@ -89,9 +89,8 @@ const SelectSource = (props: any) => {
     const data = {id: selectedOption.value, name: selectedOption.label}
     if (debug) console.log('114 LoadServer', data);
     dispatch({ type: 'SET_FOCUS_MODEL', data }) ;  
-
-
   };
+
   if (debug) console.log('94', props.ph.phFocus);
   
   const selectedOptionDiv =  (focusModel) && <span className="bg-light p-1 pl-1 pr-5 w-100 " >{focusModel.name}</span>
@@ -113,7 +112,13 @@ const SelectSource = (props: any) => {
         </div>
       </>
 
-
+  const selectDiv = (selmodellist) &&
+    <Select 
+      options={selmodellist} 
+      name='Model'
+      value={selectedOption}
+      onChange={handleChange}
+    /> 
   return (
     <>
       <span><button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button> </span>
@@ -126,12 +131,7 @@ const SelectSource = (props: any) => {
           <div className="source bg-light py-2 "> Models:<br /> <strong> {modelNames}</strong></div>
           <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "2px" }} />
           <h6>Model repository (Firebase) </h6>
-          <Select 
-            options={selmodellist} 
-            name='Model'
-            value={selectedOption}
-            onChange={handleChange}
-          /> 
+          {selectDiv}
           Selected: {selectedOptionDiv}
           <div className="source bg-light pt-2 ">
              {buttonDiv}

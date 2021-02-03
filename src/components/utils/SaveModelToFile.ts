@@ -2,7 +2,25 @@
 
 
 export const SaveModelToFile = (model, name, type) => {
-    const fileName = type+"-"+name;
+    const today = new Date().toISOString().slice(0, 19)
+    const fileName = type+"_"+name+'_'+today;
+  
+    const json = JSON.stringify(model);
+    const blob = new Blob([json],{type:'application/json'});
+    const href = URL.createObjectURL(blob);
+    // const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+export const SaveAllToFile = (model, name, type) => {
+    const today = new Date().toISOString().slice(0, 19)
+    const fileName = type+"_"+name+'_'+today;
+    console.log('25 LoadLocal', model, fileName);
+  
     const json = JSON.stringify(model);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
@@ -29,21 +47,30 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
         const mlength = props.phData?.metis?.models.length
         if (mindex < 0) { mindex = mlength } // ovindex = -1, i.e.  not fond, which means adding a new model
         console.log('30 LoadLocal', modelff, mindex, mlength);
-        
-        const data = {
-            phData: {
-                ...props.phData,
-                metis: {
-                    ...props.phData.metis,
-                    metamodels: props.phData.metis.metamodels,   
-                    models: [
-                        ...props.phData.metis.models.slice(0, mindex),     
-                        modelff,
-                        ...props.phData.metis.models.slice(mindex + 1, props.phData.metis.models.length),
-                    ],
-                },
-            }, 
-        };
+        let data
+        if (modelff.phData) {
+            data = {
+                phData:   modelff.phData,
+                phFocus:  modelff.phFocus,
+                phUser:   modelff.phUser,
+                phSource: 'fromFile'
+              }
+        } else {
+            data = {
+                phData: {
+                    ...props.phData,
+                    metis: {
+                        ...props.phData.metis,
+                        metamodels: props.phData.metis.metamodels,   
+                        models: [
+                            ...props.phData.metis.models.slice(0, mindex),     
+                            modelff,
+                            ...props.phData.metis.models.slice(mindex + 1, props.phData.metis.models.length),
+                        ],
+                    },
+                }, 
+            };
+        }
         console.log('46 LoadLocal', data);      
         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
     };

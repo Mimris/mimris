@@ -10,6 +10,7 @@ import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
+
 import useLocalStorage from '../hooks/use-local-storage'
 import DispatchFromLocalStore from '../components/utils/DispatchFromLocalStore'
 // import { loadState, saveState } from '../components/utils/LocalStorage'
@@ -94,7 +95,7 @@ const page = (props:any) => {
                 {/* <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} > */}
                 <TasksHelp />
               </div>
-              <div className="workarea mr-1 pl-1 pt-2 pb-3" style={{ backgroundColor: "#ddd" }}>
+              <div className="workarea mr-1 pl-1 pt-1 pr-2 pb-2" style={{ backgroundColor: "#ddd" }}>
                 {refresh ? <> {modellingDiv} </> : <>{modellingDiv}</>}
                 {/* <Modelling /> */}
               </div>

@@ -147,7 +147,7 @@ const Palette = (props) => {
       </TabContent>
     </>
     
-    const mmnamediv = (mmodel) ? <span>{mmodel?.name}</span> : <span>No metamodel</span> 
+    const mmnamediv = (mmodel) ? <span className="w-100">{mmodel?.name}</span> : <span>No metamodel</span> 
 
    const palette =
       <> 
@@ -159,8 +159,8 @@ const Palette = (props) => {
         {/* <div style={{ minWidth: "140px" }}> */}
           {visiblePalette 
             ?  (refresh) 
-                  ? <><div className="mmname bg-light text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px", maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</> 
-                  : <><div className="mmname bg-light text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px",maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</>
+                  ? <><div className="mmname bg-light w-100 text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px", maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</> 
+                  : <><div className="mmname bg-light w-100 text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px",maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</>
               // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
             : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e </span> </div>
           }

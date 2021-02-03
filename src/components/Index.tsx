@@ -87,9 +87,9 @@ const page = (props) => {
                   <CardHeader className="card-header">Terminologi!</CardHeader>
                   <CardTitle style={{ fontWeight: "bolder", fontSize: "150%" }}>IRTV</CardTitle>
                   <CardText className="card-text "> 
-                    <strong>What is IRTV?</strong> IRTV stands for: Information, Role, Task, View
-                    <br />You start with an built in Metamodel: The IRTV-Metamodel, wich contain the basic building blocks for AKM Models (shown in the left Palette in the modelling page). 
-                    <br />You use these building blocks to build an Active Knowledge Model, which in turn can be use to generate Solution models for interactive Role and Task oriented Workplaces for all Roles in enterprise projects . 
+                    <strong> IRTV stands for: Information, Role, Task, View</strong>
+                    <br />We start with an built in IRTV-Metamodel, wich contain the basic building blocks for AKM Models <br />(shown in the left Palette in the modelling page). 
+                    <br /><br />We use these building blocks to build an Active Knowledge Model, which in turn can be use to generate Solution models for interactive Role and Task oriented Workplaces for all Roles in enterprise projects . 
 
                   </CardText>
                   <CardTitle style={{ fontWeight: "bolder", fontSize: "150%" }}>Metamodel & Model</CardTitle>
@@ -97,7 +97,7 @@ const page = (props) => {
                      When building a model, we use some predefined objects called "Object Types". <br />   
                      <i>(Its can be compared to building a Lego model. Depending on which Lego blocks you have, we can build different models)</i>
                     <br /><br />In AKM modelling we have predefined a Metamodel with the IRTV building blocks. From these we can build any new Metamodels and Models of any kind. 
-                    <br /><br /><strong>(The App that builds the App). </strong>
+                    <br /><strong>(The App that builds the App). </strong>
                  
                     <br /><br /><i>(It is possible to build your own Metamodel from a basic Object and Relationship type)</i><strong> </strong>
 

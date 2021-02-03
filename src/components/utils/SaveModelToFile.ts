@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 
-export const SaveModelToFile = (models, name, type) => {
+export const SaveModelToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
     const fileName = type+"_"+name+'_'+today;
   

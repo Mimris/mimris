@@ -174,7 +174,7 @@ const page = (props:any) => {
         </NavItem> */}
         <NavItem>
         {/* <NavItem className="text-danger" > */}
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , color: "black"}}
+          <NavLink style={{  paddingTop: "0px", paddingBottom: "0px", borderColor: "#eee gray white #eee" , color: "black"}}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
@@ -182,7 +182,7 @@ const page = (props:any) => {
           </NavLink>
         </NavItem>
         <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , color: "black"}}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" , borderColor: "#eee gray white #eee", color: "black"}}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
@@ -239,7 +239,7 @@ const page = (props:any) => {
         </TabPane> */}
         {/* Metamodelling */}
         <TabPane  tabId="1">
-          <div className="workpad p-1 pt-2 bg-white" >
+          <div className="workpad p-1" >
             <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0">
                 <div className="myPalette pl-1 mb-2 pt-0" style={{ minHeight: "vh", height: "96%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
@@ -258,7 +258,7 @@ const page = (props:any) => {
                 </div>
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px" }}>
-              <div className="myModeller mb-0 " style={{ backgroundColor: "#ddd", width: "100%", height: "96%", border: "solid 1px black", backgroundColor: "#7ac" }}>
+              <div className="myModeller  " style={{ backgroundColor: "#ddd", width: "100%", height: "96%", border: "solid 1px black", backgroundColor: "#7ac" }}>
               {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
                   <Modeller
                     gojsModel={gojsmetamodelmodel}

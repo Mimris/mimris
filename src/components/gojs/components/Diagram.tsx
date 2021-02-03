@@ -35,6 +35,7 @@ import { isNullOrUndefined } from 'util';
 import { setMyMetisParameter } from '../../../actions/actions';
 //import { stringify } from 'querystring';
 // import './Diagram.css';
+// import "../../../styles/styles.css"
 
 const AllowTopLevel = true;
 
@@ -1758,7 +1759,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedMetamodels.push(gqlMetamodel);
               modifiedMetamodels.map(mn => {
                   let data = mn;
-                  if (debug) console.log('768 data', data);
+                  if (!debug) console.log('768 data', data);
                   e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
               });
             }
@@ -2649,13 +2650,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           {/* <div className="modal-dialog w-100 mt-5"> */}
             {/* <div className="modal-content"> */}
               <div className="modal-head">
-                <Button className="modal-button btn-sm float-right ml-5" color="link" 
+                <Button className="modal-button btn-sm float-right m-1" color="link" 
                   onClick={() => { this.handleCloseModal() }} ><span>x</span>
                 </Button>
                 <ModalHeader className="modal-header" >
                 <span className="text-secondary">{header} </span> 
                 <span className="modal-name " >{this.state.selectedData?.name} </span>
-                <span className="modal-objecttype"> {typename} </span> 
+                <span className="modal-objecttype float-right"> {typename} </span> 
               </ModalHeader>
               </div>
               <ModalBody >
@@ -2665,7 +2666,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 </div>
               </ModalBody>
               <ModalFooter className="modal-footer">
-                <Button className="modal-footer bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
+                <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
               </ModalFooter>
             {/* </div> */}
           {/* </div> */}

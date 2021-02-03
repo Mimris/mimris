@@ -85,7 +85,7 @@ const Palette = (props) => {
     <>
       <Nav tabs >
         <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px", color: "black" }}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px", borderColor: "#eee gray white #eee", color: "black" }}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
@@ -93,7 +93,7 @@ const Palette = (props) => {
           </NavLink>
         </NavItem>
         <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px" , color: "black"}}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px", borderColor: "#eee gray white #eee", color: "black"}}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >

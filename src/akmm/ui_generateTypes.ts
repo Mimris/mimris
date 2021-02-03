@@ -228,7 +228,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             let name = obj.name;
             name = utils.camelize(name);
             name = utils.capitalizeFirstLetter(name);
-            if (!debug) console.log('237 name', name);
+            if (debug) console.log('237 name', name);
             objtype = new akm.cxObjectType(utils.createGuid(), name, obj.description);
             const properties = obj?.type?.properties;
             if (properties !== undefined && properties !== null && properties.length > 0)
@@ -260,7 +260,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             // To ensure that objtype is a class instance
             objtype = myMetis.findObjectType(objtype.id);
         }
-        if (!debug) console.log('213 myMetis', objtype, myMetis);
+        if (debug) console.log('213 myMetis', objtype, myMetis);
         let parentType: akm.cxObjectType | null = null;
         let parentRelType: akm.cxRelationshipType | null = null;
         if (objtype) {
@@ -450,13 +450,13 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     name = utils.camelize(name);
     name = utils.uncapitalizeFirstLetter(name);
     let reltype    = myTargetMetamodel.findRelationshipTypeByName2(relname, fromtype, totype);
-    if (!debug) console.log('451 reltype', rel, relname, reltype);
+    if (debug) console.log('451 reltype', rel, relname, reltype);
     if (!reltype) {
         // New relationship type - Create it
         reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, rel.description);
         myTargetMetamodel.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
-        if (!debug) console.log('373 reltype', reltype);
+        if (debug) console.log('373 reltype', reltype);
         // Create relationship typeview
         let reltypeview = new akm.cxRelationshipTypeView(utils.createGuid(), rel.name, reltype, rel.description);
         reltypeview.applyRelationshipViewParameters(relview);

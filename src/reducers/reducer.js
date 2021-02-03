@@ -1597,7 +1597,7 @@ function reducer(state = InitialState, action) {
               {
                 ...state.phData.metis.metamodels[curmmpindexot],
                 properties: [
-                  ...curmmpot?.properties.slice(0, indexpot),
+                  ...curmmpot?.properties?.slice(0, indexpot),
                   {
                     ...curmmpot?.properties[indexpot],  
                     id: action.data.id,           

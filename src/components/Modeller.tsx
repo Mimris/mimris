@@ -73,7 +73,7 @@ const Modeller = (props: any) => {
             title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
             style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
               Project: 
-            <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.projectName || 'No name given'}</span> 
+            <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.projectName || '---- none ----'}</span> 
         </h5>
       </>
     :

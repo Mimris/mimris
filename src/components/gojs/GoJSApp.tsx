@@ -448,7 +448,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const node = myDiagram.findNodeForKey(n.data.key);
           const part = node.data;
           if (debug) console.log('640 found node', node);
-          if (debug) console.log('641 part', part, node, n);
+          if (!debug) console.log('641 part', part, node, n);
           if (debug) console.log('642 myMetis', myMetis);
           if (debug) console.log('643 myGoModel', myGoModel, myGoMetamodel);
 
@@ -488,6 +488,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (part.parentModel == null)
               myMetis.pasteViewsOnly = true;
             if (part.isGroup) {
+              part.viewkind = 'Container';
               part.size = "300 200";    // Hack
               if (debug) console.log('673 part', part);
             }

@@ -24,7 +24,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (debug) console.log('24 createObject', myModel.pasteViewsOnly, data);
+        if (debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
@@ -32,7 +32,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         if (debug) console.log('30 createObject', myMetis, data);
         let obj = data.object;
         if (debug) console.log('35 createObject', obj);
-        if (myModel.pasteViewsOnly) {
+        if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
             if (!pastedobj) {
                 // This is not a pasted object, create a new one
@@ -864,7 +864,6 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
     const myNode = new gjs.goObjectNode(node.key, objview);
     myNode.loc = node.loc;
     myNode.size = node.size;
-    myNode.objectview_0 = node.objectview_0;
     myNode.parentModel = node.parentModel;
     myNode.type = node.type;
     const objtype = objview.object?.type;

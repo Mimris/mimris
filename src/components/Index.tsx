@@ -82,33 +82,24 @@ const page = (props) => {
                     <strong> 
                       - Reload the webpage! ...then before anything else:<br />
                       - Select "Recover Unseaved Models from MemoryStorage". </strong>
-  
                     <br /><br /><strong> </strong>
-                    {/* <strong>Save current models to a file: <br />(Requirement:</strong> Chrome browser with RemoteDev DevTools Extensions installed) 
-                    
-                    <br /><br /><strong>Right click the meny bar at the top </strong>
-                    <br />Select "Inpect" (a ).
-                    <br /><br /><strong>Click "Export" at the bottom meny) </strong>
-                    <br />... the Redux store (incl. all actions) will be exported and downloaded to "downloads" folder. 
-                    <br /> (Tip: Rename the file to include date and move/copy it to a folder to keep history of your model).
-                    <br />(The file can be loaded later or sent by email to someone for review) */}
 
                   </CardText>
                 </CardBody>
               </Card>
 
               <Card className="card "
-                              style={{
-                                background: "rgba(255,255,255,0.4)",
-                                borderRadius: "10px",
-                                border: "1px solid rgba(255,255,255,0.2)",
-                                position: "relative",
-                                backdropFilter: "blur(5px)",
-                                WebkitBackdropFilter: "blur(5px)",
-                                // display: "block",
-                                // margin: "0 auto",
-                                padding: "2px"
-                              }}
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "2px"
+                }}
               >
                 <CardHeader className="card-header">AKM Modeller</CardHeader>
                 <CardBody className="card-body" >
@@ -122,17 +113,17 @@ const page = (props) => {
                 </CardBody>
               </Card>
               <Card className="card" body outline color="warning"
-                              style={{
-                                background: "rgba(255,255,255,0.4)",
-                                borderRadius: "10px",
-                                border: "1px solid rgba(255,255,255,0.2)",
-                                position: "relative",
-                                backdropFilter: "blur(5px)",
-                                WebkitBackdropFilter: "blur(5px)",
-                                // display: "block",
-                                margin: "0 auto",
-                                padding: "2px"
-                              }}              
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  margin: "0 auto",
+                  padding: "2px"
+                }}              
               >
                 <CardHeader className="card-header">Aktive Knowledge Modelling</CardHeader>
                 <CardBody className="card-body" >

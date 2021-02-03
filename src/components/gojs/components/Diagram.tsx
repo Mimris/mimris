@@ -159,17 +159,115 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedOption: null,
       showModal: true
     });
-    if (debug) console.log('166 Diagram', this.state);
+    if (debug) console.log('161 Diagram', this.state);
   } 
   
   public handleCloseModal() {
+    if (debug) console.log('165 state', this.state);
+    const what = this.state.modalContext.what;
+    const myDiagram = this.state.modalContext.myDiagram;
+    switch(what) {
+      case "editObject": {
+        const obj = this.state.selectedData;
+        const type = obj.type;
+        const node = myDiagram.findNodeForKey(obj.key);
+        const data = node.data;
+        for (let k in data) {
+          if (k === 'id') continue;
+          if (k === 'class') continue;
+          if (k === 'category') continue;
+          if (k === 'abstract') continue;
+          if (k === 'nameId') continue;
+          if (k === 'fs_collection') continue;
+          if (k === 'parent') continue;
+          if (k === 'parentModel') continue;
+          if (k === 'type') continue;
+          if (k === 'typeRef') continue;
+          if (k === 'typeview') continue;
+          if (k === 'typeviewRef') continue;
+          if (k === 'group') continue;
+          if (k === 'isGroup') continue;
+          if (k === 'groupLayout') continue;
+          if (k === 'objectRef') continue;
+          if (k === 'fromObject') continue;
+          if (k === 'toObject') continue;
+          if (k === 'fromobjectRef') continue;
+          if (k === 'toobjectRef') continue;
+          if (k === 'toobjectRef') continue;
+          if (k === 'relshipRef') continue;
+          if (k === 'toObjviewRef') continue;
+          if (k === 'fromObjviewRef') continue;
+          if (k === 'viewkind') continue;
+          if (k === 'relshipkind') continue;
+          if (k === 'valueset') continue;
+          if (k === 'inputrels') continue;
+          if (k === 'outputrels') continue;
+          if (k === 'allProperties') continue;
+          if (k === 'propertyValues') continue;
+          if (k === 'objectviews') continue;
+          if (k === 'relshipviews') continue;
+          if (k === 'isCollapsed') continue;
+          if (k === 'visible') continue;
+          if (k === 'deleted') continue;
+          if (k === 'modified') continue;
+          if (k === 'defaultValue') continue;
+          if (k === 'allowedValues') continue;
+          if (type?.name !== 'ViewFormat') {
+            if (k === 'viewFormat') continue;
+          }
+          if (type?.name !== 'InputPattern') {
+            if (k === 'inputPattern') continue;
+          }
+          myDiagram.model.setDataProperty(data, k, obj[k]);
+        }
+        break;
+      }
+      case "editObjectview": {
+        const objview = this.state.selectedData;
+        const objtypeview = objview.typeview;
+        const node = myDiagram.findNodeForKey(objview.key);
+        const data = node.data;
+        for (let prop in objtypeview.data) {
+          if (prop === 'figure' && objview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+          if (prop === 'fillcolor' && objview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+          if (prop === 'strokecolor' && objview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+          if (prop === 'strokewidth' && objview[prop] !== "")
+            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+          if (prop === 'icon' && objview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+        }
+        break;
+      }
+      case "editRelshipview": {
+        const relview = this.state.selectedData;
+        const reltypeview = relview.typeview;
+        const node = myDiagram.findLinkForKey(relview.key);
+        const data = node.data;
+        for (let prop in reltypeview.data) {
+          if (prop === 'strokecolor' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          if (prop === 'strokewidth' && relview[prop] !== "")
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          if (prop === 'dash' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            if (prop === 'fromArrow' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          if (prop === 'fromArrowColor' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          if (prop === 'toArrow' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          if (prop === 'toArrowColor' && relview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+        }
+        break;
+      }
+    }
     this.setState({ showModal: false });
   }
   
-  // public handleSelectDropdownChange(e) {
-  //   console.log('166 Diagram', e);
-  //   this.setState({ objType: 'Address' });
-  // }
   public handleSelectDropdownChange = (selected) => {
     const myMetis = this.myMetis;
     const myGoModel = myMetis.gojsModel;
@@ -313,8 +411,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       })
     );
-    if (debug) console.log('315 this.state', this.state);
+    if (debug) console.log('315 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
     const myMetis = this.myMetis;
+    const myDiagram = context.myDiagram;
     let inst, instview, myInst, myInstview, myItem;
     // Handle objects
     if (obj.category === 'Object') {
@@ -332,10 +431,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           myItem = myInst;
       }
       myItem[propname] = value;
-      // myMetis.currentNode = node;
-      // if (debug) console.log('335 obj, myMetis', node, obj, myItem, myMetis);
-      // uic.updateNode(node, node.typeview, myMetis.myDiagram, myMetis.gojsModel);
-      myMetis.myDiagram?.requestUpdate();
 
       // Prepare and to dispatch of objectview
       if (context?.what === "editTypeview") {
@@ -366,7 +461,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         let data = mn;
         this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       });
-      if (debug) console.log('368 modifiedObjects', modifiedObjectViews, modifiedObjects);
+      if (debug) console.log('368 node', node, propname, value);
+      // if (myDiagram) {
+      //   const n = myDiagram.findNodeForKey(node.key);
+      //   myDiagram.model.setDataProperty(n.data, propname, "pink");
+      //   if (debug) console.log('372 data', n.data, propname, value);
+      //   //myDiagram.requestUpdate();
+      // }
     }
 
     if (obj.category === 'Relationship') {
@@ -383,8 +484,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         else
             myItem = myInst;
         myItem[propname] = value;
-        if (debug) console.log('385 myMetis', myItem, myInstview, myMetis);
-        myMetis.myDiagram.requestUpdate();
+        // if (debug) console.log('385 myMetis', myItem, myInstview, myMetis);
+        // myMetis.myDiagram.requestUpdate();
       
         if (context?.what === "editTypeview") {
           const modifiedTypeviews = new Array();
@@ -608,7 +709,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const modalContext = {
                 what: "selectDropdown",
                 title: "Select Object Type",
-                case: "Change Object type"
+                case: "Change Object type",
+                myDiagram: myDiagram
               } 
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
@@ -699,7 +801,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const modalContext = {
                 what: "editTypeview",
                 title: "Edit Typeview",
-                icon: findImage(node.icon)
+                icon: findImage(node.icon),
+                myDiagram: myDiagram
               }
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
@@ -963,7 +1066,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const modalContext = {
                     what: "selectDropdown",
                     title: "Select Property",
-                    case: "Edit Attribute"
+                    case: "Edit Attribute",
+                    myDiagram: myDiagram
                   } 
                   myMetis.currentNode = node;
                   myMetis.myDiagram = myDiagram;
@@ -1022,7 +1126,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const modalContext = {
                 what: "editObject",
                 title: "Edit Object",
-                icon: findImage(node.icon)
+                icon: findImage(node.icon),
+                myDiagram: myDiagram
               }
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
@@ -1042,7 +1147,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const modalContext = {
                 what: "editObjectview",
                 title: "Edit Object View",
-                icon: findImage(node.icon)
+                icon: findImage(node.icon),
+                myDiagram: myDiagram
               }
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
@@ -1223,14 +1329,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("TEST",
             function (e: any, obj: any) { 
+              const myDiagram = e.diagram;
               const node1 = obj.part;
               console.log('1226 node1', node1);
               let data = node1.data;
               console.log('1228 data', data);
-              const node2 = e.diagram.findNodeForKey(data.key);
+              const node2 = myDiagram.findNodeForKey(data.key);
               console.log('1230 nodeForKey (node2)', node2);
               data = node2.data;
               console.log('1232 data', data);
+              myDiagram.model.setDataProperty(data, "fillcolor", "pink");
             },
             function (o: any) { 
               if (debug)
@@ -1300,7 +1408,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const modalContext = {
                 what: "selectDropdown",
                 title: "Select Relationship Type",
-                case: "Change Relationship type"
+                case: "Change Relationship type",
+                myDiagram: myDiagram
               } 
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
@@ -1397,7 +1506,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const link = obj.part.data;
               const modalContext = {
                 what: "editTypeview",
-                title: "Edit Typeview"
+                title: "Edit Typeview",
+                myDiagram: myDiagram
               }
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
@@ -1574,7 +1684,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const modalContext = {
                     what: "selectDropdown",
                     title: "Select Attribute",
-                    case: "Edit Attribute"
+                    case: "Edit Attribute",
+                    myDiagram: myDiagram
                   } 
                   myMetis.myDiagram = myDiagram;
                   myDiagram.handleOpenModal(choices, modalContext);
@@ -1590,7 +1701,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const modalContext = {
                   what: "selectDropdown",
                   title: "Select Attribute",
-                  case: "Edit Attribute"
+                  case: "Edit Attribute",
+                  myDiagram: myDiagram
                 } 
                 myMetis.currentLink = link;
                 myMetis.myDiagram = myDiagram;
@@ -1619,7 +1731,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const link = obj.part.data;
               const modalContext = {
                 what: "editRelationship",
-                title: "Edit Relationship"
+                title: "Edit Relationship",
+                myDiagram: myDiagram
               }
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
@@ -1638,7 +1751,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const link = obj.part.data;
               const modalContext = {
                 what: "editRelshipview",
-                title: "Edit Relationship View"
+                title: "Edit Relationship View",
+                myDiagram: myDiagram
               }
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
@@ -2595,7 +2709,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         header = modalContext.title;
         category = this.state.selectedData.category;
         typename = '('+this.state.selectedData.object?.typeName+')'
-        if (!debug) console.log('2568 Diagram ', icon);
+        if (debug) console.log('2568 Diagram ', icon);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);
@@ -2612,7 +2726,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editRelationship':
       case 'editRelshipview':
       case 'editTypeview': {
-        header = modalContext.title+':';
+        header = modalContext.title + ':';
         category = this.state.selectedData.category;
         if (debug) console.log('2587 Diagram ', icon);
       

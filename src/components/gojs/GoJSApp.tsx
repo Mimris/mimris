@@ -515,7 +515,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         const modalContext = {
           what: "editObject",
           title: "Edit",
-          icon: findImage(data.icon)
+          icon: findImage(data.icon),
+          myDiagram: myDiagram
         }
         myDiagram.handleOpenModal(data, modalContext, null);
       }

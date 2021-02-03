@@ -49,7 +49,7 @@ const TargetMeta = (props) => {
   const targetmnamediv = (targetmodel) ? <span>Target model: {targetmodel?.name}</span> : <span>No target model</span> 
   const palette =
     <>
-      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#9a9", outline: "0", borderStyle: "none" }}
+      <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
         onClick={togglePalette}> {visiblePalette ? <span> -&gt; Target Metamodel</span> : <span>&lt;</span>}
       </button>
       {visiblePalette

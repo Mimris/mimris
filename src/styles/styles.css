@@ -70,7 +70,7 @@
 .modal-content {
   margin-top: 45%;
   background-color: transparent;
-  background: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.8);
   /* border: 10px solid red; */
   /* border-top: white;
   border-left: white; */
@@ -83,8 +83,8 @@
 }
 .modal-body1 {
   /* background-color: blue; */
-  background-color: transparent;
-  background: rgba(225,225,225,.5);
+  /* background-color: transparent; */
+  background: rgba(225,225,225,0.7);
   padding: 4%;
   /* border-radius: 10px; */
   /* border: 1px solid rgba(255,255,255,1); */
@@ -102,17 +102,29 @@
 }
 .modal-head {
   background-color: transparent;
-  /* background: rgba(159, 23, 23, 0.2); */
-  border-radius: 10px 10px 0px 0px;
+  background: rgba(253, 252, 252, 0.4);
+  /* border-radius: 10px 10px 0px 0px; */
 }
-.modal-header .modal-footer {
+.modal-header {
   background-color: transparent;
-  background: rgba(255,255,255,0.2);
+  /* background: rgba(255,255,255,0.4); */
   font-family: Arial;
   color:  #333;
   font-size: 20px;
-  padding: 20px 30px;
-  text-shadow: 2px 2px rgba(0,0,0,0.3);
+  /* padding: 20px 30px; */
+  /* text-shadow: 2px 2px rgba(0,0,0,0.3); */
+  width: "70%";
+  border-radius: 0px 0px 10px 10px;
+  /* text-transform: uppercase; */
+}
+.modal-footer {
+  background-color: transparent;
+  background: rgba(255,255,255,0.3);
+  font-family: Arial;
+  color:  #333;
+  font-size: 90%;
+  /* padding: 20px 30px; */
+  /* text-shadow: 1px 1px rgba(0,0,0,0.1); */
   width: "70%";
   border-radius: 0px 0px 10px 10px;
   /* text-transform: uppercase; */
@@ -130,9 +142,9 @@
   /* justify-content: space-between; */
 }
 
-.modal .modal-name {
-  /* background-color: transparent; */
-  background: rgba(255,255,255,0.8);
+.modal-name {
+  background-color: transparent;
+  /* background: rgba(255,255,255,0.2); */
 }
 
 .modal-image {
@@ -145,14 +157,22 @@
 .modal-objecttype {
   float: left;
   margin-top: 0.2rem;
-  margin-left: 1rem;
+  margin-left: 2rem;
   font-size: 1rem
 }
 
-/* .modal-button {
+.modal-button {
   background-color: blue;
   background: rgba(255,255,255,0.4);
-} */
+}
+
+.tooltip {
+  background-color: transparent;
+  background: rgba(255,255,255,0.2);
+  /* color:  #333; */
+  /* text-shadow: 2px 2px rgba(0,0,0,0.3); */
+ 
+}
 .inspector {
   display: flex;
   align-items: stretch;
@@ -585,12 +605,12 @@
 } */
 
 .btn {
-  font-size: 20%; 
+  /* font-size: 20%;  */
   text-transform: uppercase;
   white-space: normal !important;
   word-wrap: break-word !important;
-  background-color: #ddd; 
-  color: #EB0037;
+  /* background-color: #ddd;  */
+  /* color: #EB0037; */
 }
 .button {
   padding: 0;

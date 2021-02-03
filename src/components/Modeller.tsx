@@ -133,7 +133,7 @@ const Modeller = (props: any) => {
         // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
         return (
           <NavItem key={strindex}>
-            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none" }}
+            <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab == strindex })}
               onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
               // onClick={() => { toggleTab(strindex); dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefresh() }}
@@ -174,9 +174,13 @@ const Modeller = (props: any) => {
 
   return (
     (props.modelType === 'model') ?
-    <div className="mt-1 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
-      <div>
+    <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
+        <button className="btn-sm bg-info text-white py-0 mr-2 float-left "  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          title="Start modelling:&#013;Insert an Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Modelling area below.&#013; 
+          Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them.">i
+        </button>
         <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller</h5>
+      <div>
         {selector}
       </div><br />
       <div className="mt-2">
@@ -189,8 +193,12 @@ const Modeller = (props: any) => {
       `}</style>
     </div>
     :
-    <div className="mt-1" style={{backgroundColor: "#acc"}}>
-      <h5 className="modeller-heading text-dark mr-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+    <div className="mt-1 mb-5" style={{backgroundColor: "#7ac"}}>
+      <button className="btn-sm bg-info text-white py-0 mr-2 mb-5 float-left "  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
+        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them.">i
+      </button>
+      <h5 className="modeller-heading text-dark mr-4 mb-5" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
       <div>
         {selector}
         {metamodelTabDiv} 

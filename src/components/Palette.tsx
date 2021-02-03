@@ -85,7 +85,7 @@ const Palette = (props) => {
     <>
       <Nav tabs >
         <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px" }}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px", borderColor: "#eee gray white #eee", color: "black" }}
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggleTab('1'); toggleRefresh() }}
           >
@@ -93,7 +93,7 @@ const Palette = (props) => {
           </NavLink>
         </NavItem>
         <NavItem >
-          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px" }}
+          <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px", borderColor: "#eee gray white #eee", color: "black"}}
             className={classnames({ active: activeTab === '2' })}
             onClick={() => { toggleTab('2'); toggleRefresh() }}
           >
@@ -151,7 +151,7 @@ const Palette = (props) => {
 
    const palette =
       <> 
-        <button className="btn-sm p-0 pr-2 mr-2 pt-2" style={{ backgroundColor: "#999", outline: "0", borderStyle: "none"}}
+        <button className="btn-sm px-0 m-0" style={{ backgroundColor: "#7ac", outline: "0", borderStyle: "none"}}
           onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette </span> : <span>&gt;</span>} 
         </button>
         {/* <span>{props.focusMetamodel?.name}</span> */}
@@ -159,8 +159,8 @@ const Palette = (props) => {
         {/* <div style={{ minWidth: "140px" }}> */}
           {visiblePalette 
             ?  (refresh) 
-                  ? <><div className="mmname bg-light text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp } </> 
-                  : <><div className="mmname bg-light text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</>
+                  ? <><div className="mmname bg-light text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px", maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</> 
+                  : <><div className="mmname bg-light text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px",maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</>
               // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
             : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e </span> </div>
           }

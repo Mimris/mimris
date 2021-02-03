@@ -50,10 +50,10 @@ const EditFocusModel = (props) => {
   const currtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === currelview?.typeviewRef)
   
   
-  if (!debug) console.log('42 EditFocusModel', props.modelType, curmmrel, curmmobj);
+  if (debug) console.log('42 EditFocusModel', props.modelType, curmmrel, curmmobj);
   
   const editmpropertyDiv = (props.modelType === 'modelview') 
-    && (curmodel) && <EditProperties item={curmodel.id} item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
+    && (curmodel) && <EditProperties key={curmodel.id} item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
   const editmvpropertyDiv = (props.modelType === 'modelview') 
     && (curmodelview) && <EditProperties key={curmodelview.id} item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
   const editmmpropertyDiv = (props.modelType === 'modelview') 

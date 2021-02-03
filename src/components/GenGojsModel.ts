@@ -206,12 +206,19 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const typeview = objtype?.getDefaultTypeView();
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
       objview.setTypeView(typeview);
+      // if (obj.name === 'Container') {
+      //   obj.viewkind = 'Container';
+      //   objview.isGroup = true;
+      //   console.log('206 Container', obj, objview, objtype);
+      // }
       const node = new gjs.goObjectNode(utils.createGuid(), objview);
       node.isGroup = objtype?.isContainer();
       node.category = constants.gojs.C_OBJECT;
       const viewdata: any = typeview?.data;
       node.addData(viewdata);
       nodeArray.push(node);
+      if (node.name === 'Container')
+        console.log('221 node', node);
     }
     if (debug) console.log('214 Object palette', nodeArray);
     return nodeArray;

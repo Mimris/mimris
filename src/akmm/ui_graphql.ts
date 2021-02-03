@@ -7,7 +7,8 @@ import * as akm from './metamodeller';
 //import * as gojs  from './components/akmm/ui_gojs';
 
 export class gqlExportMetis {
-    repositories:           gqlRepository[];
+    name:                   string;
+    description:            string;
     metamodels:             gqlMetaModel[];
     models:                 gqlModel[];
     //modelviews:             gqlModelView[];
@@ -15,34 +16,25 @@ export class gqlExportMetis {
     //enumerations:           gqlEnumeration[];
     pasteViewsOnly:         boolean;
     deleteViewsOnly:        boolean;
-    currentRepositoryRef:   string;
     currentMetamodelRef:    string;
     currentModelRef:        string;
     currentModelviewRef:    string;
     currentTemplateModelRef: string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
-        this.repositories = [];
+        this.name         = metis.name;
+        this.description  = metis.description;
         this.metamodels   = [];
         this.models       = [];
         //this.modelviews   = [];
         //this.datatypes    = [];
         //this.enumerations = [];
-        this.currentRepositoryRef    = "";
         this.currentMetamodelRef     = "";
         this.currentModelRef         = "";
         this.currentModelviewRef     = "";
         this.currentTemplateModelRef = "";
         // Code
         if (metis) {
-            const repositories = metis.getRepositories();
-            if (repositories) {
-                const cnt = repositories.length;
-                for (let i = 0; i < cnt; i++) {
-                    const repository = repositories[i];
-                    this.addRepository(repository);
-                }
-            }
             const metamodels = metis.getMetamodels();
             if (metamodels) {
                 const cnt = metamodels.length;
@@ -59,8 +51,6 @@ export class gqlExportMetis {
                     this.addModel(model, includeViews);
                 }
             }
-            if (metis.currentRepository)
-                this.currentRepositoryRef = metis.currentRepository.id;
             if (metis.currentMetamodel)
                 this.currentMetamodelRef = metis.currentMetamodel.id;
             if (metis.currentModel)
@@ -73,12 +63,6 @@ export class gqlExportMetis {
         }
     }
     // Functions
-    addRepository(repository: akm.cxRepository) {
-        if (repository) {
-            const gRepository = new gqlRepository(repository);
-            this.repositories.push(gRepository);
-        }
-    }
     addMetamodel(metamodel: akm.cxMetaModel, includeViews: boolean) {
         if (metamodel) {
             const gMetamodel = new gqlMetaModel(metamodel, includeViews);
@@ -92,17 +76,6 @@ export class gqlExportMetis {
         }
     }
 }
-export class gqlRepository {
-    id:                 string;
-    name:               string;
-    description:        string;
-    constructor(repository: akm.cxRepository) {
-        this.id             = repository.id;
-        this.name           = repository.name;
-        this.description    = repository.description;
-    }
-}
-
 export class gqlExportMetaModel {
     metamodels: gqlMetaModel[];
     constructor() {
@@ -1081,10 +1054,10 @@ export class gqlRelshipView {
     }
 }
 export class gqlImportMetis {
-    repositories:               akm.cxRepository[];
+    name:                       string;
+    description:                string;
     metamodels:                 akm.cxMetaModel[];
     models:                     akm.cxModel[];
-    currentRepositoryRef:       string;
     currentMetamodelRef:        string;
     currentModelRef:            string;
     currentModelviewRef:        string;
@@ -1093,29 +1066,17 @@ export class gqlImportMetis {
     deleteViewsOnly:            boolean;
     imported:                   any;
     constructor(metis: akm.cxMetis, importedData: any) {
-        this.repositories           = [];
+        this.name                   = importedData.name;
+        this.description            = importedData.description;
         this.metamodels             = [];
         this.models                 = [];
         this.imported               = importedData;
         this.pasteViewsOnly         = importedData.pasteViewsOnly;
         this.deleteViewsOnly        = importedData.deleteViewsOnly;
-        this.currentRepositoryRef   = importedData.currentRepositoryRef;
         this.currentMetamodelRef    = importedData.currentMetamodelRef;
         this.currentModelRef        = importedData.currentModelRef;
         this.currentModelviewRef    = importedData.currentModelviewRef;
         this.currentTemplateModelRef = importedData.currentTemplateModelRef;
-        /* Initialise
-        glb.metis.initMetis();
-        glb.myMetamodel = undefined;
-        glb.myModel     = undefined;
-        */
-        // Handle repositories
-       const repositories = importedData.repositories;
-       if (repositories && (repositories.length > 0)) {
-           repositories.forEach(function (this: gqlImportMetis, repository: akm.cxModel) {
-               this?.importRepository(repository);
-           });
-       }
         // Handle metamodels
         const metamodels = importedData.metamodels;
         if (metamodels && (metamodels.length > 0)) {
@@ -1130,13 +1091,6 @@ export class gqlImportMetis {
             models.forEach(function (this: gqlImportMetis, model: akm.cxModel) {
                 this?.importModel(model);
             });
-        }
-    }
-    importRepository(item: akm.cxRepository) {
-        let repository = glb.metis.findRepository(item.id);
-        if (!repository) {
-            repository = new akm.cxRepository(item.id, item.name, item.description);
-            glb.metis.addRepository(repository);
         }
     }
     importMetamodel(item: akm.cxMetaModel) {

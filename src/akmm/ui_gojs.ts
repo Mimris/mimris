@@ -327,7 +327,7 @@ export class goNode extends goMetaObject {
 
 export class goObjectNode extends goNode {
     objectview: akm.cxObjectView | null;
-    objectview_0: akm.cxObjectView | null;
+    //objectview_0: akm.cxObjectView | null;
     object: akm.cxObject | null;
     objecttype: akm.cxObjectType | null;
     typename: string;
@@ -345,7 +345,7 @@ export class goObjectNode extends goNode {
         super(key, null);
         this.category       = constants.gojs.C_OBJECT;
         this.objectview     = objview;
-        this.objectview_0   = objview;
+        //this.objectview_0   = objview;
         this.object         = null;
         this.objecttype     = null;
         this.typename       = "";

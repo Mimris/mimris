@@ -57,6 +57,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const dets = [];
     let hideNameAndDescr = false;
     switch (modalContext?.what) {
+      case 'editProject':
+        item = myMetis;
+        break;
       case "editObject":
         item = inst;
         break;

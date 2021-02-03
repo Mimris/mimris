@@ -25,7 +25,10 @@ import * as gjs from './ui_gojs';
 // cxMetis
 
 export class cxMetis {
-    repositories:       cxRepository[] | null = null;
+    id:                 string;
+    name:               string;
+    description:        string;
+    category:           string;
     metamodels:         cxMetaModel[] | null = null;
     models:             cxModel[] | null = null;
     modelviews:         cxModelView[] | null = null;
@@ -46,7 +49,6 @@ export class cxMetis {
     objectviews:        cxObjectView[] | null = null;
     relshipviews:       cxRelationshipView[] | null = null;
     gojsModel:          gjs.goModel | null = null;
-    currentRepository:  cxRepository | null = null;
     currentMetamodel:   cxMetaModel | null = null;
     currentModel:       cxModel | null = null;
     currentModelview:   cxModelView | null = null;
@@ -61,8 +63,14 @@ export class cxMetis {
     selectedData:       any = null;
     // Constructor
     constructor() {
+        this.id = utils.createGuid();
+        this.name = "";
+        this.description = "";
+        this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
+        this.name        = importedData.name;
+        this.description = importedData.description
         this.initImport(importedData, includeDeleted);
         // Handle metamodels
         const metamodels = importedData?.metamodels;
@@ -101,11 +109,6 @@ export class cxMetis {
             })
         }
         // Handle current variables
-        if (importedData.currentRepositoryRef) {
-            const repository = this.findRepository(importedData.currentRepositoryRef);
-            if (repository)
-                this.currentRepository = repository;
-        }
         if (importedData.currentMetamodelRef) {
             const metamodel = this.findMetamodel(importedData.currentMetamodelRef);
             if (metamodel)
@@ -129,16 +132,6 @@ export class cxMetis {
         if (debug) console.log('129 this', this);
     }
     initImport(importedData: any, includeDeleted: boolean) {
-        // Import repositories
-        const repositories = importedData?.repositories;
-        if (repositories && repositories.length) {
-            for (let i = 0; i < repositories.length; i++) {
-                const item = repositories[i];
-                const repository = (item) && new cxRepository(item.id, item.name, item.description);
-                if (!repository) continue;
-                this.addRepository(repository);
-            }
-        }
         // Import metamodels
         const metamodels = importedData?.metamodels;
         if (metamodels && metamodels.length) {
@@ -700,9 +693,6 @@ export class cxMetis {
     }
     addItem(item: any) {
         switch (item.class) {
-            case 'cxRepository':
-                this.addRepository(item);
-                break;
             case 'cxMetaModel':
                 this.addMetamodel(item);
                 break;
@@ -744,14 +734,6 @@ export class cxMetis {
             case 'cxRelationshipView':
                 this.addRelationshipView(item);
                 break;
-        }
-    }
-    addRepository(rep: cxRepository) {
-        if (rep.class === "cxRepository") {
-            if (this.repositories == null)
-                this.repositories = new Array();
-            if (!this.findRepository(rep.id))
-                this.repositories.push(rep);
         }
     }
     addMetamodel(metamodel: cxMetaModel) {
@@ -1175,21 +1157,6 @@ export class cxMetis {
                 break;
         }
         return retval;
-    }
-    findRepository(id: string) {
-        let repositories = this.getRepositories();
-        if (!repositories)
-            return null;
-        else {
-            let i = 0;
-            while (i < repositories.length) {
-                let repository = repositories[i];
-                if (repository && repository.id === id)
-                    return repository;
-                i++;
-            }
-        }
-        return null;
     }
     findDatatype(id: string) {
         let datatypes = this.getDatatypes();
@@ -1778,15 +1745,6 @@ export class cxMetis {
         }
         return null;
     }
-    setCurrentRepository(repository: cxRepository) {
-        this.currentRepository = repository;
-    }
-    getCurrentRepository(): cxRepository {
-        return this.currentRepository;
-    }
-    getRepositories(): cxRepository[] {
-        return this.repositories;
-    }
     setCurrentModelview(modelview: cxModelView) {
         this.currentModelview = modelview;
     }
@@ -1828,10 +1786,6 @@ export class cxMetis {
     }
     getCurrentTargetModelview(): cxModelView {
         return this.currentTargetModelview;
-    }
-    setRepository(rep: cxRepository) {
-        this.repository = rep;
-        this.repositoryRef = rep.id;
     }
 }
 
@@ -1933,12 +1887,6 @@ export class cxMetaObject {
 }
 
 // ---------  Data Types, Categories and Units --------------------------
-
-export class cxRepository extends cxMetaObject {
-    constructor(id: string, name: string, description: string) {
-        super(id, name, description);   
-    } 
-}
 
 export class cxDatatype extends cxMetaObject {
     isOfDatatype:       cxDatatype | null;

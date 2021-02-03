@@ -72,7 +72,7 @@ const Modeller = (props: any) => {
         <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
             style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-              Project: 
+            Project: 
             <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.projectName || '---- none ----'}</span> 
         </h5>
       </>
@@ -131,7 +131,7 @@ const Modeller = (props: any) => {
   // }, [focusModelview?.id])
   
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
-    if (mv) { 
+    if (mv && !mv.deleted) { 
         const strindex = index.toString()
         const data = {id: mv.id, name: mv.name}
         const data2 = {id: Math.random().toString(36).substring(7), name: strindex+'name'}

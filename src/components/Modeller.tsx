@@ -10,7 +10,7 @@ import genGojsModel from './GenGojsModel'
 
 const Modeller = (props: any) => {
   const debug = false
-  if (debug) console.log('13 Modeller', props);
+  if (!debug) console.log('13 Modeller', props);
   // let prevgojsmodel = null
   // let gojsmodel = {}
   const gojsmodel = props.gojsModel;
@@ -69,6 +69,12 @@ const Modeller = (props: any) => {
           {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
           <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
         {/* </div>  */}
+        <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
+            style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
+            Project: 
+            <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.projectName || '---- none ----'}</span> 
+        </h5>
       </>
     :
     <div className="modeller-selection float-right" >
@@ -125,7 +131,7 @@ const Modeller = (props: any) => {
   // }, [focusModelview?.id])
   
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
-    if (mv) { 
+    if (mv && !mv.deleted) { 
         const strindex = index.toString()
         const data = {id: mv.id, name: mv.name}
         const data2 = {id: Math.random().toString(36).substring(7), name: strindex+'name'}
@@ -140,6 +146,7 @@ const Modeller = (props: any) => {
             >
               {mv.name}
             </NavLink>
+ 
           </NavItem>
         )
     }
@@ -148,7 +155,11 @@ const Modeller = (props: any) => {
   const modelviewTabDiv = 
     <>
       <Nav tabs >
-        {navitemDiv} 
+        {navitemDiv}  
+        <button className="btn-sm bg-warning text-white py-0 ml-3 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          title=" Modelling:&#013;Insert an Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Modelling area below.&#013;&#013;
+                  Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
+        </button>
       </Nav>
       <TabContent > 
         <TabPane  >
@@ -175,11 +186,9 @@ const Modeller = (props: any) => {
   return (
     (props.modelType === 'model') ?
     <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
-        <button className="btn-sm bg-info text-white py-0 mr-2 float-left "  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-          title="Start modelling:&#013;Insert an Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Modelling area below.&#013; 
-          Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them.">i
-        </button>
-        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller</h5>
+        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
+          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+        </h5>
       <div>
         {selector}
       </div><br />
@@ -194,11 +203,11 @@ const Modeller = (props: any) => {
     </div>
     :
     <div className="mt-1 mb-5" style={{backgroundColor: "#7ac"}}>
-      <button className="btn-sm bg-info text-white py-0 mr-2 mb-5 float-left "  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      <h5 className="modeller-heading text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+      <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
         title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
-        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them.">i
+        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them.">?
       </button>
-      <h5 className="modeller-heading text-dark mr-4 mb-5" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
       <div>
         {selector}
         {metamodelTabDiv} 

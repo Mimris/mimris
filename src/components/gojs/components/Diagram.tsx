@@ -2175,7 +2175,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedModels.push(gqlModel);
               modifiedModels.map(mn => {
                 let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
               })
               if (debug) console.log('1047 Paste View', gqlModel, myMetis);
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);

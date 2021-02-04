@@ -199,7 +199,10 @@ const LoadLocal = (props: any) => {
   }
   function handleSaveModelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    SaveModelToFile(model, model.name, 'Model')
+    const projectname = props.ph.phData.metis.name
+    const modelname = model.name
+
+    SaveModelToFile(model, projectname+'-'+model.name, 'Model')
   }
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index

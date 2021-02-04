@@ -227,7 +227,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objtypeview = objview.typeview;
         const node = myDiagram.findNodeForKey(objview.key);
         const data = node.data;
-        for (let prop in objtypeview.data) {
+        for (let prop in objtypeview?.data) {
           if (prop === 'figure' && objview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, objview[prop]);
           if (prop === 'fillcolor' && objview[prop] !== "") 

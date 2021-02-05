@@ -40,6 +40,7 @@ import {
   SET_FOCUS_TASK, 
   SET_FOCUS_SOURCE, 
   SET_FOCUS_REFRESH, 
+  UPDATE_PROJECT_PROPERTIES,
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
   UPDATE_METAMODEL_PROPERTIES,
@@ -337,6 +338,13 @@ export const setfocusRefresh = (data) => {
   }
 }
 
+export const update_project_properties = (data) => {
+  // console.log('76 actions update_model_properties', data.payload);
+  return {
+    type: UPDATE_PROJECT_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
 export const update_model_properties = (data) => {
   // console.log('76 actions update_model_properties', data.payload);
   return {

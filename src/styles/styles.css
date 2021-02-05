@@ -554,6 +554,11 @@
   max-width: 300px;
   white-space: wrap;
 }
+
+.list-inline{display:block;}
+.list-inline li{display:inline-block;}
+.list-inline li:after{content:'|'; margin:0 10px;}
+
   /* .org .proj .role {
     background-color: #eee;
     color: #000;

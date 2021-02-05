@@ -515,7 +515,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     // Handle project
     if (obj.category === 'Metis') {
-      console.log('518 project', myMetis.name, myMetis.description);
+      console.log('518 project',  myMetis.name, myMetis.description);
     }
   }
 
@@ -1872,6 +1872,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myMetis.description = projectDescr;
               }
               const project = {
+                // "id":           myMetis.id, // ToDo: add id to project
                 "name":         myMetis.name,
                 "description":  myMetis.description
               }
@@ -1879,7 +1880,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedProjects.push(project);
               modifiedProjects?.map(mn => {
                 let data = (mn) && mn
-                this.props?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
+                e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
               })
             },
             function (o: any) { 

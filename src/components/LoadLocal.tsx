@@ -1,6 +1,6 @@
 // @ts-snocheck
 import { useState, useEffect } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
@@ -191,9 +191,10 @@ const LoadLocal = (props: any) => {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
-      phSource: 'localStore'
+      phSource: 'localFile'
     }
-    SaveAllToFile(data, 'localStore', 'Models')
+    const projectname = props.ph.phData.metis.name
+    SaveAllToFile(data, projectname, 'Models')
   }
   function handleSaveModelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
@@ -211,18 +212,58 @@ const LoadLocal = (props: any) => {
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
-  const buttonLoadLocalStoreDiv = <button className="btn-link btn-sm mb-2 w-100" onClick={handleDispatchToStoreFromLocal} > Load all models from LocalStorage </button >
-  const buttonSaveCurrentToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveCurrentModelToLocalStore} > Save current model to LocalStorage </button >
-  const buttonSaveToLocalStoreDiv = <button className="btn-primary btn-sm mb-2 w-100" onClick={handleSaveAllToLocalStore} > Save all to LocalStorage </button >
+  const buttonLoadLocalStoreDiv = 
+    <button 
+      className="btn-link btn-sm mb-2 w-100" 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to load the Project&#013;(all models and metamodels)&#013;from Local Storage&#013;(localStore in browser)"
+      onClick={handleDispatchToStoreFromLocal}>Load the project from LocalStorage 
+    </button >
+  const buttonSaveToLocalStoreDiv = 
+    <button 
+      className="btn-primary btn-sm mb-2 w-100" 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to save the Project&#013;(all models and metamodels)&#013;to Local Storage&#013;(localStore in browser)"
+      onClick={handleSaveAllToLocalStore}>Save the Project to LocalStorage 
+    </button >
+  const buttonSaveCurrentToLocalStoreDiv = 
+    <button 
+      className="btn-primary btn-sm mb-2 w-100"
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to save current model to Local Storage (localStore in browser)" 
+      onClick={handleSaveCurrentModelToLocalStore}>Save Current model to LocalStorage 
+    </button >
 
-  const buttonSaveAllToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveAllToFile} > Save all Models and Metamodels to File (Downloads) </button >
-  const buttonSaveModelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveModelToFile} > Save Current Model to File (Downloads) </button >
-  const buttonSaveMetamodelToFileDiv = <button className="btn-primary btn-sm mr-2  w-100  " onClick={handleSaveMetamodelToFile} > Save Current Metamodel to File (Downloads)</button >
+  const buttonSaveAllToFileDiv = 
+    <button 
+      className="btn-primary btn-sm mr-2  w-100  " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+      onClick={handleSaveAllToFile}>Download Project to File
+    </button >
+  const buttonSaveModelToFileDiv = 
+    <button className="btn-primary btn-sm mr-2  w-100  " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to download current model to file&#013;(in Downloads folder)"
+      onClick={handleSaveModelToFile}>Download Current Model to File 
+    </button >
+  const buttonSaveMetamodelToFileDiv = 
+    <button 
+      className="btn-primary btn-sm mr-2  w-100  " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
+      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (Downloads)
+    </button >
 
-  const buttonLoadMemoryStoreDiv = <button className="btn-info btn-sm mr-2 w-100 " onClick={handleDispatchToStoreFromMemory} > Recover Unsaved Models from LocalStorage </button >
+  const buttonLoadMemoryStoreDiv = 
+    <button 
+      className="btn-info btn-sm mr-2 w-100 " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to recover unsaved model after crash&#013;(this has to be done imediately after reload, before any refresh)"     
+      onClick={handleDispatchToStoreFromMemory}>Recover unsaved Models after crash <br /> (after reload in browser) 
+    </button >
   if (debug) console.log('172', buttonLabel);
   
-
   return (
     <>
       <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
@@ -240,8 +281,8 @@ const LoadLocal = (props: any) => {
                 {buttonLoadLocalStoreDiv}
                 {loadSelectedFromLocalStoreDiv}
                 <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#aaa", padding: "2px",  marginTop: "1px" , marginBottom: "6px" }} />
-                {buttonSaveCurrentToLocalStoreDiv} 
                 {buttonSaveToLocalStoreDiv}
+                {buttonSaveCurrentToLocalStoreDiv} 
               </div>
               <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
@@ -272,7 +313,8 @@ const LoadLocal = (props: any) => {
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button className="modal--footer m-0 py-1 px-2" color="primary" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
+          <Button className="modal--footer m-0 py-1 px-2" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
           <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
             Local Storage is controlled by the Internet Browser, and may at some point be deleted, if not enough memory.
             <br />NB! Loding models from LocalStorage will overwrite current memory store.  To keep current work, click "Save all to LocalStorage".

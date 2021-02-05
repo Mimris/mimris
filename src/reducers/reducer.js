@@ -42,6 +42,7 @@ import {
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
   SET_FOCUS_REFRESH,
+  UPDATE_PROJECT_PROPERTIES,
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
   UPDATE_METAMODEL_PROPERTIES,
@@ -523,6 +524,24 @@ function reducer(state = InitialState, action) {
         }
       }
 
+    case UPDATE_PROJECT_PROPERTIES:
+      if (!debug) console.log('429 UPDATE_PROJECT_PROPERTIES', action);
+      //const curmprojindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
+      // let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
+      // if (debug) console.log('431 reducer', curmindex1)
+      // if (curmindex1 < 0) {curmindex1 = state.phData.metis.models.length}
+      // if (debug) console.log('433 reducer', curmindex1)
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              name: action.data.name,
+              description: action.data.description,
+            },
+          },
+        }
     case UPDATE_MODEL_PROPERTIES:
       if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action);
       const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index

@@ -1058,7 +1058,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Paste",
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel;
-              currentModel.pasteViewsOnly = false;
+              myMetis.pasteViewsOnly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) {
@@ -1067,7 +1067,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Paste View",
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel;
-              currentModel.pasteViewsOnly = true;
+              myMetis.pasteViewsOnly = true;
               e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
               const myGoModel = myDiagram.myGoModel;
               e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
@@ -1082,7 +1082,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const myGoModel = myMetis.gojsModel;
               const currentModel = myMetis.currentModel;
-              currentModel.deleteViewsOnly = false;
+              myMetis.deleteViewsOnly = false;
               myDiagram.selection.each(function(sel) {
                 const inst = sel.data;
                 if (inst.category === 'Object') {
@@ -1120,7 +1120,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Delete View",
             function (e: any, obj: any) {
               const myModel = myMetis.currentModel;
-              myModel.deleteViewsOnly = true;
+              myMetis.deleteViewsOnly = true;
               const gqlModel = new gql.gqlModel(myModel, true);
               const modifiedModels = new Array();
               modifiedModels.push(gqlModel);
@@ -2160,23 +2160,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Paste",
             function (e: any, obj: any) {
-              const myModel = myMetis.currentModel;
-              myModel.pasteViewsOnly = false;
+              myMetis.pasteViewsOnly = false;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
-            function (o: any) { return o.diagram.commandHandler.canPasteSelection(); }),
+            function (o: any) { 
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
           makeButton("Paste View",
             function (e: any, obj: any) {
-              const myModel = myMetis.currentModel;
-              myModel.pasteViewsOnly = true;
-              const gqlModel = new gql.gqlModel(myModel, true);
-              const modifiedModels = new Array();
-              modifiedModels.push(gqlModel);
-              modifiedModels.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-              })
-              if (debug) console.log('1047 Paste View', gqlModel, myMetis);
+              myMetis.pasteViewsOnly = true;
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
             },
             function (o: any) { 
@@ -2191,8 +2183,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return o.diagram.commandHandler.canUndo(); 
             }),
           makeButton("Redo",
-            function (e: any, obj: any) { e.diagram.commandHandler.redo(); },
-            function (o: any) { return o.diagram.commandHandler.canRedo(); }),
+            function (e: any, obj: any) { 
+              e.diagram.commandHandler.redo(); 
+            },
+            function (o: any) { 
+              return o.diagram.commandHandler.canRedo(); 
+            }),
           makeButton("Select all objects of type",
             function (e: any, obj: any) {
               const myModel = myMetis.currentModel;

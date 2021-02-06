@@ -905,7 +905,7 @@ export class gqlModelView {
     constructor(mv: akm.cxModelView) {
         this.id                 = mv?.id;
         this.name               = mv?.getName();
-        this.description        = mv.description ? mv.description : "";
+        this.description        = mv?.description;
         this.modelRef           = mv?.getModel()?.id;
         this.objectviews        = [];
         this.relshipviews       = [];

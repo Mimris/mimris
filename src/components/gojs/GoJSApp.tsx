@@ -444,22 +444,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case 'ExternalObjectsDropped': {
         e.subject.each(function(n) {
-          // const part = n.data;
           const node = myDiagram.findNodeForKey(n.data.key);
           const part = node.data;
-          if (debug) console.log('640 found node', node);
-          if (debug) console.log('641 part', part, node, n);
-          if (debug) console.log('642 myMetis', myMetis);
-          if (debug) console.log('643 myGoModel', myGoModel, myGoMetamodel);
+          if (debug) console.log('450 found node', node);
+          if (debug) console.log('451 myMetis', myMetis);
+          if (debug) console.log('452 myGoModel', myGoModel, myGoMetamodel);
 
-          if (part.category === 'Container') {
-            console.log("636 Category === 'Container'");
-            if (part.type === 'container') {
-                part.viewkind = 'Container';
-            }
-            const cont = uic.createMetaContainer(part, context);
-            if (debug) console.log('646 cont: ', cont);
-          }
+          if (!debug) console.log('462 part', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('650 ExternalObjectsDropped - myMetis', myMetis);
@@ -484,16 +475,16 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else // object
           {
             part.category = 'Object';
-            if (debug) console.log('537 myModel', myModel);
-            if (part.parentModel == null)
-              myMetis.pasteViewsOnly = true;
-            if (part.isGroup) {
+            if (part.objecttype.viewkind === 'Container') {
+              part.isGroup = true;
               part.viewkind = 'Container';
               part.size = "300 200";    // Hack
-              if (debug) console.log('673 part', part);
             }
+            if (!debug) console.log('487 part', part);
+            if (part.parentModel == null)
+              myMetis.pasteViewsOnly = true;
             const objview = uic.createObject(part, context);
-            if (debug) console.log('676 New object', part, objview);
+            if (!debug) console.log('496 New object', part, objview);
             if (objview) {
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
@@ -503,7 +494,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('683 New object', gqlObj);
             }
           }
-          if (debug) console.log('686 myGoModel', myGoModel);
+          if (debug) console.log('506 myGoModel', myGoModel);
+          // myDiagram.model.setDataProperty(node, "isGroup", part.isGroup);
         })
         myDiagram.requestUpdate();
       }

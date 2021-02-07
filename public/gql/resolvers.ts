@@ -8,8 +8,8 @@ export default {
        const objs = models.type("Task") 
        return objs 
    }, 
-   allPersons: (parent:any, args:any, { models }:any) => { 
-       const objs = models.type("Person") 
+   allQueries: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Query") 
        return objs 
    }, 
    allValues: (parent:any, args:any, { models }:any) => { 
@@ -18,6 +18,14 @@ export default {
    }, 
    allRules: (parent:any, args:any, { models }:any) => { 
        const objs = models.type("Rule") 
+       return objs 
+   }, 
+   allConditions: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Condition") 
+       return objs 
+   }, 
+   allViews: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("View") 
        return objs 
    }, 
    allInformations: (parent:any, args:any, { models }:any) => { 
@@ -32,8 +40,12 @@ export default {
        const objs = models.type("Event") 
        return objs 
    }, 
-   allEKA_Objects: (parent:any, args:any, { models }:any) => { 
-       const objs = models.type("EKA_Object") 
+   allContainers: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Container") 
+       return objs 
+   }, 
+   allObjects: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Object") 
        return objs 
    }, 
    allDatatypes: (parent:any, args:any, { models }:any) => { 
@@ -44,16 +56,28 @@ export default {
        const objs = models.type("Decision") 
        return objs 
    }, 
-   allEKA_Spaces: (parent:any, args:any, { models }:any) => { 
-       const objs = models.type("EKA_Space") 
+   allSpaces: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Space") 
        return objs 
    }, 
-   allEKA_Elements: (parent:any, args:any, { models }:any) => { 
-       const objs = models.type("EKA_Element") 
+   allElements: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Element") 
        return objs 
    }, 
    allUnittypes: (parent:any, args:any, { models }:any) => { 
        const objs = models.type("Unittype") 
+       return objs 
+   }, 
+   allGenerics: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("Generic") 
+       return objs 
+   }, 
+   allViewFormats: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("ViewFormat") 
+       return objs 
+   }, 
+   allInputPatterns: (parent:any, args:any, { models }:any) => { 
+       const objs = models.type("InputPattern") 
        return objs 
    }, 
   }, 

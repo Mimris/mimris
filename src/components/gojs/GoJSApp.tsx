@@ -347,13 +347,14 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "SelectionDeleting": {
       //case "SelectionDeleted": {
+        if (debug) console.log('350 myMetis', myMetis); 
         const deletedFlag = true;
         const selection = e.subject;
-         if (debug) console.log('378 selection', selection);
+         if (debug) console.log('353 selection', selection);
         for (let it = selection.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
-          if (debug) console.log('382 sel, data', sel, data);
+          if (debug) console.log('357 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
           if (typename === 'Object type') {
@@ -423,7 +424,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           if (data.category === 'Relationship') {
             const myLink = this.getLink(context.myGoModel, key);
-            if (debug) console.log('396 SelectionDeleted', myLink);
+            if (debug) console.log('427 SelectionDeleted', myLink);
             uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
             const relview = data.relshipview;
             if (relview) {
@@ -431,14 +432,17 @@ class GoJSApp extends React.Component<{}, AppState> {
               relview.relship = myMetis.findRelationship(relview.relship.id);
               const gqlRelview = new gql.gqlRelshipView(relview);
               modifiedLinks.push(gqlRelview);
-              if (debug) console.log('403 SelectionDeleted', modifiedLinks);
-              const relship = relview.relship;
-              relship.deleted = deletedFlag;
-              const gqlRel = new gql.gqlRelationship(relship);
-              modifiedRelships.push(gqlRel);
-              if (debug) console.log('408 SelectionDeleted', modifiedRelships);
+              if (debug) console.log('435 SelectionDeleted', modifiedLinks);
+              if (!myMetis.deleteViewsOnly) {
+                const relship = relview.relship;
+                relship.deleted = deletedFlag;
+                const gqlRel = new gql.gqlRelationship(relship);
+                modifiedRelships.push(gqlRel);
+                if (debug) console.log('440 SelectionDeleted', modifiedRelships);
+              }
             }
           }
+          if (debug) console.log('443 myMetis', myMetis); 
         }
       }
         break;
@@ -450,7 +454,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('451 myMetis', myMetis);
           if (debug) console.log('452 myGoModel', myGoModel, myGoMetamodel);
 
-          if (!debug) console.log('462 part', part, node, n);
+          if (debug) console.log('462 part', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('650 ExternalObjectsDropped - myMetis', myMetis);
@@ -480,11 +484,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               part.viewkind = 'Container';
               part.size = "300 200";    // Hack
             }
-            if (!debug) console.log('487 part', part);
+            if (debug) console.log('487 part', part);
             if (part.parentModel == null)
               myMetis.pasteViewsOnly = true;
             const objview = uic.createObject(part, context);
-            if (!debug) console.log('496 New object', part, objview);
+            if (debug) console.log('496 New object', part, objview);
             if (objview) {
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
@@ -685,15 +689,16 @@ class GoJSApp extends React.Component<{}, AppState> {
            if (debug) console.log('670 LinkDrawn', fromNode.data.category);
           const relview = uic.createRelationship(data, context);
           if (relview) {
+            let rel = relview.relship;
+            rel = myMetis.findRelationship(rel.id);
             const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
             myLink.fromNode = fromNode;
-            myLink.toNode = toNode;
+            myLink.toNode   = toNode;
             if (debug) console.log('675 relview', relview, myLink);
-            relview.relship = myMetis.findRelationship(relview.relship.id);
             const gqlRelview = new gql.gqlRelshipView(relview);
             if (debug) console.log('678 LinkDrawn', link, gqlRelview);
             modifiedLinks.push(gqlRelview);
-            const gqlRelship = new gql.gqlRelationship(relview.relship);
+            const gqlRelship = new gql.gqlRelationship(rel);
             if (debug) console.log('681 LinkDrawn', gqlRelship);
             modifiedRelships.push(gqlRelship);
           }

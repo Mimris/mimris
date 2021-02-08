@@ -218,7 +218,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       node.addData(viewdata);
       nodeArray.push(node);
       if (node.name === 'Container')
-        console.log('221 node', node);
+        if (debug) console.log('221 node', node);
     }
     if (debug) console.log('214 Object palette', nodeArray);
     return nodeArray;

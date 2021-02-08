@@ -1,6 +1,6 @@
 import { authenticated } from '../../defs/authenticated'
 import { NextApiRequest, NextApiResponse } from 'next';
-import sqlite from 'sqlite';
+import sqlite from 'sqlite3';
 
 export default authenticated(async function getPeople(
   req: NextApiRequest,

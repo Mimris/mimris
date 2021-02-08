@@ -2,7 +2,7 @@ import { compare } from 'bcryptjs';
 import cookie from 'cookie';
 import { sign } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
-import sqlite from 'sqlite';
+import sqlite from 'sqlite3';
 import { secret } from '../../defs/secret';
 
 export default async function login(req: NextApiRequest, res: NextApiResponse) {

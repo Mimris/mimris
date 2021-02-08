@@ -1,6 +1,6 @@
 // next.config.js
-const withSass = require('@zeit/next-sass')
-const withCSS = require('@zeit/next-css')
+// const withSass = require('@zeit/next-sass')
+// const withCSS = require('@zeit/next-css')
 
 // module.exports = withCSS(withSass(
 //   {
@@ -14,14 +14,14 @@ module.exports =
   //     url: false
   //   }
   // }),
-  withCSS(withSass(
-    {
-      target: "serverless",
-      cssLoaderOptions: {
-        url: false
-      }
-    }
-  )),
+  // withCSS(withSass(
+  //   {
+  //     target: "serverless",
+  //     cssLoaderOptions: {
+  //       url: false
+  //     }
+  //   }
+  // )),
   {
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module

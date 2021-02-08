@@ -24,7 +24,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (!debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
+        if (debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
@@ -436,24 +436,26 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             node.deleted = deletedFlag;
             const objview = node.objectview;
             objview.deleted = deletedFlag;
+            const object = objview.object;
             const gqlObjview = new gql.gqlObjectView(objview);
             deletedObjviews.push(gqlObjview);
             if (debug) console.log('405 delete objview', objview);
             // If group, delete members of group
             if (node.isGroup) {
-            const groupMembers = node.getGroupMembers(myGoModel);
+                const groupMembers = node.getGroupMembers(myGoModel);
                 for (let i=0; i<groupMembers?.length; i++) {
                     const member = groupMembers[i];
                     deleteNode(member, deletedFlag, deletedObjviews, deletedObjects, deletedLinks, deletedRelships, deletedTypeviews, context);
                 }
             }
             // Handle deleteViewsOnly
-            if (myMetis.currentModel.deleteViewsOnly) {
+            if (myMetis.deleteViewsOnly) {
+                object.removeObjectView(objview);
+                if (debug) console.log('454 object, objview');
                 return;
             }
             // Else handle delete object AND object views
             // First delete object
-            const object = node.object;
             if (object) {
                 object.deleted = deletedFlag;          
                 const gqlObj = new gql.gqlObject(object);
@@ -533,7 +535,7 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
     const myMetis   = context.myMetis;
     objview.deleted = deletedFlag;
     const object = objview.object;
-    if (object && !myMetis.currentModel.deleteViewsOnly) {
+    if (object && !myMetis.deleteViewsOnly) {
         const oviews = myMetis.getObjectViewsByObject(object.id);
         if (debug) console.log('482 oviews', oviews);
         // Handle object views
@@ -575,7 +577,7 @@ export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boo
 export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[], deletedRelships: any[], context: any) {
     const myMetamodel = context.myMetamodel;
     const myMetis     = context.myMetis;
-    const myGoModel   = context.myGoMetamodel;
+    const myGoModel   = context.myGoModel;
 
     // Replace myGoModel.nodes with a new array
     const links = new Array();
@@ -587,18 +589,19 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
     if (debug) console.log('531 deleteLink', link);
     if (link) {
+        const relview = link.relshipview;
+        const relship = relview.relship;
         // Handle deleteViewsOnly
-        if (myMetis.currentModel.deleteViewsOnly) {
-            const relview = link.relshipview;
+        if (myMetis.deleteViewsOnly) {
             relview.deleted = deletedFlag;
+            relship?.removeRelationshipView(relview);
             const delLink = new gql.gqlRelshipView(relview);
             deletedLinks.push(delLink);
-            if (debug) console.log('539 deleteLink', relview);
+            if (debug) console.log('539 deleteLink', relship, relview);
             return;
         }
         // Else handle delete relships AND relship views
         // First delete object
-        const relship = relview.relship;
         if (relship) {
             relview.deleted = deletedFlag;
             const gqlRelview = new gql.gqlRelshipView(relview);
@@ -947,7 +950,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const myMetis   = context.myMetis;
     const myModel   = context.myModel;
     const myModelView = myMetis.currentModelview;
-    const pasteViewsOnly = myMetis.currentModel.pasteViewsOnly;
+    const pasteViewsOnly = myMetis.pasteViewsOnly;
     if (debug) console.log('937 pasteViewsOnly', pasteViewsOnly);
     if (debug) console.log('938 myMetis', myMetis, myGoModel);
     if (debug) console.log('939 pasteRelationship', data);
@@ -1287,6 +1290,8 @@ export function createLink(data: any, context: any): any {
                         relship.setModified();
                         data.relship = relship;
                         relship.setName(reltype.name);
+                        fromObj.addOutputrel(relship);
+                        toObj.addInputrel(relship);
                         myModel.addRelationship(relship);
                         myMetis.addRelationship(relship);
                     }
@@ -1326,16 +1331,29 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
             if (link) {
                 let relview = link.relshipview;    // cxRelationshipView
                 relview = myMetis.findRelationshipView(relview.id);
-                const rel = relview?.relship;    // cxRelationship     
+                const rel = relview?.relship;    // cxRelationship   
                 if (rel && relview) {
+                    // Before relink
+                    let fromObj1 = rel.fromObject;
+                    fromObj1 = myMetis.findObject(fromObj1.id);
+                    fromObj1.removeOutputrel(rel);
+                    let toObj1 = rel.toObject;
+                    toObj1 = myMetis.findObject(toObj1.id);
+                    toObj1.removeInputrel(rel);
+                    console.log('1337 fromobj1, toObj1', fromObj1, toObj1);             
                     link.setFromNode(lnk.from);
                     const fromObjView = fromNode.objectview;
                     relview.fromObjview = fromObjView;
-                    rel.fromObject = myMetis.findObject(fromObjView.object.id);               
+                    rel.fromObject = myMetis.findObject(fromObjView.object.id);  
                     link.setToNode(lnk.to);
                     const toObjView = toNode.objectview;
                     relview.toObjview = toObjView;
                     rel.toObject = myMetis.findObject(toObjView.object.id); 
+                    const fromObj2 = rel.fromObject;
+                    fromObj2.addOutputrel(rel);
+                    const toObj2 = rel.toObject;
+                    toObj2.addInputrel(rel);
+                    console.log('1348 fromobj2, toObj2', fromObj2, toObj2);             
                     const gqlRelview = new gql.gqlRelshipView(relview);
                     context.modifiedLinks.push(gqlRelview);
                     const gqlRel = new gql.gqlRelationship(rel);

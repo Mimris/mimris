@@ -629,7 +629,7 @@ export class goRelshipLink extends goLink {
             this.typeview = relview.getTypeView();
             const fromObjview = relview.getFromObjectView();
             if (fromObjview) {
-                let node: goNode | null = model.findNodeByViewId(fromObjview.id);
+                let node: goNode | null = model?.findNodeByViewId(fromObjview.id);
                 if (debug) console.log('512 fromNode', node);
                 if (node) {
                     this.fromNode = node;

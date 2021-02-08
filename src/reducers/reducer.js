@@ -571,8 +571,6 @@ function reducer(state = InitialState, action) {
                     relships: action.data.relships,
                     deleted: action.data.deleted,
                     modified: action.data.modified,    
-                    pasteViewsOnly: action.data.pasteViewsOnly,    
-                    deleteViewsOnly: action.data.deleteViewsOnly,    
                 },      
                 ...state.phData.metis.models.slice(curmindex1 + 1),
               ]
@@ -920,7 +918,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
-      console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
+      if (debug) console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === curmrv?.id) // current model index
       const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview

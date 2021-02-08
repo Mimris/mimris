@@ -913,37 +913,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   myMetis.currentNode = node;
                   myMetis.myDiagram = myDiagram;
                   myDiagram.handleOpenModal(choices, modalContext);
-                  // ---------------------------------
-                  // if (propname && propname.length > 0) {
-                  //   let defValue = "";
-                  //   if (propname === 'description') {
-                  //       defValue = object?.getDescription();
-                  //   } else {
-                  //       defValue = object?.getStringValue2(propname);
-                  //   }
-                  //   const value = prompt('Enter value of ' + propname, defValue);
-                  //   if (value) {
-                  //     if (debug) console.log('654', propname, value);
-                  //     if (propname === 'description') {
-                  //       object.description = value;
-                  //     } else {
-                  //       console.log('651 prop, value', propname, value);
-                  //       object.setStringValue2(propname, value);
-                  //     }
-                  //     if (debug) console.log('654 object', object);
-                  //     const modifiedObjects = new Array();
-                  //     const gqlObj = new gql.gqlObject(object);
-                  //     if (debug) console.log('656 object, gqlObj', object, gqlObj);
-                  //     modifiedObjects.push(gqlObj);
-                  //     modifiedObjects?.map(mn => {
-                  //       let data = (mn) && mn
-                  //       myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-                  //     })
-                  //   }
-                  // }
-                  // ---------------------------------
-
-
                 }
               }
             },
@@ -1040,7 +1009,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;               
             }),
           makeButton("Cut",
-            function (e: any, obj: any) { e.diagram.commandHandler.cutSelection(); },
+            function (e: any, obj: any) { 
+              e.diagram.commandHandler.cutSelection(); 
+            },
             function (o: any) { 
               const node = o.part.data;
               if (node.category === 'Object') {
@@ -1049,7 +1020,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return o.diagram.commandHandler.canCutSelection(); 
             }),
           makeButton("Copy",
-            function (e: any, obj: any) { e.diagram.commandHandler.copySelection(); },
+            function (e: any, obj: any) { 
+              e.diagram.commandHandler.copySelection(); 
+            },
             function (o: any) { 
               const node = o.part.data;
               if (node.category === 'Object') 
@@ -1778,6 +1751,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete",
             function (e, obj) {
+              myMetis.deleteViewsOnly = false;
+              // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+              // const myGoModel = myDiagram.myGoModel;
+              // e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { 
@@ -1803,10 +1780,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete View",
             function (e, obj) {
-              myMetis.currentModel.deleteViewsOnly = true;
-              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-              const myGoModel = myDiagram.myGoModel;
-              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
+              myMetis.deleteViewsOnly = true;
+              // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+              // const myGoModel = myDiagram.myGoModel;
+              // e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { 
@@ -1902,7 +1879,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 modifiedMetamodels.push(gqlMetamodel);
                 modifiedMetamodels.map(mn => {
                     let data = mn;
-                    if (!debug) console.log('768 data', data);
+                    if (debug) console.log('768 data', data);
                     e.diagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
                 });
               }
@@ -2189,6 +2166,87 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               return o.diagram.commandHandler.canRedo(); 
+            }),
+            makeButton("Add Missing Relationship Views",
+            function (e: any, obj: any) { 
+              const modelview = myMetis.currentModelview;
+              const objviews = modelview.objectviews;
+              const relviews = new Array();
+              const modifiedRelshipViews = new Array();
+              for (let i=0; i<objviews.length; i++) {
+                const objview = objviews[i];
+                const obj = objview.object;
+                const outrels = obj?.outputrels;
+                for (let j=0; j<outrels?.length; j++) {
+                  const rel = outrels[j];
+                  const rviews = rel.relviews;
+                  if (rviews?.length > 0) {
+                    // Relview is NOT missing - do nothing
+                    continue;
+                  }
+                  if (debug) console.log('2183 rviews', rel, rviews);
+                  // Check if from- and to-objects have views in this modelview
+                  const fromObj = rel.fromObject;
+                  const fromObjviews = fromObj.objectviews;
+                  if (fromObjviews?.length == 0) {
+                    // From objview is NOT in modelview - do nothing
+                    continue;
+                  }
+                  if (debug) console.log('2191 fromObjviews', fromObjviews);
+                  const toObj = rel.toObject;
+                  const toObjviews = toObj.objectviews;
+                  if (toObjviews?.length == 0) {
+                    // From objview is NOT in modelview - do nothing
+                    continue;
+                  }
+                  if (debug) console.log('2198 toObjviews', toObjviews);
+                  // Relview(s) does not exist, but from and to objviews exist, create relview(s)
+                  const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
+                  relview.setFromObjectView(fromObjviews[0]);
+                  relview.setToObjectView(toObjviews[0]);
+                  if (debug) console.log('2203 relview', relview);
+                  // Add link
+                  const myGoModel = myMetis.gojsModel;
+                  let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                  link.loadLinkContent(myGoModel);
+                  myGoModel.addLink(link);
+                  // Prepare and do the dispatch
+                  const gqlRelview = new gql.gqlRelshipView(relview);
+                  modifiedRelshipViews.push(gqlRelview);
+                }
+              }
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              })
+              if (debug) console.log('2213 myMetis', myMetis);
+            },
+            function (o: any) { 
+              return true; 
+            }),
+          makeButton("Delete Invisible Objects",
+            function (e: any, obj: any) { 
+              const modifiedObjects = new Array();
+              const objects = myMetis.objects;
+              for (let i=0; i<objects.length; i++) {
+                const obj = objects[i];
+                const objtype = obj?.type;
+                if (obj.name === objtype.name) {
+                  if (obj.objectviews == null) {
+                    obj.deleted = true;
+                    const gqlObj = new gql.gqlObject(obj);
+                    modifiedObjects.push(gqlObj);
+                  }
+                }
+              } 
+              if (debug) console.log('2181 modifiedObjects', modifiedObjects);
+              modifiedObjects.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+              })              
+            },
+            function (o: any) { 
+              return true; 
             }),
           makeButton("Select all objects of type",
             function (e: any, obj: any) {
@@ -2810,13 +2868,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               </ModalFooter>
             {/* </div> */}
           {/* </div> */}
-        </Modal>
-        
-      <style jsx>{`
-
-    
-            `}</style> 
-            </div>
+        </Modal>        
+        <style jsx>{`
+        `}
+        </style> 
+      </div>
     );
   }
 }

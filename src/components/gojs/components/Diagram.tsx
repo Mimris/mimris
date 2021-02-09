@@ -33,7 +33,7 @@ import { FaTumblrSquare } from 'react-icons/fa';
 import svgs from '../../utils/Svgs'
 import { isNullOrUndefined } from 'util';
 import { setMyMetisParameter } from '../../../actions/actions';
-//import { stringify } from 'querystring';
+// import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
 

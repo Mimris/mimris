@@ -25,6 +25,7 @@ export class goModel {
     name: string;
     modelView: akm.cxModelView;
     model: akm.cxModel | null;
+    //diagram: any;
     metamodel: akm.cxMetaModel | null;
     nodes: goNode[];
     links: goLink[];
@@ -36,6 +37,7 @@ export class goModel {
         this.nodes = new Array();
         this.links = new Array();
         this.model = (modelView) ? modelView.model : null;
+        //this.diagram = null;
         this.metamodel = (modelView)
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;

@@ -605,7 +605,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
-    myDiagram.myMetis = this.myMetis;
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
@@ -625,6 +624,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // use a converter to display information about the diagram model
       );
     //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+    myMetis.myDiagram = myDiagram;
+    myMetis.gojsModel.diagram = myDiagram;
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
@@ -2128,7 +2129,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const myMetamodel = myMetis.currentMetamodel;
               const myGoModel = myMetis.gojsModel;
               myDiagram.myGoModel = myGoModel;
-              if (debug) console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
+              if (debug) console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel, myMetis);
               uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram);
               if (debug) console.log('1181 myMetis', myMetis);
               alert("Current model has been repaired");
@@ -2179,6 +2180,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const outrels = obj?.outputrels;
                 for (let j=0; j<outrels?.length; j++) {
                   const rel = outrels[j];
+                  if (rel.deleted) continue;
                   const rviews = rel.relviews;
                   if (rviews?.length > 0) {
                     // Relview is NOT missing - do nothing
@@ -2202,6 +2204,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   if (debug) console.log('2198 toObjviews', toObjviews);
                   // Relview(s) does not exist, but from and to objviews exist, create relview(s)
                   const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
+                  if (relview.deleted) continue;
                   relview.setFromObjectView(fromObjviews[0]);
                   relview.setToObjectView(toObjviews[0]);
                   if (debug) console.log('2203 relview', relview);

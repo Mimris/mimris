@@ -6,6 +6,7 @@
 import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';
+import { update_objectview_properties } from '../../actions/actions';
 
 import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
@@ -38,7 +39,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   
   constructor(props: object) {
     super(props);
-    // console.log('36 GoJSPaletteApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -53,6 +53,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch
     };
+    console.log('55 myMetis', this.state.myMetis);
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
     this.mapLinkKeyIdx = new Map<go.Key, number>();
@@ -95,28 +96,48 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     const name = e.name;
     switch (name) {
       case 'ChangedSelection': {
-        const sel = e.subject.first();
-        this.setState(
-          produce((draft: AppState) => {
-            if (sel) {
-              if (sel instanceof go.Node) {
-                const idx = this.mapNodeKeyIdx.get(sel.key);
-                if (idx !== undefined && idx >= 0) {
-                  const nd = draft.nodeDataArray[idx];
-                  draft.selectedData = nd;
-                }
-              } else if (sel instanceof go.Link) {
-                const idx = this.mapLinkKeyIdx.get(sel.key);
-                if (idx !== undefined && idx >= 0) {
-                  const ld = draft.linkDataArray[idx];
-                  draft.selectedData = ld;
-                }
-              }
-            } else {
-              draft.selectedData = null;
-            }
-          })
-        );
+        // const sel = e.subject.first();
+        // if (!sel) break;
+        // let node = sel.data;
+        // console.log('100 data, node', sel.data);
+        // const myMetis = this.state.myMetis;
+        // console.log('103 myMetis', myMetis);
+        // let object = sel.data.object;
+        // const obj = myMetis.findObject(object.id);
+        // object = obj ? obj : object;
+        // console.log('105 obj', obj);
+        // const myGoModel = myMetis.gojsModel;
+        // const objviews = object.objectviews;
+        // for (let i=0; i<objviews?.length; i++) {
+        //   const objview = objviews[i];
+        //   let node = myGoModel.findNodeByViewId(objview.id);
+        //   //node = myMetis.myDiagram.findNodeForKey(node.key);
+        //   console.log('112 node', node);
+        //   node.isHighlighted = true;
+        // }
+        // this.setState(
+        //   produce((draft: AppState) => {
+        //     if (sel) {
+        //       if (sel instanceof go.Node) {
+        //         const idx = this.mapNodeKeyIdx.get(sel.key);
+        //         if (idx !== undefined && idx >= 0) {
+        //           const nd = draft.nodeDataArray[idx];
+        //           draft.selectedData = nd;
+        //         }
+        //       } else if (sel instanceof go.Link) {
+        //         const idx = this.mapLinkKeyIdx.get(sel.key);
+        //         if (idx !== undefined && idx >= 0) {
+        //           const ld = draft.linkDataArray[idx];
+        //           draft.selectedData = ld;
+        //         }
+        //       }
+        //     } else {
+        //       draft.selectedData = null;
+        //     }
+        //   })
+        // );
+
+
         break;
       }
       default: break;
@@ -272,8 +293,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         />;
       </>
     }
-    // console.log('266 nodeDataArray', this.state.nodeDataArray);
-    // console.log('267 linkDataArray', this.state.linkDataArray);
 
     return (
       <div>

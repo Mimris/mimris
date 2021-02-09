@@ -121,6 +121,7 @@ class GoJSApp extends React.Component<{}, AppState> {
    * @param e a GoJS DiagramEvent
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
+    if (!debug) console.log('124 this.state', this.state);
     this.state.selectedData = e.subject?.part?.data;
     const dispatch = this.state.dispatch;
     const name = e.name;
@@ -424,8 +425,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           if (data.category === 'Relationship') {
             const myLink = this.getLink(context.myGoModel, key);
-            if (debug) console.log('427 SelectionDeleted', myLink);
-            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
+            if (!debug) console.log('427 SelectionDeleted', myLink);
+            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedLinkTypeViews, context);
             const relview = data.relshipview;
             if (relview) {
               relview.deleted = deletedFlag;
@@ -442,7 +443,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          if (debug) console.log('443 myMetis', myMetis); 
+          if (!debug) console.log('443 myMetis', myMetis); 
         }
       }
         break;
@@ -520,6 +521,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
+        if (debug) console.log('523 selected', sel);
         this.state.selectedData = sel.data
         if (debug) console.log('498 GoJSApp :', sel.data, sel.data.name, sel.data.object);
         if (sel) {

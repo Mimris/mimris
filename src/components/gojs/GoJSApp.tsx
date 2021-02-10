@@ -193,7 +193,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         const field = e.subject.name;
-        if (debug) console.log('195 data', data);
+        if (!debug) console.log('195 part', sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
@@ -455,7 +455,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('451 myMetis', myMetis);
           if (debug) console.log('452 myGoModel', myGoModel, myGoMetamodel);
 
-          if (debug) console.log('462 part', part, node, n);
+          if (!debug) console.log('462 part', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('650 ExternalObjectsDropped - myMetis', myMetis);

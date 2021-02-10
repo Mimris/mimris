@@ -13,6 +13,8 @@ import { SelectionInspector } from './components/SelectionInspector';
 
 // import './GoJSApp.css';
 
+const debug = false;
+
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
  * and modelData for demonstration purposes. Note, though, that
@@ -53,7 +55,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch
     };
-    console.log('55 myMetis', this.state.myMetis);
+    if (debug) console.log('55 myMetis', this.state.myMetis);
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
     this.mapLinkKeyIdx = new Map<go.Key, number>();
@@ -96,25 +98,26 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     const name = e.name;
     switch (name) {
       case 'ChangedSelection': {
-        // const sel = e.subject.first();
-        // if (!sel) break;
-        // let node = sel.data;
-        // console.log('100 data, node', sel.data);
-        // const myMetis = this.state.myMetis;
-        // console.log('103 myMetis', myMetis);
-        // let object = sel.data.object;
-        // const obj = myMetis.findObject(object.id);
-        // object = obj ? obj : object;
-        // console.log('105 obj', obj);
-        // const myGoModel = myMetis.gojsModel;
-        // const objviews = object.objectviews;
-        // for (let i=0; i<objviews?.length; i++) {
-        //   const objview = objviews[i];
-        //   let node = myGoModel.findNodeByViewId(objview.id);
-        //   //node = myMetis.myDiagram.findNodeForKey(node.key);
-        //   console.log('112 node', node);
-        //   node.isHighlighted = true;
-        // }
+        const sel = e.subject.first();
+        if (!sel) break;
+        let part = sel.data;
+        if (!debug) console.log('104 data', sel.data);
+        const myMetis = this.state.myMetis;
+        if (!debug) console.log('106 myMetis', myMetis);
+        let object = sel.data.object;
+        const obj = myMetis.findObject(object.id);
+        object = obj ? obj : object;
+        if (!debug) console.log('110 obj', obj);
+        const myGoModel = myMetis.gojsModel;
+        const objviews = object.objectviews;
+        for (let i=0; i<objviews?.length; i++) {
+          const objview = objviews[i];
+          myMetis.myDiagram.myGoModel = myGoModel;
+          let node = myGoModel.findNodeByViewId(objview.id);
+          node = myMetis.myDiagram.findNodeForKey(part.key);
+          if (!debug) console.log('117 objview, node', objview, node);
+          if (node) node.isSelected = true;
+        }
         // this.setState(
         //   produce((draft: AppState) => {
         //     if (sel) {

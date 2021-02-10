@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -10,6 +10,7 @@ import { update_objectview_properties } from '../../actions/actions';
 
 import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
+import * as gql from '../../akmm/ui_graphql';
 
 // import './GoJSApp.css';
 
@@ -101,46 +102,29 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const sel = e.subject.first();
         if (!sel) break;
         let part = sel.data;
-        if (!debug) console.log('104 data', sel.data);
+        if (debug) console.log('104 data', sel.data);
         const myMetis = this.state.myMetis;
-        if (!debug) console.log('106 myMetis', myMetis);
+        if (debug) console.log('106 myMetis', myMetis);
         let object = sel.data.object;
         const obj = myMetis.findObject(object.id);
         object = obj ? obj : object;
-        if (!debug) console.log('110 obj', obj);
+        if (debug) console.log('110 obj', obj);
         const myGoModel = myMetis.gojsModel;
         const objviews = object.objectviews;
+        const modifiedNodes = new Array();
         for (let i=0; i<objviews?.length; i++) {
           const objview = objviews[i];
-          myMetis.myDiagram.myGoModel = myGoModel;
           let node = myGoModel.findNodeByViewId(objview.id);
           node = myMetis.myDiagram.findNodeForKey(part.key);
-          if (!debug) console.log('117 objview, node', objview, node);
+          if (debug) console.log('117 objview, node', objview, node);
           if (node) node.isSelected = true;
+          const gqlObjview = new gql.gqlObjectView(objview);
+          modifiedNodes.push(gqlObjview);
+          modifiedNodes.map(mn => {
+            let data = mn
+            this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
+          })
         }
-        // this.setState(
-        //   produce((draft: AppState) => {
-        //     if (sel) {
-        //       if (sel instanceof go.Node) {
-        //         const idx = this.mapNodeKeyIdx.get(sel.key);
-        //         if (idx !== undefined && idx >= 0) {
-        //           const nd = draft.nodeDataArray[idx];
-        //           draft.selectedData = nd;
-        //         }
-        //       } else if (sel instanceof go.Link) {
-        //         const idx = this.mapLinkKeyIdx.get(sel.key);
-        //         if (idx !== undefined && idx >= 0) {
-        //           const ld = draft.linkDataArray[idx];
-        //           draft.selectedData = ld;
-        //         }
-        //       }
-        //     } else {
-        //       draft.selectedData = null;
-        //     }
-        //   })
-        // );
-
-
         break;
       }
       default: break;

@@ -525,7 +525,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_PROJECT_PROPERTIES:
-      if (debug) console.log('429 UPDATE_PROJECT_PROPERTIES', action);
+      if (!debug) console.log('429 UPDATE_PROJECT_PROPERTIES', action);
       //const curmprojindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       // let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
       // if (debug) console.log('431 reducer', curmindex1)
@@ -1019,7 +1019,7 @@ function reducer(state = InitialState, action) {
       }
 
     case UPDATE_METAMODEL_PROPERTIES:
-      if (debug) console.log('992 UPDATE_METAMODEL_PROPERTIES', action);
+      if (!debug) console.log('992 UPDATE_METAMODEL_PROPERTIES', action);
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       // const action_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === action.data.id) //incoming action meta model
       let curmmindex_mm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === action.data.id)  // current metamodel index

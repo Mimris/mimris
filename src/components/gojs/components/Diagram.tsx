@@ -605,7 +605,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
-    myDiagram.myMetis = this.myMetis;
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
@@ -625,6 +624,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // use a converter to display information about the diagram model
       );
     //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+    myMetis.myDiagram = myDiagram;
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
@@ -773,6 +773,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // 
             }, 
             function (o: any) {
+              return true;
               if (true)
                 return false;
               else {
@@ -823,6 +824,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
           },
           function (o: any) {
+            return false;
             if (false) 
               return false;
             else {
@@ -2099,29 +2101,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myTargetMetamodel":  myMetis.currentTargetMetamodel,
                 "myDiagram":          e.diagram
               }
-              const currentTargetMetamodel = gen.askForTargetMetamodel(context, false);
-              if (debug) console.log('1211 Target Metamodel', myMetis);
-              // if (currentTargetMetamodel) {
-              //   myMetis.currentTargetMetamodel = currentTargetMetamodel;
-              //   // Update current Model with targetMetamodelRef
-              //   myMetis.currentModel.targetMetamodelRef = currentTargetMetamodel?.id;
-              //   // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-
-              //   const gqlModel = new gql.gqlModel(myMetis.currentModel, true);
-              //   // gqlModel.addModelView(myMetis.currentModelview);
-              //   if (debug) console.log('822 current model', gqlModel, myMetis.currentModelview);
-              //   const modifiedModels = new Array();
-              //   modifiedModels.push(gqlModel);
-              //   modifiedModels.map(mn => {
-              //     let data = mn;
-              //     e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-              //   })
-              //   if (debug) console.log('829 current model', gqlModel);
-
-              //   // const gqlMetamodel = (context.myMetamodel) && new gql.gqlMetaModel(currentTargetMetamodel);
-              //   if (debug) console.log('799 set target Metamodel', gqlMetamodel);
-              // }
-              // if (debug) console.log('810 myMetis', myMetis);
+              context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+              if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                    alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                    context.myTargetMetamodel = null;
+              } else if (context.myTargetMetamodel == undefined)  // sf
+                  context.myTargetMetamodel = null;
+              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+              const targetMetamodel = myMetis.currentTargetMetamodel;
+              const sourceModelview = myMetis.currentModelview;
+              gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
+              console.log('1327 Target metamodel', targetMetamodel);
+            },
+            function (o: any) { 
+              return true; 
+            }),
+          makeButton("Verify and Repair Model",
+            function (e: any, obj: any) {
+              const myModel = myMetis.currentModel;
+              const myModelview = myMetis.currentModelview;
+              const myMetamodel = myMetis.currentMetamodel;
+              const myGoModel = myMetis.gojsModel;
+              myDiagram.myGoModel = myGoModel;
+              if (debug) console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel, myMetis);
+              uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram);
+              if (debug) console.log('1181 myMetis', myMetis);
+              alert("Current model has been repaired");
             },
             function (o: any) {
               return true; 
@@ -2157,6 +2162,65 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               return o.diagram.commandHandler.canRedo(); 
+            }),
+          makeButton("Add Missing Relationship Views",
+            function (e: any, obj: any) { 
+              const modelview = myMetis.currentModelview;
+              const objviews = modelview.objectviews;
+              const relviews = new Array();
+              const modifiedRelshipViews = new Array();
+              for (let i=0; i<objviews.length; i++) {
+                const objview = objviews[i];
+                const obj = objview.object;
+                const outrels = obj?.outputrels;
+                for (let j=0; j<outrels?.length; j++) {
+                  const rel = outrels[j];
+                  if (rel.deleted) continue;
+                  const rviews = rel.relviews;
+                  if (rviews?.length > 0) {
+                    // Relview is NOT missing - do nothing
+                    continue;
+                  }
+                  if (debug) console.log('2183 rviews', rel, rviews);
+                  // Check if from- and to-objects have views in this modelview
+                  const fromObj = rel.fromObject;
+                  const fromObjviews = fromObj.objectviews;
+                  if (fromObjviews?.length == 0) {
+                    // From objview is NOT in modelview - do nothing
+                    continue;
+                  }
+                  if (debug) console.log('2191 fromObjviews', fromObjviews);
+                  const toObj = rel.toObject;
+                  const toObjviews = toObj.objectviews;
+                  if (toObjviews?.length == 0) {
+                    // From objview is NOT in modelview - do nothing
+                    continue;
+                  }
+                  if (debug) console.log('2198 toObjviews', toObjviews);
+                  // Relview(s) does not exist, but from and to objviews exist, create relview(s)
+                  const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
+                  if (relview.deleted) continue;
+                  relview.setFromObjectView(fromObjviews[0]);
+                  relview.setToObjectView(toObjviews[0]);
+                  if (debug) console.log('2203 relview', relview);
+                  // Add link
+                  const myGoModel = myMetis.gojsModel;
+                  let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                  link.loadLinkContent(myGoModel);
+                  myGoModel.addLink(link);
+                  // Prepare and do the dispatch
+                  const gqlRelview = new gql.gqlRelshipView(relview);
+                  modifiedRelshipViews.push(gqlRelview);
+                }
+              }
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              })
+              if (debug) console.log('2213 myMetis', myMetis);
+            },
+            function (o: any) { 
+              return true; 
             }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) { 

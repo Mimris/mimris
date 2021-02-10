@@ -121,6 +121,7 @@ class GoJSApp extends React.Component<{}, AppState> {
    * @param e a GoJS DiagramEvent
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
+    if (!debug) console.log('124 this.state', this.state);
     this.state.selectedData = e.subject?.part?.data;
     const dispatch = this.state.dispatch;
     const name = e.name;
@@ -192,7 +193,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         const field = e.subject.name;
-        if (debug) console.log('195 data', data);
+        if (!debug) console.log('195 part', sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
@@ -424,8 +425,8 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           if (data.category === 'Relationship') {
             const myLink = this.getLink(context.myGoModel, key);
-            if (debug) console.log('427 SelectionDeleted', myLink);
-            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, context);
+            if (!debug) console.log('427 SelectionDeleted', myLink);
+            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedLinkTypeViews, context);
             const relview = data.relshipview;
             if (relview) {
               relview.deleted = deletedFlag;
@@ -442,7 +443,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          if (debug) console.log('443 myMetis', myMetis); 
+          if (!debug) console.log('443 myMetis', myMetis); 
         }
       }
         break;
@@ -454,7 +455,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('451 myMetis', myMetis);
           if (debug) console.log('452 myGoModel', myGoModel, myGoMetamodel);
 
-          if (debug) console.log('462 part', part, node, n);
+          if (!debug) console.log('462 part', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('650 ExternalObjectsDropped - myMetis', myMetis);
@@ -520,6 +521,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "ObjectSingleClicked": {
         let sel = e.subject.part;
+        if (debug) console.log('523 selected', sel);
         this.state.selectedData = sel.data
         if (debug) console.log('498 GoJSApp :', sel.data, sel.data.name, sel.data.object);
         if (sel) {

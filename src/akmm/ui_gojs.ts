@@ -29,7 +29,6 @@ export class goModel {
     nodes: goNode[];
     links: goLink[];
     constructor(key: string, name: string, modelView: akm.cxModelView) {
-        // console.log('32 goModel', this);
         this.key = key;
         this.name = name;
         this.modelView = modelView;
@@ -39,8 +38,7 @@ export class goModel {
         this.metamodel = (modelView)
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;
-        if (debug) console.log('41 constants', constants);
-        // console.log('42 goModel', this);
+        if (debug) console.log('41 constants', constants, this);
     }
     // Methods
     getModelView() {

@@ -1,8 +1,6 @@
 {
     "phData": {
         "metis": {
-            "name": "AKM Initial Project",
-            "description": "Startup AKM Project with the IRTV Metamodel and a blank empty model",
             "metamodels": [
                 {
                     "id": "1fb28d16-ccd2-4538-6469-00e5315efcd8",

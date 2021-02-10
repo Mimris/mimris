@@ -123,7 +123,6 @@ const LoadLocal = (props: any) => {
     }
     if (debug) console.log('90 LoadLocal', data);
     setLocState(data)
-    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
   }
 
   function handleSaveCurrentModelToLocalStore() {
@@ -199,10 +198,7 @@ const LoadLocal = (props: any) => {
   }
   function handleSaveModelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    const projectname = props.ph.phData.metis.name
-    const modelname = model.name
-
-    SaveModelToFile(model, projectname+'-'+model.name, 'Model')
+    SaveModelToFile(model, model.name, 'Model')
   }
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
@@ -242,21 +238,21 @@ const LoadLocal = (props: any) => {
     <button 
       className="btn-primary btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to Download (Save) the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+      title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
       onClick={handleSaveAllToFile}>Download Project to File
     </button >
   const buttonSaveModelToFileDiv = 
     <button className="btn-primary btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to Download (Save) current model to file&#013;(in Downloads folder)"
+      title="Click here to download current model to file&#013;(in Downloads folder)"
       onClick={handleSaveModelToFile}>Download Current Model to File 
     </button >
   const buttonSaveMetamodelToFileDiv = 
     <button 
       className="btn-primary btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to Download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
-      onClick={handleSaveMetamodelToFile}>Download Current Metamodel to File 
+      title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
+      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (Downloads)
     </button >
 
   const buttonLoadMemoryStoreDiv = 
@@ -291,26 +287,16 @@ const LoadLocal = (props: any) => {
               <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <div className="selectbox mb-2 border"> 
-                <h6>Upload Metamodel from file </h6>
-                  <input className="select-input" 
-                    data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                    title="Click here to upload Metamodel from file&#013;"                      
-                    type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} 
-                  />
+                <h6>Import Metamodel from file </h6>
+                  <input className="select-input" type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
                 {buttonSaveMetamodelToFileDiv}
               </div>
               <div className="loadsave--modelToFile select mb-1 p-2  border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                <div className="selectbox mb-2 border"
-               
-               >
-                  <h6>Upload Project or Model(s) from file </h6>
-                  <input className="select-input w-100" 
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                  title="Click here to upload Project or Model(s) from file&#013;"                      
-                    type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} 
-                  />
+                <div className="selectbox mb-2 border">
+                  <h6>Import Model(s) from file </h6>
+                  <input className="select-input w-100" type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
                 </div>
                 {buttonSaveAllToFileDiv}
                 {buttonSaveModelToFileDiv}

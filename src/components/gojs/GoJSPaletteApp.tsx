@@ -6,11 +6,14 @@
 import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';
+import { update_objectview_properties } from '../../actions/actions';
 
 import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
 
 // import './GoJSApp.css';
+
+const debug = false;
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -38,7 +41,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   
   constructor(props: object) {
     super(props);
-    // console.log('36 GoJSPaletteApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -53,6 +55,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch
     };
+    if (debug) console.log('55 myMetis', this.state.myMetis);
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
     this.mapLinkKeyIdx = new Map<go.Key, number>();
@@ -96,27 +99,48 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
     switch (name) {
       case 'ChangedSelection': {
         const sel = e.subject.first();
-        this.setState(
-          produce((draft: AppState) => {
-            if (sel) {
-              if (sel instanceof go.Node) {
-                const idx = this.mapNodeKeyIdx.get(sel.key);
-                if (idx !== undefined && idx >= 0) {
-                  const nd = draft.nodeDataArray[idx];
-                  draft.selectedData = nd;
-                }
-              } else if (sel instanceof go.Link) {
-                const idx = this.mapLinkKeyIdx.get(sel.key);
-                if (idx !== undefined && idx >= 0) {
-                  const ld = draft.linkDataArray[idx];
-                  draft.selectedData = ld;
-                }
-              }
-            } else {
-              draft.selectedData = null;
-            }
-          })
-        );
+        if (!sel) break;
+        let part = sel.data;
+        if (!debug) console.log('104 data', sel.data);
+        const myMetis = this.state.myMetis;
+        if (!debug) console.log('106 myMetis', myMetis);
+        let object = sel.data.object;
+        const obj = myMetis.findObject(object.id);
+        object = obj ? obj : object;
+        if (!debug) console.log('110 obj', obj);
+        const myGoModel = myMetis.gojsModel;
+        const objviews = object.objectviews;
+        for (let i=0; i<objviews?.length; i++) {
+          const objview = objviews[i];
+          myMetis.myDiagram.myGoModel = myGoModel;
+          let node = myGoModel.findNodeByViewId(objview.id);
+          node = myMetis.myDiagram.findNodeForKey(part.key);
+          if (!debug) console.log('117 objview, node', objview, node);
+          if (node) node.isSelected = true;
+        }
+        // this.setState(
+        //   produce((draft: AppState) => {
+        //     if (sel) {
+        //       if (sel instanceof go.Node) {
+        //         const idx = this.mapNodeKeyIdx.get(sel.key);
+        //         if (idx !== undefined && idx >= 0) {
+        //           const nd = draft.nodeDataArray[idx];
+        //           draft.selectedData = nd;
+        //         }
+        //       } else if (sel instanceof go.Link) {
+        //         const idx = this.mapLinkKeyIdx.get(sel.key);
+        //         if (idx !== undefined && idx >= 0) {
+        //           const ld = draft.linkDataArray[idx];
+        //           draft.selectedData = ld;
+        //         }
+        //       }
+        //     } else {
+        //       draft.selectedData = null;
+        //     }
+        //   })
+        // );
+
+
         break;
       }
       default: break;
@@ -272,8 +296,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         />;
       </>
     }
-    // console.log('266 nodeDataArray', this.state.nodeDataArray);
-    // console.log('267 linkDataArray', this.state.linkDataArray);
 
     return (
       <div>

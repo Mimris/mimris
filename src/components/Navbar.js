@@ -28,10 +28,14 @@ const Navbar = (props) => (
 						<Link href="/table"><a className="nav-link">Tables</a></Link>
 					</li> */}
 					<li className="nav-item dropdown">
-						<a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<a className="nav-link dropdown-toggle" href="/other" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More
             </a>
 						<div className="dropdown-menu" aria-labelledby="navbarDropdown">
+							<a className="dropdown-item" href="/login">Login</a>
+							<a className="dropdown-item" href="/signup">Sign-up</a>
+							<a className="dropdown-item" href="/people">Users</a>
+							<a className="dropdown-item" href="/settings">Settings</a>
 							<a className="dropdown-item" href="/akmm-graphql">JSON export</a>
 							<a className="dropdown-item" href="/genGqlSchema">Gen Gql Schema</a>
 							<a className="dropdown-item" href="/api/graphql" target="_blank" >GrapQL test</a>
@@ -50,7 +54,6 @@ const Navbar = (props) => (
 						<div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
 							<a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
-							<a className="dropdown-item" href="/people">Users</a>
 							<a className="dropdown-item" href="/settings">Settings</a>
 						</div>
 					</li>

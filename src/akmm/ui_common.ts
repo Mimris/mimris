@@ -24,14 +24,16 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
+        if (!debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
         if (debug) console.log('30 createObject', myMetis, data);
         let obj = data.object;
-        if (debug) console.log('35 createObject', obj);
+        const obj1 = myMetis.findObject(obj.id);
+        if (obj1) obj = obj1;
+        if (debug) console.log('35 createObject', myMetis.pasteViewsOnly, obj);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
             if (!pastedobj) {
@@ -39,8 +41,9 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 let guid = obj.id;
                 obj = new akm.cxObject(guid, data.name, objtype, data.description);
                 myMetis.pasteViewsOnly = false;
-            } else 
+            } else {
                 obj = pastedobj;
+            }
         } else {
             let guid = obj.id;
             obj = new akm.cxObject(utils.createGuid(), data.name, objtype, data.description);
@@ -65,6 +68,15 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setIsGroup(data.isGroup);
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
+                const objviews = obj.objectviews;
+                if (objviews?.length == 1) {
+                    const oview = objviews[0];
+                    objview['figure']       = oview['figure'];
+                    objview['fillcolor']    = oview['fillcolor'];
+                    objview['strokecolor']  = oview['strokecolor'];
+                    objview['strokewidth']  = oview['strokewidth'];
+                    objview['icon']         = oview['icon'];                        
+                }
                 data.objectview = objview;
                 if (debug) console.log('47 createObject', data);
                 // Include the object view in the current model view
@@ -104,8 +116,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     if (debug) console.log('99 group', group, objview);
                     myGoModel.addNode(node);
                     if (debug) console.log('101 createObject', myGoModel, myModel);
-                    return objview;
                 }
+                return objview;
             }
         }
     }
@@ -574,7 +586,7 @@ export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boo
     }
 }
 
-export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[], deletedRelships: any[], context: any) {
+export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[], deletedTypeviews: any[], context: any) {
     const myMetamodel = context.myMetamodel;
     const myMetis     = context.myMetis;
     const myGoModel   = context.myGoModel;
@@ -619,7 +631,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
                         deleteRelshipTypeView(rview, deletedFlag, deletedTypeviews);
                     }
                 }
-            }
+           }
         }      
     }
 }
@@ -1430,6 +1442,7 @@ export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram
             if (debug) console.log('1187 updateNode', prop, node[prop], diagram);
         }
         const objview = node.objectview;
+        if (!debug) console.log('1444 viewdata, objview', viewdata, objview);
         for (prop in viewdata) {
             if (objview[prop] && objview[prop] !== "") {
                 diagram.model.setDataProperty(node, prop, objview[prop]);
@@ -1503,7 +1516,7 @@ function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipVie
     return data;
 }
 
-export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxModel, metamodel: akm.cxMetaModel, myDiagram: any) {
+export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxModel, metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
     // Handle the objects
     // Check if the referenced type exists - otherwse find a type that corresponds
     const myGoModel = myDiagram?.myGoModel;
@@ -1518,7 +1531,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
         if (!obj.type) {
-            const type = myDiagram.myMetis.findObjectTypeByName(defObjTypename);
+            const type = myMetis.findObjectTypeByName(defObjTypename);
             if (type) {
                 obj.type = type;
                 obj.typeRef = type.id;
@@ -1614,7 +1627,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             let relname    = rel.typeName;
             if (!typeName) typeName = rel.name;
             if (!rel.type) {
-                const type = myDiagram.myMetis.findRelationshipTypeByName(defRelTypename);
+                const type = myMetis.findRelationshipTypeByName(defRelTypename);
                 if (type) {
                     rel.type = type;
                     rel.typeRef = type.id;

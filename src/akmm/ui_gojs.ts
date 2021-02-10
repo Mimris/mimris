@@ -25,24 +25,20 @@ export class goModel {
     name: string;
     modelView: akm.cxModelView;
     model: akm.cxModel | null;
-    //diagram: any;
     metamodel: akm.cxMetaModel | null;
     nodes: goNode[];
     links: goLink[];
     constructor(key: string, name: string, modelView: akm.cxModelView) {
-        // console.log('32 goModel', this);
         this.key = key;
         this.name = name;
         this.modelView = modelView;
         this.nodes = new Array();
         this.links = new Array();
         this.model = (modelView) ? modelView.model : null;
-        //this.diagram = null;
         this.metamodel = (modelView)
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;
-        if (debug) console.log('41 constants', constants);
-        // console.log('42 goModel', this);
+        if (debug) console.log('41 constants', constants, this);
     }
     // Methods
     getModelView() {

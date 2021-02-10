@@ -116,8 +116,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     if (debug) console.log('99 group', group, objview);
                     myGoModel.addNode(node);
                     if (debug) console.log('101 createObject', myGoModel, myModel);
-                    return objview;
                 }
+                return objview;
             }
         }
     }
@@ -1694,8 +1694,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     if (reltype) {
                         rel.type = reltype;
                         rel.name = typeName;
-                        msg = "Verifying relationship " + obj.name + " ( without type )\n";
-                        msg += "Object type has been set to " + defObjTypename;
+                        msg = "Verifying relationship " + rel?.name + " ( without type )\n";
+                        msg += "Object type has been set to " + defRelTypename;
                         report += printf(format, msg);
                             }
                 }
@@ -1734,10 +1734,10 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                         }                               
                         if (!rview.typeview) {
                             rview.typeview = rel.type.typeview;
-                            msg = "Relationship typeview of " + rel.type.name + " set to default";
+                            msg = "Relationship typeview of " + rel?.type?.name + " set to default";
                             report += printf(format, msg);
                         } else {
-                            msg = "Relationship typeview of " + rel.type.name + " found"; 
+                            msg = "Relationship typeview of " + rel?.type?.name + " found"; 
                             report += printf(format, msg);
                         }
                         const gqlRelview = new gql.gqlRelshipView(rview);

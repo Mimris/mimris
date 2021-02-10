@@ -826,6 +826,9 @@ class GoJSApp extends React.Component<{}, AppState> {
         } else if (image.includes('/')) { // its a local image
           if (debug) console.log('1270 Diagram', image);   
           return image
+        } else if (image.includes('<svg ')) { // its a local image
+          if (debug) console.log('1270 Diagram', image);   
+          return image
         } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
           const firstcharacter = image.substring(0, 1)
           const secondcharacter = image.substring(1, 2)

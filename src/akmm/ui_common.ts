@@ -24,7 +24,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (!debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
+        if (debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
@@ -68,8 +68,10 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setIsGroup(data.isGroup);
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
+                data.objectview = objview;
                 const objviews = obj.objectviews;
-                if (objviews?.length == 1) {
+                if (debug) console.log('72 objviews', objviews);
+                if (objviews?.length >= 1) {
                     const oview = objviews[0];
                     objview['figure']       = oview['figure'];
                     objview['fillcolor']    = oview['fillcolor'];
@@ -77,8 +79,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     objview['strokewidth']  = oview['strokewidth'];
                     objview['icon']         = oview['icon'];                        
                 }
-                data.objectview = objview;
-                if (debug) console.log('47 createObject', data);
+                if (debug) console.log('82 createObject', objviews[0], data);
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
                 myModelview.addObjectView(objview);
@@ -1442,7 +1443,7 @@ export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram
             if (debug) console.log('1187 updateNode', prop, node[prop], diagram);
         }
         const objview = node.objectview;
-        if (!debug) console.log('1444 viewdata, objview', viewdata, objview);
+        if (debug) console.log('1444 viewdata, objview', viewdata, objview);
         for (prop in viewdata) {
             if (objview[prop] && objview[prop] !== "") {
                 diagram.model.setDataProperty(node, prop, objview[prop]);

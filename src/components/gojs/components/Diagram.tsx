@@ -2285,13 +2285,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true;
             }),
-          makeButton("Highlight by Name",
+          makeButton("Highlight by Object Name",
             function (e: any, obj: any) { 
               const value = prompt('Enter name ', "");
-              var regex = new RegExp(value, "i");
+              var name = new RegExp(value, "i");
               var results = myDiagram.findNodesByExample(
-                { name: regex });
-              if (debug) console.log('2288 results', regex, results);
+                { name: name });
+              if (debug) console.log('2288 results', name, results);
               myDiagram.highlightCollection(results);                   
             },
             function (o: any) { 

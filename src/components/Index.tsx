@@ -176,6 +176,12 @@ const page = (props) => {
               >
                 <CardHeader className="card-header" >Blog AKMM releases </CardHeader>
                 <CardBody className="card-body" >
+                  <CardTitle className="card-title" >Release 2021.02.11</CardTitle>
+                  <CardText >
+                      &bull; Bugfixes!<br />
+                  </CardText>
+                </CardBody>
+                <CardBody className="card-body" >
                   <CardTitle className="card-title" >Release 2021.02.05</CardTitle>
                   <CardText >
                       New features added:<br />

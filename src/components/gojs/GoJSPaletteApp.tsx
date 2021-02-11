@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -10,6 +10,8 @@ import { update_objectview_properties } from '../../actions/actions';
 
 import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
+import * as akm from '../../akmm/metamodeller';
+import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 
 // import './GoJSApp.css';
@@ -115,9 +117,14 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         for (let i=0; i<objviews?.length; i++) {
           const objview = objviews[i];
           let node = myGoModel.findNodeByViewId(objview.id);
-          node = myMetis.myDiagram.findNodeForKey(part.key);
-          if (debug) console.log('117 objview, node', objview, node);
-          if (node) node.isSelected = true;
+          if (!debug) console.log('120 part, objview, node', part, objview, node);
+
+          var regex = new RegExp(part.name, "i");
+          var results = myMetis.myDiagram.findNodesByExample(
+            { name: regex });
+          console.log('125 results', regex, results);
+          myMetis.myDiagram.highlightCollection(results);
+
           const gqlObjview = new gql.gqlObjectView(objview);
           modifiedNodes.push(gqlObjview);
           modifiedNodes.map(mn => {

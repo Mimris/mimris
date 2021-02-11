@@ -342,6 +342,7 @@ export class goObjectNode extends goNode {
     constructor(key: string, objview: akm.cxObjectView) {
         super(key, null);
         this.category       = constants.gojs.C_OBJECT;
+        this.class          = 'goObjectNode';
         this.objectview     = objview;
         //this.objectview_0   = objview;
         this.object         = null;

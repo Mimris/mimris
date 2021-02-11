@@ -193,13 +193,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         const field = e.subject.name;
-        if (debug) console.log('195 part', sel);
+        if (!debug) console.log('195 part', sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
             let text  = data.name;
             const typename = data.type;
-            if (debug) console.log('201 data', data);
+            if (!debug) console.log('201 data', data);
             // Object type
             if (typename === 'Object type') {
               if (text === 'Edit name') {
@@ -226,6 +226,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 data.name = text;
               }
               const myNode = this.getNode(context.myGoModel, key);
+              if (!debug) console.log('229 node', myNode);
               if (myNode) {
                 myNode.name = text;
                 uic.updateObject(myNode, field, text, context);
@@ -611,6 +612,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('655 ClipboardPasted', data, objview);
               if (objview) {
                 const node = new gjs.goObjectNode(data.key, objview);
+                if (debug) console.log('614 node', node);
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
                 if (debug) console.log('662 group', group)
                 if (group && node) {

@@ -605,6 +605,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
+      // when the user clicks on the background of the Diagram, remove all highlighting
+    myDiagram.click = function(e) {
+      e.diagram.commit(function(d) { d.clearHighlighteds(); }, "no highlighteds");
+    };
+
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
@@ -1971,7 +1976,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           function (o: any) { 
             return true; 
             }),
-
           makeButton("New Target Model",
             function (e: any, obj: any) {
               let model;
@@ -2281,6 +2285,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true;
             }),
+          makeButton("Highlight by Name",
+            function (e: any, obj: any) { 
+              const value = prompt('Enter name ', "");
+              var regex = new RegExp(value, "i");
+              var results = myDiagram.findNodesByExample(
+                { name: regex });
+              if (debug) console.log('2288 results', regex, results);
+              myDiagram.highlightCollection(results);                   
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("Add Missing Relationship Views",
           function (e: any, obj: any) { 
             const modelview = myMetis.currentModelview;
@@ -2429,8 +2445,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             { contextMenu: partContextMenu },
             // Shape.fill is bound to Node.data.color
+
+            // the Shape.stroke color depends on whether Node.isHighlighted is true
+            // new go.Binding("stroke", "isHighlighted", function(h) { return h ? "red" : "black"; })
+            //     .ofObject(),
+            new go.Binding("strokeWidth", "isHighlighted", function(h) { return h ? "5" : "1"; })
+                .ofObject(),
+    
             new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'), 
+            //new go.Binding('stroke', 'strokecolor'), 
             //new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
           ),
       

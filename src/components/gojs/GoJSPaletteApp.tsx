@@ -111,13 +111,15 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const obj = myMetis.findObject(object.id);
         object = obj ? obj : object;
         if (debug) console.log('110 obj', obj);
-        const gqlObj = new gql.gqlObject(obj);
-        const modifiedObjects = new Array();
-        modifiedObjects.push(gqlObj);
-        modifiedObjects.map(mn => {
-          let data = mn
-          this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
-        })
+        if (obj) {
+          const gqlObj = new gql.gqlObject(obj);
+          const modifiedObjects = new Array();
+          modifiedObjects.push(gqlObj);
+          modifiedObjects.map(mn => {
+            let data = mn
+            this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
+          })
+        }
         break;
       }
       default: 

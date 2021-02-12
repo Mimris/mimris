@@ -2,11 +2,11 @@ import { compare } from 'bcryptjs';
 import cookie from 'cookie';
 import { sign } from 'jsonwebtoken';
 import { NextApiRequest, NextApiResponse } from 'next';
-//import sqlite from 'sqlite';
+import sqlite from 'sqlite';
 import { secret } from '../../defs/secret';
 
 export default async function login(req: NextApiRequest, res: NextApiResponse) {
-    return;
+    // return;
     const db = await sqlite.open('./mydb.sqlite');
 
   if (req.method === 'POST') {

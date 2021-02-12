@@ -27,8 +27,8 @@ const Navbar = (props) => (
 					{/* <li className="nav-item">
 						<Link href="/table"><a className="nav-link">Tables</a></Link>
 					</li> */}
-					<li className="nav-item dropdown">
-						<a className="nav-link dropdown-toggle" href="/other" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					{/* <li className="nav-item dropdown">
+						<a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More
             </a>
 						<div className="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -45,7 +45,7 @@ const Navbar = (props) => (
 								<button className="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 							</form>
 						</div>
-					</li>
+					</li> */}
 					<li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
 						<a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="false">

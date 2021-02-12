@@ -69,6 +69,7 @@
     "regex": "^0.1.1",
     "regex-parser": "^2.2.11",
     "save": "^2.4.0",
+    "sqlite": "^4.0.19",
     "typescript-fsa": "^3.0.0-beta-2",
     "typescript-fsa-reducers": "^1.2.1",
     "webpack": "^4.0.0",

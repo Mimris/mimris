@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { compare } from 'bcryptjs';
 import cookie from 'cookie';
 import { sign } from 'jsonwebtoken';

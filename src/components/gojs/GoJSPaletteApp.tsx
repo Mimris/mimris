@@ -119,10 +119,11 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           let node = myGoModel.findNodeByViewId(objview.id);
           if (!debug) console.log('120 part, objview, node', part, objview, node);
 
-          var regex = new RegExp(part.name, "i");
-          var results = myMetis.myDiagram.findNodesByExample(
-            { name: regex });
-          console.log('125 results', regex, results);
+          const objName = new RegExp(part.name, "i");
+          console.log('123 myDiagram', myMetis.myDiagram);
+          const results = myMetis.myDiagram.findNodesByExample(
+            { name: objName });
+          console.log('125 results', objName, results);
           myMetis.myDiagram.highlightCollection(results);
 
           const gqlObjview = new gql.gqlObjectView(objview);

@@ -111,31 +111,17 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const obj = myMetis.findObject(object.id);
         object = obj ? obj : object;
         if (debug) console.log('110 obj', obj);
-        const myGoModel = myMetis.gojsModel;
-        const objviews = object.objectviews;
-        const modifiedNodes = new Array();
-        for (let i=0; i<objviews?.length; i++) {
-          const objview = objviews[i];
-          let node = myGoModel.findNodeByViewId(objview.id);
-          if (!debug) console.log('120 part, objview, node', part, objview, node);
-
-          const objName = new RegExp(part.name, "i");
-          console.log('123 myDiagram', myMetis.myDiagram);
-          const results = myMetis.myDiagram.findNodesByExample(
-            { name: objName });
-          console.log('125 results', objName, results);
-          myMetis.myDiagram.highlightCollection(results);
-
-          const gqlObjview = new gql.gqlObjectView(objview);
-          modifiedNodes.push(gqlObjview);
-          modifiedNodes.map(mn => {
-            let data = mn
-            this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
-          })
-        }
+        const gqlObj = new gql.gqlObject(obj);
+        const modifiedObjects = new Array();
+        modifiedObjects.push(gqlObj);
+        modifiedObjects.map(mn => {
+          let data = mn
+          this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
+        })
         break;
       }
-      default: break;
+      default: 
+        break;
     }
   }
 

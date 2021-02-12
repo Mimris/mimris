@@ -290,7 +290,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objtype = myMetis.findObjectTypeByName(typename);
         if (debug) console.log('189 objtype', objtype);
         const objview = (objtype) && uic.setObjectType(node, objtype, context);
-        if (debug) console.log('193 objview', objview, node, myMetis);
+        if (!debug) console.log('193 objview', objview, node, myMetis);
+        const n = myMetis.myDiagram.findNodeForKey(node.key);
+        const data = n.data;
+        myMetis.myDiagram.model.setDataProperty(data, "typename", typename);
         myMetis.myDiagram.requestUpdate();
         break;
       case "Change Relationship type":    
@@ -2383,7 +2386,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           },
           $(go.Shape, 'RoundedRectangle',
             {
-              cursor: "pointer",        // cursor: "alias",
+              cursor: "alias",        // cursor: "pointer",
               name: 'SHAPE', fill: 'red', stroke: "black",  strokeWidth: 1, 
               shadowVisible: true,
               // set the port properties:

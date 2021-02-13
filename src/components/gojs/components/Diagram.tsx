@@ -766,40 +766,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-          makeButton("Edit Typeview",
-            function (e: any, obj: any) { 
-              const node = obj.part.data;
-              const modalContext = {
-                what: "editTypeview",
-                title: "Edit Typeview",
-                icon: findImage(node.icon),
-                myDiagram: myDiagram
-              }
-              myMetis.currentNode = node;
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(node, modalContext);
-                // 
-            }, 
-            function (o: any) {
-              return true;
-              if (true)
-                return false;
-              else {
-                const node = o.part.data;
-                if (debug) console.log('413 node', node);
-                const currentObject = node.object; 
-                const currentObjectView = node.objectview;
-                if (currentObject && currentObjectView) {                   
-                  const objtype  = currentObject.type;
-                  const typeView = node.typeview;
-                  const defaultTypeview = objtype.typeview;
-                  if (typeView && (typeView.id === defaultTypeview.id)) {
-                    return true;
-                  }
-                }
-              }
-              return false;
-            }),
+
           makeButton("Reset Typeview", 
           function (e: any, obj: any) {
             const node = obj.part.data;
@@ -1082,6 +1049,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
             }),
+          makeButton("----------"),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
                 const context = {
@@ -1159,7 +1127,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                   return false;
             }),
-            makeButton("Change Object Type",
+          makeButton("Change Object Type",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
               const currentType = node.objecttype;
@@ -1199,7 +1167,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
           }),
-
+          makeButton("Edit Typeview",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              const modalContext = {
+                what: "editTypeview",
+                title: "Edit Typeview",
+                icon: findImage(node.icon),
+                myDiagram: myDiagram
+              }
+              myMetis.currentNode = node;
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(node, modalContext);
+                // 
+            }, 
+            function (o: any) {
+              return true;
+              if (true)
+                return false;
+              else {
+                const node = o.part.data;
+                if (debug) console.log('413 node', node);
+                const currentObject = node.object; 
+                const currentObjectView = node.objectview;
+                if (currentObject && currentObjectView) {                   
+                  const objtype  = currentObject.type;
+                  const typeView = node.typeview;
+                  const defaultTypeview = objtype.typeview;
+                  if (typeView && (typeView.id === defaultTypeview.id)) {
+                    return true;
+                  }
+                }
+              }
+              return false;
+            }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) { 
               // node is a container (group)

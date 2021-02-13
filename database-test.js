@@ -1,4 +1,4 @@
-const sqlite = require('sqlite');
+const sqlite = require('sqlite3');
 
 async function setup() {
   const db = await sqlite.open('./mydb.sqlite');

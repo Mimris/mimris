@@ -2292,8 +2292,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const value = prompt('Enter name ', "");
               const name = new RegExp(value, "i");
               const results = myDiagram.findNodesByExample(
-                { name: name });
-              if (debug) console.log('2288 results', name, results);
+                { name: value });
+              if (debug) console.log('2288 results', value, results);
               const it = results.iterator;
               while (it.next()) {
                 const node = it.value;
@@ -2392,16 +2392,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // set the port properties:
               portId: "",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-            },
+              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
+              // Shape bindings
+              new go.Binding('fill', 'fillcolor'),
+              new go.Binding('stroke', 'strokecolor'), 
+              // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
             { contextMenu: partContextMenu },    
-            // Shape bindings
-            new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'), 
-            // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
             ),
       
-          $(go.Panel, "Table",
+          $(go.Panel, "Table", 
             { defaultAlignment: go.Spot.Left, margin: 0, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
             $(go.Panel, "Horizontal",

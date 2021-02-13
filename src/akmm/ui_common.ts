@@ -69,21 +69,16 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
                 data.objectview = objview;
-                const objviews = obj.objectviews;
-                if (debug) console.log('72 objviews', objviews);
-                if (objviews?.length >= 1) {
-                    const oview = objviews[0];
-                    objview['figure']       = oview['figure'];
-                    objview['fillcolor']    = oview['fillcolor'];
-                    objview['strokecolor']  = oview['strokecolor'];
-                    objview['strokewidth']  = oview['strokewidth'];
-                    objview['icon']         = oview['icon'];                        
-                }
-                if (debug) console.log('82 createObject', objviews[0], data);
+                objview['figure']       = data['figure'];
+                objview['fillcolor']    = data['fillcolor'];
+                objview['strokecolor']  = data['strokecolor'];
+                objview['strokewidth']  = data['strokewidth'];
+                objview['icon']         = data['icon'];                        
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
                 myModelview.addObjectView(objview);
                 myMetis.addObjectView(objview);
+                if (debug) console.log('81 obj', obj);
                 // Then update the node with its new properties
                 // First set name and reference to the objectview
                 myDiagram.model.setDataProperty(data, "type", data.name);

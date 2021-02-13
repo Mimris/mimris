@@ -32,6 +32,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const focusTargetModel = (props.phFocus) && props.phFocus.focusTargetModel
     const focusTargetModelview = (props.phFocus) && props.phFocus.focusTargetModelview
     const focusObjectview = (props.phFocus) && props.phFocus.focusObjectview
+    const focusObject = (props.phFocus) && props.phFocus.focusObject
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     if (debug) console.log('46 gengojsmodel', models, curmod, curmod.modelviews, focusModelview)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)

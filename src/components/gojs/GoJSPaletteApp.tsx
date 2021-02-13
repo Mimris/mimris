@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -10,6 +10,8 @@ import { update_objectview_properties } from '../../actions/actions';
 
 import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
+import * as akm from '../../akmm/metamodeller';
+import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 
 // import './GoJSApp.css';
@@ -109,25 +111,19 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const obj = myMetis.findObject(object.id);
         object = obj ? obj : object;
         if (debug) console.log('110 obj', obj);
-        const myGoModel = myMetis.gojsModel;
-        const objviews = object.objectviews;
-        const modifiedNodes = new Array();
-        for (let i=0; i<objviews?.length; i++) {
-          const objview = objviews[i];
-          let node = myGoModel.findNodeByViewId(objview.id);
-          node = myMetis.myDiagram.findNodeForKey(part.key);
-          if (debug) console.log('117 objview, node', objview, node);
-          if (node) node.isSelected = true;
-          const gqlObjview = new gql.gqlObjectView(objview);
-          modifiedNodes.push(gqlObjview);
-          modifiedNodes.map(mn => {
+        if (obj) {
+          const gqlObj = new gql.gqlObject(obj);
+          const modifiedObjects = new Array();
+          modifiedObjects.push(gqlObj);
+          modifiedObjects.map(mn => {
             let data = mn
-            this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
+            this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
           })
         }
         break;
       }
-      default: break;
+      default: 
+        break;
     }
   }
 

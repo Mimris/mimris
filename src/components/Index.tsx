@@ -54,7 +54,7 @@ const page = (props) => {
                   padding: "2px"
                 }}
               >
-                <CardHeader className="card-header ">Modelleing with AKM Modeller:</CardHeader>
+                <CardHeader className="card-header ">Modelling with AKM Modeller:</CardHeader>
                 <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,005,0.2)"}}>
                   <CardTitle className="card-title" style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
                   <CardText className="card-text"> 
@@ -175,13 +175,13 @@ const page = (props) => {
                 }}
               >
                 <CardHeader className="card-header" >Blog AKMM releases </CardHeader>
-                <CardBody className="card-body" >
-                  <CardTitle className="card-title" >Release 2021.02.11</CardTitle>
-                  <CardText >
-                      &bull; Bugfixes!<br />
-                  </CardText>
-                </CardBody>
-                <CardBody className="card-body" >
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title" >Release 2021.02.11</CardTitle>
+                    <CardText >
+                        &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                   <CardTitle className="card-title" >Release 2021.02.05</CardTitle>
                   <CardText >
                       New features added:<br />

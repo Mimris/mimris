@@ -255,11 +255,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'fromArrow' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'fromArrowColor' && relview[prop] !== "") 
+            if (prop === 'fromArrowColor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'toArrow' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'toArrowColor' && relview[prop] !== "") 
+            if (prop === 'toArrowColor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
         }
         break;
@@ -290,7 +290,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objtype = myMetis.findObjectTypeByName(typename);
         if (debug) console.log('189 objtype', objtype);
         const objview = (objtype) && uic.setObjectType(node, objtype, context);
-        if (debug) console.log('193 objview', objview, node, myMetis);
+        if (!debug) console.log('193 objview', objview, node, myMetis);
+        const n = myMetis.myDiagram.findNodeForKey(node.key);
+        const data = n.data;
+        myMetis.myDiagram.model.setDataProperty(data, "typename", typename);
         myMetis.myDiagram.requestUpdate();
         break;
       case "Change Relationship type":    
@@ -605,6 +608,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
+      // when the user clicks on the background of the Diagram, remove all highlighting
+    myDiagram.click = function(e) {
+      e.diagram.commit(function(d) { d.clearHighlighteds(); }, "no highlighteds");
+    };
+
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
     myDiagram.layout.isInitial = false;
@@ -1029,7 +1037,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     for (let i=0; i<groupMembers?.length; i++) {
                       const member = groupMembers[i];
                       const gjsNode = myDiagram.findNodeForKey(member?.key);
-                      if (gjsNode) gjsNode.isSelected = true;
                     }                    
                   }
                   const object = node?.object;
@@ -1971,7 +1978,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           function (o: any) { 
             return true; 
             }),
-
           makeButton("New Target Model",
             function (e: any, obj: any) {
               let model;
@@ -2131,7 +2137,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) {
               return true; 
             }),
-          makeButton("----------"),
           makeButton("Paste",
             function (e: any, obj: any) {
               myMetis.pasteViewsOnly = false;
@@ -2163,7 +2168,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return o.diagram.commandHandler.canRedo(); 
             }),
-          makeButton("Add Missing Relationship Views",
+            makeButton("----------"),
+            makeButton("Add Missing Relationship Views",
             function (e: any, obj: any) { 
               const modelview = myMetis.currentModelview;
               const objviews = modelview.objectviews;
@@ -2281,63 +2287,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true;
             }),
-          makeButton("Add Missing Relationship Views",
-          function (e: any, obj: any) { 
-            const modelview = myMetis.currentModelview;
-            const objviews = modelview.objectviews;
-            const relviews = new Array();
-            const modifiedRelshipViews = new Array();
-            for (let i=0; i<objviews.length; i++) {
-              const objview = objviews[i];
-              const obj = objview.object;
-              const outrels = obj?.outputrels;
-              for (let j=0; j<outrels?.length; j++) {
-                const rel = outrels[j];
-                const rviews = rel.relviews;
-                if (rviews?.length > 0) {
-                  // Relview is NOT missing - do nothing
-                  continue;
-                }
-                if (debug) console.log('2183 rviews', rel, rviews);
-                // Check if from- and to-objects have views in this modelview
-                const fromObj = rel.fromObject;
-                const fromObjviews = fromObj.objectviews;
-                if (fromObjviews?.length == 0) {
-                  // From objview is NOT in modelview - do nothing
-                  continue;
-                }
-                if (debug) console.log('2191 fromObjviews', fromObjviews);
-                const toObj = rel.toObject;
-                const toObjviews = toObj.objectviews;
-                if (toObjviews?.length == 0) {
-                  // From objview is NOT in modelview - do nothing
-                  continue;
-                }
-                if (debug) console.log('2198 toObjviews', toObjviews);
-                // Relview(s) does not exist, but from and to objviews exist, create relview(s)
-                const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
-                relview.setFromObjectView(fromObjviews[0]);
-                relview.setToObjectView(toObjviews[0]);
-                if (debug) console.log('2203 relview', relview);
-                // Add link
-                const myGoModel = myMetis.gojsModel;
-                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-                link.loadLinkContent(myGoModel);
-                myGoModel.addLink(link);
-                // Prepare and do the dispatch
-                const gqlRelview = new gql.gqlRelshipView(relview);
-                modifiedRelshipViews.push(gqlRelview);
-              }
-            }
-            modifiedRelshipViews.map(mn => {
-              let data = mn;
-              myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-            })
-            if (debug) console.log('2213 myMetis', myMetis);
-          },
-          function (o: any) { 
-            return true; 
-          }),
+          makeButton("Select by Object Name",
+            function (e: any, obj: any) { 
+              const value = prompt('Enter name ', "");
+              const name = new RegExp(value, "i");
+              const results = myDiagram.findNodesByExample(
+                { name: value });
+              if (debug) console.log('2288 results', value, results);
+              const it = results.iterator;
+              while (it.next()) {
+                const node = it.value;
+                const gjsNode = myDiagram.findNodeForKey(node?.key);
+                if (gjsNode) gjsNode.isSelected = true;
+              }    
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("Verify and Repair Model",
           function (e: any, obj: any) {
             const myModel = myMetis.currentModel;
@@ -2407,6 +2373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+          // { locationSpot: go.Spot.Center},
           new go.Binding("deletable"),
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
           {
@@ -2419,22 +2386,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           },
           $(go.Shape, 'RoundedRectangle',
             {
-              cursor: "alias",
+              cursor: "alias",        // cursor: "pointer",
               name: 'SHAPE', fill: 'red', stroke: "black",  strokeWidth: 1, 
               shadowVisible: true,
               // set the port properties:
               portId: "",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-            },
-            { contextMenu: partContextMenu },
-            // Shape.fill is bound to Node.data.color
-            new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'), 
-            //new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-          ),
+              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
+              // Shape bindings
+              new go.Binding('fill', 'fillcolor'),
+              new go.Binding('stroke', 'strokecolor'), 
+              // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+            { contextMenu: partContextMenu },    
+            ),
       
-          $(go.Panel, "Table",
+          $(go.Panel, "Table", 
             { defaultAlignment: go.Spot.Left, margin: 0, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
             $(go.Panel, "Horizontal",
@@ -2509,7 +2475,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Define a link template
     let linkTemplate;
     if (true) {
-      linkTemplate =
+      const dotted = [3, 3];
+      const dashed = [5, 5];
+
+        linkTemplate =
         $(go.Link,
           new go.Binding("deletable"),
           new go.Binding('relinkableFrom', 'canRelink').ofModel(),
@@ -2533,19 +2502,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           },  // link route should avoid nodes
           { contextMenu: linkContextMenu },
           new go.Binding("points").makeTwoWay(),
-          // $(go.Shape, { stroke: "black", strokeWidth: 1},
-          $(go.Shape, { stroke: "black", shadowVisible: true, },
+          $(go.Shape, { stroke: "black", strokeWidth: "1", strokeDashArray: null, shadowVisible: true, },
             new go.Binding("stroke", "strokecolor"),
-            // new go.Binding("strokeWidth", "strokewidth"),
+            new go.Binding("strokeWidth", "strokewidth"),
+            new go.Binding("strokeDashArray", "dash",
+            function(d) { return d === "Dotted Line" ? dotted :
+                                (d === "Dashed Line" ? dashed : null); }),
           ),
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
               editable: true,  // allow in-place editing by user
             }),
-          //$(go.Shape, new go.Binding("strokewidth", "strokewidth")),
-          //$(go.Shape, new go.Binding("toArrow", "toArrow")),
-          $(go.Shape, { toArrow: "Standard", stroke: null }),
+          $(go.Shape, { fromArrow: "", stroke: null },
+            new go.Binding("fromArrow", "fromArrow"),
+          ),
+          $(go.Shape, { toArrow: "Standard", stroke: null },
+            new go.Binding("toArrow", "toArrow"),
+          ),
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text

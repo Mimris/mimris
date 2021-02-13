@@ -1,6 +1,6 @@
 import { verify } from 'jsonwebtoken';
 import { NextApiHandler, NextApiRequest, NextApiResponse } from 'next';
-// import sqlite from 'sqlite';
+// import sqlite from 'sqlite3';
 import { secret } from './secret';
 
 export const authenticated = (fn: NextApiHandler) => async (

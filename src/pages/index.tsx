@@ -30,34 +30,34 @@ const page = (props: any) => {
   let posts =  props?.phBlog?.posts || null
 
 
-  useEffect(() => {
-    posts = props.phBlog?.posts
-  }, [props?.phBlog]); 
+  // useEffect(() => {
+  //   posts = props.phBlog?.posts
+  // }, [props?.phBlog]); 
   
-  useEffect(() => {
-    if (posts && posts.length) {
-      console.log('34 index', posts);
-      const imgBuilder = imageUrlBuilder({
-        projectId: 'qx699h4j',
-        dataset: 'production',
-      });
-      console.log('44 index', imgBuilder);
+  // useEffect(() => {
+  //   if (posts && posts.length) {
+  //     console.log('34 index', posts);
+  //     const imgBuilder = imageUrlBuilder({
+  //       projectId: 'qx699h4j',
+  //       dataset: 'production',
+  //     });
+  //     console.log('44 index', imgBuilder);
       
-      setMappedPosts(
-        posts.map(p => {
-          console.log('48 p', p);
-          return {
-            ...p,
-            mainImage: imgBuilder.image(p.mainImage).width(500).height(250),
-          }
-        })
-        );
-        console.log('44 index', mappedPosts[0]);
-    } 
-    // else {
-    //   setMappedPosts([]);
-    // }
-  }, [posts]);
+  //     setMappedPosts(
+  //       posts.map(p => {
+  //         console.log('48 p', p);
+  //         return {
+  //           ...p,
+  //           mainImage: imgBuilder.image(p.mainImage).width(500).height(250),
+  //         }
+  //       })
+  //       );
+  //       console.log('44 index', mappedPosts[0]);
+  //   } 
+  //   // else {
+  //   //   setMappedPosts([]);
+  //   // }
+  // }, [posts]);
 
   // const postsDiv =   
                 // <div className={styles.main}>
@@ -107,7 +107,7 @@ const page = (props: any) => {
               <div className="workarea">
                 
                   {/* {postsDiv} */}
-                  <Index posts={mappedPosts}/>
+                  <Index />
               </div>
             </div>
             <div className="footer">

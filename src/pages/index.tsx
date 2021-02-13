@@ -3,7 +3,7 @@ import React, { useState,  useEffect } from "react";
 // import { connect } from 'react-redux';
 import { connect, useDispatch }  from 'react-redux';
 // import imageUrlBuilder from '@sanity/image-url';
-import { loadData, loadDataBlog } from '../actions/actions'
+import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"

@@ -5,7 +5,7 @@
   "license": "CC0-1.0",
   "scripts": {
     "tsc": "tsc",
-    "heroku-postbuild": "next build",
+    "heroku-postbuild": "tsc & next build",
     "build": "tsc & next build",
     "build-ts": "tsc --downlevelIteration & node ./database-test.js & next build",
     "dev": "tsc --downlevelIteration & node --trace-warnings & next -p 3000",

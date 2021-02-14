@@ -757,6 +757,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     modifiedTypeViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+      console.log('760 data', data);
     })
 
     // if (debug) console.log('705 modifiedTypeGeos', modifiedTypeGeos);

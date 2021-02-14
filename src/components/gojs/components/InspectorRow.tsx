@@ -52,7 +52,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
         <td>{this.props.id}</td>
         <td>
           <input
-            disabled={this.props.id === 'typeName'}
+            disabled={this.props.id === 'typeName' || this.props.id === 'typename'}
             id={this.props.id}
             value={val}
             type={this.props.valuetype}

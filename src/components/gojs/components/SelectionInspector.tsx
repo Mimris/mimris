@@ -23,13 +23,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
-    if (debug) console.log('24  myMetis', this.props, this.props.selectedData);
+    if (!debug) console.log('24  myMetis', this.props, this.props.selectedData);
     const selObj = this.props.selectedData;
     const modalContext = this.props.context;
     if (debug) console.log('29 modalContext', modalContext, selObj);
     if (!selObj)
       return;
-    const category = selObj.category;
+    let category = selObj.category;
     let inst, instview, typeview, item;
     if (category === 'Object') {
       inst = selObj.object;
@@ -43,7 +43,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       instview = selObj.relshipview;
       instview = myMetis.findRelationshipView(instview?.id);
       typeview = instview?.typeview;
+    } else if (category = 'Object type') {
+      inst = selObj;
+      instview = null;
     }
+
     if (!inst)
       return;
     const type = inst.type;
@@ -53,7 +57,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (debug) console.log('56 inst', props, inst, selObj);
+    if (!debug) console.log('56 inst', props, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     switch (modalContext?.what) {
@@ -72,7 +76,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         hideNameAndDescr = true;
         break;
       case "editTypeview":
-        item = instview.typeview?.data;
+        if (instview) item = instview.typeview?.data;
+        else item = inst;
         hideNameAndDescr = true;
         break;  
       default:
@@ -87,6 +92,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (true) { // Filter values
           if (typeof(val) === 'object') continue;
           if (k === 'id') continue;
+          if (k === 'key') continue;
+          if (k === '__gohashid') continue;
           if (k === 'class') continue;
           if (k === 'category') continue;
           if (k === 'abstract') continue;
@@ -102,6 +109,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'group') continue;
           if (k === 'isGroup') continue;
           if (k === 'groupLayout') continue;
+          if (k === 'loc') continue;
+          if (k === 'size') continue;
           if (k === 'objectRef') continue;
           if (k === 'fromObject') continue;
           if (k === 'toObject') continue;

@@ -69,11 +69,6 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
                 data.objectview = objview;
-                objview['figure']       = data['figure'];
-                objview['fillcolor']    = data['fillcolor'];
-                objview['strokecolor']  = data['strokecolor'];
-                objview['strokewidth']  = data['strokewidth'];
-                objview['icon']         = data['icon'];                        
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
                 myModelview.addObjectView(objview);
@@ -95,6 +90,12 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 }
                 if (objtypeView) {
                     objview.setTypeView(objtypeView);
+                    const otdata = objtypeView.data;
+                    if (data['figure'] !== otdata['figure']) objview['figure'] = data['figure'];
+                    if (data['fillcolor'] !== otdata['fillcolor']) objview['fillcolor'] = data['fillcolor'];
+                    if (data['strokecolor'] !== otdata['strokecolor']) objview['strokecolor'] = data['strokecolor'];
+                    if (data['strokewidth'] !== otdata['strokewidth']) objview['strokewidth'] = data['strokewidth'];
+                    if (data['icon'] !== otdata['icon']) objview['icon'] = data['icon'];                            
                     const node = new gjs.goObjectNode(data.key, objview);
                     if (debug) console.log('87 createObject', node, data);
                     updateNode(node, objtypeView, myDiagram);

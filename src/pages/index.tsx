@@ -22,12 +22,12 @@ const page = (props: any) => {
   if (!props.phData) {
     dispatch(loadData())
   }
-  if (!props.phBlog) {
-    console.log('16 index', props);
-    dispatch(loadDataBlog())
-  }
+  // if (!props.phBlog) {
+  //   console.log('16 index', props);
+  //   dispatch(loadDataBlog())
+  // }
 
-  let posts =  props?.phBlog?.posts || null
+  // let posts =  props?.phBlog?.posts || null
 
 
   // useEffect(() => {

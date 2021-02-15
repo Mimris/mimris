@@ -24,7 +24,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
 
   private handleInputChange(e: any) {
-    if (debug) console.log('21 InspectorRow: this.props', this.props);
+    if (!debug) console.log('21 InspectorRow: this.props', this.props);
     if (debug) console.log('22 InspectorRow: e.target', e.target, e);
     this.props.onInputChange(this.props.id, e.target.value, this.props.obj, this.props.context, e.type === 'blur');
   }

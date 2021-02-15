@@ -1106,7 +1106,7 @@ export class cxMetis {
             const relview = relshipviews[i];
             if (relview) {
                 const rel = relview.relship;
-                if (rel.id === relid)
+                if (rel && rel.id === relid)
                     relviews.push(relview);
             }
         }

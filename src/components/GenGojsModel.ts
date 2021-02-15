@@ -21,9 +21,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    if (!debug) console.log('25 GenGojsModel phData, metis:', props.phData, metis);
+    if (debug) console.log('25 GenGojsModel phData, metis:', props.phData, metis);
     const myMetis = new akm.cxMetis();
-    if (!debug) console.log('33 GenGojsModel', myMetis);  
+    if (debug) console.log('33 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
     if (debug) console.log('36 GenGojsModel myMetis', myMetis);
     
@@ -169,7 +169,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         const objtype: akm.cxObjectType = objecttypes[i];   
         if (objtype && !objtype.deleted && !objtype.abstract) {
           const obj = new akm.cxObject(utils.createGuid(), objtype.name, objtype, "");
-          if (debug) console.log('164 GenGojsModel', obj);          
+          if (debug) console.log('164 GenGojsModel', obj);      
           if (obj.isDeleted()) 
               continue;
           const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");

@@ -1,7 +1,14 @@
 const sqlite = require('sqlite3');
 
 async function setup() {
-  const db = await sqlite.open('./mydb.sqlite');
+
+  let db = await new sqlite.Database('./mydb.sqlite', sqlite.OPEN_READWRITE, (err) => {
+    if (err) {
+      console.error(err.message);
+    }
+    console.log('Connected to the user db');
+  }
+  );
   // await db.migrate({ force: 'last' });
 
   const people = await db.all('SELECT * FROM person');

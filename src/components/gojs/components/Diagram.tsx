@@ -1118,6 +1118,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
             }),
+          makeButton("----------"),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
                 const context = {
@@ -1195,7 +1196,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                   return false;
             }),
-            makeButton("Change Object Type",
+          makeButton("Change Object Type",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
               const currentType = node.objecttype;
@@ -1235,7 +1236,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
           }),
-
+          makeButton("Edit Typeview",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              const modalContext = {
+                what: "editTypeview",
+                title: "Edit Typeview",
+                icon: findImage(node.icon),
+                myDiagram: myDiagram
+              }
+              myMetis.currentNode = node;
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(node, modalContext);
+                // 
+            }, 
+            function (o: any) {
+              return true;
+              if (true)
+                return false;
+              else {
+                const node = o.part.data;
+                if (debug) console.log('413 node', node);
+                const currentObject = node.object; 
+                const currentObjectView = node.objectview;
+                if (currentObject && currentObjectView) {                   
+                  const objtype  = currentObject.type;
+                  const typeView = node.typeview;
+                  const defaultTypeview = objtype.typeview;
+                  if (typeView && (typeView.id === defaultTypeview.id)) {
+                    return true;
+                  }
+                }
+              }
+              return false;
+            }),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) { 
               // node is a container (group)
@@ -2184,66 +2218,66 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return o.diagram.commandHandler.canRedo(); 
             }),
-            makeButton("----------"),
-            makeButton("Add Missing Relationship Views",
-            function (e: any, obj: any) { 
-              const modelview = myMetis.currentModelview;
-              const objviews = modelview.objectviews;
-              const relviews = new Array();
-              const modifiedRelshipViews = new Array();
-              for (let i=0; i<objviews.length; i++) {
-                const objview = objviews[i];
-                const obj = objview.object;
-                const outrels = obj?.outputrels;
-                for (let j=0; j<outrels?.length; j++) {
-                  const rel = outrels[j];
-                  if (rel.deleted) continue;
-                  const rviews = rel.relviews;
-                  if (rviews?.length > 0) {
-                    // Relview is NOT missing - do nothing
-                    continue;
-                  }
-                  if (debug) console.log('2183 rviews', rel, rviews);
-                  // Check if from- and to-objects have views in this modelview
-                  const fromObj = rel.fromObject;
-                  const fromObjviews = fromObj.objectviews;
-                  if (fromObjviews?.length == 0) {
-                    // From objview is NOT in modelview - do nothing
-                    continue;
-                  }
-                  if (debug) console.log('2191 fromObjviews', fromObjviews);
-                  const toObj = rel.toObject;
-                  const toObjviews = toObj.objectviews;
-                  if (toObjviews?.length == 0) {
-                    // From objview is NOT in modelview - do nothing
-                    continue;
-                  }
-                  if (debug) console.log('2198 toObjviews', toObjviews);
-                  // Relview(s) does not exist, but from and to objviews exist, create relview(s)
-                  const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
-                  if (relview.deleted) continue;
-                  relview.setFromObjectView(fromObjviews[0]);
-                  relview.setToObjectView(toObjviews[0]);
-                  if (debug) console.log('2203 relview', relview);
-                  // Add link
-                  const myGoModel = myMetis.gojsModel;
-                  let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-                  link.loadLinkContent(myGoModel);
-                  myGoModel.addLink(link);
-                  // Prepare and do the dispatch
-                  const gqlRelview = new gql.gqlRelshipView(relview);
-                  modifiedRelshipViews.push(gqlRelview);
+          makeButton("----------"),
+          makeButton("Add Missing Relationship Views",
+          function (e: any, obj: any) { 
+            const modelview = myMetis.currentModelview;
+            const objviews = modelview.objectviews;
+            const relviews = new Array();
+            const modifiedRelshipViews = new Array();
+            for (let i=0; i<objviews.length; i++) {
+              const objview = objviews[i];
+              const obj = objview.object;
+              const outrels = obj?.outputrels;
+              for (let j=0; j<outrels?.length; j++) {
+                const rel = outrels[j];
+                if (rel.deleted) continue;
+                const rviews = rel.relviews;
+                if (rviews?.length > 0) {
+                  // Relview is NOT missing - do nothing
+                  continue;
                 }
+                if (debug) console.log('2183 rviews', rel, rviews);
+                // Check if from- and to-objects have views in this modelview
+                const fromObj = rel.fromObject;
+                const fromObjviews = fromObj.objectviews;
+                if (fromObjviews?.length == 0) {
+                  // From objview is NOT in modelview - do nothing
+                  continue;
+                }
+                if (debug) console.log('2191 fromObjviews', fromObjviews);
+                const toObj = rel.toObject;
+                const toObjviews = toObj.objectviews;
+                if (toObjviews?.length == 0) {
+                  // From objview is NOT in modelview - do nothing
+                  continue;
+                }
+                if (debug) console.log('2198 toObjviews', toObjviews);
+                // Relview(s) does not exist, but from and to objviews exist, create relview(s)
+                const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
+                if (relview.deleted) continue;
+                relview.setFromObjectView(fromObjviews[0]);
+                relview.setToObjectView(toObjviews[0]);
+                if (debug) console.log('2203 relview', relview);
+                // Add link
+                const myGoModel = myMetis.gojsModel;
+                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                link.loadLinkContent(myGoModel);
+                myGoModel.addLink(link);
+                // Prepare and do the dispatch
+                const gqlRelview = new gql.gqlRelshipView(relview);
+                modifiedRelshipViews.push(gqlRelview);
               }
-              modifiedRelshipViews.map(mn => {
-                let data = mn;
-                myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-              })
-              if (debug) console.log('2213 myMetis', myMetis);
-            },
-            function (o: any) { 
-              return true; 
-            }),
+            }
+            modifiedRelshipViews.map(mn => {
+              let data = mn;
+              myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+            })
+            if (debug) console.log('2213 myMetis', myMetis);
+          },
+          function (o: any) { 
+            return true; 
+          }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) { 
               const modifiedObjects = new Array();
@@ -2384,11 +2418,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             }),
           makeButton("----------"),
-          makeButton("PURGE DELETIONS",
+          makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
-              if (!debug) console.log('2402 myMetis', myMetis);
+              if (!debug) console.log('2402 myMetis', myMetis.currentModel.objects);
               uic.purgeDeletions(myMetis.currentModel); 
-              if (!debug) console.log('2404 myMetis', myMetis);
+              if (!debug) console.log('2404 myMetis', myMetis.currentModel.objects);
+
             },
             function (o: any) { 
               return true; 

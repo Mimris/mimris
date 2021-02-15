@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { NextApiRequest, NextApiResponse } from 'next';
-import sqlite from 'sqlite';
+import sqlite from 'sqlite3';
 
 export default async function getAllUsersessionsByPersonId(req: NextApiRequest, res: NextApiResponse) {
   const db = await sqlite.open('./mydb.sqlite');

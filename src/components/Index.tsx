@@ -54,7 +54,7 @@ const page = (props) => {
                   padding: "2px"
                 }}
               >
-                <CardHeader className="card-header ">Modelleing with AKM Modeller:</CardHeader>
+                <CardHeader className="card-header ">Modelling with AKM Modeller:</CardHeader>
                 <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,005,0.2)"}}>
                   <CardTitle className="card-title" style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
                   <CardText className="card-text"> 

@@ -598,7 +598,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "scrollMode": go.Diagram.InfiniteScroll,
             "initialAutoScale": go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
-            //'undoManager.maxHistoryLength': 0,  // uncomment disable undo/redo functionality
+            //'undoManager.maxHistoryLength': 100,  // uncomment disable undo/redo functionality
             // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
             // 'draggingTool.horizontalGuidelineColor': 'blue',
             // 'draggingTool.verticalGuidelineColor': 'blue',
@@ -1900,8 +1900,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                        function(e, obj) { e.diagram.commandHandler.undo(); },
                        function(o) { return o.diagram.commandHandler.canUndo(); }),
           makeButton("Redo",
-                       function(e, obj) { e.diagram.commandHandler.redo(); },
-                       function(o) { return o.diagram.commandHandler.canRedo(); })
+            function(e, obj) { 
+              e.diagram.commandHandler.redo(); 
+            },
+            function(o) { 
+              return o.diagram.commandHandler.canRedo(); 
+            })
         );
     }
 
@@ -2183,21 +2187,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
-          makeButton("Verify and Repair Model",
-            function (e: any, obj: any) {
-              const myModel = myMetis.currentModel;
-              const myModelview = myMetis.currentModelview;
-              const myMetamodel = myMetis.currentMetamodel;
-              const myGoModel = myMetis.gojsModel;
-              myDiagram.myGoModel = myGoModel;
-              if (debug) console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel, myMetis);
-              uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram);
-              if (debug) console.log('1181 myMetis', myMetis);
-              alert("Current model has been repaired");
-            },
-            function (o: any) {
-              return true; 
-            }),
           makeButton("Paste",
             function (e: any, obj: any) {
               myMetis.pasteViewsOnly = false;
@@ -2366,20 +2355,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return true; 
             }),
           makeButton("Verify and Repair Model",
-          function (e: any, obj: any) {
-            const myModel = myMetis.currentModel;
-            const myModelview = myMetis.currentModelview;
-            const myMetamodel = myMetis.currentMetamodel;
-            const myGoModel = myMetis.gojsModel;
-            myDiagram.myGoModel = myGoModel;
-            if (debug) console.log('1179 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
-            uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram);
-            if (debug) console.log('1181 myMetis', myMetis);
-            alert("Current model has been repaired");
-          },
-          function (o: any) { 
-            return true; 
-          }),
+            function (e: any, obj: any) {
+              if (!debug) console.log('2340 myMetis', myMetis);
+              const myModel = myMetis.currentModel;
+              const myModelview = myMetis.currentModelview;
+              const myMetamodel = myMetis.currentMetamodel;
+              const myGoModel = myMetis.gojsModel;
+              if (!debug) console.log('2346 myMetis', myMetis);
+              myDiagram.myGoModel = myGoModel;
+              if (debug) console.log('2345 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
+              uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram, myMetis);
+              if (debug) console.log('2348 myMetis', myMetis);
+              alert("Current model has been repaired");
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("----------"),
           makeButton("Zoom All",
             function (e: any, obj: any) {
@@ -2426,8 +2417,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true; 
               return false;
             }),
+          makeButton("----------"),
+          makeButton("PURGE DELETIONS",
+            function (e: any, obj: any) { 
+              if (!debug) console.log('2402 myMetis', myMetis);
+              uic.purgeDeletions(myMetis.currentModel); 
+              if (!debug) console.log('2404 myMetis', myMetis);
+            },
+            function (o: any) { 
+              return true; 
+            }),
         )
-    }
+      }
+        
 
     // Define a Node template
     let nodeTemplate;

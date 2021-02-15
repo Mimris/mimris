@@ -1513,29 +1513,81 @@ function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipVie
     return data;
 }
 
+export function purgeDeletions(model: akm.cxModel) {
+    // handle modelviews
+    const modelviews = model?.modelviews;
+    for (let i=0; i<modelviews.length; i++) {
+        const mview = modelviews[i];
+        // Handle objectviews
+        const oviews = mview.objectviews;
+        const objviews = new Array();
+        for (let j=0; j<oviews?.length; j++) {
+            const oview = oviews[j];
+            if (oview.deleted) 
+                continue;
+            objviews.push(oview);
+        }
+        mview.objectviews = objviews;
+        // Handle relshipviews
+        const rviews = mview.relshipviews;
+        const relviews = new Array();
+        for (let j=0; j<rviews?.length; j++) {
+            const rview = rviews[j];
+            if (rview.deleted) 
+                continue;
+            relviews.push(rview);
+        }
+        mview.relshipviews = relviews;
+    }
+    // Handle object
+    const objs = model.objects;
+    const objects = new Array();
+    for (let j=0; j<objs?.length; j++) {
+        const obj = objs[j];
+        if (obj.deleted) 
+            continue;
+        objects.push(obj);
+    }
+    model.objects = objects;
+    // Handle relships
+    const rels = model.relships;
+    const relships = new Array();
+    for (let j=0; j<rels?.length; j++) {
+        const rel = rels[j];
+        if (rel.deleted) 
+            continue;
+            relships.push(rel);
+    }
+    model.relships = relships;
+}
+
 export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxModel, metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
     // Handle the objects
     // Check if the referenced type exists - otherwse find a type that corresponds
+    if (!debug) console.log('1519 model, modelview', model, modelview, myMetis);
     const myGoModel = myDiagram?.myGoModel;
     const defObjTypename = 'Generic';
     const objects = model.objects;
     const modifiedObjects = new Array();
     const modifiedObjectviews = new Array();
     const format = "%s\n";
-    let msg = "Verification report";
+    let msg = "Verification report\n";
+    msg += "Verifying objects";
     let report = printf(format, msg);
     // Handle the objects
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
         if (!obj.type) {
+            if (!debug) console.log('1581 obj, myMetis', obj, myMetis);
             const type = myMetis.findObjectTypeByName(defObjTypename);
             if (type) {
                 obj.type = type;
                 obj.typeRef = type.id;
                 obj.typeName = type.name;
-                msg = "Verifying object " + obj.name + " ( without type )\n";
-                msg += "Object type has been set to " + defObjTypename;
+                msg = "\tVerifying object " + obj.name + " ( without type )\n";
+                msg += "\tObject type has been set to " + defObjTypename;
                 report += printf(format, msg);
+                if (!debug) console.log('1590 msg', msg);
             }
         }
         obj.inputrels = new Array();
@@ -1544,10 +1596,11 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         const typeName = obj.typeName;
         if (debug) console.log('1441 obj', obj, model);
         let objtype = metamodel.findObjectType(typeRef);
-        msg = "Verifying object type " + typeRef + " (" + typeName + ")";
+        msg = "\tVerifying object type " + typeRef + " (" + typeName + ")";
         report += printf(format, msg);
+        let objChanged = false;
         if (!objtype) {
-            msg = "Object type " + typeRef + " (" + typeName + ") was not found";
+            msg = "\tObject type " + typeRef + " (" + typeName + ") was not found";
             report += printf(format, msg);
             if (debug) console.log('1464 Type of object not found:', obj);
             objtype = metamodel.findObjectTypeByName(typeName);
@@ -1557,7 +1610,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             obj.type = objtype;
             obj.typeRef = objtype.id;
             obj.typeName = objtype.name;
-            msg = "Object type changed to: " + objtype.name;
+            objChanged = true;
+            msg = "\tObject type changed to: " + objtype.name;
             report += printf(format, msg);
             const gqlObj = new gql.gqlObject(obj);
             modifiedObjects.push(gqlObj);
@@ -1567,9 +1621,10 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             for (let i=0; i<objviews?.length; i++) {
                 const oview = objviews[i];
                 oview.name = obj.name;
+                if (objChanged) oview['fillcolor'] = 'red';
                 if (obj.deleted && !oview.deleted) {
                     oview.deleted = true;
-                    msg = "Verifying object " + obj.name + " that is deleted, but objectview is not.\n";
+                    msg = "\tVerifying object " + obj.name + " that is deleted, but objectview is not.\n";
                     msg += "\tIs repaired by deleting object view";
                     report += printf(format, msg);
                 }
@@ -1601,11 +1656,39 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
-    msg = "Verifying objects completed";
+    msg = "Verifying objects is completed\n";
+    report += printf(format, msg);
+    //if (false) {
+    // Handle object views
+    msg = "Verifying object views";
+    report += printf(format, msg);
+    const modifiedObjviews = new Array();
+    const oviews = modelview.objectviews;
+    for (let i=0; i<oviews.length; i++) {
+        const oview = oviews[i];
+        if (oview) {
+            if (!oview.object) {
+                oview.deleted = true;
+                const gqlObjview = new gql.gqlObjectView(oview);
+                if (!debug) console.log('1664 gqlObjview', gqlObjview);
+                modifiedObjviews.push(gqlObjview);
+                msg = "\tVerifying objectview " + oview.name + " ( without object )\n";
+                msg += "\tObjectview has been deleted";
+                report += printf(format, msg);
+            }
+        }
+    }
+    modifiedObjviews?.map(mn => {
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    })
+    msg = "Verifying object views is completed\n";
     report += printf(format, msg);
 
-
     // Handle the relationships
+    msg += "Verifying relationships";
+    report += printf(format, msg);
     // Check if the referenced type exists - otherwse find a type that corresponds
     const defRelTypename = 'isRelatedTo';
     const modifiedRelships = new Array();
@@ -1629,17 +1712,17 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     rel.type = type;
                     rel.typeRef = type.id;
                     rel.typeName = type.name;
-                    msg = "Verifying relationship " + rel.name + " ( without type )\n";
-                    msg += "Relationship type has been set to " + defRelTypename;
+                    msg = "\tVerifying relationship " + rel.name + " ( without type )\n";
+                    msg += "\tRelationship type has been set to " + defRelTypename;
                     report += printf(format, msg);
                 }
             }
             let reltype = metamodel.findRelationshipType(typeRef);
             if (debug) console.log('1518 fromType and toType', typeRef, typeName, fromType, toType, reltype);
-            msg = "Verifying relationship type " + typeRef + " (" + typeName + ")";
+            msg = "\tVerifying relationship type " + typeRef + " (" + typeName + ")";
             report += printf(format, msg);
             if (!reltype) {
-                msg = "Relationship type " + typeRef + " (" + typeName + ") was not found";
+                msg = "\tRelationship type " + typeRef + " (" + typeName + ") was not found";
                 if (debug) console.log('1524 Relationship with unknown type:', typeName);
                 if (typeName === 'hasProperty')  {
                     typeName = 'has';
@@ -1678,7 +1761,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                                 reltype = rtyp;
                                 rel.type = reltype;
                                 rel.name = typeName;
-                                msg = "Relationship type changed to: " + typeName;
+                                msg = "\tRelationship type changed to: " + typeName;
                                 report += printf(format, msg);
                                 if (debug) console.log('1560 Found relationship type:', reltype);
                                 break;
@@ -1691,8 +1774,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     if (reltype) {
                         rel.type = reltype;
                         rel.name = typeName;
-                        msg = "Verifying relationship " + rel?.name + " ( without type )\n";
-                        msg += "Object type has been set to " + defRelTypename;
+                        msg = "\tVerifying relationship " + rel?.name + " ( without type )\n";
+                        msg += "\tRelationship type has been set to " + defRelTypename;
                         report += printf(format, msg);
                             }
                 }
@@ -1725,16 +1808,16 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
 
                         if (rel.deleted && !rview.deleted) {
                             rview.deleted = true;
-                            msg = "Verifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";
+                            msg = "\tVerifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";
                             msg += "\tIs repaired by deleting relationship view";
                             report += printf(format, msg);
                         }                               
                         if (!rview.typeview) {
                             rview.typeview = rel.type.typeview;
-                            msg = "Relationship typeview of " + rel?.type?.name + " set to default";
+                            msg = "\tRelationship typeview of " + rel.type?.name + " set to default";
                             report += printf(format, msg);
                         } else {
-                            msg = "Relationship typeview of " + rel?.type?.name + " found"; 
+                            msg = "\tRelationship typeview of " + rel.type?.name + " found"; 
                             report += printf(format, msg);
                         }
                         const gqlRelview = new gql.gqlRelshipView(rview);
@@ -1767,10 +1850,12 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 
-    msg = "Verifying relationships completed";
+    msg = "Verifying relationships is completed\n\n";
+    msg += "End Verification";
     if (debug) console.log('1617 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (debug) console.log(report);
+    if (!debug) console.log(report);
     myDiagram.requestUpdate();    
-    alert(report);                    
+    alert("Verification report");   
+    //}                 
 } 

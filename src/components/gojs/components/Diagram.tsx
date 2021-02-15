@@ -1931,6 +1931,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedProjects?.map(mn => {
                 let data = (mn) && mn
                 e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
+                e.diagram?.dispatch({ type: 'SET_FOCUS_PROJ', data })
               })
             },
             function (o: any) { 

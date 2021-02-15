@@ -160,6 +160,7 @@ const Modeller = (props: any) => {
           title=" Modelling:&#013;Insert an Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Modelling area below.&#013;&#013;
                   Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
         </button>
+        
       </Nav>
       <TabContent > 
         <TabPane  >
@@ -206,8 +207,10 @@ const Modeller = (props: any) => {
       <h5 className="modeller-heading text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
       <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
         title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
-        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them.">?
+        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."
+        >?
       </button>
+
       <div>
         {selector}
         {metamodelTabDiv} 

@@ -1,12 +1,12 @@
 
-import SelectContext from '../components/SelectContext'
+// import SelectContext from '../components/SelectContext'
 
 const SetContext = (props: any) =>  {
  
   const phFocus = props.ph?.phFocus;
   return (
     <>
-    <div className="context-list border-bottom border-dark">Context :
+    <span className="context-list  align-self-center flex-grow-1 border-bottom border-dark">Context :
       Model: <strong>{ phFocus?.focusModel?.name }</strong> |
       Modelview: <strong>{phFocus?.focusModelview?.name}</strong> |
       Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> |
@@ -15,8 +15,8 @@ const SetContext = (props: any) =>  {
       Proj: <strong>{phFocus?.focusProj?.name}</strong> |
       Role: <strong>{phFocus?.focusRole?.name}</strong> |
       Task: <strong>{phFocus?.focusTask?.name}</strong> |
-      <SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> |
-    </div>
+      {/* <SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> | */}
+    </span>
     </>
     )
 }

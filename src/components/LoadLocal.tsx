@@ -76,8 +76,8 @@ const LoadLocal = (props: any) => {
   let loadSelectedFromLocalStoreDiv = <></>
   if (options) 
     loadSelectedFromLocalStoreDiv = 
-      <div className="loadstore selection d-flex justify-content-center border border-dark p-1">
-        <p>Select Model to load</p>
+      <div className="loadstore selection d-flex justify-content-center border border-dark  pt-3 px-2">
+        <p>Model to import</p>
         <Select className="modal-select"
           options={options}
           onChange={value => handleSelectLocalModelDropdownChange(value)}
@@ -239,13 +239,13 @@ const LoadLocal = (props: any) => {
       className="btn-primary btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFile}>Download Project to File
+      onClick={handleSaveAllToFile}>Save Project to File
     </button >
   const buttonSaveModelToFileDiv = 
     <button className="btn-primary btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current model to file&#013;(in Downloads folder)"
-      onClick={handleSaveModelToFile}>Download Current Model to File 
+      onClick={handleSaveModelToFile}>Save Current Model to File 
     </button >
   const buttonSaveMetamodelToFileDiv = 
     <button 
@@ -268,7 +268,7 @@ const LoadLocal = (props: any) => {
     <>
       <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>LocalStorage: </ModalHeader>
+        <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0">
           Current Source: <strong> {props.ph.phSource}</strong>
           <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
@@ -278,32 +278,46 @@ const LoadLocal = (props: any) => {
             <div className="loadsave px-2 pb-1 mb-0">
               <div className="loadsave--localStore select border border-dark">
               <h6>Local Store </h6>
-                {buttonLoadLocalStoreDiv}
-                {loadSelectedFromLocalStoreDiv}
-                <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#aaa", padding: "2px",  marginTop: "1px" , marginBottom: "6px" }} />
+                <div className="selectbox mb-2 border"> 
+                 <h6>Import from local</h6>
+                  {buttonLoadLocalStoreDiv}
+                  {loadSelectedFromLocalStoreDiv}
+              </div>
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#aaa", padding: "2px",  marginTop: "1px" , marginBottom: "6px" }} /> */}
+                <div className="selectbox mb-2 border"> 
+                 <h6>Export to local</h6>
                 {buttonSaveToLocalStoreDiv}
                 {buttonSaveCurrentToLocalStoreDiv} 
               </div>
+              </div>
               <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                 <h5>Metamodel </h5>
                 <div className="selectbox mb-2 border"> 
-                <h6>Import Metamodel from file </h6>
+                 <h6>Import from file </h6>
                   <input className="select-input" type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
-                {buttonSaveMetamodelToFileDiv}
+                <div className="selectbox mb-2 border"> 
+                  <h6>Export to file </h6>
+                  {buttonSaveMetamodelToFileDiv}
+                </div>
               </div>
               <div className="loadsave--modelToFile select mb-1 p-2  border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                  <h5>Model</h5>
                 <div className="selectbox mb-2 border">
-                  <h6>Import Model(s) from file </h6>
+                  <h6>Import from file </h6>
                   <input className="select-input w-100" type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
                 </div>
+                <div className="selectbox mb-2 border">
+                  <h6>Export to file </h6>
                 {buttonSaveAllToFileDiv}
                 {buttonSaveModelToFileDiv}
+                </div>
               </div>
               <div className="loadsave--momoryStore select  mb-1 p-2  border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                <h6>Crash Recover </h6>
+                <h6>Crash Recovery </h6>
                 <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
                   If the browser hang or crash, first reload the page and before any other actions, click on the button below to recover your last work !
                 </div>

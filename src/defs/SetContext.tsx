@@ -6,7 +6,7 @@ const SetContext = (props: any) =>  {
   const phFocus = props.ph?.phFocus;
   return (
     <>
-    <span className="context-list  align-self-center flex-grow-1 border-bottom border-dark">Context :
+    <span className="context-list  align-self-center flex-grow-1 ">Context :
       Model: <strong>{ phFocus?.focusModel?.name }</strong> |
       Modelview: <strong>{phFocus?.focusModelview?.name}</strong> |
       Objectview: <strong>{phFocus?.focusObjectview?.name}</strong> |

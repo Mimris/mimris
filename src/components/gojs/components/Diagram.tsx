@@ -2251,7 +2251,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               for (let i=0; i<objects.length; i++) {
                 const obj = objects[i];
                 const objtype = obj?.type;
-                if (obj.name === objtype.name) {
+                if (obj.name === objtype?.name) {
                   if (obj.objectviews == null) {
                     obj.deleted = true;
                     const gqlObj = new gql.gqlObject(obj);

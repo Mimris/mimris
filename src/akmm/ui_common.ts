@@ -1658,7 +1658,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     })
     msg = "Verifying objects is completed\n";
     report += printf(format, msg);
-    //if (false) {
+
+
     // Handle object views
     msg = "Verifying object views";
     report += printf(format, msg);
@@ -1686,6 +1687,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg = "Verifying object views is completed\n";
     report += printf(format, msg);
 
+
+    
+    if (true) {
     // Handle the relationships
     msg += "Verifying relationships";
     report += printf(format, msg);
@@ -1857,5 +1861,5 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     if (!debug) console.log(report);
     myDiagram.requestUpdate();    
     alert("Verification report");   
-    //}                 
+    }                 
 } 

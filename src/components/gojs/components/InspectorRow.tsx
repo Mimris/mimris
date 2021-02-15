@@ -42,7 +42,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
   
   public render() {
-    if (debug) console.log('44 InspectorRow: this.props', this.props);
+    console.log('45 InspectorRow: this.props', this.props);
     let val = this.props.value;
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );

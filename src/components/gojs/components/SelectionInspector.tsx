@@ -57,7 +57,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (!debug) console.log('56 inst', props, inst, selObj);
+    if (debug) console.log('56 inst', props, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     switch (modalContext?.what) {

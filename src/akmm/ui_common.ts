@@ -1520,6 +1520,7 @@ export function purgeDeletions(model: akm.cxModel) {
         const mview = modelviews[i];
         // Handle objectviews
         const oviews = mview.objectviews;
+        if (debug) console.log('1523', oviews);
         const objviews = new Array();
         for (let j=0; j<oviews?.length; j++) {
             const oview = oviews[j];
@@ -1527,6 +1528,8 @@ export function purgeDeletions(model: akm.cxModel) {
                 continue;
             objviews.push(oview);
         }
+        if (debug) console.log('1531', objviews);
+        
         mview.objectviews = objviews;
         // Handle relshipviews
         const rviews = mview.relshipviews;
@@ -1539,8 +1542,10 @@ export function purgeDeletions(model: akm.cxModel) {
         }
         mview.relshipviews = relviews;
     }
+
     // Handle object
     const objs = model.objects;
+    if (debug) console.log('1556', objs);
     const objects = new Array();
     for (let j=0; j<objs?.length; j++) {
         const obj = objs[j];
@@ -1548,7 +1553,10 @@ export function purgeDeletions(model: akm.cxModel) {
             continue;
         objects.push(obj);
     }
+    if (debug) console.log('1564', objects);
+    
     model.objects = objects;
+
     // Handle relships
     const rels = model.relships;
     const relships = new Array();
@@ -1559,6 +1567,8 @@ export function purgeDeletions(model: akm.cxModel) {
             relships.push(rel);
     }
     model.relships = relships;
+    if (debug) console.log('1570', model);
+    
 }
 
 export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxModel, metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
@@ -1670,7 +1680,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             if (!oview.object) {
                 oview.deleted = true;
                 const gqlObjview = new gql.gqlObjectView(oview);
-                if (!debug) console.log('1664 gqlObjview', gqlObjview);
+                if (debug) console.log('1664 gqlObjview', gqlObjview);
                 modifiedObjviews.push(gqlObjview);
                 msg = "\tVerifying objectview " + oview.name + " ( without object )\n";
                 msg += "\tObjectview has been deleted";

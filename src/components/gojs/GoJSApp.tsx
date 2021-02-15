@@ -7,11 +7,11 @@ const debug = false;
 import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';
-import * as ReactModal from 'react-modal';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+// import * as ReactModal from 'react-modal';
+// import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
-import EditProperties  from '../forms/EditProperties'
+// import EditProperties  from '../forms/EditProperties'
 
 // import './GoJSApp.css';
 // import glb from '../../akmm/akm_globals';
@@ -183,7 +183,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "dispatch":         dispatch,
       "done":             done
     }
-    if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
+    if (!debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('157 handleEvent', myMetis);
     if (debug) console.log('158 this', this);
 
@@ -451,7 +451,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ExternalObjectsDropped': {
         e.subject.each(function(n) {
           const node = myDiagram.findNodeForKey(n.data.key);
-          const part = node.data;
+          let part = node.data;
           if (debug) console.log('450 found node', node);
           if (debug) console.log('451 myMetis', myMetis);
           if (debug) console.log('452 myGoModel', myGoModel, myGoMetamodel);
@@ -481,7 +481,12 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else // object
           {
             part.category = 'Object';
-            if (part.objecttype.viewkind === 'Container') {
+            if (!debug) console.log('484 part', part);
+            if (!part.objecttype) {
+              const obj = myMetis.findObject(part.id);
+              console.log('487 obj', obj);
+            }
+            if (part.objecttype?.viewkind === 'Container') {
               part.isGroup = true;
               part.viewkind = 'Container';
               part.size = "300 200";    // Hack

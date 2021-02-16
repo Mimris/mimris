@@ -38,9 +38,9 @@ const page = (props) => {
   return (
     <>
       <div className="workpad p-1 bg-light" >
-        <div className="homepage pt-2" >
+        <div className="homepage pt-2 pr-2" >
           <div>
-            <CardColumns>
+            <CardColumns >
               <Card className="card" 
                 style={{
                   background: "rgba(255,255,255,0.4)",
@@ -170,11 +170,37 @@ const page = (props) => {
                   backdropFilter: "blur(5px)",
                   WebkitBackdropFilter: "blur(5px)",
                   // display: "block",
-                  margin: "0 auto",
-                  padding: "2px"
+                  // margin: "0 auto",
+                  // padding: "2px"
                 }}
+                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "50vh", overflowY: 'auto'}}
+                // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
-                <CardHeader className="card-header" >Blog AKMM releases </CardHeader>
+                  <CardHeader className="card-header " >Blog AKMM releases </CardHeader>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title" >Release 2021.02.16</CardTitle>
+                    <CardText >
+                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
+                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
+                        &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
+                        &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />
+                        &bull; Added Edit Project - to change Project name and descriptions!<br />
+                        &bull; Added colorpicker on object/relationship views!<br />
+                        &bull; Added !PURGE DELETED! Cleanup of objects with no views.<br />
+                        &bull; Bugfixes in Objects tab in Palette!<br />
+                        &bull; Bugfixes!<br /><br />
+                        <strong>ToBe done!</strong><br /><br />
+                        &bull; Workplace templates for reflective workplace modelling! <br />
+                        &bull; Popup select menu for new relships!<br />
+                        &bull; Image picker to select icons!<br />
+                        &bull; Strokewidth for synbol border and relship line!<br />
+                        &bull; GraphQL shema reporting from Solution models!<br />
+                        &bull; Instruction videos for modelling Best Practices! <br />
+                        &bull; Enhancement of user interface! <br />
+                        &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
+
+                    </CardText>
+                  </CardBody>
                   <CardBody className="card-body" >
                     <CardTitle className="card-title" >Release 2021.02.11</CardTitle>
                     <CardText >

@@ -173,7 +173,7 @@ const page = (props) => {
                   // margin: "0 auto",
                   // padding: "2px"
                 }}
-                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "50vh", overflowY: 'auto'}}
+                style={{maxHeight: 'calc(110vh - 210px)', maxWidth: "50vh", overflowY: 'auto'}}
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
                   <CardHeader className="card-header " >Blog AKMM releases </CardHeader>

@@ -171,6 +171,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const obj = this.state.selectedData;
         const type = obj.type;
         const node = myDiagram.findNodeForKey(obj.key);
+        if (!node)
+          return;
         const data = node.data;
         for (let k in data) {
           if (k === 'id') continue;
@@ -244,9 +246,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case "editRelshipview": {
         const relview = this.state.selectedData;
         const reltypeview = relview.typeview;
+        if (debug) console.log('249 relview, reltypeview', relview, reltypeview);
         const node = myDiagram.findLinkForKey(relview.key);
         const data = node.data;
-        for (let prop in reltypeview.data) {
+        for (let prop in reltypeview?.data) {
           if (prop === 'strokecolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokewidth' && relview[prop] !== "")
@@ -335,7 +338,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objtype = myMetis.findObjectTypeByName(typename);
         if (debug) console.log('189 objtype', objtype);
         const objview = (objtype) && uic.setObjectType(node, objtype, context);
-        if (!debug) console.log('193 objview', objview, node, myMetis);
+        if (debug) console.log('193 objview', objview, node, myMetis);
         const n = myMetis.myDiagram.findNodeForKey(node.key);
         const data = n.data;
         myMetis.myDiagram.model.setDataProperty(data, "typename", typename);
@@ -471,7 +474,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myInst = myMetis.findObject(inst.id);
       instview = node.objectview;
       myInstview = myMetis.findObjectView(instview.id);
-      if (!debug) console.log('325 myInst', myInst, myInstview);
+      if (debug) console.log('325 myInst', myInst, myInstview);
       if (context?.what === 'editProject') {
           myItem = myMetis;
       }
@@ -2285,7 +2288,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               for (let i=0; i<objects.length; i++) {
                 const obj = objects[i];
                 const objtype = obj?.type;
-                if (obj.name === objtype.name) {
+                if (obj.name === objtype?.name) {
                   if (obj.objectviews == null) {
                     obj.deleted = true;
                     const gqlObj = new gql.gqlObject(obj);
@@ -2356,17 +2359,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Verify and Repair Model",
             function (e: any, obj: any) {
-              if (!debug) console.log('2340 myMetis', myMetis);
+              if (debug) console.log('2340 myMetis', myMetis);
               const myModel = myMetis.currentModel;
               const myModelview = myMetis.currentModelview;
               const myMetamodel = myMetis.currentMetamodel;
               const myGoModel = myMetis.gojsModel;
-              if (!debug) console.log('2346 myMetis', myMetis);
+              if (debug) console.log('2346 myMetis', myMetis);
               myDiagram.myGoModel = myGoModel;
               if (debug) console.log('2345 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
               uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram, myMetis);
               if (debug) console.log('2348 myMetis', myMetis);
-              alert("Current model has been repaired");
+              alert("The current model has been repaired");
             },
             function (o: any) { 
               return true; 
@@ -2429,8 +2432,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return true; 
             }),
         )
-      }
-        
+      }        
 
     // Define a Node template
     let nodeTemplate;
@@ -2535,7 +2537,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           ),
         );
     }
-
     // Define a link template
     let linkTemplate;
     if (true) {
@@ -2733,8 +2734,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           ),
         ),
 
-      )
-      
+      )      
     }
 
     // Define group template map

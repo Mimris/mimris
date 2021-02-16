@@ -1574,7 +1574,7 @@ export function purgeDeletions(model: akm.cxModel) {
 export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxModel, metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
     // Handle the objects
     // Check if the referenced type exists - otherwse find a type that corresponds
-    if (!debug) console.log('1519 model, modelview', model, modelview, myMetis);
+    if (debug) console.log('1519 model, modelview', model, modelview, myMetis);
     const myGoModel = myDiagram?.myGoModel;
     const defObjTypename = 'Generic';
     const objects = model.objects;
@@ -1588,7 +1588,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
         if (!obj.type) {
-            if (!debug) console.log('1581 obj, myMetis', obj, myMetis);
+            if (debug) console.log('1581 obj, myMetis', obj, myMetis);
             const type = myMetis.findObjectTypeByName(defObjTypename);
             if (type) {
                 obj.type = type;
@@ -1597,7 +1597,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 msg = "\tVerifying object " + obj.name + " ( without type )\n";
                 msg += "\tObject type has been set to " + defObjTypename;
                 report += printf(format, msg);
-                if (!debug) console.log('1590 msg', msg);
+                if (debug) console.log('1590 msg', msg);
             }
         }
         obj.inputrels = new Array();
@@ -1668,7 +1668,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     })
     msg = "Verifying objects is completed\n";
     report += printf(format, msg);
-    //if (false) {
+
+
     // Handle object views
     msg = "Verifying object views";
     report += printf(format, msg);
@@ -1696,6 +1697,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg = "Verifying object views is completed\n";
     report += printf(format, msg);
 
+
+    
+    if (true) {
     // Handle the relationships
     msg += "Verifying relationships";
     report += printf(format, msg);
@@ -1866,6 +1870,5 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     report += printf(format, msg);
     if (!debug) console.log(report);
     myDiagram.requestUpdate();    
-    alert("Verification report");   
-    //}                 
+    }                 
 } 

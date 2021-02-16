@@ -1467,7 +1467,7 @@ function reducer(state = InitialState, action) {
       const lengthotv = curmmotv?.objecttypeviews.length
       let indexotv = curmmotv?.objecttypeviews?.findIndex(ot => ot.id === curotv?.id)
       if (indexotv < 0) {indexotv = lengthotv} 
-      if (!debug) console.log('411 ovindex', ovindex, ovlength);
+      if (debug) console.log('411 ovindex', ovindex, ovlength);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {

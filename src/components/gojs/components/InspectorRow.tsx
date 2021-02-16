@@ -10,23 +10,23 @@ const debug = false;
 interface InspectorRowProps {
   id: string;
   value: string;
-  valuetype: string;
+  type: string;
   obj: any;
   context: any;
-  onInputChange: (id: string, value: string, obj: any, context: any, isBlur: boolean) => void;
+  onInputChange: (id: string, value: string, type: string, obj: any, context: any, isBlur: boolean) => void;
 }
 
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
-    if (debug) console.log('21 props', props, this);
+    if (!debug) console.log('21 props', props, this);
     this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   private handleInputChange(e: any) {
-    if (!debug) console.log('21 InspectorRow: this.props', this.props);
+    if (debug) console.log('21 InspectorRow: this.props', this.props);
     if (debug) console.log('22 InspectorRow: e.target', e.target, e);
-    this.props.onInputChange(this.props.id, e.target.value, this.props.obj, this.props.context, e.type === 'blur');
+    this.props.onInputChange(this.props.id, e.target.value, this.props.type, this.props.obj, this.props.context, e.type === 'blur');
   }
   
   private formatLocation(loc: string): string {
@@ -42,7 +42,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
   
   public render() {
-    if (debug) console.log('44 InspectorRow: this.props', this.props);
+    if (debug) console.log('45 InspectorRow: this.props', this.props);
     let val = this.props.value;
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );
@@ -55,7 +55,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             disabled={this.props.id === 'typeName' || this.props.id === 'typename'}
             id={this.props.id}
             value={val}
-            type={this.props.valuetype}
+            type={this.props.type}
             onChange={this.handleInputChange}
             onBlur={this.handleInputChange}
             >

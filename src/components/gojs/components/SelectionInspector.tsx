@@ -14,7 +14,7 @@ interface SelectionInspectorProps {
   myMetis: any;
   selectedData: any;
   context: any;
-  onInputChange: (id: string, value: string, selectedData: any, context: any, isBlur: boolean) => void;
+  onInputChange: (id: string, value: string, valuetype: string, selectedData: any, context: any, isBlur: boolean) => void;
 }
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
@@ -24,14 +24,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
     if (!debug) console.log('24  myMetis', this.props, this.props.selectedData);
-    const selObj = this.props.selectedData;
+    let selObj = this.props.selectedData;
     const modalContext = this.props.context;
-    if (debug) console.log('29 modalContext', modalContext, selObj);
-    if (!selObj)
-      return;
-    let category = selObj.category;
+    let category = selObj?.category;
+    if (debug) console.log('30 modalContext', modalContext, typeof(selObj), selObj);
     let inst, instview, typeview, item;
-    if (category === 'Object') {
+    if (selObj.type === 'GraphLinksModel') {
+      return;
+    }
+    else if (category === 'Object') {
       inst = selObj.object;
       inst = myMetis.findObject(inst?.id);
       instview = selObj.objectview;
@@ -47,17 +48,17 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       inst = selObj;
       instview = null;
     }
-
-    if (!inst)
+    if (debug) console.log('48 inst', inst);
+    if (inst == undefined)
       return;
     const type = inst.type;
-    const props = type?.properties;
-    for (let i=0; i<props?.length; i++) {
-      const prop = props[i];
+    const properties = type?.properties;
+    for (let i=0; i<properties?.length; i++) {
+      const prop = properties[i];
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (debug) console.log('56 inst', props, inst, selObj);
+    if (debug) console.log('56 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     switch (modalContext?.what) {
@@ -91,6 +92,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let valuetype = 'text';
         if (true) { // Filter values
           if (typeof(val) === 'object') continue;
+          if (typeof(val) === 'function') continue;
           if (k === 'id') continue;
           if (k === 'key') continue;
           if (k === '__gohashid') continue;
@@ -146,13 +148,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
-        // if (k === 'fillcolor') {
-        //   val = '#e66465';  // For testing
-        //   valuetype = 'color';
-        // }
-        if (debug) console.log('132 SelectionInspector: k, val', k, val);
+        if (k === 'fillcolor') {
+          val = '#e66465';  // For testing
+          valuetype = 'color';
+        }
+        if (debug) console.log('154 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-        if (debug) console.log('134 propname, value:', val, k, item[k], valuetype, selObj);
+        if (debug) console.log('156 propname, value:', val, k, item[k], valuetype, selObj);
         row  = <InspectorRow
           key={k}
           id={k}
@@ -175,7 +177,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   
   public render() {
     if (debug) console.log('113 SelectionInspector ', this.renderObjectDetails());
-
+    const modalContext = this.props.context;
+    if (!modalContext)
+      return null;
     return (
       <div id='myInspectorDiv' className='inspector'>
         <table>

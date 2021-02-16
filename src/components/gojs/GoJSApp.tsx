@@ -183,7 +183,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "dispatch":         dispatch,
       "done":             done
     }
-    if (!debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
+    if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('157 handleEvent', myMetis);
     if (debug) console.log('158 this', this);
 
@@ -481,7 +481,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else // object
           {
             part.category = 'Object';
-            if (!debug) console.log('484 part', part);
+            if (debug) console.log('484 part', part);
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
               console.log('487 obj', obj);
@@ -888,7 +888,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           myGoMetamodel     ={this.state.myGoMetamodel}
           dispatch          ={this.state.dispatch}
         />
-        {inspector}
+        {/* {inspector} */}
       </div>
       
     );

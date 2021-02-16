@@ -51,7 +51,7 @@ const page = (props) => {
                   WebkitBackdropFilter: "blur(5px)",
                   // display: "block",
                   // margin: "0 auto",
-                  padding: "2px"
+                  padding: "0px"
                 }}
               >
                 <CardHeader className="card-header ">Modelling with AKM Modeller:</CardHeader>
@@ -180,7 +180,6 @@ const page = (props) => {
                   <CardBody className="card-body" >
                     <CardTitle className="card-title" >Release 2021.02.16</CardTitle>
                     <CardText >
-                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
                         &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
                         &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
                         &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />

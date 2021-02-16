@@ -266,6 +266,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   public render() {
 
     const selectedData = this.state.selectedData;
+    if (debug) console.log('269 selectedData', selectedData);
     let inspector;
     if (selectedData !== null) {
       inspector = <>

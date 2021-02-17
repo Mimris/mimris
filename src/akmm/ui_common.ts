@@ -1439,10 +1439,12 @@ export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram
             if (debug) console.log('1187 updateNode', prop, node[prop], diagram);
         }
         const objview = node.objectview;
-        if (debug) console.log('1444 viewdata, objview', viewdata, objview);
-        for (prop in viewdata) {
-            if (objview[prop] && objview[prop] !== "") {
-                diagram.model.setDataProperty(node, prop, objview[prop]);
+        if (objview) {
+            if (debug) console.log('1444 viewdata, objview', viewdata, objview);
+            for (prop in viewdata) {
+                if (objview[prop] && objview[prop] !== "") {
+                    diagram.model.setDataProperty(node, prop, objview[prop]);
+                }
             }
         }
         diagram.model.setDataProperty(node, 'typename', node.typename);

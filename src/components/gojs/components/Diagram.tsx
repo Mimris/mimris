@@ -280,27 +280,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (debug) console.log('270 objtypeview, link', typeview, link);
           data = link.data;
         }
-        for (let prop in typeview) {
-          if (prop === 'figure' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'fillcolor' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'strokecolor' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'strokewidth' && typeview[prop] !== "")
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'icon' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'dash' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'fromArrow' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'toArrow' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'fromArrowColor' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'toArrowColor' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+        if (data) {
+          for (let prop in typeview) {
+            if (prop === 'figure' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'fillcolor' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'strokecolor' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'strokewidth' && typeview[prop] !== "")
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'icon' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'dash' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'fromArrow' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'toArrow' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'fromArrowColor' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'toArrowColor' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+          }
         }
         // const modifiedTypeviews = new Array();
         // const gqlObjTypeview = new gql.gqlObjectTypeView(objtypeview);

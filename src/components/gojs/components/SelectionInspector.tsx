@@ -148,7 +148,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
+<<<<<<< HEAD
         if (k === 'fillcolor') {
+=======
+        if (k === 'fillcolor' || k === 'strokecolor' || k === 'fromArrowColor'|| k === 'toArrowColor') {
+>>>>>>> ad4bc0485c8b244e1570939020f94e4a4296ec2e
           valuetype = 'color';
         }
         if (debug) console.log('154 SelectionInspector: k, val', k, val);

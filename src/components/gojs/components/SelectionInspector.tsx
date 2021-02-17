@@ -148,9 +148,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
+        // let kkey = k
+        // let kid = k
+        // let kval = val
         if (k === 'fillcolor' || k === 'strokecolor' || k === 'fromArrowColor'|| k === 'toArrowColor') {
           valuetype = 'color';
-        }
+        } 
+        console.log('154', k);
+        
+        // if (k === 'icon' ) {
+        //   valuetype = 'file';
+        //   kkey = 'file'
+        //   kid = 'file'
+        //   kval = ''
+        // } 
+
         if (debug) console.log('154 SelectionInspector: k, val', k, val);
         if (!val) val = "";
         if (debug) console.log('156 propname, value:', val, k, item[k], valuetype, selObj);
@@ -164,6 +176,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           onInputChange={this.props.onInputChange} 
         />
       }
+      
       if (k === 'key') {
         dets.unshift(row); // key always at start
       } else {
@@ -171,6 +184,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       }
     }
     if (debug) console.log('114 SelectionInspector ', dets);
+    console.log('179', dets);
     return dets;
   }
   

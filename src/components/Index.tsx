@@ -142,7 +142,7 @@ const page = (props) => {
                   padding: "2px"
                 }}              
               >
-                <CardHeader className="card-header">Aktive Knowledge Modelling</CardHeader>
+                <CardHeader className="card-header">Active Knowledge Modelling</CardHeader>
                 <CardBody className="card-body" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
                   <CardText className="card-text">

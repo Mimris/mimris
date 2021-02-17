@@ -1930,7 +1930,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myModel":            myMetis.currentModel,
                 "myTargetMetamodel":  myMetis.currentTargetMetamodel
               }
-                let model;
+              let model;
               //const metamodel = myMetis.currentMetamodel;
               const metamodel = gen.askForMetamodel(context, false, true);
               if (!metamodel) return;

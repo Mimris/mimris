@@ -142,7 +142,7 @@ const page = (props) => {
                   padding: "2px"
                 }}              
               >
-                <CardHeader className="card-header">Aktive Knowledge Modelling</CardHeader>
+                <CardHeader className="card-header">Active Knowledge Modelling</CardHeader>
                 <CardBody className="card-body" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
                   <CardText className="card-text">
@@ -163,9 +163,9 @@ const page = (props) => {
               </Card>
               <Card className="card" body outline color="primary" 
                 style={{
-                  background: "rgba(255,255,255,0.4)",
+                  background: "rgba(255,255,255,0.8)",
                   borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  border: "1px solid rgba(255,255,255,0.6)",
                   // position: "relative",
                   backdropFilter: "blur(5px)",
                   WebkitBackdropFilter: "blur(5px)",
@@ -173,7 +173,8 @@ const page = (props) => {
                   // margin: "0 auto",
                   // padding: "2px"
                 }}
-                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "50vh", overflowY: 'auto'}}
+                style={{maxHeight: 'calc(110vh - 210px)', maxWidth: "50vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"} }} 
+
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
                   <CardHeader className="card-header " >Blog AKMM releases </CardHeader>

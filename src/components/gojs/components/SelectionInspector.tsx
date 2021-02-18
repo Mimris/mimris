@@ -192,6 +192,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           onInputChange={this.props.onInputChange} 
         />
       }
+      
       if (k === 'key') {
         dets.unshift(row); // key always at start
       } else {

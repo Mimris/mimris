@@ -229,6 +229,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objtypeview = objview.typeview;
         const node = myDiagram.findNodeForKey(objview.key);
         const data = node.data;
+        if (debug) console.log('232 data, objview', data, objview);
         for (let prop in objtypeview?.data) {
           if (prop === 'figure' && objview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, objview[prop]);
@@ -273,12 +274,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (typeview.category === 'Object') {
           const node = myDiagram.findNodeForKey(typeview.key);
           if (debug) console.log('270 objtypeview, node', typeview, node);
-          data = node.data;
+          //data = node.data;
         }
         if (typeview.category === 'Relationship') {
           const link = myDiagram.findLinkForKey(typeview.key);
           if (debug) console.log('270 objtypeview, link', typeview, link);
-          data = link.data;
+          //data = link.data;
         }
         if (data) {
           for (let prop in typeview) {
@@ -437,9 +438,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  public handleInputChange(propname: string, value: string, obj: any, context: any, isBlur: boolean) {
-    if (debug) console.log('289 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
-    if (debug) console.log('290 this.state', this.state);
+  public handleInputChange(propname: string, value: string, valuetype: string, obj: any, context: any, isBlur: boolean) {
+    if (debug) console.log('442 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
+    if (debug) console.log('443 this.state', this.state);
     this.setState(
       produce((draft: AppState) => {
         const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
@@ -465,7 +466,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       })
     );
-    if (debug) console.log('315 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
+    if (debug) console.log('469 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
     const myMetis = this.myMetis;
     const myDiagram = context.myDiagram;
     let inst, instview, myInst, myInstview, myItem;
@@ -476,7 +477,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myInst = myMetis.findObject(inst.id);
       instview = node.objectview;
       myInstview = myMetis.findObjectView(instview.id);
-      if (debug) console.log('325 myInst', myInst, myInstview);
+      if (debug) console.log('480 myInst', myInst, myInstview);
       if (context?.what === 'editProject') {
           myItem = myMetis;
       }
@@ -484,16 +485,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           myItem = myInstview;
       } else if (context?.what === "editTypeview") {
           myItem = myInst.type?.typeview.data;
+          if (debug) console.log('488 editTypeview', myItem);
       } else {
           myItem = myInst;
       }
       myItem[propname] = value;
+      if (debug) console.log('493 editTypeview', myItem, myInst, myInstview);
 
       // Prepare and to dispatch of objectview
       if (context?.what === "editTypeview") {
         const modifiedTypeviews = new Array();
         const gqlObjtypeview = new gql.gqlObjectTypeView(myInst.type?.typeview);
-        if (debug) console.log('336 gqlObjtypeview', gqlObjtypeview);
+        if (debug) console.log('497 gqlObjtypeview', gqlObjtypeview);
         modifiedTypeviews.push(gqlObjtypeview);
         modifiedTypeviews.map(mn => {
           let data = mn;
@@ -501,26 +504,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         })
       }
       if (context?.what === "editObjectview")  {
-        if (debug) console.log('350 myItem', myItem);
         const modifiedObjectViews = new Array();
         const gqlObjview = new gql.gqlObjectView(myInstview);
-        if (debug) console.log('353 gqlObjview', gqlObjview);
+        if (debug) console.log('508 gqlObjview', gqlObjview);
         modifiedObjectViews.push(gqlObjview);
         modifiedObjectViews.map(mn => {
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
+        if (debug) console.log('514 gqlObjview', gqlObjview);
       }
       // Prepare to and dispatch objects
       const modifiedObjects = new Array();
       const gqlObj = new gql.gqlObject(myItem);
-      if (debug) console.log('362 gqlObj', gqlObj);
+      if (debug) console.log('519 gqlObj', gqlObj);
       modifiedObjects.push(gqlObj);
       modifiedObjects.map(mn => {
         let data = mn;
         this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       });
-      if (debug) console.log('368 node', node, propname, value);
+      if (debug) console.log('525 node', node, propname, value);
     }
     // Handle relationships
     if (obj.category === 'Relationship') {
@@ -529,7 +532,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myInst = myMetis.findRelationship(inst.id);
         instview = link.relshipview;
         myInstview = myMetis.findRelationshipView(instview.id);    
-        if (debug) console.log('377 myInst', myInst, myInstview);
+        if (debug) console.log('534 myInst', myInst, myInstview);
         if (context?.what === "editRelshipview") 
             myItem = myInstview;
         else if (context?.what === "editTypeview") 
@@ -542,7 +545,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           const modifiedTypeviews = new Array();
           const gqlReltypeview = new gql.gqlRelshipTypeView(myInst.type?.typeview);
           modifiedTypeviews.push(gqlReltypeview);
-          if (debug) console.log('391 gqlReltypeview', gqlReltypeview);
+          if (debug) console.log('547 gqlReltypeview', gqlReltypeview);
           modifiedTypeviews.map(mn => {
             let data = mn;
             this.props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
@@ -551,7 +554,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // Prepare to and dispatch relshipviews
         const modifiedRelshipViews = new Array();
         const gqlRelview = new gql.gqlRelshipView(myInstview);
-        if (debug) console.log('401 gqlRelview', gqlRelview);
+        if (debug) console.log('556 gqlRelview', gqlRelview);
         modifiedRelshipViews.push(gqlRelview);
         modifiedRelshipViews.map(mn => {
           let data = mn;
@@ -565,11 +568,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
         });
-      if (debug) console.log('348 myMetis', myMetis);
+      if (debug) console.log('570 myMetis', myMetis);
     }
     // Handle project
     if (obj.category === 'Metis') {
-      console.log('518 project',  myMetis.name, myMetis.description);
+      console.log('574 project',  myMetis.name, myMetis.description);
     }
   }
 
@@ -2300,16 +2303,38 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (obj.name === objtype?.name) {
                   if (obj.objectviews == null) {
                     obj.deleted = true;
+                    const obj1 = myMetis.findObject(obj.id);
+                    if (obj1) obj1.deleted = true;
                     const gqlObj = new gql.gqlObject(obj);
                     modifiedObjects.push(gqlObj);
                   }
                 }
               } 
-              if (debug) console.log('2181 modifiedObjects', modifiedObjects);
+              if (debug) console.log('2311 modifiedObjects', modifiedObjects);
               modifiedObjects.map(mn => {
                 let data = mn;
                 e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
               })              
+
+              const modifiedObjviews = new Array();
+              const objviews = myMetis.objectviews;
+              for (let i=0; i<objviews.length; i++) {
+                const objview = objviews[i];
+                const obj = objview?.object;
+                if (obj == null) {
+                    objview.deleted = true;
+                    const objview1 = myMetis.findObjectView(objview.id);
+                    if (objview1) objview1.deleted = true;
+                    const gqlObjview = new gql.gqlObjectView(objview);
+                    modifiedObjviews.push(gqlObjview);
+                }
+              } 
+              if (debug) console.log('2328 modifiedObjviews', modifiedObjviews);
+              modifiedObjviews.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+              })              
+              if (debug) console.log('2333 myMetis', myMetis);
             },
             function (o: any) { 
               return true; 
@@ -2433,9 +2458,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
               if (!debug) console.log('2402 myMetis', myMetis.currentModel.objects);
-              uic.purgeDeletions(myMetis.currentModel); 
-              if (!debug) console.log('2404 myMetis', myMetis.currentModel.objects);
-
+              uic.purgeDeletions(myMetis, myDiagram); 
+              if (!debug) console.log('2404 myMetis', myMetis);
             },
             function (o: any) { 
               return true; 

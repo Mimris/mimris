@@ -152,7 +152,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
-      // if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
       return {
         ...state,
         phData: action.data
@@ -205,7 +205,7 @@ function reducer(state = InitialState, action) {
          }
       }
     case SET_FOCUS_USER:
-      // if (debug) console.log('190 SET_FOCUS_USER', action.data);   
+      if (debug) console.log('190 SET_FOCUS_USER', action.data);   
       return {
         ...state,
         phUser: {

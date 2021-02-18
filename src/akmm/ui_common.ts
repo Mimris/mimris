@@ -1515,61 +1515,109 @@ function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipVie
     return data;
 }
 
-export function purgeDeletions(model: akm.cxModel) {
+export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     // handle modelviews
-    const modelviews = model?.modelviews;
-    for (let i=0; i<modelviews.length; i++) {
-        const mview = modelviews[i];
-        // Handle objectviews
-        const oviews = mview.objectviews;
-        if (debug) console.log('1523', oviews);
-        const objviews = new Array();
-        for (let j=0; j<oviews?.length; j++) {
-            const oview = oviews[j];
-            if (oview.deleted) 
-                continue;
-            objviews.push(oview);
+    const models = metis.models;
+    for (let k=0; k<models.length; k++) {
+        const model = models[k];
+        const modelviews = model?.modelviews;
+        for (let i=0; i<modelviews.length; i++) {
+            const mview = modelviews[i];
+            // Handle objectviews
+            const oviews = mview.objectviews;
+            if (debug) console.log('1523', oviews);
+            const objviews = new Array();
+            for (let j=0; j<oviews?.length; j++) {
+                const oview = oviews[j];
+                if (oview.deleted) 
+                    continue;
+                objviews.push(oview);
+            }
+            if (debug) console.log('1531', objviews);
+            
+            mview.objectviews = objviews;
+            // Handle relshipviews
+            const rviews = mview.relshipviews;
+            const relviews = new Array();
+            for (let j=0; j<rviews?.length; j++) {
+                const rview = rviews[j];
+                if (rview.deleted) 
+                    continue;
+                relviews.push(rview);
+            }
+            mview.relshipviews = relviews;
         }
-        if (debug) console.log('1531', objviews);
+
+        // Handle object
+        const objs = model.objects;
+        if (debug) console.log('1556', objs);
+        const objects = new Array();
+        for (let j=0; j<objs?.length; j++) {
+            const obj = objs[j];
+            if (obj.deleted) 
+                continue;
+            objects.push(obj);
+        }
+        if (debug) console.log('1564', objects);
         
-        mview.objectviews = objviews;
-        // Handle relshipviews
-        const rviews = mview.relshipviews;
-        const relviews = new Array();
-        for (let j=0; j<rviews?.length; j++) {
-            const rview = rviews[j];
-            if (rview.deleted) 
+        model.objects = objects;
+
+        // Handle relships
+        const rels = model.relships;
+        const relships = new Array();
+        for (let j=0; j<rels?.length; j++) {
+            const rel = rels[j];
+            if (rel.deleted) 
                 continue;
-            relviews.push(rview);
+                relships.push(rel);
         }
-        mview.relshipviews = relviews;
+        model.relships = relships;
+        if (debug) console.log('1570', model);
     }
 
-    // Handle object
-    const objs = model.objects;
-    if (debug) console.log('1556', objs);
+    const objectviews = new Array();
+    const objviews = metis.objectviews;
+    for (let k=0; k<objviews.length; k++) {
+        const oview = objviews[k];
+        if (oview.deleted) 
+            continue;
+        objectviews.push(oview);
+    }        
+    metis.objectviews = objectviews;
+
     const objects = new Array();
-    for (let j=0; j<objs?.length; j++) {
-        const obj = objs[j];
+    const objs = metis.objects;
+    for (let k=0; k<objs.length; k++) {
+        const obj = objs[k];
         if (obj.deleted) 
             continue;
         objects.push(obj);
-    }
-    if (debug) console.log('1564', objects);
-    
-    model.objects = objects;
+    }        
+    metis.objects = objects;
 
-    // Handle relships
-    const rels = model.relships;
+    const relshipviews = new Array();
+    const relviews = metis.relshipviews;
+    for (let k=0; k<relviews.length; k++) {
+        const rview = relviews[k];
+        if (rview.deleted) 
+            continue;
+            relshipviews.push(rview);
+    }        
+    metis.relshipviews = relshipviews;
+    
     const relships = new Array();
-    for (let j=0; j<rels?.length; j++) {
-        const rel = rels[j];
+    const rels = metis.relships;
+    for (let k=0; k<rels.length; k++) {
+        const rel = rels[k];
         if (rel.deleted) 
             continue;
             relships.push(rel);
-    }
-    model.relships = relships;
-    if (debug) console.log('1570', model);
+    }        
+    metis.relships = relships;
+    // Dispatch metis
+    const gqlMetis = new gql.gqlExportMetis(metis, true);
+    const data = {metis: gqlMetis}
+    if (debug) console.log('1626 data', data, metis);
     
 }
 

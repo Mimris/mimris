@@ -163,7 +163,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   } 
   
   public handleCloseModal() {
-    if (debug) console.log('165 state', this.state);
+    if (!debug) console.log('165 state', this.state);
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     switch(what) {
@@ -214,6 +214,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (k === 'modified') continue;
           if (k === 'defaultValue') continue;
           if (k === 'allowedValues') continue;
+          if (k === 'currentTargetModelview') continue;
+          if (k === 'pasteViewsOnly') continue;
+          if (k === 'deleteViewsOnly') continue;
           if (type?.name !== 'ViewFormat') {
             if (k === 'viewFormat') continue;
           }
@@ -311,6 +314,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         //   this.myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
         // });
 
+      }
+      case "editProject": 
+      case "editModelview": 
+      case "editModel": {
+        // const model = this.state.selectedData;
+        const obj = this.state.selectedData;
+        const type = obj.type //|| this.state.modalContext.typename;
+        // const node = myDiagram.findNodeForKey(obj.key);
+        if (!debug) console.log('324 obj', this.state.selectedData, obj, type);
+        // if (!node)
+        //   return;
+        // const data = node.data;
+        // for (let k in data) {
+        //   if (k === 'id') continue;
+        // if (type?.name !== 'InputPattern') {
+        //   if (k === 'inputPattern') continue;
+        // }
+        // myDiagram.model.setDataProperty(data, k, obj[k]);
+        break;
       }
     }
     this.setState({ showModal: false });
@@ -2164,27 +2186,95 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("----------"),
           makeButton("Edit Project",
           function (e: any, obj: any) {
-            const currentName = myMetis.name; 
-            const projectName = prompt("Enter Project name:", currentName);
-            if (projectName?.length > 0) {
-              myMetis.name = projectName;
+
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel, 
+              "myModel":            myMetis.currentModel,
+              "myModelview":        myMetis.currentModelview,
+              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+              "myDiagram":          e.diagram
             }
-            const currentDescr = myMetis.description; 
-            const projectDescr = prompt("Enter Project description:", currentDescr);
-            if (projectDescr?.length > 0) {
-              myMetis.description = projectDescr;
+            const modalContext = {
+              what: "editProject",
+              title: "Edit Project",
+              case: "Edit Project",
+              typename: "Project",
+              myDiagram: myDiagram
+            } 
+            // const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
+            // if (!debug) console.log('2194', mmNameIds, modalContext);
+            // myDiagram.handleOpenModal(mmNameIds, modalContext);
+
+            myDiagram.handleOpenModal(context.myMetis, modalContext);
+
+            // const currentName = myMetis.name; 
+            // const projectName = prompt("Enter Project name:", currentName);
+            // if (projectName?.length > 0) {
+            //   myMetis.name = projectName;
+            // }
+            // const currentDescr = myMetis.description; 
+            // const projectDescr = prompt("Enter Project description:", currentDescr);
+            // if (projectDescr?.length > 0) {
+            //   myMetis.description = projectDescr;
+            // }
+            // const project = {
+            //   // "id":           myMetis.id, // ToDo: add id to project
+            //   "name":         myMetis.name,
+            //   "description":  myMetis.description
+            // }
+            // const modifiedProjects = new Array();  // metis-objektet i phData
+            // modifiedProjects.push(project);
+            // modifiedProjects?.map(mn => {
+            //   let data = (mn) && mn
+            //   e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
+            // })
+          },
+          function (o: any) { 
+            return true; 
+          }),
+          makeButton("Edit Model",
+          function (e: any, obj: any) {
+
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel, 
+              "myModel":            myMetis.currentModel,
+              "myModelview":        myMetis.currentModelview,
+              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+              "myDiagram":          e.diagram
             }
-            const project = {
-              // "id":           myMetis.id, // ToDo: add id to project
-              "name":         myMetis.name,
-              "description":  myMetis.description
+            const modalContext = {
+              what: "editModel",
+              title: "Edit Model",
+              case: "Edit Model",
+              typename: "Model",
+              myDiagram: myDiagram
+            } 
+            myDiagram.handleOpenModal(context.myModel, modalContext);
+          },
+          function (o: any) { 
+            return true; 
+          }),
+          makeButton("Edit Modelview",
+          function (e: any, obj: any) {
+
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel, 
+              "myModel":            myMetis.currentModel,
+              "myModelview":        myMetis.currentModelview,
+              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+              "myDiagram":          e.diagram
             }
-            const modifiedProjects = new Array();  // metis-objektet i phData
-            modifiedProjects.push(project);
-            modifiedProjects?.map(mn => {
-              let data = (mn) && mn
-              e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
-            })
+            const modalContext = {
+              what: "editModelview",
+              title: "Edit Modelview",
+              case: "Edit Modelview",
+              typename: "Modelview",
+              myDiagram: myDiagram
+            } 
+            myDiagram.handleOpenModal(context.myModelview, modalContext);
           },
           function (o: any) { 
             return true; 
@@ -2970,11 +3060,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         */}
       }
       break;
+      case 'editProject':
+      case 'editModel':
+      case 'editModelview':
       case 'editObject':
       case 'editObjectview':
         header = modalContext.title;
         category = this.state.selectedData.category;
-        typename = '('+this.state.selectedData.object?.typeName+')'
+        typename = '('+modalContext.typename+')'
+        // typename = '('+this.state.selectedData.object?.typeName+')'
         if (debug) console.log('2568 Diagram ', icon);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
@@ -2988,34 +3082,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 onInputChange ={this.handleInputChange}
               />
             </div>
-        }
-      case 'editModel':
-        header = modalContext.title;
-        category = this.state.selectedData.category;
-        typename = '('+this.state.selectedData.object?.typeName+')'
-        if (!debug) console.log('2568 Diagram ', this.state.selectedData);
-        
-        if (this.state.selectedData !== null && this.myMetis != null) {
-          if (!debug) console.log('2575 Diagram ', this.state.selectedData, this.state.selectedData.model, this.myMetis);
-          modalContent = 
-            <>
-                {/* <div className="modal-prop">
-                  <SelectionInspector 
-                    myMetis       ={this.myMetis}
-                    selectedData  ={this.state.selectedData}
-                    context       ={this.state.modalContext}
-                    onInputChange ={this.handleInputChange}
-                  />
-                </div> */}
-                <div className="modal-prop">
-                  <SelectionInspector 
-                    myMetis       ={this.myMetis}
-                    selectedData  ={this.state.selectedData.model}
-                    context       ={this.state.modalContext}
-                    onInputChange ={this.handleInputChange}
-                  />
-                </div>
-            </>
         }
       case 'editRelationship':
       case 'editRelshipview':

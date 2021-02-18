@@ -10,6 +10,7 @@ const SelectContext = (props: any) => {
   // console.log('8 8', props.modal);
   const dispatch = useDispatch()
   let state = useSelector((state:any) => state) // Selecting the whole redux store
+  console.log('12 state', state);
   const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
   const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
   const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 

@@ -437,6 +437,8 @@ export class gqlObjectTypeView {
     figure:         string;
     fillcolor:      string;
     strokecolor:    string;
+    //fillcolor1:      string;
+    strokecolor1:    string;
     strokewidth:    string;
     icon:           string;
     deleted:        boolean;
@@ -452,6 +454,8 @@ export class gqlObjectTypeView {
         this.figure         = objtypeview.getFigure();
         this.fillcolor      = objtypeview.getFillcolor();
         this.strokecolor    = objtypeview.getStrokecolor();
+        //this.fillcolor1     = this.fillcolor;
+        this.strokecolor1   = this.strokecolor;
         this.strokewidth    = objtypeview.getStrokewidth();
         this.icon           = objtypeview.getIcon();
         this.deleted        = objtypeview.deleted;
@@ -488,6 +492,7 @@ export class gqlRelshipTypeView {
     description:    string;
     typeRef:        string;
     strokecolor:    string;
+    strokecolor1:   string;
     strokewidth:    string;
     dash:           string;
     fromArrow:      string;
@@ -502,6 +507,7 @@ export class gqlRelshipTypeView {
         this.description    = (reltypeview.description) ? reltypeview.description : "";
         this.typeRef        = reltypeview.type.id;
         this.strokecolor    = reltypeview.getStrokecolor();
+        this.strokecolor1   = this.strokecolor1;
         this.strokewidth    = reltypeview.getStrokewidth();
         this.dash           = reltypeview.getDash();
         this.fromArrow      = reltypeview.getFromArrow();

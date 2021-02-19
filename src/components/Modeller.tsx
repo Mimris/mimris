@@ -44,9 +44,9 @@ const Modeller = (props: any) => {
   ]
   const selmodviews = modelviews
   
-  if (debug) console.log('36 Modeller', focusModelview, selmods, modelviews);
-  let selmodels = selmods //selmods?.models?.map((m: any) => m)
-  let selmodelviews = selmodviews //selmodviews?.modelviews?.map((mv: any) => mv)
+  if (!debug) console.log('36 Modeller', focusModelview, selmods, selmodviews);
+  let selmodels = selmods?.map((m: any) => m.name && (!m.deleted))
+  // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.deleted))
 
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
   // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
@@ -86,7 +86,7 @@ const Modeller = (props: any) => {
   // (selmodviews && props.phSource === 'Model server') &&  
   // (selmodviews) &&  
   useEffect(() =>  {
-    if (selmodviews)
+    if (selmodviews.length>0)
       if (activeTab != undefined || 0) {
         const data = {id: selmodviews[0].id, name: selmodviews[0].name}
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
@@ -107,6 +107,7 @@ const Modeller = (props: any) => {
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel.id)
     if (model) {
+      console.log('111 model', model);
       const modelview = model?.modelviews[0]
       if (activeTab === 0) {
         const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}

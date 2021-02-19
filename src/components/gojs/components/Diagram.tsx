@@ -159,7 +159,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedOption: null,
       showModal: true
     });
-    if (!debug) console.log('161 Diagram', node, this.state);
+    if (debug) console.log('161 Diagram', node, this.state);
   } 
   
   public handleCloseModal() {
@@ -353,7 +353,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case "New Model":    
         console.log('351', selected);
         
-        const refMetamodelame = (selectedOption) && selectedOption;
+        const refMetamodelName = (selectedOption) && selectedOption;
         const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
 
         
@@ -361,7 +361,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
         if (!debug) console.log('352 Diagram', refMetamodel, myMetis);
         // let mmdata = myMetis.currentModel;
-        // if (!debug) console.log('357 Diagram', mmdata);        
+        // if (debug) console.log('357 Diagram', mmdata);        
         // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
         break;
 
@@ -370,9 +370,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetModel = myMetis.findModelByName(modelName);
         myMetis.currentTargetModel = targetModel
         myMetis.currentModel.targetModelRef = targetModel.id
-        if (!debug) console.log('352 Diagram', targetModel, myMetis);
+        if (debug) console.log('352 Diagram', targetModel, myMetis);
         const mdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (!debug) console.log('357 Diagram', mdata);        
+        if (debug) console.log('357 Diagram', mdata);        
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mdata} })
         break;
 
@@ -383,7 +383,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
         if (debug) console.log('352 Diagram', targetMetamodel, myMetis);
         const mmdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (!debug) console.log('357 Diagram', mmdata);        
+        if (debug) console.log('357 Diagram', mmdata);        
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
         break;
 
@@ -1972,7 +1972,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
-
           makeButton("New Model",
             function (e: any, obj: any) {
               const context = {
@@ -1983,8 +1982,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
 
               // const modalContext = {
-              //   what: "editModel",
-              //   title: "Model and Modelview:",
+              //   what: "newModel",
+              //   title: "New Model:",
               //   myDiagram: myDiagram
               // }
      
@@ -2031,15 +2030,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
 
               // myMetis.currentNode = node;
-              const node  = {model, category: 'Model' } 
-              myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(node, modalContext);
+              // const node  = {model, category: 'Model' } 
+              // myMetis.myDiagram = myDiagram;
+              // myDiagram.handleOpenModal(node, modalContext);
 
             },
             function (o: any) {
               return true; 
             }),
-
           makeButton("New Modelview",
           function (e: any, obj: any) {
             const model = myMetis.currentModel;
@@ -2072,42 +2070,84 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return false; 
             }),
-          makeButton("Delete Current Modelview",
+          makeButton("Delete Current Model",
           function (e: any, obj: any) {
+            const modifiedModels = new Array();
             const model = myMetis.currentModel as akm.cxModel;
-            const modelView = myMetis.currentModelview as akm.cxModelView;
-            if (confirm('Do you really want to delete the current modelview?')) {
-                modelView.deleted = true;
-                const gqlModelview = new gql.gqlModelView(modelView);
-                // Delete the content
-                const objviews = modelView.objectviews;
-                for (let i=0; i<objviews?.length; i++) {
-                    const objview = objviews[i];
-                    objview.deleted = true;
-                    const obj = objview.object;
-                    const oviews = obj?.objectviews;
-                    if (oviews.length == 1) {
-                      obj.deleted = true;
-                    }
-                }
-                const relviews = modelView.relshipviews;
-                for (let i=0; i<relviews?.length; i++) {
-                    const relview = relviews[i];
-                    relview.deleted = true;
-                }
-                if (debug) console.log('1808 myMetis', myMetis);
-                const modifiedModelviews = new Array();
-                modifiedModelviews.push(gqlModelview);
-                modifiedModelviews.map(mn => {
+            if (confirm('Do you really want to delete the current model?')) {
+                model.deleted = true;
+                const gqlModel = new gql.gqlModel(model, true);
+                if (debug) console.log('2082 gqlModel', gqlModel);
+                modifiedModels.push(gqlModel);
+                modifiedModels.map(mn => {
                   let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
             } else
               return;
           },
           function (o: any) { 
-            return true; 
+            let cnt = 0;
+            const models = myMetis.models;
+            for (let i=0; i<models.length; i++) {
+              const model = models[i];
+              if (model.deleted)
+                continue;
+              cnt++;
+            }
+            if (cnt>1)
+              return true; 
+            else 
+              return false;
             }),
+          makeButton("Delete Current Modelview",
+            function (e: any, obj: any) {
+              const model = myMetis.currentModel as akm.cxModel;
+              const modelView = myMetis.currentModelview as akm.cxModelView;
+              if (confirm('Do you really want to delete the current modelview?')) {
+                  modelView.deleted = true;
+                  const gqlModelview = new gql.gqlModelView(modelView);
+                  // Delete the content
+                  const objviews = modelView.objectviews;
+                  for (let i=0; i<objviews?.length; i++) {
+                      const objview = objviews[i];
+                      objview.deleted = true;
+                      const obj = objview.object;
+                      const oviews = obj?.objectviews;
+                      if (oviews.length == 1) {
+                        obj.deleted = true;
+                      }
+                  }
+                  const relviews = modelView.relshipviews;
+                  for (let i=0; i<relviews?.length; i++) {
+                      const relview = relviews[i];
+                      relview.deleted = true;
+                  }
+                  if (debug) console.log('1808 myMetis', myMetis);
+                  const modifiedModelviews = new Array();
+                  modifiedModelviews.push(gqlModelview);
+                  modifiedModelviews.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+                  })
+              } else
+                return;
+            },
+            function (o: any) { 
+              const model = myMetis.currentModel as akm.cxModel;
+              let cnt = 0;
+              const mviews = model.modelviews;
+              for (let i=0; i<mviews.length; i++) {
+                const mview = mviews[i];
+                if (mview.deleted)
+                  continue;
+                cnt++;
+              }
+              if (cnt>1)
+                return true; 
+              else 
+                return false;
+              }),
           makeButton("New Target Model",
             function (e: any, obj: any) {
               let model;
@@ -2159,7 +2199,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram: myDiagram
             } 
             const mmNameIds = myMetis.models.map(mm => mm && mm.nameId)
-            if (!debug) console.log('2194', mmNameIds, modalContext);
+            if (debug) console.log('2194', mmNameIds, modalContext);
             myDiagram.handleOpenModal(mmNameIds, modalContext);
           
           },
@@ -2262,7 +2302,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myDiagram: myDiagram
               } 
               const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-              if (!debug) console.log('2194', mmNameIds, modalContext);
+              if (debug) console.log('2194', mmNameIds, modalContext);
               myDiagram.handleOpenModal(mmNameIds, modalContext);
             },
             function (o: any) { 
@@ -2523,9 +2563,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("----------"),
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
-              if (!debug) console.log('2402 myMetis', myMetis.currentModel.objects);
+              if (debug) console.log('2402 myMetis', myMetis.currentModel.objects);
               uic.purgeDeletions(myMetis, myDiagram); 
-              if (!debug) console.log('2404 myMetis', myMetis);
+              if (debug) console.log('2404 myMetis', myMetis);
             },
             function (o: any) { 
               return true; 
@@ -2971,7 +3011,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
-    if (!debug) console.log('2811 modalContext ', modalContext);
+    if (debug) console.log('2811 modalContext ', modalContext);
     const icon = modalContext?.icon;
 
     switch (modalContext?.what) {      
@@ -3004,7 +3044,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('2568 Diagram ', icon);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (!debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);
+          if (debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -3015,14 +3055,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               />
             </div>
         }
+        break;
       case 'editModel':
         header = modalContext.title;
         category = this.state.selectedData.category;
         typename = '('+this.state.selectedData.object?.typeName+')'
-        if (!debug) console.log('2568 Diagram ', this.state.selectedData);
+        if (debug) console.log('2568 Diagram ', this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (!debug) console.log('2575 Diagram ', this.state.selectedData, this.state.selectedData.model, this.myMetis);
+          if (debug) console.log('2575 Diagram ', this.state.selectedData, this.state.selectedData.model, this.myMetis);
           modalContent = 
             <>
                 {/* <div className="modal-prop">
@@ -3043,6 +3084,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 </div>
             </>
         }
+        break;
       case 'editRelationship':
       case 'editRelshipview':
       case 'editTypeview': {
@@ -3063,10 +3105,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             </div>
         }
       }
+      break;
       default:
         break;
     }
-    if (!debug) console.log('2962 last in Diagram ', this.props.myMetis);
+    if (debug) console.log('2962 last in Diagram ', this.props.myMetis);
     
     return (
       <div>

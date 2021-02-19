@@ -144,6 +144,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'modified') continue;
           if (k === 'defaultValue') continue;
           if (k === 'allowedValues') continue;
+          if (k === 'currentTargetModelview') continue;
+          if (k === 'pasteViewsOnly') continue;
+          if (k === 'deleteViewsOnly') continue;
          if (type?.name !== 'ViewFormat') {
             if (k === 'viewFormat') continue;
           }

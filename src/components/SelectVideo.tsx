@@ -38,7 +38,8 @@ const SelectContext = (props: any) => {
     <>
       {/* <button className="btn-context btn-link float-right mb-0 pr-2" size="sm" color="link" onClick={toggle}>{buttonLabel}
       </button>    */}
-        <h4> Instruction Videos : Get Started </h4>
+        <h4> Instruction Videos :</h4>
+        <h5> ( NB! May not be updated with current versjon of the APP )</h5>
 
           <Select className="video-select w-25 mb-2 float-left"
             options={videos}

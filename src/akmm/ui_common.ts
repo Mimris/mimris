@@ -1617,6 +1617,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     // Dispatch metis
     const gqlMetis = new gql.gqlExportMetis(metis, true);
     const data = {metis: gqlMetis}
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     if (debug) console.log('1626 data', data, metis);
     
 }

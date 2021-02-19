@@ -51,7 +51,7 @@ const page = (props) => {
             <CardColumns>
               {/* <Card> */}
               <Card body outline color="warning">
-                <CardHeader>Aktive Knowledge Models</CardHeader>
+                <CardHeader>Active Knowledge Models</CardHeader>
                 <CardBody className="akm-intro" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
                   <CardText>

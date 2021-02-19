@@ -152,7 +152,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
-      // if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
       return {
         ...state,
         phData: action.data
@@ -205,7 +205,7 @@ function reducer(state = InitialState, action) {
          }
       }
     case SET_FOCUS_USER:
-      // if (debug) console.log('190 SET_FOCUS_USER', action.data);   
+      if (debug) console.log('190 SET_FOCUS_USER', action.data);   
       return {
         ...state,
         phUser: {
@@ -1467,7 +1467,7 @@ function reducer(state = InitialState, action) {
       const lengthotv = curmmotv?.objecttypeviews.length
       let indexotv = curmmotv?.objecttypeviews?.findIndex(ot => ot.id === curotv?.id)
       if (indexotv < 0) {indexotv = lengthotv} 
-      if (!debug) console.log('411 ovindex', ovindex, ovlength);
+      if (debug) console.log('411 ovindex', ovindex, ovlength);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       return {

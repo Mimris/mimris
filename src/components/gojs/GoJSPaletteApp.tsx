@@ -108,7 +108,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         const myMetis = this.state.myMetis;
         if (debug) console.log('106 myMetis', myMetis);
         let object = sel.data.object;
-        const obj = myMetis.findObject(object.id);
+        const obj = myMetis.findObject(object?.id);
         object = obj ? obj : object;
         if (debug) console.log('110 obj', obj);
         if (obj) {
@@ -266,6 +266,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   public render() {
 
     const selectedData = this.state.selectedData;
+    if (debug) console.log('269 selectedData', selectedData);
     let inspector;
     if (selectedData !== null) {
       inspector = <>

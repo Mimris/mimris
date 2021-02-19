@@ -16,7 +16,8 @@ const SelectContext = (props: any) => {
 
   // const videos = [{videoURI: '/videos/AKMM-Getting-Started-1.mp4'},{videoURI: '/videos/snorres.mp4'}]
   const videos = [
-    {label: "/videos/AKMM-Getting-Started-1.mp4", value: '/videos/AKMM-Getting-Started-1.mp4'},
+    {label: "/videos/AKMM-Getstarted1.mp4", value: '/videos/AKMM-Getstarted1.mp4'},
+    {label: "/videos/AKMM-Getting-Started-1.mp4", value: '/videos/AKMM-Getting-Started-1.m4v'},
     {label: "/videos/AKMM-NewModel-EditProject1.mp4", value: '/videos/AKMM-NewModel-EditProject1.mp4'}]
   // const videoURIs = videos.map(v => v.videoURI)
 

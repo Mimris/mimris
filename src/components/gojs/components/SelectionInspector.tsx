@@ -144,6 +144,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'modified') continue;
           if (k === 'defaultValue') continue;
           if (k === 'allowedValues') continue;
+          if (k === 'currentTargetModelview') continue;
+          if (k === 'pasteViewsOnly') continue;
+          if (k === 'deleteViewsOnly') continue;
          if (type?.name !== 'ViewFormat') {
             if (k === 'viewFormat') continue;
           }
@@ -209,9 +212,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (!modalContext)
       return null;
     return (
-      <div id='myInspectorDiv' className='inspector'>
+      <div id='myInspectorDiv' className='inspector d-flex justify-content-between  w-100'>
         <table>
-          <tbody>
+          <tbody className="table-body ">
             {this.renderObjectDetails()}
           </tbody>
         </table>

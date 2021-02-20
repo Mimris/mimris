@@ -133,7 +133,7 @@ const SelectContext = (props: any) => {
   
   return (
     <>
-      <button className="btn-context btn-link float-right mb-0 pr-2" size="sm" color="link" onClick={toggle}>{buttonLabel}
+      <button className="btn-context btn-link btn-sm float-right mb-0 py-0 pr-2" style={{height: "22px"}} color="link" onClick={toggle}>{buttonLabel}
       </button>
       <Modal isOpen={modal} toggle={toggle} className={className} style={{marginTop: "90px"}} >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>

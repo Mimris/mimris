@@ -4,9 +4,9 @@
 */
 
 import * as React from 'react';
-
 import { InspectorRow } from './InspectorRow';
-
+const toHex = require('colornames');
+const convert = require('color-convert');
 // import './Inspector.css';
 
 const debug = false;
@@ -23,7 +23,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
-    if (!debug) console.log('24  myMetis', this.props, this.props.selectedData);
+    if (debug) console.log('24  myMetis', this.props, this.props.selectedData);
     let selObj = this.props.selectedData;
     const modalContext = this.props.context;
     let category = selObj?.category;
@@ -61,6 +61,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('56 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
+    let useColor = false;
     switch (modalContext?.what) {
       case 'editProject':
         item = myMetis;
@@ -72,14 +73,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = inst;
         break;
       case "editObjectview":
+        item = instview;
+        hideNameAndDescr = true;
+        useColor = true;
+        break;
       case "editRelshipview":
         item = instview;
         hideNameAndDescr = true;
+        useColor = true;
         break;
       case "editTypeview":
         if (instview) item = instview.typeview?.data;
         else item = inst;
         hideNameAndDescr = true;
+        if (debug) console.log('86 item', item);
         break;  
       default:
         item = inst;
@@ -137,6 +144,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'modified') continue;
           if (k === 'defaultValue') continue;
           if (k === 'allowedValues') continue;
+          if (k === 'currentTargetModelview') continue;
+          if (k === 'pasteViewsOnly') continue;
+          if (k === 'deleteViewsOnly') continue;
          if (type?.name !== 'ViewFormat') {
             if (k === 'viewFormat') continue;
           }
@@ -148,12 +158,33 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
-        if (k === 'fillcolor' || k === 'strokecolor' || k === 'fromArrowColor'|| k === 'toArrowColor') {
+        if (useColor && (k === 'fillcolor' || k === 'strokecolor')){
+          if (debug) console.log('156 val', val);
           valuetype = 'color';
+          if (val.substr(0,4) === 'rgb(') {
+            if (debug) console.log('159 val', val);
+            let color = '#'+val.match(/\d+/g).map(function(x){
+              x = parseInt(x).toString(16);
+              return (x.length==1) ? "0"+x : x;
+            }).join("");
+            if (debug) console.log('164 color', color);
+            val = color.toUpperCase();
+          }
+          if (val[0] !== '#') {
+            // Convert colorname to hex
+            val = toHex(val); 
+          }         
+          if (debug) console.log('166 color', val);
         }
-        if (debug) console.log('154 SelectionInspector: k, val', k, val);
+        if (k === 'strokecolor1')
+          val = item['strokecolor'];
+        if (k === 'icon') {
+          valuetype = 'file';
+          val = "";
+        }
+        if (debug) console.log('174 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-        if (debug) console.log('156 propname, value:', val, k, item[k], valuetype, selObj);
+        if (debug) console.log('176 propname, value:', val, k, item[k], valuetype, selObj);
         row  = <InspectorRow
           key={k}
           id={k}
@@ -164,25 +195,26 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           onInputChange={this.props.onInputChange} 
         />
       }
+      
       if (k === 'key') {
         dets.unshift(row); // key always at start
       } else {
         dets.push(row);
       }
     }
-    if (debug) console.log('114 SelectionInspector ', dets);
+    if (debug) console.log('193 SelectionInspector ', dets);
     return dets;
   }
   
   public render() {
-    if (debug) console.log('113 SelectionInspector ', this.renderObjectDetails());
+    if (debug) console.log('198 SelectionInspector ', this.renderObjectDetails());
     const modalContext = this.props.context;
     if (!modalContext)
       return null;
     return (
-      <div id='myInspectorDiv' className='inspector'>
+      <div id='myInspectorDiv' className='inspector d-flex justify-content-between  w-100'>
         <table>
-          <tbody>
+          <tbody className="table-body ">
             {this.renderObjectDetails()}
           </tbody>
         </table>

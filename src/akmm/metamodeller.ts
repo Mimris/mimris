@@ -3618,7 +3618,9 @@ export class cxObjtypeviewData {
     viewkind: string;
     figure: string;
     fillcolor: string;
+    // fillcolor1: string;
     strokecolor: string;
+    // strokecolor1: string;
     strokewidth: string;
     icon: string;
     constructor() {
@@ -3629,7 +3631,9 @@ export class cxObjtypeviewData {
         this.viewkind = constants.viewkinds.OBJ;
         this.figure = "RoundedRectangle";
         this.fillcolor = "lightyellow";
+        // this.fillcolor1 = this.fillcolor;
         this.strokecolor = "black";
+        // this.strokecolor1 = this.strokecolor;
         this.strokewidth = "1";
         this.icon = "default.png";
     }
@@ -5144,6 +5148,8 @@ export class cxObjectView extends cxMetaObject {
     figure: string;
     fillcolor: string;
     strokecolor: string;
+    // fillcolor1: string;
+    // strokecolor1: string;
     strokewidth: string;
     icon: string;
     constructor(id: string, name: string, object: cxObject | null, description: string) {
@@ -5166,6 +5172,8 @@ export class cxObjectView extends cxMetaObject {
         this.figure = "";
         this.fillcolor = "";
         this.strokecolor = "";
+        // this.fillcolor1 = "";
+        // this.strokecolor1 = "";
         this.strokewidth = "";
         this.icon = "";
     }

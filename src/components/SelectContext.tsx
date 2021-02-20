@@ -10,6 +10,7 @@ const SelectContext = (props: any) => {
   // console.log('8 8', props.modal);
   const dispatch = useDispatch()
   let state = useSelector((state:any) => state) // Selecting the whole redux store
+  console.log('12 state', state);
   const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
   const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
   const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
@@ -132,7 +133,7 @@ const SelectContext = (props: any) => {
   
   return (
     <>
-      <button className="btn-context btn-link float-right mb-0 pr-2" size="sm" color="link" onClick={toggle}>{buttonLabel}
+      <button className="btn-context btn-link btn-sm float-right mb-0 py-0 pr-2" style={{height: "22px"}} color="link" onClick={toggle}>{buttonLabel}
       </button>
       <Modal isOpen={modal} toggle={toggle} className={className} style={{marginTop: "90px"}} >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>

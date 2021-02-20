@@ -44,10 +44,9 @@ const Modeller = (props: any) => {
   ]
   const selmodviews = modelviews
   
-  if (debug) console.log('36 Modeller', focusModelview, selmods, modelviews);
-  let selmodels = selmods //selmods?.models?.map((m: any) => m)
-  let selmodelviews = selmodviews //selmodviews?.modelviews?.map((mv: any) => mv)
-
+  if (!debug) console.log('36 Modeller', focusModelview, selmods, selmodviews);
+  let selmodels = selmods?.filter((m: any) => m && (!m.deleted))
+  // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.deleted))
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
   // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
 
@@ -86,7 +85,7 @@ const Modeller = (props: any) => {
   // (selmodviews && props.phSource === 'Model server') &&  
   // (selmodviews) &&  
   useEffect(() =>  {
-    if (selmodviews)
+    if (selmodviews.length>0)
       if (activeTab != undefined || 0) {
         const data = {id: selmodviews[0].id, name: selmodviews[0].name}
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
@@ -107,6 +106,7 @@ const Modeller = (props: any) => {
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel.id)
     if (model) {
+      console.log('111 model', model);
       const modelview = model?.modelviews[0]
       if (activeTab === 0) {
         const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
@@ -160,6 +160,7 @@ const Modeller = (props: any) => {
           title=" Modelling:&#013;Insert an Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Modelling area below.&#013;&#013;
                   Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
         </button>
+        
       </Nav>
       <TabContent > 
         <TabPane  >
@@ -206,8 +207,10 @@ const Modeller = (props: any) => {
       <h5 className="modeller-heading text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
       <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
         title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
-        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them.">?
+        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."
+        >?
       </button>
+
       <div>
         {selector}
         {metamodelTabDiv} 

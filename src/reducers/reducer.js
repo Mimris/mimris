@@ -152,7 +152,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
-      // if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
       return {
         ...state,
         phData: action.data
@@ -205,7 +205,7 @@ function reducer(state = InitialState, action) {
          }
       }
     case SET_FOCUS_USER:
-      // if (debug) console.log('190 SET_FOCUS_USER', action.data);   
+      if (debug) console.log('190 SET_FOCUS_USER', action.data);   
       return {
         ...state,
         phUser: {
@@ -1020,7 +1020,7 @@ function reducer(state = InitialState, action) {
       if (debug) console.log('992 UPDATE_METAMODEL_PROPERTIES', action);
       const curm_mm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       // const action_mm = state.phData?.metis?.metamodels?.find(mm => mm.id === action.data.id) //incoming action meta model
-      let curmmindex_mm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === action.data.id)  // current metamodel index
+      let curmmindex_mm = state.phData?.metis?.metamodels?.findIndex(mm => mm.id === action?.data?.id)  // current metamodel index
       if (debug) console.log('1009 UPDATE_METAMODEL_PROPERTIES', curmmindex_mm);
 
       if (curmmindex_mm <0) curmmindex_mm = state.phData.metis.metamodels.length

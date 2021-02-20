@@ -173,12 +173,8 @@ const page = (props) => {
                   // margin: "0 auto",
                   // padding: "2px"
                 }}
-<<<<<<< HEAD
-                style={{maxHeight: 'calc(110vh - 210px)', maxWidth: "50vh", overflowY: 'auto'}}
-=======
                 style={{maxHeight: 'calc(110vh - 210px)', maxWidth: "50vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"} }} 
 
->>>>>>> release/NOV20REL2
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
                   <CardHeader className="card-header " >Blog AKMM releases </CardHeader>

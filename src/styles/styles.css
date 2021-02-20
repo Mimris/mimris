@@ -179,6 +179,25 @@
   justify-content: center;
 }
 
+.homepage-video {
+  /* background: linear-gradient(90deg,#fc7a64 6%,#fda978 25%,#dacf90 40%, #cae281 45%,#6ae6cb 55%,#10859a 94%); */
+  background: linear-gradient(155deg,#e45807 26%,#FFA500 35%,#f18944 40%,#FFA500 45%,#e45807 94%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  justify-content: center;
+  padding: 4px;
+}
+
+.card-video-body {
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  border: 4px solid rgba(230,230,230,0.4);
+  margin: 8px;
+  padding: 0 auto;
+  box-shadow: 6px, 6px, 20px rgba(122,122,122,0.9);
+}
+
 .homepage {
   background: linear-gradient(90deg,#fc7a64 6%,#fda978 25%,#dacf90 40%, #cae281 45%,#6ae6cb 55%,#10859a 94%);
   /* background: linear-gradient(90deg,#FFFF00 6%,#FFA500 25%,#F14444 45%,#D53567 55%,#9A109A 94%); */

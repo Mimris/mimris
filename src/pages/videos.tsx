@@ -27,13 +27,14 @@ const page = (props: any) => {
             {/* <div className="header" > </div> */} 
             {/* <div className="workplace" > */}
               {/* <div className="contextarea" > </div> */}
-              <div className="workarea bg-warning p-4 d-flex flex-column justify-content-between" >
+              <div className="homepage-video px-2 d-flex flex-column " >
+                <div className=" card-body card-video-body w-100">
                 <SelectVideo />
-                <Link href="/modelling"><a className="nav-link text-white">Back</a></Link>
+                <Link href="/modelling"><a className="nav-link text-primary ">Back</a></Link>
+                </div>
               </div>
               {/* <div className="tasksarea"></div> */}
               {/* <div className="footer"> </div> */}
-            
           </div>
         </div> 
       </Layout>

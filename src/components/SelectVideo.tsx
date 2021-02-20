@@ -24,7 +24,6 @@ const SelectContext = (props: any) => {
   let startVideoDiv = <StartVideo videoURI={video} />
   useEffect(() => { 
     console.log('23', video);
-    
      startVideoDiv =    <StartVideo videoURI={video} />
   }, [video])
 
@@ -35,22 +34,24 @@ const SelectContext = (props: any) => {
   }
 
   return (
-    <>
+    <div>
       {/* <button className="btn-context btn-link float-right mb-0 pr-2" size="sm" color="link" onClick={toggle}>{buttonLabel}
       </button>    */}
         <h4> Instruction Videos :</h4>
-        <h5> ( NB! May not be updated with current versjon of the APP )</h5>
+        <h5> </h5>
 
-          <Select className="video-select w-25 mb-2 float-left"
+          <Select className="video-select w-50 mb-2"
             options={videos}
             value={video}
             onChange={value => handleSelectVideo(value)}
           />
-          <span className="float-right text-white">{video}</span>
+          <div className="card-text mb-2">{video}</div>
+          <div className="video-frame d-flex flex-column">
           {startVideoDiv}
+          </div>
       <style jsx>{`
       `}</style> 
-    </>
+    </div>
   )
 }
     

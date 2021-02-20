@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 export const StartVideo = (props) => {
 
-  console.log('6', props);
+  //console.log('6', props);
   return (
     <>
       <video key={props.videoURI} controls>

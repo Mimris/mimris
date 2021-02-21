@@ -163,7 +163,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   } 
   
   public handleCloseModal() {
-    if (!debug) console.log('165 state', this.state);
+    if (debug) console.log('165 state', this.state);
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     switch(what) {
@@ -325,7 +325,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const obj = this.state.selectedData;
         const type = obj.type //|| this.state.modalContext.typename;
         // const node = myDiagram.findNodeForKey(obj.key);
-        if (!debug) console.log('324 obj', this.state.selectedData, obj, type);
+        if (debug) console.log('324 obj', this.state.selectedData, obj, type);
         // if (!node)
         //   return;
         // const data = node.data;
@@ -353,7 +353,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     const modalContext = this.state.modalContext;
     const selectedOption = selected.value;
-    if (!debug) console.log('331 this.state', selectedOption, this.state, modalContext);
+    if (debug) console.log('331 this.state', selectedOption, this.state, modalContext);
     // let typeview, typename, metamodelName;
     switch(modalContext.case) {
 
@@ -381,7 +381,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         
         // myMetis.currentTargetMetamodel = targetMetamodel
         // myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (!debug) console.log('352 Diagram', refMetamodel, myMetis);
+        if (debug) console.log('352 Diagram', refMetamodel, myMetis);
         // let mmdata = myMetis.currentModel;
         // if (debug) console.log('357 Diagram', mmdata);        
         // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
@@ -2248,7 +2248,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram: myDiagram
             } 
             // const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-            // if (!debug) console.log('2194', mmNameIds, modalContext);
+            // if (debug) console.log('2194', mmNameIds, modalContext);
             // myDiagram.handleOpenModal(mmNameIds, modalContext);
 
             myDiagram.handleOpenModal(context.myMetis, modalContext);

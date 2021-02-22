@@ -715,11 +715,17 @@ export class cxMetis {
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
                     relview.deleted = item.deleted;
-                    // relview.setData(item.data);
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
-                        if (reltypeview)
+                        if (reltypeview) {
                             relview.setTypeView(reltypeview);
+                            const viewdata = reltypeview.getData();
+                            for (let prop in viewdata) {
+                                if (item[prop] && item[prop] !== "") {
+                                    relview[prop] = item[prop];
+                                }
+                            }
+                        }
                     }
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);

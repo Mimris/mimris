@@ -228,11 +228,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
   
   public handleCloseModal() {
-    if (!debug) console.log('165 state', this.state.selectedData);
+    if (debug) console.log('165 state', this.state.selectedData);
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     const myMetis = this.props.myMetis;
-    if (!debug) console.log('170 state', myMetis);
+    if (debug) console.log('170 state', myMetis);
     // Prepare for dispatches
     const modifiedObjTypeviews = new Array();    
     const modifiedRelTypeviews = new Array();    
@@ -247,14 +247,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const node = myDiagram.findNodeForKey(obj.key);
         if (!node)
           return;
-        if (!debug) console.log('246 node', node);
+        if (debug) console.log('246 node', node);
         const data = node.data;
         for (let k in data) {
           if (!this.isPropIncluded(k)) 
             continue;
           myDiagram.model.setDataProperty(data, k, obj[k]);
           const gqlObject = new gql.gqlObject(node.data.object);
-          if (!debug) console.log('253 gqlObject', gqlObject);
+          if (debug) console.log('253 gqlObject', gqlObject);
           modifiedObjects.push(gqlObject);
           modifiedObjects.map(mn => {
             let data = mn;
@@ -262,11 +262,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           })
           const gqlObjview = new gql.gqlObjectView(node.data.objectview);
           gqlObjview.name = gqlObject.name;
-          if (!debug) console.log('261 gqlObjview', gqlObjview);
+          if (debug) console.log('261 gqlObjview', gqlObjview);
           modifiedObjviews.push(gqlObjview);
           modifiedObjviews.map(mn => {
             let data = mn;
-            if (!debug) console.log('265 gqlObjview', data);
+            if (debug) console.log('265 gqlObjview', data);
             this.props.dispatch({ type: 'UPDATE_OBJECTView_PROPERTIES', data })
           })
         }
@@ -278,7 +278,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const link = myDiagram.findLinkForKey(rel.key);
         if (!link)
           return;
-        if (!debug) console.log('277 link', link);
+        if (debug) console.log('277 link', link);
         const data = link.data;
         for (let k in data) {
           if (!this.isPropIncluded(k, type)) 
@@ -286,7 +286,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
           myDiagram.model.setDataProperty(data, k, rel[k]);
           const gqlRelship = new gql.gqlRelationship(link.data.relship);
-          if (!debug) console.log('285 gqlRelship', gqlRelship);
+          if (debug) console.log('285 gqlRelship', gqlRelship);
           modifiedRelships.push(gqlRelship);
           modifiedRelships.map(mn => {
             let data = mn;
@@ -298,7 +298,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           modifiedRelviews.push(gqlRelview);
           modifiedRelviews.map(mn => {
             let data = mn;
-            if (!debug) console.log('297 gqlRelview', data);
+            if (debug) console.log('297 gqlRelview', data);
             this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
           })
         }
@@ -311,7 +311,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const data = node.data;
         if (debug) console.log('241 data, objview', data, objview);
         const gqlObjview = new gql.gqlObjectView(objview);
-        if (!debug) console.log('243 gqlObjtypeview', gqlObjview);
+        if (debug) console.log('243 gqlObjview', gqlObjview);
         modifiedObjviews.push(gqlObjview);
         modifiedObjviews.map(mn => {
           let data = mn;
@@ -332,23 +332,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editRelshipview": {
-        const relview = this.state.selectedData;
+        const selObj = this.state.selectedData;
+        const relview = selObj.relshipview;
         const reltypeview = relview.typeview;
-        if (debug) console.log('268 relview, reltypeview', relview, reltypeview);
-        const link = myDiagram.findLinkForKey(relview.key);
+        if (debug) console.log('337 relview, reltypeview', relview, reltypeview);
+        const link = myDiagram.findLinkForKey(selObj.key);
         const data = link.data;
         const gqlRelview = new gql.gqlRelshipView(relview);
-        if (!debug) console.log('272 gqlRelview', gqlRelview);
+        if (debug) console.log('341 data, gqlRelview', data, gqlRelview);
         modifiedRelviews.push(gqlRelview);
         modifiedRelviews.map(mn => {
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })
-        for (let prop in reltypeview?.data) {
-          if (prop === 'strokecolor' && relview[prop] !== "") 
+        for (let prop in reltypeview?.data)
+          if (prop === 'strokecolor' && relview[prop] !== "") {
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokewidth' && relview[prop] !== "")
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            myDiagram.model.setDataProperty(link, prop, relview[prop]);
           if (prop === 'dash' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'fromArrow' && relview[prop] !== "") 
@@ -368,11 +369,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (selObj.category === 'Object') {
           const node = myDiagram.findNodeForKey(selObj.key);
           data = node.data;
-          if (!debug) console.log('284 objtypeview, data', data);
+          if (debug) console.log('284 objtypeview, data', data);
           typeview = data.objectview.typeview;
           typeview = myMetis.findObjectTypeView(typeview.id);
           const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
-          if (!debug) console.log('287 gqlObjtypeview', gqlObjtypeview);
+          if (debug) console.log('287 gqlObjtypeview', gqlObjtypeview);
           modifiedObjTypeviews.push(gqlObjtypeview);
           modifiedObjTypeviews.map(mn => {
             let data = mn;
@@ -456,7 +457,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     const modalContext = this.state.modalContext;
     const selectedOption = selected.value;
-    if (!debug) console.log('331 this.state', selectedOption, this.state, modalContext);
+    if (debug) console.log('331 this.state', selectedOption, this.state, modalContext);
     // let typeview, typename, metamodelName;
     switch(modalContext.case) {
 
@@ -484,7 +485,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         
         // myMetis.currentTargetMetamodel = targetMetamodel
         // myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (!debug) console.log('352 Diagram', refMetamodel, myMetis);
+        if (debug) console.log('352 Diagram', refMetamodel, myMetis);
         // let mmdata = myMetis.currentModel;
         // if (debug) console.log('357 Diagram', mmdata);        
         // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
@@ -671,7 +672,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         else
             myItem = myInst;
         myItem[propname] = value;
-        if (!debug) console.log('604 myItem', myItem);
+        if (debug) console.log('604 myItem', myItem);
       
       if (debug) console.log('606 myMetis', myMetis);
     }
@@ -2228,7 +2229,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }),
           makeButton("Edit Model",
           function (e: any, obj: any) {
-            if (!debug) console.log('2235 myGoModel', myGoModel);
+            if (debug) console.log('2235 myGoModel', myGoModel);
             const context = {
               "myMetis":            myMetis,
               "myMetamodel":        myMetis.currentMetamodel, 

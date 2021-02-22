@@ -2027,8 +2027,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               
               let model;
               
-              // const metamodel = gen.askForMetamodel(context, false, true);
-              const metamodel = myMetis.currentMetamodel;
+              const metamodel = gen.askForMetamodel(context, false, true);
+              // const metamodel = myMetis.currentMetamodel;
 
               if (!metamodel) return;
               const modelName = prompt("Enter Model name:", "");
@@ -2240,90 +2240,90 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "myTargetMetamodel":  myMetis.currentTargetMetamodel,
               "myDiagram":          e.diagram
             }
-            const modalContext = {
-              what: "editProject",
-              title: "Edit Project",
-              case: "Edit Project",
-              typename: "Project",
-              myDiagram: myDiagram
-            } 
+            // const modalContext = {
+            //   what: "editProject",
+            //   title: "Edit Project",
+            //   case: "Edit Project",
+            //   typename: "Project",
+            //   myDiagram: myDiagram
+            // } 
             // const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
             // if (debug) console.log('2194', mmNameIds, modalContext);
             // myDiagram.handleOpenModal(mmNameIds, modalContext);
 
-            myDiagram.handleOpenModal(context.myMetis, modalContext);
+            // myDiagram.handleOpenModal(context.myMetis, modalContext);
 
-            // const currentName = myMetis.name; 
-            // const projectName = prompt("Enter Project name:", currentName);
-            // if (projectName?.length > 0) {
-            //   myMetis.name = projectName;
-            // }
-            // const currentDescr = myMetis.description; 
-            // const projectDescr = prompt("Enter Project description:", currentDescr);
-            // if (projectDescr?.length > 0) {
-            //   myMetis.description = projectDescr;
-            // }
-            // const project = {
-            //   // "id":           myMetis.id, // ToDo: add id to project
-            //   "name":         myMetis.name,
-            //   "description":  myMetis.description
-            // }
-            // const modifiedProjects = new Array();  // metis-objektet i phData
-            // modifiedProjects.push(project);
-            // modifiedProjects?.map(mn => {
-            //   let data = (mn) && mn
-            //   e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
-            // })
-          },
-          function (o: any) { 
-            return true; 
-          }),
-          makeButton("Edit Model",
-          function (e: any, obj: any) {
-
-            const context = {
-              "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel, 
-              "myModel":            myMetis.currentModel,
-              "myModelview":        myMetis.currentModelview,
-              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-              "myDiagram":          e.diagram
+            const currentName = myMetis.name; 
+            const projectName = prompt("Enter Project name:", currentName);
+            if (projectName?.length > 0) {
+              myMetis.name = projectName;
             }
-            const modalContext = {
-              what: "editModel",
-              title: "Edit Model",
-              case: "Edit Model",
-              typename: "Model",
-              myDiagram: myDiagram
-            } 
-            myDiagram.handleOpenModal(context.myModel, modalContext);
-          },
-          function (o: any) { 
-            return true; 
-          }),
-          makeButton("Edit Modelview",
-          function (e: any, obj: any) {
-
-            const context = {
-              "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel, 
-              "myModel":            myMetis.currentModel,
-              "myModelview":        myMetis.currentModelview,
-              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-              "myDiagram":          e.diagram
+            const currentDescr = myMetis.description; 
+            const projectDescr = prompt("Enter Project description:", currentDescr);
+            if (projectDescr?.length > 0) {
+              myMetis.description = projectDescr;
             }
-            const modalContext = {
-              what: "editModelview",
-              title: "Edit Modelview",
-              case: "Edit Modelview",
-              typename: "Modelview",
-              myDiagram: myDiagram
-            } 
-            myDiagram.handleOpenModal(context.myModelview, modalContext);
+            const project = {
+              // "id":           myMetis.id, // ToDo: add id to project
+              "name":         myMetis.name,
+              "description":  myMetis.description
+            }
+            const modifiedProjects = new Array();  // metis-objektet i phData
+            modifiedProjects.push(project);
+            modifiedProjects?.map(mn => {
+              let data = (mn) && mn
+              e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
+            })
           },
           function (o: any) { 
             return true; 
           }),
+          // makeButton("Edit Model",
+          // function (e: any, obj: any) {
+
+          //   const context = {
+          //     "myMetis":            myMetis,
+          //     "myMetamodel":        myMetis.currentMetamodel, 
+          //     "myModel":            myMetis.currentModel,
+          //     "myModelview":        myMetis.currentModelview,
+          //     "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+          //     "myDiagram":          e.diagram
+          //   }
+          //   const modalContext = {
+          //     what: "editModel",
+          //     title: "Edit Model",
+          //     case: "Edit Model",
+          //     typename: "Model",
+          //     myDiagram: myDiagram
+          //   } 
+          //   myDiagram.handleOpenModal(context.myModel, modalContext);
+          // },
+          // function (o: any) { 
+          //   return true; 
+          // }),
+          // makeButton("Edit Modelview",
+          // function (e: any, obj: any) {
+
+          //   const context = {
+          //     "myMetis":            myMetis,
+          //     "myMetamodel":        myMetis.currentMetamodel, 
+          //     "myModel":            myMetis.currentModel,
+          //     "myModelview":        myMetis.currentModelview,
+          //     "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+          //     "myDiagram":          e.diagram
+          //   }
+          //   const modalContext = {
+          //     what: "editModelview",
+          //     title: "Edit Modelview",
+          //     case: "Edit Modelview",
+          //     typename: "Modelview",
+          //     myDiagram: myDiagram
+          //   } 
+          //   myDiagram.handleOpenModal(context.myModelview, modalContext);
+          // },
+          // function (o: any) { 
+          //   return true; 
+          // }),
           makeButton("----------"),
           makeButton("New Metamodel",
           function (e: any, obj: any) {

@@ -2,13 +2,16 @@
 import React, { useState, useEffect } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { loadData, loadDataModelList } from '../actions/actions'
+import Link from 'next/link';
 import Page from '../components/page';
 import Layout from '../components/Layout';
 import Header from "../components/Header"
 import Footer from "../components/Footer"
 import Modelling from "../components/Modelling";
 import SetContext from '../defs/SetContext'
+import SelectContext from '../components/SelectContext'
 import TasksHelp from '../components/TasksHelp'
+import SelectVideo from '../components/SelectVideo'
 // import DispatchLocal from '../components/utils/SetStoreFromLocalStorage'
 
 import useLocalStorage from '../hooks/use-local-storage'
@@ -68,7 +71,7 @@ const page = (props:any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
-  const setContextDiv =  <SetContext ph={props} />
+ 
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
   // useEffect(() => {
   //   return () => {
@@ -79,6 +82,11 @@ const page = (props:any) => {
   
   const modellingDiv = <Modelling />
 
+  const [videoURL, setVideoURL] = useState(null)
+
+// const videoDiv = <StartVideo  videoURI='/videos/snorres.mp4' />
+  
+
   return (
     <div>
        <Layout user={state.phUser?.focusUser} >
@@ -87,11 +95,18 @@ const page = (props:any) => {
             {/* <div className="header" >
               <Header title={props.phUser?.focusUser.name} /> 
             </div> */}
+            {/* {videoDiv}           */}
             <div className="workplace bg-white" >
               <div className="contextarea" >
-                {setContextDiv}
+                <div className="help d-flex">
+                  <SetContext className='setContext flex' ph={props} />
+                  <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phFocus={props.phFocus} /> 
+                  <Link href="/videos"><a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} >Video</a></Link>
+                  {/* <SelectVideo className='VideoModal' buttonLabel='?' phFocus={props.phFocus} />  */}
+                  {/* <button className="helpbutton float-right m-0 py-0 bg-warning color-white" onClick={onplayVideo}>?</button> */}
+                </div>
               </div>
-                <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
+              <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >
                 {/* <div className="tasksarea" style={{ paddingLeft: "2px", marginLeft: "0px",backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} > */}
                 <TasksHelp />
               </div>
@@ -115,6 +130,7 @@ const page = (props:any) => {
         // grid-template-rows:  auto;
         grid-gap: 0px;
         grid-template-areas:
+        "header"
         "workplace"
         "footer";
       }
@@ -146,11 +162,12 @@ const page = (props:any) => {
         grid-area: contextarea;
         display: grid;
         border-radius: 4px;
-        outline-offset:-6px;
+        // outline-offset:-6px;
         padding: 0px;
-        font-size: 70%;
+        maring: 0px;
+        font-size: 80%;
         background-color: #e8e8e8;
-        color: #000;
+        color: #700;
         max-height: 60px; 
       }
       .tasksarea {

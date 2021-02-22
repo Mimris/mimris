@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux'
-
+const debug = false
 const Selector = ( props: any ) => {
 
   // console.log('8 selector', props); 
@@ -11,7 +11,7 @@ const Selector = ( props: any ) => {
 
   const type = props.type
   let selArray = props.selArray
-  // console.log('14 Selector', props);
+  if (!debug) console.log('14 Selector', props);
   
   // if (selArray.length === 1) selArray = [...selArray,...selArray]g
   const handleChange = (event: any) => {

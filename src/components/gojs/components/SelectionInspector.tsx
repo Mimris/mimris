@@ -178,7 +178,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (k) {
         let val = item[k]; 
         let valuetype = 'text';
-        if (!this.isPropIncluded(k, type, )) 
+        if (typeof(val) === 'object') continue;
+        if (typeof(val) === 'function') continue;
+        if (!this.isPropIncluded(k, type)) 
           continue;
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description') continue;
@@ -239,9 +241,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (!modalContext)
       return null;
     return (
-      <div id='myInspectorDiv' className='inspector'>
+      <div id='myInspectorDiv' className='inspector d-flex justify-content-between  w-100'>
         <table>
-          <tbody>
+          <tbody className="table-body ">
             {this.renderObjectDetails()}
           </tbody>
         </table>

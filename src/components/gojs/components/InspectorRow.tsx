@@ -49,7 +49,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     }
     return (  
       <tr>
-        <td>{this.props.id}</td>
+        {/* <td>{this.props.id}</td>  */}
+        <td className="pr-2" >{this.props.id}</td> 
         <td>
           <input
             disabled={this.props.id === 'typeName' || this.props.id === 'typename'}

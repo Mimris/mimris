@@ -49,6 +49,9 @@ export class cxMetis {
     objectviews:        cxObjectView[] | null = null;
     relshipviews:       cxRelationshipView[] | null = null;
     gojsModel:          gjs.goModel | null = null;
+    adminMetamodel:     cxMetaModel | null = null;
+    adminModel:         cxModel | null = null;
+    adminModelview:     cxModelView | null = null;
     currentMetamodel:   cxMetaModel | null = null;
     currentModel:       cxModel | null = null;
     currentModelview:   cxModelView | null = null;
@@ -67,6 +70,44 @@ export class cxMetis {
         this.name = "";
         this.description = "";
         this.category = 'Metis';
+        if (!this.adminMetamodel) {
+            this.adminMetamodel = this.createAdminMetamodel();
+        }
+        if (!this.adminModel) {
+            this.adminModel = new cxModel(utils.createGuid(), "Admin Model", this.adminMetamodel);
+            const objtype = this.adminMetamodel.findObjectTypeByName("Admin objecttype");
+            this.adminObject = new cxObject(utils.createGuid(), "Admin Object", objtype, "");
+            this.adminModel.addObject(this.adminObject);
+        }
+        this.adminModelview = null;
+    }
+    createAdminMetamodel(): cxMetamodel {
+        const metamodel = new cxMetaModel(utils.createGuid(), "Admin Metamodel", "");
+        this.adminMetamodel = metamodel;
+        // Create the objecttype
+        const stringtype = new cxDatatype(utils.createGuid(), "string", "");     
+        const objtype = new cxObjectType(utils.createGuid(), "Admin objecttype", "");
+        let prop = null;
+        prop = new cxProperty(utils.createGuid(), 'ProjectName', "");
+        prop.setDatatype(stringtype);
+        objtype.addProperty(prop);
+        prop = new cxProperty(utils.createGuid(), 'ProjectDescription', "");
+        prop.setDatatype(stringtype);
+        objtype.addProperty(prop);
+        prop = new cxProperty(utils.createGuid(), 'ModelName', "");
+        prop.setDatatype(stringtype);
+        objtype.addProperty(prop);
+        prop = new cxProperty(utils.createGuid(), 'ModelDescription', "");
+        prop.setDatatype(stringtype);
+        objtype.addProperty(prop);
+        prop = new cxProperty(utils.createGuid(), 'ModelviewName', "");
+        prop.setDatatype(stringtype);
+        objtype.addProperty(prop);
+        prop = new cxProperty(utils.createGuid(), 'ModelviewDescription', "");
+        prop.setDatatype(stringtype);
+        objtype.addProperty(prop);
+        metamodel.addObjectType(objtype);
+        return metamodel
     }
     importData(importedData: any, includeDeleted: boolean) {
         this.name        = importedData.name;
@@ -4939,6 +4980,7 @@ export class cxModelView extends cxMetaObject {
     diagrams: cxDiagram[] | null;
     constructor(id: string, name: string, model: cxModel | null, description: string) {
         super(id, name, description);
+        this.category = constants.gojs.C_MODELVIEW;
         this.class = 'cxModelView';
         this.fs_collection = constants.fs.FS_C_MODELVIEWS;  // Firestore collection
         // this.category         = constants.gojs.C_MODELVIEW;    // This gives an error, why ??

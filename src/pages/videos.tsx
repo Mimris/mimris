@@ -28,7 +28,7 @@ const page = (props: any) => {
             {/* <div className="workplace" > */}
               {/* <div className="contextarea" > </div> */}
               <div className="homepage-video px-2 d-flex flex-column " >
-                <div className=" card-body card-video-body w-100">
+                <div className="card-body card-video-body w-100">
                 <SelectVideo />
                 <Link href="/modelling"><a className="nav-link text-primary ">Back</a></Link>
                 </div>

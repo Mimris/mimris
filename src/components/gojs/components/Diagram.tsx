@@ -3133,9 +3133,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
         header = modalContext.title;
         category = this.state.selectedData.category;
-        typename = '('+modalContext.typename+')'
+        typename = (modalContext.typename) ? '('+modalContext.typename+')' : '('+this.state.selectedData.object?.typeName+')'
         // typename = '('+this.state.selectedData.object?.typeName+')'
-        if (debug) console.log('2568 Diagram ', icon);
+        if (!debug) console.log('2568 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);

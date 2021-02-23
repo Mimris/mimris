@@ -1207,55 +1207,59 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete",
             function (e: any, obj: any) {
-              const myGoModel = myMetis.gojsModel;
-              const currentModel = myMetis.currentModel;
-              myMetis.deleteViewsOnly = false;
-              myDiagram.selection.each(function(sel) {
-                const inst = sel.data;
-                if (inst.category === 'Object') {
-                  const node = myGoModel.findNode(inst.key);
-                  console.log('657 node', node);
-                  if (node?.isGroup) {
-                    const groupMembers = node.getGroupMembers(myGoModel);
-                    for (let i=0; i<groupMembers?.length; i++) {
-                      const member = groupMembers[i];
-                      const gjsNode = myDiagram.findNodeForKey(member?.key);
-                    }                    
+              if (confirm('Do you really want to delete the current selection?')) {
+                const myGoModel = myMetis.gojsModel;
+                const currentModel = myMetis.currentModel;
+                myMetis.deleteViewsOnly = false;
+                myDiagram.selection.each(function(sel) {
+                  const inst = sel.data;
+                  if (inst.category === 'Object') {
+                    const node = myGoModel.findNode(inst.key);
+                    console.log('657 node', node);
+                    if (node?.isGroup) {
+                      const groupMembers = node.getGroupMembers(myGoModel);
+                      for (let i=0; i<groupMembers?.length; i++) {
+                        const member = groupMembers[i];
+                        const gjsNode = myDiagram.findNodeForKey(member?.key);
+                      }                    
+                    }
+                    const object = node?.object;
+                    console.log('667 object', object);
+                    const objviews = object?.objectviews;
+                    for (let i=0; i<objviews?.length; i++) {
+                      const objview = objviews[i];
+                      console.log('671 objview', objview);
+                      if (objview) {
+                          const myNode = myGoModel.findNodeByViewId(objview.id);
+                          console.log('674 myNode', myNode);
+                          const n = myDiagram.findNodeForKey(myNode?.key);
+                          console.log('676 n', n);
+                          if (n) n.isSelected = true;                        
+                      }    
+                    }
                   }
-                  const object = node?.object;
-                  console.log('667 object', object);
-                  const objviews = object?.objectviews;
-                  for (let i=0; i<objviews?.length; i++) {
-                    const objview = objviews[i];
-                    console.log('671 objview', objview);
-                    if (objview) {
-                        const myNode = myGoModel.findNodeByViewId(objview.id);
-                        console.log('674 myNode', myNode);
-                        const n = myDiagram.findNodeForKey(myNode?.key);
-                        console.log('676 n', n);
-                        if (n) n.isSelected = true;                        
-                    }    
-                  }
-                }
-              })
-              e.diagram.commandHandler.deleteSelection();              
+                })
+                e.diagram.commandHandler.deleteSelection();      
+              }         
             },
             function (o: any) { 
               return o.diagram.commandHandler.canDeleteSelection(); 
             }),
           makeButton("Delete View",
             function (e: any, obj: any) {
-              const myModel = myMetis.currentModel;
-              myMetis.deleteViewsOnly = true;
-              const gqlModel = new gql.gqlModel(myModel, true);
-              const modifiedModels = new Array();
-              modifiedModels.push(gqlModel);
-              modifiedModels.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-              })
-              if (debug) console.log('603 Delete View', gqlModel, myMetis);
-              e.diagram.commandHandler.deleteSelection();
+              if (confirm('Do you really want to delete the current selection?')) {
+                const myModel = myMetis.currentModel;
+                myMetis.deleteViewsOnly = true;
+                const gqlModel = new gql.gqlModel(myModel, true);
+                const modifiedModels = new Array();
+                modifiedModels.push(gqlModel);
+                modifiedModels.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                })
+                if (debug) console.log('603 Delete View', gqlModel, myMetis);
+                e.diagram.commandHandler.deleteSelection();
+              }
             },
             function (o: any) { 
               const node = o.part.data;
@@ -1442,10 +1446,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return false;
             }),
+          makeButton("Select all views of this object",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              if (debug) console.log('1389 node', node);
+              const myGoModel = myMetis.gojsModel;
+              const object = myMetis.findObject(node.object.id)
+              const oviews = object.objectviews;
+              if (oviews) {
+                for (let j=0; j<oviews.length; j++) {
+                  const ov = oviews[j];
+                  if (ov) {
+                    const node = myGoModel.findNodeByViewId(ov?.id);
+                    const gjsNode = myDiagram.findNodeForKey(node?.key);
+                    if (gjsNode) gjsNode.isSelected = true;
+                  }
+                }
+              }
+            },
+          function (o: any) { 
+          return true;
+          }),
+              
           makeButton("Select all objects of this type",
             function (e: any, obj: any) {
               const node = obj.part.data;
-              if (debug) console.log('689 node', node);
+              if (debug) console.log('1400 node', node);
               const currentObject = myMetis.findObject(node.object.id)
               const currentType = currentObject?.type;
               const myModel = myMetis.currentModel;
@@ -1618,19 +1644,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Delete",
             function (e, obj) {
-              myMetis.deleteViewsOnly = false;
-              e.diagram.commandHandler.deleteSelection();
+              if (confirm('Do you really want to delete the current selection?')) {
+                myMetis.deleteViewsOnly = false;
+                e.diagram.commandHandler.deleteSelection();
+              }
             },
             function (o) { 
             return o.diagram.commandHandler.canDeleteSelection(); 
             }),
           makeButton("Delete View",
             function (e, obj) {
-              myMetis.deleteViewsOnly = true;
-              // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-              // const myGoModel = myDiagram.myGoModel;
-              // e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
-              e.diagram.commandHandler.deleteSelection();
+              if (confirm('Do you really want to delete the current selection?')) {
+                myMetis.deleteViewsOnly = true;
+                e.diagram.commandHandler.deleteSelection();
+              }
             },
             function (o) { 
               const link = o.part.data;
@@ -2502,46 +2529,48 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) { 
-              const modifiedObjects = new Array();
-              const objects = myMetis.objects;
-              for (let i=0; i<objects.length; i++) {
-                const obj = objects[i];
-                const objtype = obj?.type;
-                if (obj.name === objtype?.name) {
-                  if (obj.objectviews == null) {
-                    obj.deleted = true;
-                    const obj1 = myMetis.findObject(obj.id);
-                    if (obj1) obj1.deleted = true;
-                    const gqlObj = new gql.gqlObject(obj);
-                    modifiedObjects.push(gqlObj);
+              if (confirm('Do you really want to delete all invisible objects?')) {
+                const modifiedObjects = new Array();
+                const objects = myMetis.objects;
+                for (let i=0; i<objects.length; i++) {
+                  const obj = objects[i];
+                  const objtype = obj?.type;
+                  if (obj.name === objtype?.name) {
+                    if (obj.objectviews == null) {
+                      obj.deleted = true;
+                      const obj1 = myMetis.findObject(obj.id);
+                      if (obj1) obj1.deleted = true;
+                      const gqlObj = new gql.gqlObject(obj);
+                      modifiedObjects.push(gqlObj);
+                    }
                   }
-                }
-              } 
-              if (debug) console.log('2311 modifiedObjects', modifiedObjects);
-              modifiedObjects.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-              })              
+                } 
+                if (debug) console.log('2311 modifiedObjects', modifiedObjects);
+                modifiedObjects.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+                })              
 
-              const modifiedObjviews = new Array();
-              const objviews = myMetis.objectviews;
-              for (let i=0; i<objviews.length; i++) {
-                const objview = objviews[i];
-                const obj = objview?.object;
-                if (obj == null) {
-                    objview.deleted = true;
-                    const objview1 = myMetis.findObjectView(objview.id);
-                    if (objview1) objview1.deleted = true;
-                    const gqlObjview = new gql.gqlObjectView(objview);
-                    modifiedObjviews.push(gqlObjview);
-                }
-              } 
-              if (debug) console.log('2328 modifiedObjviews', modifiedObjviews);
-              modifiedObjviews.map(mn => {
-                let data = mn;
-                e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-              })              
-              if (debug) console.log('2333 myMetis', myMetis);
+                const modifiedObjviews = new Array();
+                const objviews = myMetis.objectviews;
+                for (let i=0; i<objviews.length; i++) {
+                  const objview = objviews[i];
+                  const obj = objview?.object;
+                  if (obj == null) {
+                      objview.deleted = true;
+                      const objview1 = myMetis.findObjectView(objview.id);
+                      if (objview1) objview1.deleted = true;
+                      const gqlObjview = new gql.gqlObjectView(objview);
+                      modifiedObjviews.push(gqlObjview);
+                  }
+                } 
+                if (debug) console.log('2328 modifiedObjviews', modifiedObjviews);
+                modifiedObjviews.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                })              
+                if (debug) console.log('2333 myMetis', myMetis);
+              }
             },
             function (o: any) { 
               return true; 
@@ -2664,9 +2693,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("----------"),
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
-              if (debug) console.log('2402 myMetis', myMetis.currentModel.objects);
-              uic.purgeDeletions(myMetis, myDiagram); 
-              if (debug) console.log('2404 myMetis', myMetis);
+              if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {
+                if (debug) console.log('2402 myMetis', myMetis.currentModel.objects);
+                uic.purgeDeletions(myMetis, myDiagram); 
+                if (debug) console.log('2404 myMetis', myMetis);
+              }
             },
             function (o: any) { 
               return true; 

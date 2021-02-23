@@ -1577,7 +1577,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
 
     const objectviews = new Array();
     const objviews = metis.objectviews;
-    for (let k=0; k<objviews.length; k++) {
+    for (let k=0; k<objviews?.length; k++) {
         const oview = objviews[k];
         if (oview.deleted) 
             continue;
@@ -1587,7 +1587,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
 
     const objects = new Array();
     const objs = metis.objects;
-    for (let k=0; k<objs.length; k++) {
+    for (let k=0; k<objs?.length; k++) {
         const obj = objs[k];
         if (obj.deleted) 
             continue;
@@ -1597,7 +1597,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
 
     const relshipviews = new Array();
     const relviews = metis.relshipviews;
-    for (let k=0; k<relviews.length; k++) {
+    for (let k=0; k<relviews?.length; k++) {
         const rview = relviews[k];
         if (rview.deleted) 
             continue;
@@ -1607,7 +1607,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     
     const relships = new Array();
     const rels = metis.relships;
-    for (let k=0; k<rels.length; k++) {
+    for (let k=0; k<rels?.length; k++) {
         const rel = rels[k];
         if (rel.deleted) 
             continue;

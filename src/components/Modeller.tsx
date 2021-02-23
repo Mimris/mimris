@@ -7,6 +7,7 @@ import GoJSApp from "./gojs/GoJSApp";
 import Selector from './utils/Selector'
 import genGojsModel from './GenGojsModel'
 
+const debug = false;
 
 const Modeller = (props: any) => {
   const debug = false
@@ -106,7 +107,7 @@ const Modeller = (props: any) => {
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel.id)
     if (model) {
-      console.log('111 model', model);
+      if (debug) console.log('111 model', model);
       const modelview = model?.modelviews[0]
       if (activeTab === 0) {
         const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}

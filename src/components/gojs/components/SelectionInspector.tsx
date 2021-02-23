@@ -18,21 +18,88 @@ interface SelectionInspectorProps {
 }
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
+
+  isPropIncluded(k: string, type: akm.cxType): boolean {
+    let retVal = true;
+    if (k === 'id') retVal = false;
+    if (k === 'class') retVal = false;
+    if (k === 'category') retVal = false;
+    if (k === 'abstract') retVal = false;
+    if (k === 'nameId') retVal = false;
+    if (k === 'fs_collection') retVal = false;
+    if (k === 'parent') retVal = false;
+    if (k === 'parentModel') retVal = false;
+    if (k === 'object') retVal = false;
+    if (k === 'relship') retVal = false;
+    if (k === 'type') retVal = false;
+    if (k === 'typeRef') retVal = false;
+    if (k === 'typeview') retVal = false;
+    if (k === 'typeviewRef') retVal = false;
+    if (k === 'group') retVal = false;
+    if (k === 'isGroup') retVal = false;
+    if (k === 'groupLayout') retVal = false;
+    if (k === 'objectRef') retVal = false;
+    if (k === 'fromObject') retVal = false;
+    if (k === 'toObject') retVal = false;
+    if (k === 'fromobjectRef') retVal = false;
+    if (k === 'toobjectRef') retVal = false;
+    if (k === 'toobjectRef') retVal = false;
+    if (k === 'relshipRef') retVal = false;
+    if (k === 'toObjviewRef') retVal = false;
+    if (k === 'fromObjviewRef') retVal = false;
+    if (k === 'toObjview') retVal = false;
+    if (k === 'fromObjview') retVal = false;
+    if (k === 'viewkind') retVal = false;
+    if (k === 'relshipkind') retVal = false;
+    if (k === 'valueset') retVal = false;
+    if (k === 'inputrels') retVal = false;
+    if (k === 'outputrels') retVal = false;
+    if (k === 'allProperties') retVal = false;
+    if (k === 'propertyValues') retVal = false;
+    if (k === 'objectviews') retVal = false;
+    if (k === 'relshipviews') retVal = false;
+    if (k === 'isCollapsed') retVal = false;
+    if (k === 'visible') retVal = false;
+    if (k === 'deleted') retVal = false;
+    if (k === 'modified') retVal = false;
+    if (k === 'defaultValue') retVal = false;
+    if (k === 'allowedValues') retVal = false;
+    if (k === 'currentTargetModelview') retVal = false;
+    if (k === 'pasteViewsOnly') retVal = false;
+    if (k === 'deleteViewsOnly') retVal = false;
+    if (k === 'layer') retVal = false;
+    if (k === 'loc') retVal = false;
+    if (k === 'size') retVal = false;
+    if (k === 'modeltype') retVal = false;
+    if (k === 'metamodelRef') retVal = false;
+    if (k === 'targetMetamodelRef') retVal = false;
+    if (k === 'sourceModelRef') retVal = false;
+    if (k === 'targetModelRef') retVal = false;
+    if (k === 'isTemplate') retVal = false;
+    if (k === 'isMetamodel') retVal = false;
+    if (type?.name !== 'ViewFormat') {
+      if (k === 'viewFormat') retVal = false;
+    }
+    if (type?.name !== 'InputPattern') {
+      if (k === 'inputPattern') retVal = false;
+    }
+    return retVal;
+  }
+  
   /**
    * Render the object data, passing down property keys and values.
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
-    if (debug) console.log('24  myMetis', this.props, this.props.selectedData);
+    if (!debug) console.log('24  myMetis', this.props, this.props.selectedData);
     let selObj = this.props.selectedData;
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (debug) console.log('30 modalContext', modalContext, typeof(selObj), selObj);
+    if (!debug) console.log('30 modalContext', modalContext, typeof(selObj), selObj);
     let inst, instview, typeview, item;
     if (selObj.type === 'GraphLinksModel') {
       return;
-    }
-    else if (category === 'Object') {
+    } else if (category === 'Object') {
       inst = selObj.object;
       inst = myMetis.findObject(inst?.id);
       instview = selObj.objectview;
@@ -44,11 +111,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       instview = selObj.relshipview;
       instview = myMetis.findRelationshipView(instview?.id);
       typeview = instview?.typeview;
-    } else if (category = 'Object type') {
+    } else if (category === 'Object type') {
       inst = selObj;
       instview = null;
+    } else if (category === 'Metis') {
+      inst = selObj;
+    } else if (category === 'Model view') {
+      inst = selObj;
     }
-    if (debug) console.log('48 inst', inst);
+    if (!debug) console.log('48 inst', inst);
     if (inst == undefined)
       return;
     const type = inst.type;
@@ -58,13 +129,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (debug) console.log('56 inst', properties, inst, selObj);
+    if (!debug) console.log('56 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;
+    let useItem = false;
+    let useFileImg = false;
     switch (modalContext?.what) {
       case 'editProject':
-        item = myMetis;
+        item = modalContext.gojsModel?.nodes[0];
+        useItem = true;
+        break;
+      case 'editModel':
+        item = myMetis.currentModel;
+        useItem = true;
+        break;
+      case 'editModelview':
+        item = myMetis.currentModelview;
+        useItem = true;
         break;
       case "editObject":
         item = inst;
@@ -76,6 +158,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = instview;
         hideNameAndDescr = true;
         useColor = true;
+        useFileImg = true;
         break;
       case "editRelshipview":
         item = instview;
@@ -91,73 +174,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (debug) console.log('71 item', inst, item);
+    if (!debug) console.log('97 item', inst, item);
     for (const k in item) {
       let row;
       if (k) {
         let val = item[k]; 
         let valuetype = 'text';
-        if (true) { // Filter values
-          if (typeof(val) === 'object') continue;
-          if (typeof(val) === 'function') continue;
-          if (k === 'id') continue;
-          if (k === 'key') continue;
-          if (k === '__gohashid') continue;
-          if (k === 'class') continue;
-          if (k === 'category') continue;
-          if (k === 'abstract') continue;
-          if (k === 'nameId') continue;
-          if (k === 'fs_collection') continue;
-          if (k === 'parent') continue;
-          if (k === 'parentModel') continue;
-          if (k === 'type') continue;
-          if (k === 'typeRef') continue;
-          // if (k === 'typeName') continue;
-          if (k === 'typeview') continue;
-          if (k === 'typeviewRef') continue;
-          if (k === 'group') continue;
-          if (k === 'isGroup') continue;
-          if (k === 'groupLayout') continue;
-          if (k === 'loc') continue;
-          if (k === 'size') continue;
-          if (k === 'objectRef') continue;
-          if (k === 'fromObject') continue;
-          if (k === 'toObject') continue;
-          if (k === 'fromobjectRef') continue;
-          if (k === 'toobjectRef') continue;
-          if (k === 'toobjectRef') continue;
-          if (k === 'relshipRef') continue;
-          if (k === 'toObjviewRef') continue;
-          if (k === 'fromObjviewRef') continue;
-          if (k === 'viewkind') continue;
-          if (k === 'relshipkind') continue;
-          if (k === 'valueset') continue;
-          if (k === 'inputrels') continue;
-          if (k === 'outputrels') continue;
-          if (k === 'allProperties') continue;
-          if (k === 'propertyValues') continue;
-          if (k === 'objectviews') continue;
-          if (k === 'relshipviews') continue;
-          if (k === 'isCollapsed') continue;
-          if (k === 'visible') continue;
-          if (k === 'deleted') continue;
-          if (k === 'modified') continue;
-          if (k === 'defaultValue') continue;
-          if (k === 'allowedValues') continue;
-          if (k === 'currentTargetModelview') continue;
-          if (k === 'pasteViewsOnly') continue;
-          if (k === 'deleteViewsOnly') continue;
-         if (type?.name !== 'ViewFormat') {
-            if (k === 'viewFormat') continue;
-          }
-          if (type?.name !== 'InputPattern') {
-            if (k === 'inputPattern') continue;
-          }
-          if (hideNameAndDescr) {
-            if (k === 'name' || k === 'description') continue;
-          }
+        if (typeof(val) === 'object') continue;
+        if (typeof(val) === 'function') continue;
+        if (!this.isPropIncluded(k, type)) 
+          continue;
+        if (hideNameAndDescr) {
+          if (k === 'name' || k === 'description') continue;
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
+        if (useItem) val = item[k];
         if (useColor && (k === 'fillcolor' || k === 'strokecolor')){
           if (debug) console.log('156 val', val);
           valuetype = 'color';
@@ -178,13 +209,22 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (k === 'strokecolor1')
           val = item['strokecolor'];
-        if (k === 'icon') {
-          valuetype = 'file';
-          val = "";
-        }
-        if (debug) console.log('174 SelectionInspector: k, val', k, val);
+        // if ( k === 'icon') {
+        //   // if (useFileImg) { 
+        //   //   valuetype = 'file';
+        //   //   val = item[k];
+        //   // } else {
+        //     valuetype = 'text';
+        //     val = item[k];
+        //   // }
+        // }  
+        // if (k === 'icon') {
+        //   valuetype = 'text';
+        //   val = item[k];
+        // }
+        if (!debug) console.log('195 SelectionInspector: k, val', k, val);
         if (!val) val = "";
-        if (debug) console.log('176 propname, value:', val, k, item[k], valuetype, selObj);
+        if (debug) console.log('197 propname, value:', val, k, item[k], valuetype, selObj);
         row  = <InspectorRow
           key={k}
           id={k}

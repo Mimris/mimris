@@ -517,8 +517,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.state.selectedData = sel.data;
         if (debug) console.log('699 data', data, sel);
         const modalContext = {
-          what: "editObject",
-          title: "Edit",
+          what: "editObjectview",
+          title: "Edit Object View",
           icon: findImage(data.icon),
           myDiagram: myDiagram
         }

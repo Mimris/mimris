@@ -8,7 +8,7 @@ import * as go from 'gojs';
 import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
-import Select from "react-select"
+import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap';
 // import * as ReactModal from 'react-modal';
 // import Popup from 'reactjs-popup';
@@ -33,6 +33,7 @@ import { FaTumblrSquare } from 'react-icons/fa';
 import svgs from '../../utils/Svgs'
 import { isNullOrUndefined } from 'util';
 import { setMyMetisParameter } from '../../../actions/actions';
+import { iconList } from '../../forms/selectIcons';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
@@ -161,11 +162,85 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     });
     if (debug) console.log('161 Diagram', node, this.state);
   } 
+
+  isPropIncluded(k: string, type: akm.cxType): boolean {
+    let retVal = true;
+    if (k === 'id') retVal = false;
+    if (k === 'class') retVal = false;
+    if (k === 'category') retVal = false;
+    if (k === 'abstract') retVal = false;
+    if (k === 'nameId') retVal = false;
+    if (k === 'fs_collection') retVal = false;
+    if (k === 'parent') retVal = false;
+    if (k === 'parentModel') retVal = false;
+    if (k === 'object') retVal = false;
+    if (k === 'relship') retVal = false;
+    if (k === 'type') retVal = false;
+    if (k === 'typeRef') retVal = false;
+    if (k === 'typeview') retVal = false;
+    if (k === 'typeviewRef') retVal = false;
+    if (k === 'group') retVal = false;
+    if (k === 'isGroup') retVal = false;
+    if (k === 'groupLayout') retVal = false;
+    if (k === 'objectRef') retVal = false;
+    if (k === 'fromObject') retVal = false;
+    if (k === 'toObject') retVal = false;
+    if (k === 'fromobjectRef') retVal = false;
+    if (k === 'toobjectRef') retVal = false;
+    if (k === 'toobjectRef') retVal = false;
+    if (k === 'relshipRef') retVal = false;
+    if (k === 'toObjviewRef') retVal = false;
+    if (k === 'fromObjviewRef') retVal = false;
+    if (k === 'viewkind') retVal = false;
+    if (k === 'relshipkind') retVal = false;
+    if (k === 'valueset') retVal = false;
+    if (k === 'inputrels') retVal = false;
+    if (k === 'outputrels') retVal = false;
+    if (k === 'allProperties') retVal = false;
+    if (k === 'propertyValues') retVal = false;
+    if (k === 'objectviews') retVal = false;
+    if (k === 'relshipviews') retVal = false;
+    if (k === 'isCollapsed') retVal = false;
+    if (k === 'visible') retVal = false;
+    if (k === 'deleted') retVal = false;
+    if (k === 'modified') retVal = false;
+    if (k === 'defaultValue') retVal = false;
+    if (k === 'allowedValues') retVal = false;
+    if (k === 'currentTargetModelview') retVal = false;
+    if (k === 'pasteViewsOnly') retVal = false;
+    if (k === 'deleteViewsOnly') retVal = false;
+    if (k === 'layer') retVal = false;
+    if (k === 'loc') retVal = false;
+    if (k === 'size') retVal = false;
+    if (k === 'modeltype') retVal = false;
+    if (k === 'metamodelRef') retVal = false;
+    if (k === 'targetMetamodelRef') retVal = false;
+    if (k === 'sourceModelRef') retVal = false;
+    if (k === 'targetModelRef') retVal = false;
+    if (k === 'isTemplate') retVal = false;
+    if (k === 'isMetamodel') retVal = false;
+    if (type?.name !== 'ViewFormat') {
+      if (k === 'viewFormat') retVal = false;
+    }
+    if (type?.name !== 'InputPattern') {
+      if (k === 'inputPattern') retVal = false;
+    }
+    return retVal;
+  }
   
   public handleCloseModal() {
-    if (debug) console.log('165 state', this.state);
+    if (debug) console.log('165 state', this.state.selectedData);
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
+    const myMetis = this.props.myMetis;
+    if (debug) console.log('170 state', myMetis);
+    // Prepare for dispatches
+    const modifiedObjTypeviews = new Array();    
+    const modifiedRelTypeviews = new Array();    
+    const modifiedObjviews     = new Array();    
+    const modifiedRelviews     = new Array();    
+    const modifiedObjects      = new Array();    
+    const modifiedRelships     = new Array();    
     switch(what) {
       case "editObject": {
         const obj = this.state.selectedData;
@@ -173,57 +248,60 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const node = myDiagram.findNodeForKey(obj.key);
         if (!node)
           return;
+        if (debug) console.log('246 node', node);
         const data = node.data;
         for (let k in data) {
-          if (k === 'id') continue;
-          if (k === 'class') continue;
-          if (k === 'category') continue;
-          if (k === 'abstract') continue;
-          if (k === 'nameId') continue;
-          if (k === 'fs_collection') continue;
-          if (k === 'parent') continue;
-          if (k === 'parentModel') continue;
-          if (k === 'type') continue;
-          if (k === 'typeRef') continue;
-          if (k === 'typeview') continue;
-          if (k === 'typeviewRef') continue;
-          if (k === 'group') continue;
-          if (k === 'isGroup') continue;
-          if (k === 'groupLayout') continue;
-          if (k === 'objectRef') continue;
-          if (k === 'fromObject') continue;
-          if (k === 'toObject') continue;
-          if (k === 'fromobjectRef') continue;
-          if (k === 'toobjectRef') continue;
-          if (k === 'toobjectRef') continue;
-          if (k === 'relshipRef') continue;
-          if (k === 'toObjviewRef') continue;
-          if (k === 'fromObjviewRef') continue;
-          if (k === 'viewkind') continue;
-          if (k === 'relshipkind') continue;
-          if (k === 'valueset') continue;
-          if (k === 'inputrels') continue;
-          if (k === 'outputrels') continue;
-          if (k === 'allProperties') continue;
-          if (k === 'propertyValues') continue;
-          if (k === 'objectviews') continue;
-          if (k === 'relshipviews') continue;
-          if (k === 'isCollapsed') continue;
-          if (k === 'visible') continue;
-          if (k === 'deleted') continue;
-          if (k === 'modified') continue;
-          if (k === 'defaultValue') continue;
-          if (k === 'allowedValues') continue;
-          if (k === 'currentTargetModelview') continue;
-          if (k === 'pasteViewsOnly') continue;
-          if (k === 'deleteViewsOnly') continue;
-          if (type?.name !== 'ViewFormat') {
-            if (k === 'viewFormat') continue;
-          }
-          if (type?.name !== 'InputPattern') {
-            if (k === 'inputPattern') continue;
-          }
+          if (!this.isPropIncluded(k)) 
+            continue;
           myDiagram.model.setDataProperty(data, k, obj[k]);
+          const gqlObject = new gql.gqlObject(node.data.object);
+          if (debug) console.log('253 gqlObject', gqlObject);
+          modifiedObjects.push(gqlObject);
+          modifiedObjects.map(mn => {
+            let data = mn;
+            this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+          })
+          const gqlObjview = new gql.gqlObjectView(node.data.objectview);
+          gqlObjview.name = gqlObject.name;
+          if (debug) console.log('261 gqlObjview', gqlObjview);
+          modifiedObjviews.push(gqlObjview);
+          modifiedObjviews.map(mn => {
+            let data = mn;
+            if (debug) console.log('265 gqlObjview', data);
+            this.props.dispatch({ type: 'UPDATE_OBJECTView_PROPERTIES', data })
+          })
+        }
+        break;
+      }
+      case "editRelationship": {
+        const rel = this.state.selectedData;
+        const type = rel.type;
+        const link = myDiagram.findLinkForKey(rel.key);
+        if (!link)
+          return;
+        if (debug) console.log('277 link', link);
+        const data = link.data;
+        for (let k in data) {
+          if (!this.isPropIncluded(k, type)) 
+            continue;
+
+          myDiagram.model.setDataProperty(data, k, rel[k]);
+          const gqlRelship = new gql.gqlRelationship(link.data.relship);
+          if (debug) console.log('285 gqlRelship', gqlRelship);
+          modifiedRelships.push(gqlRelship);
+          modifiedRelships.map(mn => {
+            let data = mn;
+            this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+          })
+          const gqlRelview = new gql.gqlRelshipView(link.data.relshipview);
+          gqlRelview.name = gqlRelship.name;
+          if (debug) console.log('293 gqlRelview', gqlRelview);
+          modifiedRelviews.push(gqlRelview);
+          modifiedRelviews.map(mn => {
+            let data = mn;
+            if (debug) console.log('297 gqlRelview', data);
+            this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+          })
         }
         break;
       }
@@ -232,8 +310,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objtypeview = objview.typeview;
         const node = myDiagram.findNodeForKey(objview.key);
         const data = node.data;
-        if (debug) console.log('232 data, objview', data, objview);
-        for (let prop in objtypeview?.data) {
+        if (debug) console.log('241 data, objview', data, objview);
+        const gqlObjview = new gql.gqlObjectView(objview);
+        if (debug) console.log('243 gqlObjview', gqlObjview);
+        modifiedObjviews.push(gqlObjview);
+        modifiedObjviews.map(mn => {
+          let data = mn;
+          this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        })
+      for (let prop in objtypeview?.data) {
           if (prop === 'figure' && objview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, objview[prop]);
           if (prop === 'fillcolor' && objview[prop] !== "") 
@@ -247,17 +332,47 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         break;
       }
+      case "selectDropdown": {
+        const objview = this.state.selectedData;
+        if (!debug) console.log('241 data, objview', objview, this.state.selectedData, this.state.modalContext);
+        if (this.state.modalContext.title === 'Select Icon') {
+          
+          const node = myDiagram.findNodeForKey(objview.key);
+          if (!debug) console.log('238 node', node);
+          const data = node.data;
+          const gqlObjview = new gql.gqlObjectView(objview);
+          if (debug) console.log('243 gqlObjview', gqlObjview);
+          modifiedObjviews.push(gqlObjview);
+          modifiedObjviews.map(mn => {
+            let data = mn;
+            this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+          })
+          for (let prop in objview?.data) {
+            if (prop === 'icon' && objview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+          }
+        }
+        break;
+      }
       case "editRelshipview": {
-        const relview = this.state.selectedData;
+        const selObj = this.state.selectedData;
+        const relview = selObj.relshipview;
         const reltypeview = relview.typeview;
-        if (debug) console.log('249 relview, reltypeview', relview, reltypeview);
-        const node = myDiagram.findLinkForKey(relview.key);
-        const data = node.data;
-        for (let prop in reltypeview?.data) {
-          if (prop === 'strokecolor' && relview[prop] !== "") 
+        if (debug) console.log('337 relview, reltypeview', relview, reltypeview);
+        const link = myDiagram.findLinkForKey(selObj.key);
+        const data = link.data;
+        const gqlRelview = new gql.gqlRelshipView(relview);
+        if (debug) console.log('341 data, gqlRelview', data, gqlRelview);
+        modifiedRelviews.push(gqlRelview);
+        modifiedRelviews.map(mn => {
+          let data = mn;
+          this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        })
+        for (let prop in reltypeview?.data)
+          if (prop === 'strokecolor' && relview[prop] !== "") {
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokewidth' && relview[prop] !== "")
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            myDiagram.model.setDataProperty(link, prop, relview[prop]);
           if (prop === 'dash' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
             if (prop === 'fromArrow' && relview[prop] !== "") 
@@ -272,17 +387,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editTypeview": {   
-        const typeview = this.state.selectedData; 
-        let data;
-        if (typeview.category === 'Object') {
-          const node = myDiagram.findNodeForKey(typeview.key);
-          if (debug) console.log('270 objtypeview, node', typeview, node);
-          //data = node.data;
+        let selObj = this.state.selectedData; 
+        let data, typeview;
+        if (selObj.category === 'Object') {
+          const node = myDiagram.findNodeForKey(selObj.key);
+          data = node.data;
+          if (debug) console.log('284 objtypeview, data', data);
+          typeview = data.objectview.typeview;
+          typeview = myMetis.findObjectTypeView(typeview.id);
+          const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
+          if (debug) console.log('287 gqlObjtypeview', gqlObjtypeview);
+          modifiedObjTypeviews.push(gqlObjtypeview);
+          modifiedObjTypeviews.map(mn => {
+            let data = mn;
+            this.props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+          })
         }
-        if (typeview.category === 'Relationship') {
-          const link = myDiagram.findLinkForKey(typeview.key);
-          if (debug) console.log('270 objtypeview, link', typeview, link);
-          //data = link.data;
+        if (selObj.category === 'Relationship') {
+          const link = myDiagram.findLinkForKey(selObj.key);
+          data = link.data;
+          typeview = data.relshipview.typeview;
+          typeview = myMetis.findRelationshipTypeView(typeview.id);
+          if (debug) console.log('294 reltypeview, link', typeview, link);
+          const gqlReltypeview = new gql.gqlRelshipTypeView(typeview);
+          if (debug) console.log('296 gqlReltypeview', gqlReltypeview);
+          modifiedRelTypeviews.push(gqlReltypeview);
+          modifiedRelTypeviews.map(mn => {
+            let data = mn;
+            this.props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+          })
         }
         if (data) {
           for (let prop in typeview) {
@@ -308,35 +441,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
           }
         }
-        // const modifiedTypeviews = new Array();
-        // const gqlObjTypeview = new gql.gqlObjectTypeView(objtypeview);
-        // if (debug) console.log('286 gqlObjTypeview', gqlObjTypeview);
-        // modifiedTypeviews.push(gqlObjTypeview);
-        // modifiedTypeviews?.map(mn => {
-        //   let data = (mn) && mn
-        //   this.myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-        // });
-
-      }
-      case "editProject": 
-      case "editModelview": 
-      case "editModel": {
-        // const model = this.state.selectedData;
-        const obj = this.state.selectedData;
-        const type = obj.type //|| this.state.modalContext.typename;
-        // const node = myDiagram.findNodeForKey(obj.key);
-        if (debug) console.log('324 obj', this.state.selectedData, obj, type);
-        // if (!node)
-        //   return;
-        // const data = node.data;
-        // for (let k in data) {
-        //   if (k === 'id') continue;
-        // if (type?.name !== 'InputPattern') {
-        //   if (k === 'inputPattern') continue;
-        // }
-        // myDiagram.model.setDataProperty(data, k, obj[k]);
         break;
       }
+      case "editProject": {
+        const project = this.state.selectedData;
+        if (!debug) console.log('323 myMetis', myMetis);
+        break;
+      }
+      case "editModel": {
+        const model = this.state.selectedData;
+        if (!debug) console.log('327 obj', model);
+        break;
+      }
+      case "editModelview": {
+        const mview = this.state.selectedData;
+        if (!debug) console.log('331 modelview', mview);
+        break;
+      }
+      // Handle all the dispatches
+      modifiedObjTypeviews.map(mn => {
+        let data = mn;
+        this.props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+      })
+
     }
     this.setState({ showModal: false });
   }
@@ -372,12 +499,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
 
 
+      case "Change Icon":    
+        const icon = (selectedOption) && selectedOption;
+        const inode = myMetis.currentNode;
+        const icn = myMetis.myDiagram.findNodeForKey(inode.key);
+        const idata = icn.data;
+        myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
+        myMetis.myDiagram.requestUpdate();
+        break;
+
+
       case "New Model":    
         console.log('351', selected);
-        
         const refMetamodelName = (selectedOption) && selectedOption;
         const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
-
         
         // myMetis.currentTargetMetamodel = targetMetamodel
         // myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
@@ -502,23 +637,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public handleInputChange(propname: string, value: string, valuetype: string, obj: any, context: any, isBlur: boolean) {
-    if (debug) console.log('442 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
-    if (debug) console.log('443 this.state', this.state);
+    if (debug) console.log('538 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
+    if (debug) console.log('539 this.state', this.state);
     this.setState(
       produce((draft: AppState) => {
-        const data = draft.selectedData as go.ObjectData;  // only reached if selectedData isn't null
-        if (debug) console.log('294 data', data, this);
-        data[propname] = value;
-        if (debug) console.log('296 data', data[propname], value);
+        let data = draft.selectedData as any;  // only reached if selectedData isn't null
+        if (debug) console.log('543 data', data, this);
+        // if (data[propname] = 'icon' && value.includes("fakepath")) {
+        //   data[propname] = context.files[0];
+        // } else {
+          data[propname] = value;
+        // }
+        if (debug) console.log('545 data', data[propname], value);
         if (isBlur) {
           const key = data.key;
-          if (obj.category === 'Relationship') {  // negative keys are links
-            const idx = this.mapLinkKeyIdx.get(key);
-            if (idx !== undefined) {
-              draft.linkDataArray[idx] = data;
-              draft.skipsDiagramUpdate = false;
-            }
-          } 
+          if (debug) console.log('548 key', key);
           if (obj.category === 'Object') {
             const idx = this.mapNodeKeyIdx.get(key);
             if (idx !== undefined) {
@@ -526,12 +659,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               draft.skipsDiagramUpdate = false;
             }
           }
+          if (obj.category === 'Relationship') {  
+            const idx = this.mapLinkKeyIdx.get(key);
+            if (idx !== undefined) {
+              draft.linkDataArray[idx] = data;
+              draft.skipsDiagramUpdate = false;
+            }
+          } 
         }
       })
     );
-    if (debug) console.log('469 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
+    if (debug) console.log('566 state', this.state);
+    if (debug) console.log('567 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
     const myMetis = this.myMetis;
-    const myDiagram = context.myDiagram;
+    // const myDiagram = context.myDiagram;
     let inst, instview, myInst, myInstview, myItem;
     // Handle objects
     if (obj.category === 'Object') {
@@ -540,53 +681,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myInst = myMetis.findObject(inst.id);
       instview = node.objectview;
       myInstview = myMetis.findObjectView(instview.id);
-      if (debug) console.log('480 myInst', myInst, myInstview);
-      if (context?.what === 'editProject') {
-          myItem = myMetis;
-      }
+      if (!debug) console.log('573 myInst', myInst, myInstview);
       if (context?.what === "editObjectview") {
           myItem = myInstview;
       } else if (context?.what === "editTypeview") {
           myItem = myInst.type?.typeview.data;
-          if (debug) console.log('488 editTypeview', myItem);
+          if (debug) console.log('580 editTypeview', myItem);
       } else {
           myItem = myInst;
       }
       myItem[propname] = value;
-      if (debug) console.log('493 editTypeview', myItem, myInst, myInstview);
-
-      // Prepare and to dispatch of objectview
-      if (context?.what === "editTypeview") {
-        const modifiedTypeviews = new Array();
-        const gqlObjtypeview = new gql.gqlObjectTypeView(myInst.type?.typeview);
-        if (debug) console.log('497 gqlObjtypeview', gqlObjtypeview);
-        modifiedTypeviews.push(gqlObjtypeview);
-        modifiedTypeviews.map(mn => {
-          let data = mn;
-          this.props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-        })
-      }
-      if (context?.what === "editObjectview")  {
-        const modifiedObjectViews = new Array();
-        const gqlObjview = new gql.gqlObjectView(myInstview);
-        if (debug) console.log('508 gqlObjview', gqlObjview);
-        modifiedObjectViews.push(gqlObjview);
-        modifiedObjectViews.map(mn => {
-          let data = mn;
-          this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-        })
-        if (debug) console.log('514 gqlObjview', gqlObjview);
-      }
-      // Prepare to and dispatch objects
-      const modifiedObjects = new Array();
-      const gqlObj = new gql.gqlObject(myItem);
-      if (debug) console.log('519 gqlObj', gqlObj);
-      modifiedObjects.push(gqlObj);
-      modifiedObjects.map(mn => {
-        let data = mn;
-        this.props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-      });
-      if (debug) console.log('525 node', node, propname, value);
     }
     // Handle relationships
     if (obj.category === 'Relationship') {
@@ -595,7 +699,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myInst = myMetis.findRelationship(inst.id);
         instview = link.relshipview;
         myInstview = myMetis.findRelationshipView(instview.id);    
-        if (debug) console.log('534 myInst', myInst, myInstview);
+        if (debug) console.log('596 myInst', myInst, myInstview);
         if (context?.what === "editRelshipview") 
             myItem = myInstview;
         else if (context?.what === "editTypeview") 
@@ -603,45 +707,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         else
             myItem = myInst;
         myItem[propname] = value;
+        if (debug) console.log('604 myItem', myItem);
       
-        if (context?.what === "editTypeview") {
-          const modifiedTypeviews = new Array();
-          const gqlReltypeview = new gql.gqlRelshipTypeView(myInst.type?.typeview);
-          modifiedTypeviews.push(gqlReltypeview);
-          if (debug) console.log('547 gqlReltypeview', gqlReltypeview);
-          modifiedTypeviews.map(mn => {
-            let data = mn;
-            this.props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-          })
-        }
-        // Prepare to and dispatch relshipviews
-        const modifiedRelshipViews = new Array();
-        const gqlRelview = new gql.gqlRelshipView(myInstview);
-        if (debug) console.log('556 gqlRelview', gqlRelview);
-        modifiedRelshipViews.push(gqlRelview);
-        modifiedRelshipViews.map(mn => {
-          let data = mn;
-          this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-        })
-        // Prepare and to dispatch of object
-        const modifiedRelships = new Array();
-        const gqlRel = new gql.gqlRelationship(myItem);
-        modifiedRelships.push(gqlRel);
-        modifiedRelships.map(mn => {
-          let data = mn;
-          this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-        });
-      if (debug) console.log('570 myMetis', myMetis);
+      if (debug) console.log('606 myMetis', myMetis);
     }
-    // Handle project
-    if (obj.category === 'Metis') {
-      console.log('574 project',  myMetis.name, myMetis.description);
-    }
-  
-    // if (obj.category === 'Model') {
-    //   console.log('615 project',  myMetis.name, myMetis.description);
-    // }
-  
   }
 
   /**
@@ -817,7 +886,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       var partContextMenu =
         $(go.Adornment, "Vertical",
-
           makeButton("New Typeview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
@@ -888,7 +956,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;
             }),
-
           makeButton("Reset Typeview", 
           function (e: any, obj: any) {
             const node = obj.part.data;
@@ -1032,6 +1099,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false; 
             }),
+            makeButton("Change Icon",
+            function (e: any, obj: any) {
+              const node = e.diagram.selection.first().data;
+              const ilist = iconList()
+              const iconLabels = ilist.map(il => (il) && il.label)
+              console.log('1351', iconLabels, ilist );
+              // const node = obj.part.data;
+              const modalContext = {
+                what: "selectDropdown",
+                title: "Select Icon",
+                case: "Change Icon",
+                iconList : iconList(),
+                myDiagram: myDiagram
+              } 
+              myMetis.currentNode = node;
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(node, modalContext);
+              if (debug) console.log('511 myMetis', myMetis);
+          },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === 'Object') {
+                return true;
+              } else {
+                return false;
+              }
+          }),
           makeButton("Test InputPattern",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1279,7 +1373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(node.choices, modalContext);
-              if (debug) console.log('511 myMetis', myMetis);
+              if (debug) console.log('511 myMetis', node.choices, myMetis);
           },
             function (o: any) {
               const node = o.part.data;
@@ -1289,6 +1383,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
           }),
+
           makeButton("Edit Typeview",
           function (e: any, obj: any) { 
             const node = obj.part.data;
@@ -1301,7 +1396,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             myMetis.currentNode = node;
             myMetis.myDiagram = myDiagram;
             myDiagram.handleOpenModal(node, modalContext);
-              // 
           }, 
           function (o: any) {
             if (false)
@@ -1313,40 +1407,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
             return false;
           }),
-            // makeButton("Edit Typeview",
-            // function (e: any, obj: any) { 
-            //   const node = obj.part.data;
-            //   const modalContext = {
-            //     what: "editTypeview",
-            //     title: "Edit Typeview",
-            //     icon: findImage(node.icon),
-            //     myDiagram: myDiagram
-            //   }
-            //   myMetis.currentNode = node;
-            //   myMetis.myDiagram = myDiagram;
-            //   myDiagram.handleOpenModal(node, modalContext);
-            //     // 
-            // }, 
-            // function (o: any) {
-            //   return true;
-            //   if (true)
-            //     return false;
-            //   else {
-            //     const node = o.part.data;
-            //     if (debug) console.log('413 node', node);
-            //     const currentObject = node.object; 
-            //     const currentObjectView = node.objectview;
-            //     if (currentObject && currentObjectView) {                   
-            //       const objtype  = currentObject.type;
-            //       const typeView = node.typeview;
-            //       const defaultTypeview = objtype.typeview;
-            //       if (typeView && (typeView.id === defaultTypeview.id)) {
-            //         return true;
-            //       }
-            //     }
-            //   }
-            //   return false;
-            // }),
           makeButton("----------"),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) { 
@@ -1559,30 +1619,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Delete",
             function (e, obj) {
               myMetis.deleteViewsOnly = false;
-              // e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-              // const myGoModel = myDiagram.myGoModel;
-              // e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
               e.diagram.commandHandler.deleteSelection();
             },
             function (o) { 
-            //   const link = o.part.data;
-            //   //if (debug) console.log('383 Delete', link);
-            //   if (link.category === 'Relationship type') {
-            //     //return o.diagram.commandHandler.canDeleteSelection();                
-            //     const reltype = link.reltype;
-            //     if (debug) console.log('387 Delete', reltype);
-            //     const relships = myMetis.getRelationshipsByType(reltype, true);
-            //     if (debug) console.log('390 Delete', relships);
-            //     if (relships) {
-            //       if (debug) console.log('390 Delete', 'Relstionships found');
-            //       return false;
-            //     } else {
-            //         if (debug) console.log('393 Delete', 'No relstionships found');
-            //         return o.diagram.commandHandler.canDeleteSelection(); 
-            //      }
-            // } else {
-            //     return o.diagram.commandHandler.canDeleteSelection(); 
-            // }
             return o.diagram.commandHandler.canDeleteSelection(); 
             }),
           makeButton("Delete View",
@@ -1764,7 +1803,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   let typeview = currentRelshipView.typeview;
                   const defaultTypeview = reltype.typeview;
                   currentRelshipView.typeview = defaultTypeview;
-                  console.log('856 viewdata', typeview.data);
+                  if (debug) console.log('856 viewdata', typeview.data);
                   const viewdata = defaultTypeview.data;
                   for (let prop in defaultTypeview.data) {
                     myDiagram.model.setDataProperty(link, prop, defaultTypeview[prop]);
@@ -2231,7 +2270,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("----------"),
           makeButton("Edit Project",
           function (e: any, obj: any) {
-
             const context = {
               "myMetis":            myMetis,
               "myMetamodel":        myMetis.currentMetamodel, 
@@ -2245,42 +2283,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               title: "Edit Project",
               case: "Edit Project",
               typename: "Project",
-              myDiagram: myDiagram
+              myDiagram: myDiagram,
             } 
-            // const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-            // if (debug) console.log('2194', mmNameIds, modalContext);
-            // myDiagram.handleOpenModal(mmNameIds, modalContext);
-
             myDiagram.handleOpenModal(context.myMetis, modalContext);
-
-            // const currentName = myMetis.name; 
-            // const projectName = prompt("Enter Project name:", currentName);
-            // if (projectName?.length > 0) {
-            //   myMetis.name = projectName;
-            // }
-            // const currentDescr = myMetis.description; 
-            // const projectDescr = prompt("Enter Project description:", currentDescr);
-            // if (projectDescr?.length > 0) {
-            //   myMetis.description = projectDescr;
-            // }
-            // const project = {
-            //   // "id":           myMetis.id, // ToDo: add id to project
-            //   "name":         myMetis.name,
-            //   "description":  myMetis.description
-            // }
-            // const modifiedProjects = new Array();  // metis-objektet i phData
-            // modifiedProjects.push(project);
-            // modifiedProjects?.map(mn => {
-            //   let data = (mn) && mn
-            //   e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
-            // })
           },
           function (o: any) { 
             return true; 
           }),
           makeButton("Edit Model",
           function (e: any, obj: any) {
-
+            if (debug) console.log('2235 myGoModel', myGoModel);
             const context = {
               "myMetis":            myMetis,
               "myMetamodel":        myMetis.currentMetamodel, 
@@ -2294,7 +2306,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               title: "Edit Model",
               case: "Edit Model",
               typename: "Model",
-              myDiagram: myDiagram
+              myDiagram: myDiagram,
             } 
             myDiagram.handleOpenModal(context.myModel, modalContext);
           },
@@ -2303,7 +2315,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }),
           makeButton("Edit Modelview",
           function (e: any, obj: any) {
-
             const context = {
               "myMetis":            myMetis,
               "myMetamodel":        myMetis.currentMetamodel, 
@@ -2317,7 +2328,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               title: "Edit Modelview",
               case: "Edit Modelview",
               typename: "Modelview",
-              myDiagram: myDiagram
+              myDiagram: myDiagram,
             } 
             myDiagram.handleOpenModal(context.myModelview, modalContext);
           },
@@ -2663,11 +2674,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         )
       }        
 
-    // Define a Node template
+    // Define invisible layer 'AdminLayer'
+    const forelayer = myDiagram.findLayer("Foreground");
+    myDiagram.addLayerBefore($(go.Layer, { name: "AdminLayer" }), forelayer);
+    const layer = myDiagram.findLayer('AdminLayer');
+    layer.visible = false;
+  
+      // Define a Node template
     let nodeTemplate;
     if (true) {
       nodeTemplate =
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+          new go.Binding("layerName", "layer"),
           // { locationSpot: go.Spot.Center},
           new go.Binding("deletable"),
           new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -3062,6 +3080,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         //   // const lettersvg = letter
         //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
         //   return svgs[letter].svg //svgs[`'${letter}'`]
+        // } else if (image.includes('fakepath')) { // its a local image
+        //   console.log('3025', image);
+        //   console.log("3027 ./../images/" + image.replace(/C:\\fakepath\\/,'')) //its an image in public/images
+        //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
+        
       } else { 
         if (debug) console.log('1283 Diagram', image);
         return "./../images/" + image //its an image in public/images
@@ -3105,9 +3128,37 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const icon = modalContext?.icon;
 
     switch (modalContext?.what) {      
-      case 'selectDropdown': {
-        const options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
-        if (debug) console.log('2296 options', options);
+      case 'selectDropdown': 
+
+        let options =  '' 
+        let comps = ''
+        const { Option } = components
+        const CustomSelectOption = props => 
+        (
+          <Option {...props}>
+            <img className="option-img mr-2" src={props.data.value} />
+            {props.data.label}
+          </Option>
+        )
+        const CustomSelectValue = props => (
+          <div>
+            {/* <i className={`icon icon-${props.data.icon}`} /> */}
+            <img className="option-img mr-2" src={props.data.value} />
+             {props.data.label}
+          </div>
+        )
+        if (modalContext?.title === 'Select Icon') {
+          let img 
+          options = this.state.modalContext.iconList.map(icon => {
+            img = (icon.value.includes('//')) ? icon.value : './../images/'+icon.value 
+            return {value: img, label: icon.label}
+          })
+          comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
+        } else {
+          options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
+          comps = null
+        }
+        if (!debug) console.log('2296 options', options);
         const { selectedOption } = this.state;
 
         const value = (selectedOption)  ? selectedOption.value : options[0]
@@ -3118,13 +3169,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           <div className="modal-selection d-flex justify-content-center">
             <Select className="modal-select"
               options={options}
+              components={comps}
               onChange={value => this.handleSelectDropdownChange(value)}
               value={value}
             />
           </div>
           {/* <option value={option.value}>{label: option.label, option.value}</option>
-        */}
-      }
+          */}
+      
       break;
       case 'editProject':
       case 'editModel':
@@ -3149,6 +3201,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               />
             </div>
         }
+        break;
       case 'editRelationship':
       case 'editRelshipview':
       case 'editTypeview': {
@@ -3167,8 +3220,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 onInputChange ={this.handleInputChange}
               />
             </div>
+          }
         }
-      }
       break;
       default:
         break;

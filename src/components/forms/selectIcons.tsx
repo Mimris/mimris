@@ -29,6 +29,29 @@ export const iconList = () => [
            {value:"parallel.png", label: "Parallel.png"},
            {value:"task1.jfif", label: "Task1.jfif"},
            {value:"tiger.svg", label: "tiger.svg"},
+           {value:"file-earmark-image.svg", label: "file-earmark-image.svg"},
+           {value:"bug.svg", label: "bug.svg"},
+           {value:"ui-checks.svg", label: "ui-checks.svg"},
+           {value:"youtube.svg", label: "youtube.svg"},
+           {value:"speedometer.svg", label: "speedometer.svg"},
+           {value:"person-square.svg", label: "person-square.svg"},
+           {value:"palette.svg", label: "palette.svg"},
+           {value:"layers.svg", label: "layers.svg"},
+           {value:"inboxes.svg", label: "inboxes.svg"},
+           {value:"house-door.svg", label: "house-door.svg"},
+           {value:"hand-thumbs-up.svg", label: "hands-thumbs-up.svg"},
+           {value:"folder-check.svg", label: "folder-check.svg"},
+           {value:"exclamation-triangle.svg", label: "exclamation-triangle.svg"},
+           {value:"chat-square-text.svg", label: "chat-square-text.svg"},
+           {value:"check-square-fill.svg", label: "check-square-fill.svg"},
+           {value:"check-square.svg", label: "check-square.svg"},
+           {value:"braces.svg", label: "braces.svg"},
+           {value:"bug.svg", label: "bug.svg"},
+           {value:"bullseye.svg", label: "bullseye.svg"},
+  ]
+export const iconList2 = () => [
+           {value:"x-octagon.svg", label: "x-octagon.svg"},
+   
   ]
 
 export const selectIcons = (curitem, p, iconvalue, register, handleChangesicon) => {

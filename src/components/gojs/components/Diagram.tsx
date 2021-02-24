@@ -2093,8 +2093,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               
               let model;
               
-              // const metamodel = gen.askForMetamodel(context, false, true);
-              const metamodel = myMetis.currentMetamodel;
+              const metamodel = gen.askForMetamodel(context, false, true);
+              // const metamodel = myMetis.currentMetamodel;
 
               if (!metamodel) return;
               const modelName = prompt("Enter Model name:", "");

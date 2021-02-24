@@ -179,17 +179,15 @@ const page = (props) => {
               >
                   <CardHeader className="card-header " >Blog AKMM releases </CardHeader>
                   <CardBody className="card-body" >
-                    <CardTitle className="card-title" >Release 2021.02.16</CardTitle>
+                    <CardTitle className="card-title" >Release 2021.02.24</CardTitle>
                     <CardText >
-                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
-                        &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
-                        &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />
-                        &bull; Added Edit Project - to change Project name and descriptions!<br />
-                        &bull; Added colorpicker on object/relationship views!<br />
-                        &bull; Added !PURGE DELETED! Cleanup of objects with no views.<br />
-                        &bull; Bugfixes in Objects tab in Palette!<br />
+                        &bull; New popup menues for Edit .....!<br />
+                        &bull; Added local Change Icon on Objectviews!<br />
+                        &bull; Added Select all views of this object!<br />
+                         - (Showing all objectview copies of an object (Instance) )<br />
+                
                         &bull; Bugfixes!<br /><br />
-                        <strong>ToBe done!</strong><br /><br />
+                        <strong>ToBe implemented!</strong><br /><br />
                         &bull; Workplace templates for reflective workplace modelling! <br />
                         &bull; Popup select menu for new relships!<br />
                         &bull; Image picker to select icons!<br />
@@ -199,6 +197,19 @@ const page = (props) => {
                         &bull; Enhancement of user interface! <br />
                         &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
 
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title" >Release 2021.02.16</CardTitle>
+                    <CardText >
+                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
+                        &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
+                        &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />
+                        &bull; Added Edit Project - to change Project name and descriptions!<br />
+                        &bull; Added colorpicker on object/relationship views!<br />
+                        &bull; Added !PURGE DELETED! Cleanup of objects with no views.<br />
+                        &bull; Bugfixes in Objects tab in Palette!<br />
+                        &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >

@@ -2356,27 +2356,50 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("----------"),
           makeButton("Edit Project",
-          function (e: any, obj: any) {
-            const context = {
-              "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel, 
-              "myModel":            myMetis.currentModel,
-              "myModelview":        myMetis.currentModelview,
-              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-              "myDiagram":          e.diagram
-            }
-            const modalContext = {
-              what: "editProject",
-              title: "Edit Project",
-              case: "Edit Project",
-              typename: "Project",
-              myDiagram: myDiagram,
-            } 
-            myDiagram.handleOpenModal(context.myMetis, modalContext);
-          },
-          function (o: any) { 
-            return true; 
-          }),
+          // function (e: any, obj: any) {
+            //   const context = {
+              //     "myMetis":            myMetis,
+              //     "myMetamodel":        myMetis.currentMetamodel, 
+              //     "myModel":            myMetis.currentModel,
+              //     "myModelview":        myMetis.currentModelview,
+              //     "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+              //     "myDiagram":          e.diagram
+              //   }
+              //   const modalContext = {
+                //     what: "editProject",
+                //     title: "Edit Project",
+                //     case: "Edit Project",
+                //     typename: "Project",
+                //     myDiagram: myDiagram,
+                //   } 
+                //   myDiagram.handleOpenModal(context.myMetis, modalContext);
+                // },
+            function (e: any, obj: any) {
+              const currentName = myMetis.name; 
+              const projectName = prompt("Enter Project name:", currentName);
+              if (projectName?.length > 0) {
+                myMetis.name = projectName;
+              }
+              const currentDescr = myMetis.description; 
+              const projectDescr = prompt("Enter Project description:", currentDescr);
+              if (projectDescr?.length > 0) {
+                myMetis.description = projectDescr;
+              }
+              const project = {
+                // "id":           myMetis.id, // ToDo: add id to project
+                "name":         myMetis.name,
+                "description":  myMetis.description
+              }
+              const modifiedProjects = new Array();  // metis-objektet i phData
+              modifiedProjects.push(project);
+              modifiedProjects?.map(mn => {
+                let data = (mn) && mn
+                e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
+              })
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("Edit Model",
           function (e: any, obj: any) {
             if (debug) console.log('2235 myGoModel', myGoModel);

@@ -86,7 +86,7 @@ const Modeller = (props: any) => {
   // (selmodviews && props.phSource === 'Model server') &&  
   // (selmodviews) &&  
   useEffect(() =>  {
-    if (selmodviews.length>0)
+    if (selmodviews?.length>0)
       if (activeTab != undefined || 0) {
         const data = {id: selmodviews[0].id, name: selmodviews[0].name}
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;

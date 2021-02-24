@@ -165,6 +165,10 @@
   background-color: blue;
   background: rgba(255,255,255,0.4);
 }
+.option-img {
+  max-width: 50px;
+  max-height: 50px;
+}
 
 .tooltip {
   background-color: transparent;

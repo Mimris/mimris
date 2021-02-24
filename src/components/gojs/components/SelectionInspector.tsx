@@ -134,6 +134,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let hideNameAndDescr = false;
     let useColor = false;
     let useItem = false;
+    let useFileImg = false;
     switch (modalContext?.what) {
       case 'editProject':
         item = modalContext.gojsModel?.nodes[0];
@@ -157,6 +158,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = instview;
         hideNameAndDescr = true;
         useColor = true;
+        useFileImg = true;
         break;
       case "editRelshipview":
         item = instview;
@@ -207,10 +209,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (k === 'strokecolor1')
           val = item['strokecolor'];
-        if (k === 'icon') {
-          valuetype = 'file';
-          val = "";
-        }
+        // if ( k === 'icon') {
+        //   // if (useFileImg) { 
+        //   //   valuetype = 'file';
+        //   //   val = item[k];
+        //   // } else {
+        //     valuetype = 'text';
+        //     val = item[k];
+        //   // }
+        // }  
+        // if (k === 'icon') {
+        //   valuetype = 'text';
+        //   val = item[k];
+        // }
         if (!debug) console.log('195 SelectionInspector: k, val', k, val);
         if (!val) val = "";
         if (debug) console.log('197 propname, value:', val, k, item[k], valuetype, selObj);

@@ -8,7 +8,7 @@ import * as go from 'gojs';
 import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
-import Select from "react-select"
+import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap';
 // import * as ReactModal from 'react-modal';
 // import Popup from 'reactjs-popup';
@@ -33,6 +33,7 @@ import { FaTumblrSquare } from 'react-icons/fa';
 import svgs from '../../utils/Svgs'
 import { isNullOrUndefined } from 'util';
 import { setMyMetisParameter } from '../../../actions/actions';
+import { iconList } from '../../forms/selectIcons';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
@@ -331,6 +332,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         break;
       }
+      case "selectDropdown": {
+        const objview = this.state.selectedData;
+        if (!debug) console.log('241 data, objview', objview, this.state.selectedData, this.state.modalContext);
+        if (this.state.modalContext.title === 'Select Icon') {
+          
+          const node = myDiagram.findNodeForKey(objview.key);
+          if (!debug) console.log('238 node', node);
+          const data = node.data;
+          const gqlObjview = new gql.gqlObjectView(objview);
+          if (debug) console.log('243 gqlObjview', gqlObjview);
+          modifiedObjviews.push(gqlObjview);
+          modifiedObjviews.map(mn => {
+            let data = mn;
+            this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+          })
+          for (let prop in objview?.data) {
+            if (prop === 'icon' && objview[prop] !== "") 
+            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+          }
+        }
+        break;
+      }
       case "editRelshipview": {
         const selObj = this.state.selectedData;
         const relview = selObj.relshipview;
@@ -476,12 +499,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
 
 
+      case "Change Icon":    
+        const icon = (selectedOption) && selectedOption;
+        const inode = myMetis.currentNode;
+        const icn = myMetis.myDiagram.findNodeForKey(inode.key);
+        const idata = icn.data;
+        myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
+        myMetis.myDiagram.requestUpdate();
+        break;
+
+
       case "New Model":    
         console.log('351', selected);
-        
         const refMetamodelName = (selectedOption) && selectedOption;
         const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
-
         
         // myMetis.currentTargetMetamodel = targetMetamodel
         // myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
@@ -612,7 +643,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       produce((draft: AppState) => {
         let data = draft.selectedData as any;  // only reached if selectedData isn't null
         if (debug) console.log('543 data', data, this);
-        data[propname] = value;
+        // if (data[propname] = 'icon' && value.includes("fakepath")) {
+        //   data[propname] = context.files[0];
+        // } else {
+          data[propname] = value;
+        // }
         if (debug) console.log('545 data', data[propname], value);
         if (isBlur) {
           const key = data.key;
@@ -646,7 +681,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myInst = myMetis.findObject(inst.id);
       instview = node.objectview;
       myInstview = myMetis.findObjectView(instview.id);
-      if (debug) console.log('573 myInst', myInst, myInstview);
+      if (!debug) console.log('573 myInst', myInst, myInstview);
       if (context?.what === "editObjectview") {
           myItem = myInstview;
       } else if (context?.what === "editTypeview") {
@@ -1064,6 +1099,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false; 
             }),
+            makeButton("Change Icon",
+            function (e: any, obj: any) {
+              const node = e.diagram.selection.first().data;
+              const ilist = iconList()
+              const iconLabels = ilist.map(il => (il) && il.label)
+              console.log('1351', iconLabels, ilist );
+              // const node = obj.part.data;
+              const modalContext = {
+                what: "selectDropdown",
+                title: "Select Icon",
+                case: "Change Icon",
+                iconList : iconList(),
+                myDiagram: myDiagram
+              } 
+              myMetis.currentNode = node;
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(node, modalContext);
+              if (debug) console.log('511 myMetis', myMetis);
+          },
+            function (o: any) {
+              const node = o.part.data;
+              if (node.category === 'Object') {
+                return true;
+              } else {
+                return false;
+              }
+          }),
           makeButton("Test InputPattern",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1315,7 +1377,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(node.choices, modalContext);
-              if (debug) console.log('511 myMetis', myMetis);
+              if (debug) console.log('511 myMetis', node.choices, myMetis);
           },
             function (o: any) {
               const node = o.part.data;
@@ -1325,6 +1387,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
           }),
+
           makeButton("Edit Typeview",
           function (e: any, obj: any) { 
             const node = obj.part.data;
@@ -3108,6 +3171,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         //   // const lettersvg = letter
         //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
         //   return svgs[letter].svg //svgs[`'${letter}'`]
+        // } else if (image.includes('fakepath')) { // its a local image
+        //   console.log('3025', image);
+        //   console.log("3027 ./../images/" + image.replace(/C:\\fakepath\\/,'')) //its an image in public/images
+        //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
+        
       } else { 
         if (debug) console.log('1283 Diagram', image);
         return "./../images/" + image //its an image in public/images
@@ -3151,9 +3219,37 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const icon = modalContext?.icon;
 
     switch (modalContext?.what) {      
-      case 'selectDropdown': {
-        const options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
-        if (debug) console.log('2296 options', options);
+      case 'selectDropdown': 
+
+        let options =  '' 
+        let comps = ''
+        const { Option } = components
+        const CustomSelectOption = props => 
+        (
+          <Option {...props}>
+            <img className="option-img mr-2" src={props.data.value} />
+            {props.data.label}
+          </Option>
+        )
+        const CustomSelectValue = props => (
+          <div>
+            {/* <i className={`icon icon-${props.data.icon}`} /> */}
+            <img className="option-img mr-2" src={props.data.value} />
+             {props.data.label}
+          </div>
+        )
+        if (modalContext?.title === 'Select Icon') {
+          let img 
+          options = this.state.modalContext.iconList.map(icon => {
+            img = (icon.value.includes('//')) ? icon.value : './../images/'+icon.value 
+            return {value: img, label: icon.label}
+          })
+          comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
+        } else {
+          options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
+          comps = null
+        }
+        if (!debug) console.log('2296 options', options);
         const { selectedOption } = this.state;
 
         const value = (selectedOption)  ? selectedOption.value : options[0]
@@ -3164,13 +3260,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           <div className="modal-selection d-flex justify-content-center">
             <Select className="modal-select"
               options={options}
+              components={comps}
               onChange={value => this.handleSelectDropdownChange(value)}
               value={value}
             />
           </div>
           {/* <option value={option.value}>{label: option.label, option.value}</option>
-        */}
-      }
+          */}
+      
       break;
       case 'editProject':
       case 'editModel':
@@ -3179,9 +3276,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
         header = modalContext.title;
         category = this.state.selectedData.category;
-        typename = '('+modalContext.typename+')'
+        typename = (modalContext.typename) ? '('+modalContext.typename+')' : '('+this.state.selectedData.object?.typeName+')'
         // typename = '('+this.state.selectedData.object?.typeName+')'
-        if (debug) console.log('2568 Diagram ', icon);
+        if (!debug) console.log('2568 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);

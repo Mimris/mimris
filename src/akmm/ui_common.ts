@@ -898,9 +898,7 @@ export function createRelationship(data: any, context: any) {
     /* if (debug) */console.log('824 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
-    //const myMetamodel = context.myMetamodel;
     const myMetis = context.myMetis; // added sf
-    //data.key = utils.createGuid();
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
     if (debug) console.log('859 createRelationship', myGoModel, fromNode, toNode);
@@ -946,7 +944,12 @@ export function createRelationship(data: any, context: any) {
     const reltypeview = reltype.typeview;
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
-    if (relshipview) relshipview.setTypeView(reltypeview);
+    if (relshipview) {
+        if (debug) console.log('950 relshipview', relshipview);
+        relshipview.setTypeView(reltypeview);
+        const relship = relshipview.relship; 
+        relship.addRelationshipView(relshipview);
+    }
     if (debug) console.log('908 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
@@ -1008,10 +1011,11 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         relshipview.setFromObjectView(fromObjview);
         relshipview.setToObjectView(toObjview);
         relshipview.setModified();
+        relship.addRelationshipView(relshipview);
         myModelView.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
     }
-    if (debug) console.log('989 relshipview', relshipview);
+    if (!debug) console.log('989 relshipview', relshipview, myMetis);
     if (debug) console.log('990 myModel', myModel);
     myDiagram.requestUpdate();
     return relshipview; 

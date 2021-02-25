@@ -91,11 +91,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
-    if (!debug) console.log('24  myMetis', this.props, this.props.selectedData);
+    if (debug) console.log('24  myMetis', this.props, this.props.selectedData);
     let selObj = this.props.selectedData;
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (!debug) console.log('30 modalContext', modalContext, typeof(selObj), selObj);
+    if (debug) console.log('30 modalContext', modalContext, typeof(selObj), selObj);
     let inst, instview, typeview, item;
     if (selObj.type === 'GraphLinksModel') {
       return;
@@ -119,7 +119,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === 'Model view') {
       inst = selObj;
     }
-    if (!debug) console.log('48 inst', inst);
+    if (debug) console.log('48 inst', inst);
     if (inst == undefined)
       return;
     const type = inst.type;
@@ -129,7 +129,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";
     }
-    if (!debug) console.log('56 inst', properties, inst, selObj);
+    if (debug) console.log('56 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;
@@ -174,7 +174,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (!debug) console.log('97 item', inst, item);
+    if (debug) console.log('97 item', inst, item);
     for (const k in item) {
       let row;
       if (k) {
@@ -222,7 +222,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         //   valuetype = 'text';
         //   val = item[k];
         // }
-        if (!debug) console.log('195 SelectionInspector: k, val', k, val);
+        if (debug) console.log('195 SelectionInspector: k, val', k, val);
         if (!val) val = "";
         if (debug) console.log('197 propname, value:', val, k, item[k], valuetype, selObj);
         row  = <InspectorRow

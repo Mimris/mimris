@@ -21,9 +21,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    if (debug) console.log('25 GenGojsModel phData, metis:', props.phData, metis);
+    if (!debug) console.log('25 GenGojsModel phData, metis:', props.phData, metis);
     const myMetis = new akm.cxMetis();
-    if (debug) console.log('33 GenGojsModel', myMetis);  
+    if (!debug) console.log('33 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
     if (debug) console.log('36 GenGojsModel myMetis', myMetis);
     

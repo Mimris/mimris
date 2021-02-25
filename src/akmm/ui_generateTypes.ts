@@ -446,9 +446,9 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     const toObj    = rel.getToObject();
     const totype   = myTargetMetamodel.findObjectTypeByName(toObj?.name);
     let relname  = rel.getName();
-    let name = obj.name;
-    name = utils.camelize(name);
-    name = utils.uncapitalizeFirstLetter(name);
+    let name = relname;
+    relname = utils.camelize(relname);
+    relname = utils.uncapitalizeFirstLetter(relname);
     let reltype    = myTargetMetamodel.findRelationshipTypeByName2(relname, fromtype, totype);
     if (debug) console.log('451 reltype', rel, relname, reltype);
     if (!reltype) {

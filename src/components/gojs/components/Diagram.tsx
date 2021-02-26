@@ -311,13 +311,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objview = node.objectview;
         node = myDiagram.findNodeForKey(node.key);
         const data = node.data;
-        if (!debug) console.log('241 data, objview', node, objview);
+        if (debug) console.log('241 data, objview', node, objview);
         const gqlObjview = new gql.gqlObjectView(objview);
-        if (!debug) console.log('243 gqlObjview', gqlObjview);
+        if (debug) console.log('243 gqlObjview', gqlObjview);
         modifiedObjviews.push(gqlObjview);
         modifiedObjviews.map(mn => {
           let data = mn;
-          if (!debug) console.log('317 data', data);
+          if (debug) console.log('317 data', data);
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
       for (let prop in objtypeview?.data) {
@@ -363,7 +363,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         link = myDiagram.findLinkForKey(link.key);
         const data = link.data;
         const gqlRelview = new gql.gqlRelshipView(relview);
-        if (!debug) console.log('341 data, gqlRelview', data, gqlRelview);
+        if (debug) console.log('341 data, gqlRelview', data, gqlRelview);
         modifiedRelviews.push(gqlRelview);
         modifiedRelviews.map(mn => {
           let data = mn;
@@ -446,17 +446,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       // case "editProject": {
       //   const project = this.state.selectedData;
-      //   if (!debug) console.log('323 myMetis', myMetis);
+      //   if (debug) console.log('323 myMetis', myMetis);
       //   break;
       // }
       // case "editModel": {
       //   const model = this.state.selectedData;
-      //   if (!debug) console.log('327 obj', model);
+      //   if (debug) console.log('327 obj', model);
       //   break;
       // }
       // case "editModelview": {
       //   const mview = this.state.selectedData;
-      //   if (!debug) console.log('331 modelview', mview);
+      //   if (debug) console.log('331 modelview', mview);
       //   break;
       // }
       // Handle all the dispatches
@@ -531,7 +531,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('352 Diagram', targetModel, myMetis);
         const mdata = new gql.gqlModel(myMetis.currentModel, true);
         if (debug) console.log('357 Diagram', mdata);        
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mdata} })
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
         break;
 
       case "Set Target Metamodel":    
@@ -539,10 +539,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
         myMetis.currentTargetMetamodel = targetMetamodel
         myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (debug) console.log('352 Diagram', targetMetamodel, myMetis);
+        if (!debug) console.log('542 Diagram', targetMetamodel, myMetis);
         const mmdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (debug) console.log('357 Diagram', mmdata);        
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
+        if (!debug) console.log('544 Diagram', mmdata);        
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata })
         break;
 
 
@@ -2475,7 +2475,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myDiagram: myDiagram
               } 
               const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-              if (debug) console.log('2194', mmNameIds, modalContext);
+              if (!debug) console.log('2478', mmNameIds, modalContext, context);
               myDiagram.handleOpenModal(mmNameIds, modalContext);
             },
             function (o: any) { 

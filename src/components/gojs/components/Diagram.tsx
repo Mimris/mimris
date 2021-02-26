@@ -744,12 +744,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "initialAutoScale": go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
             //'undoManager.maxHistoryLength': 100,  // uncomment disable undo/redo functionality
+
+            "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
+            "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below
+
             // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
             // 'draggingTool.horizontalGuidelineColor': 'blue',
             // 'draggingTool.verticalGuidelineColor': 'blue',
             // 'draggingTool.centerGuidelineColor': 'green',
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
+
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
@@ -758,8 +763,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "type": "isRelatedTo",
               "name": "",
               "description": "",
-              "relshipkind": constants.relkinds.REL
+              "relshipkind": constants.relkinds.REL,
             },
+              
+                
             // "clickCreatingTool.archetypeNodeData": {
             //   "key": utils.createGuid(),
             //   "category": "Object",
@@ -792,8 +799,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5 }),
               $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
             ),
+
             model: $(go.GraphLinksModel,
               {
+                // linkLabelKeysProperty: "labelKeys", // Comment this to turn off link to link
                 linkKeyProperty: 'key'
               })
           }
@@ -2406,6 +2415,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
+            makeButton("Edit Modelview",
+            function (e: any, obj: any) {
+              const currentModelview = myMetis.currentModelview; 
+              let currentName = currentModelview.name;
+              const modelviewName = prompt("Enter Modelview name:", currentName);
+              if (modelviewName?.length > 0) {
+                currentModelview.name = modelviewName;
+              }
+              const currentDescr = currentModelview.description; 
+              const modelviewDescr = prompt("Enter Modelview description:", currentDescr);
+              if (modelviewDescr?.length > 0) {
+                currentModelview.description = modelviewDescr;
+              }
+              const gqlModelview = new gql.gqlModelView(currentModelview);
+              const modifiedModelviews = new Array();  
+              modifiedModelviews.push(gqlModelview);
+              modifiedModelviews?.map(mn => {
+                let data = (mn) && mn
+                e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("----------"),
           makeButton("New Metamodel",
           function (e: any, obj: any) {
@@ -2868,8 +2901,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         linkTemplate =
         $(go.Link,
           new go.Binding("deletable"),
-          new go.Binding('relinkableFrom', 'canRelink').ofModel(),
-          new go.Binding('relinkableTo', 'canRelink').ofModel(),
+          { relinkableFrom: true, relinkableTo: false, toShortLength: 2 },
+          // new go.Binding('relinkableFrom', 'canRelink').ofModel(),
+          // new go.Binding('relinkableTo', 'canRelink').ofModel(),
           {
             toolTip:
               $(go.Adornment, "Auto",
@@ -3059,26 +3093,49 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       )      
     }
 
-    // Define group template map
-    let groupTemplateMap = new go.Map<string, go.Group>();
-    groupTemplateMap.add("", groupTemplate);
-
     // define template maps
     if (true) {
       // Define node template map
       let nodeTemplateMap = new go.Map<string, go.Part>();
       nodeTemplateMap.add("", nodeTemplate);
-      //nodeTemplateMap.add("", defaultNodeTemplate);
+      nodeTemplateMap.add("LinkLabel",
+      $("Node",
+        {
+          selectable: false, avoidable: false,
+          layerName: "Foreground"
+        },  // always have link label nodes in front of Links
+        $("Shape", "Ellipse",
+          {
+            width: 5, height: 5, stroke: null,
+            portId: "", fromLinkable: true, toLinkable: false, cursor: "pointer"
+          })
+      ));
 
       // Define link template map
       let linkTemplateMap = new go.Map<string, go.Link>();
       linkTemplateMap.add("", linkTemplate);
+
+      // This template shows links connecting with label nodes as green and arrow-less.
+      myDiagram.linkTemplateMap.add("linkToLink",
+        $("Link",
+          { relinkableFrom: false, relinkableTo: false },
+          $("Shape", { stroke: "#2D9945", strokeWidth: 2 })
+        ));
+
+      // Define group template map
+      let groupTemplateMap = new go.Map<string, go.Group>();
+      groupTemplateMap.add("", groupTemplate);
 
       // Set the diagram template maps
       myDiagram.nodeTemplateMap = nodeTemplateMap;
       myDiagram.linkTemplateMap = linkTemplateMap;
       myDiagram.groupTemplateMap = groupTemplateMap;
     }
+
+    // Whenever a new Link is drawng by the LinkingTool, it also adds a node data object
+    // that acts as the label node for the link, to allow links to be drawn to/from the link.
+    myDiagram.toolManager.linkingTool.archetypeLabelNodeData =
+      { category: "LinkLabel" };
 
     // Palette group template 1
     if (true) {
@@ -3123,6 +3180,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         );
     }
 
+    // this DiagramEvent handler is called during the linking or relinking transactions
+    function maybeChangeLinkCategory(e: any) {
+      var link = e.subject;
+      var linktolink = (link.fromNode.isLinkLabel || link.toNode.isLinkLabel);
+      e.diagram.model.setCategoryForLinkData(link.data, (linktolink ? "linkToLink" : ""));
+    }
+    
     function makeButton(text: string, action: any, visiblePredicate: any) {
       return $("ContextMenuButton",
         $(go.TextBlock, text),

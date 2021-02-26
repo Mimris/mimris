@@ -1015,7 +1015,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
         myModelView.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
     }
-    if (!debug) console.log('989 relshipview', relshipview, myMetis);
+    if (debug) console.log('989 relshipview', relshipview, myMetis);
     if (debug) console.log('990 myModel', myModel);
     myDiagram.requestUpdate();
     return relshipview; 

@@ -152,7 +152,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
-      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+      if (!debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
       return {
         ...state,
         phData: action.data
@@ -543,7 +543,7 @@ function reducer(state = InitialState, action) {
           },
         }
     case UPDATE_MODEL_PROPERTIES:
-      if (debug) console.log('429 UPDATE_MODEL_PROPERTIES', action);
+      if (!debug) console.log('429 UPDATE_MODEL_PROPERTIES', action, state.phData);
       const curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       // let curmindex1 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.id) // current model index
       // if (debug) console.log('431 reducer', curmindex1)

@@ -308,15 +308,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case "editObjectview": {
         let data = this.state.selectedData;
         const objview = data.objectview;
-        const objtypeview = data.typeview;
-        if (debug) console.log('312 objview, reltypeview', data, objview, objtypeview);
+        const objtypeview = objview.typeview;
+        if (!debug) console.log('312 objview, objtypeview', data, objview, objtypeview);
         const node = myDiagram.findNodeForKey(data.key);
         data = node.data;
         const gqlObjview = new gql.gqlObjectView(objview);
-        if (!debug) console.log('243 gqlObjview', gqlObjview);
+        if (debug) console.log('243 gqlObjview', gqlObjview);
         modifiedObjviews.push(gqlObjview);
         modifiedObjviews.map(mn => {
           let data = mn;
+          if (debug) console.log('317 data', data);
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
       for (let prop in objtypeview?.data) {
@@ -335,11 +336,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "selectDropdown": {
         const objview = this.state.selectedData;
-        if (!debug) console.log('241 data, objview', objview, this.state.selectedData, this.state.modalContext);
+        if (debug) console.log('241 data, objview', objview, this.state.selectedData, this.state.modalContext);
         if (this.state.modalContext.title === 'Select Icon') {
           
           const node = myDiagram.findNodeForKey(objview.key);
-          if (!debug) console.log('238 node', node);
+          if (debug) console.log('238 node', node);
           const data = node.data;
           const gqlObjview = new gql.gqlObjectView(objview);
           if (debug) console.log('243 gqlObjview', gqlObjview);
@@ -446,17 +447,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       // case "editProject": {
       //   const project = this.state.selectedData;
-      //   if (!debug) console.log('323 myMetis', myMetis);
+      //   if (debug) console.log('323 myMetis', myMetis);
       //   break;
       // }
       // case "editModel": {
       //   const model = this.state.selectedData;
-      //   if (!debug) console.log('327 obj', model);
+      //   if (debug) console.log('327 obj', model);
       //   break;
       // }
       // case "editModelview": {
       //   const mview = this.state.selectedData;
-      //   if (!debug) console.log('331 modelview', mview);
+      //   if (debug) console.log('331 modelview', mview);
       //   break;
       // }
       // Handle all the dispatches
@@ -531,12 +532,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('352 Diagram', targetModel, myMetis);
         const mdata = new gql.gqlModel(myMetis.currentModel, true);
         if (debug) console.log('357 Diagram', mdata);        
-        const modifiedmodels = new Array();
-        modifiedmodels.push(mdata);
-        modifiedmodels?.map(mn => {
-          let data = (mn) && mn
-          myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-        })
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
         break;
 
       case "Set Target Metamodel":    
@@ -544,15 +540,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
         myMetis.currentTargetMetamodel = targetMetamodel
         myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (!debug) console.log('352 Diagram', targetMetamodel, myMetis);
+        if (!debug) console.log('542 Diagram', targetMetamodel, myMetis);
         const mmdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (!debug) console.log('357 Diagram', mmdata);        
-        const modifiedmmodels = new Array();
-        modifiedmmodels.push(mmdata);
-        modifiedmmodels?.map(mn => {
-          let data = (mn) && mn
-          myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-        })
+        if (!debug) console.log('544 Diagram', mmdata);        
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata })
         break;
       case "Change Relationship type":    
         const typename = (selectedOption) && selectedOption;
@@ -690,7 +681,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myInst = myMetis.findObject(inst.id);
       instview = node.objectview;
       myInstview = myMetis.findObjectView(instview.id);
-      if (!debug) console.log('573 myInst', myInst, myInstview);
+      if (debug) console.log('573 myInst', myInst, myInstview);
       if (context?.what === "editObjectview") {
           myItem = myInstview;
       } else if (context?.what === "editTypeview") {
@@ -2517,7 +2508,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myDiagram: myDiagram
               } 
               const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-              if (debug) console.log('2194', mmNameIds, modalContext);
+              if (!debug) console.log('2478', mmNameIds, modalContext, context);
               myDiagram.handleOpenModal(mmNameIds, modalContext);
             },
             function (o: any) { 
@@ -3307,7 +3298,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
           comps = null
         }
-        if (!debug) console.log('2296 options', options);
+        if (debug) console.log('2296 options', options);
         const { selectedOption } = this.state;
 
         const value = (selectedOption)  ? selectedOption.value : options[0]
@@ -3336,7 +3327,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         category = this.state.selectedData.category;
         typename = (modalContext.typename) ? '('+modalContext.typename+')' : '('+this.state.selectedData.object?.typeName+')'
         // typename = '('+this.state.selectedData.object?.typeName+')'
-        if (!debug) console.log('2568 Diagram ', icon, typename, modalContext, this.state.selectedData);
+        if (debug) console.log('2568 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);

@@ -27,13 +27,13 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     let value = e.target.value
   
     if (debug) console.log('21 InspectorRow: this.props', this.props);
-    if (!debug) console.log('22 InspectorRow: e.target', e.target, e.target.files, e.target.value);
+    if (debug) console.log('22 InspectorRow: e.target', e.target, e.target.files, e.target.value);
     
     // if (this.props.type === 'file') {
     //   const fil = e.target.files[0]; 
-    //   if (!debug) console.log('31', value, fil);
+    //   if (debug) console.log('31', value, fil);
     //   value = (fil?.name) && fil?.name.replace(/C:\\fakepath\\/,'')
-    //   if (!debug) console.log('36', value);
+    //   if (debug) console.log('36', value);
     // } 
 
 
@@ -53,7 +53,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
   
   public render() {
-    if (!debug) console.log('45 InspectorRow: this.props', this.props);
+    if (debug) console.log('45 InspectorRow: this.props', this.props);
     let val = this.props.value;
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );

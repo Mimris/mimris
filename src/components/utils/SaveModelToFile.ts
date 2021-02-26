@@ -1,5 +1,6 @@
 // @ts-nocheck
 
+const debug = false
 
 export const SaveModelToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
@@ -19,7 +20,7 @@ export const SaveModelToFile = (model, name, type) => {
 export const SaveAllToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
     const fileName = type+"_"+name+'_'+today;
-    console.log('25 LoadLocal', model, fileName);
+    if (debug) console.log('22 LoadLocal', model, fileName);
   
     const json = JSON.stringify(model);
     const blob = new Blob([json],{type:'application/json'});
@@ -41,12 +42,12 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
         const modelff = JSON.parse(text)
 
         //   alert(text)
-        console.log('25 LoadLocal', props, modelff);
+        if (debug) console.log('44 SaveModelToFile', props, modelff);
     
         let  mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         const mlength = props.phData?.metis?.models.length
         if (mindex < 0) { mindex = mlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-        console.log('30 LoadLocal', modelff, mindex, mlength);
+        if (debug) console.log('49 SaveModelToFile', modelff, mindex, mlength);
         let data
         if (modelff.phData) {
             data = {
@@ -71,8 +72,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 }, 
             };
         }
-        console.log('46 LoadLocal', data);      
+        if (!debug) console.log('77 SaveModelToFile', data);      
         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
     };
     reader.readAsText(e.target.files[0])
   }
@@ -85,11 +89,11 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
         const text = (e.target.result)
         const metamodelff = JSON.parse(text)
         //   alert(text)
-        console.log('25 LoadLocal', props);
+        if (debug) console.log('25 LoadLocal', props);
         let  mmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
         const mmlength = props.phData?.metis?.metamodels.length
         if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-        console.log('30 LoadLocal', metamodelff, mmindex, mmlength);
+        if (debug) console.log('30 LoadLocal', metamodelff, mmindex, mmlength);
         
         const data = {
             phData: {
@@ -105,7 +109,7 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
                 },
             }, 
         };
-        console.log('46 LoadLocal', data);
+        if (debug) console.log('46 LoadLocal', data);
         
         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
     };

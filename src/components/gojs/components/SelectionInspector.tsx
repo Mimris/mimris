@@ -136,18 +136,18 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let useItem = false;
     let useFileImg = false;
     switch (modalContext?.what) {
-      case 'editProject':
-        item = modalContext.gojsModel?.nodes[0];
-        useItem = true;
-        break;
-      case 'editModel':
-        item = myMetis.currentModel;
-        useItem = true;
-        break;
-      case 'editModelview':
-        item = myMetis.currentModelview;
-        useItem = true;
-        break;
+      // case 'editProject':
+      //   item = modalContext.gojsModel?.nodes[0];
+      //   useItem = true;
+      //   break;
+      // case 'editModel':
+      //   item = myMetis.currentModel;
+      //   useItem = true;
+      //   break;
+      // case 'editModelview':
+      //   item = myMetis.currentModelview;
+      //   useItem = true;
+      //   break;
       case "editObject":
         item = inst;
         break;

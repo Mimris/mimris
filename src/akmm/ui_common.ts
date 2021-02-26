@@ -895,13 +895,13 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    /* if (debug) */console.log('824 createRelationship', data);
+    /* if (debug) */console.log('898 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; // added sf
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
-    if (debug) console.log('859 createRelationship', myGoModel, fromNode, toNode);
+    if (debug) console.log('904 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode.object;
     const toObj = toNode.object;
     let typename = 'isRelatedTo' as string | null;
@@ -939,18 +939,18 @@ export function createRelationship(data: any, context: any) {
         myDiagram.model.removeLinkData(data);
         return;
     }
-    if (debug) console.log('896 createRelationship', reltype);
+    if (!debug) console.log('942 createRelationship', reltype);
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
+    if (!debug) console.log('947 relshipview', relshipview);
     if (relshipview) {
-        if (debug) console.log('950 relshipview', relshipview);
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
         relship.addRelationshipView(relshipview);
     }
-    if (debug) console.log('908 myGoModel', myGoModel);
+    if (!debug) console.log('953 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -1258,6 +1258,7 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
 
 export function createLink(data: any, context: any): any {
     // Creates both relship and relship view
+    if (debug) console.log('1261 createLink', data, context);
     if (!data.key)
         data.key = utils.createGuid();
     const myMetis = context.myMetis;
@@ -1278,6 +1279,7 @@ export function createLink(data: any, context: any): any {
             toNode = myGoModel.findNode(data.to);
         const fromType = fromNode?.objecttype;
         const toType   = toNode?.objecttype;
+        if (debug) console.log('1281 createLink', fromType, toType);
         reltype = myMetis.findRelationshipTypeByName2(data.name, fromType, toType);
         if (reltype && reltype.isInstantiable()) {
             // Create the relationship

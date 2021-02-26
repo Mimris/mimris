@@ -306,12 +306,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editObjectview": {
-        let node = this.state.selectedData;
-        const objtypeview = node.typeview;
-        const objview = node.objectview;
-        node = myDiagram.findNodeForKey(node.key);
-        const data = node.data;
-        if (!debug) console.log('241 data, objview', node, objview);
+        let data = this.state.selectedData;
+        const objview = data.objectview;
+        const objtypeview = data.typeview;
+        if (debug) console.log('312 objview, reltypeview', data, objview, objtypeview);
+        const node = myDiagram.findNodeForKey(data.key);
+        data = node.data;
         const gqlObjview = new gql.gqlObjectView(objview);
         if (!debug) console.log('243 gqlObjview', gqlObjview);
         modifiedObjviews.push(gqlObjview);
@@ -356,13 +356,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editRelshipview": {
-        let link = this.state.selectedData;
-        const relview = link.relshipview;
+        let data = this.state.selectedData;
+        const relview = data.relshipview;
         const reltypeview = relview.typeview;
-        link = myDiagram.findLinkForKey(link.key);
-        const data = link.data;
+        if (debug) console.log('362 relview, reltypeview', data, relview, reltypeview);
+        const link = myDiagram.findLinkForKey(data.key);
+        data = link.data;
         const gqlRelview = new gql.gqlRelshipView(relview);
-        if (!debug) console.log('341 data, gqlRelview', data, gqlRelview);
+        if (debug) console.log('365 data, gqlRelview', link, data, gqlRelview);
         modifiedRelviews.push(gqlRelview);
         modifiedRelviews.map(mn => {
           let data = mn;
@@ -372,7 +373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (prop === 'strokecolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokewidth' && relview[prop] !== "")
-            myDiagram.model.setDataProperty(link, prop, relview[prop]);
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'dash' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'fromArrow' && relview[prop] !== "") 
@@ -530,7 +531,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('352 Diagram', targetModel, myMetis);
         const mdata = new gql.gqlModel(myMetis.currentModel, true);
         if (debug) console.log('357 Diagram', mdata);        
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mdata} })
+        const modifiedmodels = new Array();
+        modifiedmodels.push(mdata);
+        modifiedmodels?.map(mn => {
+          let data = (mn) && mn
+          myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+        })
         break;
 
       case "Set Target Metamodel":    
@@ -538,13 +544,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
         myMetis.currentTargetMetamodel = targetMetamodel
         myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (debug) console.log('352 Diagram', targetMetamodel, myMetis);
+        if (!debug) console.log('352 Diagram', targetMetamodel, myMetis);
         const mmdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (debug) console.log('357 Diagram', mmdata);        
-        myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
+        if (!debug) console.log('357 Diagram', mmdata);        
+        const modifiedmmodels = new Array();
+        modifiedmmodels.push(mmdata);
+        modifiedmmodels?.map(mn => {
+          let data = (mn) && mn
+          myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+        })
         break;
-
-
       case "Change Relationship type":    
         const typename = (selectedOption) && selectedOption;
         const link = myMetis.currentLink;
@@ -802,7 +811,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
             model: $(go.GraphLinksModel,
               {
-                // linkLabelKeysProperty: "labelKeys", // Comment this to turn off link to link
+                // Uncomment the next line to turn ON link to link
+                // linkLabelKeysProperty: "labelKeys", 
                 linkKeyProperty: 'key'
               })
           }
@@ -2162,8 +2172,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               
               let model;
               
-              // const metamodel = gen.askForMetamodel(context, false, true);
-              const metamodel = myMetis.currentMetamodel;
+              const metamodel = gen.askForMetamodel(context, false, true);
+              // const metamodel = myMetis.currentMetamodel;
 
               if (!metamodel) return;
               const modelName = prompt("Enter Model name:", "");

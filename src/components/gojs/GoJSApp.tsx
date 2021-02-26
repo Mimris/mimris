@@ -665,17 +665,17 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': {
         const link = e.subject;
-        if (debug) console.log('924 link', link.fromNode, link.toNode);
+        if (debug) console.log('668 link', link.fromNode, link.toNode);
         const data = link.data;
-        if (debug) console.log('926 link, data', link, data);
-        // const fromNode = link.fromNode;
-        // const toNode = link.toNode;
+        const category = data.category;
+        if (debug) console.log('670 link, data', link, data);
         const fromNode = myDiagram.findNodeForKey(data.from);
         const toNode = myDiagram.findNodeForKey(data.to);
 
-        if (debug) console.log('929 LinkDrawn', fromNode, toNode, data);
+        if (debug) console.log('676 LinkDrawn', fromNode, toNode, data);
         // Handle relationship types
         if (fromNode?.data?.category === 'Object type') {
+          data.category = 'Relationship type';
           if (debug) console.log('932 link', fromNode, toNode);
           link.category = 'Relationship type';
           link.class = 'goRelshipTypeLink';
@@ -694,9 +694,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         // Handle relationships
-        if (fromNode?.category === 'Object') {
-           if (debug) console.log('670 LinkDrawn', fromNode.data.category);
+        if (fromNode?.data?.category === 'Object') {
+          data.category = 'Relationship';
           const relview = uic.createRelationship(data, context);
+          if (debug) console.log('700 relview', relview);
           if (relview) {
             let rel = relview.relship;
             rel = myMetis.findRelationship(rel.id);

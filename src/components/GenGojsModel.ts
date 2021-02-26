@@ -231,20 +231,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     if (debug) console.log('221 GenGojsModel', metis, model, modelview);
-
-    const adminModel = metis.adminModel;
-    if (adminModel) {
-      const obj = adminModel.objects[0];
-      if (obj) {
-        obj['ProjectName'] = metis?.name;
-        obj['ProjectDescription'] = metis?.description;
-        obj['ModelName'] = model?.name;
-        obj['ModelDescription'] = model?.description;
-        obj['ModelviewName'] = modelview?.name;
-        obj['ModelviewDescription'] = modelview?.description;
-      }
-    }
-    
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {

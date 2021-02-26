@@ -311,11 +311,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const objview = node.objectview;
         node = myDiagram.findNodeForKey(node.key);
         const data = node.data;
-<<<<<<< HEAD
-        if (!debug) console.log('241 data, objview', node, data, objview);
-=======
         if (!debug) console.log('241 data, objview', node, objview);
->>>>>>> 092f4068d221f338d7fd970b312ff5dc025f7ff9
         const gqlObjview = new gql.gqlObjectView(objview);
         if (!debug) console.log('243 gqlObjview', gqlObjview);
         modifiedObjviews.push(gqlObjview);
@@ -448,23 +444,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         break;
       }
-<<<<<<< HEAD
-      case "editProject": {
-        const project = this.state.selectedData;
-        if (debug) console.log('323 myMetis', myMetis);
-        break;
-      }
-      case "editModel": {
-        const model = this.state.selectedData;
-        if (debug) console.log('327 obj', model);
-        break;
-      }
-      case "editModelview": {
-        const mview = this.state.selectedData;
-        if (debug) console.log('331 modelview', mview);
-        break;
-      }
-=======
       // case "editProject": {
       //   const project = this.state.selectedData;
       //   if (!debug) console.log('323 myMetis', myMetis);
@@ -480,7 +459,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       //   if (!debug) console.log('331 modelview', mview);
       //   break;
       // }
->>>>>>> 092f4068d221f338d7fd970b312ff5dc025f7ff9
       // Handle all the dispatches
       modifiedObjTypeviews.map(mn => {
         let data = mn;
@@ -2379,27 +2357,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("----------"),
           makeButton("Edit Project",
-<<<<<<< HEAD
-          // function (e: any, obj: any) {
-            //   const context = {
-              //     "myMetis":            myMetis,
-              //     "myMetamodel":        myMetis.currentMetamodel, 
-              //     "myModel":            myMetis.currentModel,
-              //     "myModelview":        myMetis.currentModelview,
-              //     "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-              //     "myDiagram":          e.diagram
-              //   }
-              //   const modalContext = {
-                //     what: "editProject",
-                //     title: "Edit Project",
-                //     case: "Edit Project",
-                //     typename: "Project",
-                //     myDiagram: myDiagram,
-                //   } 
-                //   myDiagram.handleOpenModal(context.myMetis, modalContext);
-                // },
-=======
->>>>>>> 092f4068d221f338d7fd970b312ff5dc025f7ff9
             function (e: any, obj: any) {
               const currentName = myMetis.name; 
               const projectName = prompt("Enter Project name:", currentName);
@@ -2426,53 +2383,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
-<<<<<<< HEAD
-          makeButton("Edit Model",
-          function (e: any, obj: any) {
-            if (debug) console.log('2235 myGoModel', myGoModel);
-            const context = {
-              "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel, 
-              "myModel":            myMetis.currentModel,
-              "myModelview":        myMetis.currentModelview,
-              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-              "myDiagram":          e.diagram
-            }
-            const modalContext = {
-              what: "editModel",
-              title: "Edit Model",
-              case: "Edit Model",
-              typename: "Model",
-              myDiagram: myDiagram,
-            } 
-            myDiagram.handleOpenModal(context.myModel, modalContext);
-          },
-          function (o: any) { 
-            return true; 
-          }),
-          makeButton("Edit Modelview",
-          function (e: any, obj: any) {
-            const context = {
-              "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel, 
-              "myModel":            myMetis.currentModel,
-              "myModelview":        myMetis.currentModelview,
-              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-              "myDiagram":          e.diagram
-            }
-            const modalContext = {
-              what: "editModelview",
-              title: "Edit Modelview",
-              case: "Edit Modelview",
-              typename: "Modelview",
-              myDiagram: myDiagram,
-            } 
-            myDiagram.handleOpenModal(context.myModelview, modalContext);
-          },
-          function (o: any) { 
-            return true; 
-          }),
-=======
             makeButton("Edit Model",
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel; 
@@ -2497,7 +2407,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
->>>>>>> 092f4068d221f338d7fd970b312ff5dc025f7ff9
           makeButton("----------"),
           makeButton("New Metamodel",
           function (e: any, obj: any) {

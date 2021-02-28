@@ -939,18 +939,18 @@ export function createRelationship(data: any, context: any) {
         myDiagram.model.removeLinkData(data);
         return;
     }
-    if (!debug) console.log('942 createRelationship', reltype);
+    if (debug) console.log('942 createRelationship', reltype);
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
-    if (!debug) console.log('947 relshipview', relshipview);
+    if (debug) console.log('947 relshipview', relshipview);
     if (relshipview) {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
         relship.addRelationshipView(relshipview);
     }
-    if (!debug) console.log('953 myGoModel', myGoModel);
+    if (debug) console.log('953 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -1357,7 +1357,7 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     let toObj1 = rel.toObject;
                     toObj1 = myMetis.findObject(toObj1.id);
                     toObj1.removeInputrel(rel);
-                    if (!debug) console.log('1360 fromobj1, toObj1', fromObj1, toObj1);  
+                    if (debug) console.log('1360 fromobj1, toObj1', fromObj1, toObj1);  
                     // After relink           
                     link.setFromNode(lnk.from);
                     const fromObjView = fromNode.objectview;

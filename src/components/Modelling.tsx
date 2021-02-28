@@ -76,7 +76,7 @@ const page = (props:any) => {
     }, [curmod])
 
     useEffect(() => {
-      if (!debug) console.log('76 Modelling useEffect 2', props); 
+      if (debug) console.log('76 Modelling useEffect 2', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)

@@ -152,7 +152,7 @@ function reducer(state = InitialState, action) {
         phSource: 'Model server'
       }
     case LOAD_TOSTORE_PHDATA:
-      if (!debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
+      if (debug) console.log('169 LOAD_TOSTORE_PHDATA', action);   
       return {
         ...state,
         phData: action.data
@@ -1093,7 +1093,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_TARGETOBJECTTYPE_PROPERTIES:
-      if (debug) console.log('1065 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
+      if (!debug) console.log('1065 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
       const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmtot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.targetMetamodelRef)
       if (debug) console.log('1068 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmodtot.targetMetamodelRef, curmmtot);

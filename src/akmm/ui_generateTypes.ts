@@ -260,7 +260,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             // To ensure that objtype is a class instance
             objtype = myMetis.findObjectType(objtype.id);
         }
-        if (!debug) console.log('213 myMetis', objtype, myMetis);
+        if (debug) console.log('213 myMetis', objtype, myMetis);
         let parentType: akm.cxObjectType | null = null;
         let parentRelType: akm.cxRelationshipType | null = null;
         if (objtype) {
@@ -290,7 +290,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             
             // Find properties connected to current object
             const rels = obj?.findOutputRelships(myModel, "");
-            if (!debug) console.log('225 rels to properties', obj, rels);
+            if (debug) console.log('225 rels to properties', obj, rels);
             if (!rels) {
                 return null;
             } else {
@@ -332,7 +332,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 }
             }
         }
-        if (!debug) console.log('315 generateObjectType', proptypes);
+        if (debug) console.log('315 generateObjectType', proptypes);
 
 
         for (let i=0; i < proptypes.length; i++) {

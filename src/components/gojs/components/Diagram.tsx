@@ -268,7 +268,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           modifiedObjviews.map(mn => {
             let data = mn;
             if (debug) console.log('265 gqlObjview', data);
-            this.props.dispatch({ type: 'UPDATE_OBJECTView_PROPERTIES', data })
+            this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
           })
         }
         break;
@@ -306,14 +306,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editObjectview": {
-        let data = this.state.selectedData;
-        const objview = data.objectview;
+        let selObjview = this.state.selectedData;
+        const objview = selObjview.objectview;
         const objtypeview = objview.typeview;
-        if (!debug) console.log('312 objview, objtypeview', data, objview, objtypeview);
-        const node = myDiagram.findNodeForKey(data.key);
+        let data;
+        if (!debug) console.log('312 objview, objtypeview', selObjview, objview, objtypeview);
+        const node = myDiagram.findNodeForKey(selObjview.key);
         data = node.data;
         const gqlObjview = new gql.gqlObjectView(objview);
-        if (debug) console.log('243 gqlObjview', gqlObjview);
+        if (!debug) console.log('243 gqlObjview', data, gqlObjview);
         modifiedObjviews.push(gqlObjview);
         modifiedObjviews.map(mn => {
           let data = mn;
@@ -343,7 +344,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (debug) console.log('238 node', node);
           const data = node.data;
           const gqlObjview = new gql.gqlObjectView(objview);
-          if (debug) console.log('243 gqlObjview', gqlObjview);
+          if (!debug) console.log('243 gqlObjview', data, gqlObjview);
           modifiedObjviews.push(gqlObjview);
           modifiedObjviews.map(mn => {
             let data = mn;
@@ -1546,8 +1547,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
                       alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
                       context.myTargetMetamodel = null;
-                } else if (context.myTargetMetamodel == undefined)  // sf
+                } else if (context.myTargetMetamodel == undefined) { // sf
                     context.myTargetMetamodel = null;
+                }    
                 myMetis.currentTargetMetamodel = context.myTargetMetamodel;
                 if (debug) console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
                 if (context.myTargetMetamodel) {  
@@ -2486,7 +2488,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const targetMetamodel = myMetis.currentTargetMetamodel;
             const sourceModelview = myMetis.currentModelview;
             gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-            if (!debug) console.log('2489 Target metamodel', targetMetamodel);
+            if (debug) console.log('2489 Target metamodel', targetMetamodel);
           },
           function (o: any) { 
             return true; 

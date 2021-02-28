@@ -21,11 +21,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    if (!debug) console.log('24 GenGojsModel phData, metis:', props.phData, metis);
+    if (debug) console.log('24 GenGojsModel phData, metis:', props.phData, metis);
     const myMetis = new akm.cxMetis();
     if (debug) console.log('26 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
-    if (!debug) console.log('28 GenGojsModel myMetis', myMetis);
+    if (debug) console.log('28 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview

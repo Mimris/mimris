@@ -540,9 +540,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
         myMetis.currentTargetMetamodel = targetMetamodel
         myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (!debug) console.log('542 Diagram', targetMetamodel, myMetis);
+        if (debug) console.log('542 Diagram', targetMetamodel, myMetis);
         const mmdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (!debug) console.log('544 Diagram', mmdata);        
+        if (debug) console.log('544 Diagram', mmdata);        
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata })
         break;
       case "Change Relationship type":    
@@ -802,7 +802,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
             model: $(go.GraphLinksModel,
               {
-                // Uncomment the next line to turn ON link to link
+                // Uncomment the next line to turn ON linkToLink
                 // linkLabelKeysProperty: "labelKeys", 
                 linkKeyProperty: 'key'
               })
@@ -2486,7 +2486,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const targetMetamodel = myMetis.currentTargetMetamodel;
             const sourceModelview = myMetis.currentModelview;
             gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-            console.log('1327 Target metamodel', targetMetamodel);
+            if (!debug) console.log('2489 Target metamodel', targetMetamodel);
           },
           function (o: any) { 
             return true; 
@@ -2508,7 +2508,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myDiagram: myDiagram
               } 
               const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-              if (!debug) console.log('2478', mmNameIds, modalContext, context);
+              if (debug) console.log('2511', mmNameIds, modalContext, context);
               myDiagram.handleOpenModal(mmNameIds, modalContext);
             },
             function (o: any) { 
@@ -2902,7 +2902,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         linkTemplate =
         $(go.Link,
           new go.Binding("deletable"),
-          { relinkableFrom: true, relinkableTo: false, toShortLength: 2 },
+          { relinkableFrom: true, relinkableTo: true, toShortLength: 2 },
           // new go.Binding('relinkableFrom', 'canRelink').ofModel(),
           // new go.Binding('relinkableTo', 'canRelink').ofModel(),
           {

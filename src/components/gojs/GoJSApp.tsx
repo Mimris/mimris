@@ -665,10 +665,23 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': {
         const link = e.subject;
-        if (debug) console.log('668 link', link.fromNode, link.toNode);
+        if (!debug) console.log('668 link', link, link.fromNode, link.toNode);
+
+        // Prepare for linkToLink
+        // let labels = link.labelNodes;
+        // for (let it = labels.iterator; it.next();) {     
+        //   console.log('672 it.value', it.value);
+        //   const linkLabel = it.value;
+        //   Connect linkLabel to relview
+        // }
+
         const data = link.data;
-        const category = data.category;
-        if (debug) console.log('670 link, data', link, data);
+        if (data.category === 'linkToLink') {
+          // This is a link from a relationship between fromNode and toNode to an object
+          // The link from rel to object is link.data
+          // Todo: Handle this situation
+        }
+        if (debug) console.log('670 data', data);
         const fromNode = myDiagram.findNodeForKey(data.from);
         const toNode = myDiagram.findNodeForKey(data.to);
 
@@ -720,8 +733,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        if (debug) console.log('713 LinkRelinked', link, fromNode, toNode);
+        if (!debug) console.log('727 link, fromNode, toNode', link, fromNode, toNode);
         const newLink = e.subject.data;
+        newLink.category = 'Relationship';
+        if (debug) console.log('729 newLink', newLink);
         context.modifiedLinks         = modifiedLinks;
         context.modifiedRelships      = modifiedRelships;
         context.modifiedTypeLinks     = modifiedTypeLinks;

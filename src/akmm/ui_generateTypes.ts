@@ -260,7 +260,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             // To ensure that objtype is a class instance
             objtype = myMetis.findObjectType(objtype.id);
         }
-        if (debug) console.log('213 myMetis', objtype, myMetis);
+        if (!debug) console.log('213 myMetis', objtype, myMetis);
         let parentType: akm.cxObjectType | null = null;
         let parentRelType: akm.cxRelationshipType | null = null;
         if (objtype) {
@@ -272,9 +272,9 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                     parentType = myMetis.findObjectTypeByName(typename);
                 }
             }
-        if (!parentType)
-            parentType = obj.type;
-        // Connect objtype to parentType
+            if (!parentType)
+                parentType = obj.type;
+            // Connect objtype to parentType
             // First check if it already exists
             parentRelType = myMetis.findRelationshipTypeByName2('Is', objtype, parentType);
             if (!parentRelType) {
@@ -289,8 +289,8 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             if (debug) console.log('222 generateObjectType', myMetis);
             
             // Find properties connected to current object
-            const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
-            if (debug) console.log('225 rels to properties', rels);
+            const rels = obj?.findOutputRelships(myModel, "");
+            if (!debug) console.log('225 rels to properties', obj, rels);
             if (!rels) {
                 return null;
             } else {
@@ -312,8 +312,29 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 }
             }
         }         
-        if (debug) console.log('256 generateObjectType', proptypes);
+        
         // Handle properties
+        // Find properties connected to current object
+        const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
+        if (!rels) {
+            return null;
+        } else {
+            for (let i=0; i < rels.length; i++) {
+                let rel = rels[i];
+                if (rel.name === constants.types.AKM_HAS_PROPERTY) {
+                    const proptype = rel.getToObject();
+                    // Check if property type already exists
+                    for (let j=0; j<proptypes.length; j++) {
+                        if (proptype.name === proptypes[j].name)
+                            continue;
+                    }
+                    proptypes.push(proptype);
+                }
+            }
+        }
+        if (!debug) console.log('315 generateObjectType', proptypes);
+
+
         for (let i=0; i < proptypes.length; i++) {
             // Check if property already exists
             let proptype = proptypes[i];

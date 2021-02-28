@@ -87,7 +87,7 @@ export class cxMetis {
         const models: any[] = importedData?.models;
         if (models && models.length) {
             models.forEach(model => {
-                if (model && !model.deleted)
+                if (model && !model.deleted) 
                     this.importModel(model);
             })
         }
@@ -560,6 +560,7 @@ export class cxMetis {
                     });
                 }
                 const relships: any[] = item.relships;
+                if (debug) console.log('563 relships', relships);
                 if (relships && (relships.length > 0)) {
                     relships.forEach(rel => {
                         if (model) this.importRelship(rel, model);
@@ -606,6 +607,7 @@ export class cxMetis {
                     toObj.addInputrel(rel);
                     rel.deleted = item.deleted;
                     model.addRelationship(rel);
+                    if (debug) console.log('610 fromObj, toObj, rel', fromObj, toObj, rel);
                 }
             } else {
                 rel.typeName = item.typeName;
@@ -4696,7 +4698,7 @@ export class cxInstance extends cxMetaObject {
                 const reltype = rel.type;
                 if (reltype) {
                     const relkind = reltype.relshipkind;
-                    if (rkind !== relkind)
+                    if ((relkind.length > 0) && (relkind !== rkind))
                         continue;
                 }
                 let toObj = rel.toObject;
@@ -4720,7 +4722,7 @@ export class cxInstance extends cxMetaObject {
                 const reltype = rel.type;
                 if (reltype) {
                     const relkind = reltype.relshipkind;
-                    if (rkind !== relkind)
+                    if ((relkind.length > 0) && (relkind !== rkind))
                         continue;
                 }
                 let fromObj = rel.fromObject;

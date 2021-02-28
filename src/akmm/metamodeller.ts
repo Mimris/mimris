@@ -49,9 +49,6 @@ export class cxMetis {
     objectviews:        cxObjectView[] | null = null;
     relshipviews:       cxRelationshipView[] | null = null;
     gojsModel:          gjs.goModel | null = null;
-    adminMetamodel:     cxMetaModel | null = null;
-    adminModel:         cxModel | null = null;
-    adminModelview:     cxModelView | null = null;
     currentMetamodel:   cxMetaModel | null = null;
     currentModel:       cxModel | null = null;
     currentModelview:   cxModelView | null = null;
@@ -70,44 +67,6 @@ export class cxMetis {
         this.name = "";
         this.description = "";
         this.category = 'Metis';
-        if (!this.adminMetamodel) {
-            this.adminMetamodel = this.createAdminMetamodel();
-        }
-        if (!this.adminModel) {
-            this.adminModel = new cxModel(utils.createGuid(), "Admin Model", this.adminMetamodel);
-            const objtype = this.adminMetamodel.findObjectTypeByName("Admin objecttype");
-            this.adminObject = new cxObject(utils.createGuid(), "Admin Object", objtype, "");
-            this.adminModel.addObject(this.adminObject);
-        }
-        this.adminModelview = null;
-    }
-    createAdminMetamodel(): cxMetamodel {
-        const metamodel = new cxMetaModel(utils.createGuid(), "Admin Metamodel", "");
-        this.adminMetamodel = metamodel;
-        // Create the objecttype
-        const stringtype = new cxDatatype(utils.createGuid(), "string", "");     
-        const objtype = new cxObjectType(utils.createGuid(), "Admin objecttype", "");
-        let prop = null;
-        prop = new cxProperty(utils.createGuid(), 'ProjectName', "");
-        prop.setDatatype(stringtype);
-        objtype.addProperty(prop);
-        prop = new cxProperty(utils.createGuid(), 'ProjectDescription', "");
-        prop.setDatatype(stringtype);
-        objtype.addProperty(prop);
-        prop = new cxProperty(utils.createGuid(), 'ModelName', "");
-        prop.setDatatype(stringtype);
-        objtype.addProperty(prop);
-        prop = new cxProperty(utils.createGuid(), 'ModelDescription', "");
-        prop.setDatatype(stringtype);
-        objtype.addProperty(prop);
-        prop = new cxProperty(utils.createGuid(), 'ModelviewName', "");
-        prop.setDatatype(stringtype);
-        objtype.addProperty(prop);
-        prop = new cxProperty(utils.createGuid(), 'ModelviewDescription', "");
-        prop.setDatatype(stringtype);
-        objtype.addProperty(prop);
-        metamodel.addObjectType(objtype);
-        return metamodel
     }
     importData(importedData: any, includeDeleted: boolean) {
         this.name        = importedData.name;
@@ -128,7 +87,7 @@ export class cxMetis {
         const models: any[] = importedData?.models;
         if (models && models.length) {
             models.forEach(model => {
-                if (model && !model.deleted)
+                if (model && !model.deleted) 
                     this.importModel(model);
             })
         }
@@ -601,6 +560,7 @@ export class cxMetis {
                     });
                 }
                 const relships: any[] = item.relships;
+                if (debug) console.log('563 relships', relships);
                 if (relships && (relships.length > 0)) {
                     relships.forEach(rel => {
                         if (model) this.importRelship(rel, model);
@@ -647,6 +607,7 @@ export class cxMetis {
                     toObj.addInputrel(rel);
                     rel.deleted = item.deleted;
                     model.addRelationship(rel);
+                    if (debug) console.log('610 fromObj, toObj, rel', fromObj, toObj, rel);
                 }
             } else {
                 rel.typeName = item.typeName;
@@ -4737,7 +4698,7 @@ export class cxInstance extends cxMetaObject {
                 const reltype = rel.type;
                 if (reltype) {
                     const relkind = reltype.relshipkind;
-                    if (rkind !== relkind)
+                    if ((relkind.length > 0) && (relkind !== rkind))
                         continue;
                 }
                 let toObj = rel.toObject;
@@ -4761,7 +4722,7 @@ export class cxInstance extends cxMetaObject {
                 const reltype = rel.type;
                 if (reltype) {
                     const relkind = reltype.relshipkind;
-                    if (rkind !== relkind)
+                    if ((relkind.length > 0) && (relkind !== rkind))
                         continue;
                 }
                 let fromObj = rel.fromObject;

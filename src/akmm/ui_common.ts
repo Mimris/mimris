@@ -895,13 +895,13 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    /* if (debug) */console.log('824 createRelationship', data);
+    /* if (debug) */console.log('898 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; // added sf
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
-    if (debug) console.log('859 createRelationship', myGoModel, fromNode, toNode);
+    if (debug) console.log('904 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode.object;
     const toObj = toNode.object;
     let typename = 'isRelatedTo' as string | null;
@@ -939,18 +939,18 @@ export function createRelationship(data: any, context: any) {
         myDiagram.model.removeLinkData(data);
         return;
     }
-    if (debug) console.log('896 createRelationship', reltype);
+    if (!debug) console.log('942 createRelationship', reltype);
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
     myDiagram.model.setDataProperty(data, "name", typename);
     const relshipview = createLink(data, context);
+    if (!debug) console.log('947 relshipview', relshipview);
     if (relshipview) {
-        if (debug) console.log('950 relshipview', relshipview);
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
         relship.addRelationshipView(relshipview);
     }
-    if (debug) console.log('908 myGoModel', myGoModel);
+    if (!debug) console.log('953 myGoModel', myGoModel);
     myDiagram.requestUpdate();
     return relshipview;
 }
@@ -1258,6 +1258,7 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
 
 export function createLink(data: any, context: any): any {
     // Creates both relship and relship view
+    if (debug) console.log('1261 createLink', data, context);
     if (!data.key)
         data.key = utils.createGuid();
     const myMetis = context.myMetis;
@@ -1278,6 +1279,7 @@ export function createLink(data: any, context: any): any {
             toNode = myGoModel.findNode(data.to);
         const fromType = fromNode?.objecttype;
         const toType   = toNode?.objecttype;
+        if (debug) console.log('1281 createLink', fromType, toType);
         reltype = myMetis.findRelationshipTypeByName2(data.name, fromType, toType);
         if (reltype && reltype.isInstantiable()) {
             // Create the relationship
@@ -1341,10 +1343,12 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
             const myMetis = context.myMetis;
             const myGoModel = context.myGoModel;
             const link = myGoModel.findLink(lnk.key) as gjs.goRelshipLink;
+            if (debug) console.log('1346 link', link);
             if (link) {
                 let relview = link.relshipview;    // cxRelationshipView
                 relview = myMetis.findRelationshipView(relview.id);
                 const rel = relview?.relship;    // cxRelationship   
+                if (debug) console.log('1351 rel, relview', rel, relview);
                 if (rel && relview) {
                     // Before relink
                     let fromObj1 = rel.fromObject;
@@ -1353,7 +1357,8 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     let toObj1 = rel.toObject;
                     toObj1 = myMetis.findObject(toObj1.id);
                     toObj1.removeInputrel(rel);
-                    console.log('1337 fromobj1, toObj1', fromObj1, toObj1);             
+                    if (!debug) console.log('1360 fromobj1, toObj1', fromObj1, toObj1);  
+                    // After relink           
                     link.setFromNode(lnk.from);
                     const fromObjView = fromNode.objectview;
                     relview.fromObjview = fromObjView;
@@ -1366,11 +1371,12 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     fromObj2.addOutputrel(rel);
                     const toObj2 = rel.toObject;
                     toObj2.addInputrel(rel);
-                    console.log('1348 fromobj2, toObj2', fromObj2, toObj2);             
+                    if (debug) console.log('1374 fromobj2, toObj2', fromObj2, toObj2);   
+                    // Do the dispatches          
                     const gqlRelview = new gql.gqlRelshipView(relview);
                     context.modifiedLinks.push(gqlRelview);
                     const gqlRel = new gql.gqlRelationship(rel);
-                    context.modifiedLinks.push(gqlRel);
+                    context.modifiedRelships.push(gqlRel);
                 }
             }
         }
@@ -1421,13 +1427,12 @@ export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relvi
     return myLink;
 }
 
-
 export function setRelshipType() {
 
 }
 
 // Local functions
-export function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
+function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
     if (debug) console.log('1406 updateNode', node, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;

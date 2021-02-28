@@ -306,12 +306,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editObjectview": {
-        let node = this.state.selectedData;
-        const objtypeview = node.typeview;
-        const objview = node.objectview;
-        node = myDiagram.findNodeForKey(node.key);
-        const data = node.data;
-        if (debug) console.log('241 data, objview', node, objview);
+        let data = this.state.selectedData;
+        const objview = data.objectview;
+        const objtypeview = objview.typeview;
+        if (!debug) console.log('312 objview, objtypeview', data, objview, objtypeview);
+        const node = myDiagram.findNodeForKey(data.key);
+        data = node.data;
         const gqlObjview = new gql.gqlObjectView(objview);
         if (debug) console.log('243 gqlObjview', gqlObjview);
         modifiedObjviews.push(gqlObjview);
@@ -357,13 +357,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editRelshipview": {
-        let link = this.state.selectedData;
-        const relview = link.relshipview;
+        let data = this.state.selectedData;
+        const relview = data.relshipview;
         const reltypeview = relview.typeview;
-        link = myDiagram.findLinkForKey(link.key);
-        const data = link.data;
+        if (debug) console.log('362 relview, reltypeview', data, relview, reltypeview);
+        const link = myDiagram.findLinkForKey(data.key);
+        data = link.data;
         const gqlRelview = new gql.gqlRelshipView(relview);
-        if (debug) console.log('341 data, gqlRelview', data, gqlRelview);
+        if (debug) console.log('365 data, gqlRelview', link, data, gqlRelview);
         modifiedRelviews.push(gqlRelview);
         modifiedRelviews.map(mn => {
           let data = mn;
@@ -373,7 +374,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (prop === 'strokecolor' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'strokewidth' && relview[prop] !== "")
-            myDiagram.model.setDataProperty(link, prop, relview[prop]);
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'dash' && relview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'fromArrow' && relview[prop] !== "") 
@@ -539,13 +540,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
         myMetis.currentTargetMetamodel = targetMetamodel
         myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (!debug) console.log('542 Diagram', targetMetamodel, myMetis);
+        if (debug) console.log('542 Diagram', targetMetamodel, myMetis);
         const mmdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (!debug) console.log('544 Diagram', mmdata);        
+        if (debug) console.log('544 Diagram', mmdata);        
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata })
         break;
-
-
       case "Change Relationship type":    
         const typename = (selectedOption) && selectedOption;
         const link = myMetis.currentLink;
@@ -745,12 +744,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "initialAutoScale": go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
             //'undoManager.maxHistoryLength': 100,  // uncomment disable undo/redo functionality
+
+            "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
+            "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below
+
             // draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
             // 'draggingTool.horizontalGuidelineColor': 'blue',
             // 'draggingTool.verticalGuidelineColor': 'blue',
             // 'draggingTool.centerGuidelineColor': 'green',
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
+
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
@@ -759,8 +763,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "type": "isRelatedTo",
               "name": "",
               "description": "",
-              "relshipkind": constants.relkinds.REL
+              "relshipkind": constants.relkinds.REL,
             },
+              
+                
             // "clickCreatingTool.archetypeNodeData": {
             //   "key": utils.createGuid(),
             //   "category": "Object",
@@ -793,8 +799,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5 }),
               $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
             ),
+
             model: $(go.GraphLinksModel,
               {
+                // Uncomment the next line to turn ON linkToLink
+                // linkLabelKeysProperty: "labelKeys", 
                 linkKeyProperty: 'key'
               })
           }
@@ -2407,6 +2416,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
+            makeButton("Edit Modelview",
+            function (e: any, obj: any) {
+              const currentModelview = myMetis.currentModelview; 
+              let currentName = currentModelview.name;
+              const modelviewName = prompt("Enter Modelview name:", currentName);
+              if (modelviewName?.length > 0) {
+                currentModelview.name = modelviewName;
+              }
+              const currentDescr = currentModelview.description; 
+              const modelviewDescr = prompt("Enter Modelview description:", currentDescr);
+              if (modelviewDescr?.length > 0) {
+                currentModelview.description = modelviewDescr;
+              }
+              const gqlModelview = new gql.gqlModelView(currentModelview);
+              const modifiedModelviews = new Array();  
+              modifiedModelviews.push(gqlModelview);
+              modifiedModelviews?.map(mn => {
+                let data = (mn) && mn
+                e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("----------"),
           makeButton("New Metamodel",
           function (e: any, obj: any) {
@@ -2453,7 +2486,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const targetMetamodel = myMetis.currentTargetMetamodel;
             const sourceModelview = myMetis.currentModelview;
             gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-            console.log('1327 Target metamodel', targetMetamodel);
+            if (!debug) console.log('2489 Target metamodel', targetMetamodel);
           },
           function (o: any) { 
             return true; 
@@ -2475,7 +2508,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myDiagram: myDiagram
               } 
               const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-              if (!debug) console.log('2478', mmNameIds, modalContext, context);
+              if (debug) console.log('2511', mmNameIds, modalContext, context);
               myDiagram.handleOpenModal(mmNameIds, modalContext);
             },
             function (o: any) { 
@@ -2869,8 +2902,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         linkTemplate =
         $(go.Link,
           new go.Binding("deletable"),
-          new go.Binding('relinkableFrom', 'canRelink').ofModel(),
-          new go.Binding('relinkableTo', 'canRelink').ofModel(),
+          { relinkableFrom: true, relinkableTo: true, toShortLength: 2 },
+          // new go.Binding('relinkableFrom', 'canRelink').ofModel(),
+          // new go.Binding('relinkableTo', 'canRelink').ofModel(),
           {
             toolTip:
               $(go.Adornment, "Auto",
@@ -3060,26 +3094,49 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       )      
     }
 
-    // Define group template map
-    let groupTemplateMap = new go.Map<string, go.Group>();
-    groupTemplateMap.add("", groupTemplate);
-
     // define template maps
     if (true) {
       // Define node template map
       let nodeTemplateMap = new go.Map<string, go.Part>();
       nodeTemplateMap.add("", nodeTemplate);
-      //nodeTemplateMap.add("", defaultNodeTemplate);
+      nodeTemplateMap.add("LinkLabel",
+      $("Node",
+        {
+          selectable: false, avoidable: false,
+          layerName: "Foreground"
+        },  // always have link label nodes in front of Links
+        $("Shape", "Ellipse",
+          {
+            width: 5, height: 5, stroke: null,
+            portId: "", fromLinkable: true, toLinkable: false, cursor: "pointer"
+          })
+      ));
 
       // Define link template map
       let linkTemplateMap = new go.Map<string, go.Link>();
       linkTemplateMap.add("", linkTemplate);
+
+      // This template shows links connecting with label nodes as green and arrow-less.
+      myDiagram.linkTemplateMap.add("linkToLink",
+        $("Link",
+          { relinkableFrom: false, relinkableTo: false },
+          $("Shape", { stroke: "#2D9945", strokeWidth: 2 })
+        ));
+
+      // Define group template map
+      let groupTemplateMap = new go.Map<string, go.Group>();
+      groupTemplateMap.add("", groupTemplate);
 
       // Set the diagram template maps
       myDiagram.nodeTemplateMap = nodeTemplateMap;
       myDiagram.linkTemplateMap = linkTemplateMap;
       myDiagram.groupTemplateMap = groupTemplateMap;
     }
+
+    // Whenever a new Link is drawng by the LinkingTool, it also adds a node data object
+    // that acts as the label node for the link, to allow links to be drawn to/from the link.
+    myDiagram.toolManager.linkingTool.archetypeLabelNodeData =
+      { category: "LinkLabel" };
 
     // Palette group template 1
     if (true) {
@@ -3124,6 +3181,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         );
     }
 
+    // this DiagramEvent handler is called during the linking or relinking transactions
+    function maybeChangeLinkCategory(e: any) {
+      var link = e.subject;
+      var linktolink = (link.fromNode.isLinkLabel || link.toNode.isLinkLabel);
+      e.diagram.model.setCategoryForLinkData(link.data, (linktolink ? "linkToLink" : ""));
+    }
+    
     function makeButton(text: string, action: any, visiblePredicate: any) {
       return $("ContextMenuButton",
         $(go.TextBlock, text),

@@ -1580,6 +1580,7 @@ function reducer(state = InitialState, action) {
                     allowedValues: action.data.allowedValues,
                     inputPattern: action.data.inputPattern,
                     viewFormat: action.data.viewFormat,
+                    fieldtype: action.data.fieldtype,
                     abstract: action.data.abstract,
                     modified: action.data.modified,    
                   },

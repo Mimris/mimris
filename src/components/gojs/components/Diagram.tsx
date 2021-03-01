@@ -243,18 +243,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const modifiedRelships     = new Array();    
     switch(what) {
       case "editObject": {
-        const obj = this.state.selectedData;
-        const type = obj.type;
-        const node = myDiagram.findNodeForKey(obj.key);
+        const selObj = this.state.selectedData;
+        if (!debug) console.log('246 selObj', selObj);
+        const node = myDiagram.findNodeForKey(selObj.key);
         if (!node)
           return;
-        if (debug) console.log('246 node', node);
+        if (!debug) console.log('246 node', node);
         const data = node.data;
         for (let k in data) {
           if (!this.isPropIncluded(k)) 
             continue;
+          let obj = data.object;
+          obj = myMetis.findObject(obj.id);
           myDiagram.model.setDataProperty(data, k, obj[k]);
-          const gqlObject = new gql.gqlObject(node.data.object);
+          const gqlObject = new gql.gqlObject(obj);
           if (debug) console.log('253 gqlObject', gqlObject);
           modifiedObjects.push(gqlObject);
           modifiedObjects.map(mn => {
@@ -636,7 +638,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  public handleInputChange(propname: string, value: string, valuetype: string, obj: any, context: any, isBlur: boolean) {
+  public handleInputChange(propname: string, value: string, fieldtype: string, obj: any, context: any, isBlur: boolean) {
     if (debug) console.log('538 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
     if (debug) console.log('539 this.state', this.state);
     this.setState(
@@ -1070,11 +1072,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object",
             function (e: any, obj: any) { 
               const node = obj.part.data;
+              if (!debug) console.log('1075 node', node);
+              const icon = findImage(node.icon);
               const modalContext = {
-                what: "editObject",
-                title: "Edit Object",
-                icon: findImage(node.icon),
-                myDiagram: myDiagram
+                what:       "editObject",
+                title:      "Edit Object",
+                icon:       icon,
+                myDiagram:  myDiagram
               }
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;

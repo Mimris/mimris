@@ -7,21 +7,23 @@ const Navbar = (props) => (
 	// <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
 	// <nav className="navbar sticky-top navbar-expand-md bg-white py-1">
 	// navbar-expand{-sm|-md|-lg|-xl}
-	<nav className="navbar navbar-expand-sm bg-light py-0">
+	<nav className="navbar navbar-expand-sm bg-secondary py-0">
 		<div className="container mx-0 ">
 			<a className="navbar-brand nabar-left mr-4" href="#">
-				<img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/>
+				<img src="images/Kavca-logo2.png" width="40" height="42" className="d-inline-block align-top m-1" alt="Kavca logo"/>
+				<span className="fw-bold fs-1 pb-2" style={{color: "#0083e2"}}>avca AS</span>
+				{/* <img src="images/Equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
 				{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
 				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
 			</a>
 			{/* <span ><strong>OrgEngine Teambuilder</strong> */}
-			<span style={{ fontsize: "bigger", minWidth: "12%", marginTop: "5px"}}><strong> AKM Modeller</strong></span>
-			<div className="collapse navbar-collapse" id="nav-toggler-metis">
+			<span className="fs-3 text-warning" style={{ fontsize: "50%", minWidth: "18%", marginTop: "5px"}}><strong> AKM Modeller</strong></span>
+			<div className="collapse navbar-collapse " id="nav-toggler-metis">
 				<ul className="navbar-nav ml-auto mr-3">
 					<li className="nav-item">
 						<Link href="/"><a className="nav-link active">Home</a></Link>
 					</li>			
-					<li className="nav-item">
+					<li className="nav-item color-white">
 						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
 					</li>
 					{/* <li className="nav-item">

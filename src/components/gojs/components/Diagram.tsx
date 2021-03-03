@@ -311,10 +311,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!objview)
           break;
         const objtypeview = objview.typeview;
-        let data;
         if (debug) console.log('318 objview, objtypeview', selObjview, objview, objtypeview);
         const node = myDiagram.findNodeForKey(selObjview.key);
-        data = node.data;
+        if (!debug) console.log('317 node', node, selObjview);
+        const data = node.data;
+        for (let prop in  objtypeview?.data) {
+          objview[prop] = selObjview[prop];
+        }
         const gqlObjview = new gql.gqlObjectView(objview);
         if (debug) console.log('322 gqlObjview', data, gqlObjview);
         modifiedObjviews.push(gqlObjview);
@@ -360,14 +363,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editRelshipview": {
-        let data = this.state.selectedData;
-        const relview = data.relshipview;
+        let selRelview = this.state.selectedData;
+        const relview = selRelview.relshipview;
         if (!relview)
           break;
         const reltypeview = relview.typeview;
-        if (debug) console.log('362 relview, reltypeview', data, relview, reltypeview);
-        const link = myDiagram.findLinkForKey(data.key);
-        data = link.data;
+        if (debug) console.log('362 relview, reltypeview', selRelview, relview, reltypeview);
+        const link = myDiagram.findLinkForKey(selRelview.key);
+        const data = link.data;
+        for (let prop in  reltypeview?.data) {
+          relview[prop] = selRelview[prop];
+        }
         const gqlRelview = new gql.gqlRelshipView(relview);
         if (debug) console.log('365 data, gqlRelview', link, data, gqlRelview);
         modifiedRelviews.push(gqlRelview);

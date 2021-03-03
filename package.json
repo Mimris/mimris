@@ -24,6 +24,7 @@
     "@heroku/buildpack-registry": "^1.0.1",
     "@mapbox/node-pre-gyp": "^1.0.0",
     "@rehooks/local-storage": "^2.4.0",
+    "@sanity/image-url": "^0.140.22",
     "apollo-server-micro": "^2.14.1",
     "async-file": "^2.0.2",
     "aws-sdk": "^2.683.0",

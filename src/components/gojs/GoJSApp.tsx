@@ -517,8 +517,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.state.selectedData = sel.data;
         if (debug) console.log('699 data', data, sel);
         const modalContext = {
-          what: "editObject",
-          title: "Edit",
+          what: "editObjectview",
+          title: "Edit Object View",
           icon: findImage(data.icon),
           myDiagram: myDiagram
         }
@@ -665,17 +665,30 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': {
         const link = e.subject;
-        if (debug) console.log('924 link', link.fromNode, link.toNode);
+        if (debug) console.log('668 link', link, link.fromNode, link.toNode);
+
+        // Prepare for linkToLink
+        // let labels = link.labelNodes;
+        // for (let it = labels.iterator; it.next();) {     
+        //   console.log('672 it.value', it.value);
+        //   const linkLabel = it.value;
+        //   Connect linkLabel to relview
+        // }
+
         const data = link.data;
-        if (debug) console.log('926 link, data', link, data);
-        // const fromNode = link.fromNode;
-        // const toNode = link.toNode;
+        if (data.category === 'linkToLink') {
+          // This is a link from a relationship between fromNode and toNode to an object
+          // The link from rel to object is link.data
+          // Todo: Handle this situation
+        }
+        if (debug) console.log('670 data', data);
         const fromNode = myDiagram.findNodeForKey(data.from);
         const toNode = myDiagram.findNodeForKey(data.to);
 
-        if (debug) console.log('929 LinkDrawn', fromNode, toNode, data);
+        if (debug) console.log('676 LinkDrawn', fromNode, toNode, data);
         // Handle relationship types
         if (fromNode?.data?.category === 'Object type') {
+          data.category = 'Relationship type';
           if (debug) console.log('932 link', fromNode, toNode);
           link.category = 'Relationship type';
           link.class = 'goRelshipTypeLink';
@@ -694,9 +707,10 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         // Handle relationships
-        if (fromNode?.category === 'Object') {
-           if (debug) console.log('670 LinkDrawn', fromNode.data.category);
+        if (fromNode?.data?.category === 'Object') {
+          data.category = 'Relationship';
           const relview = uic.createRelationship(data, context);
+          if (debug) console.log('700 relview', relview);
           if (relview) {
             let rel = relview.relship;
             rel = myMetis.findRelationship(rel.id);
@@ -719,8 +733,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        if (debug) console.log('713 LinkRelinked', link, fromNode, toNode);
+        if (debug) console.log('727 link, fromNode, toNode', link, fromNode, toNode);
         const newLink = e.subject.data;
+        newLink.category = 'Relationship';
+        if (debug) console.log('729 newLink', newLink);
         context.modifiedLinks         = modifiedLinks;
         context.modifiedRelships      = modifiedRelships;
         context.modifiedTypeLinks     = modifiedTypeLinks;

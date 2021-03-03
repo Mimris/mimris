@@ -21,11 +21,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    if (debug) console.log('25 GenGojsModel phData, metis:', props.phData, metis);
+    console.log('24 GenGojsModel phData, metis:', props.phData, metis);
     const myMetis = new akm.cxMetis();
-    if (debug) console.log('33 GenGojsModel', myMetis);  
+    if (debug) console.log('26 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
-    if (debug) console.log('36 GenGojsModel myMetis', myMetis);
+    console.log('28 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -231,10 +231,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     if (debug) console.log('221 GenGojsModel', metis, model, modelview);
-    
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
-    if (debug) console.log('224 GenGojsModel', myGoModel);
-    
     let objviews = modelview?.getObjectViews();
     if (objviews) {
       for (let i = 0; i < objviews.length; i++) {
@@ -243,13 +240,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let node = new gjs.goObjectNode(utils.createGuid(), objview);
           myGoModel.addNode(node);
           if (debug) console.log('233 buildGoModel - node', node, myGoModel);
-
         }
       }
       const nodes = myGoModel.nodes;
       for (let i = 0; i < nodes?.length; i++) {
         let node = nodes[i] as gjs.goObjectNode;
         node.loadNodeContent(myGoModel);
+        //if (i == 0) node.visible = false;
       }
       if (debug) console.log('243 nodes', nodes);
     }

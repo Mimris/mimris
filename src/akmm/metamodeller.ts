@@ -69,6 +69,7 @@ export class cxMetis {
         this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
+        if (debug) console.log('72 importedData', importedData);
         this.name        = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
@@ -81,13 +82,13 @@ export class cxMetis {
                 if (debug) console.log('55 importData', this);
             }
         }
-        if (debug) console.log('73 Imported metamodel type', this);
+        if (debug) console.log('85 Imported metamodel type', this);
 
         // Handle models next
         const models: any[] = importedData?.models;
         if (models && models.length) {
             models.forEach(model => {
-                if (model && !model.deleted)
+                if (model && !model.deleted) 
                     this.importModel(model);
             })
         }
@@ -129,7 +130,7 @@ export class cxMetis {
             if (model)
                 this.currentTemplateModel = model;
         }
-        if (debug) console.log('129 this', this);
+        if (debug) console.log('133 this', this);
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels
@@ -406,14 +407,15 @@ export class cxMetis {
         }
     }
     importDatatype(item: any, metamodel: cxMetaModel) {
-        let dtyperef = item.datatypeRef;
+        let dtyperef = item.id;
         let datatype = this.findDatatype(dtyperef);
-        if (debug) console.log('418 datatype', datatype);
+        if (debug) console.log('412 item, datatype', item);
         if (datatype) {
             for (const prop in item) {
                 datatype[prop] = item[prop];
             }
-            metamodel.addDatatype(item);
+            if (debug) console.log('417 datatype', datatype);
+            metamodel.addDatatype(datatype);
         }
     }
     importObjectType(item: any, metamodel: cxMetaModel) {
@@ -560,6 +562,7 @@ export class cxMetis {
                     });
                 }
                 const relships: any[] = item.relships;
+                if (debug) console.log('563 relships', relships);
                 if (relships && (relships.length > 0)) {
                     relships.forEach(rel => {
                         if (model) this.importRelship(rel, model);
@@ -606,6 +609,7 @@ export class cxMetis {
                     toObj.addInputrel(rel);
                     rel.deleted = item.deleted;
                     model.addRelationship(rel);
+                    if (debug) console.log('610 fromObj, toObj, rel', fromObj, toObj, rel);
                 }
             } else {
                 rel.typeName = item.typeName;
@@ -674,11 +678,17 @@ export class cxMetis {
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
                     relview.deleted = item.deleted;
-                    // relview.setData(item.data);
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
-                        if (reltypeview)
+                        if (reltypeview) {
                             relview.setTypeView(reltypeview);
+                            const viewdata = reltypeview.getData();
+                            for (let prop in viewdata) {
+                                if (item[prop] && item[prop] !== "") {
+                                    relview[prop] = item[prop];
+                                }
+                            }
+                        }
                     }
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
@@ -1890,7 +1900,7 @@ export class cxDatatype extends cxMetaObject {
     defaultValue:       string;
     inputPattern:       string;
     viewFormat:         string;
-    valuetype:          string;
+    fieldtype:          string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.class = 'cxDatatype';
@@ -1899,9 +1909,11 @@ export class cxDatatype extends cxMetaObject {
         this.isOfDatatype = null;
         this.inputPattern = "";
         this.viewFormat = "%s";
-        this.valuetype = "text";
+        this.fieldtype = "text";
         this.allowedValues = "";
         this.defaultValue = "";
+
+        if (debug) console.log('1915 datatype: ', this);
     }
     // Methods
     addAllowedValue(value: string) {
@@ -1943,11 +1955,11 @@ export class cxDatatype extends cxMetaObject {
     getViewFormat(): string {
         return this.viewFormat;
     }
-    setValuetype(val: string) {
-        this.valuetype = val;
+    setFieldtype(val: string) {
+        this.fieldtype = val;
     }
-    getValuetype(): string {
-        return this.valuetype;
+    getFieldtype(): string {
+        return this.fieldtype;
     }
 }
 
@@ -4690,7 +4702,7 @@ export class cxInstance extends cxMetaObject {
                 const reltype = rel.type;
                 if (reltype) {
                     const relkind = reltype.relshipkind;
-                    if (rkind !== relkind)
+                    if ((relkind.length > 0) && (relkind !== rkind))
                         continue;
                 }
                 let toObj = rel.toObject;
@@ -4714,7 +4726,7 @@ export class cxInstance extends cxMetaObject {
                 const reltype = rel.type;
                 if (reltype) {
                     const relkind = reltype.relshipkind;
-                    if (rkind !== relkind)
+                    if ((relkind.length > 0) && (relkind !== rkind))
                         continue;
                 }
                 let fromObj = rel.fromObject;
@@ -4939,6 +4951,7 @@ export class cxModelView extends cxMetaObject {
     diagrams: cxDiagram[] | null;
     constructor(id: string, name: string, model: cxModel | null, description: string) {
         super(id, name, description);
+        this.category = constants.gojs.C_MODELVIEW;
         this.class = 'cxModelView';
         this.fs_collection = constants.fs.FS_C_MODELVIEWS;  // Firestore collection
         // this.category         = constants.gojs.C_MODELVIEW;    // This gives an error, why ??

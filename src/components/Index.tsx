@@ -10,6 +10,7 @@ import {
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
 } from 'reactstrap';
 import Page from './page';
+import Blog from './Blog'
 import { toNamespacedPath } from "path";
 
 const page = (props) => {
@@ -34,6 +35,7 @@ const page = (props) => {
   //   genGojsModel(state, dispatch)
   //   gojsmodel = state.phFocus.gojsModel
   // }, [focusModelview])
+
 
   return (
     <>
@@ -179,17 +181,15 @@ const page = (props) => {
               >
                   <CardHeader className="card-header " >Blog AKMM releases </CardHeader>
                   <CardBody className="card-body" >
-                    <CardTitle className="card-title" >Release 2021.02.16</CardTitle>
+                    <CardTitle className="card-title" >Release 2021.02.24</CardTitle>
                     <CardText >
-                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
-                        &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
-                        &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />
-                        &bull; Added Edit Project - to change Project name and descriptions!<br />
-                        &bull; Added colorpicker on object/relationship views!<br />
-                        &bull; Added !PURGE DELETED! Cleanup of objects with no views.<br />
-                        &bull; Bugfixes in Objects tab in Palette!<br />
+                        &bull; New popup menues for Edit .....!<br />
+                        &bull; Added popup menu for "Change Icon" on Objectviews!<br />
+                        &bull; Added Select all views of this object!<br />
+                         - (Showing all objectview copies of an object (Instance) )<br />
+                
                         &bull; Bugfixes!<br /><br />
-                        <strong>ToBe done!</strong><br /><br />
+                        <strong>ToBe implemented!</strong><br /><br />
                         &bull; Workplace templates for reflective workplace modelling! <br />
                         &bull; Popup select menu for new relships!<br />
                         &bull; Image picker to select icons!<br />
@@ -199,6 +199,19 @@ const page = (props) => {
                         &bull; Enhancement of user interface! <br />
                         &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
 
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title" >Release 2021.02.16</CardTitle>
+                    <CardText >
+                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
+                        &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
+                        &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />
+                        &bull; Added Edit Project - to change Project name and descriptions!<br />
+                        &bull; Added colorpicker on object/relationship views!<br />
+                        &bull; Added !PURGE DELETED! Cleanup of objects with no views.<br />
+                        &bull; Bugfixes in Objects tab in Palette!<br />
+                        &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
@@ -258,7 +271,27 @@ const page = (props) => {
                   </CardText>
                 </CardBody>
               </Card>
-
+              <Card className="card" 
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "0px"
+                }}
+              >
+              <CardHeader className="card-header " >Kavca Blog:</CardHeader>
+              <CardBody  className="card-body">
+                <CardTitle style={{ fontWeight: "bolder" }} >News: </CardTitle>
+                <CardText > 
+                  <Blog />
+                </CardText>
+              </CardBody>
+            </Card>
             </CardColumns>
           </div>
         </div>

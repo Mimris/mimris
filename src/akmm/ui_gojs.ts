@@ -675,9 +675,15 @@ export class goRelshipLink extends goLink {
         if ((relview) && (typeview)) {
             if (!relview.deleted) {
                 if (this.toNode && this.fromNode) {
+                    const viewdata: any = typeview.getData();
                     const data: any = typeview.getData();
                     this.addData(data);
                     this.setName(relview.getName());
+                    for (let prop in viewdata) {
+                        if (relview[prop] && relview[prop] !== "") {
+                            this[prop] = relview[prop];
+                        }
+                    }        
                 }
             }
         } else if (relview) {

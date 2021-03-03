@@ -142,7 +142,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const nods = myGoMetamodel?.nodes;
     for (let i=0; i<nods?.length; i++) {
       const node = nods[i];
-      const objtype = node.objtype;
+      const objtype = node.objecttype;
       if (objtype.abstract) continue;
       if (objtype.deleted)  continue;
       nodes.push(node);
@@ -198,23 +198,22 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (sel instanceof go.Node) {
             const key = data.key;
             let text  = data.name;
-            const typename = data.type;
+            const category = data.category;
             if (debug) console.log('201 data', data);
             // Object type
-            if (typename === 'Object type') {
+            if (category === 'Object type') {
               if (text === 'Edit name') {
                 text = prompt('Enter name');
               }
-              const myNode = this.getNode(context.myGoMetamodel, data.key);
-              if (debug) console.log('207 myNode', myNode);
+              const myNode = sel;
+              if (!debug) console.log('207 myNode', myNode);
               if (myNode) {
                 data.name = text;
-                myNode.name = text;
-                uic.updateObjectType(myNode, field, text, context);
-                data.name = myNode.name;
-                if (debug) console.log('213 TextEdited', myNode);
-                if (myNode.objtype) {
-                  const gqlObjType = new gql.gqlObjectType(myNode.objtype, true);
+                uic.updateObjectType(data, field, text, context);
+                if (debug) console.log('213 TextEdited', data);
+                const objtype = myMetis.findObjectType(data.objecttype?.id);
+                if (objtype) {
+                  const gqlObjType = new gql.gqlObjectType(objtype, true);
                   modifiedTypeNodes.push(gqlObjType);
                   if (debug) console.log('218 TextEdited', gqlObjType);
                 }
@@ -452,30 +451,31 @@ class GoJSApp extends React.Component<{}, AppState> {
         e.subject.each(function(n) {
           const node = myDiagram.findNodeForKey(n.data.key);
           let part = node.data;
-          if (debug) console.log('450 found node', node);
-          if (debug) console.log('451 myMetis', myMetis);
-          if (debug) console.log('452 myGoModel', myGoModel, myGoMetamodel);
+          if (debug) console.log('455 found node', node);
+          if (debug) console.log('456 myMetis', myMetis);
+          if (debug) console.log('457 myGoModel', myGoModel, myGoMetamodel);
 
-          if (debug) console.log('462 part', part, node, n);
+          if (!debug) console.log('459 part', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
-            if (debug) console.log('650 ExternalObjectsDropped - myMetis', myMetis);
+            if (debug) console.log('462 myMetis', myMetis);
             if (otype) {
+
               otype.typename = constants.types.OBJECTTYPE_NAME;
-              if (debug) console.log('649 ExternalObjectsDropped', otype);
+              if (debug) console.log('465 otype, part', otype, part);
               const gqlObjtype = new gql.gqlObjectType(otype, true);
-              if (debug) console.log('651 modifiedTypeNodes', gqlObjtype);
+              if (!debug) console.log('467 modifiedTypeNodes', gqlObjtype);
               modifiedTypeNodes.push(gqlObjtype);
 
               const gqlObjtypeView = new gql.gqlObjectTypeView(otype.typeview);
-              if (debug) console.log('655 modifiedTypeViews', gqlObjtypeView);
+              if (!debug) console.log('471 modifiedTypeViews', gqlObjtypeView);
               modifiedTypeViews.push(gqlObjtypeView);
 
               const loc  = part.loc;
               const size = part.size;
               const objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, otype, loc, size);
               const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
-              if (debug) console.log('663 modifiedTypeGeos', gqlObjtypeGeo);
+              if (debug) console.log('478 modifiedTypeGeos', gqlObjtypeGeo);
               modifiedTypeGeos.push(gqlObjtypeGeo);
             }
           } else // object

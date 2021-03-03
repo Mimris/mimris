@@ -320,7 +320,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         modifiedObjviews.push(gqlObjview);
         modifiedObjviews.map(mn => {
           let data = mn;
-          if (!debug) console.log('326 data', data);
+          if (debug) console.log('326 data', data);
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
       for (let prop in objtypeview?.data) {

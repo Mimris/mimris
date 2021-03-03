@@ -729,7 +729,7 @@ function reducer(state = InitialState, action) {
     }
     
   case UPDATE_OBJECTVIEW_PROPERTIES:
-      if (!debug) console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
+      if (debug) console.log('357 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curmv = curm?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -1580,6 +1580,7 @@ function reducer(state = InitialState, action) {
                     allowedValues: action.data.allowedValues,
                     inputPattern: action.data.inputPattern,
                     viewFormat: action.data.viewFormat,
+                    fieldtype: action.data.fieldtype,
                     abstract: action.data.abstract,
                     modified: action.data.modified,    
                   },

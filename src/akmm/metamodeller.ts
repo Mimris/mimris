@@ -69,6 +69,7 @@ export class cxMetis {
         this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
+        if (debug) console.log('72 importedData', importedData);
         this.name        = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
@@ -81,7 +82,7 @@ export class cxMetis {
                 if (debug) console.log('55 importData', this);
             }
         }
-        if (debug) console.log('73 Imported metamodel type', this);
+        if (debug) console.log('85 Imported metamodel type', this);
 
         // Handle models next
         const models: any[] = importedData?.models;
@@ -129,7 +130,7 @@ export class cxMetis {
             if (model)
                 this.currentTemplateModel = model;
         }
-        if (debug) console.log('129 this', this);
+        if (debug) console.log('133 this', this);
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels
@@ -406,14 +407,15 @@ export class cxMetis {
         }
     }
     importDatatype(item: any, metamodel: cxMetaModel) {
-        let dtyperef = item.datatypeRef;
+        let dtyperef = item.id;
         let datatype = this.findDatatype(dtyperef);
-        if (debug) console.log('418 datatype', datatype);
+        if (debug) console.log('412 item, datatype', item);
         if (datatype) {
             for (const prop in item) {
                 datatype[prop] = item[prop];
             }
-            metamodel.addDatatype(item);
+            if (debug) console.log('417 datatype', datatype);
+            metamodel.addDatatype(datatype);
         }
     }
     importObjectType(item: any, metamodel: cxMetaModel) {
@@ -1898,7 +1900,7 @@ export class cxDatatype extends cxMetaObject {
     defaultValue:       string;
     inputPattern:       string;
     viewFormat:         string;
-    valuetype:          string;
+    fieldtype:          string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.class = 'cxDatatype';
@@ -1907,9 +1909,11 @@ export class cxDatatype extends cxMetaObject {
         this.isOfDatatype = null;
         this.inputPattern = "";
         this.viewFormat = "%s";
-        this.valuetype = "text";
+        this.fieldtype = "text";
         this.allowedValues = "";
         this.defaultValue = "";
+
+        if (debug) console.log('1915 datatype: ', this);
     }
     // Methods
     addAllowedValue(value: string) {
@@ -1951,11 +1955,11 @@ export class cxDatatype extends cxMetaObject {
     getViewFormat(): string {
         return this.viewFormat;
     }
-    setValuetype(val: string) {
-        this.valuetype = val;
+    setFieldtype(val: string) {
+        this.fieldtype = val;
     }
-    getValuetype(): string {
-        return this.valuetype;
+    getFieldtype(): string {
+        return this.fieldtype;
     }
 }
 

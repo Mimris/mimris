@@ -373,6 +373,7 @@ export class gqlDatatype {
     allowedValues:  any[];
     inputPattern:   string;
     viewFormat:     string;
+    fieldtype:      string;
     deleted:        boolean;
     modified:       boolean;
     constructor(dtype: akm.cxDatatype) {
@@ -385,6 +386,7 @@ export class gqlDatatype {
         this.isOfDatatype   = dtype.isOfDatatype;
         this.inputPattern   = dtype.inputPattern;
         this.viewFormat     = dtype.viewFormat;
+        this.fieldtype      = dtype.fieldtype;
         this.deleted        = dtype.deleted;
         this.modified       = dtype.modified;
         // Code
@@ -705,8 +707,6 @@ export class gqlObject {
     typeRef:        string;
     typeName:       string;
     propertyValues: any[];
-    inputPattern:   string;
-    viewFormat:     string;
     allowedValues:  string;
     defaultValue:   string;
     deleted:        boolean;
@@ -720,8 +720,6 @@ export class gqlObject {
         this.propertyValues = [];
         this.deleted        = object.deleted;
         this.modified       = object.modified;
-        this.inputPattern   = object.inputPattern;
-        this.viewFormat     = object.viewFormat;
         this.allowedValues  = object.allowedValues;
         this.defaultValue   = object.defaultValue;
 
@@ -1310,6 +1308,7 @@ export class gqlImportMetis {
         // type.addProperty(property);
     }
     importDatatype(item: any, metamodel: akm.cxMetaModel) {
+        if (!debug) console.log('1317 importDatatype item:', item);
         let dtype = glb.metis.findDatatype(item.id);
         if (!utils.objExists(dtype)) {
             dtype = new akm.cxDatatype(item.id, item.name, item.description);

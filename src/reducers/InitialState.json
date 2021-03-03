@@ -897,6 +897,9 @@
                             "description": "String",
                             "datatypeRef": "",
                             "defaultValue": null,
+                            "inputPattern": "",
+                            "viewFormat": "%s",
+                            "fieldtype": "text",
                             "allowedValues": "",
                             "deleted": false,
                             "modified": false
@@ -907,6 +910,9 @@
                             "description": "Number",
                             "datatypeRef": "",
                             "defaultValue": null,
+                            "inputPattern": "[-+]?[0-9]*\\.?[0-9]+",
+                            "viewFormat": "%f",
+                            "fieldtype": "text",
                             "allowedValues": "",
                             "deleted": false,
                             "modified": false
@@ -917,6 +923,9 @@
                             "description": "Boolean",
                             "datatypeRef": "",
                             "defaultValue": null,
+                            "inputPattern": "[0-1]",
+                            "viewFormat": "",
+                            "fieldtype": "checkbox",
                             "allowedValues": "",
                             "deleted": false,
                             "modified": false
@@ -927,6 +936,9 @@
                             "description": "Integer",
                             "datatypeRef": "",
                             "defaultValue": null,
+                            "inputPattern": "^[-+]?\\d+$",
+                            "viewFormat": "%d",
+                            "fieldtype": "text",
                             "allowedValues": "",
                             "deleted": false,
                             "modified": false
@@ -937,26 +949,9 @@
                             "description": "Date",
                             "datatypeRef": "",
                             "defaultValue": null,
-                            "allowedValues": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "c1749be4-d6cb-459e-32fc-ccdd1544e568",
-                            "name": "boolean",
-                            "description": "Boolean",
-                            "datatypeRef": "",
-                            "defaultValue": null,
-                            "allowedValues": "",
-                            "deleted": false,
-                            "modified": false
-                        },
-                        {
-                            "id": "de58de0d-9bf0-4186-7941-ad1209843fea",
-                            "name": "number",
-                            "description": "Number",
-                            "datatypeRef": "",
-                            "defaultValue": null,
+                            "inputPattern": "",
+                            "viewFormat": "%s",
+                            "fieldtype": "date",
                             "allowedValues": "",
                             "deleted": false,
                             "modified": false

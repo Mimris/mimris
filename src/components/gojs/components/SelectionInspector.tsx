@@ -95,12 +95,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let selObj = this.props.selectedData;
     const modalContext = this.props.context;
     let category = selObj?.category;
-    let fieldtype = 'text';
-    let readonly = false;
-    let disabled = false;
-    let checked  = false;
-    let pattern  = "";
-    let required = false;
     if (debug) console.log('104 selObj', selObj);
     let inst, instview, typeview, item;
     if (selObj.type === 'GraphLinksModel') {
@@ -183,6 +177,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('177 item', inst, item);
     for (const k in item) {
       let row;
+      let fieldtype = 'text';
+      let readonly = false;
+      let disabled = false;
+      let checked  = false;
+      let pattern  = "";
+      let required = false;
       if (k) {
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
@@ -192,7 +192,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description') continue;
         }
-        if (properties.length > 0) {
+        if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
             const prop = properties[i];
@@ -202,7 +202,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               if (dtype)
                 fieldtype = dtype.fieldtype;
             }
-            if (debug) console.log('198 prop, dtype, fieldtype: ', prop, fieldtype);
+            if (!debug) console.log('198 prop, dtype, fieldtype: ', prop, fieldtype);
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
@@ -227,21 +227,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (k === 'strokecolor1')
           val = item['strokecolor'];
-        // if ( k === 'icon') {
-        //   // if (useFileImg) { 
-        //   //   fieldtype = 'file';
-        //   //   val = item[k];
-        //   // } else {
-        //     fieldtype = 'text';
-        //     val = item[k];
-        //   // }
-        // }  
-        // if (k === 'icon') {
-        //   fieldtype = 'text';
-        //   val = item[k];
-        // }
-        // if (k === 'DateCreated') fieldtype = 'date';
-        // if (k === 'Accepted') fieldtype = 'checkbox';
         if (debug) console.log('235 k, val:', k, val);
         if (!val) val = "";
         if (debug) console.log('237 item[k], fieldtype, selObj:', item[k], fieldtype, selObj);

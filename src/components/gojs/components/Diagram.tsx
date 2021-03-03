@@ -470,7 +470,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         let data = mn;
         this.props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
       })
-
     }
     this.setState({ showModal: false });
     if (debug) console.log('476 state', this.state);
@@ -554,19 +553,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case "Change Relationship type":    
         const typename = (selectedOption) && selectedOption;
         const link = myMetis.currentLink;
-        typeview = link.typeview;
         let fromNode = myGoModel?.findNode(link.from);
         let toNode   = myGoModel?.findNode(link.to);
-        if (debug) console.log('202 from and toNode', fromNode, toNode);
+        if (debug) console.log('560 from and toNode', fromNode, toNode);
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetis.findObjectType(fromType?.id);
         toType   = myMetis.findObjectType(toType?.id);
-        if (debug) console.log('207 link', fromType, toType);
+        if (debug) console.log('565 link', fromType, toType);
         const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-        if (debug) console.log('209 reltype', reltype, fromType, toType);
+        if (debug) console.log('567 reltype', reltype, fromType, toType);
         const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
-        if (debug) console.log('212 relview', relview);
+        if (debug) console.log('569 relview', relview);
         myMetis.myDiagram.requestUpdate();
         break;
       case "Edit Attribute":
@@ -1306,7 +1304,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const contextmenu = obj.part;  
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
-                context.myTargetMetamodel = gen.askForTargetMetamodel(context);
+                context.myTargetMetamodel = gen.askForMetamodel(context);
                 myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel.id;
                 if (debug) console.log('369 Diagram', myMetis.currentModel.targetMetamodelRef);
                 
@@ -1319,14 +1317,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 })
                 
                 const dtype = gen.generateDatatype(currentObj, context);
-                const gqlDatatype = new gql.gqlDatatype(dtype);
-                const modifiedDatatypes = new Array();
-                modifiedDatatypes.push(gqlDatatype);
-                modifiedDatatypes.map(mn => {
-                  let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
-                })
-                if (debug) console.log('467 gqlDatatype', gqlDatatype);
+                if (dtype) {
+                  const gqlDatatype = new gql.gqlDatatype(dtype);
+                  const modifiedDatatypes = new Array();
+                  modifiedDatatypes.push(gqlDatatype);
+                  modifiedDatatypes.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
+                  })
+                  if (debug) console.log('467 gqlDatatype', gqlDatatype);
+                }
             },
             function(o: any) { 
               const obj = o.part.data.object;

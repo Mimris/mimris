@@ -277,10 +277,11 @@ export function updateObjectType(data: any, name: string, value: string, context
     if ((data === null) || (name !== "name")) {
         return;
     }  else {
-        const metis = context.myMetis;
+        const myMetis = context.myMetis;
         const myMetamodel = context.myMetamodel;
         // Check if this is a type change
-        let objtype = data.objtype;            
+        let objtype = data.objecttype;    
+        objtype = myMetis.findObjectType(objtype.id);        
         const typename = data.name;
         if (objtype) {
             if  (
@@ -290,15 +291,15 @@ export function updateObjectType(data: any, name: string, value: string, context
                 ) {
                 // This is a new type that gets a new name 
                 // Check if the new name already exists
-                let otype = metis.findObjectTypeByName(typename);
+                let otype = myMetis.findObjectTypeByName(typename);
                 if (otype) {
                     // Existing type - the new name already exists
                     let typeid = objtype.getId();
                     objtype = otype;
                     utils.removeElementFromArray(myMetamodel.getObjectTypes(), typeid);
                     myMetamodel.addObjectType(objtype);
-                    utils.removeElementFromArray(metis.getObjectTypes(), typeid);
-                    metis.addObjectType(objtype);
+                    utils.removeElementFromArray(myMetis.getObjectTypes(), typeid);
+                    myMetis.addObjectType(objtype);
                 } else {
                     objtype.setName(typename);
                     objtype.setModified();
@@ -320,7 +321,7 @@ export function updateObjectType(data: any, name: string, value: string, context
                 objtype.setModified();
                 myMetamodel.setModified();
                 myMetamodel.addObjectTypeView(objtypeView);
-                metis.addObjectTypeView(objtypeView);
+                myMetis.addObjectTypeView(objtypeView);
             } else {
                 objtype.setName(typename);
                 objtype.setModified();
@@ -329,8 +330,6 @@ export function updateObjectType(data: any, name: string, value: string, context
                 objtypeView.setModified();
             }                
             context.myDiagram.model.setDataProperty(data, "name", value);
-            // const modNode = new gql.gqlObjectType(myNode.objtype, true);
-            // modifiedTypeNodes.push(modNode);
         }
         context.myDiagram.requestUpdate();
     }
@@ -1039,13 +1038,12 @@ export function updateRelationship(data: any, name: string, value: string, conte
 }
 
 export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data: any, context: any) {
-    console.log('1011 Entering createRelationshipType');
     const myMetis       = context.myMetis;
     const myMetamodel   = context.myMetamodel;
     const myGoMetamodel = context.myGoMetamodel;
     const myDiagram     = context.myDiagram;  
     let typename        = prompt("Enter type name:", "typename");
-    if (debug) console.log('1017 typename', typename, myMetamodel);
+    if (debug) console.log('1046 typename', typename, myMetamodel);
     data.key = utils.createGuid();
     myDiagram.model.setDataProperty(data, "name", typename);
     if (data.name == null) {
@@ -1055,12 +1053,12 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
     }
     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
     typename = data.name;
-    if (debug) console.log('1027 data', data, myGoMetamodel);
+    if (debug) console.log('1056 data', data, myGoMetamodel);
     if (typename) {
         if (debug) console.log('1031 from and to type nodes', fromTypeNode, toTypeNode);
         if (fromTypeNode && toTypeNode) {
             let reltype   = myMetis.findRelationshipTypeByName(typename);
-            if (debug) console.log('1035 reltype', reltype);
+            if (debug) console.log('1061 reltype', reltype);
             if (reltype) {  // Existing type - create a copy                  
                 const relkind = reltype.getRelshipKind();
                 const fromObjType = fromTypeNode.objecttype;
@@ -1072,7 +1070,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                 myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                 myMetamodel.addRelationshipType(reltype2);
                 myMetis.addRelationshipType(reltype2);
-                /* if (debug) */console.log('903 reltype2', reltype2);
+                if (debug) console.log('1073 reltype2', reltype2);
                 const reltypeView = reltype.getDefaultTypeView();
                 //reltype2.setDefaultTypeView(reltypeView);
                 if (reltypeView) {
@@ -1096,26 +1094,26 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                     myDiagram.model.setDataProperty(data, "typeview", reltypeView2);
                     myDiagram.requestUpdate();
                 }
-                /* if (debug) */console.log('927 reltype2', reltype2, myMetis);
+                if (debug) console.log('1097 reltype2', reltype2, myMetis);
                 return reltype2;
             } else {   // New relationship type - create it                
-                if (debug) console.log('1074 reltype', reltype);
+                if (debug) console.log('1100 reltype', reltype);
                 let typeid = utils.createGuid();
                 reltype = new akm.cxRelationshipType(typeid, data.name, null, null, "");
                 if (reltype) {
-                    if (debug) console.log('1078 reltype', reltype);
+                    if (debug) console.log('1104 reltype', reltype);
                     myDiagram.model.setDataProperty(data, "reltype", reltype);
                     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                     reltype.setModified();
                     reltype.setFromObjtype(fromTypeNode.objtype);
                     reltype.setToObjtype(toTypeNode.objtype);
-                    if (debug) console.log('1084 reltype', reltype);
+                    if (debug) console.log('1110 reltype', reltype);
                     myMetamodel.addRelationshipType(reltype);
                     myMetis.addRelationshipType(reltype);
                     // Then create the default relationship typeview
                     const reltypeView = new akm.cxRelationshipTypeView(utils.createGuid(),reltype.name, reltype, "");   
                     if (reltypeView) {
-                        if (debug) console.log('1090 reltypeView', reltypeView);
+                        if (debug) console.log('1116 reltypeView', reltypeView);
                         reltypeView.setModified();
                         myDiagram.model.setDataProperty(data, "typeview", reltypeView);
                         reltype.setDefaultTypeView(reltypeView);
@@ -1123,9 +1121,9 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                         myMetis.addRelationshipTypeView(reltypeView);
                         updateLink(data, reltypeView, myDiagram);
                         myDiagram.requestUpdate();
-                        if (debug) console.log('1098 myMetamodel', myMetamodel);
+                        if (debug) console.log('1124 myMetamodel', myMetamodel);
                     }
-                    console.log('1096 reltype', reltype);
+                    console.log('1126 reltype', reltype);
                     return reltype;
                 }
             }
@@ -1135,7 +1133,7 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
 }
 
 export function updateRelationshipType(data: any, name: string, value: string, context: any) {
-    if (debug) console.log('835 updateRelationshipType', name, value);
+    if (debug) console.log('1136 updateRelationshipType', name, value);
     if ((data === null) || (name !== "name")) {
         return;
     }  else {
@@ -1145,7 +1143,7 @@ export function updateRelationshipType(data: any, name: string, value: string, c
         const typename    = value;
         // Check if this is a type change
         let reltype = metis.findRelationshipType(data.reltype.id);            
-        if (debug) console.log('844 updateRelationshipType', reltype);
+        if (debug) console.log('1146 updateRelationshipType', reltype);
         if (reltype) {
             if  (
                 (reltype.name === "New Type") 
@@ -1170,7 +1168,7 @@ export function updateRelationshipType(data: any, name: string, value: string, c
                 // This is an existing type that gets a new name
                 reltype.setName(typename);
                 reltype.setModified();
-                if (debug) console.log('870 updateRelationshipType', reltype);
+                if (debug) console.log('1171 updateRelationshipType', reltype);
                 myMetamodel.setModified();
             }
             // Get relationship typeview

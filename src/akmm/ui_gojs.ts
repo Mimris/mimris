@@ -511,13 +511,13 @@ export class goObjectNode extends goNode {
 }
 
 export class goObjectTypeNode extends goNode {
-    objtype: akm.cxObjectType | null;
+    objecttype: akm.cxObjectType | null;
     typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     typename: string;
     constructor(key: string, objtype: akm.cxObjectType) {
         super(key, null);
         this.category = constants.gojs.C_OBJECTTYPE;
-        this.objtype = objtype;
+        this.objecttype = objtype;
         this.typeview = null;
         this.typename = constants.gojs.C_OBJECTTYPE;
         
@@ -533,14 +533,14 @@ export class goObjectTypeNode extends goNode {
     }
     // Methods
     getObjectTypeId(): string {
-        if (this.objtype)
-            return this.objtype.getId();
+        if (this.objecttype)
+            return this.objecttype.getId();
         else
             return "";
     }
     loadNodeContent(metamodel: akm.cxMetaModel | null) {
-        if (this.objtype) {
-            const objtype = this.objtype;
+        if (this.objecttype) {
+            const objtype = this.objecttype;
             if (!objtype.deleted) {
                 const typeview = this.typeview;
                 if (typeview) {

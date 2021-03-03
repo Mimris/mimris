@@ -665,7 +665,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': {
         const link = e.subject;
-        if (!debug) console.log('668 link', link, link.fromNode, link.toNode);
+        if (debug) console.log('668 link', link, link.fromNode, link.toNode);
 
         // Prepare for linkToLink
         // let labels = link.labelNodes;
@@ -733,7 +733,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        if (!debug) console.log('727 link, fromNode, toNode', link, fromNode, toNode);
+        if (debug) console.log('727 link, fromNode, toNode', link, fromNode, toNode);
         const newLink = e.subject.data;
         newLink.category = 'Relationship';
         if (debug) console.log('729 newLink', newLink);

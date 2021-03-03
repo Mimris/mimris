@@ -407,14 +407,14 @@ export class cxMetis {
         }
     }
     importDatatype(item: any, metamodel: cxMetaModel) {
-        let dtyperef = item.datatypeRef;
+        let dtyperef = item.id;
         let datatype = this.findDatatype(dtyperef);
-        if (!debug) console.log('412 item, datatype', item, dtyperef);
+        if (debug) console.log('412 item, datatype', item);
         if (datatype) {
             for (const prop in item) {
                 datatype[prop] = item[prop];
             }
-            if (!debug) console.log('417 datatype', datatype);
+            if (debug) console.log('417 datatype', datatype);
             metamodel.addDatatype(datatype);
         }
     }

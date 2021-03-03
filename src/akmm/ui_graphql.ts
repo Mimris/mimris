@@ -707,9 +707,6 @@ export class gqlObject {
     typeRef:        string;
     typeName:       string;
     propertyValues: any[];
-    inputPattern:   string;
-    viewFormat:     string;
-    fieldtype:      string;
     allowedValues:  string;
     defaultValue:   string;
     deleted:        boolean;
@@ -723,9 +720,6 @@ export class gqlObject {
         this.propertyValues = [];
         this.deleted        = object.deleted;
         this.modified       = object.modified;
-        this.inputPattern   = object.inputPattern;
-        this.fieldtype      = object.fieldtype;
-        this.viewFormat     = object.viewFormat;
         this.allowedValues  = object.allowedValues;
         this.defaultValue   = object.defaultValue;
 

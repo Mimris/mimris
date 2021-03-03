@@ -95,7 +95,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let selObj = this.props.selectedData;
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (debug) console.log('98 modalContext', modalContext, typeof(selObj), selObj);
+    let fieldtype = 'text';
+    let readonly = false;
+    let disabled = false;
+    let checked  = false;
+    let pattern  = "";
+    let required = false;
+    if (debug) console.log('104 selObj', selObj);
     let inst, instview, typeview, item;
     if (selObj.type === 'GraphLinksModel') {
       return;
@@ -129,7 +135,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";  // Sets empty string if undefined
     }
-    if (!debug) console.log('132 inst', properties, inst, selObj);
+    if (debug) console.log('132 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;
@@ -179,7 +185,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let row;
       if (k) {
         let val = item[k]; 
-        let fieldtype = 'text';
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
         if (!this.isPropIncluded(k, type)) 
@@ -188,15 +193,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'name' || k === 'description') continue;
         }
         if (properties.length > 0) {
+          if (debug) console.log('191 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
             const prop = properties[i];
-            let dtype = null;
             if (prop.name === k) {
-              dtype = prop.datatype;
+              const dtypeRef = prop.datatypeRef;
+              const dtype = myMetis.findDatatype(dtypeRef);
               if (dtype)
                 fieldtype = dtype.fieldtype;
             }
-            if (!debug) console.log('198 prop, dtype, fieldtype: ', prop, dtype, fieldtype);
+            if (debug) console.log('198 prop, dtype, fieldtype: ', prop, fieldtype);
           }
         }
         val = (item.id === inst.id) ? item[k] : selObj[k];
@@ -234,16 +240,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         //   fieldtype = 'text';
         //   val = item[k];
         // }
-        if (k === 'date') fieldtype = 'date';
-        if (k === 'boolean') fieldtype = 'checkbox';
-        if (!debug) console.log('235 k, val:', k, val);
+        // if (k === 'DateCreated') fieldtype = 'date';
+        // if (k === 'Accepted') fieldtype = 'checkbox';
+        if (debug) console.log('235 k, val:', k, val);
         if (!val) val = "";
-        if (!debug) console.log('237 item[k], fieldtype, selObj:', item[k], fieldtype, selObj);
+        if (debug) console.log('237 item[k], fieldtype, selObj:', item[k], fieldtype, selObj);
         row  = <InspectorRow
           key={k}
           id={k}
           type={fieldtype}
           value={val}
+          readonly={readonly}
+          disabled={disabled}
+          required={required}
+          checked={checked}
+          pattern={pattern}
           obj= {selObj}
           context= {modalContext}
           onInputChange={this.props.onInputChange} 

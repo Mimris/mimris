@@ -72,7 +72,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 }, 
             };
         }
-        if (!debug) console.log('77 SaveModelToFile', data);      
+        if (debug) console.log('77 SaveModelToFile', data);      
         dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })

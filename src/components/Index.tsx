@@ -190,7 +190,7 @@ const page = (props) => {
                         &bull; New popup menues for Edit .....!<br />
                         &bull; Added popup menu for "Change Icon" on Objectviews!<br />
                         &bull; Added Select all views of this object!<br />
-                         - (Showing all objectview copies of an object (Instance) )<br />
+                         -  (Showing all objectview copies of an object (Instance) )<br />
                 
                         &bull; Bugfixes!<br /><br />
                         <strong>ToBe implemented!</strong><br /><br />

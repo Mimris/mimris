@@ -1093,7 +1093,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_TARGETOBJECTTYPE_PROPERTIES:
-      if (!debug) console.log('1065 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
+      if (debug) console.log('1065 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
       const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmtot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.targetMetamodelRef)
       if (debug) console.log('1068 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmodtot.targetMetamodelRef, curmmtot);
@@ -1580,7 +1580,7 @@ function reducer(state = InitialState, action) {
                     allowedValues: action.data.allowedValues,
                     inputPattern: action.data.inputPattern,
                     viewFormat: action.data.viewFormat,
-                    fieldtype: action.data.fieldtype,
+                    fieldType: action.data.fieldType,
                     abstract: action.data.abstract,
                     modified: action.data.modified,    
                   },

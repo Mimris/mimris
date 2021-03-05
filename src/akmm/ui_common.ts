@@ -611,6 +611,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         // Else handle delete relships AND relship views
         // First delete object
         if (relship) {
+            relship.deleted = deletedFlag;
             relview.deleted = deletedFlag;
             const gqlRelview = new gql.gqlRelshipView(relview);
             deletedLinks.push(gqlRelview);

@@ -10,6 +10,7 @@ import {
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
 } from 'reactstrap';
 import Page from './page';
+import Blog from './Blog'
 import { toNamespacedPath } from "path";
 
 const page = (props) => {
@@ -34,6 +35,7 @@ const page = (props) => {
   //   genGojsModel(state, dispatch)
   //   gojsmodel = state.phFocus.gojsModel
   // }, [focusModelview])
+
 
   return (
     <>
@@ -269,7 +271,27 @@ const page = (props) => {
                   </CardText>
                 </CardBody>
               </Card>
-
+              <Card className="card" 
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "0px"
+                }}
+              >
+              <CardHeader className="card-header " >Kavca Blog:</CardHeader>
+              <CardBody  className="card-body">
+                <CardTitle style={{ fontWeight: "bolder" }} >News: </CardTitle>
+                <CardText > 
+                  <Blog />
+                </CardText>
+              </CardBody>
+            </Card>
             </CardColumns>
           </div>
         </div>

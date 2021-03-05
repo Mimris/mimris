@@ -14,7 +14,7 @@ interface SelectionInspectorProps {
   myMetis: any;
   selectedData: any;
   context: any;
-  onInputChange: (id: string, value: string, fieldtype: string, selectedData: any, context: any, isBlur: boolean) => void;
+  onInputChange: (id: string, value: string, fieldType: string, selectedData: any, context: any, isBlur: boolean) => void;
 }
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
@@ -22,6 +22,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   isPropIncluded(k: string, type: akm.cxType): boolean {
     let retVal = true;
     if (k === 'id') retVal = false;
+    if (k === 'key') retVal = false;
+    if (k === '__gohashid') retVal = false;
     if (k === 'class') retVal = false;
     if (k === 'category') retVal = false;
     if (k === 'abstract') retVal = false;
@@ -83,6 +85,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (type?.name !== 'InputPattern') {
       if (k === 'inputPattern') retVal = false;
     }
+    if (type?.name !== 'FieldType') {
+      if (k === 'fieldType') retVal = false;
+    }
     return retVal;
   }
   
@@ -91,19 +96,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
-    if (debug) console.log('94  myMetis', this.props, this.props.selectedData);
-    let selObj = this.props.selectedData;
+    let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (debug) console.log('104 selObj', selObj);
+    if (debug) console.log('102 selObj', selObj, myMetis);
     let inst, instview, typeview, item;
     if (selObj.type === 'GraphLinksModel') {
       return;
     } else if (category === 'Object') {
       inst = selObj.object;
       inst = myMetis.findObject(inst?.id);
-      instview = selObj.objectview;
-      instview = myMetis.findObjectView(instview?.id);
+      // instview = selObj.objectview;
+      // instview = myMetis.findObjectView(instview?.id);
+      instview = selObj;
       typeview = instview?.typeview;
     } else if (category === 'Relationship') {
       inst = selObj.relship;
@@ -119,7 +124,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === 'Model view') {
       inst = selObj;
     }
-    if (debug) console.log('122 inst', inst);
+    if (debug) console.log('122 inst, instview', inst, instview);
     if (inst == undefined)
       return;
     const type = inst.type;
@@ -134,7 +139,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let hideNameAndDescr = false;
     let useColor = false;
     let useItem = false;
-    let useFileImg = false;
     switch (modalContext?.what) {
       // case 'editProject':
       //   item = modalContext.gojsModel?.nodes[0];
@@ -158,7 +162,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = instview;
         hideNameAndDescr = true;
         useColor = true;
-        useFileImg = true;
         break;
       case "editRelshipview":
         item = instview;
@@ -177,7 +180,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('177 item', inst, item);
     for (const k in item) {
       let row;
-      let fieldtype = 'text';
+      let fieldType = 'text';
       let readonly = false;
       let disabled = false;
       let checked  = false;
@@ -200,17 +203,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               const dtypeRef = prop.datatypeRef;
               const dtype = myMetis.findDatatype(dtypeRef);
               if (dtype)
-                fieldtype = dtype.fieldtype;
+                fieldType = dtype.fieldType;
             }
-            if (!debug) console.log('198 prop, dtype, fieldtype: ', prop, fieldtype);
+            if (debug) console.log('198 prop, dtype, fieldType: ', prop, fieldType);
           }
         }
+        if (debug) console.log('211 k, val', k, val);
         val = (item.id === inst.id) ? item[k] : selObj[k];
+        if (debug) console.log('213 k, val', k, val);
         if (useItem) val = item[k];
         if (useColor && (k === 'fillcolor' || k === 'strokecolor')){
           if (debug) console.log('203 val', val);
-          fieldtype = 'color';
-          if (val.substr(0,4) === 'rgb(') {
+          fieldType = 'color';
+          if (val?.substr(0,4) === 'rgb(') {
             if (debug) console.log('206 val', val);
             let color = '#'+val.match(/\d+/g).map(function(x){
               x = parseInt(x).toString(16);
@@ -219,7 +224,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (debug) console.log('211 color', color);
             val = color.toUpperCase();
           }
-          if (val[0] !== '#') {
+          if ((val) && val[0] !== '#') {
             // Convert colorname to hex
             val = toHex(val); 
           }         
@@ -227,13 +232,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (k === 'strokecolor1')
           val = item['strokecolor'];
-        if (debug) console.log('235 k, val:', k, val);
+        if (debug) console.log('233 selObj, item:', selObj, item);
         if (!val) val = "";
-        if (debug) console.log('237 item[k], fieldtype, selObj:', item[k], fieldtype, selObj);
+        if (debug) console.log('235 id, value:', k, val);
         row  = <InspectorRow
           key={k}
           id={k}
-          type={fieldtype}
+          type={fieldType}
           value={val}
           readonly={readonly}
           disabled={disabled}

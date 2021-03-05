@@ -33,8 +33,9 @@ export class cxMetis {
     models:             cxModel[] | null = null;
     modelviews:         cxModelView[] | null = null;
     datatypes:          cxDatatype[] | null = null;
-    viewformats:        cxViewFormat[] | null = null;
     inputpatterns:      cxInputPattern[] | null = null;
+    viewformats:        cxViewFormat[] | null = null;
+    fieldTypes:         cxFieldType[] | null = null;
     enumerations:       cxEnumeration[] | null = null;
     units:              cxUnit[] | null = null;
     categories:         cxUnitCategory[] | null = null;
@@ -786,6 +787,15 @@ export class cxMetis {
                 this.viewformats.push(fmt);
         }
     }
+    addFieldType(typ: cxFieldType) {
+        if (typ.class === "cxFieldType") {
+            //dtype.setMetis(this);
+            if (this.fieldTypes == null)
+                this.fieldTypes = new Array();
+            if (!this.findFieldType(fmt.id))
+                this.fieldTypes.push(fmt);
+        }
+    }
     addInputPattern(pattern: cxInputPattern) {
         if (pattern.class === "cxInputPattern") {
             //dtype.setMetis(this);
@@ -1018,6 +1028,9 @@ export class cxMetis {
     getViewFormats() {
         return this.viewformats;
     }
+    getFieldTypes() {
+        return this.fieldTypes;
+    }
     getInputPatterns() {
         return this.inputpatterns;
     }
@@ -1189,6 +1202,21 @@ export class cxMetis {
                 let format = formats[i];
                 if (format && format.id === id)
                     return format;
+                i++;
+            }
+        }
+        return null;
+    }
+    findFieldType(id: string) {
+        let types = this.getFieldTypes();
+        if (!types)
+            return null;
+        else {
+            let i = 0;
+            while (i < types.length) {
+                let type = types[i];
+                if (type && type.id === id)
+                    return type;
                 i++;
             }
         }
@@ -1900,7 +1928,7 @@ export class cxDatatype extends cxMetaObject {
     defaultValue:       string;
     inputPattern:       string;
     viewFormat:         string;
-    fieldtype:          string;
+    fieldType:          string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.class = 'cxDatatype';
@@ -1909,7 +1937,7 @@ export class cxDatatype extends cxMetaObject {
         this.isOfDatatype = null;
         this.inputPattern = "";
         this.viewFormat = "%s";
-        this.fieldtype = "text";
+        this.fieldType = "text";
         this.allowedValues = "";
         this.defaultValue = "";
 
@@ -1956,10 +1984,10 @@ export class cxDatatype extends cxMetaObject {
         return this.viewFormat;
     }
     setFieldtype(val: string) {
-        this.fieldtype = val;
+        this.fieldType = val;
     }
     getFieldtype(): string {
-        return this.fieldtype;
+        return this.fieldType;
     }
 }
 
@@ -2055,6 +2083,7 @@ export class cxMetaModel extends cxMetaObject {
     units: cxUnit[] | null;
     datatypes: cxDatatype[] | null;
     viewformats: cxViewFormat[] | null;
+    fieldTypes: cxFieldType[] | null;
     inputpatterns: cxInputPattern[] | null;
     categories: cxUnitCategory[] | null;
     constructor(id: string, name: string, description: string) {
@@ -2223,6 +2252,9 @@ export class cxMetaModel extends cxMetaObject {
     getViewFormats() {
         return this.viewformats;
     }
+    getFieldTypes() {
+        return this.fieldTypes;
+    }
     getInputPatterns() {
         return this.inputpatterns;
     }
@@ -2359,16 +2391,22 @@ export class cxMetaModel extends cxMetaObject {
     }
     addViewFormat(fmt: cxViewFormat) {
         if (fmt.class === "cxViewFormat") {
-            //dtype.setMetis(this);
             if (this.viewformats == null)
                 this.viewformats = new Array();
             if (!this.findViewFormat(fmt.id))
                 this.viewformats.push(fmt);
         }
     }
+    addFieldType(typ: cxFieldType) {
+        if (typ.class === "cxFieldType") {
+            if (this.fieldTypes == null)
+                this.fieldTypes = new Array();
+            if (!this.findFieldType(typ.id))
+                this.fieldTypes.push(typ);
+        }
+    }
     addInputPattern(pattern: cxInputPattern) {
         if (pattern.class === "cxInputPattern") {
-            //dtype.setMetis(this);
             if (this.inputpatterns == null)
                 this.inputpatterns = new Array();
             if (!this.findInputPattern(pattern.id))
@@ -2575,6 +2613,21 @@ export class cxMetaModel extends cxMetaObject {
                 let format = formats[i];
                 if (format && format.id === id)
                     return format;
+                i++;
+            }
+        }
+        return null;
+    }
+    findFieldType(id: string) {
+        let types = this.getFieldTypes();
+        if (!types)
+            return null;
+        else {
+            let i = 0;
+            while (i < types.length) {
+                let type = types[i];
+                if (type && type.id === id)
+                    return type;
                 i++;
             }
         }
@@ -4759,6 +4812,7 @@ export class cxObject extends cxInstance {
     objectviews: cxObjectView[] | null;
     viewFormat: string;
     inputPattern: string;
+    fieldType: string;
     allowedValues: string;
     defaultValue: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
@@ -4768,6 +4822,7 @@ export class cxObject extends cxInstance {
         this.category = constants.gojs.C_OBJECT;
         this.objectviews = null;
         this.viewFormat = "";
+        this.fieldType = "";
         this.inputPattern = "";
         this.allowedValues = "";
         this.defaultValue = "";
@@ -4817,6 +4872,12 @@ export class cxObject extends cxInstance {
     }
     getViewFormat() {
         return this.viewFormat;
+    }
+    setFieldType(type) {
+        this.fieldType = type;
+    }
+    getFieldType() {
+        return this.fieldType;
     }
     setInputPattern(pattern) {
         this.inputPattern = pattern;
@@ -4908,34 +4969,49 @@ export class cxValue extends cxMetaObject {
 }
 
 export class cxViewFormat extends cxMetaObject {
-    format: string;
+    viewFormat: string;
     constructor(id: string, name: string, description: string ) {
         super(id, name, description);
-        this.format = "%s";
+        this.viewFormat = "%s";
     }
     // Methods
-    getFormat() {
-        return this.format;
+    getViewFormat() {
+        return this.viewFormat;
     }
-    setFormat(fmt: string) {
+    setViewFormat(fmt: string) {
         // Todo: Check if valid format
-        this.format = fmt;
+        this.viewFormat = fmt;
+    }
+}
+
+export class cxFieldType extends cxMetaObject {
+    fieldType: string;
+    constructor(id: string, name: string, description: string ) {
+        super(id, name, description);
+        this.fieldType = "text";
+    }
+    // Methods
+    getFieldType() {
+        return this.fieldType;
+    }
+    setFieldType(type: string) {
+        this.fieldType = type;
     }
 }
 
 export class cxInputPattern extends cxMetaObject {
-    pattern: string;
+    inputPattern: string;
     constructor(id: string, name: string, description: string ) {
         super(id, name, description);
-        this.pattern = "";
+        this.inputPattern = "";
     }
     // Methods
-    getPattern() {
-        return this.pattern;
+    getInputPattern() {
+        return this.inputPattern;
     }
-    setPattern(pattern: string) {
+    setInputPattern(pattern: string) {
         // Todo: Check if valid format
-        this.pattern = pattern;
+        this.inputPattern = pattern;
     }
 }
 

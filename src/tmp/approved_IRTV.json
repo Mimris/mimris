@@ -727,7 +727,7 @@
             "defaultValue": null,
             "inputPattern": "",
             "viewFormat": "%s",
-            "fieldtype": "text",
+            "fieldType": "text",
             "allowedValues": "",
             "deleted": false,
             "modified": false
@@ -740,7 +740,7 @@
             "defaultValue": null,
             "inputPattern": "[-+]?[0-9]*\\.?[0-9]+",
             "viewFormat": "%f",
-            "fieldtype": "text",
+            "fieldType": "text",
             "allowedValues": "",
             "deleted": false,
             "modified": false
@@ -753,7 +753,7 @@
             "defaultValue": null,
             "inputPattern": "[0-1]",
             "viewFormat": "",
-            "fieldtype": "checkbox",
+            "fieldType": "checkbox",
             "allowedValues": "",
             "deleted": false,
             "modified": false
@@ -766,7 +766,7 @@
             "defaultValue": null,
             "inputPattern": "^[-+]?\\d+$",
             "viewFormat": "%d",
-            "fieldtype": "text",
+            "fieldType": "text",
             "allowedValues": "",
             "deleted": false,
             "modified": false
@@ -779,7 +779,7 @@
             "defaultValue": null,
             "inputPattern": "",
             "viewFormat": "%s",
-            "fieldtype": "date",
+            "fieldType": "date",
             "allowedValues": "",
             "deleted": false,
             "modified": false

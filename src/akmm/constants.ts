@@ -107,7 +107,7 @@ export let types = {
          AKM_VALUE             : "Value",
          AKM_INPUTPATTERN      : "InputPattern",
          AKM_VIEWFORMAT        : "ViewFormat",
-         AKM_VALUETYPE         : "ValueType",
+         AKM_FIELDTYPE         : "FieldType",
          AKM_UNIT              : "Unit",
          AKM_HAS_MEMBER        : "hasMember",
          AKM_HAS_PART          : "hasPart",
@@ -117,7 +117,7 @@ export let types = {
          AKM_HAS_ALLOWED_VALUE : "hasAllowed",
          AKM_HAS_INPUTPATTERN  : "has",
          AKM_HAS_VIEWFORMAT    : "has",
-         AKM_HAS_VALUETYPE     : "has",
+         AKM_HAS_FIELDTYPE     : "has",
     
     // Type properties
          OBJECTTYPE_ID         : "objecttype",

@@ -186,9 +186,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('157 handleEvent', myMetis);
     if (debug) console.log('158 this', this);
-
+    if (debug) console.log('189 event name', name);
     switch (name) {
-
       case 'TextEdited': {
         const sel = e.subject.part;
         const data = sel.data;
@@ -206,7 +205,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 text = prompt('Enter name');
               }
               const myNode = sel;
-              if (!debug) console.log('207 myNode', myNode);
+              if (debug) console.log('207 myNode', myNode);
               if (myNode) {
                 data.name = text;
                 uic.updateObjectType(data, field, text, context);
@@ -346,8 +345,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       }
       break;
+      //case "SelectionDeleted":
       case "SelectionDeleting": {
-      //case "SelectionDeleted": {
         if (debug) console.log('350 myMetis', myMetis); 
         const deletedFlag = true;
         const selection = e.subject;
@@ -455,7 +454,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('456 myMetis', myMetis);
           if (debug) console.log('457 myGoModel', myGoModel, myGoMetamodel);
 
-          if (!debug) console.log('459 part', part, node, n);
+          if (debug) console.log('459 part', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('462 myMetis', myMetis);
@@ -464,11 +463,11 @@ class GoJSApp extends React.Component<{}, AppState> {
               otype.typename = constants.types.OBJECTTYPE_NAME;
               if (debug) console.log('465 otype, part', otype, part);
               const gqlObjtype = new gql.gqlObjectType(otype, true);
-              if (!debug) console.log('467 modifiedTypeNodes', gqlObjtype);
+              if (debug) console.log('467 modifiedTypeNodes', gqlObjtype);
               modifiedTypeNodes.push(gqlObjtype);
 
               const gqlObjtypeView = new gql.gqlObjectTypeView(otype.typeview);
-              if (!debug) console.log('471 modifiedTypeViews', gqlObjtypeView);
+              if (debug) console.log('471 modifiedTypeViews', gqlObjtypeView);
               modifiedTypeViews.push(gqlObjtypeView);
 
               const loc  = part.loc;
@@ -753,7 +752,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       default:
-        // if (debug) console.log('732 GoJSApp event name: ', name);
+        if (debug) console.log('732 GoJSApp event name: ', name);
         break;
       }
         

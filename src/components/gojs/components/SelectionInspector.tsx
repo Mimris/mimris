@@ -105,7 +105,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     } else if (category === 'Object') {
       inst = selObj.object;
+      if (debug) console.log('108 inst', inst);
       inst = myMetis.findObject(inst?.id);
+      if (debug) console.log('110 inst', inst);
       // instview = selObj.objectview;
       // instview = myMetis.findObjectView(instview?.id);
       instview = selObj;
@@ -202,8 +204,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (prop.name === k) {
               const dtypeRef = prop.datatypeRef;
               const dtype = myMetis.findDatatype(dtypeRef);
-              if (dtype)
+              if (dtype) {
                 fieldType = dtype.fieldType;
+                pattern = dtype.inputPattern;
+              }
             }
             if (debug) console.log('198 prop, dtype, fieldType: ', prop, fieldType);
           }

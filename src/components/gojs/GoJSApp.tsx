@@ -303,9 +303,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           const sel = it.value;
           const data = sel.data;
           const typename = data.type;
-          if (debug) console.log('333 typename', typename, data);
+          if (debug) console.log('333 typename', typename, data.objecttype);
           if (typename === "Object type") {
-              const objtype = context.myMetis.findObjectType(data.objtype.id);
+              const objtype = context.myMetis.findObjectType(data.objecttype.id);
               if (debug) console.log('321 objtype', objtype);
               if (objtype) {
                   let objtypeGeo = context.myMetamodel.findObjtypeGeoByType(objtype);

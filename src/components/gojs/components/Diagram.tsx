@@ -238,7 +238,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     const myMetis = this.props.myMetis;
-    if (debug) console.log('236 state', myMetis);
+    if (debug) console.log('236 state', this.props);
     // Prepare for dispatches
     const modifiedObjTypeviews = new Array();    
     const modifiedRelTypeviews = new Array();    
@@ -251,9 +251,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const selObj = this.state.selectedData;
         // selObj is a node representing an objectview
         const node = selObj;
-         if (debug) console.log('250 selObj', selObj);
         let obj = selObj.object;
         obj = myMetis.findObject(obj.id);
+        if (debug) console.log('250 selObj', selObj, obj);
         const data = node;
         if (debug) console.log('258 node', node, data);
         for (let k in data) {
@@ -658,7 +658,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
   }
 
-  public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
+  //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
+  public handleInputChange(props: any, value: string, isBlur: boolean) {
+    if (debug) console.log('663 props', props);
+    const propname = props.id;
+    const fieldType = props.type;
+    const obj = props.obj;
+    const context = props.context;
+    const pattern = props.pattern;
     if (debug) console.log('654 GoJSApp handleInputChange:', propname, value, obj, context, isBlur);
     if (debug) console.log('655 this.state', this.state);
     if (debug) console.log('656 obj', obj);

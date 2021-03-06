@@ -254,14 +254,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
          if (debug) console.log('250 selObj', selObj);
         let obj = selObj.object;
         obj = myMetis.findObject(obj.id);
-        const data = node?.data;
+        const data = node;
         if (debug) console.log('258 node', node, data);
         for (let k in data) {
           if (typeof(obj[k]) === 'object')    continue;
           if (typeof(obj[k]) === 'function')  continue;
           if (!this.isPropIncluded(k))        continue;
-          if (!debug) console.log('263 prop', k);
-          if (!debug) console.log('264 node', node, data, obj);
+          if (debug) console.log('263 prop', k);
+          if (debug) console.log('264 node', node, data, obj);
           myDiagram.model.setDataProperty(data, k, obj[k]);
           const gqlObject = new gql.gqlObject(obj);
           if (debug) console.log('267 gqlObject', gqlObject);

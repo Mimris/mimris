@@ -232,6 +232,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (k === 'strokecolor1')
           val = item['strokecolor'];
+        if (fieldType === 'checkbox') {
+          // ???
+        }
         if (debug) console.log('233 selObj, item:', selObj, item);
         if (!val) val = "";
         if (debug) console.log('235 id, value:', k, val);

@@ -550,6 +550,10 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     let parentDtype = myMetis.findDatatypeByName(parentObj.name);
                     if (debug) console.log('513 dtype', parentDtype);
                     datatype.setIsOfDatatype(parentDtype);
+                    // Copy default values from parentDtype
+                    datatype.setInputPattern(parentDtype.inputPattern);
+                    datatype.setViewFormat(parentDtype.viewFormat);
+                    datatype.setFieldType(parentDtype.fieldType);
                 }
             }  
             // Find allowed values if any

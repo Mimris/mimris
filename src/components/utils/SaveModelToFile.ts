@@ -72,11 +72,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 }, 
             };
         }
-        if (debug) console.log('77 SaveModelToFile', data);      
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+        if (!debug) console.log('77 SaveModelToFile', data);      
+        (data.phData) && props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        if (data.phFocus) props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+        (data.phUser) && props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+        (data.phSource) && props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
     };
     reader.readAsText(e.target.files[0])
   }
@@ -111,7 +111,7 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
         };
         if (debug) console.log('46 LoadLocal', data);
         
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
     };
     reader.readAsText(e.target.files[0])
   }

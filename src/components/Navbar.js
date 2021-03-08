@@ -21,7 +21,7 @@ const Navbar = (props) => (
 					<li className="nav-item">
 						<Link href="/"><a className="nav-link active">Home</a></Link>
 					</li>			
-					<li className="nav-item">
+					<li className="nav-item color-white">
 						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
 					</li>
 					{/* <li className="nav-item">
@@ -79,6 +79,13 @@ const Navbar = (props) => (
 			</div>
 			{/* <div><pre>{props}</pre></div> */}
 		</div>
+		<a className="navbar-brand ml-auto" href="http://www.kavca.no">
+				<img src="images/Kavca-logo2.png" width="22" height="24" className="d-inline-block align-top m-1" alt="Kavca logo"/>
+				<span className="fw-bold fs-4" style={{color: "#0083e2"}}>avca AS</span>
+				{/* <img src="images/Equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
+				{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
+				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
+			</a>
 	</nav>
 );
 

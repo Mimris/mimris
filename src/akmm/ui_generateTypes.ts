@@ -550,6 +550,10 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     let parentDtype = myMetis.findDatatypeByName(parentObj.name);
                     if (debug) console.log('513 dtype', parentDtype);
                     datatype.setIsOfDatatype(parentDtype);
+                    // Copy default values from parentDtype
+                    datatype.setInputPattern(parentDtype.inputPattern);
+                    datatype.setViewFormat(parentDtype.viewFormat);
+                    datatype.setFieldType(parentDtype.fieldType);
                 }
             }  
             // Find allowed values if any
@@ -597,27 +601,26 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     const toObj = rel.getToObject();
                     if (toObj.type.name === constants.types.AKM_FIELDTYPE) {
                         let valueObj = toObj;
-                        datatype.setViewFormat(valueObj.fieldType);
+                        datatype.setFieldType(valueObj.fieldType);
                     }
                 }
+            }
+            if (!debug) console.log('591 datatype', datatype);
+            myTargetMetamodel.addDatatype(datatype);
+            // Update phData
+            const gqlDatatype = new gql.gqlDatatype(datatype);
+            if (debug) console.log('595 gqlDatatype', gqlDatatype);
+            const modifiedDatatypes = new Array();
+            modifiedDatatypes.push(gqlDatatype);
+            modifiedDatatypes.map(mn => {
+                let data = (mn) && mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
+            });
 
+            if (debug) console.log('604 generateDatatype', datatype, myMetis);
+            return datatype;
         }
-        if (debug) console.log('591 datatype', datatype);
-        myTargetMetamodel.addDatatype(datatype);
-        // Update phData
-        const gqlDatatype = new gql.gqlDatatype(datatype);
-        if (debug) console.log('595 gqlDatatype', gqlDatatype);
-        const modifiedDatatypes = new Array();
-        modifiedDatatypes.push(gqlDatatype);
-        modifiedDatatypes.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
-        });
-
-        if (debug) console.log('604 generateDatatype', datatype, myMetis);
-        return datatype;
-    }
     }
 }
 

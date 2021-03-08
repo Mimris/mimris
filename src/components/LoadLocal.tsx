@@ -34,6 +34,7 @@ const LoadLocal = (props: any) => {
   function handleDispatchToStoreFromLocal() {  // load store from LocalStore (state)
     // locStatus = true
     // console.log('43 LoadLocal', locState);
+    let data;
     if (locState) {
       const phData = locState.phData
       const phFocus = locState.phFocus
@@ -41,14 +42,14 @@ const LoadLocal = (props: any) => {
       const phSource = 'localStore' //locState.sourceFlag
       if (locState) {
         // console.log('91 SelectSource', locState);
-        let data = phData
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-        data = phFocus
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
-        data = phUser
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
-        data = phSource
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
+        data = phData
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data });
+        data = phFocus;
+        (phFocus) && dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data });
+        data = phUser;
+        (phUser) && dispatch({ type: 'LOAD_TOSTORE_PHUSER', data });
+        data = phSource;
+        (phSource) && dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data });
       }
     } else alert('No Modeles saved to Local Storage')
   }
@@ -69,6 +70,7 @@ const LoadLocal = (props: any) => {
     } 
       if (debug) console.log('59 LoadLocal', localMetamodel, localModel);
   }
+
   function handleSelectMemoryModelDropdownChange(e) {
     if (debug) console.log('73 LoadMemory', e);
     const metis = memoryState.phData.metis
@@ -313,7 +315,7 @@ const LoadLocal = (props: any) => {
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                   <h5>Model</h5>
                 <div className="selectbox mb-2 border">
-                  <h6>Import from file </h6>
+                  <h6>Import from file (will overwrite current) </h6>
                   <input className="select-input w-100" type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
                 </div>
                 <div className="selectbox mb-2 border">
@@ -326,7 +328,7 @@ const LoadLocal = (props: any) => {
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                  <h5>Metamodel </h5>
                 <div className="selectbox mb-2 border"> 
-                 <h6>Import from file </h6>
+                 <h6>Import from file (will overwrite current)</h6>
                   <input className="select-input" type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
                 <div className="selectbox mb-2 border"> 
@@ -337,7 +339,7 @@ const LoadLocal = (props: any) => {
               <div className="loadsave--localStore select border border-dark">
                 <h6>Local Store </h6>
                   <div className="selectbox mb-2 border"> 
-                  <h6>Import from local</h6>
+                  <h6>Import from local (will overwrite current)</h6>
                     {buttonLoadLocalStoreDiv}
                     {loadSelectedFromLocalStoreDiv}
                 </div>

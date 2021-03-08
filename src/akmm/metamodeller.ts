@@ -1983,10 +1983,10 @@ export class cxDatatype extends cxMetaObject {
     getViewFormat(): string {
         return this.viewFormat;
     }
-    setFieldtype(val: string) {
+    setFieldType(val: string) {
         this.fieldType = val;
     }
-    getFieldtype(): string {
+    getFieldType(): string {
         return this.fieldType;
     }
 }

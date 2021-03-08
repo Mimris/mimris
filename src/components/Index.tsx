@@ -181,12 +181,16 @@ const page = (props) => {
               >
                   <CardHeader className="card-header " >Blog AKMM releases </CardHeader>
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title" >Release 2021.03.04</CardTitle>
+                    <CardText >
+                          &bull; Bugfixes!<br />
+                    </CardText>
                     <CardTitle className="card-title" >Release 2021.02.24</CardTitle>
                     <CardText >
-                        &bull; New popup menues for Edit .....!<br />
+                        &bull; New popup menues for Edit ......!<br />
                         &bull; Added popup menu for "Change Icon" on Objectviews!<br />
                         &bull; Added Select all views of this object!<br />
-                         - (Showing all objectview copies of an object (Instance) )<br />
+                         -  (Showing all objectview copies of an object (Instance) )<br />
                 
                         &bull; Bugfixes!<br /><br />
                         <strong>ToBe implemented!</strong><br /><br />

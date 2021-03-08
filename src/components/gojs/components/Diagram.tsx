@@ -3371,10 +3371,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         category = this.state.selectedData.category;
         typename = (modalContext.typename) ? '('+modalContext.typename+')' : '('+this.state.selectedData.object?.typeName+')'
         // typename = '('+this.state.selectedData.object?.typeName+')'
-        if (debug) console.log('2568 Diagram ', icon, typename, modalContext, this.state.selectedData);
+        if (!debug) console.log('3343 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2575 Diagram ', this.state.selectedData, this.myMetis);
+          if (debug) console.log('3346 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 

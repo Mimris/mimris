@@ -108,7 +108,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (debug) console.log('177 item', inst, item);
+    if (!debug) console.log('177 item', inst, item);
     for (const k in item) {
       let row;
       let fieldType = 'text';

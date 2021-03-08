@@ -5,6 +5,7 @@
 
 import * as React from 'react';
 // import './Inspector.css';
+const RegexParser = require("regex-parser");
 
 const debug = false;
 interface InspectorRowProps {
@@ -19,25 +20,31 @@ interface InspectorRowProps {
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
-    if (debug) console.log('21 props', props, this);
     this.handleInputChange = this.handleInputChange.bind(this);
+    if (debug) console.log('24 InspectorRow: this', this, this.props);
+    const value = this.props.value  
+    const pattern = this.props.pattern;
+    if ((pattern.length > 0) && (value.length > 0)) {
+      const regex = new RegexParser(pattern);
+      if (debug) console.log('29 regex:', regex);
+      if (!regex.test(value)) {
+        alert("Value: '" + value + "' IS NOT valid");
+      }
+    }
   }
 
   private handleInputChange(e: any) {
-    let value = e.target.value
-  
-    if (debug) console.log('21 InspectorRow: this.props', this.props);
-    if (debug) console.log('22 InspectorRow: e.target', e.target, e.target.files, e.target.value);
-    
-    // if (this.props.type === 'file') {
-    //   const fil = e.target.files[0]; 
-    //   if (debug) console.log('31', value, fil);
-    //   value = (fil?.name) && fil?.name.replace(/C:\\fakepath\\/,'')
-    //   if (debug) console.log('36', value);
-    // } 
-
-
-    this.props.onInputChange(this.props.id, value, this.props.type, this.props.obj, this.props.context, e.type === 'blur');
+    const value = e.target.value  
+    if (debug) console.log('38 InspectorRow: this.props', this, this.props);
+    this.props.onInputChange(this.props, value, e.type === 'blur');
+    // const pattern = this.props.pattern;
+    // if ((pattern.length > 0) && (value.length > 0)) {
+    //   const regex = new RegexParser(pattern);
+    //   if (debug) console.log('30 regex:', regex);
+    //   if (!regex.test(value)) {
+    //     alert("Value: '" + value + "' IS NOT valid");
+    //   }
+    // }
   }
   
   private formatLocation(loc: string): string {
@@ -65,8 +72,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
           <td className="pr-2" >{this.props.id}</td> 
           <td>
             <input
-              disabled={this.props.id === 'typeName'}
-              // disabled={this.props.id === 'typeName' || this.props.id === 'typename'}
+              disabled={this.props.disabled}
               id={this.props.id}
               value={val}
               type={this.props.type}

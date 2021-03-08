@@ -105,7 +105,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     } else if (category === 'Object') {
       inst = selObj.object;
+      if (debug) console.log('108 inst', inst);
       inst = myMetis.findObject(inst?.id);
+      if (debug) console.log('110 inst', inst);
       // instview = selObj.objectview;
       // instview = myMetis.findObjectView(instview?.id);
       instview = selObj;
@@ -195,6 +197,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description') continue;
         }
+        if (k === 'typeName' || k === 'typename')
+          disabled = true;
         if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
@@ -202,8 +206,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (prop.name === k) {
               const dtypeRef = prop.datatypeRef;
               const dtype = myMetis.findDatatype(dtypeRef);
-              if (dtype)
+              if (dtype) {
                 fieldType = dtype.fieldType;
+                pattern = dtype.inputPattern;
+              }
             }
             if (debug) console.log('198 prop, dtype, fieldType: ', prop, fieldType);
           }
@@ -232,6 +238,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (k === 'strokecolor1')
           val = item['strokecolor'];
+        if (fieldType === 'checkbox') {
+          // ???
+        }
         if (debug) console.log('233 selObj, item:', selObj, item);
         if (!val) val = "";
         if (debug) console.log('235 id, value:', k, val);

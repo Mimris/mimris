@@ -79,7 +79,7 @@ const Navbar = (props) => (
 			</div>
 			{/* <div><pre>{props}</pre></div> */}
 		</div>
-		<a className="navbar-brand ml-auto" href="#">
+		<a className="navbar-brand ml-auto" href="http://www.kavca.no">
 				<img src="images/Kavca-logo2.png" width="22" height="24" className="d-inline-block align-top m-1" alt="Kavca logo"/>
 				<span className="fw-bold fs-4" style={{color: "#0083e2"}}>avca AS</span>
 				{/* <img src="images/Equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}

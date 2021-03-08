@@ -105,7 +105,7 @@ const Modeller = (props: any) => {
   useEffect(() => {
     if (debug) console.log('99 Modeller useEffect 3', props); 
     // genGojsModel(props, dispatch);
-    const model = models.find(m => m.id === focusModel.id)
+    const model = models.find(m => m.id === focusModel?.id)
     if (model) {
       if (debug) console.log('111 model', model);
       const modelview = model?.modelviews[0]

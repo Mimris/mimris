@@ -56,8 +56,8 @@ const page = (props:any) => {
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
-  const curmod = metis.models.find(m => m.i === focusModel.id)
-  const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview.id)
+  const curmod = metis.models.find(m => m.i === focusModel?.id)
+  const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
   const curobjviews = curmodview?.objectviews
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
   let phFocus = props.phFocus;
@@ -91,7 +91,7 @@ const page = (props:any) => {
         setRefresh(!refresh)
       }
       setTimeout(refres, 1);
-    }, [props.phFocus.focusRefresh?.id])
+    }, [props.phFocus?.focusRefresh?.id])
 
     // useEffect(() => {
     //   if (debug) console.log('94 Modelling useEffect 4', props); 

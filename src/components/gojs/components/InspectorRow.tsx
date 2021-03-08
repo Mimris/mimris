@@ -20,31 +20,31 @@ interface InspectorRowProps {
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
+    if (!debug) console.log('23 InspectorRow: props', this.props);
     this.handleInputChange = this.handleInputChange.bind(this);
-    if (debug) console.log('24 InspectorRow: this', this, this.props);
-    const value = this.props.value  
-    const pattern = this.props.pattern;
-    if ((pattern.length > 0) && (value.length > 0)) {
-      const regex = new RegexParser(pattern);
-      if (debug) console.log('29 regex:', regex);
-      if (!regex.test(value)) {
-        alert("Value: '" + value + "' IS NOT valid");
-      }
-    }
+    if (!debug) console.log('24 InspectorRow: this', this, this.props);
   }
 
   private handleInputChange(e: any) {
-    const value = e.target.value  
-    if (debug) console.log('38 InspectorRow: this.props', this, this.props);
+    const fieldType = this.props.type;
+    if ((fieldType === 'checkbox') && (this.props.value === 'true')) {
+      e.target.checked = true;
+    }
+    if (debug) console.log('33 e.target', e.target);
+    const checked = e.target.checked;
+    const value = e.target.checked;
     this.props.onInputChange(this.props, value, e.type === 'blur');
-    // const pattern = this.props.pattern;
-    // if ((pattern.length > 0) && (value.length > 0)) {
-    //   const regex = new RegexParser(pattern);
-    //   if (debug) console.log('30 regex:', regex);
-    //   if (!regex.test(value)) {
-    //     alert("Value: '" + value + "' IS NOT valid");
-    //   }
-    // }
+    if (e.type === 'blur') {
+      if (debug) console.log('33 InspectorRow: value, checked', value, checked, this.props);
+      const pattern = this.props.pattern;
+      if ((pattern.length > 0) && (value.length > 0)) {
+        const regex = new RegexParser(pattern);
+        if (debug) console.log('30 regex:', regex);
+        if (!regex.test(value)) {
+          alert("Value: '" + value + "' IS NOT valid");
+        }
+      }
+    }
   }
   
   private formatLocation(loc: string): string {
@@ -75,6 +75,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
               disabled={this.props.disabled}
               id={this.props.id}
               value={val}
+              //checked={this.props.checked}
               type={this.props.type}
               onChange={this.handleInputChange}
               onBlur={this.handleInputChange}

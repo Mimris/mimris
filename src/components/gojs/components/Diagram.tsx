@@ -163,76 +163,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('161 node', this.state.selectedData);
   } 
 
-  isPropIncluded(k: string, type: akm.cxType): boolean {
-    let retVal = true;
-    if (k === 'id') retVal = false;
-    if (k === 'key') retVal = false;
-    if (k === '__gohashid') retVal = false;
-    if (k === 'class') retVal = false;
-    if (k === 'category') retVal = false;
-    if (k === 'abstract') retVal = false;
-    if (k === 'nameId') retVal = false;
-    if (k === 'fs_collection') retVal = false;
-    if (k === 'parent') retVal = false;
-    if (k === 'parentModel') retVal = false;
-    if (k === 'object') retVal = false;
-    if (k === 'relship') retVal = false;
-    if (k === 'type') retVal = false;
-    if (k === 'typeRef') retVal = false;
-    if (k === 'typeview') retVal = false;
-    if (k === 'typeviewRef') retVal = false;
-    if (k === 'group') retVal = false;
-    if (k === 'isGroup') retVal = false;
-    if (k === 'groupLayout') retVal = false;
-    if (k === 'objectRef') retVal = false;
-    if (k === 'fromObject') retVal = false;
-    if (k === 'toObject') retVal = false;
-    if (k === 'fromobjectRef') retVal = false;
-    if (k === 'toobjectRef') retVal = false;
-    if (k === 'toobjectRef') retVal = false;
-    if (k === 'relshipRef') retVal = false;
-    if (k === 'toObjviewRef') retVal = false;
-    if (k === 'fromObjviewRef') retVal = false;
-    if (k === 'viewkind') retVal = false;
-    if (k === 'relshipkind') retVal = false;
-    if (k === 'valueset') retVal = false;
-    if (k === 'inputrels') retVal = false;
-    if (k === 'outputrels') retVal = false;
-    if (k === 'allProperties') retVal = false;
-    if (k === 'propertyValues') retVal = false;
-    if (k === 'objectviews') retVal = false;
-    if (k === 'relshipviews') retVal = false;
-    if (k === 'isCollapsed') retVal = false;
-    if (k === 'visible') retVal = false;
-    if (k === 'deleted') retVal = false;
-    if (k === 'modified') retVal = false;
-    if (k === 'defaultValue') retVal = false;
-    if (k === 'allowedValues') retVal = false;
-    if (k === 'currentTargetModelview') retVal = false;
-    if (k === 'pasteViewsOnly') retVal = false;
-    if (k === 'deleteViewsOnly') retVal = false;
-    if (k === 'layer') retVal = false;
-    if (k === 'loc') retVal = false;
-    if (k === 'size') retVal = false;
-    if (k === 'modeltype') retVal = false;
-    if (k === 'metamodelRef') retVal = false;
-    if (k === 'targetMetamodelRef') retVal = false;
-    if (k === 'sourceModelRef') retVal = false;
-    if (k === 'targetModelRef') retVal = false;
-    if (k === 'isTemplate') retVal = false;
-    if (k === 'isMetamodel') retVal = false;
-    if (type?.name !== 'ViewFormat') {
-      if (k === 'viewFormat') retVal = false;
-    }
-    if (type?.name !== 'FieldType') {
-      if (k === 'fieldType') retVal = false;
-    }
-    if (type?.name !== 'InputPattern') {
-      if (k === 'inputPattern') retVal = false;
-    }
-    return retVal;
-  }
-  
   public handleCloseModal() {
     if (debug) console.log('232 state', this.state.selectedData);
     const what = this.state.modalContext.what;
@@ -259,7 +189,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         for (let k in data) {
           if (typeof(obj[k]) === 'object')    continue;
           if (typeof(obj[k]) === 'function')  continue;
-          if (!this.isPropIncluded(k))        continue;
+          if (!uic.isPropIncluded(k))        continue;
           if (debug) console.log('263 prop', k);
           if (debug) console.log('264 node', node, data, obj);
           myDiagram.model.setDataProperty(data, k, obj[k]);
@@ -295,7 +225,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         for (let k in data) {
           if (typeof(rel[k]) === 'object')    continue;
           if (typeof(rel[k]) === 'function')  continue;
-          if (!this.isPropIncluded(k, type))  continue;
+          if (!uic.isPropIncluded(k, type))  continue;
           myDiagram.model.setDataProperty(data, k, rel[k]);
           const gqlRelship = new gql.gqlRelationship(link.data.relship);
           if (debug) console.log('285 gqlRelship', gqlRelship);

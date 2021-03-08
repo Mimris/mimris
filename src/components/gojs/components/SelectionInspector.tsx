@@ -8,6 +8,7 @@ import { InspectorRow } from './InspectorRow';
 const toHex = require('colornames');
 const convert = require('color-convert');
 // import './Inspector.css';
+import * as uic from '../../../akmm/ui_common';
 
 const debug = false;
 interface SelectionInspectorProps {
@@ -19,78 +20,6 @@ interface SelectionInspectorProps {
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
 
-  isPropIncluded(k: string, type: akm.cxType): boolean {
-    let retVal = true;
-    if (k === 'id') retVal = false;
-    if (k === 'key') retVal = false;
-    if (k === '__gohashid') retVal = false;
-    if (k === 'class') retVal = false;
-    if (k === 'category') retVal = false;
-    if (k === 'abstract') retVal = false;
-    if (k === 'nameId') retVal = false;
-    if (k === 'fs_collection') retVal = false;
-    if (k === 'parent') retVal = false;
-    if (k === 'parentModel') retVal = false;
-    if (k === 'object') retVal = false;
-    if (k === 'relship') retVal = false;
-    if (k === 'type') retVal = false;
-    if (k === 'typeRef') retVal = false;
-    if (k === 'typeview') retVal = false;
-    if (k === 'typeviewRef') retVal = false;
-    if (k === 'group') retVal = false;
-    if (k === 'isGroup') retVal = false;
-    if (k === 'groupLayout') retVal = false;
-    if (k === 'objectRef') retVal = false;
-    if (k === 'fromObject') retVal = false;
-    if (k === 'toObject') retVal = false;
-    if (k === 'fromobjectRef') retVal = false;
-    if (k === 'toobjectRef') retVal = false;
-    if (k === 'toobjectRef') retVal = false;
-    if (k === 'relshipRef') retVal = false;
-    if (k === 'toObjviewRef') retVal = false;
-    if (k === 'fromObjviewRef') retVal = false;
-    if (k === 'toObjview') retVal = false;
-    if (k === 'fromObjview') retVal = false;
-    if (k === 'viewkind') retVal = false;
-    if (k === 'relshipkind') retVal = false;
-    if (k === 'valueset') retVal = false;
-    if (k === 'inputrels') retVal = false;
-    if (k === 'outputrels') retVal = false;
-    if (k === 'allProperties') retVal = false;
-    if (k === 'propertyValues') retVal = false;
-    if (k === 'objectviews') retVal = false;
-    if (k === 'relshipviews') retVal = false;
-    if (k === 'isCollapsed') retVal = false;
-    if (k === 'visible') retVal = false;
-    if (k === 'deleted') retVal = false;
-    if (k === 'modified') retVal = false;
-    if (k === 'defaultValue') retVal = false;
-    if (k === 'allowedValues') retVal = false;
-    if (k === 'currentTargetModelview') retVal = false;
-    if (k === 'pasteViewsOnly') retVal = false;
-    if (k === 'deleteViewsOnly') retVal = false;
-    if (k === 'layer') retVal = false;
-    if (k === 'loc') retVal = false;
-    if (k === 'size') retVal = false;
-    if (k === 'modeltype') retVal = false;
-    if (k === 'metamodelRef') retVal = false;
-    if (k === 'targetMetamodelRef') retVal = false;
-    if (k === 'sourceModelRef') retVal = false;
-    if (k === 'targetModelRef') retVal = false;
-    if (k === 'isTemplate') retVal = false;
-    if (k === 'isMetamodel') retVal = false;
-    if (type?.name !== 'ViewFormat') {
-      if (k === 'viewFormat') retVal = false;
-    }
-    if (type?.name !== 'InputPattern') {
-      if (k === 'inputPattern') retVal = false;
-    }
-    if (type?.name !== 'FieldType') {
-      if (k === 'fieldType') retVal = false;
-    }
-    return retVal;
-  }
-  
   /**
    * Render the object data, passing down property keys and values.
    */
@@ -192,7 +121,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
-        if (!this.isPropIncluded(k, type)) 
+        if (!uic.isPropIncluded(k, type)) 
           continue;
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description') continue;
@@ -239,7 +168,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (k === 'strokecolor1')
           val = item['strokecolor'];
         if (fieldType === 'checkbox') {
-          // ???
+          if (debug) console.log('171 val', val);
+          checked = (item.id === inst.id) ? item[k] : selObj[k];
+          if (checked === "") checked = val = "false";
+          if (debug) console.log('172 checked, val', checked, val);
         }
         if (debug) console.log('233 selObj, item:', selObj, item);
         if (!val) val = "";

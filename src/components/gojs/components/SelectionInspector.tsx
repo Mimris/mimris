@@ -65,7 +65,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";  // Sets empty string if undefined
     }
-    if (debug) console.log('132 inst', properties, inst, selObj);
+    if (!debug) console.log('75 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;
@@ -117,7 +117,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let checked  = false;
       let pattern  = "";
       let required = false;
-      if (k) {
+      let values   = [];
+      let defValue = "";
+  if (k) {
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
@@ -137,7 +139,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               const dtype = myMetis.findDatatype(dtypeRef);
               if (dtype) {
                 fieldType = dtype.fieldType;
-                pattern = dtype.inputPattern;
+                pattern   = dtype.inputPattern;
+                values    = dtype.allowedValues;
+                defValue  = dtype.defaultValue;
               }
             }
             if (debug) console.log('198 prop, dtype, fieldType: ', prop, fieldType);
@@ -169,14 +173,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           val = item['strokecolor'];
         if (fieldType === 'checkbox') {
           if (debug) console.log('171 val', val);
-          // checked = (item.id === inst.id) ? item[k] : selObj[k];
-          // if (checked === "") checked = val = "false";
           checked = val;
           if (debug) console.log('174 checked, val', checked, val);
         }
-        if (debug) console.log('176 selObj, item:', selObj, item);
+
+        if (fieldType === 'radio') {
+          if (!debug) console.log('181 values, defValue', values, defValue);
+        }
+
+        if (fieldType === 'select') {
+          if (!debug) console.log('185 values, defValue', values, defValue);
+        }
+
+        if (debug) console.log('183 selObj, item:', selObj, item);
         if (!val) val = "";
-        if (debug) console.log('178 id, value:', k, val);
+        if (debug) console.log('185 id, value:', k, val);
         row  = <InspectorRow
           key={k}
           id={k}
@@ -204,7 +215,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   }
   
   public render() {
-    if (debug) console.log('198 SelectionInspector ', this.renderObjectDetails());
+    if (!debug) console.log('198 SelectionInspector ', this.renderObjectDetails());
     const modalContext = this.props.context;
     if (!modalContext)
       return null;

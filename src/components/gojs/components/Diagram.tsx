@@ -453,7 +453,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myMetis.myDiagram.requestUpdate();
         break;
 
-
       case "Change Icon":    
         const icon = (selectedOption) && selectedOption;
         const inode = myMetis.currentNode;
@@ -462,7 +461,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
         myMetis.myDiagram.requestUpdate();
         break;
-
 
       case "New Model":    
         console.log('351', selected);
@@ -498,6 +496,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('544 Diagram', mmdata);        
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata })
         break;
+
       case "Change Relationship type":    
         const typename = (selectedOption) && selectedOption;
         const link = myMetis.currentLink;
@@ -515,6 +514,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('569 relview', relview);
         myMetis.myDiagram.requestUpdate();
         break;
+
       case "Edit Attribute":
         const propname = selected.value;
         if (debug) console.log('197 propname', propname);
@@ -583,6 +583,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         }
         break;
+
       default:
         break;
     }
@@ -1019,6 +1020,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
+              return false;
               const node = o.part.data;
               if (node.category === 'Object') {
                 const object = node.object;
@@ -3304,7 +3306,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('3343 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('3346 Diagram ', this.state.selectedData, this.myMetis);
+          if (!debug) console.log('3346 Diagram ', this.state.selectedData, this.myMetis);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 

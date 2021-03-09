@@ -15,7 +15,7 @@ interface SelectionInspectorProps {
   myMetis: any;
   selectedData: any;
   context: any;
-  onInputChange: (id: string, value: string, fieldType: string, selectedData: any, context: any, isBlur: boolean) => void;
+  onInputChange: (props: any, value: string, isBlur: boolean) => void;
 }
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
@@ -108,7 +108,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (!debug) console.log('177 item', inst, item);
+    if (debug) console.log('177 item', inst, item);
     for (const k in item) {
       let row;
       let fieldType = 'text';
@@ -169,13 +169,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           val = item['strokecolor'];
         if (fieldType === 'checkbox') {
           if (debug) console.log('171 val', val);
-          checked = (item.id === inst.id) ? item[k] : selObj[k];
-          if (checked === "") checked = val = "false";
-          if (debug) console.log('172 checked, val', checked, val);
+          // checked = (item.id === inst.id) ? item[k] : selObj[k];
+          // if (checked === "") checked = val = "false";
+          checked = val;
+          if (debug) console.log('174 checked, val', checked, val);
         }
-        if (debug) console.log('233 selObj, item:', selObj, item);
+        if (debug) console.log('176 selObj, item:', selObj, item);
         if (!val) val = "";
-        if (debug) console.log('235 id, value:', k, val);
+        if (debug) console.log('178 id, value:', k, val);
         row  = <InspectorRow
           key={k}
           id={k}

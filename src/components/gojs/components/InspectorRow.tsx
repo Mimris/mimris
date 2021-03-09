@@ -14,25 +14,26 @@ interface InspectorRowProps {
   type: string;
   obj: any;
   context: any;
-  onInputChange: (id: string, value: string, type: string, obj: any, context: any, isBlur: boolean) => void;
+  onInputChange: (props: any, value: string, isBlur: boolean) => void;
 }
 
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
-    if (!debug) console.log('23 InspectorRow: props', this.props);
+    if (debug) console.log('23 InspectorRow: props', this.props);
     this.handleInputChange = this.handleInputChange.bind(this);
-    if (!debug) console.log('24 InspectorRow: this', this, this.props);
+    if (debug) console.log('24 InspectorRow: this', this, this.props);
   }
 
   private handleInputChange(e: any) {
     const fieldType = this.props.type;
+    let value = e.target.value;
     if ((fieldType === 'checkbox') && (this.props.value === 'true')) {
       e.target.checked = true;
     }
-    if (debug) console.log('33 e.target', e.target);
+    if (fieldType === 'checkbox') value = e.target.checked;
+    if (debug) console.log('33 e.target', e.target, e.type, this.props);
     const checked = e.target.checked;
-    const value = e.target.checked;
     this.props.onInputChange(this.props, value, e.type === 'blur');
     if (e.type === 'blur') {
       if (debug) console.log('33 InspectorRow: value, checked', value, checked, this.props);
@@ -75,7 +76,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
               disabled={this.props.disabled}
               id={this.props.id}
               value={val}
-              //checked={this.props.checked}
+              checked={this.props.checked}
               type={this.props.type}
               onChange={this.handleInputChange}
               onBlur={this.handleInputChange}

@@ -65,7 +65,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";  // Sets empty string if undefined
     }
-    if (!debug) console.log('75 inst', properties, inst, selObj);
+    if (debug) console.log('75 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;
@@ -178,21 +178,25 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
 
         if (fieldType === 'radio') {
-          if (!debug) console.log('181 values, defValue', values, defValue);
+          if (debug) console.log('181 values, defValue', values, defValue);
+          fieldType = 'select';
         }
 
         if (fieldType === 'select') {
-          if (!debug) console.log('185 values, defValue', values, defValue);
+          if (debug) console.log('185 values, defValue', values, defValue);
+          if (val === "")
+            val = defValue;
         }
 
         if (debug) console.log('183 selObj, item:', selObj, item);
-        if (!val) val = "";
         if (debug) console.log('185 id, value:', k, val);
         row  = <InspectorRow
           key={k}
           id={k}
           type={fieldType}
           value={val}
+          values={values}
+          default={defValue}
           readonly={readonly}
           disabled={disabled}
           required={required}
@@ -215,7 +219,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   }
   
   public render() {
-    if (!debug) console.log('198 SelectionInspector ', this.renderObjectDetails());
+    if (debug) console.log('198 SelectionInspector ', this.renderObjectDetails());
     const modalContext = this.props.context;
     if (!modalContext)
       return null;

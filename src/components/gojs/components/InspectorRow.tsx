@@ -66,10 +66,9 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );
     }
-
+    if (this.props.type !== 'select') {
       return (  
         <tr>
-          {/* <td>{this.props.id}</td>  */}
           <td className="pr-2" >{this.props.id}</td> 
           <td>
             <input
@@ -85,6 +84,30 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
           </td>
         </tr>
       );
-    
+    } 
+    else {
+      console.log('90 fieldType = select', this.props.id);
+      const listname = "ModelStatus"; // Cannot include spaces
+      const values = this.props.values;
+      const optionsDiv = values.map((option) => <option value={option}/>)
+      const optionslistDiv = <datalist id={listname}>{optionsDiv}</datalist>
+
+      return (
+      <tr>
+        <td className="pr-2" >{this.props.id}</td> 
+        <td>
+          <input
+            id={this.props.id}
+            type="text"
+            list={listname}
+            placeholder={val}
+            onChange={this.handleInputChange}
+            onBlur={this.handleInputChange}
+            />
+            {optionslistDiv}
+        </td>
+      </tr>
+     );
+    }    
   }
 }

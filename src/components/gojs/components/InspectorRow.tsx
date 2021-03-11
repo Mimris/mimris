@@ -86,10 +86,9 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       );
     } 
     else {
-      console.log('90 fieldType = select', this.props.id);
       const listname = "ModelStatus"; // Cannot include spaces
       const values = this.props.values;
-      const optionsDiv = values.map((option) => <option value={option}/>)
+      const optionsDiv = values.map((option) => <option key={option} value={option}/>)
       const optionslistDiv = <datalist id={listname}>{optionsDiv}</datalist>
 
       return (

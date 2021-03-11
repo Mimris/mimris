@@ -8,89 +8,18 @@ import { InspectorRow } from './InspectorRow';
 const toHex = require('colornames');
 const convert = require('color-convert');
 // import './Inspector.css';
+import * as uic from '../../../akmm/ui_common';
 
 const debug = false;
 interface SelectionInspectorProps {
   myMetis: any;
   selectedData: any;
   context: any;
-  onInputChange: (id: string, value: string, fieldType: string, selectedData: any, context: any, isBlur: boolean) => void;
+  onInputChange: (props: any, value: string, isBlur: boolean) => void;
 }
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
 
-  isPropIncluded(k: string, type: akm.cxType): boolean {
-    let retVal = true;
-    if (k === 'id') retVal = false;
-    if (k === 'key') retVal = false;
-    if (k === '__gohashid') retVal = false;
-    if (k === 'class') retVal = false;
-    if (k === 'category') retVal = false;
-    if (k === 'abstract') retVal = false;
-    if (k === 'nameId') retVal = false;
-    if (k === 'fs_collection') retVal = false;
-    if (k === 'parent') retVal = false;
-    if (k === 'parentModel') retVal = false;
-    if (k === 'object') retVal = false;
-    if (k === 'relship') retVal = false;
-    if (k === 'type') retVal = false;
-    if (k === 'typeRef') retVal = false;
-    if (k === 'typeview') retVal = false;
-    if (k === 'typeviewRef') retVal = false;
-    if (k === 'group') retVal = false;
-    if (k === 'isGroup') retVal = false;
-    if (k === 'groupLayout') retVal = false;
-    if (k === 'objectRef') retVal = false;
-    if (k === 'fromObject') retVal = false;
-    if (k === 'toObject') retVal = false;
-    if (k === 'fromobjectRef') retVal = false;
-    if (k === 'toobjectRef') retVal = false;
-    if (k === 'toobjectRef') retVal = false;
-    if (k === 'relshipRef') retVal = false;
-    if (k === 'toObjviewRef') retVal = false;
-    if (k === 'fromObjviewRef') retVal = false;
-    if (k === 'toObjview') retVal = false;
-    if (k === 'fromObjview') retVal = false;
-    if (k === 'viewkind') retVal = false;
-    if (k === 'relshipkind') retVal = false;
-    if (k === 'valueset') retVal = false;
-    if (k === 'inputrels') retVal = false;
-    if (k === 'outputrels') retVal = false;
-    if (k === 'allProperties') retVal = false;
-    if (k === 'propertyValues') retVal = false;
-    if (k === 'objectviews') retVal = false;
-    if (k === 'relshipviews') retVal = false;
-    if (k === 'isCollapsed') retVal = false;
-    if (k === 'visible') retVal = false;
-    if (k === 'deleted') retVal = false;
-    if (k === 'modified') retVal = false;
-    if (k === 'defaultValue') retVal = false;
-    if (k === 'allowedValues') retVal = false;
-    if (k === 'currentTargetModelview') retVal = false;
-    if (k === 'pasteViewsOnly') retVal = false;
-    if (k === 'deleteViewsOnly') retVal = false;
-    if (k === 'layer') retVal = false;
-    if (k === 'loc') retVal = false;
-    if (k === 'size') retVal = false;
-    if (k === 'modeltype') retVal = false;
-    if (k === 'metamodelRef') retVal = false;
-    if (k === 'targetMetamodelRef') retVal = false;
-    if (k === 'sourceModelRef') retVal = false;
-    if (k === 'targetModelRef') retVal = false;
-    if (k === 'isTemplate') retVal = false;
-    if (k === 'isMetamodel') retVal = false;
-    if (type?.name !== 'ViewFormat') {
-      if (k === 'viewFormat') retVal = false;
-    }
-    if (type?.name !== 'InputPattern') {
-      if (k === 'inputPattern') retVal = false;
-    }
-    if (type?.name !== 'FieldType') {
-      if (k === 'fieldType') retVal = false;
-    }
-    return retVal;
-  }
-  
   /**
    * Render the object data, passing down property keys and values.
    */
@@ -121,6 +50,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === 'Object type') {
       inst = selObj;
       instview = null;
+    } else if (category === 'Relationship type') {
+      inst = selObj;
+      instview = null;
     } else if (category === 'Metis') {
       inst = selObj;
     } else if (category === 'Model view') {
@@ -136,7 +68,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       const v = inst[prop.name];
       if (!v) inst[prop.name] = "";  // Sets empty string if undefined
     }
-    if (debug) console.log('132 inst', properties, inst, selObj);
+    if (debug) console.log('75 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;
@@ -174,12 +106,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (instview) item = instview.typeview?.data;
         else item = inst;
         hideNameAndDescr = true;
-        if (debug) console.log('86 item', item);
+        if (debug) console.log('106 item', item);
         break;  
       default:
         item = inst;
     }
-    if (!debug) console.log('177 item', inst, item);
+    if (debug) console.log('111 item', inst, item);
     for (const k in item) {
       let row;
       let fieldType = 'text';
@@ -188,11 +120,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let checked  = false;
       let pattern  = "";
       let required = false;
+      let defValue = "";
+      let values   = [];
+      let keys     = [];
       if (k) {
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
-        if (!this.isPropIncluded(k, type)) 
+        if (!uic.isPropIncluded(k, type)) 
           continue;
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description') continue;
@@ -208,7 +143,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               const dtype = myMetis.findDatatype(dtypeRef);
               if (dtype) {
                 fieldType = dtype.fieldType;
-                pattern = dtype.inputPattern;
+                pattern   = dtype.inputPattern;
+                defValue  = dtype.defaultValue;
+                values    = dtype.allowedValues;
+                // if (values.length > 0) {
+                //   // Create map 
+                //   const map = new Map(); 
+                //   for(let i = 0; i < keys.length; i++){ 
+                //       map.set(keys[i], values[i]); 
+                //   } 
+                // }
               }
             }
             if (debug) console.log('198 prop, dtype, fieldType: ', prop, fieldType);
@@ -236,19 +180,47 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }         
           if (debug) console.log('218 color', val);
         }
-        if (k === 'strokecolor1')
-          val = item['strokecolor'];
         if (fieldType === 'checkbox') {
-          // ???
+          if (debug) console.log('171 val', val);
+          checked = val;
+          if (debug) console.log('174 checked, val', checked, val);
         }
-        if (debug) console.log('233 selObj, item:', selObj, item);
-        if (!val) val = "";
-        if (debug) console.log('235 id, value:', k, val);
+
+        if (fieldType === 'radio') {
+          if (debug) console.log('181 values, defValue', values, defValue);
+          fieldType = 'select';
+          const p1 = "^(";
+          const p2 = ")$";
+          let p = "";
+          let cnt = 0;
+          for (let i=0; i<values.length; i++) {
+            const value = values[i];
+            if (debug) console.log('196 value', i, value);
+            if (p === "") {
+              p = value;
+            } else {
+              p += "|" + value;
+            }
+          }
+          pattern = p1 + p + p2;
+          if (debug) console.log('191 pattern', pattern);
+        }
+
+        if (fieldType === 'select') {
+          if (debug) console.log('185 values, defValue', values, defValue);
+          if (val === "")
+            val = defValue;
+        }
+
+        if (debug) console.log('183 selObj, item:', selObj, item);
+        if (debug) console.log('185 id, value:', k, val);
         row  = <InspectorRow
           key={k}
           id={k}
           type={fieldType}
           value={val}
+          values={values}
+          default={defValue}
           readonly={readonly}
           disabled={disabled}
           required={required}

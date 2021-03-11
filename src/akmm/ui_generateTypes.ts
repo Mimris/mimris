@@ -605,7 +605,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     }
                 }
             }
-            if (!debug) console.log('591 datatype', datatype);
+            if (debug) console.log('591 datatype', datatype);
             myTargetMetamodel.addDatatype(datatype);
             // Update phData
             const gqlDatatype = new gql.gqlDatatype(datatype);

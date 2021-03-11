@@ -100,7 +100,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         
       if (debug) console.log('98 gojsModel', myPalette.nodes, myPalette.links);
       if (debug) console.log('98 myMetamodelPalette', myMetamodelPalette.nodes);
-      if (debug) console.log('98 myTargetMetamelPalette', myTargetMetamodelPalette);
+      if (debug) console.log('98 myTargetMetamodelPalette', myTargetMetamodelPalette);
       
       const gojsMetamodelPalette =  {
         nodeDataArray: myMetamodelPalette?.nodes,

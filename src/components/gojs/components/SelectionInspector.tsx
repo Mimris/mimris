@@ -50,6 +50,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === 'Object type') {
       inst = selObj;
       instview = null;
+    } else if (category === 'Relationship type') {
+      inst = selObj;
+      instview = null;
     } else if (category === 'Metis') {
       inst = selObj;
     } else if (category === 'Model view') {
@@ -103,12 +106,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (instview) item = instview.typeview?.data;
         else item = inst;
         hideNameAndDescr = true;
-        if (debug) console.log('86 item', item);
+        if (debug) console.log('106 item', item);
         break;  
       default:
         item = inst;
     }
-    if (debug) console.log('177 item', inst, item);
+    if (debug) console.log('111 item', inst, item);
     for (const k in item) {
       let row;
       let fieldType = 'text';
@@ -177,8 +180,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }         
           if (debug) console.log('218 color', val);
         }
-        if (k === 'strokecolor1')
-          val = item['strokecolor'];
         if (fieldType === 'checkbox') {
           if (debug) console.log('171 val', val);
           checked = val;

@@ -1545,6 +1545,8 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'isGroup') retVal = false;
     if (k === 'groupLayout') retVal = false;
     if (k === 'objectRef') retVal = false;
+    if (k === 'from') retVal = false;
+    if (k === 'to') retVal = false;
     if (k === 'fromObject') retVal = false;
     if (k === 'toObject') retVal = false;
     if (k === 'fromobjectRef') retVal = false;

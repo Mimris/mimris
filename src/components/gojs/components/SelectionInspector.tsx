@@ -117,9 +117,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let checked  = false;
       let pattern  = "";
       let required = false;
-      let values   = [];
       let defValue = "";
-  if (k) {
+      let values   = [];
+      let keys     = [];
+      if (k) {
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
@@ -140,8 +141,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               if (dtype) {
                 fieldType = dtype.fieldType;
                 pattern   = dtype.inputPattern;
-                values    = dtype.allowedValues;
                 defValue  = dtype.defaultValue;
+                values    = dtype.allowedValues;
+                // if (values.length > 0) {
+                //   // Create map 
+                //   const map = new Map(); 
+                //   for(let i = 0; i < keys.length; i++){ 
+                //       map.set(keys[i], values[i]); 
+                //   } 
+                // }
               }
             }
             if (debug) console.log('198 prop, dtype, fieldType: ', prop, fieldType);
@@ -180,6 +188,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (fieldType === 'radio') {
           if (debug) console.log('181 values, defValue', values, defValue);
           fieldType = 'select';
+          const p1 = "^(";
+          const p2 = ")$";
+          let p = "";
+          let cnt = 0;
+          for (let i=0; i<values.length; i++) {
+            const value = values[i];
+            if (debug) console.log('196 value', i, value);
+            if (p === "") {
+              p = value;
+            } else {
+              p += "|" + value;
+            }
+          }
+          pattern = p1 + p + p2;
+          if (debug) console.log('191 pattern', pattern);
         }
 
         if (fieldType === 'select') {

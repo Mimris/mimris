@@ -184,6 +184,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         let obj = selObj.object;
         obj = myMetis.findObject(obj.id);
         if (debug) console.log('250 selObj', selObj, obj);
+        const type = obj.type;
+        // Check if any of the values are NOT VALID
+        const properties = type?.properties;
+        for (let i=0; i<properties?.length; i++) {
+          const prop = properties[i];
+          const dtypeRef = prop.datatypeRef;
+          const dtype = myMetis.findDatatype(dtypeRef);
+          if (dtype) {
+            const pattern = dtype.inputPattern;
+            const value = obj[prop.name];
+            if (debug) console.log('197 value', pattern, value);
+            if ((pattern.length > 0) && (value.length > 0)) {
+              const regex = new RegexParser(pattern);
+              if (debug) console.log('30 regex:', regex);
+              if (!regex.test(value)) {
+                const errormsg = "Value: '" + value + "' of '" + prop.name + "' IS NOT valid"
+                alert(errormsg);
+                return;
+              }
+            }
+          }
+        }
         const data = node;
         if (debug) console.log('258 node', node, data);
         for (let k in data) {
@@ -192,6 +214,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (!uic.isPropIncluded(k))        continue;
           if (debug) console.log('263 prop', k);
           if (debug) console.log('264 node', node, data, obj);
+
+
+
           myDiagram.model.setDataProperty(data, k, obj[k]);
           const gqlObject = new gql.gqlObject(obj);
           if (debug) console.log('267 gqlObject', gqlObject);

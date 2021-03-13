@@ -20,12 +20,13 @@ interface InspectorRowProps {
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
-    if (debug) console.log('23 InspectorRow: props', this.props);
+    if (!debug) console.log('23 InspectorRow: props', this.props);
     this.handleInputChange = this.handleInputChange.bind(this);
-    if (debug) console.log('24 InspectorRow: this', this, this.props);
+    if (!debug) console.log('24 InspectorRow: this', this, this.props);
   }
 
   private handleInputChange(e: any) {
+    if (!debug) console.log('29 handleInput', this.props);
     const fieldType = this.props.type;
     let value = e.target.value;
     if ((fieldType === 'checkbox') && (this.props.value === 'true')) {
@@ -36,7 +37,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     const checked = e.target.checked;
     this.props.onInputChange(this.props, value, e.type === 'blur');
     if (e.type === 'blur') {
-      if (debug) console.log('33 InspectorRow: value, checked', value, checked, this.props);
+      if (!debug) console.log('33 InspectorRow: value, checked', value, checked, this.props);
       const pattern = this.props.pattern;
       if ((pattern.length > 0) && (value.length > 0)) {
         const regex = new RegexParser(pattern);
@@ -61,7 +62,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
   
   public render() {
-    if (debug) console.log('45 InspectorRow: this.props', this.props);
+    if (!debug) console.log('64 InspectorRow: this.props', this.props);
     let val = this.props.value;
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );

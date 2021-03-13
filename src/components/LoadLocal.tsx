@@ -219,28 +219,6 @@ const LoadLocal = (props: any) => {
     (reduxmod) && setLocState(data)
   }
 
-  function handleSaveAllToFile() {
-    const data = {
-      phData:   props.ph.phData,
-      phFocus:  props.ph.phFocus,
-      phUser:   props.ph.phUser,
-      phSource: 'localFile'
-    }
-    const projectname = props.ph.phData.metis.name
-    SaveAllToFile(data, projectname, 'AKMM-Project')
-  }
-  function handleSaveModelToFile() {
-    const projectname = props.ph.phData.metis.name
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    SaveModelToFile(model, model.name, 'AKMM-Model')
-    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
-  }
-  function handleSaveMetamodelToFile() {
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) // current model index
-    SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
-  }
-
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
@@ -269,26 +247,6 @@ const LoadLocal = (props: any) => {
       onClick={handleSaveCurrentModelToLocalStore}>Save Current model to LocalStorage 
     </button >
 
-  const buttonSaveAllToFileDiv = 
-    <button 
-      className="btn-primary btn-sm mr-2  w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFile}>Save Project to File
-    </button >
-  const buttonSaveModelToFileDiv = 
-    <button className="btn-primary btn-sm mr-2  w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download current model to file&#013;(in Downloads folder)"
-      onClick={handleSaveModelToFile}>Save Current Model to File 
-    </button >
-  const buttonSaveMetamodelToFileDiv = 
-    <button 
-      className="btn-primary btn-sm mr-2  w-100  " 
-      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
-      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (Downloads)
-    </button >
 
   const buttonLoadMemoryStoreDiv = 
     <button 
@@ -301,7 +259,7 @@ const LoadLocal = (props: any) => {
   
   return (
     <>
-      <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+      <button className="btn-context btn-primary float-right mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
         <ModalBody className="pt-0">
@@ -311,31 +269,6 @@ const LoadLocal = (props: any) => {
           <div className="source bg-light p-2 ">
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <div className="loadsave px-2 pb-1 mb-0">
-            <div className="loadsave--modelToFile select mb-1 p-2  border border-dark">
-                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                  <h5>Model</h5>
-                <div className="selectbox mb-2 border">
-                  <h6>Import from file (will overwrite current) </h6>
-                  <input className="select-input w-100" type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
-                </div>
-                <div className="selectbox mb-2 border">
-                  <h6>Export to file </h6>
-                {buttonSaveAllToFileDiv}
-                {buttonSaveModelToFileDiv}
-                </div>
-              </div>
-              <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
-                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                 <h5>Metamodel </h5>
-                <div className="selectbox mb-2 border"> 
-                 <h6>Import from file (will overwrite current)</h6>
-                  <input className="select-input" type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
-                </div>
-                <div className="selectbox mb-2 border"> 
-                  <h6>Export to file </h6>
-                  {buttonSaveMetamodelToFileDiv}
-                </div>
-              </div>
               <div className="loadsave--localStore select border border-dark">
                 <h6>Local Store </h6>
                   <div className="selectbox mb-2 border"> 

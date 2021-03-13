@@ -1578,6 +1578,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'layer') retVal = false;
     if (k === 'loc') retVal = false;
     if (k === 'size') retVal = false;
+    if (k === 'typeid') retVal = false;
     if (k === 'modeltype') retVal = false;
     if (k === 'metamodelRef') retVal = false;
     if (k === 'targetMetamodelRef') retVal = false;

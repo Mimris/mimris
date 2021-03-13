@@ -64,7 +64,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       myGoMetamodel: this.props.myGoMetamodel,
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
+      modelType: this.props.modelType,
     };
+    if (!debug) console.log('69 modelType',this.props.modelType);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
   }
 
@@ -114,7 +116,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     return null;
   }
 
-
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
@@ -127,6 +128,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
+    myMetis.modelType = this.state.modelType;
     if (debug) console.log('139 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel.id);
     const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview.id);

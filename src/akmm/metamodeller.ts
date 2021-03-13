@@ -3566,7 +3566,7 @@ export class cxRelationshipType extends cxObjectType {
         this.toObjtype = toObjtype;
         this.relshipkind = constants.relkinds.REL;
         this.viewkind = "";
-        this.cardinality = "*";
+        this.cardinality = "";
     }
     // Methods
     setDefaultTypeView(typeview: cxRelationshipTypeView) {

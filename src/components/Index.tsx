@@ -58,7 +58,7 @@ const page = (props) => {
               >
                 <CardHeader className="card-header ">Modelling with AKM Modeller:</CardHeader>
                 <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,005,0.2)"}}>
-                  <CardTitle className="card-title" style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
+                  <CardTitle className="card-title-bold">To get started !</CardTitle>
                   <CardText className="card-text"> 
                     <strong>Select Modelling in the top menu </strong><br />
                     (An initial empty model is loaded)
@@ -87,7 +87,7 @@ const page = (props) => {
               >
                 <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,225,0.4)"}}>
                   <CardHeader className="card-header">Terminologi!</CardHeader>
-                  <CardTitle style={{ fontWeight: "bolder", fontSize: "150%" }}>IRTV</CardTitle>
+                  <CardTitle className="card-title-bold" >IRTV</CardTitle>
                   <CardText className="card-text "> 
                     <strong> IRTV stands for: Information, Role, Task, View</strong>
                     <br />We start with an built in IRTV-Metamodel, wich contain the basic building blocks for AKM Models <br />(shown in the left Palette in the modelling page). 
@@ -131,12 +131,13 @@ const page = (props) => {
                   </CardText>
                 </CardBody>
               </Card>
+
               <Card className="card" body outline color="warning"
                 style={{
                   background: "rgba(255,255,255,0.4)",
                   borderRadius: "10px",
                   border: "1px solid rgba(255,255,255,0.2)",
-                  position: "relative",
+                  // position: "relative",
                   backdropFilter: "blur(5px)",
                   WebkitBackdropFilter: "blur(5px)",
                   // display: "block",
@@ -163,11 +164,12 @@ const page = (props) => {
                   </CardText>
                 </CardBody>
               </Card>
-              <Card className="card" body outline color="primary" 
+
+              <Card className="card" body outline  
                 style={{
-                  background: "rgba(255,255,255,0.8)",
+                  background: "rgba(255,255,255,0.4)",
                   borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.6)",
+                  border: "1px solid rgba(255,255,255,0.4)",
                   // position: "relative",
                   backdropFilter: "blur(5px)",
                   WebkitBackdropFilter: "blur(5px)",
@@ -175,25 +177,14 @@ const page = (props) => {
                   // margin: "0 auto",
                   // padding: "2px"
                 }}
-                style={{maxHeight: 'calc(110vh - 210px)', maxWidth: "50vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"} }} 
+                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"} }} 
 
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
-                  <CardHeader className="card-header " >Blog AKMM releases </CardHeader>
-                  <CardBody className="card-body" >
-                    <CardTitle className="card-title" >Release 2021.03.04</CardTitle>
+                  <CardHeader className="card-header " >AKMM release blog ... </CardHeader>
+                  <CardBody className="card-body" >  
+                    <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
                     <CardText >
-                          &bull; Bugfixes!<br />
-                    </CardText>
-                    <CardTitle className="card-title" >Release 2021.02.24</CardTitle>
-                    <CardText >
-                        &bull; New popup menues for Edit ......!<br />
-                        &bull; Added popup menu for "Change Icon" on Objectviews!<br />
-                        &bull; Added Select all views of this object!<br />
-                         -  (Showing all objectview copies of an object (Instance) )<br />
-                
-                        &bull; Bugfixes!<br /><br />
-                        <strong>ToBe implemented!</strong><br /><br />
                         &bull; Workplace templates for reflective workplace modelling! <br />
                         &bull; Popup select menu for new relships!<br />
                         &bull; Image picker to select icons!<br />
@@ -202,11 +193,29 @@ const page = (props) => {
                         &bull; Instruction videos for modelling Best Practices! <br />
                         &bull; Enhancement of user interface! <br />
                         &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
-
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
-                    <CardTitle className="card-title" >Release 2021.02.16</CardTitle>
+                    <CardTitle className="card-title-bold" >Release 2021.03.12</CardTitle>
+                    <CardText >
+                          &bull; Kavca logo with link to kavca.no!<br />
+                          &bull; Input pattern and Field type related to Datatype<br />
+                          &bull; Attributes with inputpattern and value dropdownlist generated to TargetMetamodel<br />
+                    </CardText>
+                  </CardBody>
+       
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.02.24</CardTitle>
+                    <CardText >
+                        &bull; New popup menues for Edit ......!<br />
+                        &bull; Added popup menu for "Change Icon" on Objectviews!<br />
+                        &bull; Added Select all views of this object!<br />
+                         -  (Showing all objectview copies of an object (Instance) )<br />
+                        &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.02.16</CardTitle>
                     <CardText >
                         &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
                         &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
@@ -219,13 +228,13 @@ const page = (props) => {
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
-                    <CardTitle className="card-title" >Release 2021.02.11</CardTitle>
+                    <CardTitle className="card-title-bold" >Release 2021.02.11</CardTitle>
                     <CardText >
                         &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
-                  <CardTitle className="card-title" >Release 2021.02.05</CardTitle>
+                  <CardTitle className="card-title.bold" >Release 2021.02.05</CardTitle>
                   <CardText >
                       New features added:<br />
                         &bull; Projects as collection of Models and Metamodels!<br />

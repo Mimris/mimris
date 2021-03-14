@@ -183,46 +183,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const selObj = this.state.selectedData;
         if (debug) console.log('182 selObj', selObj);
         // selObj is a node representing an objecttype
-        const node = selObj;
+        let node = selObj;
         let type = node.objecttype;
+        node = myDiagram.findNodeForKey(node.key);
         type = myMetis.findObjectType(type.id);
         if (debug) console.log('250 selObj', selObj, type);
-        // Check if any of the values are NOT VALID
-        // const properties = type?.properties;
-        // for (let i=0; i<properties?.length; i++) {
-        //   const prop = properties[i];
-        //   const dtypeRef = prop.datatypeRef;
-        //   const dtype = myMetis.findDatatype(dtypeRef);
-        //   if (dtype) {
-        //     const pattern = dtype.inputPattern;
-        //     const value = obj[prop.name];
-        //     if (debug) console.log('197 value', pattern, value);
-        //     if ((pattern.length > 0) && (value.length > 0)) {
-        //       const regex = new RegexParser(pattern);
-        //       if (debug) console.log('30 regex:', regex);
-        //       if (!regex.test(value)) {
-        //         const errormsg = "Value: '" + value + "' of '" + prop.name + "' IS NOT valid"
-        //         alert(errormsg);
-        //         return;
-        //       }
-        //     }
-        //   }
-        // }
-        const data = node;
+        const data = node.data;
         if (debug) console.log('212 node, type', data, type);
-        for (let k in data) {
+        for (let k in selObj) {
           if (typeof(type[k]) === 'object')    continue;
           if (typeof(type[k]) === 'function')  continue;
           if (!uic.isPropIncluded(k))        continue;
-          type[k] = data[k];
-          if (debug) console.log('217 prop', k);
-          if (debug) console.log('218 node', data, type);
+          type[k] = selObj[k];
           myDiagram.model.setDataProperty(data, k, type[k]);
-          const gqlObjtype = new gql.gqlObjectType(type, true);
-          if (debug) console.log('222 gqlObjtype', gqlObjtype);
-          modifiedObjtypes.push(gqlObjtype);
         }
         // Do the dispatches
+        const gqlObjtype = new gql.gqlObjectType(type, true);
+        if (debug) console.log('222 gqlObjtype', gqlObjtype);
+        modifiedObjtypes.push(gqlObjtype);
         modifiedObjtypes.map(mn => {
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
@@ -235,30 +213,29 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const selObj = this.state.selectedData;
         if (debug) console.log('236 selObj', selObj);
         // selObj is a link representing an relationship type
-        const link = selObj;
+        let link = selObj;
         let type = link.reltype;
+        link = myDiagram.findLinkForKey(link.key);
         type = myMetis.findRelationshipType(type.id);
         if (debug) console.log('241 link', link, type);
-        const data = link;
+        const data = link.data;
         if (debug) console.log('243 link, type', data, type);
-        for (let k in data) {
+        for (let k in selObj) {
           if (typeof(type[k]) === 'object')    continue;
           if (typeof(type[k]) === 'function')  continue;
           if (!uic.isPropIncluded(k))        continue;
-          type[k] = data[k];
-          if (debug) console.log('249 prop', k);
-          if (debug) console.log('250 node', data, type);
+          type[k] = selObj[k];
           myDiagram.model.setDataProperty(data, k, type[k]);
-          const gqlReltype = new gql.gqlRelationshipType(type, true);
-          if (debug) console.log('253 gqlReltype', gqlReltype);
-          modifiedReltypes.push(gqlReltype);
         }
         // Do the dispatches
+        const gqlReltype = new gql.gqlRelationshipType(type, true);
+        if (debug) console.log('256 gqlReltype', type, gqlReltype);
+        modifiedReltypes.push(gqlReltype);
         modifiedReltypes.map(mn => {
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
         })
-        if (debug) console.log('284 selObj', selObj);
+        if (debug) console.log('262 selObj', selObj);
         break;
       }
       case "editObject": {
@@ -1997,7 +1974,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const link = o.part.data;
-              if (node.category === 'Relationship type') {
+              if (link.category === 'Relationship type') {
                 return true;
               }
               return false; 

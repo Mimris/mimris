@@ -164,11 +164,11 @@ const page = (props:any) => {
         border-radius: 4px;
         // outline-offset:-6px;
         padding: 0px;
-        maring: 0px;
+        margin: 0px;
         font-size: 80%;
         background-color: #e8e8e8;
         color: #700;
-        max-height: 60px; 
+        max-height: 20px; 
       }
       .tasksarea {
         grid-area: tasksarea;

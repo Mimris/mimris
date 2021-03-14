@@ -164,7 +164,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   } 
 
   public handleCloseModal() {
-    if (debug) console.log('232 state', this.state.selectedData);
+    if (!debug) console.log('232 state', this.state.selectedData);
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     const myMetis = this.props.myMetis;
@@ -181,7 +181,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     switch(what) {
       case "editObjectType": {
         const selObj = this.state.selectedData;
-        if (debug) console.log('182 selObj', selObj);
+        if (!debug) console.log('182 selObj', selObj);
         // selObj is a node representing an objecttype
         let node = selObj;
         let type = node.objecttype;
@@ -446,22 +446,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "editTypeview": {   
         let selObj = this.state.selectedData; 
-        if (debug) console.log('388 selObj', selObj);
+        if (!debug) console.log('449 selObj', selObj);
         let inst, data, typeview;
         if (selObj.category === 'Object type') {
           let node = myMetis.currentNode;
           node = myDiagram.findNodeForKey(node.key);
           data = node.data;
-          if (debug) console.log('394 data', data);
+          if (debug) console.log('455 data', data);
           typeview = data.typeview;
           typeview = myMetis.findObjectTypeView(typeview.id);
           for (let prop in typeview.data) {
             typeview.data[prop] = selObj[prop];
-            data[prop] = selObj[prop];
           }
-          if (debug) console.log('401 typeview', typeview, data);
-          const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
-          if (debug) console.log('403 gqlObjtypeview', gqlObjtypeview);
+          if (debug) console.log('461 typeview', typeview, data);
+           const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
+          if (!debug) console.log('463 gqlObjtypeview', gqlObjtypeview);
           modifiedObjTypeviews.push(gqlObjtypeview);
           modifiedObjTypeviews.map(mn => {
             let data = mn;
@@ -1485,6 +1484,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function(o: any) { 
+              return false;
               let obj = o.part.data.object;
               let objtype = obj.type;
               if (objtype.name === constants.types.AKM_UNIT)
@@ -1557,7 +1557,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Typeview",
           function (e: any, obj: any) { 
             const node = obj.part.data;
-            if (debug) console.log('1477 node', node);
+            if (!debug) console.log('1477 node', node);
             const modalContext = {
               what: "editTypeview",
               title: "Edit Typeview",

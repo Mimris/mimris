@@ -155,7 +155,7 @@ const page = (props:any) => {
     
     const [activeTab, setActiveTab] = useState('2');
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
-      const data = (tab === '1') ? 'metamodel' : 'model'
+      const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
       // console.log('159', data, dispatch({ type: 'SET_FOCUS_TAB', data }));
       dispatch({ type: 'SET_FOCUS_TAB', data })
     }

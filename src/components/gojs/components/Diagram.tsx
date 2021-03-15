@@ -379,17 +379,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const selObj = selectedData;
             const node = myDiagram.findNodeForKey(selObj.key);
             if (debug) console.log('238 node', node);
-<<<<<<< HEAD
-            const gqlObjview = new gql.gqlObjectView(objview);
-            const data = gqlObjview;
-            if (!debug) console.log('281 gqlObjview', data, gqlObjview);
-=======
             const data = node.data;
             const objview = data.objectview;
             objview['icon'] = data['icon'];
             const gqlObjview = new gql.gqlObjectView(data.objectview);
             if (debug) console.log('243 gqlObjview', data, gqlObjview);
->>>>>>> b3523aebdf4bb93d4bb629a797baec452266b611
             modifiedObjviews.push(gqlObjview);
             modifiedObjviews.map(mn => {
               let data = mn;

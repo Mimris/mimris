@@ -199,6 +199,7 @@ const page = (props) => {
                     <CardTitle className="card-title-bold" >Release 2021.03.12</CardTitle>
                     <CardText >
                           &bull; Kavca logo with link to kavca.no!<br />
+                          &bull; Added button for save/upload local file!<br />
                           &bull; Input pattern and Field type related to Datatype<br />
                           &bull; Attributes with inputpattern and value dropdownlist generated to TargetMetamodel<br />
                     </CardText>

@@ -442,13 +442,23 @@
 .contextarea {
   margin-top: 1px;
 } 
-
+.context-list {
+  /* overflow: none ; */
+  /* display: flex; */
+  /* align-items: center;
+  justify-content: center ; */
+  max-height: 18px;
+}
 .context-all {
   grid-area: context-all;
   display: grid;
   grid-template-columns: 60px auto ;
   grid-template-areas:
   "title org proj loc role ";
+}
+.focusValue {
+  background-color:rgb(250, 245, 239);
+  margin-left: 1vh;
 }
 
 .focus-all {

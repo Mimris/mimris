@@ -3014,29 +3014,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               myDiagram.layout = $(go.CircularLayout); 
               console.log('3016 myDiagram', myDiagram);
+              const modifiedTypeGeos = new Array();
               const nodes = myDiagram.nodes;
               for (let it = nodes.iterator; it.next();) {
                 const node = it.value;
                 const data = node.data;
                 if (debug) console.log('3021 data', data);
-                const loc = data.loc;
-                const size = data.size;
                 const objtype = data.objecttype;
                 const metamodel = myMetis.currentMetamodel;
                 const geo = metamodel.findObjtypeGeoByType(objtype);
-                geo.setLoc(loc);
-                geo.setSize(size);
+                geo.setLoc(data.loc);
+                geo.setSize(data.size);
+                geo.setModified();
                 if (debug) console.log('3028 geo', geo);
                 // Do the dispatch
-                const modifiedTypeGeos = [];
                 const gqlObjtypeGeo = new gql.gqlObjectTypegeo(geo);
                 if (debug) console.log('332 gqlObjtypeGeo', gqlObjtypeGeo);
                 modifiedTypeGeos.push(gqlObjtypeGeo);
-                modifiedTypeGeos?.map(mn => {
-                  let data = (mn) && mn
-                  myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
-                })
               }
+              modifiedTypeGeos?.map(mn => {
+                let data = (mn) && mn
+                myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
+              })
             },
             function (o: any) { 
               if (myMetis.modelType === 'metamodel')

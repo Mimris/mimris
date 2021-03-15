@@ -14,6 +14,7 @@ import {
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_USER,
+  SET_FOCUS_TAB,
   SET_FOCUS_MODEL,
   SET_FOCUS_MODELVIEW,
   SET_FOCUS_TARGETMODEL,
@@ -211,6 +212,15 @@ function reducer(state = InitialState, action) {
         phUser: {
           ...state.phUser,
           focusUser: action.data
+        },
+      } 
+    case SET_FOCUS_TAB:
+      if (!debug) console.log('218 SET_FOCUS_TAB', action.data);   
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusTab: action.data
         },
       } 
     case SET_FOCUS_MODEL:

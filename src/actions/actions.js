@@ -12,6 +12,7 @@ import {
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_USER, 
+  SET_FOCUS_TAB,
   SET_FOCUS_OBJECT, 
   SET_FOCUS_OBJECTVIEW, 
   SET_FOCUS_RELSHIP, 
@@ -159,6 +160,13 @@ export const setFocusUser = (data) => {
   // console.log('21---actions |', data);
   return {
     type: SET_FOCUS_USER,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusTab = (data) => {
+  // console.log('21---actions |', data);
+  return {
+    type: SET_FOCUS_TAB,
     data: JSON.parse(data.value)
   }
 }

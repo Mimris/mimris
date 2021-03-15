@@ -165,14 +165,15 @@ const SelectContext = (props: any) => {
             <span className="context-item">TargetModelview: <strong className="focusValue">{props.phFocus?.focusTargetModelview?.name}</strong> </span><br />
           </div>
           <div className="select bg-light pt-0 ">
-            <Selector key='1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
-            <Selector key='2' type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />
-            <Selector key='2' type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />
-            {/* <Selector key='3' type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg'  /> */}
-            {/* <Selector key='3' type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg' focus={state.phFocus.focusOrg.name} /> */}
-            {/* <Selector key='4' type='SET_FOCUS_PROJ' selArray={selprojs} selName='Projects' focustype='focusProj' /> */}
+            <Selector key='Tab' type='SET_FOCUS_TAB' selArray={seltasks} selName='Tab' focustype='focusTab' />
+            <Selector key='Task' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
+            <Selector key='Role'  type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />
+            {/* <Selector key='Tab'  type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' /> */}
+            {/* <Selector key={selName}  type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg'  /> */}
+            {/* <Selector key={selName} ' type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg' focus={state.phFocus.focusOrg.name} /> */}
+            {/* <Selector key={selName}  type='SET_FOCUS_PROJ' selArray={selprojs} selName='Projects' focustype='focusProj' /> */}
             {/* <Selector type='SET_FOCUS_PROJ' selArray={seloprojs} selName='Projects' focustype='focusProj' /> */}
-            <Selector key='5' type='SET_FOCUS_OBJECTVIEW' selArray={selobjviews} selName='Object(view)' focustype='focusObjectview'/>
+            <Selector key='Objectview'  type='SET_FOCUS_OBJECTVIEW' selArray={selobjviews} selName='Object(view)' focustype='focusObjectview'/>
             {/* <hr style={{ borderTop: "1px solid #8c8b8" , backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
             {/* <h6>Model repository (Firebase) </h6> */}
             <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />

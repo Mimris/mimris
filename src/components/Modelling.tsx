@@ -154,7 +154,12 @@ const page = (props:any) => {
   }
     
     const [activeTab, setActiveTab] = useState('2');
-    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
+    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
+      const data = (tab === '1') ? 'metamodel' : 'model'
+      // console.log('159', data, dispatch({ type: 'SET_FOCUS_TAB', data }));
+      dispatch({ type: 'SET_FOCUS_TAB', data })
+    }
+
     const [tooltipOpen, setTooltipOpen] = useState(false);
     const toggleTip = () => setTooltipOpen(!tooltipOpen);
     

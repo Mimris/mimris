@@ -50,6 +50,7 @@ interface DiagramProps {
   nodeDataArray:      Array<go.ObjectData>;
   linkDataArray:      Array<go.ObjectData>;
   modelData:          go.ObjectData;
+  modelType:          DOMStringList;
   myMetis:            akm.cxMetis;
   dispatch:           any;  
   skipsDiagramUpdate: boolean;
@@ -119,6 +120,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
+      diagram.addDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
 
       diagram.addModelChangedListener(this.props.onModelChange);
@@ -147,6 +149,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
 
       diagram.removeChangedListener(this.props.onModelChange);
 
@@ -164,7 +167,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   } 
 
   public handleCloseModal() {
-    if (!debug) console.log('232 state', this.state.selectedData);
+    if (debug) console.log('232 state', this.state.selectedData);
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     const myMetis = this.props.myMetis;
@@ -181,7 +184,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     switch(what) {
       case "editObjectType": {
         const selObj = this.state.selectedData;
-        if (!debug) console.log('182 selObj', selObj);
+        if (debug) console.log('182 selObj', selObj);
         // selObj is a node representing an objecttype
         let node = selObj;
         let type = node.objecttype;
@@ -373,11 +376,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('241 data, objview', objview, this.state.selectedData, this.state.modalContext);
         if (this.state.modalContext.title === 'Select Icon') {
           if (selectedData.category === 'Object') {
-            const objview = selectedData;
-            const node = myDiagram.findNodeForKey(objview.key);
+            const selObj = selectedData;
+            const node = myDiagram.findNodeForKey(selObj.key);
             if (debug) console.log('238 node', node);
             const data = node.data;
-            const gqlObjview = new gql.gqlObjectView(objview);
+            const objview = data.objectview;
+            objview['icon'] = data['icon'];
+            const gqlObjview = new gql.gqlObjectView(data.objectview);
             if (debug) console.log('243 gqlObjview', data, gqlObjview);
             modifiedObjviews.push(gqlObjview);
             modifiedObjviews.map(mn => {
@@ -446,7 +451,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "editTypeview": {   
         let selObj = this.state.selectedData; 
-        if (!debug) console.log('449 selObj', selObj);
+        if (debug) console.log('449 selObj', selObj);
         let inst, data, typeview;
         if (selObj.category === 'Object type') {
           let node = myMetis.currentNode;
@@ -460,7 +465,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
           if (debug) console.log('461 typeview', typeview, data);
            const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
-          if (!debug) console.log('463 gqlObjtypeview', gqlObjtypeview);
+          if (debug) console.log('463 gqlObjtypeview', gqlObjtypeview);
           modifiedObjTypeviews.push(gqlObjtypeview);
           modifiedObjTypeviews.map(mn => {
             let data = mn;
@@ -1557,7 +1562,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Typeview",
           function (e: any, obj: any) { 
             const node = obj.part.data;
-            if (!debug) console.log('1477 node', node);
+            if (debug) console.log('1477 node', node);
             const modalContext = {
               what: "editTypeview",
               title: "Edit Typeview",
@@ -1808,7 +1813,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       var linkContextMenu =
         $(go.Adornment, "Vertical",
-        makeButton("Edit Relationship",
+          makeButton("Edit Relationship",
             function (e: any, obj: any) { 
               const link = obj.part.data;
               const modalContext = {
@@ -2408,23 +2413,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return true; 
             }),
           makeButton("New Modelview",
-          function (e: any, obj: any) {
-            const model = myMetis.currentModel;
-            const modelviewName = prompt("Enter Modelview name:", "");
-            if (modelviewName == null || modelviewName === "") {
-              alert("New operation was cancelled");
-            } else {
-              const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model);
-              model.addModelView(modelView);
-              myMetis.addModelView(modelView);
-              if (debug) console.log('585 myMetis', myMetis);
-              const data = new gql.gqlModel(model, true);
-              if (debug) console.log('595 NewModelView', data);
-              e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data });
-            }
-          },
-          function (o: any) { 
-            return true; 
+            function (e: any, obj: any) {
+              const model = myMetis.currentModel;
+              const modelviewName = prompt("Enter Modelview name:", "");
+              if (modelviewName == null || modelviewName === "") {
+                alert("New operation was cancelled");
+              } else {
+                const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model);
+                model.addModelView(modelView);
+                myMetis.addModelView(modelView);
+                if (debug) console.log('585 myMetis', myMetis);
+                const data = new gql.gqlModel(model, true);
+                if (debug) console.log('595 NewModelView', data);
+                e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data });
+              }
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
+              return true; 
             }),
           makeButton("Set Modelview as Template",
             function (e: any, obj: any) {
@@ -2437,37 +2444,41 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               alert("Current modelview has been set as template");
             },
             function (o: any) { 
-              return false; 
+              if (myMetis.modelType === 'metamodel')
+                return false;
+              return true; 
             }),
           makeButton("Delete Current Model",
-          function (e: any, obj: any) {
-            const modifiedModels = new Array();
-            const model = myMetis.currentModel as akm.cxModel;
-            if (confirm('Do you really want to delete the current model?')) {
-                model.deleted = true;
-                const gqlModel = new gql.gqlModel(model, true);
-                if (debug) console.log('2082 gqlModel', gqlModel);
-                modifiedModels.push(gqlModel);
-                modifiedModels.map(mn => {
-                  let data = mn;
-                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                })
-            } else
-              return;
-          },
-          function (o: any) { 
-            let cnt = 0;
-            const models = myMetis.models;
-            for (let i=0; i<models.length; i++) {
-              const model = models[i];
-              if (model.deleted)
-                continue;
-              cnt++;
-            }
-            if (cnt>1)
-              return true; 
-            else 
-              return false;
+            function (e: any, obj: any) {
+              const modifiedModels = new Array();
+              const model = myMetis.currentModel as akm.cxModel;
+              if (confirm('Do you really want to delete the current model?')) {
+                  model.deleted = true;
+                  const gqlModel = new gql.gqlModel(model, true);
+                  if (debug) console.log('2082 gqlModel', gqlModel);
+                  modifiedModels.push(gqlModel);
+                  modifiedModels.map(mn => {
+                    let data = mn;
+                    e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                  })
+              } else
+                return;
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
+              let cnt = 0;
+              const models = myMetis.models;
+              for (let i=0; i<models.length; i++) {
+                const model = models[i];
+                if (model.deleted)
+                  continue;
+                cnt++;
+              }
+              if (cnt>1)
+                return true; 
+              else 
+                return false;
             }),
           makeButton("Delete Current Modelview",
             function (e: any, obj: any) {
@@ -2503,6 +2514,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return;
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               const model = myMetis.currentModel as akm.cxModel;
               let cnt = 0;
               const mviews = model.modelviews;
@@ -2545,6 +2558,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
+              if (myMetis.modelType === 'metamodel')
+                return false;
               const metamodel = myMetis.currentTargetMetamodel;
               if (metamodel)
                 return true; 
@@ -2573,9 +2588,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           
           },
           function (o: any) {
+            if (myMetis.modelType === 'metamodel')
+              return false;
             return true; 
             }),
-          makeButton("----------"),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
+              return true; 
+            }),
           makeButton("Edit Project",
             function (e: any, obj: any) {
               const currentName = myMetis.name; 
@@ -2601,6 +2625,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true; 
             }),
           makeButton("Edit Model",
@@ -2625,6 +2651,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true; 
             }),
           makeButton("Edit Modelview",
@@ -2649,9 +2677,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true; 
             }),
-          makeButton("----------"),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
+              return true; 
+            }),
           makeButton("New Metamodel",
           function (e: any, obj: any) {
             const context = {
@@ -2674,6 +2711,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
           },
           function (o: any) {
+            if (myMetis.modelType === 'metamodel')
+              return false;
             return true; 
           }),
           makeButton("Generate Metamodel",
@@ -2700,6 +2739,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (debug) console.log('2489 Target metamodel', targetMetamodel);
           },
           function (o: any) { 
+            if (myMetis.modelType === 'metamodel')
+              return false;
             return true; 
           }),
           makeButton("Set Target Metamodel",
@@ -2723,6 +2764,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.handleOpenModal(mmNameIds, modalContext);
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true; 
             }),
           makeButton("Paste",
@@ -2756,7 +2799,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return o.diagram.commandHandler.canRedo(); 
             }),
-          makeButton("----------"),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
+              return true; 
+            }),
           makeButton("Add Missing Relationship Views",
           function (e: any, obj: any) { 
             const modelview = myMetis.currentModelview;
@@ -2814,6 +2864,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (debug) console.log('2213 myMetis', myMetis);
           },
           function (o: any) { 
+            if (myMetis.modelType === 'metamodel')
+              return false;
             return true; 
           }),
           makeButton("Delete Invisible Objects",
@@ -2862,6 +2914,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true; 
             }),
           makeButton("Select all objects of type",
@@ -2897,6 +2951,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true;
             }),
           makeButton("Select by Object Name",
@@ -2914,6 +2970,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }    
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true; 
             }),
           makeButton("Verify and Repair Model",
@@ -2931,9 +2989,60 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               alert("The current model has been repaired");
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true; 
             }),
-          makeButton("----------"),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
+              return true; 
+            }),
+          makeButton("Do Layout",
+
+          // <select id="layout_combo">
+          //   <option value="Standard">Manual</option>
+          //   <option value="Grid">Grid</option>
+          //   <option value="Circular">Circular</option>
+          //   <option value="ForceDirected">ForceDirected</option>
+          //   <option value="LayeredDigraph">LayeredDigraph</option>
+          // </select>
+              
+            function (e: any, obj: any) {
+              myDiagram.layout = $(go.CircularLayout); 
+              console.log('3016 myDiagram', myDiagram);
+              const nodes = myDiagram.nodes;
+              for (let it = nodes.iterator; it.next();) {
+                const node = it.value;
+                const data = node.data;
+                if (debug) console.log('3021 data', data);
+                const loc = data.loc;
+                const size = data.size;
+                const objtype = data.objecttype;
+                const metamodel = myMetis.currentMetamodel;
+                const geo = metamodel.findObjtypeGeoByType(objtype);
+                geo.setLoc(loc);
+                geo.setSize(size);
+                if (debug) console.log('3028 geo', geo);
+                // Do the dispatch
+                const modifiedTypeGeos = [];
+                const gqlObjtypeGeo = new gql.gqlObjectTypegeo(geo);
+                if (debug) console.log('332 gqlObjtypeGeo', gqlObjtypeGeo);
+                modifiedTypeGeos.push(gqlObjtypeGeo);
+                modifiedTypeGeos?.map(mn => {
+                  let data = (mn) && mn
+                  myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
+                })
+              }
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return true;
+              return false; 
+            }),
           makeButton("Zoom All",
             function (e: any, obj: any) {
               e.diagram.commandHandler.zoomToFit();
@@ -2979,7 +3088,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true; 
               return false;
             }),
-          makeButton("----------"),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
+              return true; 
+            }),
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
               if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {
@@ -2989,6 +3105,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
+              if (myMetis.modelType === 'metamodel')
+                return false;
               return true; 
             }),
         )
@@ -3593,6 +3711,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           linkDataArray={this.props?.linkDataArray}
           myMetis={this.props.myMetis}
           modelData={this.props.modelData}
+          modelType={this.props.modelType}
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />

@@ -21,7 +21,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    console.log('24 GenGojsModel phData, metis:', props.phData, metis);
+    console.log('24 GenGojsModel phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
     if (debug) console.log('26 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
@@ -84,7 +84,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis?.setCurrentModelview(myModelview);
       myMetis?.setCurrentTargetModel(myTargetModel);
       myMetis?.setCurrentTargetModelview(myTargetModelview);
-      if (debug) console.log('89 GenGojsModel  myMetis', myMetis);
+      if (debug) console.log('87 GenGojsModel  myMetis', myMetis);
 
       // const nodedataarray = await (curmodview)
       //   ? curmodview.objectviews.map((mv: any, index: any) =>

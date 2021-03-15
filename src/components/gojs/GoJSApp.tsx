@@ -66,7 +66,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       dispatch: this.props.dispatch,
       modelType: this.props.modelType,
     };
-    if (!debug) console.log('69 modelType',this.props.modelType);
+    if (debug) console.log('69 phFocus',this.state.phFocus.focusTab);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
   }
 
@@ -128,7 +128,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
-    myMetis.modelType = this.state.modelType;
+    myMetis.modelType = this.props.modelType;
     if (debug) console.log('139 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel.id);
     const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview.id);
@@ -749,6 +749,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         myDiagram.requestUpdate();
       }
       break;
+      case "BackgroundSingleClicked": {
+        if (debug) console.log('753 myMetis', myMetis);
+        break;
+      }
       case "BackgroundDoubleClicked": {
          if (debug) console.log('728 BackgroundDoubleClicked', e, e.diagram);
       }
@@ -896,6 +900,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           nodeDataArray     ={this.state.nodeDataArray}
           linkDataArray     ={this.state.linkDataArray}
           modelData         ={this.state.modelData}
+          modelType         ={this.state.modelType}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}

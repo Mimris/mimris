@@ -61,7 +61,7 @@ const Modeller = (props: any) => {
       myGoMetamodel={props.myGoMetamodel}
       phFocus={props.phFocus}
       dispatch={props.dispatch}
-      modelType={props.modelType}
+      modelType={props.phFocus.focusTab}
     />
 
     const selector = (props.modelType === 'model' || props.modelType === 'modelview') 

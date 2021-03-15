@@ -85,7 +85,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       myMetis?.setCurrentTargetModel(myTargetModel);
       myMetis?.setCurrentTargetModelview(myTargetModelview);
       if (debug) console.log('87 GenGojsModel  myMetis', myMetis);
-
+      if (debug) console.log('88 focusTab', props.phFocus.focusTab);
       // const nodedataarray = await (curmodview)
       //   ? curmodview.objectviews.map((mv: any, index: any) =>
       //     ({ key: mv.id, text: mv.name, color: 'orange', loc: `${mv.loc ? mv.loc.split(' ')[0] + ' ' + mv.loc.split(' ')[1] : {}}` }))

@@ -402,7 +402,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             objtypeview.icon = node.icon;
             objtypeview.data.icon = node.icon;
             const gqlObjtypeview = new gql.gqlObjectTypeView(objtypeview);
-            if (!debug) console.log('336 gqlObjtypeview', objtypeview, gqlObjtypeview);
+            if (debug) console.log('336 gqlObjtypeview', objtypeview, gqlObjtypeview);
             modifiedObjTypeviews.push(gqlObjtypeview);
             modifiedObjTypeviews.map(mn => {
               let data = mn;
@@ -942,7 +942,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
-      // when the user clicks on the background of the Diagram, remove all highlighting
+    // Turn off automatic layout
+    myDiagram.layout.isInitial = false;
+    myDiagram.layout.isOngoing = false;
+  // when the user clicks on the background of the Diagram, remove all highlighting
     myDiagram.click = function(e) {
       e.diagram.commit(function(d) { d.clearHighlighteds(); }, "no highlighteds");
     };
@@ -2408,7 +2411,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
             },
             function (o: any) {
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2429,7 +2432,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2444,7 +2447,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               alert("Current modelview has been set as template");
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2465,7 +2468,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return;
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               let cnt = 0;
               const models = myMetis.models;
@@ -2514,7 +2517,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return;
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               const model = myMetis.currentModel as akm.cxModel;
               let cnt = 0;
@@ -2558,7 +2561,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) {
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               const metamodel = myMetis.currentTargetMetamodel;
               if (metamodel)
@@ -2588,7 +2591,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           
           },
           function (o: any) {
-            if (myMetis.modelType === 'metamodel')
+            if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
             }),
@@ -2596,7 +2599,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2625,7 +2628,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2651,7 +2654,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2677,7 +2680,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2685,7 +2688,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2711,7 +2714,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
           },
           function (o: any) {
-            if (myMetis.modelType === 'metamodel')
+            if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
           }),
@@ -2739,7 +2742,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (debug) console.log('2489 Target metamodel', targetMetamodel);
           },
           function (o: any) { 
-            if (myMetis.modelType === 'metamodel')
+            if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
           }),
@@ -2764,7 +2767,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.handleOpenModal(mmNameIds, modalContext);
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2803,7 +2806,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2864,7 +2867,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (debug) console.log('2213 myMetis', myMetis);
           },
           function (o: any) { 
-            if (myMetis.modelType === 'metamodel')
+            if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
           }),
@@ -2914,7 +2917,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2951,7 +2954,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true;
             }),
@@ -2970,7 +2973,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }    
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2989,7 +2992,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               alert("The current model has been repaired");
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -2997,7 +3000,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -3038,7 +3041,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               })
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              console.log('3044 myMetis', myMetis);
+              if (myMetis.modelType === 'Metamodelling')
                 return true;
               return false; 
             }),
@@ -3091,7 +3095,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),
@@ -3104,7 +3108,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              if (myMetis.modelType === 'metamodel')
+              if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
             }),

@@ -64,9 +64,10 @@ class GoJSApp extends React.Component<{}, AppState> {
       myGoMetamodel: this.props.myGoMetamodel,
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
-      modelType: this.props.modelType,
+      modelType: this.props.phFocus.focusTab,
     };
-    if (debug) console.log('69 phFocus',this.state.phFocus.focusTab);
+    if (debug) console.log('69 modelType',this.state.modelType, this.props);
+    this.state.myMetis.modelType = this.state.modelType;
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
   }
 
@@ -128,7 +129,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
-    myMetis.modelType = this.props.modelType;
+    // myMetis.modelType = this.state.modelType;
     if (debug) console.log('139 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel.id);
     const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview.id);

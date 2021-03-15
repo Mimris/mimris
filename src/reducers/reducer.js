@@ -215,7 +215,7 @@ function reducer(state = InitialState, action) {
         },
       } 
     case SET_FOCUS_TAB:
-      if (!debug) console.log('218 SET_FOCUS_TAB', action.data);   
+      if (debug) console.log('218 SET_FOCUS_TAB', action.data);   
       return {
         ...state,
         phFocus: {

@@ -61,6 +61,7 @@ export class cxMetis {
     currentTemplateModelview:   cxModelView | null = null;
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
+    layout:             string;
     selectedData:       any = null;
     // Constructor
     constructor() {
@@ -68,6 +69,7 @@ export class cxMetis {
         this.name = "";
         this.description = "";
         this.category = 'Metis';
+        this.layout = "Manual";
     }
     importData(importedData: any, includeDeleted: boolean) {
         if (debug) console.log('72 importedData', importedData);

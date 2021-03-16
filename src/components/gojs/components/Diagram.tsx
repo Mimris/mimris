@@ -3062,10 +3062,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (debug) console.log('3087 myMetis', myMetis);
             },
             function (o: any) { 
-              console.log('3090 myMetis', myMetis);
-              if (myMetis.modelType === 'Metamodelling')
-                return true;
-              return false; 
+              return true;
             }),
           makeButton("Do Layout", 
             function (e: any, obj: any) {
@@ -3117,10 +3114,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              console.log('3090 myMetis', myMetis);
-              if (myMetis.modelType === 'Metamodelling')
-                return true;
-              return false; 
+              return true;
             }),
           makeButton("Zoom All",
             function (e: any, obj: any) {

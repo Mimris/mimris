@@ -373,7 +373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "selectDropdown": {
         const selectedData = this.state.selectedData;
-        if (debug) console.log('241 data, objview', objview, this.state.selectedData, this.state.modalContext);
+        if (!debug) console.log('241 data', this.state.selectedData, this.state.modalContext);
         if (this.state.modalContext.title === 'Select Icon') {
           if (selectedData.category === 'Object') {
             const selObj = selectedData;
@@ -409,6 +409,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               this.props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
             })
           }
+        }
+        else if (this.state.modalContext.title === 'Do Layout') {
+
         }
         break;
       }
@@ -584,7 +587,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     const modalContext = this.state.modalContext;
     const selectedOption = selected.value;
-    if (debug) console.log('331 this.state', selectedOption, this.state, modalContext);
+    if (!debug) console.log('590 this.state', selectedOption, this.state, modalContext);
     // let typeview, typename, metamodelName;
     switch(modalContext.case) {
 
@@ -609,6 +612,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const idata = icn.data;
         myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
         myMetis.myDiagram.requestUpdate();
+        break;
+
+      case "Set Layout Scheme":    
+        const layout = (selectedOption) && selectedOption;
+        const myDiagram = myMetis.myDiagram;
+        myMetis.layout = layout; 
         break;
 
       case "New Model":    
@@ -971,6 +980,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
     myMetis.myDiagram = myDiagram;
 
+    function doLayout(layout: string) {
+      switch (layout) {
+      case 'Circular':
+        myDiagram.layout = $(go.CircularLayout); 
+        break;
+      case 'Grid':
+        myDiagram.layout = $(go.GridLayout); 
+        break;
+      case 'ForceDirected':
+        myDiagram.layout = $(go.ForceDirectedLayout); 
+        break;
+      case 'LayeredDigraph':
+        myDiagram.layout = $(go.LayeredDigraphLayout); 
+        break;
+      case 'Tree':
+        myDiagram.layout = $(go.TreeLayout); 
+        break;
+      case 'Manual':
+        myDiagram.layout.isInitial = false; 
+        myDiagram.layout.isOngoing = false; 
+        break;
+      }
+  }
+
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
       if (debug) console.log('250 nodeInfo', d, d.object);
@@ -1267,7 +1300,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(node, modalContext);
               if (debug) console.log('511 myMetis', myMetis);
-          },
+            },
             function (o: any) {
               const node = o.part.data;
               if (node.category === 'Object') {
@@ -3004,44 +3037,87 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
-          makeButton("Do Layout",
-
-          // <select id="layout_combo">
-          //   <option value="Standard">Manual</option>
-          //   <option value="Grid">Grid</option>
-          //   <option value="Circular">Circular</option>
-          //   <option value="ForceDirected">ForceDirected</option>
-          //   <option value="LayeredDigraph">LayeredDigraph</option>
-          // </select>
-              
+          makeButton("Set Layout Scheme",
             function (e: any, obj: any) {
-              myDiagram.layout = $(go.CircularLayout); 
-              console.log('3016 myDiagram', myDiagram);
-              const modifiedTypeGeos = new Array();
-              const nodes = myDiagram.nodes;
-              for (let it = nodes.iterator; it.next();) {
-                const node = it.value;
-                const data = node.data;
-                if (debug) console.log('3021 data', data);
-                const objtype = data.objecttype;
-                const metamodel = myMetis.currentMetamodel;
-                const geo = metamodel.findObjtypeGeoByType(objtype);
-                geo.setLoc(data.loc);
-                geo.setSize(data.size);
-                geo.setModified();
-                if (debug) console.log('3028 geo', geo);
-                // Do the dispatch
-                const gqlObjtypeGeo = new gql.gqlObjectTypegeo(geo);
-                if (debug) console.log('332 gqlObjtypeGeo', gqlObjtypeGeo);
-                modifiedTypeGeos.push(gqlObjtypeGeo);
-              }
-              modifiedTypeGeos?.map(mn => {
-                let data = (mn) && mn
-                myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
-              })
+              const layoutList = () => [
+                {value:"Circular", label: "Circular Layout"},
+                {value:"Grid", label: "Grid Layout"},
+                {value:"Tree", label: "Tree Layout"},
+                {value:"ForceDirected", label: "ForceDirected Layout"},
+                {value:"LayeredDigraph", label: "LayeredDigraph Layout"},
+                {value:"Manual", label: "Manual Layout"},
+              ]
+              const llist = layoutList();
+              const layoutLabels = llist.map(ll => (ll) && ll.label);
+              if (!debug) console.log('3076', layoutLabels, llist );
+              const modalContext = {
+                what:  "selectDropdown",
+                title: "Set Layout Scheme",
+                case:  "Set Layout Scheme",
+                layoutList : layoutList(),
+                myDiagram: myDiagram
+              } 
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(myDiagram, modalContext);
+              if (debug) console.log('3087 myMetis', myMetis);
             },
             function (o: any) { 
-              console.log('3044 myMetis', myMetis);
+              console.log('3090 myMetis', myMetis);
+              if (myMetis.modelType === 'Metamodelling')
+                return true;
+              return false; 
+            }),
+          makeButton("Do Layout", 
+            function (e: any, obj: any) {
+              if (!debug) console.log('3073 myMetis.layout', myMetis.layout);
+              switch (myMetis.layout) {
+                case 'Circular':
+                  myDiagram.layout = $(go.CircularLayout); 
+                  break;
+                case 'Grid':
+                  myDiagram.layout = $(go.GridLayout); 
+                  break;
+                case 'Tree':
+                  myDiagram.layout = $(go.TreeLayout); 
+                  break;
+                case 'ForceDirected':
+                  myDiagram.layout = $(go.ForceDirectedLayout); 
+                  break;
+                case 'LayeredDigraph':
+                  myDiagram.layout = $(go.LayeredDigraphLayout); 
+                  break;
+                case 'Manual':
+                  myDiagram.layout.isInitial = false; 
+                  myDiagram.layout.isOngoing = false; 
+                  break;
+              }
+              const modifiedTypeGeos = new Array();
+              const nodes = myDiagram.nodes;
+              if (nodes) {
+                for (let it = nodes.iterator; it.next();) {
+                  const node = it.value;
+                  const data = node.data;
+                  if (debug) console.log('3021 data', data);
+                  const objtype = data.objecttype;
+                  const metamodel = myMetis.currentMetamodel;
+                  const geo = metamodel.findObjtypeGeoByType(objtype);
+                  geo.setLoc(data.loc);
+                  geo.setSize(data.size);
+                  geo.setModified();
+                  if (debug) console.log('3028 geo', geo);
+                  // Do the dispatch
+                  const gqlObjtypeGeo = new gql.gqlObjectTypegeo(geo);
+                  if (debug) console.log('332 gqlObjtypeGeo', gqlObjtypeGeo);
+                  modifiedTypeGeos.push(gqlObjtypeGeo);
+                }
+                modifiedTypeGeos?.map(mn => {
+                  let data = (mn) && mn
+                  myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
+                })
+              }
+            },
+            function (o: any) { 
+              console.log('3090 myMetis', myMetis);
               if (myMetis.modelType === 'Metamodelling')
                 return true;
               return false; 
@@ -3628,6 +3704,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             return {value: img, label: icon.label}
           })
           comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
+        }
+        else if (modalContext?.title === 'Set Layout Scheme') {
+            let layout; 
+            options = this.state.modalContext.layoutList.map(ll => {
+              layout = ll.value 
+              return {value: layout, label: ll.label}
+            })
+            comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
         } else {
           options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
           comps = null

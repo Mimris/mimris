@@ -895,7 +895,7 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    /* if (debug) */console.log('898 createRelationship', data);
+    if (debug) console.log('898 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; // added sf
@@ -921,38 +921,64 @@ export function createRelationship(data: any, context: any) {
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
             if (debug) console.log('873 createRelationship', reltypes, fromType, toType);
             if (reltypes) {
-                for (let i=0; i<reltypes.length; i++) {
-                    const rtype = reltypes[i];
-                    choices.push(rtype.name);  
-                    if (rtype.name === 'isRelatedTo')
-                        defText = rtype.name;
+                if (true) { 
+                    for (let i=0; i<reltypes.length; i++) {
+                        const rtype = reltypes[i];
+                        choices.push(rtype.name);  
+                        if (rtype.name === 'isRelatedTo')
+                            defText = rtype.name;
+                    }                    
+                    if (choices.length == 1) defText = choices[0];
+                    typename = prompt('Enter type name, one of ' + choices, defText);
+                    reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+                    if (debug) console.log('888 reltype', reltype);
+
+                    if (!reltype) {
+                        alert("Relationship type given does not exist!")
+                        myDiagram.model.removeLinkData(data);
+                        return;
+                    }
+                    if (debug) console.log('942 createRelationship', reltype);
+                    data.relshiptype = reltype;
+                    const reltypeview = reltype.typeview;
+                    myDiagram.model.setDataProperty(data, "name", typename);
+                    const relshipview = createLink(data, context);
+                    if (debug) console.log('947 relshipview', relshipview);
+                    if (relshipview) {
+                        relshipview.setTypeView(reltypeview);
+                        const relship = relshipview.relship; 
+                        relship.addRelationshipView(relshipview);
+                    }
+                    if (debug) console.log('953 myGoModel', myGoModel);
+                    myDiagram.requestUpdate();
+                    return relshipview;
                 }
-                if (choices.length == 1) defText = choices[0];
-                typename = prompt('Enter type name, one of ' + choices, defText);
-                reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-                if (debug) console.log('888 reltype', reltype);
+                else {
+                    const typelist = new Array();
+                    for (let i=0; i<reltypes.length; i++) {
+                        const rtype = reltypes[i];
+                        const choice = {value: rtype.name, label: rtype.name};
+                        typelist.push(choice);
+                        choices.push(rtype.name);  
+                        if (rtype.name === 'isRelatedTo')
+                            defText = rtype.name;
+                    }
+                    if (debug) console.log('933 typelist', typelist);
+                    if (debug) console.log('933 typelist', typelist);
+                    const typeLabels = typelist.map(tl => (tl) && tl.label);
+                    const modalContext = {
+                        what:  "selectDropdown",
+                        title: "Select Relationship Type",
+                        case:  "Select Relationship Type",
+                        typeList : typelist,
+                        myDiagram: myDiagram
+                    } 
+                    myMetis.myDiagram = myDiagram;
+                    myDiagram.handleOpenModal(myDiagram, modalContext);
+                }
             }
         }
     }
-    if (!reltype) {
-        alert("Relationship type given does not exist!")
-        myDiagram.model.removeLinkData(data);
-        return;
-    }
-    if (debug) console.log('942 createRelationship', reltype);
-    data.relshiptype = reltype;
-    const reltypeview = reltype.typeview;
-    myDiagram.model.setDataProperty(data, "name", typename);
-    const relshipview = createLink(data, context);
-    if (debug) console.log('947 relshipview', relshipview);
-    if (relshipview) {
-        relshipview.setTypeView(reltypeview);
-        const relship = relshipview.relship; 
-        relship.addRelationshipView(relshipview);
-    }
-    if (debug) console.log('953 myGoModel', myGoModel);
-    myDiagram.requestUpdate();
-    return relshipview;
 }
 
 // functions to handle links
@@ -1596,8 +1622,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
       if (k === 'fieldType') retVal = false;
     }
     return retVal;
-  }
-
+}
 
 export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     // handle modelviews

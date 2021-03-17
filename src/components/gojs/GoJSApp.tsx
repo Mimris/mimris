@@ -3,6 +3,7 @@
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 const debug = false;
+const linkToLink= false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
@@ -570,7 +571,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else // relation
             {
               let relshipview = sel.data.relshipview;
-              relshipview = myMetis.findRelationshipView(relshipview.id);
+              relshipview = myMetis.findRelationshipView(relshipview?.id);
               // Do whatever you like
               // ..
               const gqlRelshipView = new gql.gqlRelshipView(relshipview);
@@ -666,22 +667,24 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': {
         const link = e.subject;
+        const data = link.data;
         if (debug) console.log('668 link', link, link.fromNode, link.toNode);
 
         // Prepare for linkToLink
-        // let labels = link.labelNodes;
-        // for (let it = labels.iterator; it.next();) {     
-        //   console.log('672 it.value', it.value);
-        //   const linkLabel = it.value;
-        //   Connect linkLabel to relview
-        // }
-
-        const data = link.data;
-        if (data.category === 'linkToLink') {
-          // This is a link from a relationship between fromNode and toNode to an object
-          // The link from rel to object is link.data
-          // Todo: Handle this situation
+        if (linkToLink) {
+          let labels = link.labelNodes;
+          for (let it = labels.iterator; it.next();) {     
+            if (debug) console.log('672 it.value', it.value);
+            const linkLabel = it.value;
+            // Connect linkLabel to relview
+          }
+          if (data.category === 'linkToLink') {
+            // This is a link from a relationship between fromNode and toNode to an object
+            // The link from rel to object is link.data
+            // Todo: Handle this situation
+          }
         }
+
         if (debug) console.log('670 data', data);
         const fromNode = myDiagram.findNodeForKey(data.from);
         const toNode = myDiagram.findNodeForKey(data.to);
@@ -710,7 +713,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Handle relationships
         if (fromNode?.data?.category === 'Object') {
           data.category = 'Relationship';
-          const relview = uic.createRelationship(data, context);
+          let relview;
+          relview = uic.createRelationship(data, context);
           if (debug) console.log('700 relview', relview);
           if (relview) {
             let rel = relview.relship;

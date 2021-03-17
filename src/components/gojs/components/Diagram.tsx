@@ -3,6 +3,7 @@
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 const debug = false;
+const linkToLink = false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
@@ -11,8 +12,8 @@ import * as React from 'react';
 import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap';
 // import * as ReactModal from 'react-modal';
-// import Popup from 'reactjs-popup';
-//import 'reactjs-popup/dist/index.css';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 import { SelectionInspector } from '../components/SelectionInspector';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
@@ -373,7 +374,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "selectDropdown": {
         const selectedData = this.state.selectedData;
-        if (!debug) console.log('241 data', this.state.selectedData, this.state.modalContext);
+        if (debug) console.log('241 data', this.state.selectedData, this.state.modalContext);
         if (this.state.modalContext.title === 'Select Icon') {
           if (selectedData.category === 'Object') {
             const selObj = selectedData;
@@ -587,7 +588,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     const modalContext = this.state.modalContext;
     const selectedOption = selected.value;
-    if (!debug) console.log('590 this.state', selectedOption, this.state, modalContext);
+    if (debug) console.log('590 this.state', selectedOption, this.state, modalContext);
     // let typeview, typename, metamodelName;
     switch(modalContext.case) {
 
@@ -944,7 +945,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             model: $(go.GraphLinksModel,
               {
                 // Uncomment the next line to turn ON linkToLink
-                // linkLabelKeysProperty: "labelKeys", 
+                linkLabelKeysProperty: "labelKeys", 
                 linkKeyProperty: 'key'
               })
           }
@@ -3016,10 +3017,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 {value:"ForceDirected", label: "ForceDirected Layout"},
                 {value:"LayeredDigraph", label: "LayeredDigraph Layout"},
                 {value:"Manual", label: "Manual Layout"},
-              ]
+              ];
               const llist = layoutList();
+              if (debug) console.log('3020 layoutList', llist );
               const layoutLabels = llist.map(ll => (ll) && ll.label);
-              if (!debug) console.log('3076', layoutLabels, llist );
+              if (debug) console.log('3076', layoutLabels, llist );
               const modalContext = {
                 what:  "selectDropdown",
                 title: "Set Layout Scheme",
@@ -3036,7 +3038,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Do Layout", 
             function (e: any, obj: any) {
-              if (!debug) console.log('3073 myMetis.layout', myMetis.layout);
+              if (debug) console.log('3073 myMetis.layout', myMetis.layout);
               switch (myMetis.layout) {
                 case 'Circular':
                   myDiagram.layout = $(go.CircularLayout); 
@@ -3465,11 +3467,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       linkTemplateMap.add("", linkTemplate);
 
       // This template shows links connecting with label nodes as green and arrow-less.
-      myDiagram.linkTemplateMap.add("linkToLink",
-        $("Link",
-          { relinkableFrom: false, relinkableTo: false },
-          $("Shape", { stroke: "#2D9945", strokeWidth: 2 })
-        ));
+      if (linkToLink) {
+        myDiagram.linkTemplateMap.add("linkToLink",
+          $("Link",
+            { relinkableFrom: false, relinkableTo: false },
+            $("Shape", { stroke: "#2D9945", strokeWidth: 2 })
+          ));
+      }
 
       // Define group template map
       let groupTemplateMap = new go.Map<string, go.Group>();
@@ -3481,10 +3485,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myDiagram.groupTemplateMap = groupTemplateMap;
     }
 
-    // Whenever a new Link is drawng by the LinkingTool, it also adds a node data object
+    // Whenever a new Link is drawn by the LinkingTool, it also adds a node data object
     // that acts as the label node for the link, to allow links to be drawn to/from the link.
-    myDiagram.toolManager.linkingTool.archetypeLabelNodeData =
-      { category: "LinkLabel" };
+    if (linkToLink) { // Set to true if LinkToLink
+      myDiagram.toolManager.linkingTool.archetypeLabelNodeData =
+        { category: "LinkLabel" };
+    }
 
     // Palette group template 1
     if (true) {
@@ -3646,8 +3652,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
         }
         else if (modalContext?.title === 'Set Layout Scheme') {
-            let layout; 
+          let layout, img; 
             options = this.state.modalContext.layoutList.map(ll => {
+              img = './../images/default.png'
               layout = ll.value 
               return {value: layout, label: ll.label}
             })
@@ -3775,18 +3782,3 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     );
   }
 }
-
-
-
-
-{/* <ReactDiagram
-ref={this.diagramRef}
-divClassName='diagram-component'
-initDiagram={this.initDiagram}
-nodeDataArray={this.props.nodeDataArray}
-linkDataArray={this.props?.linkDataArray}
-myMetis={this.props.myMetis}
-modelData={this.props.modelData}
-onModelChange={this.props.onModelChange}
-skipsDiagramUpdate={this.props.skipsDiagramUpdate}
-/> */}

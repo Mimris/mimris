@@ -21,32 +21,9 @@ const LoadFile = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (!debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return
-
-    // if (debug) console.log('108', locState, props.ph);
-    
-    // // first find current model which is in reduxStore
-    // let reduxmod = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    // let curmindex = locState?.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
-    // // find lenght of modellarray in lodalStore
-    // const curmlength = locState?.phData?.metis.models?.length   
-    // if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    // // then find metamodel which is in reduxStore
-    // let reduxmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm.id === reduxmod?.metamodelRef) // current metamodel index
-    // let curmmindex = locState?.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxmmod?.id) // current model index
-    // // then find lenght of modellarray in lodalStore
-    // const curmmlength = locState?.phData?.metis.metamodels?.length   
-    // if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    
-    // // then find currentTargetMetamodel
-    // let reduxtmmod = props.ph?.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.targetMetamodelRef) // current targetmetamodel index
-    // let curtmmindex = locState?.phData?.metis?.metamodels?.findIndex(mm=> mm?.id === reduxtmmod?.id) // current model index
-    // const curtmmlength = locState?.phData?.metis.metamodels?.length   
-    // if (curtmmindex < 0) { curtmmindex = curtmmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-    // if (debug) console.log('130', reduxmmod, reduxmod);
-
 
   function handleSaveAllToFile() {
     const data = {
@@ -58,15 +35,28 @@ const LoadFile = (props: any) => {
     const projectname = props.ph.phData.metis.name
     SaveAllToFile(data, projectname, 'AKMM-Project')
   }
+  
+  function handleSaveModelviewToFile() {
+    const projectname = props.ph.phData.metis.name
+    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
+    const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 
+    const modelview = model.modelviews[focusModelviewIndex]
+    console.log('43', focusModelviewIndex, modelview);
+    
+    SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
+    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+  }
+
   function handleSaveModelToFile() {
     const projectname = props.ph.phData.metis.name
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
+    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     SaveModelToFile(model, model.name, 'AKMM-Model')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
+
   function handleSaveMetamodelToFile() {
-    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) // current model index
-    const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) // current model index
+    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
+    const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) 
     SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
 
@@ -89,6 +79,12 @@ const LoadFile = (props: any) => {
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current model to file&#013;(in Downloads folder)"
       onClick={handleSaveModelToFile}>Save Current Model to File 
+    </button >
+  const buttonSaveModelviewToFileDiv = 
+    <button className="btn-primary btn-sm mr-2  w-100  " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to download current modelview to file&#013;(in Downloads folder)"
+      onClick={handleSaveModelviewToFile}>Save Current Modelview to File 
     </button >
   const buttonSaveMetamodelToFileDiv = 
     <button 
@@ -123,6 +119,7 @@ const LoadFile = (props: any) => {
                   <h6>Export to file </h6>
                 {buttonSaveAllToFileDiv}
                 {buttonSaveModelToFileDiv}
+                {buttonSaveModelviewToFileDiv}
                 </div>
               </div>
               <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
@@ -143,11 +140,6 @@ const LoadFile = (props: any) => {
         <ModalFooter>
           <Button className="modal--footer m-0 py-1 px-2" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
-          <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
-            Local Storage is controlled by the Internet Browser, and may at some point be deleted, if not enough memory.
-            <br />NB! Loding models from LocalStorage will overwrite current memory store.  To keep current work, click "Save all to LocalStorage".
-          </div>
-          {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
         </ModalFooter>
       </Modal>
       <style jsx>{`

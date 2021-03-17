@@ -361,7 +361,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           const key  = data.key;
           const typename = data.type;
           if (typename === 'Object type') {
-            // if (debug) console.log('334 myMetamodel', context.myMetamodel);  
             const objtype = context.myMetis.findObjectType(data.objtype.id);
             if (objtype) {
               // Check if objtype instances exist

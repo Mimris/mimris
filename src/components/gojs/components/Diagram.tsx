@@ -616,7 +616,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       case "Set Layout Scheme":    
         const layout = (selectedOption) && selectedOption;
-        const myDiagram = myMetis.myDiagram;
         myMetis.layout = layout; 
         break;
 
@@ -951,9 +950,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
-    // Turn off automatic layout
-    myDiagram.layout.isInitial = false;
-    myDiagram.layout.isOngoing = false;
   // when the user clicks on the background of the Diagram, remove all highlighting
     myDiagram.click = function(e) {
       e.diagram.commit(function(d) { d.clearHighlighteds(); }, "no highlighteds");
@@ -961,8 +957,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     myDiagram.myGoModel = this.myGoModel;
     myDiagram.myGoMetamodel = this.myGoMetamodel;
-    myDiagram.layout.isInitial = false;
-    myDiagram.layout.isOngoing = false;
     myDiagram.dispatch = this.myMetis?.dispatch;
     myDiagram.handleOpenModal = this.handleOpenModal;
     myDiagram.handleCloseModal = this.handleCloseModal;
@@ -979,30 +973,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       );
     //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
     myMetis.myDiagram = myDiagram;
-
-    function doLayout(layout: string) {
-      switch (layout) {
-      case 'Circular':
-        myDiagram.layout = $(go.CircularLayout); 
-        break;
-      case 'Grid':
-        myDiagram.layout = $(go.GridLayout); 
-        break;
-      case 'ForceDirected':
-        myDiagram.layout = $(go.ForceDirectedLayout); 
-        break;
-      case 'LayeredDigraph':
-        myDiagram.layout = $(go.LayeredDigraphLayout); 
-        break;
-      case 'Tree':
-        myDiagram.layout = $(go.TreeLayout); 
-        break;
-      case 'Manual':
-        myDiagram.layout.isInitial = false; 
-        myDiagram.layout.isOngoing = false; 
-        break;
-      }
-  }
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
@@ -3087,30 +3057,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   myDiagram.layout.isInitial = false; 
                   myDiagram.layout.isOngoing = false; 
                   break;
-              }
-              const modifiedTypeGeos = new Array();
-              const nodes = myDiagram.nodes;
-              if (nodes) {
-                for (let it = nodes.iterator; it.next();) {
-                  const node = it.value;
-                  const data = node.data;
-                  if (debug) console.log('3021 data', data);
-                  const objtype = data.objecttype;
-                  const metamodel = myMetis.currentMetamodel;
-                  const geo = metamodel.findObjtypeGeoByType(objtype);
-                  geo.setLoc(data.loc);
-                  geo.setSize(data.size);
-                  geo.setModified();
-                  if (debug) console.log('3028 geo', geo);
-                  // Do the dispatch
-                  const gqlObjtypeGeo = new gql.gqlObjectTypegeo(geo);
-                  if (debug) console.log('332 gqlObjtypeGeo', gqlObjtypeGeo);
-                  modifiedTypeGeos.push(gqlObjtypeGeo);
-                }
-                modifiedTypeGeos?.map(mn => {
-                  let data = (mn) && mn
-                  myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
-                })
               }
             },
             function (o: any) { 

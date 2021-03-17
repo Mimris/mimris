@@ -36,7 +36,7 @@ const LoadFile = (props: any) => {
     SaveAllToFile(data, projectname, 'AKMM-Project')
   }
   
-  function handleSaveModelviewToFile() {
+  function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 

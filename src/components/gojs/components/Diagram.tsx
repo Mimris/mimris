@@ -166,8 +166,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('161 node', this.state.selectedData);
   } 
 
-  public handleCloseModal() {
-    if (debug) console.log('232 state', this.state.selectedData);
+  public handleCloseModal(e) {
+    if (!debug) console.log('232 state', this.state.selectedData, e);
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     const myMetis = this.props.myMetis;
@@ -3747,7 +3747,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             {/* <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
-                  onClick={() => { this.handleCloseModal() }} ><span>x</span>
+                  onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
+                  {/* onClick={() => { this.handleCloseModal('x') }} ><span>x</span> */}
                 </Button>
                 <ModalHeader className="modal-header" >
                 <span className="text-secondary">{header} </span> 

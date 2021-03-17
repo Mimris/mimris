@@ -196,6 +196,15 @@ const page = (props) => {
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.03.18</CardTitle>
+                    <CardText >
+                          &bull; Added automatic layout!<br />
+                          &bull; Fix typeview chances in metamodel works in model!<br />
+                          &bull; <br />
+                          &bull; <br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2021.03.12</CardTitle>
                     <CardText >
                           &bull; Kavca logo with link to kavca.no!<br />

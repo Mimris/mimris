@@ -40,10 +40,8 @@ const Selector = ( props: any ) => {
         // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
         <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)]
     )
-    
-    
 
-  console.log('38 selector', focus, options);
+  if (debug) console.log('38 selector', focus, options);
   const selectDiv = 
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
     ? (props.selName === 'Model') 

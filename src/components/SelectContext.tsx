@@ -49,15 +49,15 @@ const SelectContext = (props: any) => {
   }
 
   // function handleSendContextAsEmail() {
-    const emailAddress = 'snorres@gmail.com'
-    const subject = "Context subject"
-    const bodyFocus = JSON.stringify(props.phFocus)
-    // const bodyData = JSON.stringify(state.phData)
-    const body = bodyFocus
-  const hrefGmail = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=' + emailAddress+'&subject=' + subject + '&body=' + body
-  const hrefEmail = 'mailto:' + emailAddress+'?subject=' + subject + '&body=' + body
-  const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
-  const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
+  //   const emailAddress = 'snorres@gmail.com'
+  //   const subject = "Context subject"
+  //   const bodyFocus = JSON.stringify(props.phFocus)
+  //   // const bodyData = JSON.stringify(state.phData)
+  //   const body = bodyFocus
+  // const hrefGmail = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=' + emailAddress+'&subject=' + subject + '&body=' + body
+  // const hrefEmail = 'mailto:' + emailAddress+'?subject=' + subject + '&body=' + body
+  // const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
+  // const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
   // const emailDiv = <a href="mailto:${emailAddress}?subject=${subject}&body=${body}">Send mail with Link to  context</a>
   //https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=target@email.com&subject=MISSED%20CALL%20EZTRADER&body=Hello%2C%0A%0AI%20tried%20contacting%20you%20today%20but%20you%20seem%20to%20have%20missed%20my%20call.%20%0A%0APlease%20return%20my%20call%20as%20soon%20as%20you%E2%80%99re%20available.%20%0A%0AIn%20any%20case%2C%20I%20will%20try%20ringing%20you%20at%20a%20later%20time.%0A%0A%0ATy%2C%0A%0A%0A%0A
   // console.log('51 SelectContext', emailDivMailto);
@@ -181,8 +181,8 @@ const SelectContext = (props: any) => {
  
  
         </ModalBody>
-          <div className="ml-2">{emailDivGmail}</div>
-        <div className="ml-2">{emailDivMailto}</div>
+          {/* <div className="ml-2">{emailDivGmail}</div>
+        <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
           <Button color="link" onClick={toggle}>Exit</Button>

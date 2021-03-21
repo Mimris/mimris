@@ -200,7 +200,7 @@ const page = (props) => {
                     <CardText >
                           &bull; Added automatic layout!<br />
                           &bull; Fix typeview chances in metamodel works in model!<br />
-                          &bull; <br />
+                          &bull; New button "File" to Export/Import to/from file<br />
                           &bull; <br />
                     </CardText>
                   </CardBody>

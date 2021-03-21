@@ -42,12 +42,26 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
         const modelff = JSON.parse(text)
 
         //   alert(text)
-        if (debug) console.log('44 SaveModelToFile', props, modelff);
+        if (!debug) console.log('46 SaveModelToFile', props.phFocus.focusModel.id);
+        if (!debug) console.log('44 SaveModelToFile', props, modelff);
     
         let  mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
-        const mlength = props.phData?.metis?.models.length
-        if (mindex < 0) { mindex = mlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-        if (debug) console.log('49 SaveModelToFile', modelff, mindex, mlength);
+        let mlength = props.phData?.metis?.models.length
+        if (mindex < 0) { mindex = mlength } // mindex = -1, i.e.  not fond, which means adding a new model
+        
+        let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
+        // if (fmindex < 0) { fmindex = mlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
+        
+        if (!debug) console.log('49 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
+        let mvindex, mvlength
+        if (modelff.modelview) {
+            mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
+            mvlength = props.phData?.metis?.models[fmindex]?.modelviews?.length;
+            if (mvindex < 0) { mvindex = mvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
+        }
+
+        if (!debug) console.log('60 SaveModelToFile', mvindex, mvlength);
+
         let data
         if (modelff.phData) {
             data = {
@@ -56,6 +70,31 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 phUser:   modelff.phUser,
                 phSource: 'fromFile'
               }
+        } else if (modelff.modelview) {
+            data = {
+                phData: {
+                    ...props.phData,
+                    metis: {
+                        ...props.phData.metis,
+                        metamodels: props.phData.metis.metamodels,   
+                        models: [
+                            ...props.phData.metis.models?.slice(0, fmindex),  
+                            {  
+                                ...props.phData.metis.models[fmindex],
+                                modelviews: [ 
+                                    ...props.phData.metis.models[fmindex]?.modelviews?.slice(0, mvindex),  
+                                    {  
+                                        ...props.phData.metis.models[fmindex]?.modelviews[mvindex],  
+                                        ...modelff.modelview,
+                                    },
+                                    ...props.phData.metis.models[fmindex]?.modelviews?.slice(mvindex+1, mvlength),  
+                                ],
+                            },
+                            ...props.phData.metis.models?.slice(fmindex + 1, mlength),
+                        ],
+                    },
+                }, 
+            };
         } else {
             data = {
                 phData: {
@@ -66,17 +105,17 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                         models: [
                             ...props.phData.metis.models.slice(0, mindex),     
                             modelff,
-                            ...props.phData.metis.models.slice(mindex + 1, props.phData.metis.models.length),
+                            ...props.phData.metis.models.slice(mindex + 1, mlength),
                         ],
                     },
                 }, 
             };
         }
-        if (debug) console.log('77 SaveModelToFile', data);      
-        (data.phData) && props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-        if (data.phFocus) props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-        if (data.phUser) props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-        if (data.phSource) props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+        if (!debug) console.log('77 SaveModelToFile', data);      
+        if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+        if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+        if (data.phSource)  props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
     };
     reader.readAsText(e.target.files[0])
   }

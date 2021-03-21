@@ -16,6 +16,7 @@ import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
+import LoadFile from '../components/LoadFile'
 import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
 import EditFocusMetamodel from '../components/EditFocusMetamodel'
@@ -153,7 +154,12 @@ const page = (props:any) => {
   }
     
     const [activeTab, setActiveTab] = useState('2');
-    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
+    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
+      const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
+      // console.log('159', data, dispatch({ type: 'SET_FOCUS_TAB', data }));
+      dispatch({ type: 'SET_FOCUS_TAB', data })
+    }
+
     const [tooltipOpen, setTooltipOpen] = useState(false);
     const toggleTip = () => setTooltipOpen(!tooltipOpen);
     
@@ -384,6 +390,7 @@ const page = (props:any) => {
   const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  const loadfile =  (process.browser) && <LoadFile  buttonLabel='File'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
   const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -399,7 +406,7 @@ const page = (props:any) => {
       <span id="lighten" className="btn-link btn-sm" style={{ float: "right" }} onClick={toggleRefresh}
         data-toggle="tooltip" data-placement="top" title="Refresh the modelview"
       >{refresh ? 'refresh' : 'refresh'} </span>
-      <div className="diagramtabs pl-1 pb-1" style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
+      <div className="diagramtabs pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "200px" }}>
         <div style={{ transform: "scale(0.9)"}}>
           <span className="sourceName pr-1 float-right mr-0 mt-1" 
             style={{ backgroundColor: "#fff", color: "#b00", transform: "scale(0.9)",  fontWeight: "bolder"}}>
@@ -414,6 +421,9 @@ const page = (props:any) => {
             </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" >
              {loadlocal}  
+            </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" >
+             {loadfile}  
             </span>
           </span> 
           <span className="editfocus float-right d-flex"   

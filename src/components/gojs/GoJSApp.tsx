@@ -3,6 +3,7 @@
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 const debug = false;
+const linkToLink= false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
@@ -64,7 +65,10 @@ class GoJSApp extends React.Component<{}, AppState> {
       myGoMetamodel: this.props.myGoMetamodel,
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
+      modelType: this.props.phFocus.focusTab,
     };
+    if (debug) console.log('69 modelType',this.state.modelType, this.props);
+    this.state.myMetis.modelType = this.state.modelType;
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
   }
 
@@ -114,7 +118,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     return null;
   }
 
-
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
@@ -127,6 +130,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
+    // myMetis.modelType = this.state.modelType;
     if (debug) console.log('139 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel.id);
     const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview.id);
@@ -187,6 +191,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('157 handleEvent', myMetis);
     if (debug) console.log('158 this', this);
     if (debug) console.log('189 event name', name);
+
     switch (name) {
       case 'TextEdited': {
         const sel = e.subject.part;
@@ -345,7 +350,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       }
       break;
-      //case "SelectionDeleted":
       case "SelectionDeleting": {
         if (debug) console.log('350 myMetis', myMetis); 
         const deletedFlag = true;
@@ -358,7 +362,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           const key  = data.key;
           const typename = data.type;
           if (typename === 'Object type') {
-            // if (debug) console.log('334 myMetamodel', context.myMetamodel);  
             const objtype = context.myMetis.findObjectType(data.objtype.id);
             if (objtype) {
               // Check if objtype instances exist
@@ -568,7 +571,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else // relation
             {
               let relshipview = sel.data.relshipview;
-              relshipview = myMetis.findRelationshipView(relshipview.id);
+              relshipview = myMetis.findRelationshipView(relshipview?.id);
               // Do whatever you like
               // ..
               const gqlRelshipView = new gql.gqlRelshipView(relshipview);
@@ -664,22 +667,24 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case 'LinkDrawn': {
         const link = e.subject;
+        const data = link.data;
         if (debug) console.log('668 link', link, link.fromNode, link.toNode);
 
         // Prepare for linkToLink
-        // let labels = link.labelNodes;
-        // for (let it = labels.iterator; it.next();) {     
-        //   console.log('672 it.value', it.value);
-        //   const linkLabel = it.value;
-        //   Connect linkLabel to relview
-        // }
-
-        const data = link.data;
-        if (data.category === 'linkToLink') {
-          // This is a link from a relationship between fromNode and toNode to an object
-          // The link from rel to object is link.data
-          // Todo: Handle this situation
+        if (linkToLink) {
+          let labels = link.labelNodes;
+          for (let it = labels.iterator; it.next();) {     
+            if (debug) console.log('672 it.value', it.value);
+            const linkLabel = it.value;
+            // Connect linkLabel to relview
+          }
+          if (data.category === 'linkToLink') {
+            // This is a link from a relationship between fromNode and toNode to an object
+            // The link from rel to object is link.data
+            // Todo: Handle this situation
+          }
         }
+
         if (debug) console.log('670 data', data);
         const fromNode = myDiagram.findNodeForKey(data.from);
         const toNode = myDiagram.findNodeForKey(data.to);
@@ -708,7 +713,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Handle relationships
         if (fromNode?.data?.category === 'Object') {
           data.category = 'Relationship';
-          const relview = uic.createRelationship(data, context);
+          let relview;
+          relview = uic.createRelationship(data, context);
           if (debug) console.log('700 relview', relview);
           if (relview) {
             let rel = relview.relship;
@@ -747,6 +753,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         myDiagram.requestUpdate();
       }
       break;
+      case "BackgroundSingleClicked": {
+        if (debug) console.log('753 myMetis', myMetis);
+      }
+      break;
       case "BackgroundDoubleClicked": {
          if (debug) console.log('728 BackgroundDoubleClicked', e, e.diagram);
       }
@@ -754,13 +764,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       default:
         if (debug) console.log('732 GoJSApp event name: ', name);
         break;
-      }
-        
-        // this.props.dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-        // if (debug) console.log('684 gojsMetamodel', gojsMetamodel);
-        // this.props.dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
-        
-        // if (debug) console.log('577 modifiedNodes', modifiedNodes);
+    }
+
+    // if (debug) console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
       if (debug) console.log('988 BackgroundDoubleClicked', data);
@@ -821,6 +827,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
     })
+
     // if (debug) console.log('677 selectedRelshipViews', selectedRelshipViews);
     selectedRelshipViews?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
@@ -837,36 +844,35 @@ class GoJSApp extends React.Component<{}, AppState> {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
     })
-  // }
 
-      // Function to identify images related to an image id
-      function findImage(image: string) {
-        if (!image) return "";
-        // if (image.substring(0,4) === 'http') { // its an URL
-        if (image.includes('//')) { // its an URL   
-          // if (debug) console.log('1269 Diagram', image);
-          return image
-        } else if (image.includes('/')) { // its a local image
-          if (debug) console.log('1270 Diagram', image);   
-          return image
-        } else if (image.includes('<svg ')) { // its a local image
-          if (debug) console.log('1270 Diagram', image);   
-          return image
-        } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
-          const firstcharacter = image.substring(0, 1)
-          const secondcharacter = image.substring(1, 2)
-          if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
-          // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
-          //   const letter = image.substring(0, image.length - 4)
-          //   // const lettersvg = letter
-          //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
-          //   return svgs[letter].svg //svgs[`'${letter}'`]
-        } else { 
-          if (debug) console.log('1283 Diagram', image);
-          return "./../images/" + image //its an image in public/images
-        }
-        return "";
+    // Function to identify images related to an image id
+    function findImage(image: string) {
+      if (!image) return "";
+      // if (image.substring(0,4) === 'http') { // its an URL
+      if (image.includes('//')) { // its an URL   
+        // if (debug) console.log('1269 Diagram', image);
+        return image
+      } else if (image.includes('/')) { // its a local image
+        if (debug) console.log('1270 Diagram', image);   
+        return image
+      } else if (image.includes('<svg ')) { // its a local image
+        if (debug) console.log('1270 Diagram', image);   
+        return image
+      } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
+        const firstcharacter = image.substring(0, 1)
+        const secondcharacter = image.substring(1, 2)
+        if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
+        // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
+        //   const letter = image.substring(0, image.length - 4)
+        //   // const lettersvg = letter
+        //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
+        //   return svgs[letter].svg //svgs[`'${letter}'`]
+      } else { 
+        if (debug) console.log('1283 Diagram', image);
+        return "./../images/" + image //its an image in public/images
       }
+      return "";
+    }
   }
 
   public render() {   
@@ -894,6 +900,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           nodeDataArray     ={this.state.nodeDataArray}
           linkDataArray     ={this.state.linkDataArray}
           modelData         ={this.state.modelData}
+          modelType         ={this.state.modelType}
           skipsDiagramUpdate={this.state.skipsDiagramUpdate}
           onDiagramEvent    ={this.handleDiagramEvent}
           onModelChange     ={this.handleModelChange}

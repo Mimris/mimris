@@ -61,6 +61,7 @@ export class cxMetis {
     currentTemplateModelview:   cxModelView | null = null;
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
+    layout:             string;
     selectedData:       any = null;
     // Constructor
     constructor() {
@@ -68,6 +69,7 @@ export class cxMetis {
         this.name = "";
         this.description = "";
         this.category = 'Metis';
+        this.layout = "Manual";
     }
     importData(importedData: any, includeDeleted: boolean) {
         if (debug) console.log('72 importedData', importedData);
@@ -3566,7 +3568,7 @@ export class cxRelationshipType extends cxObjectType {
         this.toObjtype = toObjtype;
         this.relshipkind = constants.relkinds.REL;
         this.viewkind = "";
-        this.cardinality = "*";
+        this.cardinality = "";
     }
     // Methods
     setDefaultTypeView(typeview: cxRelationshipTypeView) {
@@ -3725,6 +3727,7 @@ export class cxObjectTypeView extends cxMetaObject {
     // Methods
     applyObjectViewParameters(objview: cxObjectView) {
         if (objview) {
+            if (debug) console.log('3730 objview', objview);
             let prop: any;
             let data: any = this.data;
             let otypeview = objview.typeview;
@@ -3732,8 +3735,10 @@ export class cxObjectTypeView extends cxMetaObject {
                 let otvdata: any = otypeview.data;
                 for (prop in otypeview.data) {
                     data[prop] = otvdata[prop];
+                    otypeview[prop] = otvdata[prop];
                 }
             }
+            if (debug) console.log('3740 data, objview', data, objview, otypeview);
             for (prop in otypeview.data) {
                 if (prop === 'figure' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'fillcolor' && objview[prop] !== "") data[prop] = objview[prop];
@@ -3741,6 +3746,7 @@ export class cxObjectTypeView extends cxMetaObject {
                 if (prop === 'strokewidth' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'icon' && objview[prop] !== "") data[prop] = objview[prop];
             }
+            if (debug) console.log('3748 data, objview', data, objview, otypeview);
         }
     }
     setType(type: cxType) {

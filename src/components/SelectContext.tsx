@@ -73,7 +73,7 @@ const SelectContext = (props: any) => {
   const selproperties = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Property')
   const selInfo = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Information')
 
-  console.log('76', uniqueovs, selobjviews);
+  if (debug) console.log('76', uniqueovs, selobjviews);
   
   // let optionModel
   const handlePhDataChange = (event:any) => {

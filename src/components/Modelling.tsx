@@ -85,14 +85,14 @@ const page = (props:any) => {
       setTimeout(refres, 1);
     }, [focusModelview?.id, focusModel?.id])
 
-    // useEffect(() => {
-    //   if (debug) console.log('85 Modelling useEffect 3', props); 
-    //   genGojsModel(props, dispatch);
-    //   function refres() {
-    //     setRefresh(!refresh)
-    //   }
-    //   setTimeout(refres, 1);
-    // }, [props.phFocus?.focusRefresh?.id])
+    useEffect(() => {
+      if (debug) console.log('85 Modelling useEffect 3', props); 
+      genGojsModel(props, dispatch);
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 10);
+    }, [props.phFocus?.focusRefresh?.id])
 
     // useEffect(() => {
     //   if (debug) console.log('94 Modelling useEffect 4', props); 

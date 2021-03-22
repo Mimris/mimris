@@ -3580,7 +3580,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         //   console.log('3025', image);
         //   console.log("3027 ./../images/" + image.replace(/C:\\fakepath\\/,'')) //its an image in public/images
         //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
-        
+      } else if (image.includes('<svg')) { // its an icon font
+        const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
+        console.log('3585', img);
+        return img
+
       } else { 
         if (debug) console.log('1283 Diagram', image);
         return "./../images/" + image //its an image in public/images

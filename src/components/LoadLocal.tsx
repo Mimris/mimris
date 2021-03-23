@@ -21,7 +21,7 @@ const LoadLocal = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+  if (debug) console.log('24 LoadLocal', props.ph.phData, modelNames, metamodelNames);
   
   if (typeof window === 'undefined') return
 
@@ -71,6 +71,9 @@ const LoadLocal = (props: any) => {
       if (debug) console.log('59 LoadLocal', localMetamodel, localModel);
   }
 
+  //
+  // Reset store (Redux) to last memoryModel in localStore
+  //
   function handleSelectMemoryModelDropdownChange(e) {
     if (debug) console.log('73 LoadMemory', e);
     const metis = memoryState.phData.metis
@@ -118,8 +121,10 @@ const LoadLocal = (props: any) => {
         />
       </div>
     
-  
-  function handleDispatchToStoreFromMemory() {  // load store from LocalStore (memoryState)
+  //
+  // load to Redux-store from memoryState in localStorage
+  //
+  function handleDispatchToStoreFromMemory() {  
     // memoryStatus = true
     if (debug) console.log('63 LoadLocal', memoryState);
     const phData = memoryState.phData
@@ -253,7 +258,7 @@ const LoadLocal = (props: any) => {
       className="btn-info btn-sm mr-2 w-100 " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to recover unsaved model after crash&#013;(this has to be done imediately after reload, before any refresh)"     
-      onClick={handleDispatchToStoreFromMemory}>Recover all unsaved Models after crash <br /> (after reload in browser) 
+      onClick={handleDispatchToStoreFromMemory}>Recover Project (last refreshed version) <br />
     </button >
   if (debug) console.log('172', buttonLabel);
   
@@ -287,10 +292,12 @@ const LoadLocal = (props: any) => {
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                 <h6>Crash Recovery </h6>
                 <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
-                  If the browser hang or crash, first reload the page and before any other actions, click on the button below to recover your last work !
+                  If the browser hang or crash, or you made a mistake, you can go back to an earlier version
+                  by clicking on the button below!
+                  <br />(This version is updated each time you select a new modelview tab or clicked on refresh)
                 </div>
                 {buttonLoadMemoryStoreDiv}
-                {loadSelectedFromMemoryStoreDiv}
+                {/* {loadSelectedFromMemoryStoreDiv} */}
               </div>
             </div>
           </div>
@@ -300,7 +307,7 @@ const LoadLocal = (props: any) => {
             title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
           <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
             Local Storage is controlled by the Internet Browser, and may at some point be deleted, if not enough memory.
-            <br />NB! Loding models from LocalStorage will overwrite current memory store.  To keep current work, click "Save all to LocalStorage".
+            <br />NB! Loding models from LocalStorage will overwrite current memory store.  To keep current work, click "Save all to LocalStorage.
           </div>
           {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
         </ModalFooter>

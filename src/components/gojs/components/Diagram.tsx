@@ -212,7 +212,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('284 selObj', selObj);
         break;
       }
-
       case "editRelationshipType": {
         const selObj = this.state.selectedData;
         if (debug) console.log('236 selObj', selObj);
@@ -247,9 +246,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // selObj is a node representing an objectview
         const node = selObj;
         let obj = selObj.object;
-        obj = myMetis.findObject(obj.id);
+        obj = myMetis.findObject(obj?.id);
         if (debug) console.log('250 selObj', selObj, obj);
-        const type = obj.type;
+        const type = obj?.type;
         // Check if any of the values are NOT VALID
         const properties = type?.properties;
         for (let i=0; i<properties?.length; i++) {
@@ -374,7 +373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "selectDropdown": {
         const selectedData = this.state.selectedData;
-        if (debug) console.log('241 data', this.state.selectedData, this.state.modalContext);
+        if (!debug) console.log('241 data', this.state.selectedData, this.state.modalContext);
         if (this.state.modalContext.title === 'Select Icon') {
           if (selectedData.category === 'Object') {
             const selObj = selectedData;
@@ -410,9 +409,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               this.props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
             })
           }
-        }
-        else if (this.state.modalContext.title === 'Do Layout') {
-
         }
         break;
       }
@@ -579,6 +575,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   public handleSelectDropdownChange = (selected) => {
     const myMetis = this.myMetis;
     const myGoModel = myMetis.gojsModel;
+    const myModelView = myMetis.currentModelview;
     const context = {
       "myMetis":      myMetis,
       "myMetamodel":  myMetis.currentMetamodel,
@@ -587,6 +584,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       "myDiagram":    myMetis.myDiagram
     }
     const modalContext = this.state.modalContext;
+
     const selectedOption = selected.value;
     if (debug) console.log('590 this.state', selectedOption, this.state, modalContext);
     // let typeview, typename, metamodelName;
@@ -617,7 +615,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
       case "Set Layout Scheme":    
         const layout = (selectedOption) && selectedOption;
-        myMetis.layout = layout; 
+        myModelView.layout = layout; 
+        const modifiedModelviews = new Array();
+        const gqlModelview = new gql.gqlModelView(myModelView);
+        modifiedModelviews.push(gqlModelview);
+        modifiedModelviews.map(mn => {
+          let data = mn;
+          this.props.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+        })
+        if (!debug) console.log('619 gqlModelview', gqlModelview);
         break;
 
       case "New Model":    
@@ -2742,8 +2748,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             myMetis.currentTargetMetamodel = context.myTargetMetamodel;
             const targetMetamodel = myMetis.currentTargetMetamodel;
             const sourceModelview = myMetis.currentModelview;
+            if (!debug) console.log('2742 Target myMetis', myMetis);
             gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-            if (debug) console.log('2489 Target metamodel', targetMetamodel);
+            if (!debug) console.log('2744 Target myMetis', myMetis);
           },
           function (o: any) { 
             if (myMetis.modelType === 'Metamodelling')
@@ -2769,6 +2776,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
               if (debug) console.log('2511', mmNameIds, modalContext, context);
               myDiagram.handleOpenModal(mmNameIds, modalContext);
+              if (!debug) console.log('2770 targetMetamodel', myMetis.currentTargetMetamodel);
             },
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')
@@ -3038,8 +3046,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Do Layout", 
             function (e: any, obj: any) {
-              if (debug) console.log('3073 myMetis.layout', myMetis.layout);
-              switch (myMetis.layout) {
+              const myGoModel = myMetis.gojsModel;
+              const layout = myGoModel.modelView?.layout;
+              switch (layout) {
                 case 'Circular':
                   myDiagram.layout = $(go.CircularLayout); 
                   break;
@@ -3139,7 +3148,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const layer = myDiagram.findLayer('AdminLayer');
     layer.visible = false;
   
-      // Define a Node template
+    // Define a Node template
     let nodeTemplate;
     if (true) {
       nodeTemplate =

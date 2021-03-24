@@ -12,6 +12,12 @@ const glb = require('../akmm/akm_globals');
 
 const constants = require('../akmm/constants');
 
+// Parameters to configure loads
+const includeDeleted = true;
+const includeViewsOnly = true;
+const includeInstancesOnly = true 
+const includeNoType = true;
+
 const GenGojsModel = async (props: any, dispatch: any) =>  {
   const debug = false
   const metis = (props.phData) && props.phData.metis
@@ -201,29 +207,52 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
     const nodeArray = new Array();
     for (let i=0; i<objects?.length; i++) {
+      let includeObject = false;
       const obj = objects[i];
-      if (!obj.typeRef) {
-        obj.deleted = true;;
-      }
-      if (obj.isDeleted()) 
-        continue;
       const objtype = obj?.getObjectType();
       const typeview = objtype?.getDefaultTypeView();
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
       objview.setTypeView(typeview);
-      // if (obj.name === 'Container') {
-      //   obj.viewkind = 'Container';
-      //   objview.isGroup = true;
-      //   console.log('206 Container', obj, objview, objtype);
-      // }
-      const node = new gjs.goObjectNode(utils.createGuid(), objview);
-      node.isGroup = objtype?.isContainer();
-      node.category = constants.gojs.C_OBJECT;
-      const viewdata: any = typeview?.data;
-      node.addData(viewdata);
-      nodeArray.push(node);
-      if (node.name === 'Container')
-        if (debug) console.log('221 node', node);
+
+      if (!includeDeleted) {
+        if (obj.isDeleted()) 
+          includeObject = false;
+      }
+      if (includeDeleted) {
+        if (obj.deleted) {
+          objview.strokecolor = "red";
+          includeObject = true;
+        }
+      }
+      if (!includeNoType) {
+        if (!obj.typeRef) {
+          obj.deleted = true;
+        }
+      }        
+      if (includeNoType) {
+        if (!obj.typeRef) {
+          objview.strokecolor = "green";
+          includeObject = true;
+        }
+      }      
+      if (!obj.deleted && obj.typeRef) {
+        includeObject = true;
+      }
+      if (includeObject) {
+        // if (obj.name === 'Container') {
+        //   obj.viewkind = 'Container';
+        //   objview.isGroup = true;
+        //   console.log('206 Container', obj, objview, objtype);
+        // }
+        const node = new gjs.goObjectNode(utils.createGuid(), objview);
+        node.isGroup = objtype?.isContainer();
+        node.category = constants.gojs.C_OBJECT;
+        const viewdata: any = typeview?.data;
+        node.addData(viewdata);
+        nodeArray.push(node);
+        if (node.name === 'Container')
+          if (debug) console.log('221 node', node);
+      }
     }
     if (debug) console.log('214 Object palette', nodeArray);
     return nodeArray;
@@ -234,12 +263,41 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
+      if (debug) console.log('237 modelview, objviews:', modelview.name, objviews);
       for (let i = 0; i < objviews.length; i++) {
+        let includeObjview = false;
         let objview = objviews[i];
+        if (includeDeleted) {
+          if (objview.deleted) {
+            objview.strokecolor = "red";
+            includeObjview = true;
+          } else if (objview.object?.deleted) {
+            objview.strokecolor = "orange";
+            includeObjview = true;
+          }
+        }
+        if (includeViewsOnly) {
+          if (!objview.object) {
+            objview.strokecolor = "blue";
+            if (!objview.fillcolor) objview.fillcolor = "lightgrey";
+            includeObjview = true;
+          }
+        }
+        if (includeNoType) {
+          if (!objview.object?.type) {
+            objview.strokecolor = "green"; 
+            if (!objview.fillcolor) objview.fillcolor = "lightgrey";
+            includeObjview = true;
+          }
+        }
         if (!objview.deleted && objview.object) {
+          includeObjview = true;
+        }
+        if (includeObjview) {
+          if (debug) console.log('241 objview:', objview);
           let node = new gjs.goObjectNode(utils.createGuid(), objview);
           myGoModel.addNode(node);
-          if (debug) console.log('233 buildGoModel - node', node, myGoModel);
+          if (debug) console.log('244 buildGoModel - node', node, myGoModel);
         }
       }
       const nodes = myGoModel.nodes;
@@ -248,24 +306,47 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         node.loadNodeContent(myGoModel);
         //if (i == 0) node.visible = false;
       }
-      if (debug) console.log('243 nodes', nodes);
+      if (debug) console.log('253 nodes', nodes);
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
-    if (debug) console.log('245 relviews', relviews, modelview);
     if (relviews) {
+      if (debug) console.log('258 modelview, relviews', modelview.name, relviews);
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
+        let includeRelview = false;
         let relview = relviews[i];
+        if (includeDeleted) {
+          if (relview.deleted) {
+            relview.strokecolor = "red";
+            includeRelview = true;
+          }
+        }
+        if (includeViewsOnly) {
+          if (!relview.relship) {
+            relview.strokecolor = "blue";
+            includeRelview = true;
+          }
+        }
+        if (includeNoType) {
+          if (!relview.relship?.type) {
+            relview.strokecolor = "green";
+            includeRelview = true;
+          }
+        }
         if (!relview.deleted && relview.relship) {
+          includeRelview = true;
+        }
+        if (includeRelview) {
+          if (debug) console.log('263 relview:', relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           myGoModel.addLink(link);
-          if (debug) console.log('254 buildGoModel - link', link, myGoModel);
+          if (debug) console.log('266 buildGoModel - link', link, myGoModel);
         }
       }
     }
-    if (debug) console.log('258 myGoModel', myGoModel);
+    if (debug) console.log('270 myGoModel', myGoModel);
     return myGoModel;
   }
 

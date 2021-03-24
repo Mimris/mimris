@@ -196,8 +196,8 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'TextEdited': {
         const sel = e.subject.part;
         const data = sel.data;
-        const field = e.subject.name;
-        if (debug) console.log('195 part', sel);
+        let field = e.subject.name;
+        if (debug) console.log('195 data', data, field);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
@@ -275,6 +275,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
             }             
             else { // Relationship
+              field = 'name';
               const myLink = this.getLink(context.myGoModel, key);
               if (myLink) {
                 if (text === 'Edit name') {
@@ -283,9 +284,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
                 myLink.name = text;
                 uic.updateRelationship(myLink, field, text, context);
+                if (debug) console.log('286 ')
                 if (myLink.relshipview) {
                   const gqlLink = new gql.gqlRelshipView(myLink.relshipview);
                   modifiedLinks.push(gqlLink);
+                  const gqlRel = new gql.gqlRelationship(myLink.relshipview.relship);
+                  modifiedRelships.push(gqlRel);
                 }
                 context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
               }
@@ -332,7 +336,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = data.key;
             if (debug) console.log('355 data', data);
             const node = uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
-            if (debug) console.log('361 node', node);
+            if (!debug) console.log('361 node, modifiedNodes: ', node, modifiedNodes);
             if (node) e.diagram.model.setDataProperty(data, "group", node.group);
             //const myNode = this.getNode(myGoModel, key);
             if (debug) console.log('364 myGoModel', myGoModel);

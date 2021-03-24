@@ -61,7 +61,6 @@ export class cxMetis {
     currentTemplateModelview:   cxModelView | null = null;
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
-    layout:             string;
     selectedData:       any = null;
     // Constructor
     constructor() {
@@ -69,7 +68,6 @@ export class cxMetis {
         this.name = "";
         this.description = "";
         this.category = 'Metis';
-        this.layout = "Manual";
     }
     importData(importedData: any, includeDeleted: boolean) {
         if (debug) console.log('72 importedData', importedData);
@@ -1103,6 +1101,19 @@ export class cxMetis {
         }
         return relships;
     }
+    getRelationshipsByGeneratedTypeId(reltypeId: string) {
+        let relships = new Array();
+        if (this.relships) {
+            for (let i = 0; i < this.relships.length; i++) {
+                let rel = this.relships[i];
+                if (rel && !rel.deleted) {
+                    if (rel.generatedTypeId === reltypeId)
+                        relships.push(rel);
+                }
+            }
+        }
+        return relships;
+    }
     getObjectViews() {
         return this.objectviews;
     }
@@ -1884,6 +1895,12 @@ export class cxMetaObject {
         else
             return "";
     }
+    getNameId(): string {
+        if (utils.objExists(this.nameId))
+            return this.nameId;
+        else
+            return "";
+    }
     setDescription(description: string) {
         this.description = description;
     }
@@ -2080,7 +2097,7 @@ export class cxMetaModel extends cxMetaObject {
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypes: cxRelationshipType[] | null;
     relshiptypeviews: cxRelationshipTypeView[] | null;
-    relshiptypeviewsproperties: cxProperty[] | null;
+    properties: cxProperty[] | null;
     enumerations: cxEnumeration[] | null;
     units: cxUnit[] | null;
     datatypes: cxDatatype[] | null;
@@ -4507,6 +4524,7 @@ export class cxInstance extends cxMetaObject {
     toObject: cxInstance | null;
     relshipkind: string;
     viewkind: string;
+    generatedTypeId: string;
     valueset: any[] | null;
     inputrels: cxRelationship[] | null;
     outputrels: cxRelationship[] | null;
@@ -4525,6 +4543,7 @@ export class cxInstance extends cxMetaObject {
         this.toObject = null;
         this.relshipkind = "";
         this.viewkind = "";
+        this.generatedTypeId = "";
         this.valueset = null;
         this.inputrels = null;
         this.outputrels = null;
@@ -5028,6 +5047,7 @@ export class cxModelView extends cxMetaObject {
     relshiptypeviews: cxRelationshipTypeView[] | null;
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
+    layout: string;
     template: any;
     isTemplate: boolean;
     diagrams: cxDiagram[] | null;
@@ -5036,12 +5056,12 @@ export class cxModelView extends cxMetaObject {
         this.category = constants.gojs.C_MODELVIEW;
         this.class = 'cxModelView';
         this.fs_collection = constants.fs.FS_C_MODELVIEWS;  // Firestore collection
-        // this.category         = constants.gojs.C_MODELVIEW;    // This gives an error, why ??
         this.model = model;
         this.objecttypeviews = null;
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
+        this.layout = "Tree";
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;
@@ -5053,7 +5073,12 @@ export class cxModelView extends cxMetaObject {
     getModel() {
         return this.model;
     }
-    // Methods
+    setLayout(layout: string) {
+        this.layout = layout;
+    }
+    getLayout() {
+        return this.layout;
+    }
     setTemplate(template: any) {
         this.template = template;
     }
@@ -5075,7 +5100,6 @@ export class cxModelView extends cxMetaObject {
     setObjectTypeViews(objecttypeviews: cxObjectTypeView[]) {
         this.objecttypeviews = objecttypeviews;
     }
-    // getObjecTypetViews() { // sf removed t
     getObjecTypeViews() {
         return this.objecttypeviews;
     }

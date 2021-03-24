@@ -43,7 +43,7 @@ const Selector = ( props: any ) => {
     
     
 
-  console.log('38 selector', focus, options);
+  if (debug) console.log('38 selector', focus, options);
   const selectDiv = 
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
     ? (props.selName === 'Model') 

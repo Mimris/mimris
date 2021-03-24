@@ -213,7 +213,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const typeview = objtype?.getDefaultTypeView();
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
       objview.setTypeView(typeview);
-
+      if (!debug) console.log('216 obj, objview:', obj, objview);
       if (!includeDeleted) {
         if (obj.isDeleted()) 
           includeObject = false;
@@ -245,6 +245,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         //   console.log('206 Container', obj, objview, objtype);
         // }
         const node = new gjs.goObjectNode(utils.createGuid(), objview);
+        if (!debug) console.log('248 node, objview:', node, objview);
         node.isGroup = objtype?.isContainer();
         node.category = constants.gojs.C_OBJECT;
         const viewdata: any = typeview?.data;
@@ -268,8 +269,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let includeObjview = false;
         let objview = objviews[i];
         if (includeDeleted) {
-          if (objview.deleted) {
+          if (objview.deleted && objview.object?.deleted) {
             objview.strokecolor = "red";
+            includeObjview = true;
+          } else if (objview.deleted) {
+            objview.strokecolor = "rgb(220,0,150)";
             includeObjview = true;
           } else if (objview.object?.deleted) {
             objview.strokecolor = "orange";
@@ -311,14 +315,20 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
-      if (debug) console.log('258 modelview, relviews', modelview.name, relviews);
+      if (!debug) console.log('258 modelview, relviews', modelview.name, relviews);
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
         let includeRelview = false;
         let relview = relviews[i];
         if (includeDeleted) {
-          if (relview.deleted) {
+          if (relview.deleted && relview.relship?.deleted) {
             relview.strokecolor = "red";
+            includeRelview = true;
+          } else if (relview.deleted) {
+            relview.strokecolor = "pink";
+            includeRelview = true;
+          } else if (relview.relship?.deleted) {
+            relview.strokecolor = "orange";
             includeRelview = true;
           }
         }

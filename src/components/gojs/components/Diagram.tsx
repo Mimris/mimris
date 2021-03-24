@@ -1662,8 +1662,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               const myGoModel = myMetis.gojsModel;
-              const object = myMetis.findObject(node.object.id)
-              const oviews = object.objectviews;
+              const object = myMetis.findObject(node.object?.id)
+              const oviews = object?.objectviews;
               if (oviews) {
                 for (let j=0; j<oviews.length; j++) {
                   const ov = oviews[j];
@@ -1702,7 +1702,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const node = obj.part.data;
               if (debug) console.log('1400 node', node);
-              const currentObject = myMetis.findObject(node.object.id)
+              const currentObject = myMetis.findObject(node.object?.id)
               const currentType = currentObject?.type;
               const myModel = myMetis.currentModel;
               const myGoModel = myMetis.gojsModel;
@@ -1904,8 +1904,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
               if (link.category === 'Relationship') {
-                const currentRelship = myMetis.findRelationship(link.relship.id);
-                const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
+                const currentRelship = myMetis.findRelationship(link.relship?.id);
+                const currentRelshipView = myMetis.findRelationshipView(link.relshipview?.id);
                 if (currentRelship && currentRelshipView) {                   
                   const myMetamodel = myMetis.currentMetamodel;
                   const reltype  = currentRelship.type;
@@ -3385,7 +3385,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
           },
           new go.Binding("fill", "fillcolor"),
-          // new go.Binding("stroke", "strokecolor"),
+          new go.Binding("stroke", "strokecolor"),
           // new go.Binding("strokeWidth", "strokewidth"),
         ),
         $(go.Panel,  // the header

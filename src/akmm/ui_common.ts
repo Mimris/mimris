@@ -450,6 +450,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             if (debug) console.log('405 delete objview', objview);
             // If group, delete members of group
             if (node.isGroup) {
+                if (!debug) console.log('453 delete container', objview);
                 const groupMembers = node.getGroupMembers(myGoModel);
                 for (let i=0; i<groupMembers?.length; i++) {
                     const member = groupMembers[i];
@@ -473,7 +474,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             // Then handle all other object views of the deleted object
             const objviews = object?.objectviews;
             if (debug) console.log('429 selection', myDiagram.selection);
-            if (debug) console.log('430 delete objviews', objviews);
+            if (!debug) console.log('430 delete objviews', objviews);
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
                 if (objview) {

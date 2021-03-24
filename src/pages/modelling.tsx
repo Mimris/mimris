@@ -24,10 +24,10 @@ const page = (props:any) => {
 
   const [refresh, setRefresh] = useState(true);
   const dispatch = useDispatch()
-  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
+
+  // const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
   // DispatchFromLocalStore(memoryLocState)
   // console.log('23 modelling', memoryLocState);
-  
   // if (props && props?.phSource === 'initialState' ) { // if initialState load memoryState if exists
   //   if (typeof window !== "undefined") {
     //   const loadMemory = confirm("Open saved memory model?");

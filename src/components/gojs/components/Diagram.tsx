@@ -167,8 +167,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('161 node', this.state.selectedData);
   } 
 
-  public handleCloseModal() {
-    if (debug) console.log('232 state', this.state.selectedData);
+  public handleCloseModal(e) {
+    if (debug) console.log('232 state', this.state.selectedData, e);
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     const myMetis = this.props.myMetis;
@@ -999,16 +999,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
-      if (debug) console.log('269 nodeInfo', obj, props, msg);
-      
+      if (debug) console.log('996 nodeInfo', obj, props, msg);   
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
-        if (debug) console.log('273 nodeInfo', prop);
-        const value = obj.getStringValue2(prop.name);
+        if (debug) console.log('1000 nodeInfo', prop);
+        const value = obj.getStringValue2(prop.name); 
         const p = prop.name + ': ' + value;
         msg += printf(format2, prop.name, value);
       }
-      if (debug) console.log('275 nodeInfo', obj, msg);
+      if (debug) console.log('1005 nodeInfo', obj, msg);
       return msg;
     }
 
@@ -3589,7 +3588,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         //   console.log('3025', image);
         //   console.log("3027 ./../images/" + image.replace(/C:\\fakepath\\/,'')) //its an image in public/images
         //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
-        
+      } else if (image.includes('<svg')) { // its an icon font
+        const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
+        console.log('3585', img);
+        return img
+
       } else { 
         if (debug) console.log('1283 Diagram', image);
         return "./../images/" + image //its an image in public/images
@@ -3763,7 +3766,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             {/* <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
-                  onClick={() => { this.handleCloseModal() }} ><span>x</span>
+                  onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
+                  {/* onClick={() => { this.handleCloseModal('x') }} ><span>x</span> */}
                 </Button>
                 <ModalHeader className="modal-header" >
                 <span className="text-secondary">{header} </span> 

@@ -25,18 +25,19 @@ const LoadFile = (props: any) => {
   
   if (typeof window === 'undefined') return
 
-  function handleSaveAllToFile() {
-    const data = {
+  const data = {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
       phSource: 'localFile'
     }
+
+  function handleSaveAllToFile() {
     const projectname = props.ph.phData.metis.name
     SaveAllToFile(data, projectname, 'AKMM-Project')
   }
   
-  function handleSaveModelviewToFile() {
+  function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const focusModelviewIndex = model.modelviews?.findIndex(m => m.id === props.ph?.phFocus?.focusModelview?.id) 
@@ -59,6 +60,9 @@ const LoadFile = (props: any) => {
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) 
     SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
+
+ 
+
 
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
@@ -93,6 +97,18 @@ const LoadFile = (props: any) => {
       title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
       onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (Downloads)
     </button >
+  
+
+  // const projectname = props.ph.phData.metis.name
+  // const today = new Date().toISOString().slice(0, 19)
+  // const emailAddress = 'snorres@gmail.com'
+  // const subject = `Project_${projectname}_${today} (AKM Models)`
+  // const body = JSON.stringify(data)
+  // const hrefGmail = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=' + emailAddress+'&subject=' + subject + '&body=' + body
+  // const hrefEmail = 'mailto:' + emailAddress+'?subject=' + subject + '&body=' + body
+  // const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
+  // const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
+  
 
   if (debug) console.log('172', buttonLabel);
   
@@ -117,10 +133,15 @@ const LoadFile = (props: any) => {
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export to file </h6>
-                {buttonSaveAllToFileDiv}
-                {buttonSaveModelToFileDiv}
-                {buttonSaveModelviewToFileDiv}
+                  {buttonSaveAllToFileDiv}
+                  {buttonSaveModelToFileDiv}
+                  {buttonSaveModelviewToFileDiv}
                 </div>
+                  {/* <h6>Send Project by mail </h6>
+                  <div className="selectbox bg-white mb-2 border">
+                    <div className="ml-2">{emailDivGmail}</div>
+                    <div className="ml-2">{emailDivMailto}</div>
+                  </div> */}
               </div>
               <div className="loadsave--metamodelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
@@ -136,7 +157,9 @@ const LoadFile = (props: any) => {
               </div>
             </div>
           </div>
+
         </ModalBody>
+        {/* <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
           <Button className="modal--footer m-0 py-1 px-2" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>

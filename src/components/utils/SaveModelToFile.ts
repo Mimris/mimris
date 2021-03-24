@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 
 const debug = false
 
@@ -42,8 +42,8 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
         const modelff = JSON.parse(text)
 
         //   alert(text)
-        if (!debug) console.log('46 SaveModelToFile', props.phFocus.focusModel.id);
-        if (!debug) console.log('44 SaveModelToFile', props, modelff);
+        if (debug) console.log('46 SaveModelToFile', props.phFocus.focusModel.id);
+        if (debug) console.log('44 SaveModelToFile', props, modelff);
     
         let  mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
@@ -52,7 +52,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
         let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
         // if (fmindex < 0) { fmindex = mlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
         
-        if (!debug) console.log('49 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
+        if (debug) console.log('49 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
         let mvindex, mvlength
         if (modelff.modelview) {
             mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
@@ -60,7 +60,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
             if (mvindex < 0) { mvindex = mvlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
         }
 
-        if (!debug) console.log('60 SaveModelToFile', mvindex, mvlength);
+        if (debug) console.log('60 SaveModelToFile', mvindex, mvlength);
 
         let data
         if (modelff.phData) {
@@ -111,11 +111,11 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 }, 
             };
         }
-        if (!debug) console.log('77 SaveModelToFile', data);      
-        if (data.phData) props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-        if (data.phFocus) props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-        if (data.phUser) props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-        if (data.phSource) props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+        if (debug) console.log('77 SaveModelToFile', data);      
+        if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+        if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+        if (data.phSource)  props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
     };
     reader.readAsText(e.target.files[0])
   }

@@ -648,6 +648,7 @@ function reducer(state = InitialState, action) {
                           id: action.data.id,           
                           name: action.data.name,
                           description: action.data.description,
+                          layout: action.data.layout,
                           deleted: action.data.deleted,
                           modified: action.data.modified,    
                     },

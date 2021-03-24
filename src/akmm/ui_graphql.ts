@@ -901,6 +901,7 @@ export class gqlModelView {
     id:                 string;
     name:               string;
     description:        string;
+    layout:             string;
     modelRef:           string;
     objectviews:        gqlObjectView[];
     relshipviews:       gqlRelshipView[];
@@ -912,6 +913,7 @@ export class gqlModelView {
         this.id                 = mv?.id;
         this.name               = mv?.getName();
         this.description        = mv?.description;
+        this.layout             = mv?.layout;
         this.modelRef           = mv?.getModel()?.id;
         this.objectviews        = [];
         this.relshipviews       = [];

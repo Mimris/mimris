@@ -373,7 +373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "selectDropdown": {
         const selectedData = this.state.selectedData;
-        if (!debug) console.log('241 data', this.state.selectedData, this.state.modalContext);
+        if (debug) console.log('241 data', this.state.selectedData, this.state.modalContext);
         if (this.state.modalContext.title === 'Select Icon') {
           if (selectedData.category === 'Object') {
             const selObj = selectedData;
@@ -623,7 +623,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
-        if (!debug) console.log('619 gqlModelview', gqlModelview);
+        if (debug) console.log('619 gqlModelview', gqlModelview);
         break;
 
       case "New Model":    
@@ -2747,9 +2747,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             myMetis.currentTargetMetamodel = context.myTargetMetamodel;
             const targetMetamodel = myMetis.currentTargetMetamodel;
             const sourceModelview = myMetis.currentModelview;
-            if (!debug) console.log('2742 Target myMetis', myMetis);
+            if (debug) console.log('2742 Target myMetis', myMetis);
             gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-            if (!debug) console.log('2744 Target myMetis', myMetis);
+            if (debug) console.log('2744 Target myMetis', myMetis);
           },
           function (o: any) { 
             if (myMetis.modelType === 'Metamodelling')
@@ -2775,7 +2775,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
               if (debug) console.log('2511', mmNameIds, modalContext, context);
               myDiagram.handleOpenModal(mmNameIds, modalContext);
-              if (!debug) console.log('2770 targetMetamodel', myMetis.currentTargetMetamodel);
+              if (debug) console.log('2770 targetMetamodel', myMetis.currentTargetMetamodel);
             },
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')

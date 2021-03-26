@@ -25,7 +25,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  if (!debug) console.log('17 Modelling', props.phUser);
+  if (!debug) console.log('28 Modelling', props, props.phUser.focusUser.diagram);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -110,66 +110,23 @@ const page = (props:any) => {
       setRefresh(!refresh)
     }, [props.phSource])
 
-
-  // Save current project to memoryState in localStorage each time a refresh is done 
+  
   function toggleRefresh() {
+    if (!debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,
       phUser: props.phUser,
       phSource: 'localStore'
     };
-    setTimeout(refres, 1);
-    if (debug) console.log('59 Modelling',  data);
-    setMemoryLocState(data) 
+    // setTimeout(refres, 1);
+    if (!debug) console.log('123 Modelling', props.phUser.focusUser, data);
+    setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
     function refres() {
       setRefresh(!refresh)
     }
-    setTimeout(refres, 1);
-
-              // function toggleRefresh() {
-              //   // first find current model which is in reduxStore
-              //   let reduxmod = props.phData?.metis?.models?.find(m => m.id === focusModel?.id) // current model index
-              //   let curmindex = memoryLocState?.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
-              //   // find lenght of modellarray in lodalStore
-              //   const curmlength = memoryLocState?.phData?.metis.models?.length
-              //   if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-              //   // then find metamodel which is in reduxStore
-              //   let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.metamodelRef) 
-              //   let curmmindex = memoryLocState?.phData?.metis?.metamodels?.findIndex(mm => mm?.id === reduxmod?.metamodelRef) 
-              //   // then find lenght of modellarray in lodalStore
-              //   const curmmlength = memoryLocState?.phData?.metis.metamodels?.length
-              //   if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new metamodel
-              //   // if (debug) console.log('73 Modelling', curmindex, reduxmod);
-              //   const data = {
-              //     phData: {
-              //       ...memoryLocState?.phData,
-              //       metis: {
-              //         ...memoryLocState?.phData?.metis,
-              //         models: [
-              //           ...memoryLocState?.phData?.metis.models.slice(0, curmindex),
-              //           reduxmod,
-              //           ...memoryLocState?.phData?.metis.models.slice(curmindex + 1),
-              //         ],
-              //         metamodels: [
-              //           ...memoryLocState?.phData?.metis.metamodels.slice(0, curmmindex),
-              //           reduxmmod,
-              //           ...memoryLocState?.phData?.metis.metamodels.slice(curmmindex + 1),
-              //         ]
-              //       },
-              //     },
-              //     phFocus: props.phFocus,
-              //     phUser: props.phUser,
-              //     phSource: 'localStore'
-              //   };
-              // if (debug) console.log('59 Modelling',  data);
-              // (reduxmod) && setMemoryLocState(data) 
-              // genGojsModel(props, dispatch)
-              // function refres() {
-              //   setRefresh(!refresh)
-              // }
-
+    setTimeout(refres, 100);
   }
     
     const [activeTab, setActiveTab] = useState('2');

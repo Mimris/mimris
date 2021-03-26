@@ -13,12 +13,14 @@ const glb = require('../akmm/akm_globals');
 const constants = require('../akmm/constants');
 
 // Parameters to configure loads
-const includeDeleted = true;
+let includeDeleted ;
 const includeViewsOnly = true;
 const includeInstancesOnly = true 
 const includeNoType = true;
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
+  includeDeleted = props.phUser?.focusUser?.diagram?.showDeleted //|| false;
+  if (!debug) console.log('23 GenGojsModel', includeDeleted, props)
   const debug = false
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
@@ -27,11 +29,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    console.log('24 GenGojsModel phData, metis:', props.phData, props);
+    if (debug) console.log('24 GenGojsModel phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
     if (debug) console.log('26 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
-    console.log('28 GenGojsModel myMetis', myMetis);
+    if (debug) console.log('28 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview

@@ -747,7 +747,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         }
         break;
-
       default:
         break;
     }

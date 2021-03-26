@@ -25,7 +25,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  if (debug) console.log('17 Modelling', props);
+  if (!debug) console.log('17 Modelling', props.phUser);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -63,6 +63,7 @@ const page = (props:any) => {
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
   let phFocus = props.phFocus;
   let phData = props.phData
+  let phUser = props.phUser
 
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
@@ -294,6 +295,7 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='metamodel'
+                    phUser={phUser}
                   />
                 </div>
               </Col>
@@ -338,6 +340,7 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='model'
+                    phUser={phUser}
                   />
                 </div>
               </Col>

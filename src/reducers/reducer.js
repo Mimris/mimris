@@ -25,17 +25,6 @@ import {
   SET_FOCUS_RELSHIPVIEW,
   SET_FOCUS_OBJECTTYPE,
   SET_FOCUS_RELSHIPTYPE,
-  SET_MYMETIS_MODEL,
-  SET_MYMETIS_PARAMETER,
-  SET_MY_GOMODEL,
-  SET_MY_GOMETAMODEL,
-  SET_GOJS_MODEL,
-  SET_GOJS_TARGETMODEL,
-  SET_GOJS_MODELOBJECTS,
-  SET_GOJS_METAMODEL,
-  SET_GOJS_METAMODELPALETTE,
-  SET_GOJS_METAMODELMODEL,
-  SET_GOJS_TARGETMETAMODEL,
   SET_FOCUS_PROJ,
   SET_FOCUS_ORG,
   SET_FOCUS_ROLE,
@@ -43,6 +32,21 @@ import {
   SET_FOCUS_TASK,
   SET_FOCUS_SOURCE,
   SET_FOCUS_REFRESH,
+  SET_USER_SHOWDELETED,
+
+  SET_MYMETIS_MODEL,
+  SET_MYMETIS_PARAMETER,
+  SET_MY_GOMODEL,
+  SET_MY_GOMETAMODEL,
+
+  SET_GOJS_MODEL,
+  SET_GOJS_TARGETMODEL,
+  SET_GOJS_MODELOBJECTS,
+  SET_GOJS_METAMODEL,
+  SET_GOJS_METAMODELPALETTE,
+  SET_GOJS_METAMODELMODEL,
+  SET_GOJS_TARGETMETAMODEL,
+
   UPDATE_PROJECT_PROPERTIES,
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
@@ -298,69 +302,7 @@ function reducer(state = InitialState, action) {
           focusRelshiptype: action.data
         }
       }
-    case SET_GOJS_METAMODELPALETTE:
-      // if (debug) console.log('219 SET_GOJS_METAMODEL', action);
-      return {
-        ...state,
-        phGojs: {
-          ...state.phGojs,
-          gojsMetamodelPalette: action.gojsMetamodelPalette
-        }
-      }
-    case SET_GOJS_METAMODELMODEL:
-      // if (debug) console.log('210 SET_GOJS_MODEL', action);
-      return {
-        ...state,
-        phGojs: {
-          ...state.phGojs,
-          gojsMetamodelModel: action.gojsMetamodelModel
-        }
-      }
-    case SET_GOJS_TARGETMETAMODEL:
-      // if (debug) console.log('229 SET_GOJS_TARGETMETAMODEL', action);
-      return {
-        ...state,
-        phGojs: {
-          ...state.phGojs,
-          gojsTargetMetamodel: action.gojsTargetMetamodel
-        }
-      }
-    case SET_GOJS_METAMODEL:
-      // if (debug) console.log('219 SET_GOJS_METAMODEL', action);
-      return {
-        ...state,
-        phGojs: {
-          ...state.phGojs,
-          gojsMetamodel: action.gojsMetamodel
-        }
-      }
-    case SET_GOJS_MODEL:
-      // if (debug) console.log('255 SET_GOJS_MODEL', action);
-      return {
-        ...state,
-        phGojs: {
-          ...state.phGojs,
-          gojsModel: action.gojsModel
-        }
-      }
-    case SET_GOJS_TARGETMODEL:
-      // if (debug) console.log('210 SET_GOJS_TARGETMODEL', action);
-      return {
-        ...state,
-        phGojs: {
-          ...state.phGojs,
-          gojsTargetModel: action.gojsTargetModel
-        }
-      }
-    case SET_GOJS_MODELOBJECTS:
-      // if (debug) console.log('210 SET_GOJS_MODEL', action);
-      return {
-        ...state,
-        phGojs: {
-          ...state.phGojs,
-          gojsModelObjects: action.gojsModelObjects
-        }
-      }
+   
     // case SET_MYMETIS_METAMODEL:
         //   if (debug) console.log('269 SET_MYMETIS_METAMODEL', action);
         //   return {
@@ -370,46 +312,7 @@ function reducer(state = InitialState, action) {
         //       myMetis: action.myMetis
         //     }
         //   }
-      case SET_MYMETIS_MODEL:
-      // if (debug) console.log('228 SET_MYMETIS_MODEL', action);
-      return {
-        ...state,
-        phMymetis: {
-          ...state.phMymetis,
-          myMetis: action.myMetis
-        }
-      }
-    case SET_MYMETIS_PARAMETER:
-      // if (debug) console.log('221 SET_MYMETIS_PARAMETER', action.data);
-      return {
-        ...state,
-        phMymetis: {
-          ...state.phMymetis,
-          myMetis: {
-            ...state.phMymetis.myMetis,        
-            pasteViewsOnly: (action.data.pasteViewsOnly) && action.data.pasteViewsOnly,  
-            deleteViewsOnly: (action.data.deleteViewsOnly) && action.data.deleteViewsOnly       
-          }
-        }
-      }
-    case SET_MY_GOMODEL:
-      // if (debug) console.log('220 SET_MY_GOMODEL', action);
-      return {
-        ...state,
-        phMyGoModel: {
-          ...state.phMyGoModel,
-          myGoModel: action.myGoModel
-        }
-      }
-    case SET_MY_GOMETAMODEL:
-      // if (debug) console.log('220 SET_MY_GOMODEL', action);
-      return {
-        ...state,
-        phMyGoMetamodel: {
-          ...state.phMyGoMetamodel,
-          myGoMetamodel: action.myGoMetamodel
-        }
-      }
+
     case SET_FOCUS_OBJECT:
       if (debug) console.log('235 SET_FOCUS_OBJECT', state, action.data);
       // focusSource = (action.data.focusObject && action.data.focusObject.focusSource) ? {
@@ -533,7 +436,123 @@ function reducer(state = InitialState, action) {
           focusRefresh: action.data
         }
       }
+    case SET_USER_SHOWDELETED:
+      console.log('440 SET_USER_SHOWDELETED', action);
+      return {
+        ...state,
+        phUser: {
+          ...state.phUser,
+          diagram: {
+            ...state.phUser.diagram,
+            showDeleted: action.data
+          } 
+        }
+      }
 
+
+      case SET_MYMETIS_MODEL:
+        // if (debug) console.log('228 SET_MYMETIS_MODEL', action);
+        return {
+          ...state,
+          phMymetis: {
+            ...state.phMymetis,
+            myMetis: action.myMetis
+          }
+        }
+      case SET_MYMETIS_PARAMETER:
+        // if (debug) console.log('221 SET_MYMETIS_PARAMETER', action.data);
+        return {
+          ...state,
+          phMymetis: {
+            ...state.phMymetis,
+            myMetis: {
+              ...state.phMymetis.myMetis,        
+              pasteViewsOnly: (action.data.pasteViewsOnly) && action.data.pasteViewsOnly,  
+              deleteViewsOnly: (action.data.deleteViewsOnly) && action.data.deleteViewsOnly       
+            }
+          }
+        }
+      case SET_MY_GOMODEL:
+        // if (debug) console.log('220 SET_MY_GOMODEL', action);
+        return {
+          ...state,
+          phMyGoModel: {
+            ...state.phMyGoModel,
+            myGoModel: action.myGoModel
+          }
+        }
+      case SET_MY_GOMETAMODEL:
+        // if (debug) console.log('220 SET_MY_GOMODEL', action);
+        return {
+          ...state,
+          phMyGoMetamodel: {
+            ...state.phMyGoMetamodel,
+            myGoMetamodel: action.myGoMetamodel
+          }
+        }
+      case SET_GOJS_METAMODELPALETTE:
+        // if (debug) console.log('219 SET_GOJS_METAMODEL', action);
+        return {
+          ...state,
+          phGojs: {
+            ...state.phGojs,
+            gojsMetamodelPalette: action.gojsMetamodelPalette
+          }
+        }
+      case SET_GOJS_METAMODELMODEL:
+        // if (debug) console.log('210 SET_GOJS_MODEL', action);
+        return {
+          ...state,
+          phGojs: {
+            ...state.phGojs,
+            gojsMetamodelModel: action.gojsMetamodelModel
+          }
+        }
+      case SET_GOJS_TARGETMETAMODEL:
+        // if (debug) console.log('229 SET_GOJS_TARGETMETAMODEL', action);
+        return {
+          ...state,
+          phGojs: {
+            ...state.phGojs,
+            gojsTargetMetamodel: action.gojsTargetMetamodel
+          }
+        }
+      case SET_GOJS_METAMODEL:
+        // if (debug) console.log('219 SET_GOJS_METAMODEL', action);
+        return {
+          ...state,
+          phGojs: {
+            ...state.phGojs,
+            gojsMetamodel: action.gojsMetamodel
+          }
+        }
+      case SET_GOJS_MODEL:
+        // if (debug) console.log('255 SET_GOJS_MODEL', action);
+        return {
+          ...state,
+          phGojs: {
+            ...state.phGojs,
+            gojsModel: action.gojsModel
+          }
+        }
+      case SET_GOJS_TARGETMODEL:
+        // if (debug) console.log('210 SET_GOJS_TARGETMODEL', action);
+        return {
+          ...state,
+          phGojs: {
+            ...state.phGojs,
+            gojsTargetModel: action.gojsTargetModel
+          }
+        }
+      case SET_GOJS_MODELOBJECTS:
+        // if (debug) console.log('210 SET_GOJS_MODEL', action);
+        return {
+          ...state,
+          phGojs: {
+            ...state.phGojs,
+            gojsModelObjects: action.gojsModelObjects
+          }
+        }
     case UPDATE_PROJECT_PROPERTIES:
       if (debug) console.log('429 UPDATE_PROJECT_PROPERTIES', action);
       //const curmprojindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index

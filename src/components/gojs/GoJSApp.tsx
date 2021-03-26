@@ -336,7 +336,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = data.key;
             if (debug) console.log('355 data', data);
             const node = uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
-            if (!debug) console.log('361 node, modifiedNodes: ', node, modifiedNodes);
+            if (debug) console.log('361 node, modifiedNodes: ', node, modifiedNodes);
             if (node) e.diagram.model.setDataProperty(data, "group", node.group);
             //const myNode = this.getNode(myGoModel, key);
             if (debug) console.log('364 myGoModel', myGoModel);

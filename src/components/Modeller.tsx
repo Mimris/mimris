@@ -11,7 +11,7 @@ const debug = false;
 
 const Modeller = (props: any) => {
   const debug = false
-  if (debug) console.log('13 Modeller', props);
+  if (!debug) console.log('13 Modeller', props);
   // let prevgojsmodel = null
   // let gojsmodel = {}
   const gojsmodel = props.gojsModel;
@@ -20,8 +20,10 @@ const Modeller = (props: any) => {
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState();
+  const [showDeleted, setShowDeleted] = useState(props.phUser?.focusUser?.diagram?.showDeleted)
 
   function toggleRefresh() { setRefresh(!refresh); }
+  function toggleShowDeleted() { setShowDeleted(!showDeleted); }
 
   // if (debug) console.log('21 Modeller', props.gojsModel, gojsmodel);
 
@@ -197,6 +199,16 @@ const Modeller = (props: any) => {
       </div><br />
       <div className="mt-2">
         {modelviewTabDiv} 
+      </div>
+      <div className="diagram-buttons">
+        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram&#013;">Zoom All</button>
+        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layou routing&#013;">Toggle relationship layout</button>
+        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom objectview in focus&#013;">Zoom to Focus</button>
+        <button className="btn-sm  py-0" 
+          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews&#013;" 
+          onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) }}>{(showDeleted) ? 'Show deleted' : 'Hide deleted' }
+        </button>
+        {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
       </div>
       <style jsx>{`
       // .diagram-component {

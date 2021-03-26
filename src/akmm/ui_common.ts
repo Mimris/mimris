@@ -450,7 +450,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             if (debug) console.log('405 delete objview', objview);
             // If group, delete members of group
             if (node.isGroup) {
-                if (!debug) console.log('453 delete container', objview);
+                if (debug) console.log('453 delete container', objview);
                 const groupMembers = node.getGroupMembers(myGoModel);
                 for (let i=0; i<groupMembers?.length; i++) {
                     const member = groupMembers[i];
@@ -474,7 +474,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             // Then handle all other object views of the deleted object
             const objviews = object?.objectviews;
             if (debug) console.log('429 selection', myDiagram.selection);
-            if (!debug) console.log('430 delete objviews', objviews);
+            if (debug) console.log('430 delete objviews', objviews);
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
                 if (objview) {
@@ -1031,7 +1031,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     } else {
         relship = myMetis.findRelationship(relship?.id);
     }
-    if (!debug) console.log('979 relationship', relship);
+    if (debug) console.log('979 relationship', relship);
     const relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
     if (relshipview) {
         relshipview.setTypeView(typeview);              // Uses same typeview as from relview
@@ -1049,7 +1049,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
 }
 
 export function updateRelationship(data: any, name: string, value: string, context: any) {
-    if (!debug) console.log('1011 updateRelationship', name, value, data);
+    if (debug) console.log('1011 updateRelationship', name, value, data);
     if ((data === null) || (!data.relship)) {
         return;
     } else {
@@ -1841,11 +1841,11 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         const oview = oviews[i];
         if (oview) {
             if (!oview.deleted) {
-                if (!debug) console.log('1842 oview, object:', oview, oview.object);
+                if (debug) console.log('1842 oview, object:', oview, oview.object);
                 if (oview.object?.deleted) {
                     oview.object.deleted = false;
                     const gqlObject = new gql.gqlObject(oview.object);
-                    if (!debug) console.log('1846 gqlObject', gqlObject);
+                    if (debug) console.log('1846 gqlObject', gqlObject);
                     modifiedObjects.push(gqlObject);
                     msg = "\tVerifying objectview " + oview.name + " ( with object deleted)\n";
                     msg += "\tObject has been undeleted";

@@ -461,12 +461,12 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
 }
 
 export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cxRelationshipView, context: any) {
-    if (!debug) console.log('464 relship, relview: ', relship, relview);
+    if (debug) console.log('464 relship, relview: ', relship, relview);
     if (!relship) {
         return;
     }
     const typid = relship.generatedTypeId;
-    if (!debug) console.log('469 typid', typid, typid.length);
+    if (debug) console.log('469 typid', typid, typid.length);
     const myDiagram   = context.myDiagram;
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
@@ -483,14 +483,14 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     newName = utils.camelize(newName);
     newName = utils.uncapitalizeFirstLetter(newName);
     let relname = newName;
-    if (!debug) console.log('485 generatedTypeId: ', relship.generatedTypeId, relship);
+    if (debug) console.log('485 generatedTypeId: ', relship.generatedTypeId, relship);
     if (typid?.length == 0) {
         // This is a new relationship type - Create it
-        if (!debug) console.log('487 new relship type: ', newName);
+        if (debug) console.log('487 new relship type: ', newName);
         const reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, currentRel.description);
         myTargetMetamodel.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
-        if (!debug) console.log('491 reltype', reltype);
+        if (debug) console.log('491 reltype', reltype);
         // Create relationship typeview
         const guid = utils.createGuid();
         let reltypeview = new akm.cxRelationshipTypeView(guid, guid, reltype, "");
@@ -501,7 +501,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         if (debug) console.log('499 reltypeview', reltypeview);
 
         const gqlRelshipType = new gql.gqlRelationshipType(reltype);
-        if (!debug) console.log('502 Generate Relationship Type', reltype, gqlRelshipType);
+        if (debug) console.log('502 Generate Relationship Type', reltype, gqlRelshipType);
         const modifiedTypeLinks = new Array();
         modifiedTypeLinks.push(gqlRelshipType);
         modifiedTypeLinks.map(mn => {
@@ -522,14 +522,14 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         return reltype;
     } else {
         // This is a RENAME of a reltype
-        if (!debug) console.log('523 rename relship type to: ', newName);
+        if (debug) console.log('523 rename relship type to: ', newName);
         const reltype = myMetis.findRelationshipType(relship.generatedTypeId);
         if (!reltype) 
             return;     // An error - do nothing
         // Rename the type
         reltype.name = newName;
         // const gqlRelshipType = new gql.gqlRelationshipType(reltype);
-        // if (!debug) console.log('502 Generate Relationship Type', reltype, gqlRelshipType);
+        // if (debug) console.log('502 Generate Relationship Type', reltype, gqlRelshipType);
         // const modifiedTypeLinks = new Array();
         // modifiedTypeLinks.push(gqlRelshipType);
         // modifiedTypeLinks.map(mn => {
@@ -567,7 +567,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             })
         modifiedRelviews.map(mn => {
             let data = mn
-            if (!debug) console.log('565 data', data);
+            if (debug) console.log('565 data', data);
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })
         if (debug) console.log('560 reltype', reltype);
@@ -772,10 +772,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         }
     }
     if (relshipviews) {
-        if (!debug) console.log('764 relshipviews', relshipviews);
+        if (debug) console.log('764 relshipviews', relshipviews);
         for (let i=0; i<relshipviews.length; i++) {
             const relview = relshipviews[i];
-            if (!debug) console.log('767 relview', relview);
+            if (debug) console.log('767 relview', relview);
             if (!relview) continue;
             const rel = relview.relship;
             const fromObjview = relview.fromObjview;
@@ -784,11 +784,11 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             const toObjview = relview.toObjview;
             if (!toObjview) continue;
             const toObj = toObjview?.object;
-            if (!debug) console.log('775 relview', relview);
+            if (debug) console.log('775 relview', relview);
             if ((fromObj?.type.name == 'Information') && (toObj?.type.name == 'Information')) {
-                if (!debug) console.log('778 rel', rel);
+                if (debug) console.log('778 rel', rel);
                 const reltype = generateRelshipType(rel, relview, context);
-                if (!debug) console.log('780 reltype', reltype);
+                if (debug) console.log('780 reltype', reltype);
                 // Prepare dispatches
                 if (reltype) {
                     const gqlRelshipType = new gql.gqlRelationshipType(reltype);
@@ -864,7 +864,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 }
 
 export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, sourcemodelview: akm.cxModelView, context: any) {
-    if (!debug) console.log('718 Context, modelview', context, sourcemodelview);
+    if (debug) console.log('718 Context, modelview', context, sourcemodelview);
     const myMetis   = context.myMetis;
     const currentMetamodel = myMetis.currentMetamodel;
     const metamodel = targetmetamodel;
@@ -885,14 +885,14 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
     let objectviews = modelview.objectviews;
     let relshipviews = modelview.relshipviews;
     if (currentNode) {
-        if (!debug) console.log('827 currentNode, myGoModel', currentNode, context.myGoModel);
+        if (debug) console.log('827 currentNode, myGoModel', currentNode, context.myGoModel);
         currentNode = context.myGoModel.findNode(currentNode.key);
         objectviews = currentNode.getGroupMembers2(context.myGoModel);
         relshipviews = currentNode.getGroupLinkMembers2(context.myGoModel);
     }
-    if (!debug) console.log('832 objviews. relviews', objectviews, relshipviews);
+    if (debug) console.log('832 objviews. relviews', objectviews, relshipviews);
     generateMetamodel(objectviews, relshipviews, context);
-    if (!debug) console.log('884 myMetis', myMetis);
+    if (debug) console.log('884 myMetis', myMetis);
 
 
     // Look up the relationships between Roles and Tasks

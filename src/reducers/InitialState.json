@@ -2884,10 +2884,14 @@
     },
     "phUser": {
         "focusUser": {
-            "id": 1,
+            "id": "email",
             "name": "Not logged in",
             "email": "",
-            "session": null
+            "session": null,
+            "diagram": {
+                "showDeleted": false,
+                "zoomToFocus": false
+            }
         }
     },
     "phSource": "initialState"

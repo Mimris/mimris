@@ -4765,7 +4765,7 @@ export class cxInstance extends cxMetaObject {
     getStringValue2(propname: string): string {
         const inst: any = this;
         const value = this[propname];
-        if (!debug) console.log('4510 inst', propname, value, this);
+        if (debug) console.log('4510 inst', propname, value, this);
         return value;
     }
     findInputRelships(model: cxModel, rkind: string) {

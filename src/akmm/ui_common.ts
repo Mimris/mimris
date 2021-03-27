@@ -678,6 +678,20 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                 const modNode = new gql.gqlObjectView(objview);
                 nodes.push(modNode);
             }
+            // // Trying to handle container 'grabbing' objects
+            // if (objview.isGroup) {
+            //     const nods = goModel?.nodes;
+            //     for (let i=0; i<nods.length; i++) {
+            //         const nod = nods[i];
+            //         const oview = nod.objectview;
+            //         const grp = getGroupByLocation(goModel, oview.loc);
+            //         if (grp) {
+            //             oview.group = grp.objectview.id;
+            //             nod.group = grp.key;
+            //         }
+            //         console.log('691 nod, grp, oview', nod, grp, oview);
+            //     }
+            // }
         }
         if (debug) console.log('622 goModel :', goModel);
         return node;

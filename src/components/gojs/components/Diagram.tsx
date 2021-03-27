@@ -2932,6 +2932,58 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
+          makeButton("Undelete Selection",
+            function (e: any, obj: any) {
+              if (confirm('Do you really want to undelete the current selection?')) {
+                myDiagram.selection.each(function(sel) {
+                  if (debug) console.log('1435 sel', sel.data);
+                  const inst = sel.data;
+                  if (inst.category === 'Object') {
+                    let objview = sel.data.objectview;
+                    if (objview) {
+                      objview = myMetis.findObjectView(objview.id);
+                      objview.deleted = false;
+                      if (objview.typeview)
+                        objview.strokecolor = objview.typeview.strokecolor;
+                      else
+                        objview.strokecolor = "black";
+                      const obj = objview.object;
+                      if (obj) 
+                        obj.deleted = false;
+                    }
+                  }
+                  if (inst.category === 'Relationship') {
+                    let relview = sel.data.relshipview;
+                    if (relview) {
+                      relview = myMetis.findRelationshipView(relview.id);
+                      relview.deleted = false;
+                      if (relview.typeview)
+                        relview.strokecolor = relview.typeview.strokecolor;
+                      else 
+                        relview.strokecolor = "black";
+                      const rel = relview.relship;
+                      if (rel)
+                        rel.deleted = false;
+                    }
+                  }
+                });
+                if (debug) console.log('1455 myMetis', myMetis);
+                const myModel = myMetis.currentModel;
+                const gqlModel = new gql.gqlModel(myModel, true);
+                const modifiedModels = new Array();
+                modifiedModels.push(gqlModel);
+                modifiedModels.map(mn => {
+                  let data = mn;
+                  e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                })
+              }
+            },
+            function (o: any) { 
+              const node = o.part.data;
+              if (myDiagram.selection.count > 0)
+                return true; 
+              return false;
+            }),
           makeButton("Select all objects of type",
             function (e: any, obj: any) {
               const myModel = myMetis.currentModel;

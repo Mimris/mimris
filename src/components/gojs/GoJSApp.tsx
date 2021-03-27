@@ -445,11 +445,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relship.deleted = deletedFlag;
                 const gqlRel = new gql.gqlRelationship(relship);
                 modifiedRelships.push(gqlRel);
-                if (debug) console.log('440 SelectionDeleted', modifiedRelships);
+                if (!debug) console.log('440 SelectionDeleted', modifiedRelships);
               }
             }
           }
-          if (debug) console.log('443 myMetis', myMetis); 
+          if (!debug) console.log('443 myMetis', myMetis); 
         }
       }
         break;
@@ -823,6 +823,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // if (debug) console.log('544 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
       let data = (mn) && mn
+      if (!debug) console.log('831 data', data);
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 

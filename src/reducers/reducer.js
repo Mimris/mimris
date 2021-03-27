@@ -942,7 +942,7 @@ function reducer(state = InitialState, action) {
                     deleted: action.data.deleted,
                     modified: action.data.modified,    
                   },
-                  ...curmr.relships.slice(r2index + 1 , curmr.relships.length)
+                  ...curmr.relships.slice(r2index+1 , curmr.relships.length)
                 ]
               },
               ...state.phData.metis.models.slice(curmindexr + 1, state.phData.metis.models.length),

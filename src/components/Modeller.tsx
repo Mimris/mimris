@@ -18,12 +18,14 @@ const Modeller = (props: any) => {
   let myMetis = props.myMetis;
   let activetabindex = '0'
   const dispatch = useDispatch();
-  const [refresh, setRefresh] = useState()
+  const [refresh, setRefresh] = useState(false)
   const [activeTab, setActiveTab] = useState();
-  const [showDeleted, setShowDeleted] = useState(props.phUser?.focusUser?.diagram?.showDeleted)
+  const [showDeleted, setShowDeleted] = useState(false)
+  // const [showDeleted, setShowDeleted] = useState(props.phUser?.focusUser?.diagram?.showDeleted)
 
   function toggleRefresh() { setRefresh(!refresh); }
-  function toggleShowDeleted() { setShowDeleted(!showDeleted); }
+  function toggleShowDeleted() { setShowDeleted(!showDeleted); console.log('27', showDeleted);
+   }
 
   // if (debug) console.log('21 Modeller', props.gojsModel, gojsmodel);
 
@@ -53,8 +55,7 @@ const Modeller = (props: any) => {
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
   // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
 
-  const gojsapp = (gojsmodel) &&
-    < GoJSApp
+  const gojsapp = (gojsmodel) && <GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
       metis={props.metis}
@@ -64,7 +65,7 @@ const Modeller = (props: any) => {
       phFocus={props.phFocus}
       dispatch={props.dispatch}
       modelType={props.phFocus.focusTab}
-    />
+  />
 
     const selector = (props.modelType === 'model' || props.modelType === 'modelview') 
     ? <>
@@ -191,9 +192,9 @@ const Modeller = (props: any) => {
   return (
     (props.modelType === 'model') ?
     <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
-        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
-          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
-        </h5>
+      <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
+        style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+      </h5>
       <div>
         {selector}
       </div><br />
@@ -206,7 +207,7 @@ const Modeller = (props: any) => {
         <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus&#013;">Zoom to Focus</button>
         <button className="btn-sm  py-0" 
           data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews&#013;" 
-          onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Show deleted' : 'Hide deleted' }
+          onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' }
         </button>
         {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
       </div>

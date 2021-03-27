@@ -674,26 +674,33 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     objview.group = "";
                     node.group = "";
                 }
-                if (debug) console.log('614 Moved node', node, objview)
+                if (debug) console.log('677 Moved node', node, objview)
                 const modNode = new gql.gqlObjectView(objview);
                 nodes.push(modNode);
             }
-            // // Trying to handle container 'grabbing' objects
-            // if (objview.isGroup) {
-            //     const nods = goModel?.nodes;
-            //     for (let i=0; i<nods.length; i++) {
-            //         const nod = nods[i];
-            //         const oview = nod.objectview;
-            //         const grp = getGroupByLocation(goModel, oview.loc);
-            //         if (grp) {
-            //             oview.group = grp.objectview.id;
-            //             nod.group = grp.key;
-            //         }
-            //         console.log('691 nod, grp, oview', nod, grp, oview);
-            //     }
-            // }
+            // Trying to handle container 'grabbing' objects
+            if (objview.isGroup) {   // node / objview is a group
+                const group = node;
+                // Get potential members of the group
+                const nods = goModel?.nodes;
+                for (let i=0; i<nods.length; i++) {
+                    const nod = nods[i];
+                    // if nod is the group, do nothing
+                    if (nod.key === group.key)
+                        continue;
+                    const oview = nod.objectview;
+                    const grp = getGroupByLocation(goModel, oview.loc);
+                    if (grp) {
+                        oview.group = group.objectview.id;
+                        nod.group = group.key;
+                        const modNode = new gql.gqlObjectView(oview);
+                        nodes.push(modNode);
+                    }
+                    if (debug) console.log('698 oview, nod, group', oview, nod, group);
+                }
+            }
         }
-        if (debug) console.log('622 goModel :', goModel);
+        if (debug) console.log('702 goModel :', goModel);
         return node;
     }
 }

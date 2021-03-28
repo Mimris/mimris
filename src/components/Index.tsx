@@ -57,7 +57,7 @@ const page = (props) => {
                 }}
               >
                 <CardHeader className="card-header ">Modelling with AKM Modeller:</CardHeader>
-                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,005,0.2)"}}>
+                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,195,0.6)"}}>
                   <CardTitle className="card-title-bold">To get started !</CardTitle>
                   <CardText className="card-text"> 
                     <strong>Select Modelling in the top menu </strong><br />
@@ -178,7 +178,6 @@ const page = (props) => {
                   // padding: "2px"
                 }}
                 style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"} }} 
-
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
                   <CardHeader className="card-header " >AKMM release blog ... </CardHeader>
@@ -187,12 +186,19 @@ const page = (props) => {
                     <CardText >
                         &bull; Workplace templates for reflective workplace modelling! <br />
                         &bull; Popup select menu for new relships!<br />
-                        &bull; Image picker to select icons!<br />
                         &bull; Strokewidth for synbol border and relship line!<br />
                         &bull; GraphQL shema reporting from Solution models!<br />
                         &bull; Instruction videos for modelling Best Practices! <br />
-                        &bull; Enhancement of user interface! <br />
                         &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.03.28</CardTitle>
+                    <CardText >
+                          &bull; New rightclick menuitem "Change icon" on objectviews.<br />
+                          &bull; New button "Show deleted" under diagram for showing deleted objects.<br />
+                          &bull; Background menu "Undelete Selection" to undelete objects/objectviews.<br />
+                          &bull; Bugfixes!<br /><br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
@@ -310,9 +316,9 @@ const page = (props) => {
               <CardHeader className="card-header " >Kavca Blog:</CardHeader>
               <CardBody  className="card-body">
                 <CardTitle style={{ fontWeight: "bolder" }} >News: </CardTitle>
-                <CardText > 
+   
                   <Blog />
-                </CardText>
+
               </CardBody>
             </Card>
             </CardColumns>

@@ -110,6 +110,12 @@ const page = (props:any) => {
       setRefresh(!refresh)
     }, [props.phSource])
 
+    useEffect(() => {
+      if (debug) console.log('103 Modelling useEffect 5', props); 
+      genGojsModel(props, dispatch)
+      setRefresh(!refresh)
+    }, [props.phUser])
+
   
   function toggleRefresh() {
     if (!debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);

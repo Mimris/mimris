@@ -21,14 +21,11 @@ const Modeller = (props: any) => {
   const [refresh, setRefresh] = useState(false)
   const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
-  // const [showDeleted, setShowDeleted] = useState(false)
-  // const [showDeleted, setShowDeleted] = useState(props.phUser?.focusUser?.diagram?.showDeleted)
 
-  function toggleRefresh() { setRefresh(!refresh); }
-  // function toggleShowDeleted() { setShowDeleted(!showDeleted); console.log('27', showDeleted);
-  //  }
+  function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
+   }
 
-  // if (debug) console.log('21 Modeller', props.gojsModel, gojsmodel);
+   if (debug) console.log('27 Modeller', props, refresh);
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview
@@ -124,6 +121,11 @@ const Modeller = (props: any) => {
       }
     }
   }, [activeTab])
+
+  useEffect(() => {
+    if (debug) console.log('125 Modeller useEffect 5', props); 
+    genGojsModel(props, dispatch)
+  }, [refresh])
 
   //   useEffect(() => {
   //     if (debug) console.log('81 Modeller useEffect 2', activeTab); 

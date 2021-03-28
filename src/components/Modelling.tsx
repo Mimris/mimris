@@ -92,7 +92,7 @@ const page = (props:any) => {
       function refres() {
         setRefresh(!refresh)
       }
-      setTimeout(refres, 10);
+      setTimeout(refres, 1);
     }, [props.phFocus?.focusRefresh?.id])
 
     // useEffect(() => {
@@ -286,19 +286,18 @@ const page = (props:any) => {
               </Col>
             <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
                 <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
-                {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
-                 
+                {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}              
                   <Modeller
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     myGoMetamodel={myGoMetamodel}
-                    metis={metis}
                     phFocus={phFocus}
+                    phUser={phUser}
+                    metis={metis}
                     dispatch={dispatch}
                     modelType='model'
-                    phUser={phUser}
                   />
                 </div>
               </Col>
@@ -311,8 +310,8 @@ const page = (props:any) => {
                   myMetis={myMetis}
                   myGoModel={myGoModel}
                   myGoMetamodel={myGoMetamodel}
-                  metis={metis}
                   phFocus={phFocus}
+                  metis={metis}
                   dispatch={dispatch}
                   modelType='model'
                 />

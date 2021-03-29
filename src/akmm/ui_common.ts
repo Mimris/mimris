@@ -266,10 +266,11 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObjectView.setName(value);
         currentObjectView.setModified();
         currentObject.addObjectView(currentObjectView);
-        myDiagram.model.setDataProperty(data, "name", value);
+        //myDiagram.model.setDataProperty(data, "name", value);
 
         // const modNode = new gql.gqlObjectView(myNode.objectview);
         // modifiedNodes.push(modNode);
+        return currentObject;
     }
 }
 

@@ -118,7 +118,7 @@ const page = (props:any) => {
 
   
   function toggleRefresh() {
-    if (!debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);
+    if (debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,
@@ -126,7 +126,7 @@ const page = (props:any) => {
       phSource: 'localStore'
     };
     // setTimeout(refres, 1);
-    if (!debug) console.log('123 Modelling', props.phUser.focusUser, data);
+    if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
     setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
     function refres() {

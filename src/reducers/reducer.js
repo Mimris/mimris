@@ -428,7 +428,7 @@ function reducer(state = InitialState, action) {
       }
 
     case SET_FOCUS_REFRESH:
-      console.log('483 SET_FOCUS_REFRESH', action);
+      if (debug) console.log('483 SET_FOCUS_REFRESH', action);
       return {
         ...state,
         phFocus: {

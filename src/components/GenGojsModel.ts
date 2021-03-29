@@ -302,10 +302,14 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (includeObjview) {
           if (debug) console.log('306 objview:', objview);
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
-          node.loadNodeContent(myGoModel);
           myGoModel.addNode(node);
           if (debug) console.log('309 buildGoModel - node', node, myGoModel);
         }
+      }
+      const nodes = myGoModel.nodes;
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
+        node.loadNodeContent(myGoModel);
       }
       if (debug) console.log('313 nodes', nodes);
     }

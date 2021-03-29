@@ -1656,46 +1656,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return false;
             }),
-          makeButton("Select all views of this object",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-              const myGoModel = myMetis.gojsModel;
-              const object = myMetis.findObject(node.object?.id)
-              const oviews = object?.objectviews;
-              if (oviews) {
-                for (let j=0; j<oviews.length; j++) {
-                  const ov = oviews[j];
-                  if (ov) {
-                    const node = myGoModel.findNodeByViewId(ov?.id);
-                    const gjsNode = myDiagram.findNodeForKey(node?.key);
-                    if (gjsNode) gjsNode.isSelected = true;
-                  }
-                }
-              }
-            },
-            function (o: any) { 
-              const node = o.part.data;
-              if (debug) console.log('1405 node', node);
-              const myGoModel = myMetis.gojsModel;
-              const object = myMetis.findObject(node.object.id)
-              const oviews = object.objectviews;
-              if (oviews?.length>1) {
-                let cnt = 0;
-                for (let j=0; j<oviews.length; j++) {
-                  const ov = oviews[j];
-                  if (ov) {
-                    const node = myGoModel.findNodeByViewId(ov?.id);
-                    const gjsNode = myDiagram.findNodeForKey(node?.key);
-                    if (gjsNode) 
-                      cnt++;
-                  }
-                }
-                if (cnt > 1)
-                  return true;
-              }
-            return false;
-          }),
-              
           makeButton("Select all objects of this type",
             function (e: any, obj: any) {
               const node = obj.part.data;

@@ -347,7 +347,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Object moved
             const key = data.key;
             if (debug) console.log('355 data', data);
-            const node = uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
+            const node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
             if (debug) console.log('361 node, modifiedNodes: ', node, modifiedNodes);
             if (node) e.diagram.model.setDataProperty(data, "group", node.group);
             //const myNode = this.getNode(myGoModel, key);
@@ -615,7 +615,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const part = e.subject.part;
         const data = e.subject.part.data;
          if (debug) console.log('579 PartResized', part, data);
-        uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
+        uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
          if (debug) console.log('581 modifiedNodes', myGoModel, modifiedNodes);
         const nodes = this.state.nodeDataArray;
         for (let i=0; i<nodes?.length; i++) {

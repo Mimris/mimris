@@ -11,7 +11,7 @@ const debug = false;
 
 const Modeller = (props: any) => {
   const debug = false
-  if (!debug) console.log('13 Modeller', props);
+  if (debug) console.log('13 Modeller', props);
   // let prevgojsmodel = null
   // let gojsmodel = {}
   const gojsmodel = props.gojsModel;

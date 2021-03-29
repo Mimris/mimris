@@ -666,7 +666,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                 objview.size = sel.size;
                 objview.modified = true;
                 const group = getGroupByLocation(goModel, objview.loc);
-                if (debug) console.log('609 Moved node', group, objview);
+                if (debug) console.log('669 Moved node', group, objview);
                 if (group) {
                     objview.group = group.objectview.id;
                     node.group = group.key;
@@ -688,16 +688,19 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     // if nod is the group, do nothing
                     if (nod.key === group.key)
                         continue;
+                    console.log('691 nod', nod);
                     const oview = nod.objectview;
                     const grp = getGroupByLocation(goModel, oview.loc);
                     if (grp) {
-                        oview.group = group.objectview.id;
-                        nod.group = group.key;
+                        if (debug) console.log('695 grp', grp);
+                        // This (grp) is the container
+                        oview.group = grp.objectview.id;
+                        nod.group = grp.key;
                         const modNode = new gql.gqlObjectView(oview);
                         nodes.push(modNode);
                     }
-                    if (debug) console.log('698 oview, nod, group', oview, nod, group);
                 }
+                if (debug) console.log('702 nodes', nodes);
             }
         }
         if (debug) console.log('702 goModel :', goModel);

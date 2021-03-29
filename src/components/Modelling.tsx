@@ -25,7 +25,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  if (!debug) console.log('17 Modelling', props.phUser);
+  if (debug) console.log('17 Modelling', props.phUser);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh

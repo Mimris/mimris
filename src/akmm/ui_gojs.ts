@@ -394,27 +394,25 @@ export class goObjectNode extends goNode {
                     if (objview[prop] && objview[prop] !== "") {
                         this[prop] = objview[prop];
                     }
-                }        
-                const objviewId = this.objectview.group;
-                if (objviewId !== "") {
-                    const groupId: string = this.getGroupFromObjviewId(objviewId, model);
-                    if (groupId !== "") {
-                        this.group = groupId;
+                }
+                // Handle groups
+                // If objectview refers to a group, 
+                //     find the corresponding node's group reference    
+                const groupId = this.objectview.group;
+                if (groupId !== "") {
+                    const nodeGroupId: string = this.getGroupFromObjviewId(groupId, model);
+                    if (nodeGroupId !== "") {
+                        this.group = nodeGroupId;
                     }
                 }
+                // Do the same for the isGroup attribute
                 if (this.objectview.isGroup) {
                     this.isGroup = true;
                 }
-                // if (model && groupId.length>0) {
-                //     const group: goNode | null  = model.findGroup(groupId);
-                //     if (utils.objExists(group))
-                //         this.group = (group) ? group.key : "";
-                // }
-                if (debug) console.log('312 objectview', this.objectview);
                 this.setName(this.objectview.getName());
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
-                if (debug) console.log('315 goObjectNode', this);
+                if (debug) console.log('415 goObjectNode', this);
                 return true;
             }
         }

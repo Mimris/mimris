@@ -233,6 +233,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       }        
       if (includeNoType) {
         if (!obj.typeRef) {
+          if (!debug) console.log('236 obj', obj);
           objview.strokecolor = "green";
           includeObject = true;
         }
@@ -291,8 +292,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         if (includeNoType) {
           if (!objview.object?.type) {
+            if (debug) console.log('295 objview', objview);
             objview.strokecolor = "green"; 
-            if (!objview.fillcolor) objview.fillcolor = "lightgrey";
+            if (objview.fillcolor) objview.fillcolor = "lightgrey";
             includeObjview = true;
           }
         }
@@ -303,6 +305,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (debug) console.log('306 objview:', objview);
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           myGoModel.addNode(node);
+          node.name = objview.name;
           if (debug) console.log('309 buildGoModel - node', node, myGoModel);
         }
       }

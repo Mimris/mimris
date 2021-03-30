@@ -117,9 +117,9 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                   // diagram.startTransaction("highlight");
                   // // remove any previous highlighting
                   // diagram.clearHighlighteds();           
-                  // n.isHighlighted = true;                                    // for each Link coming out of the Node, set Link.isHighlighted
-                  // diagram.commitTransaction("highlight");
-                        
+                  // n.isHighlighted = true; 
+                  // for each Link coming out of the Node, set Link.isHighlighted
+                  // diagram.commitTransaction("highlight");                        
                 }  
               },
               // for sorting, have the Node.text be the data.name

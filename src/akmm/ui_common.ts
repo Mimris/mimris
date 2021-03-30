@@ -689,7 +689,6 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     // if nod is the group, do nothing
                     if (nod.key === group.key)
                         continue;
-                    console.log('691 nod', nod);
                     const oview = nod.objectview;
                     const grp = getGroupByLocation(goModel, oview.loc);
                     if (grp) {
@@ -1579,7 +1578,7 @@ function buildLinkFromRelview(model: gjs.goModel, relview: akm.cxRelationshipVie
 
 export function isPropIncluded(k: string, type: akm.cxType): boolean {
     let retVal = true;
-    if (k === 'id') retVal = false;
+    // if (k === 'id') retVal = false;
     if (k === 'key') retVal = false;
     if (k === '__gohashid') retVal = false;
     if (k === 'class') retVal = false;

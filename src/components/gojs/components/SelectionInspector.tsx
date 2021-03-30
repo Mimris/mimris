@@ -135,12 +135,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
-        if (!uic.isPropIncluded(k, type)) 
-          continue;
-        if (hideNameAndDescr) {
-          if (k === 'name' || k === 'description') continue;
+        if (k !== 'deleted') {
+          if (!uic.isPropIncluded(k, type)) 
+            continue;
+        } else if (!val) {          
+            continue;
         }
-        if (k === 'typeName' || k === 'typename')
+        if (hideNameAndDescr) {
+          if (k === 'name' || k === 'description') continue; 
+        }
+        if (k === 'typeName' || k === 'typename' || k === 'id' || k === 'deleted')
           disabled = true;
         if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);

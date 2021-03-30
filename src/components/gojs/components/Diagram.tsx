@@ -3187,6 +3187,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               new go.Binding('fill', 'fillcolor'),
               new go.Binding('stroke', 'strokecolor'), 
               // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+              // new go.Binding("stroke", "isHighlighted", function(h) { return h ? "red" : "black"; })
+              // .ofObject(),
+              // new go.Binding("strokeWidth", "isHighlighted", function(h) { return h ? "3" : "1"; })
+              // .ofObject(),
             { contextMenu: partContextMenu },    
             ),
       
@@ -3204,7 +3208,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     margin: new go.Margin(0, 6, 0, 2),
                     // shadowVisible: true,
                   },
-                  // new go.Binding("fill", "color"),
+                  new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; })
+                  .ofObject(),
+                      // new go.Binding("fill", "color"),
                   new go.Binding("figure")),
                   $(go.Picture,  // the image
                     // { contextMenu: partContextMenu },
@@ -3298,7 +3304,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             new go.Binding("strokeDashArray", "dash",
             function(d) { return d === "Dotted Line" ? dotted :
                                 (d === "Dashed Line" ? dashed : null); }),
-          ),
+                              ),
           $(go.TextBlock,     // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text

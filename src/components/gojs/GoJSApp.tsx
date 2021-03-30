@@ -548,7 +548,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const data = sel.data;
         if (debug) console.log('523 selected', sel);
         this.state.selectedData = data
-        if (debug) console.log('498 GoJSApp :', data, data.name, data.object);
+        if (debug) console.log('551 GoJSApp :', data, data.name, data.object);
         if (sel) {
           if (sel instanceof go.Node) {
             const key = data.key;
@@ -557,14 +557,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('560 typename, text', typename, text);
             if (typename === 'Object type') {
               const myNode = this.getNode(context.myGoMetamodel, key);
-              // if (debug) console.log('449 GoJSApp', myNode.objtype);  
+              if (debug) console.log('560 GoJSApp', myNode.objtype);  
               if (myNode && myNode.objtype) {
                 const gqlNode = new gql.gqlObjectType(myNode.objtype, true);
                 selectedObjectTypes.push(gqlNode);
-                // if (debug) console.log('453 GoJSApp', selectedObjectTypes);
+                if (debug) console.log('564 GoJSApp', selectedObjectTypes);
                 } 
             } else { // object
-              let object = data.object;
+              myDiagram.clearHighlighteds();
+              const object = data.object;
               const oviews = object?.objectviews;
               if (oviews) {
                 for (let j=0; j<oviews.length; j++) {
@@ -572,7 +573,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (ov) {
                     const node = myGoModel.findNodeByViewId(ov?.id);
                     const gjsNode = myDiagram.findNodeForKey(node?.key);
-                    if (gjsNode) gjsNode.isSelected = true;
+                    if (gjsNode) {
+                      myDiagram.startTransaction("highlight");
+                      gjsNode.isHighlighted = true;
+                      myDiagram.commitTransaction("highlight");
+                    }
                   }
                 }
               }
@@ -783,7 +788,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundSingleClicked": {
-        if (debug) console.log('753 myMetis', myMetis);
+        if (debug) console.log('790 myMetis', myMetis);
       }
       break;
       case "BackgroundDoubleClicked": {

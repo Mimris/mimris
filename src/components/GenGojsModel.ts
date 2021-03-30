@@ -308,7 +308,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           myGoModel.addNode(node);
           node.name = objview.name;
-          if (debug) console.log('309 buildGoModel - node', node, myGoModel);
+          if (node.fillcolor === "") {
+            node.fillcolor = "lightgrey";
+          }
+          if (!debug) console.log('309 buildGoModel - node', node, myGoModel);
         }
       }
       const nodes = myGoModel.nodes;
@@ -316,7 +319,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         const node = nodes[i];
         node.loadNodeContent(myGoModel);
       }
-      if (debug) console.log('313 nodes', nodes);
+      if (!debug) console.log('313 nodes', nodes);
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();

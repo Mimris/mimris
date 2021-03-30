@@ -367,14 +367,14 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "SelectionDeleting": {
-        if (debug) console.log('350 myMetis', myMetis); 
+        if (debug) console.log('370 myMetis', myMetis); 
         const deletedFlag = true;
         const selection = e.subject;
-         if (debug) console.log('353 selection', selection);
+         if (debug) console.log('373 selection', selection);
         for (let it = selection.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
-          if (debug) console.log('357 sel, data', sel, data);
+          if (debug) console.log('377 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
           if (typename === 'Object type') {
@@ -431,14 +431,14 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === 'Object') {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
-               if (debug) console.log('440 delete node', data, myNode);
+               if (debug) console.log('434 delete node', data, myNode);
               uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
-              if (debug) console.log('390 modifiedNodes', modifiedNodes);
-              if (debug) console.log('391 modifiedObjects', modifiedObjects);
-              if (debug) console.log('392 modifiedTypeViews', modifiedTypeViews);
-              if (debug) console.log('393 modifiedLinks', modifiedLinks);
-              if (debug) console.log('394 modifiedRelships', modifiedRelships);
-              if (debug) console.log('447 myGoModel', context.myGoModel);
+              if (debug) console.log('436 modifiedNodes', modifiedNodes);
+              if (debug) console.log('437 modifiedObjects', modifiedObjects);
+              if (debug) console.log('438 modifiedTypeViews', modifiedTypeViews);
+              if (debug) console.log('439 modifiedLinks', modifiedLinks);
+              if (debug) console.log('440 modifiedRelships', modifiedRelships);
+              if (debug) console.log('441 myGoModel', context.myGoModel);
             }
           }
           if (data.category === 'Relationship') {
@@ -461,7 +461,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          if (debug) console.log('443 myMetis', myMetis); 
+          if (debug) console.log('464 myMetis', myMetis); 
         }
       }
         break;

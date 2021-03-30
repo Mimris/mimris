@@ -14,12 +14,14 @@ const constants = require('../akmm/constants');
 
 // Parameters to configure loads
 // let includeDeleted ;
-const includeViewsOnly = true;
-const includeInstancesOnly = true 
+// const includeViewsOnly = true;
+// const includeInstancesOnly = true 
 const includeNoType = true;
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeViewsOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   if (debug) console.log('23 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
   const debug = false
   const metis = (props.phData) && props.phData.metis

@@ -20,7 +20,7 @@ const includeNoType = true;
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  if (!debug) console.log('23 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
+  if (debug) console.log('23 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
   const debug = false
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
@@ -29,9 +29,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    if (debug) console.log('24 GenGojsModel phData, metis:', props.phData, props);
+    console.log('24 GenGojsModel phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
-    if (debug) console.log('26 GenGojsModel', myMetis);  
+    console.log('26 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
     if (debug) console.log('28 GenGojsModel myMetis', myMetis);
     

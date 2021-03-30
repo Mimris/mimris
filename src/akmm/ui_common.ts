@@ -266,10 +266,11 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObjectView.setName(value);
         currentObjectView.setModified();
         currentObject.addObjectView(currentObjectView);
-        myDiagram.model.setDataProperty(data, "name", value);
+        //myDiagram.model.setDataProperty(data, "name", value);
 
         // const modNode = new gql.gqlObjectView(myNode.objectview);
         // modifiedNodes.push(modNode);
+        return currentObject;
     }
 }
 
@@ -653,7 +654,7 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
     }
 }
 
-export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, nodes: any[]) {
+export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, myDiagram: any, nodes: any[]) {
     if (debug) console.log('613 sel', sel);
     if (sel.category === 'Object') {
         let node = goModel?.findNode(sel.key);
@@ -696,6 +697,8 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                         // This (grp) is the container
                         oview.group = grp.objectview.id;
                         nod.group = grp.key;
+                        const n = myDiagram.findNodeForKey(nod.key);
+                        myDiagram.model.setDataProperty(n.data, "group", grp.key);
                         const modNode = new gql.gqlObjectView(oview);
                         nodes.push(modNode);
                     }

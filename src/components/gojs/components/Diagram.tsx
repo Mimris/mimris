@@ -244,7 +244,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case "editObject": {
         const selObj = this.state.selectedData;
         // selObj is a node representing an objectview
-        const node = selObj;
+        let node = selObj;
         let obj = selObj.object;
         obj = myMetis.findObject(obj?.id);
         if (debug) console.log('250 selObj', selObj, obj);
@@ -270,26 +270,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
           }
         }
-        const data = node;
-        if (debug) console.log('258 node', node, data);
+        node = myDiagram.findNodeForKey(node.key)
+        const data = node.data;
+        if (debug) console.log('275 node', node);
         for (let k in data) {
           if (typeof(obj[k]) === 'object')    continue;
           if (typeof(obj[k]) === 'function')  continue;
-          if (!uic.isPropIncluded(k))        continue;
-          if (debug) console.log('263 prop', k);
-          if (debug) console.log('264 node', node, data, obj);
-
-
-
+          if (!uic.isPropIncluded(k))         continue;
+          if (debug) console.log('280 prop', k);
+          if (debug) console.log('281 node', node, data, obj);
           myDiagram.model.setDataProperty(data, k, obj[k]);
-          const gqlObject = new gql.gqlObject(obj);
-          if (debug) console.log('267 gqlObject', gqlObject);
-          modifiedObjects.push(gqlObject);
-          const gqlObjview = new gql.gqlObjectView(data.objectview);
-          gqlObjview.name = gqlObject.name;
-          if (debug) console.log('271 gqlObjview', gqlObjview);
-          modifiedObjviews.push(gqlObjview);
         }
+        const gqlObject = new gql.gqlObject(obj);
+        if (debug) console.log('285 gqlObject', gqlObject);
+        modifiedObjects.push(gqlObject);
+        const gqlObjview = new gql.gqlObjectView(selObj.objectview);
+        gqlObjview.name = gqlObject.name;
+        if (debug) console.log('289 gqlObjview', gqlObjview);
+        modifiedObjviews.push(gqlObjview);
         // Do the dispatches
         modifiedObjects.map(mn => {
           let data = mn;
@@ -297,10 +295,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         })
         modifiedObjviews.map(mn => {
           let data = mn;
-          if (debug) console.log('281 gqlObjview', data);
+          if (debug) console.log('298 gqlObjview', data);
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
-        if (debug) console.log('284 selObj', selObj);
+        if (debug) console.log('301 selObj', selObj);
       break;
       }
       case "editRelationship": {
@@ -357,7 +355,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (debug) console.log('330 data', data);
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
-      for (let prop in objtypeview?.data) {
+        for (let prop in objtypeview?.data) {
           if (prop === 'figure' && objview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, objview[prop]);
           if (prop === 'fillcolor' && objview[prop] !== "") 
@@ -1658,46 +1656,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return false;
             }),
-          makeButton("Select all views of this object",
-            function (e: any, obj: any) {
-              const node = obj.part.data;
-              const myGoModel = myMetis.gojsModel;
-              const object = myMetis.findObject(node.object?.id)
-              const oviews = object?.objectviews;
-              if (oviews) {
-                for (let j=0; j<oviews.length; j++) {
-                  const ov = oviews[j];
-                  if (ov) {
-                    const node = myGoModel.findNodeByViewId(ov?.id);
-                    const gjsNode = myDiagram.findNodeForKey(node?.key);
-                    if (gjsNode) gjsNode.isSelected = true;
-                  }
-                }
-              }
-            },
-            function (o: any) { 
-              const node = o.part.data;
-              if (debug) console.log('1405 node', node);
-              const myGoModel = myMetis.gojsModel;
-              const object = myMetis.findObject(node.object.id)
-              const oviews = object.objectviews;
-              if (oviews?.length>1) {
-                let cnt = 0;
-                for (let j=0; j<oviews.length; j++) {
-                  const ov = oviews[j];
-                  if (ov) {
-                    const node = myGoModel.findNodeByViewId(ov?.id);
-                    const gjsNode = myDiagram.findNodeForKey(node?.key);
-                    if (gjsNode) 
-                      cnt++;
-                  }
-                }
-                if (cnt > 1)
-                  return true;
-              }
-            return false;
-          }),
-              
           makeButton("Select all objects of this type",
             function (e: any, obj: any) {
               const node = obj.part.data;

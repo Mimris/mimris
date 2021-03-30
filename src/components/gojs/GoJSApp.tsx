@@ -229,13 +229,25 @@ class GoJSApp extends React.Component<{}, AppState> {
                 data.name = text;
               }
               const myNode = this.getNode(context.myGoModel, key);
-              if (debug) console.log('229 node', myNode);
+              if (debug) console.log('232 node', myNode);
               if (myNode) {
                 myNode.name = text;
-                uic.updateObject(myNode, field, text, context);
+                const obj = uic.updateObject(myNode, field, text, context);
+                if (obj) {
+                  const objviews = obj.objectviews;
+                  for (let i=0; i<objviews.length; i++) {
+                    const objview = objviews[i];
+                    objview.name = myNode.name;
+                    let node = myGoModel.findNodeByViewId(objview?.id);
+                    if (node) {
+                      const gqlObjview = new gql.gqlObjectView(objview);
+                      modifiedNodes.push(gqlObjview);
+                      node = myDiagram.findNodeForKey(node.key)
+                      myDiagram.model.setDataProperty(node.data, "name", myNode.name);
+                    }
+                  }
+                }
                 data.name = myNode.name;
-                const gqlObjview = new gql.gqlObjectView(myNode.objectview);
-                modifiedNodes.push(gqlObjview);
                 const gqlObj = new gql.gqlObject(myNode.objectview.object);
                 modifiedObjects.push(gqlObj);
               }
@@ -335,7 +347,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Object moved
             const key = data.key;
             if (debug) console.log('355 data', data);
-            const node = uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
+            const node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
             if (debug) console.log('361 node, modifiedNodes: ', node, modifiedNodes);
             if (node) e.diagram.model.setDataProperty(data, "group", node.group);
             //const myNode = this.getNode(myGoModel, key);
@@ -445,11 +457,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                 relship.deleted = deletedFlag;
                 const gqlRel = new gql.gqlRelationship(relship);
                 modifiedRelships.push(gqlRel);
-                if (!debug) console.log('440 SelectionDeleted', modifiedRelships);
+                if (debug) console.log('440 SelectionDeleted', modifiedRelships);
               }
             }
           }
-          if (!debug) console.log('443 myMetis', myMetis); 
+          if (debug) console.log('443 myMetis', myMetis); 
         }
       }
         break;
@@ -532,15 +544,16 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "ObjectSingleClicked": {
-        let sel = e.subject.part;
+        const sel = e.subject.part;
+        const data = sel.data;
         if (debug) console.log('523 selected', sel);
-        this.state.selectedData = sel.data
-        if (debug) console.log('498 GoJSApp :', sel.data, sel.data.name, sel.data.object);
+        this.state.selectedData = data
+        if (debug) console.log('498 GoJSApp :', data, data.name, data.object);
         if (sel) {
           if (sel instanceof go.Node) {
-            const key = sel.data.key;
-            let text = sel.data.name;
-            const typename = sel.data.type;
+            const key = data.key;
+            const text = data.name;
+            const typename = data.type;
             if (debug) console.log('560 typename, text', typename, text);
             if (typename === 'Object type') {
               const myNode = this.getNode(context.myGoMetamodel, key);
@@ -551,18 +564,30 @@ class GoJSApp extends React.Component<{}, AppState> {
                 // if (debug) console.log('453 GoJSApp', selectedObjectTypes);
                 } 
             } else { // object
-              let objview = sel.data.objectview;
+              let object = data.object;
+              const oviews = object?.objectviews;
+              if (oviews) {
+                for (let j=0; j<oviews.length; j++) {
+                  const ov = oviews[j];
+                  if (ov) {
+                    const node = myGoModel.findNodeByViewId(ov?.id);
+                    const gjsNode = myDiagram.findNodeForKey(node?.key);
+                    if (gjsNode) gjsNode.isSelected = true;
+                  }
+                }
+              }
+              let objview = data.objectview;
               objview = myMetis.findObjectView(objview?.id);
               // Do whatever you like
               // ..
               const gqlObjView = new gql.gqlObjectView(objview);
               selectedObjectViews.push(gqlObjView);
-              // if (debug) console.log('522 GoJSApp :', context.myGoModel);                
+              if (debug) console.log('572 GoJSApp :', context.myGoModel);                
             }
           } else if (sel instanceof go.Link) {
-            const key = sel.data.key;
-            let text = sel.data.name;
-            const typename = sel.data.type;
+            const key = data.key;
+            let text = data.name;
+            const typename = data.type;
 
             if (typename === 'Relationship type') {
               const myLink = this.getLink(context.myGoMetamodel, key);
@@ -590,7 +615,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const part = e.subject.part;
         const data = e.subject.part.data;
          if (debug) console.log('579 PartResized', part, data);
-        uic.changeNodeSizeAndPos(data, myGoModel, modifiedNodes);
+        uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
          if (debug) console.log('581 modifiedNodes', myGoModel, modifiedNodes);
         const nodes = this.state.nodeDataArray;
         for (let i=0; i<nodes?.length; i++) {
@@ -823,7 +848,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // if (debug) console.log('544 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
       let data = (mn) && mn
-      if (!debug) console.log('831 data', data);
+      if (debug) console.log('831 data', data);
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 

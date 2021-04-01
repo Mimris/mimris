@@ -440,7 +440,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
     if (data.category === constants.gojs.C_OBJECT) {
         const myGoModel = context.myGoModel;
         const node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
-        if (debug) console.log('398 delete node', node);
+        if (!debug) console.log('443 delete node', node);
         if (node) {
             node.deleted = deletedFlag;
             const objview = node.objectview;
@@ -448,10 +448,10 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             const object = objview.object;
             const gqlObjview = new gql.gqlObjectView(objview);
             deletedObjviews.push(gqlObjview);
-            if (debug) console.log('405 delete objview', objview);
+            if (!debug) console.log('451 delete objview', objview);
             // If group, delete members of group
             if (node.isGroup) {
-                if (debug) console.log('453 delete container', objview);
+                if (debug) console.log('454 delete container', objview);
                 const groupMembers = node.getGroupMembers(myGoModel);
                 for (let i=0; i<groupMembers?.length; i++) {
                     const member = groupMembers[i];
@@ -461,7 +461,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             // Handle deleteViewsOnly
             if (myMetis.deleteViewsOnly) {
                 object.removeObjectView(objview);
-                if (debug) console.log('454 object, objview');
+                if (debug) console.log('464 object, objview');
                 return;
             }
             // Else handle delete object AND object views
@@ -470,31 +470,37 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 object.deleted = deletedFlag;          
                 const gqlObj = new gql.gqlObject(object);
                 deletedObjects.push(gqlObj);   
-                if (debug) console.log('419 delete object', object);
+                if (!debug) console.log('473 delete object', object);
             }         
             // Then handle all other object views of the deleted object
             const objviews = object?.objectviews;
-            if (debug) console.log('429 selection', myDiagram.selection);
-            if (debug) console.log('430 delete objviews', objviews);
+            if (debug) console.log('477 selection', myDiagram.selection);
+            if (debug) console.log('478 delete objviews', objviews);
             for (let i=0; i<objviews?.length; i++) {
                 const objview = objviews[i];
+                if (objview.id === node.objectview.id)
+                    continue;
                 if (objview) {
+                    if (!debug) console.log('482 delete objview', objview);
                     objview.deleted = deletedFlag;
-                    deleteObjectView(objview, deletedFlag, deletedObjviews, deletedObjects, deletedTypeviews, context);
+                    // Register change in gql
+                    const gqlObjview = new gql.gqlObjectView(objview);
+                    deletedObjviews.push(gqlObjview);
+                    // deleteObjectView(objview, deletedFlag, deletedObjviews, deletedObjects, deletedTypeviews, context);
                 }
             }
-            if (debug) console.log('438 nodes to delete', myDiagram.selection);
+            if (debug) console.log('490 nodes to delete', myDiagram.selection);
             myDiagram.requestUpdate();
             let connectedRels = object?.inputrels;
-            if (debug) console.log('441 inputrels', connectedRels);
+            if (debug) console.log('493 inputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
                     rel.deleted = deletedFlag;
-                    if (debug) console.log('439 delete relship', rel);
+                    if (debug) console.log('498 delete relship', rel);
                     const relviews = rel.relshipviews;
-                    if (debug) console.log('441 input relviews', relviews);
-                        for (let i=0; i<relviews?.length; i++) {
+                    if (debug) console.log('500 input relviews', relviews);
+                    for (let i=0; i<relviews?.length; i++) {
                         const relview = relviews[0];
                         if (relview) {
                             const link = myGoModel.findLinkByViewId(relview.id);
@@ -505,16 +511,16 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                             relview.deleted = deletedFlag;
                             const gqlRelview = new gql.gqlRelshipView(relview);
                             deletedLinks.push(gqlRelview);
-                            if (debug) console.log('450 delete relview', relview);
+                            if (debug) console.log('512 delete relview', relview);
                         }
                     }
                     const gqlRel = new gql.gqlRelationship(rel);
                     deletedRelships.push(gqlRel);
-                    if (debug) console.log('455 delete rel', rel);
+                    if (debug) console.log('517 delete rel', rel);
                 }
             }
             connectedRels = object?.outputrels;
-            if (debug) console.log('469 outputrels', connectedRels);
+            if (debug) console.log('521 outputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {
                 const rel = connectedRels[i];
                 if (rel.deleted !== deletedFlag) {
@@ -1849,11 +1855,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             })
         }
     }
-    modifiedObjects?.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-    })
     msg = "Verifying objects is completed\n";
     report += printf(format, msg);
 
@@ -1866,7 +1867,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     for (let i=0; i<oviews.length; i++) {
         const oview = oviews[i];
         if (oview) {
-            if (!oview.deleted) {
+            if (!oview.deleted) { // Object view is not deleted
                 if (debug) console.log('1842 oview, object:', oview, oview.object);
                 if (oview.object?.deleted) {
                     oview.object.deleted = false;
@@ -1877,18 +1878,28 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     msg += "\tObject has been undeleted";
                     report += printf(format, msg);
                 }
+                if (!oview.object) { // Not deleted but has no object
+                    const type = myMetis.findObjectTypeByName(defObjTypename);
+                    const obj = new akm.cxObject(utils.createGuid(), oview.name, type);
+                    const gqlObject = new gql.gqlObject(obj);
+                    oview.object = obj;
+                    oview.objectRef = obj.id;
+                    if (!debug) console.log('1886 gqlObject', gqlObject);
+                    modifiedObjects.push(gqlObject);
+                }
             }
-            if (!oview.object) {
-                oview.deleted = true;
-                const gqlObjview = new gql.gqlObjectView(oview);
-                if (debug) console.log('1856 gqlObjview', gqlObjview);
-                modifiedObjviews.push(gqlObjview);
+            else if (!oview.object) { // Object view is deleted and has no object
                 msg = "\tVerifying objectview " + oview.name + " ( without object )\n";
-                msg += "\tObjectview has been deleted";
+                msg += "\tDoing nothing";
                 report += printf(format, msg);
             }
         }
     }
+    modifiedObjects?.map(mn => {
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+    })
     modifiedObjviews?.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
@@ -2066,7 +2077,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
 
     msg = "Verifying relationships is completed\n\n";
     msg += "End Verification";
-    if (debug) console.log('1617 myGoModel', myGoModel);
+    if (debug) console.log('2074 myGoModel', myGoModel);
     report += printf(format, msg);
     if (!debug) console.log(report);
     myDiagram.requestUpdate();    

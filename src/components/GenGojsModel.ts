@@ -304,22 +304,28 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           includeObjview = true;
         }
         if (includeObjview) {
-          if (debug) console.log('306 objview:', objview);
+          if (debug) console.log('307 , includeViewsOnly, objview:', includeViewsOnly, objview);
+          if (!includeDeleted && objview.deleted)
+            continue;
+          if (includeViewsOnly && !objview.object)
+            continue;
+          if (!includeNoType && !objview.object?.type)
+            continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           myGoModel.addNode(node);
           node.name = objview.name;
           if (node.fillcolor === "") {
             node.fillcolor = "lightgrey";
           }
-          if (!debug) console.log('309 buildGoModel - node', node, myGoModel);
+          if (debug) console.log('314 buildGoModel - node', node, myGoModel);
         }
       }
       const nodes = myGoModel.nodes;
       for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        node.loadNodeContent(myGoModel);
+          const node = nodes[i];
+          node.loadNodeContent(myGoModel);
       }
-      if (!debug) console.log('313 nodes', nodes);
+      if (debug) console.log('325 nodes', nodes);
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();

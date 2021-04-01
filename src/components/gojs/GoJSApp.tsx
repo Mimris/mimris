@@ -431,9 +431,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === 'Object') {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
-               if (debug) console.log('434 delete node', data, myNode);
+               if (!debug) console.log('434 delete node', data, myNode);
               uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
-              if (debug) console.log('436 modifiedNodes', modifiedNodes);
+              if (!debug) console.log('436 modifiedNodes', modifiedNodes);
               if (debug) console.log('437 modifiedObjects', modifiedObjects);
               if (debug) console.log('438 modifiedTypeViews', modifiedTypeViews);
               if (debug) console.log('439 modifiedLinks', modifiedLinks);
@@ -803,7 +803,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // if (debug) console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
-      if (debug) console.log('988 BackgroundDoubleClicked', data);
+      if (!debug) console.log('806 UPDATE_OBJECTVIEW_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
@@ -847,6 +847,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // if (debug) console.log('619 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
+      if (!debug) console.log('849 UPDATE_OBJECT_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 

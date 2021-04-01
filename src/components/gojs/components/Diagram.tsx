@@ -1372,7 +1372,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const inst = sel.data;
                   if (inst.category === 'Object') {
                     const node = myGoModel.findNode(inst.key);
-                    console.log('657 node', node);
+                    if (debug) console.log('1375 node', node);
                     if (node?.isGroup) {
                       const groupMembers = node.getGroupMembers(myGoModel);
                       for (let i=0; i<groupMembers?.length; i++) {
@@ -1381,18 +1381,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       }                    
                     }
                     const object = node?.object;
-                    console.log('667 object', object);
+                    if (debug) console.log('1384 object', object);
                     const objviews = object?.objectviews;
                     for (let i=0; i<objviews?.length; i++) {
                       const objview = objviews[i];
-                      console.log('671 objview', objview);
+                      if (debug) console.log('1388 objview', objview);
                       if (objview) {
                           const myNode = myGoModel.findNodeByViewId(objview.id);
-                          console.log('674 myNode', myNode);
+                          if (debug) console.log('674 myNode', myNode);
                           const n = myDiagram.findNodeForKey(myNode?.key);
-                          console.log('676 n', n);
+                          if (!debug) console.log('1393 n', n);
                           if (n) n.isSelected = true;                        
                       }    
+                    }
+                    let rels = object.outputrels;
+                    for (let i=0; i<rels?.length; i++) {
+                      const rel = rels[i];
+                      const relviews = rel.relshipviews;
+                      for (let j=0; j<relviews?.length; j++) {
+                        const relview = relviews[j];
+                        const l = myGoModel.findLinkByViewId(relview.id);
+                        if (!debug) console.log('1404 l', l);
+                        if (l) l.isSelected = true;                        
+                      }
+                    }
+                    rels = object.inputrels;
+                    for (let i=0; i<rels?.length; i++) {
+                      const rel = rels[i];
+                      const relviews = rel.relshipviews;
+                      for (let j=0; j<relviews?.length; j++) {
+                        const relview = relviews[j];
+                        const l = myGoModel.findLinkByViewId(relview.id);
+                        if (!debug) console.log('1415 l', l);
+                        if (l) l.isSelected = true;                        
+                      }
                     }
                   }
                 })
@@ -3177,7 +3199,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Shape, 'RoundedRectangle',
             {
               cursor: "alias",        // cursor: "pointer",
-              name: 'SHAPE', fill: 'red', stroke: "black",  strokeWidth: 1, 
+              name: 'SHAPE', fill: 'red', stroke: "black",  strokeWidth: 2, 
               shadowVisible: true,
               // set the port properties:
               portId: "",
@@ -3186,16 +3208,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // Shape bindings
               new go.Binding('fill', 'fillcolor'),
               new go.Binding('stroke', 'strokecolor'), 
+              new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "blue" : shape.part.data.strokecolor || "black"; })
+              .ofObject(),
               // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-              // new go.Binding("stroke", "isHighlighted", function(h) { return h ? "red" : "black"; })
-              // .ofObject(),
-              // new go.Binding("strokeWidth", "isHighlighted", function(h) { return h ? "3" : "1"; })
-              // .ofObject(),
             { contextMenu: partContextMenu },    
             ),
       
           $(go.Panel, "Table", 
-            { defaultAlignment: go.Spot.Left, margin: 0, cursor: "move" },
+            { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
             $(go.Panel, "Horizontal",
               { margin: new go.Margin(0, 0, 0, 0) },
@@ -3208,9 +3228,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     margin: new go.Margin(0, 6, 0, 2),
                     // shadowVisible: true,
                   },
-                  new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; })
-                  .ofObject(),
-                      // new go.Binding("fill", "color"),
+                  // new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; })
+                  // .ofObject(),
+                  // new go.Binding("fill", "color"),
                   new go.Binding("figure")),
                   $(go.Picture,  // the image
                     // { contextMenu: partContextMenu },
@@ -3229,7 +3249,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
-                  maxSize: new go.Size(166, 999),
+                  maxSize: new go.Size(96, 999), 
                   // margin: new go.Margin(2),
                   defaultAlignment: go.Spot.Left,
                 },
@@ -3241,7 +3261,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     editable: true,  // allow in-place editing by user
                     row: 0, column: 0, columnSpan: 6,
                     font: "10pt Segoe UI,sans-serif",
-                    minSize: new go.Size(80, 16), 
+                    minSize: new go.Size(96, 16), 
                     height: 42,
                     verticalAlignment: go.Spot.Center,
                     // stretch: go.GraphObject.Fill, // added to not resize object

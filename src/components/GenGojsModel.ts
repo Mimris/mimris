@@ -234,7 +234,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       }        
       if (includeNoType) {
         if (!obj.typeRef) {
-          if (!debug) console.log('236 obj', obj);
+          if (debug) console.log('236 obj', obj);
           objview.strokecolor = "green";
           includeObject = true;
         }
@@ -302,7 +302,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           includeObjview = true;
         }
         if (includeObjview) {
-          if (!debug) console.log('305 includeNoObject, objview:', includeNoObject, objview);
+          if (debug) console.log('305 includeNoObject, objview:', includeNoObject, objview);
           if (!includeDeleted && objview.deleted)
             continue;
           if (!includeNoObject && !objview.object)

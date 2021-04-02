@@ -242,7 +242,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     modifiedNodes.push(gqlObjview);
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
-                      if (!debug) console.log('243 node', node);
+                      if (debug) console.log('243 node', node);
                       node = myDiagram.findNodeForKey(node.key)
                       myDiagram.model.setDataProperty(node.data, "name", myNode.name);
                     }
@@ -432,9 +432,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === 'Object') {
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
-               if (!debug) console.log('434 delete node', data, myNode);
+               if (debug) console.log('434 delete node', data, myNode);
               uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
-              if (!debug) console.log('436 modifiedNodes', modifiedNodes);
+              if (debug) console.log('436 modifiedNodes', modifiedNodes);
               if (debug) console.log('437 modifiedObjects', modifiedObjects);
               if (debug) console.log('438 modifiedTypeViews', modifiedTypeViews);
               if (debug) console.log('439 modifiedLinks', modifiedLinks);

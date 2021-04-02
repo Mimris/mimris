@@ -440,7 +440,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
     if (data.category === constants.gojs.C_OBJECT) {
         const myGoModel = context.myGoModel;
         const node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
-        if (!debug) console.log('443 delete node', node);
+        if (debug) console.log('443 delete node', node);
         if (node) {
             node.deleted = deletedFlag;
             const objview = node.objectview;
@@ -448,7 +448,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             const object = objview.object;
             const gqlObjview = new gql.gqlObjectView(objview);
             deletedObjviews.push(gqlObjview);
-            if (!debug) console.log('451 delete objview', objview);
+            if (debug) console.log('451 delete objview', objview);
             // If group, delete members of group
             if (node.isGroup) {
                 if (debug) console.log('454 delete container', objview);
@@ -470,7 +470,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 object.deleted = deletedFlag;          
                 const gqlObj = new gql.gqlObject(object);
                 deletedObjects.push(gqlObj);   
-                if (!debug) console.log('473 delete object', object);
+                if (debug) console.log('473 delete object', object);
             }         
             // Then handle all other object views of the deleted object
             const objviews = object?.objectviews;
@@ -481,7 +481,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 if (objview.id === node.objectview.id)
                     continue;
                 if (objview) {
-                    if (!debug) console.log('482 delete objview', objview);
+                    if (debug) console.log('482 delete objview', objview);
                     objview.deleted = deletedFlag;
                     // Register change in gql
                     const gqlObjview = new gql.gqlObjectView(objview);
@@ -1884,7 +1884,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     const gqlObject = new gql.gqlObject(obj);
                     oview.object = obj;
                     oview.objectRef = obj.id;
-                    if (!debug) console.log('1886 gqlObject', gqlObject);
+                    if (debug) console.log('1886 gqlObject', gqlObject);
                     modifiedObjects.push(gqlObject);
                 }
             }
@@ -2079,7 +2079,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg += "End Verification";
     if (debug) console.log('2074 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (!debug) console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
     }                 
 } 

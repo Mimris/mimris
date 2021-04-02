@@ -13,14 +13,13 @@ const glb = require('../akmm/akm_globals');
 const constants = require('../akmm/constants');
 
 // Parameters to configure loads
-// let includeDeleted ;
-// const includeViewsOnly = true;
+// const includeNoObject = false;
 // const includeInstancesOnly = true 
-const includeNoType = true;
+const includeNoType = false;
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
-  const includeViewsOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
+  const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   if (debug) console.log('23 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
   const debug = false
@@ -274,18 +273,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let includeObjview = false;
         let objview = objviews[i];
         if (includeDeleted) {
-          if (objview.deleted && objview.object?.deleted) {
-            objview.strokecolor = "red";
-            includeObjview = true;
-          } else if (objview.deleted) {
-            objview.strokecolor = "rgb(220,0,150)";
-            includeObjview = true;
-          } else if (objview.object?.deleted) {
-            objview.strokecolor = "orange";
-            includeObjview = true;
+          if (objview.deleted) {
+            if (objview.object?.deleted) {
+              objview.strokecolor = "red";
+              includeObjview = true;
+            } else if (objview.deleted) {
+              objview.strokecolor = "pink";
+              includeObjview = true;
+            }
           }
         }
-        if (includeViewsOnly) {
+        if (includeNoObject) {
           if (!objview.object) {
             objview.strokecolor = "blue";
             if (!objview.fillcolor) objview.fillcolor = "lightgrey";
@@ -304,10 +302,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           includeObjview = true;
         }
         if (includeObjview) {
-          if (debug) console.log('307 , includeViewsOnly, objview:', includeViewsOnly, objview);
+          if (!debug) console.log('305 includeNoObject, objview:', includeNoObject, objview);
           if (!includeDeleted && objview.deleted)
             continue;
-          if (includeViewsOnly && !objview.object)
+          if (!includeNoObject && !objview.object)
             continue;
           if (!includeNoType && !objview.object?.type)
             continue;
@@ -348,7 +346,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             includeRelview = true;
           }
         }
-        if (includeViewsOnly) {
+        if (includeNoObject) {
           if (!relview.relship) {
             relcolor = "blue";
             includeRelview = true;

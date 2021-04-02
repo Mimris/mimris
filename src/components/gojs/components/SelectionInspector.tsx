@@ -144,7 +144,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description') continue; 
         }
-        if (k === 'typeName' || k === 'typename' || k === 'id' || k === 'deleted')
+        if (k === 'typeName' || k === 'typename' || k === 'id' || k === 'deleted' || k === 'loc')
           disabled = true;
         if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);

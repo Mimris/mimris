@@ -284,10 +284,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const gqlObject = new gql.gqlObject(obj);
         if (debug) console.log('285 gqlObject', gqlObject);
         modifiedObjects.push(gqlObject);
-        const gqlObjview = new gql.gqlObjectView(selObj.objectview);
-        gqlObjview.name = gqlObject.name;
-        if (debug) console.log('289 gqlObjview', gqlObjview);
-        modifiedObjviews.push(gqlObjview);
+        const objviews = obj.objectviews;
+        for (let i=0; i<objviews.length; i++) {
+            const objview = objviews[i];
+            objview.name = obj.name;
+            const gqlObjview = new gql.gqlObjectView(objview);
+            if (debug) console.log('292 gqlObjview', gqlObjview);
+            modifiedObjviews.push(gqlObjview);
+        }
         // Do the dispatches
         modifiedObjects.map(mn => {
           let data = mn;
@@ -981,7 +985,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (debug) console.log('250 nodeInfo', d, d.object);
+      if (!debug) console.log('988 nodeInfo', d, d.object);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
@@ -992,20 +996,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);
       }
-      if (debug) console.log('262 nodeInfo', msg);
+      if (!debug) console.log('999 msg', msg);
       let str = "Attributes:"; 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
-      if (debug) console.log('996 nodeInfo', obj, props, msg);   
+      if (!debug) console.log('1004 obj, props', obj, props, msg);   
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
-        if (debug) console.log('1000 nodeInfo', prop);
+        if (!debug) console.log('1007 prop', prop);
         const value = obj.getStringValue2(prop.name); 
+        if (!debug) console.log('1009 value', value);
         const p = prop.name + ': ' + value;
         msg += printf(format2, prop.name, value);
       }
-      if (debug) console.log('1005 nodeInfo', obj, msg);
+      if (!debug) console.log('1012 nodeInfo', obj, msg);
       return msg;
     }
 

@@ -70,7 +70,7 @@ export class cxMetis {
         this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
-        if (debug) console.log('72 importedData', importedData);
+        if (!debug) console.log('72 importedData', importedData);
         this.name        = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
@@ -131,7 +131,7 @@ export class cxMetis {
             if (model)
                 this.currentTemplateModel = model;
         }
-        if (debug) console.log('133 this', this);
+        if (!debug) console.log('133 this', this);
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels
@@ -641,8 +641,10 @@ export class cxMetis {
         if (modelview) {
             const objview = this.findObjectView(item.id);
             if (objview) {
+                if (!debug) console.log('644 objview', objview);
                 const object = this.findObject(item.objectRef);
                 if (object) {
+                    if (!debug) console.log('647 object', object);
                     objview.setObject(object);
                     objview.setLoc(item.loc);
                     objview.setSize(item.size);
@@ -662,8 +664,8 @@ export class cxMetis {
                         }
                     }
                     object.addObjectView(objview);
-                    modelview.addObjectView(objview);
                 }
+                modelview.addObjectView(objview);
             }
         }
     }
@@ -4764,8 +4766,9 @@ export class cxInstance extends cxMetaObject {
     }
     getStringValue2(propname: string): string {
         const inst: any = this;
+        if (!debug) console.log('4767 inst', propname, this);
         const value = this[propname];
-        if (debug) console.log('4510 inst', propname, value, this);
+        if (!debug) console.log('4769 inst', propname, value, this);
         return value;
     }
     findInputRelships(model: cxModel, rkind: string) {

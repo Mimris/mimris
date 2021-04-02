@@ -238,10 +238,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   for (let i=0; i<objviews.length; i++) {
                     const objview = objviews[i];
                     objview.name = myNode.name;
+                    const gqlObjview = new gql.gqlObjectView(objview);
+                    modifiedNodes.push(gqlObjview);
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
-                      const gqlObjview = new gql.gqlObjectView(objview);
-                      modifiedNodes.push(gqlObjview);
+                      if (!debug) console.log('243 node', node);
                       node = myDiagram.findNodeForKey(node.key)
                       myDiagram.model.setDataProperty(node.data, "name", myNode.name);
                     }

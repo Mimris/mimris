@@ -272,6 +272,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
+        const obj = objview.object;
+        objview.deleted = obj?.deleted;
+        objview.name = obj?.name;
         if (includeDeleted) {
           if (objview.deleted) {
             if (objview.object?.deleted) {
@@ -333,6 +336,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < l; i++) {
         let includeRelview = false;
         let relview = relviews[i];
+        const rel = relview.relship;
+        relview.deleted = rel?.deleted;
+        relview.name = rel?.name;
         let relcolor = "black";
         if (includeDeleted) {
           if (relview.deleted && relview.relship?.deleted) {

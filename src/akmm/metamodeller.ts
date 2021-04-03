@@ -5364,6 +5364,21 @@ export class cxObjectView extends cxMetaObject {
             return this.groupLayout;
         return "";
     }
+    getParentModelView(model: cxModel): cxModelView {
+        const mviews = model.modelviews;
+        for (let i=0; i<mviews.length; i++) {
+            const mview = mviews[i];
+            if (mview) {
+                const objviews = mview.objectviews;
+                for (let j=0; j<objviews.length; j++) {
+                    const oview = objviews[j];
+                    if (this.id === oview.id)
+                        return mview;
+                }
+            }
+        }
+        return null;
+    }
     // To be done ??
     getGroupMembers(modelView: cxModelView) {
         const members = new Array();

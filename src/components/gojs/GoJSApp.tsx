@@ -238,15 +238,26 @@ class GoJSApp extends React.Component<{}, AppState> {
                   for (let i=0; i<objviews.length; i++) {
                     const objview = objviews[i];
                     objview.name = myNode.name;
-                    const gqlObjview = new gql.gqlObjectView(objview);
-                    modifiedNodes.push(gqlObjview);
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
                       if (debug) console.log('243 node', node);
                       node = myDiagram.findNodeForKey(node.key)
                       myDiagram.model.setDataProperty(node.data, "name", myNode.name);
+                      const gqlObjview = new gql.gqlObjectView(objview);
+                      modifiedNodes.push(gqlObjview);
+                    } else {
+                      const gqlViews = new Array();
+                      const modelview = objview.getParentModelView(myModel);
+                      // set focus modelview
+                      this.state.phFocus.focusModelview = modelview;
+                      if (!debug) console.log('250 objview, modelview', objview, this.state.phFocus.focusModelview);
+                      const gqlObjview = new gql.gqlObjectView(objview);
+                      gqlViews.push(gqlObjview);
+                      gqlViews.map(mn => {
+                        let data = mn
+                        this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+                      })
                     }
-                  }
                 }
                 data.name = myNode.name;
                 const gqlObj = new gql.gqlObject(myNode.objectview.object);
@@ -316,9 +327,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
             }
           }
-        //}
+        }
       }
-        break;
+      break;
       case "SelectionMoved": {
         let selection = e.subject;
         for (let it = selection.iterator; it.next();) {
@@ -801,6 +812,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
     }
 
+    this.state.phFocus.focusModelview = myMetis.currentModelview;
     // if (debug) console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn

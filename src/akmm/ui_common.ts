@@ -473,22 +473,22 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 if (debug) console.log('473 delete object', object);
             }         
             // Then handle all other object views of the deleted object
-            const objviews = object?.objectviews;
-            if (debug) console.log('477 selection', myDiagram.selection);
-            if (debug) console.log('478 delete objviews', objviews);
-            for (let i=0; i<objviews?.length; i++) {
-                const objview = objviews[i];
-                if (objview.id === node.objectview.id)
-                    continue;
-                if (objview) {
-                    if (debug) console.log('482 delete objview', objview);
-                    objview.deleted = deletedFlag;
-                    // Register change in gql
-                    const gqlObjview = new gql.gqlObjectView(objview);
-                    deletedObjviews.push(gqlObjview);
-                    // deleteObjectView(objview, deletedFlag, deletedObjviews, deletedObjects, deletedTypeviews, context);
-                }
-            }
+            // const objviews = object?.objectviews;
+            // if (debug) console.log('477 selection', myDiagram.selection);
+            // if (debug) console.log('478 delete objviews', objviews);
+            // for (let i=0; i<objviews?.length; i++) {
+            //     const objview = objviews[i];
+            //     if (objview.id === node.objectview.id)
+            //         continue;
+            //     if (objview) {
+            //         if (debug) console.log('482 delete objview', objview);
+            //         objview.deleted = deletedFlag;
+            //         // Register change in gql
+            //         const gqlObjview = new gql.gqlObjectView(objview);
+            //         deletedObjviews.push(gqlObjview);
+            //         // deleteObjectView(objview, deletedFlag, deletedObjviews, deletedObjects, deletedTypeviews, context);
+            //     }
+            // }
             if (debug) console.log('490 nodes to delete', myDiagram.selection);
             myDiagram.requestUpdate();
             let connectedRels = object?.inputrels;
@@ -555,20 +555,20 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
         const oviews = myMetis.getObjectViewsByObject(object.id);
         if (debug) console.log('482 oviews', oviews);
         // Handle object views
-        if (oviews) {
-            const noViews = oviews.length;
-            for (let i = 0; i < noViews; i++) {
-                // handle each objectview
-                const oview = oviews[i];
-                oview.deleted = deletedFlag;
-                if (debug) console.log('489 delete oview', oview);
-                // Register change in gql
-                const gqlObjview = new gql.gqlObjectView(oview);
-                deletedNodes.push(gqlObjview);
-                // Handle objecttypeview
-                //deleteObjectTypeView(oview, deletedFlag, deletedTypeviews);
-            }
-        }               
+        // if (oviews) {
+        //     const noViews = oviews.length;
+        //     for (let i = 0; i < noViews; i++) {
+        //         // handle each objectview
+        //         const oview = oviews[i];
+        //         oview.deleted = deletedFlag;
+        //         if (debug) console.log('489 delete oview', oview);
+        //         // Register change in gql
+        //         const gqlObjview = new gql.gqlObjectView(oview);
+        //         deletedNodes.push(gqlObjview);
+        //         // Handle objecttypeview
+        //         //deleteObjectTypeView(oview, deletedFlag, deletedTypeviews);
+        //     }
+        // }               
     }
 }
 

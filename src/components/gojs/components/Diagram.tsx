@@ -375,7 +375,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "selectDropdown": {
         const selectedData = this.state.selectedData;
-        if (debug) console.log('241 data', this.state.selectedData, this.state.modalContext);
+        if (debug) console.log('378 data', this.state.selectedData, this.state.modalContext);
         if (this.state.modalContext.title === 'Select Icon') {
           if (selectedData.category === 'Object') {
             const selObj = selectedData;
@@ -385,10 +385,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const objview = data.objectview;
             objview['icon'] = data['icon'];
             const gqlObjview = new gql.gqlObjectView(data.objectview);
-            if (debug) console.log('243 gqlObjview', data, gqlObjview);
+            if (debug) console.log('388 gqlObjview', data, gqlObjview);
             modifiedObjviews.push(gqlObjview);
             modifiedObjviews.map(mn => {
               let data = mn;
+              if (!debug) console.log('392 data', data);
               this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             })
             for (let prop in objview?.data) {
@@ -985,7 +986,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (!debug) console.log('988 nodeInfo', d, d.object);
+      if (debug) console.log('988 nodeInfo', d, d.object);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
@@ -996,17 +997,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);
       }
-      if (!debug) console.log('999 msg', msg);
+      if (debug) console.log('999 msg', msg);
       let str = "Attributes:"; 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
-      if (!debug) console.log('1004 obj, props', obj, props, msg);   
+      if (debug) console.log('1004 obj, props', obj, props, msg);   
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
         if (!debug) console.log('1007 prop', prop);
         const value = obj.getStringValue2(prop.name); 
-        if (!debug) console.log('1009 value', value);
+        if (debug) console.log('1009 value', value);
         const p = prop.name + ': ' + value;
         msg += printf(format2, prop.name, value);
       }

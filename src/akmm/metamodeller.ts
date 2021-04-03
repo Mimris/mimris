@@ -646,6 +646,7 @@ export class cxMetis {
                 if (object) {
                     if (debug) console.log('647 object', object);
                     objview.setObject(object);
+                    objview.setIcon(item.icon);
                     objview.setLoc(item.loc);
                     objview.setSize(item.size);
                     objview.setGroup(item.group);

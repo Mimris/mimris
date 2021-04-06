@@ -1093,7 +1093,7 @@ export function updateRelationship(data: any, name: string, value: string, conte
         currentRelshipView.setName(value);
         currentRelshipView.setModified();
         myDiagram.model.setDataProperty(data, "name", value);
-
+        return currentRelship;
     }
 }
 

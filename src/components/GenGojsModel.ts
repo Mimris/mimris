@@ -32,9 +32,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   if (metis != null) {
     console.log('24 GenGojsModel phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
-    console.log('26 GenGojsModel', myMetis);  
+    if (debug) console.log('26 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
-    if (debug) console.log('28 GenGojsModel myMetis', myMetis);
+    console.log('28 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -264,11 +264,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    if (debug) console.log('263 GenGojsModel', metis, model, modelview);
+    if (!debug) console.log('263 GenGojsModel', metis, model, modelview);
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
-      if (debug) console.log('266 modelview, objviews:', modelview.name, objviews);
+      if (!debug) console.log('266 modelview, objviews:', modelview.name, objviews);
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -324,6 +324,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const nodes = myGoModel.nodes;
       for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i];
+          const objview = node.objectview;
+          node.name = objview.name;
           node.loadNodeContent(myGoModel);
       }
       if (debug) console.log('325 nodes', nodes);
@@ -371,6 +373,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (debug) console.log('352 relview:', relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
+          link.name = rel.name;
           link.strokecolor = relcolor;
           myGoModel.addLink(link);
           if (debug) console.log('357 buildGoModel - link', link, myGoModel);

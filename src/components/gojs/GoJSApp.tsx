@@ -197,13 +197,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         let field = e.subject.name;
-        if (debug) console.log('195 data', data, field);
+        if (!debug) console.log('200 data', data, field, sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
             let text  = data.name;
             const category = data.category;
-            if (debug) console.log('201 data', data);
+            if (debug) console.log('206 data', data);
             // Object type
             if (category === 'Object type') {
               if (text === 'Edit name') {
@@ -222,8 +222,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (debug) console.log('218 TextEdited', gqlObjType);
                 }
               }
-            } else // Object
-            {
+            } else { // Object           
               if (text === 'Edit name') {
                 text = prompt('Enter name');
                 data.name = text;
@@ -245,19 +244,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                       myDiagram.model.setDataProperty(node.data, "name", myNode.name);
                       const gqlObjview = new gql.gqlObjectView(objview);
                       modifiedNodes.push(gqlObjview);
-                    } else {
-                      const gqlViews = new Array();
-                      const modelview = objview.getParentModelView(myModel);
-                      // set focus modelview
-                      this.state.phFocus.focusModelview = modelview;
-                      if (!debug) console.log('250 objview, modelview', objview, this.state.phFocus.focusModelview);
-                      const gqlObjview = new gql.gqlObjectView(objview);
-                      gqlViews.push(gqlObjview);
-                      gqlViews.map(mn => {
-                        let data = mn
-                        this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-                      })
-                    }
+                    } 
+                  }
                 }
                 data.name = myNode.name;
                 const gqlObj = new gql.gqlObject(myNode.objectview.object);
@@ -299,6 +287,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
             }             
             else { // Relationship
+              if (debug) console.log('290 data', data);
               field = 'name';
               const myLink = this.getLink(context.myGoModel, key);
               if (myLink) {
@@ -307,27 +296,42 @@ class GoJSApp extends React.Component<{}, AppState> {
                   data.name = text;
                 }
                 myLink.name = text;
-                uic.updateRelationship(myLink, field, text, context);
-                if (debug) console.log('286 ')
-                if (myLink.relshipview) {
-                  const gqlLink = new gql.gqlRelshipView(myLink.relshipview);
-                  modifiedLinks.push(gqlLink);
-                  const gqlRel = new gql.gqlRelationship(myLink.relshipview.relship);
-                  modifiedRelships.push(gqlRel);
+                if (debug) console.log('299 myLink', myLink);
+                const rel = uic.updateRelationship(myLink, field, text, context);
+                if (rel) {
+                  const relviews = rel.relshipviews;
+                  if (!debug) console.log('303 relviews', relviews);
+                  for (let i=0; i<relviews.length; i++) {
+                    const relview = relviews[i];
+                    relview.name = myLink.name;
+                    let link = myGoModel.findLinkByViewId(relview?.id);
+                    if (!link) link = myLink;
+                    if (link) {
+                      link = myDiagram.findLinkForKey(link.key)
+                      if (!debug) console.log('311 link', link, relview);
+                      myDiagram.model.setDataProperty(link.data, "name", myLink.name);
+                      const gqlRelview = new gql.gqlRelshipView(relview);
+                      modifiedLinks.push(gqlRelview);
+                    } 
+                  }
+                  if (debug) console.log('317 rel', rel);
+                  if (myLink.relshipview) {
+                    const gqlRel = new gql.gqlRelationship(rel);
+                    modifiedRelships.push(gqlRel);
+                  }
+                  context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
                 }
-                context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
               }
-            }
-            const links = myGoModel.links;
-            for (let i=0; i<links.length; i++) {
+              const links = myGoModel.links;
+              for (let i=0; i<links.length; i++) {
                 const link = links[i];
                 if (link.key === key) {
                     link.name = data.name;
                     break;
                 }
+              }
             }
           }
-        }
       }
       break;
       case "SelectionMoved": {
@@ -808,7 +812,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       default:
-        if (debug) console.log('732 GoJSApp event name: ', name);
+        if (debug) console.log('802 GoJSApp event name: ', name);
         break;
     }
 

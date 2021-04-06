@@ -284,14 +284,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const gqlObject = new gql.gqlObject(obj);
         if (debug) console.log('285 gqlObject', gqlObject);
         modifiedObjects.push(gqlObject);
-        const objviews = obj.objectviews;
-        // for (let i=0; i<objviews.length; i++) {
-        //     const objview = objviews[i];
-        //     objview.name = obj.name;
-        //     const gqlObjview = new gql.gqlObjectView(objview);
-        //     if (debug) console.log('292 gqlObjview', gqlObjview);
-        //     modifiedObjviews.push(gqlObjview);
-        // }
         // Do the dispatches
         modifiedObjects.map(mn => {
           let data = mn;
@@ -385,7 +377,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const objview = data.objectview;
             objview['icon'] = data['icon'];
             const gqlObjview = new gql.gqlObjectView(data.objectview);
-            if (debug) console.log('388 gqlObjview', data, gqlObjview);
+            if (!debug) console.log('388 gqlObjview', data, gqlObjview);
             modifiedObjviews.push(gqlObjview);
             modifiedObjviews.map(mn => {
               let data = mn;

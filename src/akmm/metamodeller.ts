@@ -75,7 +75,7 @@ export class cxMetis {
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
         // Handle metamodels
-        const metamodels = importedData?.metamodels;
+        const metamodels = (importedData) && importedData.metamodels;
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const metamodel = metamodels[i];
@@ -86,16 +86,17 @@ export class cxMetis {
         if (debug) console.log('85 Imported metamodel type', this);
 
         // Handle models next
-        const models: any[] = importedData?.models;
+        const models: any[] = (importedData) && importedData.models;
         if (models && models.length) {
             models.forEach(model => {
-                if (model && !model.deleted) 
+                if (model && !model.deleted) {
                     this.importModel(model);
+                }
             })
         }
         
         // Handle objects 
-        const objects: any[] = importedData?.objects;
+        const objects: any[] = (importedData) && importedData.objects;
         if (objects && objects.length) {
             objects.forEach(obj => {
                 if (obj && !obj.deleted)
@@ -103,7 +104,7 @@ export class cxMetis {
             })
         }
         // Handle relships 
-        const relships: any[] = importedData?.relships;
+        const relships: any[] = (importedData) && importedData.relships;
         if (relships && relships.length) {
             relships.forEach(rel => {
                 if (rel && !rel.deleted)
@@ -135,7 +136,7 @@ export class cxMetis {
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels
-        const metamodels = importedData?.metamodels;
+        const metamodels = (importedData) && importedData.metamodels;
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
                 const item = metamodels[i];
@@ -231,13 +232,13 @@ export class cxMetis {
             }
         }
         // Import models
-        const models = importedData?.models;
+        const models = (importedData) && importedData.models;
         if (models && models.length) {
             for (let i = 0; i < models.length; i++) {
                 const item = models[i];
                 const model = new cxModel(item.id, item.name, null, item.description);
                 this.addModel(model);
-                let items = importedData.models;
+                let items = (importedData) && importedData.models;
                 if (items && items.length) {
                     for (let i = 0; i < items.length; i++) {
                         const item = items[i];
@@ -579,6 +580,7 @@ export class cxMetis {
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
             }
+            if (!debug) console.log('583 model', model);
         }
     }
     importObject(item: any, model: cxModel | null) {
@@ -623,10 +625,11 @@ export class cxMetis {
             const modelview = this.findModelView(item.id);
             if (modelview) {
                 model.addModelView(modelview);
-                const objectviews: any[] = item.objectviews;
+                const objectviews: any[] = (item) && item.objectviews;
                 objectviews.forEach(objview => {
                     if (objview) {
                         this.importObjectView(objview, modelview);
+                        if (debug) console.log('630 model', model);
                     }
                 });
                 const relshipviews: any[] = item.relshipviews;
@@ -635,23 +638,26 @@ export class cxMetis {
                         this.importRelshipView(relview, modelview);
                 });
             }
+            if (!debug) console.log('641 model', model);
         }
     }
     importObjectView(item: any, modelview: cxModelView) {
         if (modelview) {
             const objview = this.findObjectView(item.id);
             if (objview) {
-                if (debug) console.log('644 objview', objview);
+                if (!debug) console.log('648 item, objview', item, objview);
                 const object = this.findObject(item.objectRef);
                 if (object) {
-                    if (debug) console.log('647 object', object);
+                    if (!debug) console.log('651 item.deleted', item.deleted);
                     objview.setObject(object);
                     objview.setIcon(item.icon);
                     objview.setLoc(item.loc);
                     objview.setSize(item.size);
                     objview.setGroup(item.group);
                     objview.setIsGroup(item.isGroup);
-                    objview.deleted = item.deleted;
+                    objview.setDeleted(item.deleted);
+                    // objview.deleted = item.deleted;
+                    if (!debug) console.log('660 objview.deleted', objview.deleted, objview);
                     if (item.typeviewRef) {
                         const objtypeview = this.findObjectTypeView(item.typeviewRef);
                         if (objtypeview) {
@@ -664,9 +670,14 @@ export class cxMetis {
                             }
                         }
                     }
+                    if (!debug) console.log('672 objview.deleted', objview.deleted, objview);
                     object.addObjectView(objview);
+                    if (!debug) console.log('675 objview.deleted', objview.deleted, objview);
                 }
+                modelview.removeObjectView(objview);
+                if (!debug) console.log('677 modelview', objview.deleted, objview, modelview);
                 modelview.addObjectView(objview);
+                if (!debug) console.log('679 modelview', objview.deleted, objview, modelview);
             }
         }
     }
@@ -1916,7 +1927,7 @@ export class cxMetaObject {
     setDeleted(deleted: boolean) {
         this.deleted = deleted;
     }
-    getDeleted(): boolean {
+    getDeleted(): string {
         return this.deleted;
     }
     isDeleted(): boolean {
@@ -4869,16 +4880,23 @@ export class cxObject extends cxInstance {
         if (!this.objectviews)
             this.objectviews = new Array();
         const len = this.objectviews.length;
+        if (!debug) console.log('4881 objview', objview.deleted, objview, this.objectviews);
         for (let i=0; i<len; i++) {
             const oview = this.objectviews[i];
+            if (!debug) console.log('4884 objview', oview.deleted, oview);
             if (oview.id === objview.id) {
-                // Object view is already in list
+                // Object view is already in list, copy values
+                for (let prop in objview) {
+                    oview[prop] = objview[prop];
+                }
+                if (!debug) console.log('4890 objview', oview.deleted, oview);
                 return;
             }
         }
         this.objectviews.push(objview);
     }
     removeObjectView(objview: cxObjectView) {
+        if (!debug) console.log('4893 this.objectviews', this.objectviews);
         if (!this.objectviews) {
             // Nothing to remove
             return;
@@ -4891,6 +4909,7 @@ export class cxObject extends cxInstance {
                 objviews.push(oview);
             }
         }
+        if (!debug) console.log('4904 objview, objviews', objview, objviews);
         this.objectviews = objviews;
     }
     getObjectType(): cxObjectType | null {
@@ -5137,12 +5156,35 @@ export class cxModelView extends cxMetaObject {
     }
     addObjectView(objview: cxObjectView) {
         // Check if input is of correct class and not already in list (TBD)
+        if (!debug) console.log('5151 objview', objview.deleted, objview);
         if (objview.class === "cxObjectView") {
             if (this.objectviews == null)
                 this.objectviews = new Array();
-            if (!this.findObjectView(objview.id))
+            const oview = this.findObjectView(objview.id);
+            if (!oview)
                 this.objectviews.push(objview);
+            else {
+                for (let prop in objview) {
+                    obview[prop] = objview[prop];
+                }
+            }
         }
+    }
+    removeObjectView(objview: cxObjectView) {
+        if (!this.objectviews) {
+            // Nothing to remove
+            return;
+        }
+        const objviews = new Array();
+        const len = this.objectviews.length;
+        for (let i=0; i<len; i++) {
+            const oview = this.objectviews[i];
+            if (oview.id !== objview.id) {
+                objviews.push(oview);
+            }
+        }
+        if (!debug) console.log('5171 objview, objviews', objview, objviews);
+        this.objectviews = objviews;
     }
     addRelationshipView(relshipview: cxRelationshipView) {
         // Check if input is of correct class and not already in list (TBD)

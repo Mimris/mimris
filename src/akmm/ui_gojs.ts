@@ -217,7 +217,7 @@ export class goModel {
                     for (i = 0; i < l; i++) {
                         const objtype = objecttypes[i];
                         if (utils.objExists(objtype)) {
-                            if (!objtype.getDeleted()) {
+                            if (!objtype.getMarkedAsDeleted()) {
                                 const node = new goObjectTypeNode(utils.createGuid(), objtype);
                                 node.loadNodeContent(metamodel);
                                 gMetamodel.addNode(node);
@@ -231,7 +231,7 @@ export class goModel {
                         for (i = 0; i < l; i++) {
                             const reltype = relshiptypes[i];
                             if (reltype) {
-                                if (!reltype.getDeleted()) {
+                                if (!reltype.getMarkedAsDeleted()) {
                                     const key = utils.createGuid();
                                     const link = new goRelshipTypeLink(key, gMetamodel, reltype);
                                     if (link.loadLinkContent())

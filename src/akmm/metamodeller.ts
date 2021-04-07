@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false;
 
 // this Kernel code
@@ -4020,7 +4020,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.data.dash = dash;
         this.dash = dash;
     }
-    getDash(): StringConstructor {
+    getDash(): string {
         if (this.data.dash)
             return this.data.dash;
         else if (this.dash)
@@ -4380,10 +4380,6 @@ export class cxModel extends cxMetaObject {
             }
             i++;
         }
-        let relships = this.getRelationships();
-        if (relships) {
-            return this.findRelationship(id);
-        }
         return null;
     }
     findObjectByName(objname: string): cxObject | null {
@@ -4462,7 +4458,7 @@ export class cxModel extends cxMetaObject {
         }
         return null;
     }
-    findEkaRelationship(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType): cxRelationship | null {
+    findEkaRelationship(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType): cxObject | null {
         if (!utils.objExists(fromObj) || !utils.objExists(toObj) || !utils.objExists(reltype))
             return null;
         let objects = this.objects;
@@ -5365,9 +5361,10 @@ export class cxObjectView extends cxMetaObject {
     getDefaultTypeView(): cxObjectTypeView | null {
         const obj = this.getObject();
         if (obj) {
-            const objtype = obj.getType();
+            const objtype = obj.getType() as cxObjectType;
             if (objtype) {
-                return objtype.getDefaultTypeView();
+                const typeview = objtype.typeview as cxObjectTypeView;
+                return typeview;
             }
         }
         return null;

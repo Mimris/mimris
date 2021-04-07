@@ -273,7 +273,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let includeObjview = false;
         let objview = objviews[i];
         const obj = objview.object;
-        objview.markedAsDeleted = obj?.markedAsDeleted;
+        if (obj?.markedAsDeleted)
+          objview.markedAsDeleted = obj?.markedAsDeleted;
         objview.name = obj?.name;
         if (includeDeleted) {
           if (objview.markedAsDeleted) {

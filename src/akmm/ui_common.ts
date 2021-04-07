@@ -396,7 +396,7 @@ export function deleteObjectType(data: any, context: any) {
 export function deleteRelationshipType(reltype: akm.cxRelationshipType, deletedFlag: boolean) {
     if (reltype) {
         // Check if relationships of this type exists
-        reltype.deleted = deletedFlag;
+        reltype.markedAsDeleted = deletedFlag;
     }
 
 }
@@ -414,10 +414,10 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             let typename = data.name;
             let objtype = myMetamodel.findObjectTypeByName(typename);
             if (objtype) {
-                objtype.deleted = deletedFlag;
+                objtype.markedAsDeleted = deletedFlag;
                 let objtypeview = objtype.getDefaultTypeView();
                 if (objtypeview) {
-                    objtypeview.deleted = deletedFlag;
+                    objtypeview.markedAsDeleted = deletedFlag;
                 }
                 // Register change in gql
                 const delNode = new gql.gqlObjectType(objtype, false);
@@ -442,9 +442,9 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
         const node = myGoModel?.findNode(data.key) as gjs.goObjectNode;
         if (debug) console.log('443 delete node', node);
         if (node) {
-            node.deleted = deletedFlag;
+            node.markedAsDeleted = deletedFlag;
             const objview = node.objectview;
-            objview.deleted = deletedFlag;
+            objview.markedAsDeleted = deletedFlag;
             const object = objview.object;
             const gqlObjview = new gql.gqlObjectView(objview);
             deletedObjviews.push(gqlObjview);
@@ -467,7 +467,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             // Else handle delete object AND object views
             // First delete object
             if (object) {
-                object.deleted = deletedFlag;          
+                object.markedAsDeleted = deletedFlag;          
                 const gqlObj = new gql.gqlObject(object);
                 deletedObjects.push(gqlObj);   
                 if (debug) console.log('473 delete object', object);
@@ -495,8 +495,8 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             if (debug) console.log('493 inputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {
                 const rel = connectedRels[i];
-                if (rel.deleted !== deletedFlag) {
-                    rel.deleted = deletedFlag;
+                if (rel.markedAsDeleted !== deletedFlag) {
+                    rel.markedAsDeleted = deletedFlag;
                     if (debug) console.log('498 delete relship', rel);
                     const relviews = rel.relshipviews;
                     if (debug) console.log('500 input relviews', relviews);
@@ -505,10 +505,10 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                         if (relview) {
                             const link = myGoModel.findLinkByViewId(relview.id);
                             if (link) {
-                                link.deleted = deletedFlag;
+                                link.markedAsDeleted = deletedFlag;
                                 myDiagram.model.removeLinkData(link); 
                             }
-                            relview.deleted = deletedFlag;
+                            relview.markedAsDeleted = deletedFlag;
                             const gqlRelview = new gql.gqlRelshipView(relview);
                             deletedLinks.push(gqlRelview);
                             if (debug) console.log('512 delete relview', relview);
@@ -523,16 +523,16 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             if (debug) console.log('521 outputrels', connectedRels);
             for (let i=0; i<connectedRels?.length; i++) {
                 const rel = connectedRels[i];
-                if (rel.deleted !== deletedFlag) {
-                    rel.deleted = deletedFlag;
+                if (rel.markedAsDeleted !== deletedFlag) {
+                    rel.markedAsDeleted = deletedFlag;
                     const relviews = rel.relshipviews;
                     if (debug) console.log('465 outputrelviews', relviews);
                     for (let i=0; i<relviews?.length; i++) {
                         const relview = relviews[0];
                         if (relview) {
                             const link = myGoModel.findLinkByViewId(relview.id);
-                            if (link) link.deleted = deletedFlag;
-                            relview.deleted = deletedFlag;
+                            if (link) link.markedAsDeleted = deletedFlag;
+                            relview.markedAsDeleted = deletedFlag;
                             const gqlRelview = new gql.gqlRelshipView(relview);
                             deletedLinks.push(gqlRelview);
                             if (debug) console.log('474 delete relview', relview);
@@ -549,7 +549,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
 
 export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean, deletedNodes: any, deletedObjects: any, deletedTypeviews: any, context: any) {
     const myMetis   = context.myMetis;
-    objview.deleted = deletedFlag;
+    objview.markedAsDeleted = deletedFlag;
     const object = objview.object;
     if (object && !myMetis.deleteViewsOnly) {
         const oviews = myMetis.getObjectViewsByObject(object.id);
@@ -579,8 +579,8 @@ export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boo
     const defaultTypeview = objtype?.typeview;
     if (typeview && defaultTypeview) {
         if (typeview.id !== defaultTypeview.id) {
-            if (typeview.deleted !== deletedFlag) {
-                typeview.deleted = deletedFlag;
+            if (typeview.markedAsDeleted !== deletedFlag) {
+                typeview.markedAsDeleted = deletedFlag;
                 if (debug) console.log('509 delete typeview', typeview);
                 // Register change in gql
                 const gqlTypeview = new gql.gqlObjectTypeView(typeview);
@@ -609,7 +609,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         const relship = relview.relship;
         // Handle deleteViewsOnly
         if (myMetis.deleteViewsOnly) {
-            relview.deleted = deletedFlag;
+            relview.markedAsDeleted = deletedFlag;
             relship?.removeRelationshipView(relview);
             const delLink = new gql.gqlRelshipView(relview);
             deletedLinks.push(delLink);
@@ -619,16 +619,16 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         // Else handle delete relships AND relship views
         // First delete object
         if (relship) {
-            relship.deleted = deletedFlag;
-            relview.deleted = deletedFlag;
+            relship.markedAsDeleted = deletedFlag;
+            relview.markedAsDeleted = deletedFlag;
             const gqlRelview = new gql.gqlRelshipView(relview);
             deletedLinks.push(gqlRelview);
             const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {
                     const rview = rviews[i];
-                    if (!rview.deleted) {
-                        rview.deleted = deletedFlag;
+                    if (!rview.markedAsDeleted) {
+                        rview.markedAsDeleted = deletedFlag;
                         const gqlRelview = new gql.gqlRelshipView(rview);
                         deletedLinks.push(gqlRelview);
                         if (debug) console.log('557 deleteLink', rview);
@@ -649,8 +649,8 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
     const defaultTypeview = reltype?.typeview;
     if (typeview && defaultTypeview) {
         if (typeview.id !== defaultTypeview.id) {
-            if (typeview.deleted !== deletedFlag) {
-                typeview.deleted = deletedFlag;
+            if (typeview.markedAsDeleted !== deletedFlag) {
+                typeview.markedAsDeleted = deletedFlag;
                 if (debug) console.log('577 delete typeview', typeview);
                 // Register change in gql
                 const gqlTypeview = new gql.gqlRelshipTypeView(typeview);
@@ -888,7 +888,7 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
                             let fromObj = rel.getFromObject();
                             if (fromObj.getType().getViewKind() === constants.VIEWKINDS.CONT) {
                                 rel.setModified();
-                                rel.setDeleted(true);
+                                rel.setMarkedAsDeleted(true);
                             }
                         }
                     }
@@ -1671,7 +1671,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
             const objviews = new Array();
             for (let j=0; j<oviews?.length; j++) {
                 const oview = oviews[j];
-                if (oview.deleted) 
+                if (oview.markedAsDeleted) 
                     continue;
                 objviews.push(oview);
             }
@@ -1696,7 +1696,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
         const objects = new Array();
         for (let j=0; j<objs?.length; j++) {
             const obj = objs[j];
-            if (obj.deleted) 
+            if (obj.markedAsDeleted) 
                 continue;
             objects.push(obj);
         }
@@ -1721,7 +1721,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     const objviews = metis.objectviews;
     for (let k=0; k<objviews?.length; k++) {
         const oview = objviews[k];
-        if (oview.deleted) 
+        if (oview.markedAsDeleted) 
             continue;
         objectviews.push(oview);
     }        
@@ -1731,7 +1731,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     const objs = metis.objects;
     for (let k=0; k<objs?.length; k++) {
         const obj = objs[k];
-        if (obj.deleted) 
+        if (obj.markedAsDeleted) 
             continue;
         objects.push(obj);
     }        
@@ -1741,7 +1741,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     const relviews = metis.relshipviews;
     for (let k=0; k<relviews?.length; k++) {
         const rview = relviews[k];
-        if (rview.deleted) 
+        if (rview.markedAsDeleted) 
             continue;
             relshipviews.push(rview);
     }        
@@ -1751,7 +1751,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     const rels = metis.relships;
     for (let k=0; k<rels?.length; k++) {
         const rel = rels[k];
-        if (rel.deleted) 
+        if (rel.markedAsDeleted) 
             continue;
             relships.push(rel);
     }        
@@ -1780,7 +1780,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     // Handle the objects
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
-        if (obj.deleted) console.log('1750 obj:', obj);
+        if (obj.markedAsDeleted) console.log('1750 obj:', obj);
         if (!obj.type) {
             if (debug) console.log('1581 obj, myMetis', obj, myMetis);
             const type = myMetis.findObjectTypeByName(defObjTypename);
@@ -1826,8 +1826,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 const oview = objviews[i];
                 oview.name = obj.name;
                 if (objChanged) oview['fillcolor'] = 'red';
-                if (obj.deleted && !oview.deleted) {
-                    oview.deleted = true;
+                if (obj.markedAsDeleted && !oview.markedAsDeleted) {
+                    oview.markedAsDeleted = true;
                     msg = "\tVerifying object " + obj.name + " that is deleted, but objectview is not.\n";
                     msg += "\tIs repaired by deleting object view";
                     report += printf(format, msg);
@@ -1867,10 +1867,10 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     for (let i=0; i<oviews.length; i++) {
         const oview = oviews[i];
         if (oview) {
-            if (!oview.deleted) { // Object view is not deleted
+            if (!oview.markedAsDeleted) { // Object view is not deleted
                 if (debug) console.log('1842 oview, object:', oview, oview.object);
-                if (oview.object?.deleted) {
-                    oview.object.deleted = false;
+                if (oview.object?.markedAsDeleted) {
+                    oview.object.markedAsDeleted = false;
                     const gqlObject = new gql.gqlObject(oview.object);
                     if (debug) console.log('1846 gqlObject', gqlObject);
                     modifiedObjects.push(gqlObject);
@@ -2024,15 +2024,15 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             for (let j=0; j<rviews?.length; j++) {
                 const rview = rviews[j];
                 if (debug) console.log('1597 relshipview', rview);
-                if (rview && !rview.deleted) {
+                if (rview && !rview.markedAsDeleted) {
                     const rel = rview.relship;
                     if (rel && rel.type) {
                         if (debug) console.log('1601 relshipview', rel);
                         rel.name = rel.type.name;
                         rview.name = rel.type.name;
 
-                        if (rel.deleted && !rview.deleted) {
-                            rview.deleted = true;
+                        if (rel.markedAsDeleted && !rview.markedAsDeleted) {
+                            rview.markedAsDeleted = true;
                             msg = "\tVerifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";
                             msg += "\tIs repaired by deleting relationship view";
                             report += printf(format, msg);

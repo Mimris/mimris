@@ -148,7 +148,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       const node = nods[i];
       const objtype = node.objecttype;
       if (objtype.abstract) continue;
-      if (objtype.deleted)  continue;
+      if (objtype.markedAsDeleted)  continue;
       nodes.push(node);
     }
     if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
@@ -401,20 +401,20 @@ class GoJSApp extends React.Component<{}, AppState> {
                   alert('Objects of type ' + objtype.name + ' exist - Deletion is not allowed!');
                   break;
               } 
-              objtype.deleted = deletedFlag;
+              objtype.markedAsDeleted = deletedFlag;
               const gqlObjtype = new gql.gqlObjectType(objtype, true);
               modifiedTypeNodes.push(gqlObjtype);
               if (debug) console.log('345 modifiedTypeNodes', modifiedTypeNodes);
               let objtypeview = objtype.typeview;
               if (objtypeview) {
-                  objtypeview.deleted = deletedFlag;
+                  objtypeview.markedAsDeleted = deletedFlag;
                   const gqlObjtypeView = new gql.gqlObjectTypeView(objtypeview);
                   modifiedTypeViews.push(gqlObjtypeView);
                   if (debug) console.log('351 modifiedTypeViews', modifiedTypeViews);
               }
               const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
               if (geo) {
-                  geo.deleted = deletedFlag;
+                  geo.markedAsDeleted = deletedFlag;
                   const gqlObjtypegeo = new gql.gqlObjectTypegeo(geo);
                   modifiedTypeGeos.push(gqlObjtypegeo);
                   if (debug) console.log('358 modifiedTypeGeos', modifiedTypeGeos);
@@ -430,14 +430,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                 alert('Relationships of type ' + reltype.name + ' exist - Deletion is not allowed!');
                 break;
               }
-              reltype.deleted = deletedFlag;
+              reltype.markedAsDeleted = deletedFlag;
               //uic.deleteRelationshipType(reltype, deletedFlag);
               const gqlReltype = new gql.gqlRelationshipType(reltype, true);
               modifiedTypeLinks.push(gqlReltype);
               if (debug) console.log('375 modifiedTypeLinks', modifiedTypeLinks);
               let reltypeview = reltype.typeview;
               if (reltypeview) {
-                  reltypeview.deleted = deletedFlag;
+                  reltypeview.markedAsDeleted = deletedFlag;
                   const gqlReltypeView = new gql.gqlRelshipTypeView(reltypeview);
                   modifiedTypeViews.push(gqlReltypeView);
                   if (debug) console.log('381 modifiedTypeViews', modifiedTypeViews);
@@ -463,14 +463,14 @@ class GoJSApp extends React.Component<{}, AppState> {
             uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedLinkTypeViews, context);
             const relview = data.relshipview;
             if (relview) {
-              relview.deleted = deletedFlag;
+              relview.markedAsDeleted = deletedFlag;
               relview.relship = myMetis.findRelationship(relview.relship.id);
               const gqlRelview = new gql.gqlRelshipView(relview);
               modifiedLinks.push(gqlRelview);
               if (debug) console.log('435 SelectionDeleted', modifiedLinks);
               if (!myMetis.deleteViewsOnly) {
                 const relship = relview.relship;
-                relship.deleted = deletedFlag;
+                relship.markedAsDeleted = deletedFlag;
                 const gqlRel = new gql.gqlRelationship(relship);
                 modifiedRelships.push(gqlRel);
                 if (debug) console.log('440 SelectionDeleted', modifiedRelships);

@@ -601,7 +601,7 @@ function reducer(state = InitialState, action) {
                     modelviews: action.data.modelviews,
                     objects: action.data.objects,
                     relships: action.data.relships,
-                    deleted: action.data.deleted,
+                    markedAsDeleted: action.data.markedAsDeleted,
                     modified: action.data.modified,    
                 },      
                 ...state.phData.metis.models.slice(curmindex1 + 1, state.phData.metis.models.length),
@@ -637,7 +637,7 @@ function reducer(state = InitialState, action) {
                     modelviews: action.data.modelviews,
                     objects: action.data.objects,
                     relships: action.data.relships,
-                    deleted: action.data.deleted,
+                    markedAsDeleted: action.data.markedAsDeleted,
                     modified: action.data.modified,    
                 },      
                 ...state.phData.metis.models.slice(curmindex12 + 1, state.phData.metis.models.length),
@@ -671,7 +671,7 @@ function reducer(state = InitialState, action) {
                           name: action.data.name,
                           description: action.data.description,
                           layout: action.data.layout,
-                          deleted: action.data.deleted,
+                          markedAsDeleted: action.data.markedAsDeleted,
                           modified: action.data.modified,    
                     },
                     ...curmmv2?.modelviews?.slice(curmvindex2 + 1),
@@ -717,7 +717,7 @@ function reducer(state = InitialState, action) {
                   // description: action.data.description,
                   // typeRef: action.data.typeRef,
                   // objectviews: action.data.objectviews,
-                  // deleted: action.data.deleted,
+                  // markedAsDeleted: action.data.markedAsDeleted,
                   // modified: action.data.modified,    
                 },
                 ...curmo.objects.slice(curoindexo + 1, curmo.objects.length)
@@ -749,7 +749,7 @@ function reducer(state = InitialState, action) {
                   // description: action.data.description,
                   // typeRef: action.data.typeRef,
                   // objectviews: action.data.objectviews,
-                  // deleted: action.data.deleted,
+                  // markedAsDeleted: action.data.markedAsDeleted,
                   // modified: action.data.modified,    
                 },
                 ...curmo.objects.slice(curoindexo + 1, curmo.objects.length)
@@ -807,7 +807,7 @@ function reducer(state = InitialState, action) {
                         isGroup: action.data.isGroup,
                         loc: action.data.loc,
                         size: action.data.size,
-                        deleted: action.data.deleted,
+                        markedAsDeleted: action.data.markedAsDeleted,
                         modified: action.data.modified,
                         figure: action.data.figure,
                         fillcolor: action.data.fillcolor,
@@ -868,7 +868,7 @@ function reducer(state = InitialState, action) {
                         isGroup: action.data.isGroup,
                         loc: action.data.loc,
                         size: action.data.size,
-                        deleted: action.data.deleted,
+                        markedAsDeleted: action.data.markedAsDeleted,
                         modified: action.data.modified,
                         figure: action.data.figure,
                         fillcolor: action.data.fillcolor,
@@ -939,7 +939,7 @@ function reducer(state = InitialState, action) {
                     // propvalues: {
                     //   ...curmv.relships[r2index].propvalues,
                     // }
-                    deleted: action.data.deleted,
+                    markedAsDeleted: action.data.markedAsDeleted,
                     modified: action.data.modified,    
                   },
                   ...curmr.relships.slice(r2index+1 , curmr.relships.length)
@@ -992,7 +992,7 @@ function reducer(state = InitialState, action) {
                           dash: action.data.dash,
                           fromArrow: action.data.fromArrow,
                           toArrow: action.data.toArrow,
-                          deleted: action.data.deleted,
+                          markedAsDeleted: action.data.markedAsDeleted,
                           modified: action.data.modified,    
                         },
                         ...curmvrv?.relshipviews.slice(currvindex + 1, curmvrv?.relshipviews.length)
@@ -1038,7 +1038,7 @@ function reducer(state = InitialState, action) {
                       typeviewRef: action.data.typeviewRef,
                       viewkind: action.data.viewkind,
                       abstract: action.data.abstract,
-                      deleted: action.data.deleted,
+                      markedAsDeleted: action.data.markedAsDeleted,
                       modified: action.data.modified,    
                     },
                     ...curmmot?.objecttypes.slice(indexot + 1, curmmot.objecttypes.length)
@@ -1079,7 +1079,7 @@ function reducer(state = InitialState, action) {
                 relshiptypes: action.data.relshiptypes,
                 relshiptypeviews: action.data.relshiptypeviews,
                 unittypes: action.data.unittypes,
-                deleted: action.data.deleted,
+                markedAsDeleted: action.data.markedAsDeleted,
                 modified: action.data.modified,
               },
               ...state.phData.metis.metamodels.slice(curmmindex_mm + 1, state.phData.metis.metamodels.length),
@@ -1118,7 +1118,7 @@ function reducer(state = InitialState, action) {
                 relshiptypes: action.data.relshiptypes,
                 relshiptypeviews: action.data.relshiptypeviews,
                 unittypes: action.data.unittypes,
-                deleted: action.data.deleted,
+                markedAsDeleted: action.data.markedAsDeleted,
                 modified: action.data.modified,
               },
               ...state.phData.metis.metamodels.slice(curmmindex_tmm + 1, state.phData.metis.metamodels.length),
@@ -1162,7 +1162,7 @@ function reducer(state = InitialState, action) {
                       typeviewRef: action.data.typeviewRef,
                       viewkind: action.data.viewkind,
                       abstract: action.data.abstract,
-                      deleted: action.data.deleted,
+                      markedAsDeleted: action.data.markedAsDeleted,
                       modified: action.data.modified,    
                     },
                     ...curmmtot?.objecttypes.slice(indextot + 1, curmmtot.objecttypes.length)
@@ -1213,7 +1213,7 @@ function reducer(state = InitialState, action) {
                       strokecolor: action.data.strokecolor,
                       strokewidth: action.data.strokewidth,
                       icon: action.data.icon,
-                      deleted: action.data.deleted,
+                      markedAsDeleted: action.data.markedAsDeleted,
                       modified: action.data.modified,    
                     },
                     ...curmmtotv?.objecttypeviews.slice(indextotv + 1, curmmtotv.objecttypeviews.length)
@@ -1257,7 +1257,7 @@ function reducer(state = InitialState, action) {
                         metamodelRef: action.data.metamodelRef,
                         loc: action.data.loc,
                         size: action.data.size,
-                        deleted: action.data.deleted, 
+                        markedAsDeleted: action.data.markedAsDeleted, 
                         modified: action.data.modified,                         
                       },
                       ...curmmt?.objtypegeos?.slice(ottindex + 1, curmmt.objtypegeos.length)
@@ -1299,7 +1299,7 @@ function reducer(state = InitialState, action) {
                       description: action.data.description,
                       datatypeRef: action.data.datatypeRef,
                       unitCategoryRef: action.data.unitCategoryRef,
-                      deleted: action.data.deleted,
+                      markedAsDeleted: action.data.markedAsDeleted,
                       modified: action.data.modified,    
                     },
                     ...curmmtpot?.properties.slice(indextpot + 1, curmmtpot?.properties.length)
@@ -1351,7 +1351,7 @@ function reducer(state = InitialState, action) {
                   //   ...curmmtrt.relshiptypes[indexrt]?.properties,
                   //   properties: action.data.properties,
                   // },             
-                  deleted: action.data.deleted,  
+                  markedAsDeleted: action.data.markedAsDeleted,  
                   modified: action.data.modified,       
                 },
                 ...curmmtrt?.relshiptypes?.slice(indextrt + 1, curmmtrt?.relshiptypes.length)
@@ -1398,7 +1398,7 @@ function reducer(state = InitialState, action) {
                     dash: action.data.dash,
                     fromArrow: action.data.fromArrow,
                     toArrow: action.data.toArrow,
-                    deleted: action.data.deleted,              
+                    markedAsDeleted: action.data.markedAsDeleted,              
                     modified: action.data.modified,              
                   },
                   ...curmmtrtv?.relshiptypeviews.slice(indextrtv + 1, curmmtrtv?.relshiptypeviews.length)
@@ -1481,7 +1481,7 @@ function reducer(state = InitialState, action) {
                     typeviewRef: action.data.typeviewRef,
                     viewkind: action.data.viewkind,
                     abstract: action.data.abstract,
-                    deleted: action.data.deleted,
+                    markedAsDeleted: action.data.markedAsDeleted,
                     modified: action.data.modified,    
                   },
                   ...curmmtvpot?.objecttypes.slice(indextvpot + 1, curmmtvpot?.objecttypes.length)
@@ -1529,7 +1529,7 @@ function reducer(state = InitialState, action) {
                       strokecolor: action.data.strokecolor,
                       strokewidth: action.data.strokewidth,
                       icon: action.data.icon,
-                      deleted: action.data.deleted,
+                      markedAsDeleted: action.data.markedAsDeleted,
                       modified: action.data.modified,    
                     },
                     ...curmmotv?.objecttypeviews.slice(indexotv + 1, curmmotv?.objecttypeviews.length)
@@ -1570,7 +1570,7 @@ function reducer(state = InitialState, action) {
                       metamodelRef: action.data.metamodelRef,
                       loc: action.data.loc,
                       size: action.data.size,
-                      deleted: action.data.deleted, 
+                      markedAsDeleted: action.data.markedAsDeleted, 
                       modified: action.data.modified,                         
                     },
                     ...curmm?.objtypegeos.slice(otindex + 1, curmm?.objtypegeos.length)
@@ -1655,7 +1655,7 @@ function reducer(state = InitialState, action) {
                     description: action.data.description,
                     datatypeRef: action.data.datatypeRef,
                     unitCategoryRef: action.data.unitCategoryRef,
-                    deleted: action.data.deleted,
+                    markedAsDeleted: action.data.markedAsDeleted,
                     modified: action.data.modified,    
                   },
                   ...curmmpot?.properties.slice(indexpot + 1, curmmpot?.properties.length)
@@ -1697,7 +1697,7 @@ function reducer(state = InitialState, action) {
                     typeviewRef: action.data.typeviewRef,
                     viewkind: action.data.viewkind,
                     abstract: action.data.abstract,
-                    deleted: action.data.deleted,
+                    markedAsDeleted: action.data.markedAsDeleted,
                     modified: action.data.modified,    
                   },
                   ...curmmvpot?.objecttypes.slice(indexvvpot + 1,curmmvpot?.objecttypes.length)
@@ -1750,7 +1750,7 @@ function reducer(state = InitialState, action) {
                     //   ...curmmrt.relshiptypes[indexrt]?.properties,
                     //   properties: action.data.properties,
                     // },             
-                    deleted: action.data.deleted,  
+                    markedAsDeleted: action.data.markedAsDeleted,  
                     modified: action.data.modified,       
                   },
                   ...curmmrt?.relshiptypes?.slice(indexrt + 1, curmmrt?.relshiptypes.length)
@@ -1798,7 +1798,7 @@ function reducer(state = InitialState, action) {
                     dash: action.data.dash,
                     fromArrow: action.data.fromArrow,
                     toArrow: action.data.toArrow,
-                    deleted: action.data.deleted,              
+                    markedAsDeleted: action.data.markedAsDeleted,              
                     modified: action.data.modified,              
                   },
                   ...curmmrtv?.relshiptypeviews.slice(indexrtv + 1, curmmrtv?.relshiptypeviews)

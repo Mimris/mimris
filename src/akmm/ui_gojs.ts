@@ -300,13 +300,13 @@ export class goNode extends goMetaObject {
     parentModel: goModel | null;
     loc: string;
     size: string;
-    deleted: boolean;
+    markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
         this.parentModel = model;  // goModel
         this.loc = "";
         this.size = "";
-        this.deleted = false;
+        this.markedAsDeleted = false;
     }
     // Methods
     setLoc(loc: string) {
@@ -539,7 +539,7 @@ export class goObjectTypeNode extends goNode {
     loadNodeContent(metamodel: akm.cxMetaModel | null) {
         if (this.objecttype) {
             const objtype = this.objecttype;
-            if (!objtype.deleted) {
+            if (!objtype.markedAsDeleted) {
                 const typeview = this.typeview;
                 if (typeview) {
                     const data = typeview.getData();
@@ -578,11 +578,11 @@ export class goObjectTypeNode extends goNode {
 
 export class goLink extends goMetaObject {
     parentModel: goModel;
-    deleted: boolean;
+    markedAsDeleted: boolean;
     constructor(key: string, model: goModel) {
         super(key);
         this.parentModel = model;  // goModel
-        this.deleted = false;
+        this.markedAsDeleted = false;
     }
     // Methods
 }
@@ -671,7 +671,7 @@ export class goRelshipLink extends goLink {
         const relview: akm.cxRelationshipView | null = this.relshipview;
         const typeview: akm.cxRelationshipTypeView | null = this.typeview;
         if ((relview) && (typeview)) {
-            if (!relview.deleted) {
+            if (!relview.markedAsDeleted) {
                 if (this.toNode && this.fromNode) {
                     const viewdata: any = typeview.getData();
                     const data: any = typeview.getData();
@@ -763,7 +763,7 @@ export class goRelshipTypeLink extends goLink {
     }
     loadLinkContent() {
         if (this.reltype) {
-            if (this.reltype.deleted === false) {
+            if (this.reltype.markedAsDeleted === false) {
                 if (utils.objExists(this.toNode) && utils.objExists(this.fromNode)) {
                     const typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null = this.typeview;
                     if (typeview) {

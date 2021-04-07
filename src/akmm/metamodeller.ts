@@ -806,8 +806,8 @@ export class cxMetis {
             //dtype.setMetis(this);
             if (this.fieldTypes == null)
                 this.fieldTypes = new Array();
-            if (!this.findFieldType(fmt.id))
-                this.fieldTypes.push(fmt);
+            if (!this.findFieldType(typ.id))
+                this.fieldTypes.push(typ);
         }
     }
     addInputPattern(pattern: cxInputPattern) {
@@ -1002,13 +1002,13 @@ export class cxMetis {
         }
         return modelviews;
     }
-    getTemplateModelviewByName(name: string): cxModelView[] | null {
+    getTemplateModelviewByName(name: string): cxModelView | null {
         if (name && (name.length > 0)) {
             const mviews = this.modelviews;
             if (mviews) {
                 const l = mviews.length;
                 for (let i = 0; i < l; i++) {
-                    const mview = mviews[i]
+                    const mview = mviews[i];
                     if (mview) {
                         if (mview.getName() === name) {
                             if (mview.getIsTemplate())
@@ -3514,7 +3514,7 @@ export class cxObjectType extends cxType {
         if (stypes && stypes.length > 0) {
             for (let j = 0; j < stypes.length; j++) {
                 const stype = stypes[j];      // Supertype of objtype
-                let rtype = stype.findRelshipTypeByKind1(relkind, objtype);     // Supertype is .COMP ?
+                let rtype = stype.findRelshipTypeByKind1(relkind, objtype, null);     // Supertype is .COMP ?
                 if (utils.objExists(rtype))
                     return rtype;
                 else {
@@ -3734,18 +3734,27 @@ export class cxObjectTypeView extends cxMetaObject {
     type: cxObjectType | null;
     typeRef: string;
     data: cxObjtypeviewData;
+    figure: string;
+    fillcolor: string;
+    strokecolor: string;
+    strokewidth: string;
+    icon: string;
     constructor(id: string, name: string, type: cxType | null, description: string) {
         super(id, name, description);
         this.class = 'cxObjectTypeView';
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
         this.category = constants.gojs.C_OBJECTTYPEVIEW;
-        this.type = type;
-        this.typeRef = "";
-        this.data = new cxObjtypeviewData();
+        this.type = type as cxObjectType;
+        this.typeRef     = "";
+        this.figure      = "RoundedRectangle";
+        this.fillcolor   = "lightyellow";
+        this.strokecolor = "black";
+        this.strokewidth = "2";
+        this.icon        = "default.png";
+        this.data        = new cxObjtypeviewData();
         if (type) {
             const abs = type.abstract;
-            if (abs)
-                this.data.abstract = abs;
+            if (abs) this.data.abstract = abs;
         }
     }
     // Methods
@@ -3868,7 +3877,7 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.strokewidth;
         else if (this.strokewidth)
             return this.strokewidth;
-        return "1";
+        return "2";
     }
     setIcon(icon: string) { 
         this.data.icon = icon;
@@ -5157,7 +5166,7 @@ export class cxModelView extends cxMetaObject {
                 this.objectviews.push(objview);
             else {
                 for (let prop in objview) {
-                    obview[prop] = objview[prop];
+                    objview[prop] = objview[prop];
                 }
             }
         }
@@ -5213,14 +5222,14 @@ export class cxModelView extends cxMetaObject {
             i++;
         }
     }
-    findObjectViewsByObj(rel: cxObject): cxObjectView[] | null {
+    findObjectViewsByObj(obj: cxObject): cxObjectView[] | null {
         const objviews = new Array();
         let oviews = this.objectviews;
         if (!oviews) 
             return null;
         for (let i=0; i<oviews.length; i++) {
             const ov = oviews[i];
-            if (v?.object?.id === obj.id) {
+            if (ov?.object?.id === obj.id) {
                 objviews.push(ov);
             }
         }
@@ -5377,7 +5386,7 @@ export class cxObjectView extends cxMetaObject {
     getIsGroup(): boolean {
         if (utils.objExists(this.isGroup))
             return this.isGroup;
-        return "";
+        return false;
     }
     setGroup(group: string) {
         this.group = group;
@@ -5488,7 +5497,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.class = 'cxRelationshipView';
         this.category = constants.gojs.C_RELSHIPVIEW;
         this.relship = relship;
-        this.typeview = relship?.type?.typeview;              
+        this.typeview = relship?.type?.typeview as cxRelationshipTypeView;             
         this.typeviewRef = this.typeview?.id;
         this.fromObjview = null;
         this.toObjview = null;

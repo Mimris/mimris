@@ -482,7 +482,7 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             //         continue;
             //     if (objview) {
             //         if (debug) console.log('482 delete objview', objview);
-            //         objview.deleted = deletedFlag;
+            //         objview.markedAsDeleted = deletedFlag;
             //         // Register change in gql
             //         const gqlObjview = new gql.gqlObjectView(objview);
             //         deletedObjviews.push(gqlObjview);
@@ -560,7 +560,7 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
         //     for (let i = 0; i < noViews; i++) {
         //         // handle each objectview
         //         const oview = oviews[i];
-        //         oview.deleted = deletedFlag;
+        //         oview.markedAsDeleted = deletedFlag;
         //         if (debug) console.log('489 delete oview', oview);
         //         // Register change in gql
         //         const gqlObjview = new gql.gqlObjectView(oview);

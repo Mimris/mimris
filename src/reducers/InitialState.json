@@ -16,7 +16,7 @@
                             "typeviewRef": "01bee2c4-ed53-4107-18c6-77bd23d58307",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -28,7 +28,7 @@
                             "typeviewRef": "ed54d580-f6a8-445f-3a3f-6689c7fcf5c6",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -40,7 +40,7 @@
                             "typeviewRef": "2858022e-d63e-42de-ca36-7ea063ffd305",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -52,7 +52,7 @@
                             "typeviewRef": "324db6b0-63b4-4fc7-cb32-a326610c96e7",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -64,7 +64,7 @@
                             "typeviewRef": "e5a4816f-e379-461d-b5b9-1e09c30c9ac5",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -76,7 +76,7 @@
                             "typeviewRef": "fdd3660b-4ca1-4407-2d07-c8d2e480643b",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -88,7 +88,7 @@
                             "typeviewRef": "3c6fd19a-e766-4615-3928-fc4b0d072c55",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -100,7 +100,7 @@
                             "typeviewRef": "1d0213b1-ba2c-4b54-1e21-d9af0c09329d",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -112,7 +112,7 @@
                             "typeviewRef": "69310c23-99d4-4cd4-56df-54c1f958e809",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -124,7 +124,7 @@
                             "typeviewRef": "f6fc039c-a8d5-468b-ec59-c36343fb7064",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -136,7 +136,7 @@
                             "typeviewRef": "9a417e4b-2291-46ac-f613-984e0379e79c",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -148,7 +148,7 @@
                             "typeviewRef": "bcff5da6-4a0a-4aa0-a885-92d72af56576",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -160,7 +160,7 @@
                             "typeviewRef": "43628d9d-e276-4ccb-379a-f495c7976544",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -172,7 +172,7 @@
                             "typeviewRef": "b1a84087-90fd-49b0-e67c-9105ce9fe47f",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -184,7 +184,7 @@
                             "typeviewRef": "e0b48071-32b6-410d-5721-95655f89ae8e",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -196,7 +196,7 @@
                             "typeviewRef": "afd4e2af-78bd-444e-bef8-ba4959aac473",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -208,7 +208,7 @@
                             "typeviewRef": "ff74c6a5-e1ac-443c-23e7-c199cd92d7a1",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -220,7 +220,7 @@
                             "typeviewRef": "5f9ef7b3-8ebf-446e-4e2a-e7a52a978b71",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -230,7 +230,7 @@
                             "typeviewRef": "34a8aec6-46e0-4401-8588-c0bb20c07eff",
                             "viewkind": "Object",
                             "abstract": false,
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -240,7 +240,7 @@
                             "typeviewRef": "3ef4e9b1-ed59-42ab-b28a-2f717cc1c6b1",
                             "viewkind": "Object",
                             "abstract": false,
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         }
                     ],
@@ -255,7 +255,7 @@
                             "typeviewRef": "833b5df5-2ee6-4dc7-705b-f1c4c7338c11",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -268,7 +268,7 @@
                             "typeviewRef": "3e3ae0f7-2600-4d00-4433-e2257f75e2f3",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true,
                             "cardinality": "*"
                         },
@@ -282,7 +282,7 @@
                             "typeviewRef": "8e76123f-8845-4d21-e1d0-6a90583c48b4",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -295,7 +295,7 @@
                             "typeviewRef": "439eef1e-ab8f-4d8d-4547-18a1ff6960f6",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -308,7 +308,7 @@
                             "typeviewRef": "0274ac5c-1685-4458-4b76-3f186ef91b5d",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -321,7 +321,7 @@
                             "typeviewRef": "f1902fdc-68b3-465a-b902-afaa499babe7",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -334,7 +334,7 @@
                             "typeviewRef": "0334372d-cdc8-4019-53e5-5db98d827b6b",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -347,7 +347,7 @@
                             "typeviewRef": "11c9e7bb-20fd-42d8-c591-14c497e5da47",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -360,7 +360,7 @@
                             "typeviewRef": "01b24752-ee82-4990-9123-7ecdbe70c379",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -373,7 +373,7 @@
                             "typeviewRef": "7664a5ae-8149-4933-130c-a1e08ef91947",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -386,7 +386,7 @@
                             "typeviewRef": "0d7146dc-caf6-49d4-2062-bef3a08a1ec7",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -399,7 +399,7 @@
                             "typeviewRef": "3462fdcc-4e69-4e64-23cd-cc34f62121d4",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -412,7 +412,7 @@
                             "typeviewRef": "9a4d42d7-baf6-42f6-55e2-aa040f52937c",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -425,7 +425,7 @@
                             "typeviewRef": "204cfecf-62e8-4970-d63e-25fdb1308cf9",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -438,7 +438,7 @@
                             "typeviewRef": "cf75eae6-0157-4b97-18bd-8dd513deca34",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -451,7 +451,7 @@
                             "typeviewRef": "1d009ab6-6ff3-4f96-7f9e-1580428f05c9",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -464,7 +464,7 @@
                             "typeviewRef": "a462c2ab-a683-4b66-63cc-84c462fc8de8",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -477,7 +477,7 @@
                             "typeviewRef": "1bd976d0-2bfb-41ed-9323-2f6a101477cf",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -490,7 +490,7 @@
                             "typeviewRef": "7e099fff-bb6f-4942-4d94-645f2269178d",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -503,7 +503,7 @@
                             "typeviewRef": "94a5c778-c9d8-424f-b243-ba5f332d6ea2",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -516,7 +516,7 @@
                             "typeviewRef": "be21dbf5-109b-4447-929b-d8b1797298ae",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -529,7 +529,7 @@
                             "typeviewRef": "ef4ddf0d-ce40-4ca8-2327-7f2d7edffb90",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -542,7 +542,7 @@
                             "typeviewRef": "c9d5db13-f2d6-439d-fbc6-73f1308c975f",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -555,7 +555,7 @@
                             "typeviewRef": "e90a6728-4659-4450-3491-e8a5ab6edaf1",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true,
                             "cardinality": "*"
                         },
@@ -569,7 +569,7 @@
                             "typeviewRef": "318abc7b-8d8c-4bb6-3093-b152dba7bc8b",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true,
                             "cardinality": "*"
                         },
@@ -583,7 +583,7 @@
                             "typeviewRef": "7d366f20-b016-4597-f657-ad6853315a32",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -596,7 +596,7 @@
                             "typeviewRef": "64b01544-349e-47a2-0831-2dd7c2b4eb4e",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -609,7 +609,7 @@
                             "typeviewRef": "de0a8630-903c-400f-33d4-26b7f1df9d84",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -622,7 +622,7 @@
                             "typeviewRef": "3287786e-3e38-4007-34cc-762791910512",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -635,7 +635,7 @@
                             "typeviewRef": "6b4a5971-8bc4-442b-05fe-77babc2b1aa1",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true,
                             "cardinality": "*"
                         },
@@ -649,7 +649,7 @@
                             "typeviewRef": "64bb8002-e265-47b6-9a7b-e44a62591b2a",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -662,7 +662,7 @@
                             "typeviewRef": "d96894a3-99f5-41e3-5eaa-3fc05f6e1586",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -675,7 +675,7 @@
                             "typeviewRef": "0333bfda-1c91-48d8-5c66-3f38d5822d3c",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -688,7 +688,7 @@
                             "typeviewRef": "a7476340-301b-4f02-e19e-64fd6dafff09",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -701,7 +701,7 @@
                             "typeviewRef": "b65c5186-f0b9-4b2f-47df-e22dec1f613c",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -714,7 +714,7 @@
                             "typeviewRef": "b052718d-d3e6-42c5-d44c-0d81166d19bd",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -727,7 +727,7 @@
                             "typeviewRef": "aa66bd09-94ec-401d-a1cb-2fe544e078b1",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -740,7 +740,7 @@
                             "typeviewRef": "e2721778-06a6-4260-2b6c-0b8022ef798d",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -753,7 +753,7 @@
                             "typeviewRef": "fe1c78f7-90a4-471e-e6ba-11d4ae69021d",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -766,7 +766,7 @@
                             "typeviewRef": "66aef1ef-cd97-4bd4-14ed-03d1faf6bccd",
                             "description": "",
                             "properties": [],
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -778,7 +778,7 @@
                             "viewkind": "",
                             "fromobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
                             "toobjtypeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -790,7 +790,7 @@
                             "viewkind": "",
                             "fromobjtypeRef": "1e5e8f24-2af4-45bf-e619-7f655c7ab671",
                             "toobjtypeRef": "6bab35bb-f339-4ca0-f458-6c0cb7d0d302",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -803,7 +803,7 @@
                             "viewkind": "",
                             "fromobjtypeRef": "a6ee10cd-9197-400d-ff3a-cd878b07ec9e",
                             "toobjtypeRef": "bc6e6bae-078c-4cb1-7e99-7bb51265b2ed",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -816,7 +816,7 @@
                             "viewkind": "",
                             "fromobjtypeRef": "a6ee10cd-9197-400d-ff3a-cd878b07ec9e",
                             "toobjtypeRef": "83c6cc00-f031-410f-eeb2-d6b50026821f",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -830,7 +830,7 @@
                             "cardinality": "*",
                             "fromobjtypeRef": "",
                             "toobjtypeRef": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         }
                     ],
@@ -841,7 +841,7 @@
                             "description": "",
                             "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
                             "unitCategoryRef": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -850,7 +850,7 @@
                             "description": "",
                             "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
                             "unitCategoryRef": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -859,7 +859,7 @@
                             "description": "",
                             "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
                             "unitCategoryRef": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -868,7 +868,7 @@
                             "description": "",
                             "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
                             "unitCategoryRef": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -877,7 +877,7 @@
                             "description": "",
                             "datatypeRef": "bd91221d-1c7e-4884-4584-dfd056656b6e",
                             "unitCategoryRef": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -886,7 +886,7 @@
                             "description": "",
                             "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
                             "unitCategoryRef": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         }
                     ],
@@ -901,7 +901,7 @@
                             "viewFormat": "%s",
                             "fieldType": "text",
                             "allowedValues": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -914,7 +914,7 @@
                             "viewFormat": "%f",
                             "fieldType": "text",
                             "allowedValues": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -927,7 +927,7 @@
                             "viewFormat": "",
                             "fieldType": "checkbox",
                             "allowedValues": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -940,7 +940,7 @@
                             "viewFormat": "%d",
                             "fieldType": "text",
                             "allowedValues": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -953,7 +953,7 @@
                             "viewFormat": "%s",
                             "fieldType": "date",
                             "allowedValues": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         }
                     ],
@@ -971,7 +971,7 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/admin-settings-male.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -986,7 +986,7 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "info.svg",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1001,7 +1001,7 @@
                             "strokecolor": "black",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/view-file.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1016,7 +1016,7 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/variable.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1031,7 +1031,7 @@
                             "strokecolor": "gray",
                             "strokewidth": "1",
                             "icon": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1046,7 +1046,7 @@
                             "strokecolor": "black",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/data-.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1061,7 +1061,7 @@
                             "strokecolor": "black",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/add-property-1.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1076,7 +1076,7 @@
                             "strokecolor": "black",
                             "strokewidth": "3",
                             "icon": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1091,7 +1091,7 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1106,7 +1106,7 @@
                             "strokecolor": "gray",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/approve.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1121,7 +1121,7 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1136,7 +1136,7 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1151,7 +1151,7 @@
                             "strokecolor": "gray",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/rules-book.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1166,7 +1166,7 @@
                             "strokecolor": "black",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/task.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1181,7 +1181,7 @@
                             "strokecolor": "gray",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/cotton/72/tear-off-calendar.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1196,7 +1196,7 @@
                             "strokecolor": "black",
                             "strokewidth": "1",
                             "icon": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1211,7 +1211,7 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "https://img.icons8.com/color/2x/type.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1226,7 +1226,7 @@
                             "strokecolor": "#000000",
                             "strokewidth": "1",
                             "icon": "default.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1240,7 +1240,7 @@
                             "strokecolor": "black",
                             "strokewidth": "1",
                             "icon": "default.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1254,7 +1254,7 @@
                             "strokecolor": "black",
                             "strokewidth": "1",
                             "icon": "default.png",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         }
                     ],
@@ -1269,7 +1269,7 @@
                             "loc": "-330 -360",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1282,7 +1282,7 @@
                             "loc": "-560 -210",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1295,7 +1295,7 @@
                             "loc": "-430 -470",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1308,7 +1308,7 @@
                             "loc": "-710 -300",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1321,7 +1321,7 @@
                             "loc": "-330 -210",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1334,7 +1334,7 @@
                             "loc": "-440 -90",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1347,7 +1347,7 @@
                             "loc": "-780 -130",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1360,7 +1360,7 @@
                             "loc": "-1120 -210",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1373,7 +1373,7 @@
                             "loc": "-780 150",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1386,7 +1386,7 @@
                             "loc": "-1000 30",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1399,7 +1399,7 @@
                             "loc": "-560 30",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1412,7 +1412,7 @@
                             "loc": "-450 150",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1425,7 +1425,7 @@
                             "loc": "-1120 150",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1438,7 +1438,7 @@
                             "loc": "-710 -470",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1451,7 +1451,7 @@
                             "loc": "-1120 -470",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1464,7 +1464,7 @@
                             "loc": "-330 30",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1477,7 +1477,7 @@
                             "loc": "-1120 -360",
                             "size": "",
                             "description": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1488,7 +1488,7 @@
                             "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
                             "loc": "-910 -470",
                             "size": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1499,7 +1499,7 @@
                             "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
                             "loc": "-1150 -580",
                             "size": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -1510,7 +1510,7 @@
                             "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
                             "loc": "-30 -450",
                             "size": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1521,7 +1521,7 @@
                             "metamodelRef": "1fb28d16-ccd2-4538-6469-00e5315efcd8",
                             "loc": "-30 -270",
                             "size": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         }
                     ],
@@ -1537,7 +1537,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1551,7 +1551,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1565,7 +1565,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1579,7 +1579,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1593,7 +1593,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1607,7 +1607,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1621,7 +1621,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1635,7 +1635,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1649,7 +1649,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1663,7 +1663,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1677,7 +1677,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1691,7 +1691,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1705,7 +1705,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1719,7 +1719,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1733,7 +1733,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1747,7 +1747,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1761,7 +1761,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1775,7 +1775,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1789,7 +1789,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1803,7 +1803,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1817,7 +1817,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1831,7 +1831,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1845,7 +1845,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1859,7 +1859,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1873,7 +1873,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1887,7 +1887,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1901,7 +1901,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "black",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1915,7 +1915,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1929,7 +1929,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1943,7 +1943,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1957,7 +1957,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1971,7 +1971,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1985,7 +1985,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -1999,7 +1999,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2013,7 +2013,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2027,7 +2027,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2041,7 +2041,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2055,7 +2055,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2069,7 +2069,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2083,7 +2083,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2097,7 +2097,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2111,7 +2111,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2125,7 +2125,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2139,7 +2139,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2153,7 +2153,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2167,7 +2167,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2181,7 +2181,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2195,7 +2195,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2209,7 +2209,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2223,7 +2223,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2237,7 +2237,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2251,7 +2251,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2265,7 +2265,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2279,7 +2279,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2293,7 +2293,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2307,7 +2307,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2321,7 +2321,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2335,7 +2335,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2349,7 +2349,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2363,7 +2363,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2377,7 +2377,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2391,7 +2391,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2405,7 +2405,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2419,7 +2419,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2433,7 +2433,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2447,7 +2447,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2461,7 +2461,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2475,7 +2475,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2489,7 +2489,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2503,7 +2503,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2517,7 +2517,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2531,7 +2531,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2545,7 +2545,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "white",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2559,7 +2559,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2573,7 +2573,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2587,7 +2587,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2601,7 +2601,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2615,7 +2615,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2629,7 +2629,7 @@
                             "toArrow": "Triangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2643,7 +2643,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -2657,7 +2657,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -2671,7 +2671,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -2685,7 +2685,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         },
                         {
@@ -2699,7 +2699,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2713,7 +2713,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2727,7 +2727,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2741,7 +2741,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2755,7 +2755,7 @@
                             "toArrow": "",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": false
                         },
                         {
@@ -2769,7 +2769,7 @@
                             "toArrow": "OpenTriangle",
                             "fromArrowColor": "",
                             "toArrowColor": "white",
-                            "deleted": false,
+                            "markedAsDeleted": false,
                             "modified": true
                         }
                     ]
@@ -2798,11 +2798,11 @@
                         "relshipviews": [],
                         "objecttypeviews": [],
                         "relshiptypeviews": [],
-                        "deleted": false,
+                        "markedAsDeleted": false,
                         "modified": false
                       }
                     ],
-                    "deleted": false,
+                    "markedAsDeleted": false,
                     "modified": false
                   }
             ],

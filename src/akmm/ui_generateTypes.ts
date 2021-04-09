@@ -485,8 +485,11 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     newName = utils.camelize(newName);
     newName = utils.uncapitalizeFirstLetter(newName);
     let relname = newName;
+    // Check if reltype exists between fromtype and to type with name === newName
+    const reltype = myMetis.findRelationshipTypeByName(relname, fromtype, totype);
+
     if (debug) console.log('485 generatedTypeId: ', relship.generatedTypeId, relship);
-    if (typid?.length == 0) {
+    if (!reltype) {
         // This is a new relationship type - Create it
         if (debug) console.log('487 new relship type: ', newName);
         const reltype = new akm.cxRelationshipType(utils.createGuid(), relname, fromtype, totype, currentRel.description);

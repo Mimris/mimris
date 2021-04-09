@@ -342,7 +342,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const typename = data.type;
           if (debug) console.log('333 typename', typename, data.objecttype);
           if (typename === "Object type") {
-              const objtype = context.myMetis.findObjectType(data.objecttype.id);
+              const objtype = myMetis.findObjectType(data.objecttype.id);
               if (debug) console.log('321 objtype', objtype);
               if (objtype) {
                   let objtypeGeo = context.myMetamodel.findObjtypeGeoByType(objtype);
@@ -393,11 +393,11 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('377 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
-          if (typename === 'Object type') {
-            const objtype = context.myMetis.findObjectType(data.objtype.id);
+          if (data.category === 'Object type') {
+            const objtype = myMetis.findObjectType(data.objecttype?.id);
             if (objtype) {
               // Check if objtype instances exist
-              if (context.myMetis.getObjectsByType(objtype, true)) {
+              if (myMetis.getObjectsByType(objtype, true)) {
                   alert('Objects of type ' + objtype.name + ' exist - Deletion is not allowed!');
                   break;
               } 
@@ -421,14 +421,26 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          if (typename === 'Relationship type' || 'i' ) {
+          if (data.category === 'Relationship type') {
             // if (debug) console.log('350 myMetamodel', context.myMetamodel);  
-            const reltype = context.myMetis.findRelationshipType(data.reltype?.id);
+            const reltype = myMetis.findRelationshipType(data.reltype?.id);
             if (reltype) {
               // Check if reltype instances exist
-              if (context.myMetis.getRelationshipsByType(reltype)) {
-                alert('Relationships of type ' + reltype.name + ' exist - Deletion is not allowed!');
-                break;
+              const rels = myMetis.getRelationshipsByType(reltype);
+              if (!debug) console.log('430 reltype, rels, myMetis', reltype, rels, myMetis);
+              if (rels.length > 0) {
+                alert('Relationships of type ' + reltype.name + ' exist!');
+                if (confirm("Do you want to change the type of those relationships to 'isRelatedTo'?")) {
+                  const defRelType = myMetis.findRelationshipTypeByName('isRelatedTo');
+                  for (let i=0; i<rels.length; i++) {
+                    const rel = rels[i];
+                    rel.type = defRelType;
+                  }
+                } else {
+                  myDiagram.model.addLinkData(data);
+                  myDiagram.requestUpdate();
+                  break;
+                }
               }
               reltype.markedAsDeleted = deletedFlag;
               //uic.deleteRelationshipType(reltype, deletedFlag);

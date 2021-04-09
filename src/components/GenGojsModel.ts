@@ -264,11 +264,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    if (!debug) console.log('263 GenGojsModel', metis, model, modelview);
+    if (debug) console.log('263 GenGojsModel', metis, model, modelview);
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
-      if (!debug) console.log('266 modelview, objviews:', modelview.name, objviews);
+      if (debug) console.log('266 modelview, objviews:', modelview.name, objviews);
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -302,7 +302,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             includeObjview = true;
           }
         }
-        if (!objview.deleted && objview.object) {
+        if (!objview.markedAsDeleted && objview.object) {
           includeObjview = true;
         }
         if (includeObjview) {
@@ -374,7 +374,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (debug) console.log('352 relview:', relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
-          link.name = rel.name;
+          link.name = rel?.name;
           link.strokecolor = relcolor;
           myGoModel.addLink(link);
           if (debug) console.log('357 buildGoModel - link', link, myGoModel);
@@ -405,11 +405,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
   if (metamodel?.objecttypes) {
-    if (debug) console.log('282 metamodel', metamodel);
+    if (debug) console.log('408 metamodel', metamodel);
     let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
     const objtypes = metamodel?.getObjectTypes();
     if (objtypes) {
-      if (debug) console.log('286 objtype', objtypes);
+      if (debug) console.log('412 objtype', objtypes);
       for (let i = 0; i < objtypes.length; i++) {
         const objtype = objtypes[i];
         if (objtype && !objtype.markedAsDeleted) {
@@ -422,6 +422,7 @@ function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
       }
     }
     let relshiptypes = metamodel.getRelshipTypes();
+    if (debug) console.log('425 relshiptypes', relshiptypes);
     if (relshiptypes) {
       for (let i = 0; i < relshiptypes.length; i++) {
         let reltype = relshiptypes[i];

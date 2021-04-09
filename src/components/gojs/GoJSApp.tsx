@@ -197,7 +197,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         let field = e.subject.name;
-        if (!debug) console.log('200 data', data, field, sel);
+        if (debug) console.log('200 data', data, field, sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
@@ -300,7 +300,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const rel = uic.updateRelationship(myLink, field, text, context);
                 if (rel) {
                   const relviews = rel.relshipviews;
-                  if (!debug) console.log('303 relviews', relviews);
+                  if (debug) console.log('303 relviews', relviews);
                   for (let i=0; i<relviews.length; i++) {
                     const relview = relviews[i];
                     relview.name = myLink.name;
@@ -308,7 +308,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (!link) link = myLink;
                     if (link) {
                       link = myDiagram.findLinkForKey(link.key)
-                      if (!debug) console.log('311 link', link, relview);
+                      if (debug) console.log('311 link', link, relview);
                       myDiagram.model.setDataProperty(link.data, "name", myLink.name);
                       const gqlRelview = new gql.gqlRelshipView(relview);
                       modifiedLinks.push(gqlRelview);
@@ -394,12 +394,35 @@ class GoJSApp extends React.Component<{}, AppState> {
           const key  = data.key;
           const typename = data.type;
           if (data.category === 'Object type') {
+            const defObjType = myMetis.findObjectTypeByName('Generic');
             const objtype = myMetis.findObjectType(data.objecttype?.id);
             if (objtype) {
               // Check if objtype instances exist
-              if (myMetis.getObjectsByType(objtype, true)) {
-                  alert('Objects of type ' + objtype.name + ' exist - Deletion is not allowed!');
+              const objects = myMetis.getObjectsByType(objtype, true);
+              if (debug) console.log('403 objtype, objects, myMetis', objtype, objects, myMetis);
+              if (objects.length > 0) {
+                if (confirm("Objects of type '" + objtype.name + "' exist! Do you still want to delete?")) {
+                  if (confirm("Do you want to change the type of those objects to '" + defObjType.name + "'?")) {
+                    for (let i=0; i<objects.length; i++) {
+                      const obj = objects[i];
+                      obj.type = defObjType;
+                      obj.name = defObjType.name;
+                      const gqlObj = new gql.gqlObject(obj);
+                      modifiedObjects.push(gqlObj);
+                    }
+                  } else { // delete the corresponding objects
+                    for (let i=0; i<objects.length; i++) {
+                      const obj = objects[i];
+                      obj.markedAsDeleted = deletedFlag;
+                      const gqlObj = new gql.gqlRelationship(obj);
+                      modifiedObjects.push(gqlObj);
+                    }
+                  }
+                } else { // Do not delete
+                  myDiagram.model.addNodeData(data);
+                  myDiagram.requestUpdate();
                   break;
+                }
               } 
               objtype.markedAsDeleted = deletedFlag;
               const gqlObjtype = new gql.gqlObjectType(objtype, true);
@@ -423,20 +446,31 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           if (data.category === 'Relationship type') {
             // if (debug) console.log('350 myMetamodel', context.myMetamodel);  
+            const defRelType = myMetis.findRelationshipTypeByName('isRelatedTo');
             const reltype = myMetis.findRelationshipType(data.reltype?.id);
             if (reltype) {
               // Check if reltype instances exist
               const rels = myMetis.getRelationshipsByType(reltype);
-              if (!debug) console.log('430 reltype, rels, myMetis', reltype, rels, myMetis);
+              if (debug) console.log('430 reltype, rels, myMetis', reltype, rels, myMetis);
               if (rels.length > 0) {
-                alert('Relationships of type ' + reltype.name + ' exist!');
-                if (confirm("Do you want to change the type of those relationships to 'isRelatedTo'?")) {
-                  const defRelType = myMetis.findRelationshipTypeByName('isRelatedTo');
-                  for (let i=0; i<rels.length; i++) {
-                    const rel = rels[i];
-                    rel.type = defRelType;
+                if (confirm("Relationships of type '" + reltype.name + "' exist! Do you still want to delete?")) {
+                  if (confirm("Do you want to change the type of those relationships to '" + defRelType.name + "'?")) {
+                    for (let i=0; i<rels.length; i++) {
+                      const rel = rels[i];
+                      rel.type = defRelType;
+                      rel.name = defRelType.name;
+                      const gqlRel = new gql.gqlRelationship(rel);
+                      modifiedRelships.push(gqlRel);
+                    }
+                  } else { // delete the corresponding relationships
+                    for (let i=0; i<rels.length; i++) {
+                      const rel = rels[i];
+                      rel.markedAsDeleted = deletedFlag;
+                      const gqlRel = new gql.gqlRelationship(rel);
+                      modifiedRelships.push(gqlRel);
+                    }
                   }
-                } else {
+                } else { // Do not delete
                   myDiagram.model.addLinkData(data);
                   myDiagram.requestUpdate();
                   break;

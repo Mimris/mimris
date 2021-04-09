@@ -3250,6 +3250,7 @@ export class cxObjectType extends cxType {
         this.objtypegeos = null;
         this.allObjecttypes = null;
         this.allRelationshiptypes = null;
+        this.markedAsDeleted = false;
     }
     // Methods
     getLoc(metamodel: cxMetaModel): string {
@@ -3599,6 +3600,7 @@ export class cxRelationshipType extends cxObjectType {
         this.relshipkind = constants.relkinds.REL;
         this.viewkind = "";
         this.cardinality = "";
+        this.markedAsDeleted = false;
     }
     // Methods
     setDefaultTypeView(typeview: cxRelationshipTypeView) {

@@ -617,7 +617,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
-        if (debug) console.log('619 gqlModelview', gqlModelview);
+        if (!debug) console.log('619 gqlModelview', gqlModelview);
         break;
 
       case "New Model":    

@@ -766,7 +766,17 @@ imgInProp {
 .focusSource {
   width: 140px;
 } */
-
+.nav-link {
+  color: rgb(9, 0, 139);
+}
+/* .nav-link.nav-login {
+  color: rgb(9, 0, 139);
+  background-color: red;
+} */
+/* .nav-link.active{
+  color: green;
+  background-color: rgb(255, 240, 219) ;
+} */
 /* // this is a black icon with 50% opacity */
 .navbar-light .navbar-toggler-icon {
   background-image: url("data:image/svg+xml;..");

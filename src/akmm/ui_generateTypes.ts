@@ -191,7 +191,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (debug) console.log('191 context', context);
     const obj = myMetis.findObject(object.id);
     let objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
-    if (!debug) console.log('194 obj, objtype', obj, objtype);
+    if (debug) console.log('194 obj, objtype', obj, objtype);
     // Handle objects of type 'Information'
     if (obj.type.name === 'Information') {
         const types = ['Role', 'Task', 'View', 'Query'];
@@ -201,7 +201,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 // If name === one of types, 
                 // check if it already is part of the target metamodel
                 objtype = myTargetMetamodel?.findObjectTypeByName(typename);
-                if (!debug) console.log('204 objtype', objtype);
+                if (debug) console.log('204 objtype', objtype);
                 if (!objtype) {
                     // If not, find the type in the IRTV metamodel
                     const irtvMetamodel = myMetis.findMetamodelByName('IRTV Metamodel');
@@ -217,7 +217,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 }
                 if (objtype) {
                     objtype.typeview.applyObjectViewParameters(objview);
-                    if (!debug) console.log('220 typeview', objview, objtype.typeview);
+                    if (debug) console.log('220 typeview', objview, objtype.typeview);
                     objtype.properties = objtype.properties;
                     objtype.allObjecttypes = myMetis.objecttypes;
                     objtype.allRelationshiptypes = myMetis.relshiptypes;
@@ -233,7 +233,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             let name = obj.name;
             name = utils.camelize(name);
             name = utils.capitalizeFirstLetter(name);
-            if (!debug) console.log('237 name', name);
+            if (debug) console.log('237 name', name);
             objtype = new akm.cxObjectType(utils.createGuid(), name, obj.description);
             const properties = obj?.type?.properties;
             if (properties !== undefined && properties !== null && properties.length > 0)
@@ -242,12 +242,12 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 objtype.properties = new Array();
             myTargetMetamodel?.addObjectType(objtype);
             myMetis.addObjectType(objtype);
-            if (!debug) console.log('245 objtype', objtype);
+            if (debug) console.log('245 objtype', objtype);
             // Create objecttypeview
             const id = utils.createGuid();
             const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
             objtypeview.applyObjectViewParameters(objview);
-            if (!debug) console.log('250 objtypeview, objview', objtypeview, objview);
+            if (debug) console.log('250 objtypeview, objview', objtypeview, objview);
             objtype.typeview = objtypeview;
             objtype.typeviewRef = objtypeview.id;
             objtype.setModified(true);
@@ -265,11 +265,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             // To ensure that objtype is a class instance
             objtype = myMetis.findObjectType(objtype.id);
             const typeview = objtype.typeview;
-            if (!debug) console.log('268 objview, typeview', objview, typeview);
+            if (debug) console.log('268 objview, typeview', objview, typeview);
             typeview.applyObjectViewParameters(objview);
-            if (!debug) console.log('270 typeview', typeview);
+            if (debug) console.log('270 typeview', typeview);
         }
-        if (!debug) console.log('272 objtype, myMetis', objtype, myMetis);
+        if (debug) console.log('272 objtype, myMetis', objtype, myMetis);
         let parentType: akm.cxObjectType | null = null;
         let parentRelType: akm.cxRelationshipType | null = null;
         if (objtype) {
@@ -371,7 +371,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 if (rels) {
                     for (let i=0; i < rels.length; i++) {
                         let rel = rels[i];
-                        if (!rel.deleted) {
+                        if (!rel.markedAsDeleted) {
                             if (rel.name === constants.types.AKM_IS_OF_DATATYPE) {
                                 let dtype = rel.toObject;
                                 if (dtype) {
@@ -677,9 +677,9 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             myTargetMetamodel.addDatatype(datatype);
             // Update phData
             const gqlDatatype = new gql.gqlDatatype(datatype);
-            if (debug) console.log('595 gqlDatatype', gqlDatatype);
             const modifiedDatatypes = new Array();
             modifiedDatatypes.push(gqlDatatype);
+            if (debug) console.log('680 ui_generateTypes', gqlDatatype, modifiedDatatypes);
             modifiedDatatypes.map(mn => {
                 let data = (mn) && mn;
                 data = JSON.parse(JSON.stringify(data));
@@ -746,7 +746,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         if (debug) console.log('746 obj', obj.name, obj);
                         let objtype;
                         if ((obj.name === obj.type.name) || (obj.type.name === 'Information')) { 
-                            if (!debug) console.log('749 obj, objview', obj, objview);                       
+                            if (debug) console.log('749 obj, objview', obj, objview);                       
                             objtype = generateObjectType(obj, objview, context);
                         }
                         // Prepare dispatches

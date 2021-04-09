@@ -48,8 +48,8 @@ const Modeller = (props: any) => {
   const selmodviews = modelviews
   
   if (debug) console.log('36 Modeller', focusModelview, selmods, selmodviews);
-  let selmodels = selmods?.filter((m: any) => m && (!m.deleted))
-  // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.deleted))
+  let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
+  // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
   // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
 
@@ -139,7 +139,7 @@ const Modeller = (props: any) => {
   // }, [focusModelview?.id])
   
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
-    if (mv && !mv.deleted) { 
+    if (mv && !mv.markedAsDeleted) { 
         const strindex = index.toString()
         const data = {id: mv.id, name: mv.name}
         const data2 = {id: Math.random().toString(36).substring(7), name: strindex+'name'}
@@ -206,7 +206,8 @@ const Modeller = (props: any) => {
       </div>
       <div className="diagram-buttons">
         <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram&#013;">Zoom All</button>
-        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layou routing&#013;">Toggle relationship layout</button>
+        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing&#013;">Toggle relationship layout</button>
+        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name&#013;">Toggle relationships name</button>
         <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus&#013;">Zoom to Focus</button>
         <button className="btn-sm  py-0" 
           data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews&#013;" 

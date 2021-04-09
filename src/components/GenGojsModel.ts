@@ -276,6 +276,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (obj?.markedAsDeleted)
           objview.markedAsDeleted = obj?.markedAsDeleted;
         objview.name = obj?.name;
+        // objview.visible = obj?.visible
         if (includeDeleted) {
           if (objview.markedAsDeleted) {
             if (objview.object?.markedAsDeleted) {
@@ -302,9 +303,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             includeObjview = true;
           }
         }
-        if (!objview.deleted && objview.object) {
+        if (!objview.markedAsDeleted && objview.object) {
           includeObjview = true;
         }
+        // if (!objview.visible) includeObjview = false;
         if (includeObjview) {
           if (debug) console.log('305 includeNoObject, objview:', includeNoObject, objview);
           if (!includeDeleted && objview.markedAsDeleted)

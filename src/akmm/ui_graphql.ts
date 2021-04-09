@@ -383,7 +383,7 @@ export class gqlDatatype {
         this.datatypeRef     = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
         this.defaultValue    = dtype.defaultValue;
         this.allowedValues   = dtype.allowedValues;
-        this.isOfDatatype    = dtype.isOfDatatype;
+        // this.isOfDatatype    = dtype.isOfDatatype;
         this.inputPattern    = dtype.inputPattern;
         this.viewFormat      = dtype.viewFormat;
         this.fieldType       = dtype.fieldType;

@@ -197,7 +197,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         let field = e.subject.name;
-        if (!debug) console.log('200 data', data, field, sel);
+        if (debug) console.log('200 data', data, field, sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
@@ -300,7 +300,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 const rel = uic.updateRelationship(myLink, field, text, context);
                 if (rel) {
                   const relviews = rel.relshipviews;
-                  if (!debug) console.log('303 relviews', relviews);
+                  if (debug) console.log('303 relviews', relviews);
                   for (let i=0; i<relviews.length; i++) {
                     const relview = relviews[i];
                     relview.name = myLink.name;
@@ -308,7 +308,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (!link) link = myLink;
                     if (link) {
                       link = myDiagram.findLinkForKey(link.key)
-                      if (!debug) console.log('311 link', link, relview);
+                      if (debug) console.log('311 link', link, relview);
                       myDiagram.model.setDataProperty(link.data, "name", myLink.name);
                       const gqlRelview = new gql.gqlRelshipView(relview);
                       modifiedLinks.push(gqlRelview);
@@ -549,13 +549,23 @@ class GoJSApp extends React.Component<{}, AppState> {
         let sel = e.subject.part;
         let data = sel.data;
         this.state.selectedData = sel.data;
-        if (debug) console.log('699 data', data, sel);
-        const modalContext = {
-          what: "editObjectview",
-          title: "Edit Object View",
-          icon: findImage(data.icon),
-          myDiagram: myDiagram
-        }
+        if (debug) console.log('699 data', data.objecttype.viewkind, sel);
+        let modalContext
+        // if (data.objecttype.viewkind === "Container") {  // Zoom to container
+        //   modalContext = {
+        //     what: "Zoom Selection",
+        //     title: "Zoom Selection",
+        //     // icon: findImage(data.icon),
+        //     myDiagram: myDiagram
+        //   }
+        // } else {
+          modalContext = {
+            what: "editObjectview",
+            title: "Edit Object View",
+            icon: findImage(data.icon),
+            myDiagram: myDiagram
+          }
+        // } 
         myDiagram.handleOpenModal(data, modalContext, null);
       }
       break;
@@ -820,7 +830,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // if (debug) console.log('577 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
-      if (!debug) console.log('806 UPDATE_OBJECTVIEW_PROPERTIES', data)
+      if (debug) console.log('806 UPDATE_OBJECTVIEW_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
@@ -864,7 +874,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // if (debug) console.log('619 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
-      if (!debug) console.log('849 UPDATE_OBJECT_PROPERTIES', data)
+      if (debug) console.log('849 UPDATE_OBJECT_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 

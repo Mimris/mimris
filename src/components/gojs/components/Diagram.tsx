@@ -66,7 +66,6 @@ interface DiagramState {
   selectedOption: any;
 }
 
-
 export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> {
   // Maps to store key -> arr index for quick lookups
   private mapNodeKeyIdx: Map<go.Key, number>;
@@ -98,7 +97,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.handleCloseModal = this.handleCloseModal.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSelectDropdownChange = this.handleSelectDropdownChange.bind(this);
-}
+  }
   /**
    * Get the diagram reference and add any desired diagram listeners.
    * Typically the same function will be used for each listener, with the function using a switch statement to handle the events.
@@ -381,7 +380,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             modifiedObjviews.push(gqlObjview);
             modifiedObjviews.map(mn => {
               let data = mn;
-              if (!debug) console.log('392 data', data);
+              if (debug) console.log('392 data', data);
               this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             })
             for (let prop in objview?.data) {
@@ -997,13 +996,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (debug) console.log('1004 obj, props', obj, props, msg);   
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
-        if (!debug) console.log('1007 prop', prop);
+        if (debug) console.log('1007 prop', prop);
         const value = obj.getStringValue2(prop.name); 
         if (debug) console.log('1009 value', value);
         const p = prop.name + ': ' + value;
         msg += printf(format2, prop.name, value);
       }
-      if (!debug) console.log('1012 nodeInfo', obj, msg);
+      if (debug) console.log('1012 nodeInfo', obj, msg);
       return msg;
     }
 
@@ -1037,6 +1036,39 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       var partContextMenu =
         $(go.Adornment, "Vertical",
+          makeButton("Copy",
+          function (e: any, obj: any) { 
+            e.diagram.commandHandler.copySelection(); 
+          },
+          function (o: any) { 
+            const node = o.part.data;
+            if (node.category === 'Object') 
+              return o.diagram.commandHandler.canCopySelection(); 
+            }),
+          makeButton("Paste",
+            function (e: any, obj: any) {
+              const currentModel = myMetis.currentModel;
+              myMetis.pasteViewsOnly = false;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            },
+            function (o: any) {
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
+            makeButton("Paste View",
+            function (e: any, obj: any) {
+              const currentModel = myMetis.currentModel;
+              myMetis.pasteViewsOnly = true;
+              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+              const myGoModel = myDiagram.myGoModel;
+              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              if (debug) console.log('560 Paste View', myMetis);
+            },
+            function (o: any) { 
+              //return false;
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
+          makeButton("----------"),
           makeButton("New Typeview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
@@ -1280,7 +1312,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else {
                 return false;
               }
-          }),
+            }),
           makeButton("Test InputPattern",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1328,38 +1360,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return o.diagram.commandHandler.canCutSelection(); 
             }),
-          makeButton("Copy",
-            function (e: any, obj: any) { 
-              e.diagram.commandHandler.copySelection(); 
-            },
-            function (o: any) { 
-              const node = o.part.data;
-              if (node.category === 'Object') 
-                return o.diagram.commandHandler.canCopySelection(); 
-            }),
-          makeButton("Paste",
-            function (e: any, obj: any) {
-              const currentModel = myMetis.currentModel;
-              myMetis.pasteViewsOnly = false;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-            },
-            function (o: any) {
-              return o.diagram.commandHandler.canPasteSelection(); 
-            }),
-          makeButton("Paste View",
-            function (e: any, obj: any) {
-              const currentModel = myMetis.currentModel;
-              myMetis.pasteViewsOnly = true;
-              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-              const myGoModel = myDiagram.myGoModel;
-              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-              if (debug) console.log('560 Paste View', myMetis);
-            },
-            function (o: any) { 
-              //return false;
-              return o.diagram.commandHandler.canPasteSelection(); 
-            }),
+ 
+
           makeButton("Delete",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
@@ -1388,7 +1390,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                           const myNode = myGoModel.findNodeByViewId(objview.id);
                           if (debug) console.log('674 myNode', myNode);
                           const n = myDiagram.findNodeForKey(myNode?.key);
-                          if (!debug) console.log('1393 n', n);
+                          if (debug) console.log('1393 n', n);
                           if (n) n.isSelected = true;                        
                       }    
                     }
@@ -1399,7 +1401,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       for (let j=0; j<relviews?.length; j++) {
                         const relview = relviews[j];
                         const l = myGoModel.findLinkByViewId(relview.id);
-                        if (!debug) console.log('1404 l', l);
+                        if (debug) console.log('1404 l', l);
                         if (l) l.isSelected = true;                        
                       }
                     }
@@ -1410,7 +1412,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       for (let j=0; j<relviews?.length; j++) {
                         const relview = relviews[j];
                         const l = myGoModel.findLinkByViewId(relview.id);
-                        if (!debug) console.log('1415 l', l);
+                        if (debug) console.log('1415 l', l);
                         if (l) l.isSelected = true;                        
                       }
                     }
@@ -1446,6 +1448,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               }
             }),
+  
           makeButton("----------"),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
@@ -1563,7 +1566,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 node.choices.push('Generic');
                 for (let i=0; i<objtypes.length; i++) {
                   const otype = objtypes[i];
-                  if (!otype.deleted && !otype.abstract) {
+                  if (!otype.markedAsDeleted && !otype.abstract) {
                     node.choices.push(otype.name); 
                     if (otype.name === 'Generic')
                       continue;
@@ -1614,7 +1617,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true;
             }
             return false;
-          }),
+            }),
           makeButton("Change Icon",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
@@ -1640,7 +1643,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else {
                 return false;
               }
-          }),
+            }),
           makeButton("----------"),
           makeButton("Generate Metamodel",
             function (e: any, obj: any) { 
@@ -2334,6 +2337,31 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
+          makeButton("Paste",
+            function (e: any, obj: any) {
+              myMetis.pasteViewsOnly = false;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            },
+            function (o: any) { 
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
+          makeButton("Paste View",
+            function (e: any, obj: any) {
+              myMetis.pasteViewsOnly = true;
+              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+            },
+            function (o: any) { 
+              //return false;
+              return o.diagram.commandHandler.canPasteSelection(); 
+            }),
+          makeButton("----------",
+          function (e: any, obj: any) {
+          },
+          function (o: any) { 
+            if (myMetis.modelType === 'Metamodelling')
+              return false;
+            return true; 
+          }),
           makeButton("New Model",
             function (e: any, obj: any) {
               const context = {
@@ -2443,7 +2471,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const modifiedModels = new Array();
               const model = myMetis.currentModel as akm.cxModel;
               if (confirm('Do you really want to delete the current model?')) {
-                  model.deleted = true;
+                  model.markedAsDeleted = true;
                   const gqlModel = new gql.gqlModel(model, true);
                   if (debug) console.log('2082 gqlModel', gqlModel);
                   modifiedModels.push(gqlModel);
@@ -2461,7 +2489,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const models = myMetis.models;
               for (let i=0; i<models.length; i++) {
                 const model = models[i];
-                if (model.deleted)
+                if (model.markedAsDeleted)
                   continue;
                 cnt++;
               }
@@ -2475,23 +2503,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const model = myMetis.currentModel as akm.cxModel;
               const modelView = myMetis.currentModelview as akm.cxModelView;
               if (confirm('Do you really want to delete the current modelview?')) {
-                  modelView.deleted = true;
+                  modelView.markedAsDeleted = true;
                   const gqlModelview = new gql.gqlModelView(modelView);
                   // Delete the content
                   const objviews = modelView.objectviews;
                   for (let i=0; i<objviews?.length; i++) {
                       const objview = objviews[i];
-                      objview.deleted = true;
+                      objview.markedAsDeleted = true;
                       const obj = objview.object;
                       const oviews = obj?.objectviews;
                       if (oviews.length == 1) {
-                        obj.deleted = true;
+                        obj.markedAsDeleted = true;
                       }
                   }
                   const relviews = modelView.relshipviews;
                   for (let i=0; i<relviews?.length; i++) {
                       const relview = relviews[i];
-                      relview.deleted = true;
+                      relview.markedAsDeleted = true;
                   }
                   if (debug) console.log('1808 myMetis', myMetis);
                   const modifiedModelviews = new Array();
@@ -2511,7 +2539,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const mviews = model.modelviews;
               for (let i=0; i<mviews.length; i++) {
                 const mview = mviews[i];
-                if (mview.deleted)
+                if (mview.markedAsDeleted)
                   continue;
                 cnt++;
               }
@@ -2760,23 +2788,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
-          makeButton("Paste",
-            function (e: any, obj: any) {
-              myMetis.pasteViewsOnly = false;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-            },
-            function (o: any) { 
-              return o.diagram.commandHandler.canPasteSelection(); 
-            }),
-          makeButton("Paste View",
-            function (e: any, obj: any) {
-              myMetis.pasteViewsOnly = true;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
-            },
-            function (o: any) { 
-              //return false;
-              return o.diagram.commandHandler.canPasteSelection(); 
-            }),
+
           makeButton("Undo",
             function (e: any, obj: any) { 
               e.diagram.commandHandler.undo(); 
@@ -2811,7 +2823,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const outrels = obj?.outputrels;
               for (let j=0; j<outrels?.length; j++) {
                 const rel = outrels[j];
-                if (rel.deleted) continue;
+                if (rel.markedAsDeleted) continue;
                 const rviews = rel.relviews;
                 if (rviews?.length > 0) {
                   // Relview is NOT missing - do nothing
@@ -2835,7 +2847,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 if (debug) console.log('2198 toObjviews', toObjviews);
                 // Relview(s) does not exist, but from and to objviews exist, create relview(s)
                 const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
-                if (relview.deleted) continue;
+                if (relview.markedAsDeleted) continue;
                 relview.setFromObjectView(fromObjviews[0]);
                 relview.setToObjectView(toObjviews[0]);
                 if (debug) console.log('2203 relview', relview);
@@ -2870,9 +2882,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const objtype = obj?.type;
                   if (obj.name === objtype?.name) {
                     if (obj.objectviews == null) {
-                      obj.deleted = true;
+                      obj.markedAsDeleted = true;
                       const obj1 = myMetis.findObject(obj.id);
-                      if (obj1) obj1.deleted = true;
+                      if (obj1) obj1.markedAsDeleted = true;
                       const gqlObj = new gql.gqlObject(obj);
                       modifiedObjects.push(gqlObj);
                     }
@@ -2890,9 +2902,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const objview = objviews[i];
                   const obj = objview?.object;
                   if (obj == null) {
-                      objview.deleted = true;
+                      objview.markedAsDeleted = true;
                       const objview1 = myMetis.findObjectView(objview.id);
-                      if (objview1) objview1.deleted = true;
+                      if (objview1) objview1.markedAsDeleted = true;
                       const gqlObjview = new gql.gqlObjectView(objview);
                       modifiedObjviews.push(gqlObjview);
                   }
@@ -2920,28 +2932,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     let objview = sel.data.objectview;
                     if (objview) {
                       objview = myMetis.findObjectView(objview.id);
-                      objview.deleted = false;
+                      objview.markedAsDeleted = false;
                       if (objview.typeview)
                         objview.strokecolor = objview.typeview.strokecolor;
                       else
                         objview.strokecolor = "black";
                       const obj = objview.object;
                       if (obj) 
-                        obj.deleted = false;
+                        obj.markedAsDeleted = false;
                     }
                   }
                   if (inst.category === 'Relationship') {
                     let relview = sel.data.relshipview;
                     if (relview) {
                       relview = myMetis.findRelationshipView(relview.id);
-                      relview.deleted = false;
+                      relview.markedAsDeleted = false;
                       if (relview.typeview)
                         relview.strokecolor = relview.typeview.strokecolor;
                       else 
                         relview.strokecolor = "black";
                       const rel = relview.relship;
                       if (rel)
-                        rel.deleted = false;
+                        rel.markedAsDeleted = false;
                     }
                   }
                 });
@@ -3197,7 +3209,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Shape, 'RoundedRectangle',
             {
               cursor: "alias",        // cursor: "pointer",
-              name: 'SHAPE', fill: 'red', stroke: "black",  strokeWidth: 2, 
+              name: 'SHAPE', fill: 'red', stroke: "#dddddd",  strokeWidth: 2, 
               shadowVisible: true,
               // set the port properties:
               portId: "",
@@ -3206,7 +3218,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // Shape bindings
               new go.Binding('fill', 'fillcolor'),
               new go.Binding('stroke', 'strokecolor'), 
-              new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "blue" : shape.part.data.strokecolor || "black"; })
+              new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "red" : shape.part.data.strokecolor || "black"; })
               .ofObject(),
               // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
             { contextMenu: partContextMenu },    
@@ -3261,6 +3273,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     font: "10pt Segoe UI,sans-serif",
                     minSize: new go.Size(96, 16), 
                     height: 42,
+                    // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
                     verticalAlignment: go.Spot.Center,
                     // stretch: go.GraphObject.Fill, // added to not resize object
                     // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
@@ -3423,6 +3436,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           // new go.Binding("strokeWidth", "strokewidth"),
         ),
         $(go.Panel,  // the header
+          // $(go.TextBlock,     // group title in the background
+                        // { defaultAlignment: go.Spot.Top },
+          //   {
+          //     font: "Bold 24pt Sans-Serif",
+          //     margin: new go.Margin(20, 0, 0, 2),
+          //     editable: true, isMultiline: false,
+          //     name: "name"
+          //   },
+          //   new go.Binding("text", "name").makeTwoWay()
+          // ),
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
@@ -3471,7 +3494,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // name: "SHAPE", //fill: "rgba(228,228,228,0.53)",
               // name: "SHAPE", fill: "transparent",
               name: "SHAPE", fill: "white",
-              opacity: "0.9",
+              opacity: "0.95",
               minSize: new go.Size(180, 120), 
               desiredSize: new go.Size(300, 200),
               margin: new go.Margin(0, 1, 1, 4),

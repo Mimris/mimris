@@ -15,9 +15,11 @@ const Navbar = (props) => (
 				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
 			</a>
 			{/* <span ><strong>OrgEngine Teambuilder</strong> */}
-			<span className="fs-3 text-warningn" style={{ fontsize: "50%", minWidth: "18%", marginTop: "5px"}}><strong> AKM Modeller</strong></span>
-			<div className="collapse navbar-collapse" id="nav-toggler-metis">
-				<ul className="navbar-nav ml-auto mr-3">
+			<span className="fs-3 text-warning" style={{ fontsize: "50%", minWidth: "26%", marginTop: "5px"}}>
+				<Link href="/modelling"><a className="nav-link2"><strong> AKM Modeller</strong></a></Link>
+			</span>
+			<div className="collapse navbar-collapse " id="nav-toggler-metis">
+				<ul className="navbar-nav ml-auto mr-3 ">
 					<li className="nav-item">
 						<Link href="/"><a className="nav-link active">Home</a></Link>
 					</li>			
@@ -47,7 +49,7 @@ const Navbar = (props) => (
 						</div>
 					</li> */}
 					<li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
-						<a className="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
+						<a className="nav-link nav-login dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
 							aria-haspopup="true" aria-expanded="false">
 							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} />
 							<span className="username"> {props?.user?.name}</span> </a>

@@ -3134,8 +3134,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
+              // if (myMetis.modelType === 'Metamodelling')
+              //   return false;
               return true; 
             }),
         )

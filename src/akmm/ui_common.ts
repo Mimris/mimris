@@ -1744,7 +1744,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
         const rview = relviews[k];
         if (rview.markedAsDeleted) 
             continue;
-            relshipviews.push(rview);
+        relshipviews.push(rview);
     }        
     metis.relshipviews = relshipviews;
     
@@ -1754,9 +1754,60 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
         const rel = rels[k];
         if (rel.markedAsDeleted) 
             continue;
-            relships.push(rel);
+        relships.push(rel);
     }        
     metis.relships = relships;
+
+    const objtypes = new Array();
+    const otypes = metis.objecttypes;
+    for (let k=0; k<otypes?.length; k++) {
+        const objtyp = otypes[k];
+        if (objtyp.markedAsDeleted) 
+            continue;
+        objtypes.push(objtyp);
+    }        
+    metis.objecttypes = objtypes;
+
+    const otypeviews = new Array();
+    const otviews = metis.objecttypeviews;
+    for (let k=0; k<otviews?.length; k++) {
+        const tview = otviews[k];
+        if (tview.markedAsDeleted) 
+            continue;
+        otypeviews.push(tview);
+    }        
+    metis.objecttypeviews = otypeviews;
+
+    const otypegeos = new Array();
+    const geos = metis.objtypegeos;
+    for (let k=0; k<geos?.length; k++) {
+        const geo = geos[k];
+        if (geo.markedAsDeleted) 
+            continue;
+        otypegeos.push(geo);
+    }        
+    metis.objtypegeos = otypegeos;
+
+    const reltypes = new Array();
+    const rtypes = metis.relshiptypes;
+    for (let k=0; k<rtypes?.length; k++) {
+        const reltyp = rtypes[k];
+        if (reltyp.markedAsDeleted) 
+            continue;
+        reltypes.push(reltyp);
+    }        
+    metis.relshiptypes = reltypes;
+
+    const rtypeviews = new Array();
+    const rtviews = metis.relshiptypeviews;
+    for (let k=0; k<rtviews?.length; k++) {
+        const tview = rtviews[k];
+        if (tview.markedAsDeleted) 
+            continue;
+        rtypeviews.push(tview);
+    }        
+    metis.relshiptypeviews = rtypeviews;
+
     // Dispatch metis
     const gqlMetis = new gql.gqlExportMetis(metis, true);
     const data = {metis: gqlMetis}

@@ -3436,19 +3436,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           // new go.Binding("strokeWidth", "strokewidth"),
         ),
         $(go.Panel,  // the header
-          // $(go.TextBlock,     // group title in the background
+          $(go.TextBlock,     // group title in the background
                         // { defaultAlignment: go.Spot.Top },
-          //   {
-          //     font: "Bold 24pt Sans-Serif",
-          //     margin: new go.Margin(20, 0, 0, 2),
-          //     editable: true, isMultiline: false,
-          //     name: "name"
-          //   },
-          //   new go.Binding("text", "name").makeTwoWay()
-          // ),
+            {
+              font: "Bold 24pt Sans-Serif",
+              margin: new go.Margin(20, 0, 0, 2),
+              editable: true, isMultiline: false,
+              name: "name"
+            },
+            new go.Binding("text", "name").makeTwoWay()
+          ),
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
+              imageStretch: go.GraphObject.Uniform,
               minSize: new go.Size(30, 20),
               // desiredSize: new go.Size(300, 200),
               // minSize: new go.Binding("minSize", "size"),

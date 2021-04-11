@@ -703,7 +703,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                         oview.group = grp.objectview.id;
                         nod.group = grp.key;
                         const n = myDiagram.findNodeForKey(nod.key);
-                        myDiagram.model.setDataProperty(n.data, "group", grp.key);
+                        myDiagram.model.setDataProperty(n?.data, "group", grp.key);
                         const modNode = new gql.gqlObjectView(oview);
                         nodes.push(modNode);
                     }

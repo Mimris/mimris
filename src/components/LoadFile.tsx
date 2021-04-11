@@ -34,6 +34,8 @@ const LoadFile = (props: any) => {
 
   function handleSaveAllToFile() {
     const projectname = props.ph.phData.metis.name
+    console.log('37 LoadFile', data);
+    
     SaveAllToFile(data, projectname, 'AKMM-Project')
   }
   
@@ -73,19 +75,19 @@ const LoadFile = (props: any) => {
 
   const buttonSaveAllToFileDiv = 
     <button 
-      className="btn-primary btn-sm mr-2  w-100  " 
+      className="btn-primary  mr-2 mb-3 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFile}>Save Project to File
+      onClick={handleSaveAllToFile}>Save Project (all) to File
     </button >
   const buttonSaveModelToFileDiv = 
-    <button className="btn-primary btn-sm mr-2  w-100  " 
+    <button className="btn-primary text-white-50 btn-sm mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current model to file&#013;(in Downloads folder)"
       onClick={handleSaveModelToFile}>Save Current Model to File 
     </button >
   const buttonSaveModelviewToFileDiv = 
-    <button className="btn-primary btn-sm mr-2  w-100  " 
+    <button className="btn-primary text-white-50 btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current modelview to file&#013;(in Downloads folder)"
       onClick={handleSaveModelviewToFile}>Save Current Modelview to File 

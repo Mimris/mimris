@@ -1600,6 +1600,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'typeRef') retVal = false;
     if (k === 'typeview') retVal = false;
     if (k === 'typeviewRef') retVal = false;
+    if (k === 'generatedTypeId') retVal = false;
     if (k === 'group') retVal = false;
     if (k === 'isGroup') retVal = false;
     if (k === 'groupLayout') retVal = false;

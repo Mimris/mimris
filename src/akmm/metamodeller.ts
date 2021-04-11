@@ -328,14 +328,14 @@ export class cxMetis {
         let datatypes: any[] = item.datatypes;
         if (datatypes && datatypes.length) {
             datatypes.forEach(datatype => {
-                if (datatype && !datatype.markedAsDeleted)
+                if (datatype)
                         this.importDatatype(datatype, metamodel);
             });
         }
         let objecttypes: any[] = item.objecttypes;
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
-                if (objtype && !objtype.markedAsDeleted)
+                if (objtype)
                      this.importObjectType(objtype, metamodel);
             });
         }
@@ -343,7 +343,7 @@ export class cxMetis {
         let objtypegeos: any[] = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {
             objtypegeos.forEach(objtypegeo => {
-                if (objtypegeo && !objtypegeo.markedAsDeleted) 
+                if (objtypegeo) 
                     this.importObjectTypegeo(objtypegeo, metamodel);
             });
         }
@@ -351,7 +351,7 @@ export class cxMetis {
         let objecttypeviews: any[] = item.objecttypeviews;
         if (objecttypeviews && objecttypeviews.length) {
             objecttypeviews.forEach(objtypeview => {
-                if (objtypeview && !objtypeview.markedAsDeleted) 
+                if (objtypeview) 
                     this.importObjectTypeView(objtypeview, metamodel);
             });
         }
@@ -359,7 +359,7 @@ export class cxMetis {
         objecttypes = item.objecttypes;
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
-                if (objtype && !objtype.markedAsDeleted) {
+                if (objtype) {
                     this.importObjectType(objtype, metamodel);
                 }
             });
@@ -367,14 +367,14 @@ export class cxMetis {
         objtypegeos = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {
             objtypegeos.forEach(objtypegeo => {
-                if (objtypegeo && !objtypegeo.markedAsDeleted)
+                if (objtypegeo)
                     this.importObjectTypegeo(objtypegeo, metamodel);
             });
         }
         objecttypeviews = item.objecttypeviews;
         if (objecttypeviews && objecttypeviews.length) {
             objecttypeviews.forEach(objtypeview => {
-                if (objtypeview && !objtypeview.markedAsDeleted)
+                if (objtypeview)
                     this.importObjectTypeView(objtypeview, metamodel);
             });
         }
@@ -382,28 +382,28 @@ export class cxMetis {
         let relshiptypes: any[] = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
-                if (reltype && !reltype.markedAsDeleted) 
+                if (reltype) 
                     this.importRelshipType(reltype, metamodel);
             });
         }
         let relshiptypeviews: any[] = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
-                if (reltypeview && !reltypeview.markedAsDeleted)
+                if (reltypeview)
                     this.importRelshipTypeView(reltypeview, metamodel);
             });
         }
         relshiptypes = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
-                if (reltype && !reltype.markedAsDeleted)
+                if (reltype)
                     this.importRelshipType(reltype, metamodel);
             });
         }
         relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
-                if (reltypeview && !reltypeview.markedAsDeleted)
+                if (reltypeview)
                     this.importRelshipTypeView(reltypeview, metamodel);
             });
         }
@@ -426,7 +426,7 @@ export class cxMetis {
             objtype = new cxObjectType(item.id, item.name, item.description);
         }
         if (objtype) {
-            if (debug) console.log('405 Object type', objtype);
+            if (debug) console.log('405 item, objtype', item, objtype);
             objtype.markedAsDeleted = item.markedAsDeleted;
             let otype = (objtype as any);
             for (const prop in item) {

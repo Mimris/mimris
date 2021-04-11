@@ -2,11 +2,28 @@
 
 const debug = false
 
+// safely handles circular references
+JSON.safeStringify = (obj, indent = 2) => {
+    let cache = [];
+    const retVal = JSON.stringify(
+      obj,
+      (key, value) =>
+        typeof value === "object" && value !== null
+          ? cache.includes(value)
+            ? undefined // Duplicate reference found, discard key
+            : cache.push(value) && value // Store value in our collection
+          : value,
+      indent
+    );
+    cache = null;
+    return retVal;
+  };
+
 export const SaveModelToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
     const fileName = type+"_"+name+'_'+today;
   
-    const json = JSON.stringify(model);
+    const json = JSON.safeStringify(model);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
     // const href = await URL.createObjectURL(blob);
@@ -20,7 +37,7 @@ export const SaveModelToFile = (model, name, type) => {
 export const SaveAllToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
     const fileName = type+"_"+name+'_'+today;
-    if (debug) console.log('22 LoadLocal', model, fileName);
+    if (!debug) console.log('22 LoadLocal', model, fileName);
   
     const json = JSON.stringify(model);
     const blob = new Blob([json],{type:'application/json'});

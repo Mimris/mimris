@@ -1371,7 +1371,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myDiagram.selection.each(function(sel) {
                   const inst = sel.data;
                   if (inst.category === 'Object') {
-                    const node = myGoModel.findNode(inst.key);
+                    let node = myGoModel.findNode(inst.key);
                     if (debug) console.log('1375 node', node);
                     if (node?.isGroup) {
                       const groupMembers = node.getGroupMembers(myGoModel);
@@ -1380,42 +1380,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         const gjsNode = myDiagram.findNodeForKey(member?.key);
                       }                    
                     }
-                    const object = node?.object;
-                    if (debug) console.log('1384 object', object);
-                    const objviews = object?.objectviews;
-                    for (let i=0; i<objviews?.length; i++) {
-                      const objview = objviews[i];
-                      if (debug) console.log('1388 objview', objview);
-                      if (objview) {
-                          const myNode = myGoModel.findNodeByViewId(objview.id);
-                          if (debug) console.log('674 myNode', myNode);
-                          const n = myDiagram.findNodeForKey(myNode?.key);
-                          if (debug) console.log('1393 n', n);
-                          if (n) n.isSelected = true;                        
-                      }    
-                    }
-                    let rels = object.outputrels;
-                    for (let i=0; i<rels?.length; i++) {
-                      const rel = rels[i];
-                      const relviews = rel.relshipviews;
-                      for (let j=0; j<relviews?.length; j++) {
-                        const relview = relviews[j];
-                        const l = myGoModel.findLinkByViewId(relview.id);
-                        if (debug) console.log('1404 l', l);
-                        if (l) l.isSelected = true;                        
-                      }
-                    }
-                    rels = object.inputrels;
-                    for (let i=0; i<rels?.length; i++) {
-                      const rel = rels[i];
-                      const relviews = rel.relshipviews;
-                      for (let j=0; j<relviews?.length; j++) {
-                        const relview = relviews[j];
-                        const l = myGoModel.findLinkByViewId(relview.id);
-                        if (debug) console.log('1415 l', l);
-                        if (l) l.isSelected = true;                        
-                      }
-                    }
+                    node = myDiagram.findNodeForKey(node.key);
+                    node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
+                  }
+                  if (inst.category === 'Object type') {
+                    const node = myDiagram.findNodeForKey(inst.key);
+                    node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
                   }
                 })
                 e.diagram.commandHandler.deleteSelection();      
@@ -3176,8 +3146,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
+              // if (myMetis.modelType === 'Metamodelling')
+              //   return false;
               return true; 
             }),
         )

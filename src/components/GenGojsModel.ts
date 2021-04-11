@@ -280,9 +280,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (includeDeleted) {
           if (objview.markedAsDeleted) {
             if (objview.object?.markedAsDeleted) {
-              objview.strokecolor = "red";
+              objview.strokecolor = "orange";
               includeObjview = true;
-            } else if (objview.markedAsDeleted) {
+            } else {
               objview.strokecolor = "pink";
               includeObjview = true;
             }
@@ -403,44 +403,57 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) console.log('275 myGoMetaPalette', myGoMetaPalette);
     return myGoMetaPalette;
   }
-}
 
-function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
-  if (metamodel?.objecttypes) {
-    if (debug) console.log('408 metamodel', metamodel);
-    let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
-    const objtypes = metamodel?.getObjectTypes();
-    if (objtypes) {
-      if (debug) console.log('412 objtype', objtypes);
-      for (let i = 0; i < objtypes.length; i++) {
-        const objtype = objtypes[i];
-        if (objtype && !objtype.markedAsDeleted) {
-          if (debug) console.log('289 objtype', objtype);
-          const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
-          node.loadNodeContent(metamodel);
-          if (debug) console.log('291 node', node);
-          myGoMetaModel.addNode(node);
+  function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
+    if (metamodel?.objecttypes) {
+      if (debug) console.log('408 metamodel', metamodel);
+      let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
+      const objtypes = metamodel?.getObjectTypes();
+      if (objtypes) {
+        if (debug) console.log('412 objtype', objtypes);
+        let includeObjtype = false;
+        let strokecolor = "black";
+        let fillcolor = "white";
+        for (let i = 0; i < objtypes.length; i++) {
+          const objtype = objtypes[i];
+          if (objtype && !objtype.markedAsDeleted) {
+            // if (!objtype.typeview) 
+            //   continue;
+            if (debug) console.log('289 objtype', objtype);
+            if (includeDeleted) {
+              if (objtype.markedAsDeleted) {
+                strokecolor = "orange";
+                includeObjtype = true;
+              }
+            } else
+              includeObjtype = true;
+            if (includeObjtype) {
+              const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
+              node.loadNodeContent(metamodel);
+              if (debug) console.log('291 node', node);
+              myGoMetaModel.addNode(node);
+            }
+          }
         }
       }
-    }
-    let relshiptypes = metamodel.getRelshipTypes();
-    if (debug) console.log('425 relshiptypes', relshiptypes);
-    if (relshiptypes) {
-      for (let i = 0; i < relshiptypes.length; i++) {
-        let reltype = relshiptypes[i];
-        if (reltype && !reltype.markedAsDeleted) {
-          if (!reltype.typeview) 
-            reltype.typeview = reltype.newDefaultTypeView(constants.relkinds.REL);
-          const key = utils.createGuid();
-          const link = new gjs.goRelshipTypeLink(key, myGoMetaModel, reltype);
-          if (link.loadLinkContent())
-            myGoMetaModel.addLink(link);
+      let relshiptypes = metamodel.getRelshipTypes();
+      if (debug) console.log('425 relshiptypes', relshiptypes);
+      if (relshiptypes) {
+        for (let i = 0; i < relshiptypes.length; i++) {
+          let reltype = relshiptypes[i];
+          if (reltype && !reltype.markedAsDeleted) {
+            if (!reltype.typeview) 
+              reltype.typeview = reltype.newDefaultTypeView(constants.relkinds.REL);
+            const key = utils.createGuid();
+            const link = new gjs.goRelshipTypeLink(key, myGoMetaModel, reltype);
+            if (link.loadLinkContent())
+              myGoMetaModel.addLink(link);
+          }
         }
       }
+      return myGoMetaModel;
     }
-    return myGoMetaModel;
   }
 }
-
 
 export default GenGojsModel;

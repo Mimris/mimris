@@ -622,9 +622,9 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     if (debug) console.log('513 dtype', parentDtype);
                     datatype.setIsOfDatatype(parentDtype);
                     // Copy default values from parentDtype
-                    datatype.setInputPattern(parentDtype.inputPattern);
-                    datatype.setViewFormat(parentDtype.viewFormat);
-                    datatype.setFieldType(parentDtype.fieldType);
+                    datatype.setInputPattern(parentDtype?.inputPattern);
+                    datatype.setViewFormat(parentDtype?.viewFormat);
+                    datatype.setFieldType(parentDtype?.fieldType);
                 }
             }  
             // Find allowed values if any

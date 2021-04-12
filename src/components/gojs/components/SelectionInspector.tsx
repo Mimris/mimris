@@ -133,6 +133,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let values   = [];
       let keys     = [];
       if (k) {
+        let name = k;
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
@@ -145,8 +146,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description') continue; 
         }
-        if (k === 'typeName' || k === 'typename' || k === 'id' || k === 'markedAsDeleted' || k === 'loc')
-          disabled = true;
         if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
@@ -238,7 +237,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (val === "")
             val = defValue;
         }
-        k = utils.capitalizeFirstLetter(k);
+        switch(k) {
+          case "typename":
+          case "typeName":
+            name = "Type name";
+            disabled = true;
+            break;
+          case "markedAsDeleted":
+            name = "Is deleted";
+            disabled = true;
+            break;
+          case "loc":
+          case "id":
+            disabled = true;
+          default:
+            name = utils.capitalizeFirstLetter(k);
+            break;
+        }
+
         if (debug) console.log('237 selObj, item:', selObj, item);
         if (debug) console.log('238 id, value:', k, val);
         row  = <InspectorRow

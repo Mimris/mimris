@@ -1086,7 +1086,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     const id = utils.createGuid();
                     typeview = new akm.cxObjectTypeView(id, id, objtype, "");
                     typeview.data = defaultTypeview.data;
-                    typeview.data.fillcolor = "lightgray";
+                    typeview.data.fillcolor = "red";
                     typeview.modified = true;
                     currentObjectView.typeview = typeview;
                     const viewdata = typeview.data;
@@ -3188,7 +3188,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // Shape bindings
               new go.Binding('fill', 'fillcolor'),
               new go.Binding('stroke', 'strokecolor'), 
-              new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "red" : shape.part.data.strokecolor || "black"; })
+              new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
               .ofObject(),
               // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
             { contextMenu: partContextMenu },    
@@ -3406,25 +3406,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           // new go.Binding("strokeWidth", "strokewidth"),
         ),
         $(go.Panel,  // the header
-          $(go.TextBlock,     // group title in the background
-                        // { defaultAlignment: go.Spot.Top },
-            {
-              font: "Bold 24pt Sans-Serif",
-              margin: new go.Margin(20, 0, 0, 2),
-              editable: true, isMultiline: false,
-              name: "name"
-            },
-            new go.Binding("text", "name").makeTwoWay()
-          ),
+          // $(go.TextBlock,     // group title in the background
+          //   {
+          //     // defaultAlignment: go.Spot.Top,
+          //     font: "Bold 24pt Sans-Serif",
+          //     // margin: new go.Margin(0, 0, 0, 0),
+          //     // editable: true, isMultiline: false,
+          //     name: "name"
+          //   },
+          //   new go.Binding("text", "name").makeTwoWay()
+          // ),
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
               imageStretch: go.GraphObject.Uniform,
-              minSize: new go.Size(30, 20),
-              // desiredSize: new go.Size(300, 200),
+              minSize: new go.Size(120, 80),
+              // desiredSize: new go.Size(600, 400),
               // minSize: new go.Binding("minSize", "size"),
-              margin: new go.Margin(16, 0, 0, 0),
+              margin: new go.Margin(0, 0, 0, 0),
             },
+            // new go.Binding("minSize", "size"),
             // new go.Binding("desiredSize", "size"),
             new go.Binding("source", "icon", findImage)
           ),
@@ -3437,12 +3438,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Panel, "Horizontal",  // the header
             { defaultAlignment: go.Spot.Top },
             $("SubGraphExpanderButton",
-            {margin: new go.Margin(4, 0, 0, 4)},
+            {margin: new go.Margin(1, 0, 1, 4),
+            scale: 1.5},
+            // {margin: new go.Margin(4, 0, 0, 4)},
             ),  // this Panel acts as a Button
             
             $(go.TextBlock,     // group title near top, next to button
               {
-                font: "Bold 12pt Sans-Serif",
+                font: "Bold 16pt Sans-Serif",
                 margin: new go.Margin(4, 0, 0, 2),
                 editable: true, isMultiline: false,
                 name: "name"

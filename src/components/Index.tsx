@@ -193,6 +193,14 @@ const page = (props) => {
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.04.12</CardTitle>
+                    <CardText >
+                          &bull; Added "Delete Objecttypes and Relationshiptypes" in Metamodelling.<br />
+                          &bull; Copies of Objectviews are shown with lightblue bordercolor.<br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2021.03.28</CardTitle>
                     <CardText >
                           &bull; New rightclick menuitem "Change icon" on objectviews.<br />

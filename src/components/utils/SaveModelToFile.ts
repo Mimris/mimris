@@ -39,7 +39,7 @@ export const SaveAllToFile = (model, name, type) => {
     const fileName = type+"_"+name+'_'+today;
     if (!debug) console.log('22 LoadLocal', model, fileName);
   
-    const json = JSON.stringify(model);
+    const json = JSON.safeStringify(model);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
     // const href = await URL.createObjectURL(blob);
@@ -55,7 +55,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()
     reader.onload = async (e) => { 
-        const text = (e.target.result)
         const modelff = JSON.parse(text)
 
         //   alert(text)

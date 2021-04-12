@@ -3438,7 +3438,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Panel, "Horizontal",  // the header
             { defaultAlignment: go.Spot.Top },
             $("SubGraphExpanderButton",
-            {margin: new go.Margin(1, 0, 1, 4),
+            {margin: new go.Margin(1, 2, 1, 4),
             scale: 1.5},
             // {margin: new go.Margin(4, 0, 0, 4)},
             ),  // this Panel acts as a Button

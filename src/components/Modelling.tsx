@@ -25,7 +25,7 @@ import EditFocusMetamodel from '../components/EditFocusMetamodel'
 
 const page = (props:any) => {
 
-  if (debug) console.log('17 Modelling', props);
+  if (debug) console.log('28 Modelling', props, props.phUser.focusUser.diagram);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -63,6 +63,7 @@ const page = (props:any) => {
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
   let phFocus = props.phFocus;
   let phData = props.phData
+  let phUser = props.phUser
 
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
@@ -91,7 +92,7 @@ const page = (props:any) => {
       function refres() {
         setRefresh(!refresh)
       }
-      setTimeout(refres, 10);
+      setTimeout(refres, 1);
     }, [props.phFocus?.focusRefresh?.id])
 
     // useEffect(() => {
@@ -109,66 +110,32 @@ const page = (props:any) => {
       setRefresh(!refresh)
     }, [props.phSource])
 
+    useEffect(() => {
+      if (debug) console.log('103 Modelling useEffect 5', props); 
+      genGojsModel(props, dispatch)
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 1);
+    }, [props.phUser.focusUser])
 
-  // Save current project to memoryState in localStorage each time a refresh is done 
+  
   function toggleRefresh() {
+    if (debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,
       phUser: props.phUser,
       phSource: 'localStore'
     };
-    setTimeout(refres, 1);
-    if (debug) console.log('59 Modelling',  data);
-    setMemoryLocState(data) 
+    // setTimeout(refres, 1);
+    if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
+    setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
     function refres() {
       setRefresh(!refresh)
     }
-    setTimeout(refres, 1);
-
-              // function toggleRefresh() {
-              //   // first find current model which is in reduxStore
-              //   let reduxmod = props.phData?.metis?.models?.find(m => m.id === focusModel?.id) // current model index
-              //   let curmindex = memoryLocState?.phData?.metis?.models?.findIndex(m => m?.id === reduxmod?.id) // current model index
-              //   // find lenght of modellarray in lodalStore
-              //   const curmlength = memoryLocState?.phData?.metis.models?.length
-              //   if (curmindex < 0) { curmindex = curmlength } // rvindex = -1, i.e.  not fond, which means adding a new model
-              //   // then find metamodel which is in reduxStore
-              //   let reduxmmod = props.phData?.metis?.metamodels?.find(mm => mm?.id === reduxmod?.metamodelRef) 
-              //   let curmmindex = memoryLocState?.phData?.metis?.metamodels?.findIndex(mm => mm?.id === reduxmod?.metamodelRef) 
-              //   // then find lenght of modellarray in lodalStore
-              //   const curmmlength = memoryLocState?.phData?.metis.metamodels?.length
-              //   if (curmmindex < 0) { curmmindex = curmmlength } // rvindex = -1, i.e.  not fond, which means adding a new metamodel
-              //   // if (debug) console.log('73 Modelling', curmindex, reduxmod);
-              //   const data = {
-              //     phData: {
-              //       ...memoryLocState?.phData,
-              //       metis: {
-              //         ...memoryLocState?.phData?.metis,
-              //         models: [
-              //           ...memoryLocState?.phData?.metis.models.slice(0, curmindex),
-              //           reduxmod,
-              //           ...memoryLocState?.phData?.metis.models.slice(curmindex + 1),
-              //         ],
-              //         metamodels: [
-              //           ...memoryLocState?.phData?.metis.metamodels.slice(0, curmmindex),
-              //           reduxmmod,
-              //           ...memoryLocState?.phData?.metis.metamodels.slice(curmmindex + 1),
-              //         ]
-              //       },
-              //     },
-              //     phFocus: props.phFocus,
-              //     phUser: props.phUser,
-              //     phSource: 'localStore'
-              //   };
-              // if (debug) console.log('59 Modelling',  data);
-              // (reduxmod) && setMemoryLocState(data) 
-              // genGojsModel(props, dispatch)
-              // function refres() {
-              //   setRefresh(!refresh)
-              // }
-
+    setTimeout(refres, 100);
   }
     
     const [activeTab, setActiveTab] = useState('2');
@@ -294,6 +261,7 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='metamodel'
+                    phUser={phUser}
                   />
                 </div>
               </Col>
@@ -327,15 +295,16 @@ const page = (props:any) => {
               </Col>
             <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
                 <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
-                {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
+                {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}              
                   <Modeller
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     myGoMetamodel={myGoMetamodel}
-                    metis={metis}
                     phFocus={phFocus}
+                    phUser={phUser}
+                    metis={metis}
                     dispatch={dispatch}
                     modelType='model'
                   />
@@ -350,8 +319,8 @@ const page = (props:any) => {
                   myMetis={myMetis}
                   myGoModel={myGoModel}
                   myGoMetamodel={myGoMetamodel}
-                  metis={metis}
                   phFocus={phFocus}
+                  metis={metis}
                   dispatch={dispatch}
                   modelType='model'
                 />

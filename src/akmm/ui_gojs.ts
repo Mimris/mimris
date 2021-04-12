@@ -217,7 +217,7 @@ export class goModel {
                     for (i = 0; i < l; i++) {
                         const objtype = objecttypes[i];
                         if (utils.objExists(objtype)) {
-                            if (!objtype.getDeleted()) {
+                            if (!objtype.getMarkedAsDeleted()) {
                                 const node = new goObjectTypeNode(utils.createGuid(), objtype);
                                 node.loadNodeContent(metamodel);
                                 gMetamodel.addNode(node);
@@ -231,7 +231,7 @@ export class goModel {
                         for (i = 0; i < l; i++) {
                             const reltype = relshiptypes[i];
                             if (reltype) {
-                                if (!reltype.getDeleted()) {
+                                if (!reltype.getMarkedAsDeleted()) {
                                     const key = utils.createGuid();
                                     const link = new goRelshipTypeLink(key, gMetamodel, reltype);
                                     if (link.loadLinkContent())
@@ -300,13 +300,13 @@ export class goNode extends goMetaObject {
     parentModel: goModel | null;
     loc: string;
     size: string;
-    deleted: boolean;
+    markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
         this.parentModel = model;  // goModel
         this.loc = "";
         this.size = "";
-        this.deleted = false;
+        this.markedAsDeleted = false;
     }
     // Methods
     setLoc(loc: string) {
@@ -394,27 +394,25 @@ export class goObjectNode extends goNode {
                     if (objview[prop] && objview[prop] !== "") {
                         this[prop] = objview[prop];
                     }
-                }        
-                const objviewId = this.objectview.group;
-                if (objviewId !== "") {
-                    const groupId: string = this.getGroupFromObjviewId(objviewId, model);
-                    if (groupId !== "") {
-                        this.group = groupId;
+                }
+                // Handle groups
+                // If objectview refers to a group, 
+                //     find the corresponding node's group reference    
+                const groupId = this.objectview.group;
+                if (groupId !== "") {
+                    const nodeGroupId: string = this.getGroupFromObjviewId(groupId, model);
+                    if (nodeGroupId !== "") {
+                        this.group = nodeGroupId;
                     }
                 }
+                // Do the same for the isGroup attribute
                 if (this.objectview.isGroup) {
                     this.isGroup = true;
                 }
-                // if (model && groupId.length>0) {
-                //     const group: goNode | null  = model.findGroup(groupId);
-                //     if (utils.objExists(group))
-                //         this.group = (group) ? group.key : "";
-                // }
-                if (debug) console.log('312 objectview', this.objectview);
                 this.setName(this.objectview.getName());
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
-                if (debug) console.log('315 goObjectNode', this);
+                if (debug) console.log('415 goObjectNode', this);
                 return true;
             }
         }
@@ -541,7 +539,7 @@ export class goObjectTypeNode extends goNode {
     loadNodeContent(metamodel: akm.cxMetaModel | null) {
         if (this.objecttype) {
             const objtype = this.objecttype;
-            if (!objtype.deleted) {
+            if (!objtype.markedAsDeleted) {
                 const typeview = this.typeview;
                 if (typeview) {
                     const data = typeview.getData();
@@ -580,11 +578,11 @@ export class goObjectTypeNode extends goNode {
 
 export class goLink extends goMetaObject {
     parentModel: goModel;
-    deleted: boolean;
+    markedAsDeleted: boolean;
     constructor(key: string, model: goModel) {
         super(key);
         this.parentModel = model;  // goModel
-        this.deleted = false;
+        this.markedAsDeleted = false;
     }
     // Methods
 }
@@ -673,7 +671,7 @@ export class goRelshipLink extends goLink {
         const relview: akm.cxRelationshipView | null = this.relshipview;
         const typeview: akm.cxRelationshipTypeView | null = this.typeview;
         if ((relview) && (typeview)) {
-            if (!relview.deleted) {
+            if (!relview.markedAsDeleted) {
                 if (this.toNode && this.fromNode) {
                     const viewdata: any = typeview.getData();
                     const data: any = typeview.getData();
@@ -765,7 +763,7 @@ export class goRelshipTypeLink extends goLink {
     }
     loadLinkContent() {
         if (this.reltype) {
-            if (this.reltype.deleted === false) {
+            if (this.reltype.markedAsDeleted === false) {
                 if (utils.objExists(this.toNode) && utils.objExists(this.fromNode)) {
                     const typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null = this.typeview;
                     if (typeview) {

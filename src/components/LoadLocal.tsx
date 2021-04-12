@@ -232,7 +232,7 @@ const LoadLocal = (props: any) => {
 
   const buttonLoadLocalStoreDiv = 
     <button 
-      className="btn-link btn-sm mb-2 w-100" 
+      className="btn-info bg-info btn-sm mb-2 w-100" 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to load the Project&#013;(all models and metamodels)&#013;from Local Storage&#013;(localStore in browser)"
       onClick={handleDispatchToStoreFromLocal}>Load the project from LocalStorage 
@@ -255,7 +255,7 @@ const LoadLocal = (props: any) => {
 
   const buttonLoadMemoryStoreDiv = 
     <button 
-      className="btn-info btn-sm mr-2 w-100 " 
+      className="btn-dark btn-sm mr-2 w-100 " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to recover unsaved model after crash&#013;(this has to be done imediately after reload, before any refresh)"     
       onClick={handleDispatchToStoreFromMemory}>Recover Project (last refreshed version) <br />

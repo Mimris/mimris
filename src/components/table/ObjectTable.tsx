@@ -156,7 +156,7 @@ function ObjectTable(props) {  // props = ph = all phData
           type: curmmod.objecttypes.find(ot => (ot.id === o.typeRef)).name,
           modViews: modelviews.map(mv => mv.objectviews.find(ov => ov.objectRef === o.id) && mv.name+', ').filter(Boolean), 
           // countObjViews: modelviews.filter(mv => mv.objectviews.find(ov => ov.objectRef === o.id)).length 
-          deleted: (o.deleted) && 'deleted',
+          deleted: (o.markedAsDeleted) && 'deleted',
           modified: (o.modified) && 'modified'
         } 
       ),[]

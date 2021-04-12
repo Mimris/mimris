@@ -9,6 +9,7 @@ const toHex = require('colornames');
 const convert = require('color-convert');
 // import './Inspector.css';
 import * as uic from '../../../akmm/ui_common';
+import * as utils from '../../../akmm/utilities';
 
 const debug = false;
 interface SelectionInspectorProps {
@@ -120,7 +121,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = inst;
     }
     if (debug) console.log('122 item', inst, item);
-    for (const k in item) {
+    for (let k in item) {
       let row;
       let fieldType = 'text';
       let readonly = false;
@@ -135,12 +136,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
-        if (!uic.isPropIncluded(k, type)) 
-          continue;
-        if (hideNameAndDescr) {
-          if (k === 'name' || k === 'description') continue;
+        if (k !== 'deleted') {
+          if (!uic.isPropIncluded(k, type)) 
+            continue;
+        } else if (!val) {          
+            continue;
         }
-        if (k === 'typeName' || k === 'typename')
+        if (hideNameAndDescr) {
+          if (k === 'name' || k === 'description') continue; 
+        }
+        if (k === 'typeName' || k === 'typename' || k === 'id' || k === 'markedAsDeleted' || k === 'loc')
           disabled = true;
         if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);
@@ -233,7 +238,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (val === "")
             val = defValue;
         }
-
+        k = utils.capitalizeFirstLetter(k);
         if (debug) console.log('237 selObj, item:', selObj, item);
         if (debug) console.log('238 id, value:', k, val);
         row  = <InspectorRow

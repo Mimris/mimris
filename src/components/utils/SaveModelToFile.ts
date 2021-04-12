@@ -55,6 +55,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()
     reader.onload = async (e) => { 
+        const text = (e.target.result)
         const modelff = JSON.parse(text)
 
         //   alert(text)

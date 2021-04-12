@@ -82,7 +82,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('69 myPalette', myPalette);
       let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
       if (!myModelview) myModelview = myMetis?.findModelView(focusModelview?.id);
-      if (!debug) console.log('85 GenGojsModel  myModel', myMetis, myModel, myModelview);
+      if (debug) console.log('85 GenGojsModel  myModel', myMetis, myModel, myModelview);
       const myGoModel = buildGoModel(myMetis, myModel, myModelview);
       const myGoTargetModel = buildGoModel(myMetis, myTargetModel, myTargetModelview);
       if (!debug) console.log('88 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);

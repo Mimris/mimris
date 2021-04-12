@@ -977,7 +977,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (debug) console.log('988 nodeInfo', d, d.object);
+      if (debug) console.log('980 nodeInfo', d, d.object);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
@@ -988,21 +988,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);
       }
-      if (debug) console.log('999 msg', msg);
+      if (debug) console.log('991 msg', msg);
       let str = "Attributes:"; 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
-      if (debug) console.log('1004 obj, props', obj, props, msg);   
+      if (debug) console.log('996 obj, props', obj, props, msg);   
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
-        if (debug) console.log('1007 prop', prop);
-        const value = obj.getStringValue2(prop.name); 
-        if (debug) console.log('1009 value', value);
-        const p = prop.name + ': ' + value;
+        if (debug) console.log('999 prop', prop);
+        const value = obj[prop.name]; 
+        if (debug) console.log('1001 value', value);
         msg += printf(format2, prop.name, value);
       }
-      if (debug) console.log('1012 nodeInfo', obj, msg);
+      if (debug) console.log('1005 nodeInfo', obj, msg);
       return msg;
     }
 

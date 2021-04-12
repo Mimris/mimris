@@ -580,7 +580,7 @@ export class cxMetis {
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
             }
-            if (debug) console.log('583 model', model);
+            if (!debug) console.log('583 model', model);
         }
     }
     importObject(item: any, model: cxModel | null) {
@@ -659,7 +659,7 @@ export class cxMetis {
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.modified = true;
-                    if (debug) console.log('660 objview.markedAsDeleted', objview.markedAsDeleted, objview);
+                    if (debug) console.log('660 objview', objview);
                     if (item.typeviewRef) {
                         const objtypeview = this.findObjectTypeView(item.typeviewRef);
                         if (objtypeview) {

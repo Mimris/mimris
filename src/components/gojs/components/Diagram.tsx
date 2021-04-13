@@ -2817,8 +2817,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // Relview(s) does not exist, but from and to objviews exist, create relview(s)
                 const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
                 if (relview.markedAsDeleted) continue;
-                relview.setFromObjectView(fromObjviews[0]);
-                relview.setToObjectView(toObjviews[0]);
+                if (fromObjviews) relview.setFromObjectView(fromObjviews[0]);
+                if (toObjviews) relview.setToObjectView(toObjviews[0]);
                 if (debug) console.log('2203 relview', relview);
                 // Add link
                 const myGoModel = myMetis.gojsModel;
@@ -3418,8 +3418,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
-              imageStretch: go.GraphObject.Uniform,
-              minSize: new go.Size(120, 80),
+              // imageStretch:  go.GraphObject.Uniform,
+              // minSize: new go.Size(120, 80),
               // desiredSize: new go.Size(600, 400),
               // minSize: new go.Binding("minSize", "size"),
               margin: new go.Margin(0, 0, 0, 0),

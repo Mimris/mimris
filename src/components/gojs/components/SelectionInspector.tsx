@@ -233,7 +233,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
 
         if (fieldType === 'select') {
-          if (debug) console.log('185 values, defValue', values, defValue);
+          if (!debug) console.log('185 values, defValue', values, defValue);
           if (val === "")
             val = defValue;
         }

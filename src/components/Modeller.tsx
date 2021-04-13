@@ -65,22 +65,22 @@ const Modeller = (props: any) => {
       modelType={props.phFocus.focusTab}
   />
 
-    const selector = (props.modelType === 'model' || props.modelType === 'modelview') 
-    ? <>
-        {/* <div className="modeller-selection" > */}
-          {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
-          <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
-        {/* </div>  */}
-        <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
-            style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-            Project: 
-            <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span> 
-        </h5>
-      </>
-    :
-    <div className="modeller-selection float-right" >
-    </div> 
+    const selector = (props.modelType === 'model' || props.modelType === 'modelview' || props.modelType === 'metamodel') 
+      ? <>
+          {/* <div className="modeller-selection" > */}
+            {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
+            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+          {/* </div>  */}
+          <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
+              style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
+              Project: 
+              <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span> 
+          </h5>
+        </>
+      :
+      <div className="modeller-selection float-right" >
+      </div> 
 
   activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : 0 //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
   if (debug) console.log('78 Modeller', activetabindex);

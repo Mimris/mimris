@@ -486,7 +486,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     newName = utils.uncapitalizeFirstLetter(newName);
     let relname = newName;
     // Check if reltype exists between fromtype and to type with name === newName
-    const reltype = myMetis.findRelationshipTypeByName(relname, fromtype, totype);
+    const reltype = myMetis.findRelationshipTypeByName2(relname, fromtype, totype);
 
     if (debug) console.log('485 generatedTypeId: ', relship.generatedTypeId, relship);
     if (!reltype) {

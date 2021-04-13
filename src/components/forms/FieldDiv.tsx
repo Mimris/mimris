@@ -37,7 +37,7 @@ const FieldDiv = (props) => {
           .field label {
             // color: green;
             display: inline-block;
-            width: 25%;
+            width: 30%;
             text-align: right;
             margin-right: 3px;
             margin-top: 3px;

@@ -936,8 +936,8 @@ export function createRelationship(data: any, context: any) {
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
     if (debug) console.log('904 createRelationship', myGoModel, fromNode, toNode);
-    const fromObj = fromNode.object;
-    const toObj = toNode.object;
+    const fromObj = fromNode?.object;
+    const toObj = toNode?.object;
     let typename = 'isRelatedTo' as string | null;
     let reltype;
     if (!reltype) {
@@ -947,8 +947,10 @@ export function createRelationship(data: any, context: any) {
         fromType.allObjecttypes = myMetis.objecttypes;
         fromType.allRelationshiptypes = myMetis.relshiptypes;
         toType   = myMetis.findObjectType(toType?.id);
-        toType.allObjecttypes = myMetis.objecttypes;
-        toType.allRelationshiptypes = myMetis.relshiptypes;
+        if (toType) {
+            toType.allObjecttypes = myMetis.objecttypes;
+            toType.allRelationshiptypes = myMetis.relshiptypes;
+        }
         const choices: string[]  = [];
         if (fromType && toType) {
             let defText = "";

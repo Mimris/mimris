@@ -388,7 +388,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let renameTypes = false;
         const selection = e.subject;
         const data = selection.first().data;
-        if (!debug) console.log('391 data, selection', data, selection);
+        if (debug) console.log('391 data, selection', data, selection);
         if (data.category === 'Object type' || data.category === 'Relationship type') {
           if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
             renameTypes = true;
@@ -398,7 +398,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
-          if (!debug) console.log('401 sel, data', sel, data);
+          if (debug) console.log('401 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
           if (data.category === 'Relationship type') {
@@ -407,7 +407,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (reltype) {
               // Check if reltype instances exist
               const rels = myMetis.getRelationshipsByType(reltype);
-              if (!debug) console.log('430 reltype, rels, myMetis', reltype, rels, myMetis);
+              if (debug) console.log('430 reltype, rels, myMetis', reltype, rels, myMetis);
               if (rels.length > 0) {
                 if (renameTypes) {
                   for (let i=0; i<rels.length; i++) {
@@ -444,7 +444,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         for (let it = selection.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
-          if (!debug) console.log('448 sel, data', sel, data);
+          if (debug) console.log('448 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
           if (data.category === 'Object type') {
@@ -453,7 +453,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (objtype) {
               // Check if objtype instances exist
               const objects = myMetis.getObjectsByType(objtype, true);
-              if (!debug) console.log('403 objtype, objects, myMetis', objtype, objects, myMetis);
+              if (debug) console.log('403 objtype, objects, myMetis', objtype, objects, myMetis);
               if (objects.length > 0) {
                 if (renameTypes) {
                   for (let i=0; i<objects.length; i++) {
@@ -498,7 +498,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = sel.data;
           const key  = data.key;
           if (data.category === 'Object') {
-            if (!debug) console.log('448 sel, data', sel, data);
+            if (debug) console.log('448 sel, data', sel, data);
             const key  = data.key;
             const myNode = this.getNode(context.myGoModel, key);
             if (myNode) {
@@ -583,7 +583,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (part.objecttype?.viewkind === 'Container') {
               part.isGroup = true;
               part.viewkind = 'Container';
-              part.size = "300 200";    // Hack
             }
             if (debug) console.log('487 part', part);
             if (part.parentModel == null)

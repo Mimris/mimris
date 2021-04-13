@@ -376,7 +376,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const objview = data.objectview;
             objview['icon'] = data['icon'];
             const gqlObjview = new gql.gqlObjectView(data.objectview);
-            if (!debug) console.log('388 gqlObjview', data, gqlObjview);
+            if (debug) console.log('388 gqlObjview', data, gqlObjview);
             modifiedObjviews.push(gqlObjview);
             modifiedObjviews.map(mn => {
               let data = mn;

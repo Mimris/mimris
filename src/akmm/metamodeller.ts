@@ -580,7 +580,7 @@ export class cxMetis {
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
             }
-            if (!debug) console.log('583 model', model);
+            if (debug) console.log('583 model', model);
         }
     }
     importObject(item: any, model: cxModel | null) {

@@ -764,7 +764,7 @@ export class goRelshipTypeLink extends goLink {
     loadLinkContent() {
         if (this.reltype) {
             if (this.reltype.markedAsDeleted === false) {
-                if (utils.objExists(this.toNode) && utils.objExists(this.fromNode)) {
+                if (this.toNode && this.fromNode) {
                     const typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null = this.typeview;
                     if (typeview) {
                         const data: any = typeview.getData();

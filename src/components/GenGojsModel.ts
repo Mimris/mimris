@@ -85,7 +85,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('85 GenGojsModel  myModel', myMetis, myModel, myModelview);
       const myGoModel = buildGoModel(myMetis, myModel, myModelview);
       const myGoTargetModel = buildGoModel(myMetis, myTargetModel, myTargetModelview);
-      if (!debug) console.log('88 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);
+      if (debug) console.log('88 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);
       if (debug) console.log('89 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
@@ -441,13 +441,18 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (relshiptypes) {
         for (let i = 0; i < relshiptypes.length; i++) {
           let reltype = relshiptypes[i];
+          if (reltype.markedAsDeleted === undefined)
+            reltype.markedAsDeleted = false;
           if (reltype && !reltype.markedAsDeleted) {
             if (!reltype.typeview) 
               reltype.typeview = reltype.newDefaultTypeView(constants.relkinds.REL);
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetaModel, reltype);
-            if (link.loadLinkContent())
+            if (debug) console.log('449 link', link);
+            if (link.loadLinkContent()) {
+              if (debug) console.log('450 link', link);
               myGoMetaModel.addLink(link);
+            }
           }
         }
       }

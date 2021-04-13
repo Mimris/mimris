@@ -65,7 +65,7 @@ const Modeller = (props: any) => {
       modelType={props.phFocus.focusTab}
   />
 
-    const selector = (props.modelType === 'model' || props.modelType === 'modelview' || props.modelType === 'metamodel') 
+    const selector = (props.modelType === 'model' || props.modelType === 'modelview' ) 
       ? <>
           {/* <div className="modeller-selection" > */}
             {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
@@ -80,6 +80,18 @@ const Modeller = (props: any) => {
         </>
       :
       <div className="modeller-selection float-right" >
+        <>
+          {/* <div className="modeller-selection" > */}
+            {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
+            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+          {/* </div>  */}
+          <h5 className="modeller-heading float-left text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
+              style={{margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
+              Project: 
+              <span className="projectname ml-2 px-1 bg-secondary w-25"> {props.metis.name || '---- none ----'} </span> 
+          </h5>
+        </>
       </div> 
 
   activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : 0 //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
@@ -223,16 +235,16 @@ const Modeller = (props: any) => {
       `}</style>
     </div>
     :
-    <div className="mt-1 mb-5" style={{backgroundColor: "#7ac"}}>
-      <h5 className="modeller-heading text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
-      <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+    <div className="mt-2 mb-5" style={{backgroundColor: "#7ac"}}>
+      <h5 className="modeller-heading float-left text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+      {/* <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
         title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
         Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."
         >?
-      </button>
+      </button> */}
 
-      <div>
         {selector}
+      <div className="pt-5 mt-3">
         {metamodelTabDiv} 
       </div>
       <style jsx>{`

@@ -486,9 +486,9 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     newName = utils.uncapitalizeFirstLetter(newName);
     let relname = newName;
     // Check if reltype exists between fromtype and to type with name === newName
-    const reltype = myMetis.findRelationshipTypeByName(relname, fromtype, totype);
-
-    if (debug) console.log('485 generatedTypeId: ', relship.generatedTypeId, relship);
+    if (debug) console.log('489 relname, fromtype, totype:', relname, fromtype, totype);
+    const reltype = myMetis.findRelationshipTypeByName2(relname, fromtype, totype);
+    if (debug) console.log('491 reltype: ', reltype);
     if (!reltype) {
         // This is a new relationship type - Create it
         if (debug) console.log('487 new relship type: ', newName);
@@ -791,7 +791,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             const toObj = toObjview?.object;
             if (debug) console.log('775 relview', relview);
             if ((fromObj?.type.name == 'Information') && (toObj?.type.name == 'Information')) {
-                if (debug) console.log('778 rel', rel);
+                if (!debug) console.log('778 rel', rel);
                 const reltype = generateRelshipType(rel, relview, context);
                 if (debug) console.log('780 reltype', reltype);
                 // Prepare dispatches

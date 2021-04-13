@@ -350,6 +350,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (debug) console.log('330 data', data);
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
+        if (debug) console.log('353 data', data);
         for (let prop in objtypeview?.data) {
           if (prop === 'figure' && objview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, objview[prop]);
@@ -456,6 +457,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           typeview = myMetis.findObjectTypeView(typeview.id);
           for (let prop in typeview.data) {
             typeview.data[prop] = selObj[prop];
+            typeview[prop] = selObj[prop];
           }
           if (debug) console.log('461 typeview', typeview, data);
            const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
@@ -515,12 +517,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           })
         }
         if (data) {
-          if (debug) console.log('423 data', data);
+          if (debug) console.log('518 data', data);
           for (let prop in typeview) {
             if (prop === 'figure' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-            if (prop === 'fillcolor' && typeview[prop] !== "") 
+            if (prop === 'fillcolor' && typeview[prop] !== "") {
+              if (debug) console.log('524 fillcolor', typeview[prop]);
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            }
             if (prop === 'strokecolor' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
             if (prop === 'strokewidth' && typeview[prop] !== "")

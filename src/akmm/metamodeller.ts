@@ -4949,6 +4949,7 @@ export class cxRelationship extends cxInstance {
     fromobjectRef: string;
     toobjectRef: string;
     relshipviews: cxRelationshipView[] | null;
+    cardinality: string;
     constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, name: string, description: string) {
         super(id, name, type, description);
         this.class = 'cxRelationship';
@@ -4958,6 +4959,7 @@ export class cxRelationship extends cxInstance {
         this.toObject = toObj;
         this.fromobjectRef = "";
         this.toobjectRef = "";
+        this.cardinality = "";
         if (!this.typeName) this.typeName = name;
     }
     // Methods

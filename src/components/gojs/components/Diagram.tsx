@@ -1002,7 +1002,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const prop = props[i];
         if (debug) console.log('999 prop', prop);
         const value = obj[prop.name]; 
-        if (debug) console.log('1001 value', value);
+        if (!debug) console.log('1001 prop, value', prop, value);
         msg += printf(format2, prop.name, value);
       }
       if (debug) console.log('1005 nodeInfo', obj, msg);
@@ -3211,7 +3211,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     margin: new go.Margin(0, 6, 0, 2),
                     // shadowVisible: true,
                   },
-                  new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; }).ofObject(),
+                  new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
+                  new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
                   // new go.Binding("fill", "color"),
                   new go.Binding("figure")),
                   $(go.Picture,  // the image
@@ -3219,6 +3220,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     {
                       name: "Picture",
                       desiredSize: new go.Size(46, 46),
+                      // imageStretch: go.GraphObject.Fill,
                       // margin: new go.Margin(2, 2, 2, 4),
                       // margin: new go.Margin(4, 4, 4, 4),
                     },

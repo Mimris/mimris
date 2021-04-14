@@ -33,6 +33,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         let obj = data.object;
         const obj1 = myMetis.findObject(obj.id);
         if (obj1) obj = obj1;
+        const name = "";
         if (debug) console.log('35 createObject', myMetis.pasteViewsOnly, obj);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
@@ -46,7 +47,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             }
         } else {
             let guid = obj.id;
-            obj = new akm.cxObject(utils.createGuid(), data.name, objtype, data.description);
+            obj = new akm.cxObject(utils.createGuid(), name, objtype, data.description);
         }
         if (debug) console.log('49 createObject', obj, myMetis);
         if (obj) {
@@ -63,7 +64,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             if (debug) console.log('55 createObject', obj, myModel, myMetis);
             myMetis.addObject(obj);
             // Create the corresponding object view
-            objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+            objview = new akm.cxObjectView(utils.createGuid(), name, obj, "");
             if (objview) {
                 objview.setIsGroup(data.isGroup);
                 objview.setLoc(data.loc);
@@ -77,6 +78,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 // Then update the node with its new properties
                 // First set name and reference to the objectview
                 myDiagram.model.setDataProperty(data, "type", data.name);
+                myDiagram.model.setDataProperty(data, "name", name);
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();

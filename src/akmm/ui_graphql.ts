@@ -711,6 +711,7 @@ export class gqlObject {
     allowedValues:   string;
     defaultValue:    string;
     markedAsDeleted: boolean;
+    generatedTypeId: string;
     modified:        boolean;
     constructor(object: akm.cxObject) {
         this.id              = object.id;
@@ -723,6 +724,7 @@ export class gqlObject {
         this.inputPattern    = object.inputPattern;
         this.fieldType       = object.fieldType;
         this.markedAsDeleted = object.markedAsDeleted;
+        this.generatedTypeId = object.generatedTypeId;
         this.modified        = object.modified;
         this.allowedValues   = object.allowedValues;
         this.defaultValue    = object.defaultValue;
@@ -849,6 +851,7 @@ export class gqlRelationship {
     toobjectRef:     string;
     propvalues:      any[];
     markedAsDeleted: boolean;
+    generatedTypeId: string;
     modified:        boolean;
     constructor(relship: akm.cxRelationship) {
         this.id              = relship.id;
@@ -859,6 +862,7 @@ export class gqlRelationship {
         this.typeRef         = "";
         this.propvalues      = [];
         this.markedAsDeleted = relship.markedAsDeleted;
+        this.generatedTypeId = relship.generatedTypeId;
         this.modified        = relship.modified;
         // Code
         if (relship) {

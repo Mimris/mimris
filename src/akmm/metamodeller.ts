@@ -590,6 +590,7 @@ export class cxMetis {
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
+                obj.generatedTypeId = item.generatedTypeId;
                 if (model) model.addObject(obj);
             } else {
                 obj.typeName = item.typeName;
@@ -611,6 +612,7 @@ export class cxMetis {
                     fromObj.addOutputrel(rel);
                     toObj.addInputrel(rel);
                     rel.markedAsDeleted = item.markedAsDeleted;
+                    rel.generatedTypeId = item.generatedTypeId;
                     model.addRelationship(rel);
                     if (debug) console.log('610 fromObj, toObj, rel', fromObj, toObj, rel);
                 }
@@ -3730,7 +3732,7 @@ export class cxObjtypeviewData {
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";
-        this.icon = "default.png";
+        this.icon = "";
     }
 }
 
@@ -3754,7 +3756,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "2";
-        this.icon        = "default.png";
+        this.icon        = "";
         this.data        = new cxObjtypeviewData();
         if (type) {
             const abs = type.abstract;

@@ -529,7 +529,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
             if (prop === 'strokewidth' && typeview[prop] !== "")
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-            if (prop === 'icon' && typeview[prop] !== "") 
+            if (prop === 'icon'/* && typeview[prop] !== "" */) 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
             if (prop === 'dash' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);

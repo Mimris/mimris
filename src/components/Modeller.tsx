@@ -87,12 +87,13 @@ const Modeller = (props: any) => {
           {/* </div>  */}
           <h5 className="modeller-heading float-left text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
               title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
-              style={{margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
+              style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
               Project: 
               <span className="projectname ml-2 px-1 bg-secondary w-25"> {props.metis.name || '---- none ----'} </span> 
           </h5>
         </>
       </div> 
+  // mx-auto h-25 d-inline-block
 
   activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : 0 //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
   if (debug) console.log('78 Modeller', activetabindex);

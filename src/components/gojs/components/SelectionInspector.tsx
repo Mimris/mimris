@@ -208,7 +208,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (k === 'cardinality') {
           fieldType = 'radio';
           values.push("0-1");
+          values.push("1-1");
           values.push("0-n");
+          values.push("1-n");
           values.push("n-n");
           defValue = "n-n";
         }

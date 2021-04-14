@@ -350,6 +350,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (debug) console.log('330 data', data);
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
+        if (debug) console.log('353 data', data);
         for (let prop in objtypeview?.data) {
           if (prop === 'figure' && objview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, objview[prop]);
@@ -456,6 +457,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           typeview = myMetis.findObjectTypeView(typeview.id);
           for (let prop in typeview.data) {
             typeview.data[prop] = selObj[prop];
+            typeview[prop] = selObj[prop];
           }
           if (debug) console.log('461 typeview', typeview, data);
            const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
@@ -515,12 +517,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           })
         }
         if (data) {
-          if (debug) console.log('423 data', data);
+          if (debug) console.log('518 data', data);
           for (let prop in typeview) {
             if (prop === 'figure' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-            if (prop === 'fillcolor' && typeview[prop] !== "") 
+            if (prop === 'fillcolor' && typeview[prop] !== "") {
+              if (debug) console.log('524 fillcolor', typeview[prop]);
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            }
             if (prop === 'strokecolor' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
             if (prop === 'strokewidth' && typeview[prop] !== "")
@@ -1380,7 +1384,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       }                    
                     }
                     node = myDiagram.findNodeForKey(node.key);
-                    node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
+                    if (node) node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
                   }
                   if (inst.category === 'Object type') {
                     const node = myDiagram.findNodeForKey(inst.key);
@@ -3407,10 +3411,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Panel,  // the header
           // $(go.TextBlock,     // group title in the background
           //   {
+          //     alignment: new go.Spot(0,0),
           //     // defaultAlignment: go.Spot.Top,
           //     font: "Bold 24pt Sans-Serif",
           //     // margin: new go.Margin(0, 0, 0, 0),
-          //     // editable: true, isMultiline: false,
+          //     editable: true, isMultiline: true,
           //     name: "name"
           //   },
           //   new go.Binding("text", "name").makeTwoWay()
@@ -3418,11 +3423,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
-              // imageStretch:  go.GraphObject.Uniform,
+              stretch:  go.GraphObject.Fill,
+              imageStretch:  go.GraphObject.Fill,
               // minSize: new go.Size(120, 80),
               // desiredSize: new go.Size(600, 400),
               // minSize: new go.Binding("minSize", "size"),
-              margin: new go.Margin(0, 0, 0, 0),
+              // margin: new go.Margin(0, 0, 0, 0),
             },
             // new go.Binding("minSize", "size"),
             // new go.Binding("desiredSize", "size"),

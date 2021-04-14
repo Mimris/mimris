@@ -3211,8 +3211,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     margin: new go.Margin(0, 6, 0, 2),
                     // shadowVisible: true,
                   },
-                  // new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; })
-                  // .ofObject(),
+                  new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; }).ofObject(),
                   // new go.Binding("fill", "color"),
                   new go.Binding("figure")),
                   $(go.Picture,  // the image

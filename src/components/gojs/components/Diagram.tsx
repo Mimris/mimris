@@ -529,7 +529,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
             if (prop === 'strokewidth' && typeview[prop] !== "")
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-            if (prop === 'icon' && typeview[prop] !== "") 
+            if (prop === 'icon'/* && typeview[prop] !== "" */) 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
             if (prop === 'dash' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
@@ -3211,8 +3211,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     margin: new go.Margin(0, 6, 0, 2),
                     // shadowVisible: true,
                   },
-                  // new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; })
-                  // .ofObject(),
+                  new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; }).ofObject(),
                   // new go.Binding("fill", "color"),
                   new go.Binding("figure")),
                   $(go.Picture,  // the image

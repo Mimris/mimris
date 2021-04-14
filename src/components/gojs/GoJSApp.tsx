@@ -733,6 +733,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         while (it.next()) {
           const data = it.value.data;
           if (data.category === 'Object') {
+              context.pasted = true;
               if (debug) console.log('654 ClipboardPasted', data, myGoModel);
               const objview = uic.createObject(data, context);
               if (debug) console.log('655 ClipboardPasted', data, objview);
@@ -889,7 +890,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('874 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
-      if (!debug) console.log('877 UPDATE_OBJECTVIEW_PROPERTIES', data)
+      if (debug) console.log('877 UPDATE_OBJECTVIEW_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
@@ -934,7 +935,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     // if (debug) console.log('919 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
-      if (!debug) console.log('922 UPDATE_OBJECT_PROPERTIES', data)
+      if (debug) console.log('922 UPDATE_OBJECT_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 

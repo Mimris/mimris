@@ -24,7 +24,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
+        if (debug) console.log('24 createObject', context, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
@@ -33,8 +33,8 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         let obj = data.object;
         const obj1 = myMetis.findObject(obj.id);
         if (obj1) obj = obj1;
-        const name = "";
-        if (debug) console.log('35 createObject', myMetis.pasteViewsOnly, obj);
+        let name = context.pasted ? data.name : "";
+        if (debug) console.log('35 createObject', context, name);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
             if (!pastedobj) {
@@ -46,7 +46,6 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 obj = pastedobj;
             }
         } else {
-            let guid = obj.id;
             obj = new akm.cxObject(utils.createGuid(), name, objtype, data.description);
         }
         if (debug) console.log('49 createObject', obj, myMetis);

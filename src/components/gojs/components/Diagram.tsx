@@ -1363,8 +1363,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return o.diagram.commandHandler.canCutSelection(); 
             }),
- 
-
           makeButton("Delete",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
@@ -1383,8 +1381,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         const gjsNode = myDiagram.findNodeForKey(member?.key);
                       }                    
                     }
-                    node = myDiagram.findNodeForKey(node.key);
-                    node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
+                    node = myDiagram.findNodeForKey(node?.key);
+                    if (node)
+                      node.findLinksConnected().each(function(l) {
+                         l.isSelected = true;
+                      });                    
                   }
                   if (inst.category === 'Object type') {
                     const node = myDiagram.findNodeForKey(inst.key);
@@ -1420,8 +1421,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else {
                 return false;
               }
-            }),
-  
+            }),  
           makeButton("----------"),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 

@@ -945,8 +945,10 @@ export function createRelationship(data: any, context: any) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetis.findObjectType(fromType?.id);
-        fromType.allObjecttypes = myMetis.objecttypes;
-        fromType.allRelationshiptypes = myMetis.relshiptypes;
+        if (fromType) {
+            fromType.allObjecttypes = myMetis.objecttypes;
+            fromType.allRelationshiptypes = myMetis.relshiptypes;
+        }
         toType   = myMetis.findObjectType(toType?.id);
         if (toType) {
             toType.allObjecttypes = myMetis.objecttypes;

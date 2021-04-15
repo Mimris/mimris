@@ -195,7 +195,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     const typid = object.generatedTypeId;
     if (debug) console.log('193 typid', typid, typid.length);
     const obj = myMetis.findObject(object.id);
-    let newName  = object.getName();
+    let newName  = object?.name;
     let oldName = "";
     newName = utils.camelize(newName);
     newName = utils.capitalizeFirstLetter(newName);

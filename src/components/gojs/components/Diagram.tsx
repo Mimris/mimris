@@ -2821,8 +2821,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // Relview(s) does not exist, but from and to objviews exist, create relview(s)
                 const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
                 if (relview.markedAsDeleted) continue;
-                relview.setFromObjectView(fromObjviews[0]);
-                relview.setToObjectView(toObjviews[0]);
+                if (fromObjviews) relview.setFromObjectView(fromObjviews[0]);
+                if (toObjviews) relview.setToObjectView(toObjviews[0]);
                 if (debug) console.log('2203 relview', relview);
                 // Add link
                 const myGoModel = myMetis.gojsModel;
@@ -3412,10 +3412,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Panel,  // the header
           // $(go.TextBlock,     // group title in the background
           //   {
+          //     alignment: new go.Spot(0,0),
           //     // defaultAlignment: go.Spot.Top,
           //     font: "Bold 24pt Sans-Serif",
           //     // margin: new go.Margin(0, 0, 0, 0),
-          //     // editable: true, isMultiline: false,
+          //     editable: true, isMultiline: true,
           //     name: "name"
           //   },
           //   new go.Binding("text", "name").makeTwoWay()
@@ -3423,11 +3424,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
-              imageStretch: go.GraphObject.Uniform,
-              minSize: new go.Size(120, 80),
+              stretch:  go.GraphObject.Fill,
+              imageStretch:  go.GraphObject.Fill,
+              // minSize: new go.Size(120, 80),
               // desiredSize: new go.Size(600, 400),
               // minSize: new go.Binding("minSize", "size"),
-              margin: new go.Margin(0, 0, 0, 0),
+              // margin: new go.Margin(0, 0, 0, 0),
             },
             // new go.Binding("minSize", "size"),
             // new go.Binding("desiredSize", "size"),
@@ -3797,8 +3799,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
         <Modal className="" isOpen={this.state.showModal}  >
-          {/* <div className="modal-dialog w-100 mt-5"> */}
-            {/* <div className="modal-content"> */}
+          {/* <div className="modal-dialog w-100 mt-5">
+            <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
                   onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
@@ -3819,10 +3821,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               <ModalFooter className="modal-footer">
                 <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
               </ModalFooter>
-            {/* </div> */}
-          {/* </div> */}
+            {/* </div>
+          </div> */}
         </Modal>        
         <style jsx>{`
+        
         `}
         </style> 
       </div>

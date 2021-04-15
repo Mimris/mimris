@@ -309,7 +309,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (link) {
                       link = myDiagram.findLinkForKey(link.key)
                       if (debug) console.log('311 link', link, relview);
-                      myDiagram.model.setDataProperty(link.data, "name", myLink.name);
+                      if (link) myDiagram.model.setDataProperty(link.data, "name", myLink.name);
                       const gqlRelview = new gql.gqlRelshipView(relview);
                       modifiedLinks.push(gqlRelview);
                     } 

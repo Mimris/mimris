@@ -549,7 +549,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('456 myMetis', myMetis);
           if (debug) console.log('457 myGoModel', myGoModel, myGoMetamodel);
 
-          if (!debug) console.log('459 part, node, n', part, node, n);
+          if (debug) console.log('459 part, node, n', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('462 myMetis', myMetis);
@@ -588,7 +588,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (part.parentModel == null)
               myMetis.pasteViewsOnly = true;
             const objview = uic.createObject(part, context);
-            if (!debug) console.log('496 New object', part, objview);
+            if (debug) console.log('496 New object', part, objview);
             if (objview) {
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);

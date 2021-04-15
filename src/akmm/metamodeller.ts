@@ -176,7 +176,7 @@ export class cxMetis {
                                 if (!otype) continue;
                                 metamodel.addObjectType(otype);
                                 this.addObjectType(otype);
-                                if (!debug) console.log('183 otype', otype);
+                                if (debug) console.log('183 otype', otype);
                             }
                         }
                     }
@@ -558,7 +558,7 @@ export class cxMetis {
             if (metamodel) {
                 model.setMetamodel(metamodel);
                 const objects: any[] = item.objects;
-                if (!debug) console.log('561 objects', objects);
+                if (debug) console.log('561 objects', objects);
                 if (objects && objects.length) {
                     objects.forEach(object => {
                         if (model) this.importObject(object, model);
@@ -3420,7 +3420,7 @@ export class cxObjectType extends cxType {
         // Check if this (objecttype) inherits from type
         if (debug) console.log('3120 this.name, type.name', this.name, type.name);
         let retval = false;
-        this.allRelationshiptypes = allReltypes;
+        // this.allRelationshiptypes = allReltypes;
         if (this.id === type.id) {
             return true;
         } else {

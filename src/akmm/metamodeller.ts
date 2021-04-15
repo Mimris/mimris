@@ -176,7 +176,7 @@ export class cxMetis {
                                 if (!otype) continue;
                                 metamodel.addObjectType(otype);
                                 this.addObjectType(otype);
-                                if (debug) console.log('183 otype', otype);
+                                if (!debug) console.log('183 otype', otype);
                             }
                         }
                     }
@@ -558,6 +558,7 @@ export class cxMetis {
             if (metamodel) {
                 model.setMetamodel(metamodel);
                 const objects: any[] = item.objects;
+                if (!debug) console.log('561 objects', objects);
                 if (objects && objects.length) {
                     objects.forEach(object => {
                         if (model) this.importObject(object, model);
@@ -587,6 +588,7 @@ export class cxMetis {
         const obj = this.findObject(item.id);
         if (obj) {
             const objtype = this.findObjectType(item.typeRef);
+            if (debug) console.log('590 item, objtype', item, objtype);
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
@@ -3639,7 +3641,7 @@ export class cxRelationshipType extends cxObjectType {
         return retval;
     }
     isAllowedFromType(objtype: cxObjectType, allObjtypes: cxObjectType[], allReltypes: cxRelationshipType[]): boolean {
-        if (this.fromObjtype) {
+        if (objtype && this.fromObjtype) {
             if (debug) console.log('3332 objtype', objtype.name, this.fromObjtype.name);
             if (objtype.inherits(this.fromObjtype, allReltypes))
                 return true;
@@ -3647,7 +3649,7 @@ export class cxRelationshipType extends cxObjectType {
         return false;
     }
     isAllowedToType(objtype: cxObjectType, allObjtypes: cxObjectType[], allReltypes: cxRelationshipType[]): boolean {
-        if (this.toObjtype) {
+        if (objtype && this.toObjtype) {
             if (debug) console.log('3340 objtype', objtype.name, this.toObjtype.name);
             if (objtype.inherits(this.toObjtype, allReltypes))
                 return true;

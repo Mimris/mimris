@@ -89,7 +89,7 @@ const EditProperties = (props) => {
 
     const fields = fields1.map(f => {
       if (f.slice(-3) === 'Ref') {
-        return props.curobj.models?.find(m => m.name && (m.id === f))
+        return props.curobj?.models?.find(m => m.name && (m.id === f))
       } else {
         return f
       }

@@ -2086,9 +2086,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     const rel = rview.relship;
                     if (rel && rel.type) {
                         if (debug) console.log('1601 relshipview', rel);
-                        rel.name = rel.type.name;
-                        rview.name = rel.type.name;
-
                         if (rel.markedAsDeleted && !rview.markedAsDeleted) {
                             rview.markedAsDeleted = true;
                             msg = "\tVerifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";

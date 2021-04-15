@@ -1363,8 +1363,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return o.diagram.commandHandler.canCutSelection(); 
             }),
- 
-
           makeButton("Delete",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
@@ -1383,8 +1381,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         const gjsNode = myDiagram.findNodeForKey(member?.key);
                       }                    
                     }
-                    node = myDiagram.findNodeForKey(node.key);
-                    if (node) node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
+                    node = myDiagram.findNodeForKey(node?.key);
+                    if (node)
+                      node.findLinksConnected().each(function(l) {
+                         l.isSelected = true;
+                      });                    
                   }
                   if (inst.category === 'Object type') {
                     const node = myDiagram.findNodeForKey(inst.key);
@@ -1420,8 +1421,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else {
                 return false;
               }
-            }),
-  
+            }),  
           makeButton("----------"),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
@@ -3799,8 +3799,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
         <Modal className="" isOpen={this.state.showModal}  >
-          {/* <div className="modal-dialog w-100 mt-5"> */}
-            {/* <div className="modal-content"> */}
+          {/* <div className="modal-dialog w-100 mt-5">
+            <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
                   onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
@@ -3821,10 +3821,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               <ModalFooter className="modal-footer">
                 <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
               </ModalFooter>
-            {/* </div> */}
-          {/* </div> */}
+            {/* </div>
+          </div> */}
         </Modal>        
         <style jsx>{`
+        
         `}
         </style> 
       </div>

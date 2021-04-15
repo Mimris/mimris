@@ -69,7 +69,7 @@
 }
 .modal-content {
   margin-top: 38%;
-  background-color: transparent;
+  background-color: yellow;
   background: rgba(255,255,255,0.8);
   /* border: 10px solid red; */
   /* border-top: white;
@@ -80,7 +80,7 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  width: 42vh;
+  /* width: 42vh; */
 }
 .modal-body1 {
   /* background-color: blue; */

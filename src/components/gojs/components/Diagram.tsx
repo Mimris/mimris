@@ -814,8 +814,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       instview = node.objectview;
       myInstview = myMetis.findObjectView(instview?.id);
       typeview = inst?.type?.typeview;
-      for (let prop in typeview.data) {
-        myInstview[prop] = obj[prop];
+      if (myInstview) {
+        for (let prop in typeview.data) {
+          myInstview[prop] = obj[prop];
+        }
       }
       if (debug) console.log('699 myInst', inst, myInstview, typeview);
       if (context?.what === "editObjectview") {

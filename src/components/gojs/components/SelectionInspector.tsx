@@ -214,6 +214,25 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           values.push("n-n");
           defValue = "n-n";
         }
+        if (k === 'fieldType') {
+          fieldType = 'radio';
+          values.push("checkbox");
+          values.push("color");
+          values.push("date");
+          values.push("email");
+          values.push("file");
+          values.push("image");
+          values.push("month");
+          values.push("number");
+          values.push("password");
+          values.push("radio");
+          values.push("range");
+          values.push("text");
+          values.push("time");
+          values.push("url");
+          values.push("week");
+          defValue = "text";
+        }
         if (fieldType === 'radio') {
           if (debug) console.log('181 values, defValue', values, defValue);
           fieldType = 'select';

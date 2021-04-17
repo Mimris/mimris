@@ -1651,11 +1651,11 @@ export class cxMetis {
                     if (reltype.isDeleted()) continue;
                     if (debug) console.log('1528 fromType', fromType);
                     if (reltype.getRelshipKind() !== constants.relkinds.GEN) {
-                        if (debug) console.log('1530 reltype', reltype.name);
+                        if (!debug) console.log('1530 reltype', reltype.name);
                         if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
-                            if (debug) console.log('1518 reltype', reltype.name, fromType.name);
+                            if (!debug) console.log('1556 reltype', reltype.name, fromType.name);
                             if (reltype.isAllowedToType(toType, this.objecttypes, this.relshiptypes)) {
-                                if (debug) console.log('1520 reltype', reltype.name, toType.name);
+                                if (!debug) console.log('1558 reltype', reltype.name, toType.name);
                                 reltypes.push(reltype); 
                             }
                         }
@@ -3420,7 +3420,7 @@ export class cxObjectType extends cxType {
         // Check if this (objecttype) inherits from type
         if (debug) console.log('3120 this.name, type.name', this.name, type.name);
         let retval = false;
-        // this.allRelationshiptypes = allReltypes;
+        this.allRelationshiptypes = allReltypes;
         if (this.id === type.id) {
             return true;
         } else {

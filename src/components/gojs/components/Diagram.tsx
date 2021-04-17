@@ -1004,7 +1004,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const prop = props[i];
         if (debug) console.log('999 prop', prop);
         const value = obj[prop.name]; 
-        if (!debug) console.log('1001 prop, value', prop, value);
+        console.log('1001 prop, value', prop, value);
         msg += printf(format2, prop.name, value);
       }
       if (debug) console.log('1005 nodeInfo', obj, msg);

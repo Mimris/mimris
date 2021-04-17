@@ -227,6 +227,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           values.push("password");
           values.push("radio");
           values.push("range");
+          values.push("select");
           values.push("text");
           values.push("time");
           values.push("url");
@@ -234,7 +235,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           defValue = "text";
         }
         if (fieldType === 'radio') {
-          if (debug) console.log('181 values, defValue', values, defValue);
+          if (debug) console.log('238 values, defValue', values, defValue);
           fieldType = 'select';
           const p1 = "^(";
           const p2 = ")$";
@@ -242,7 +243,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           let cnt = 0;
           for (let i=0; i<values.length; i++) {
             const value = values[i];
-            if (debug) console.log('196 value', i, value);
+            if (debug) console.log('246 value', i, value);
             if (p === "") {
               p = value;
             } else {
@@ -250,11 +251,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
           }
           pattern = p1 + p + p2;
-          if (debug) console.log('191 pattern', pattern);
+          if (debug) console.log('254 pattern', pattern);
         }
 
         if (fieldType === 'select') {
-          if (!debug) console.log('185 values, defValue', values, defValue);
+          if (debug) console.log('258 values, defValue', values, defValue);
           if (val === "")
             val = defValue;
         }
@@ -276,8 +277,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
         }
 
-        if (debug) console.log('237 selObj, item:', selObj, item);
-        if (debug) console.log('238 id, value:', k, val);
+        if (debug) console.log('280 selObj, item:', selObj, item);
+        if (debug) console.log('281 id, value:', k, val);
         row  = <InspectorRow
           key={k}
           id={k}
@@ -302,12 +303,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    if (debug) console.log('263 SelectionInspector ', dets);
+    if (debug) console.log('306 SelectionInspector ', dets);
     return dets;
   }
   
   public render() {
-    if (debug) console.log('268 SelectionInspector ', this.renderObjectDetails());
+    if (debug) console.log('311 SelectionInspector ', this.renderObjectDetails());
     const modalContext = this.props.context;
     if (!modalContext)
       return null;

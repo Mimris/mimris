@@ -958,7 +958,7 @@ export function createRelationship(data: any, context: any) {
         if (fromType && toType) {
             let defText = "";
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
-            if (debug) console.log('873 createRelationship', reltypes, fromType, toType);
+            if (!debug) console.log('873 createRelationship', reltypes, fromType, toType);
             if (reltypes) {
                 if (true) { 
                     for (let i=0; i<reltypes.length; i++) {
@@ -1652,13 +1652,13 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'targetModelRef') retVal = false;
     if (k === 'isTemplate') retVal = false;
     if (k === 'isMetamodel') retVal = false;
-    if (type?.name !== 'ViewFormat') {
+    if (type?.name !== 'ViewFormat' && type?.name !== 'Datatype') {
       if (k === 'viewFormat') retVal = false;
     }
-    if (type?.name !== 'InputPattern') {
+    if (type?.name !== 'InputPattern' && type?.name !== 'Datatype') {
       if (k === 'inputPattern') retVal = false;
     }
-    if (type?.name !== 'FieldType') {
+    if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
       if (k === 'fieldType') retVal = false;
     }
     return retVal;

@@ -173,18 +173,24 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) console.log('173 metamodel', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     const objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
+    if (debug) console.log('176 objecttypes', objecttypes);
     if (objecttypes) {
       for (let i = 0; i < objecttypes.length; i++) {
         const objtype: akm.cxObjectType = objecttypes[i];  
         if (debug) console.log('179 objtype', objtype); 
         if (objtype && !objtype.markedAsDeleted && !objtype.abstract) {
-          const obj = new akm.cxObject(utils.createGuid(), objtype.name, objtype, "");
+          const id = utils.createGuid();
+          const name = objtype.name;
+          const obj = new akm.cxObject(id, name, objtype, "");
+          if (obj.id === "") obj.id = id;
+          if (obj.name === "") obj.name = name;
           if (!obj.type) {
             const otype = metamodel.findObjectType(obj.typeRef);
             obj.type = otype;
           }    
           if (obj.isDeleted()) 
               continue;
+          if (debug) console.log('193 obj, objtype', obj, objtype);
           const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
           let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
           // Hack

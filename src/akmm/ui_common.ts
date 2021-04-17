@@ -958,7 +958,7 @@ export function createRelationship(data: any, context: any) {
         if (fromType && toType) {
             let defText = "";
             const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
-            if (!debug) console.log('873 createRelationship', reltypes, fromType, toType);
+            if (debug) console.log('873 createRelationship', reltypes, fromType, toType);
             if (reltypes) {
                 if (true) { 
                     for (let i=0; i<reltypes.length; i++) {

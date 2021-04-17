@@ -245,7 +245,7 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObject         = myMetis.findObject(currentObject.id);
         let currentObjectView = data.objectview;
         let otype             = data.objecttype;
-        if (currentObject.name === otype?.name) {
+        if (currentObject?.name === otype?.name) {
             // This is a new object - check if the new name already exists
             const obj = myMetis.findObjectByTypeAndName(otype, data.name);
             if (obj) {

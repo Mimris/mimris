@@ -520,7 +520,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     newName = utils.uncapitalizeFirstLetter(newName);
     let relname = newName;
     let reltype;
-    if (typid.length > 0) {
+    if (typid?.length > 0) {
         reltype = myMetis.findRelationshipType(typid);
         oldName = reltype?.getName();
         reltype?.setName(newName);

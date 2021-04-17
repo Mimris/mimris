@@ -170,7 +170,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
-    if (!debug) console.log('173 metamodel', metamodel);
+    if (debug) console.log('173 metamodel', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     const objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
     if (objecttypes) {
@@ -179,10 +179,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('179 objtype', objtype); 
         if (objtype && !objtype.markedAsDeleted && !objtype.abstract) {
           const obj = new akm.cxObject(utils.createGuid(), objtype.name, objtype, "");
-          if (debug) console.log('182 obj', obj);  
           if (!obj.type) {
             const otype = metamodel.findObjectType(obj.typeRef);
-            console.log('184 otype', otype);
             obj.type = otype;
           }    
           if (obj.isDeleted()) 

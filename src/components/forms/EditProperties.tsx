@@ -16,7 +16,7 @@ import { selectIcons } from './selectIcons'
 const EditProperties = (props) => {
 
   const debug = false
-  if (!debug) console.log('19 EditProperties', props);
+  if (debug) console.log('19 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);

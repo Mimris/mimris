@@ -621,7 +621,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
-        if (!debug) console.log('619 gqlModelview', gqlModelview);
+        if (debug) console.log('619 gqlModelview', gqlModelview);
         break;
 
       case "New Model":    
@@ -1620,7 +1620,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }),
           makeButton("----------"),
-          makeButton("Generate Target Metamodel",
+          makeButton("Generate Metamodel",
           function (e: any, obj: any) { 
             // node is a container (group)
             const node = obj.part.data;
@@ -3010,7 +3010,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
-
           makeButton("----------",
             function (e: any, obj: any) {
             },

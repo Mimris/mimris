@@ -897,7 +897,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('881 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
-      if (!debug) console.log('884 UPDATE_OBJECTTYPE_PROPERTIES', data)
+      if (debug) console.log('884 UPDATE_OBJECTTYPE_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
     })
 

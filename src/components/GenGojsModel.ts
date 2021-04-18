@@ -173,7 +173,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) console.log('173 metamodel', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     const objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
-    if (debug) console.log('176 objecttypes', objecttypes);
+    if (!debug) console.log('176 objecttypes', objecttypes);
     if (objecttypes) {
       for (let i = 0; i < objecttypes.length; i++) {
         const objtype: akm.cxObjectType = objecttypes[i];  
@@ -416,7 +416,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
     if (metamodel?.objecttypes) {
-      if (debug) console.log('408 metamodel', metamodel);
+      if (debug) console.log('419 includeDeleted, metamodel', includeDeleted, metamodel);
       let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
       const objtypes = metamodel?.getObjectTypes();
       if (objtypes) {
@@ -426,21 +426,23 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let fillcolor = "white";
         for (let i = 0; i < objtypes.length; i++) {
           const objtype = objtypes[i];
-          if (objtype && !objtype.markedAsDeleted) {
+          if (objtype) {
             // if (!objtype.typeview) 
             //   continue;
-            if (debug) console.log('289 objtype', objtype);
+            if (debug) console.log('432 objtype', objtype);
             if (includeDeleted) {
               if (objtype.markedAsDeleted) {
                 strokecolor = "orange";
                 includeObjtype = true;
               }
-            } else
-              includeObjtype = true;
+            } else {
+              if (objtype.markedAsDeleted) 
+                includeObjtype = false;
+            }
             if (includeObjtype) {
               const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
               node.loadNodeContent(metamodel);
-              if (debug) console.log('291 node', node);
+              if (debug) console.log('445 node', node);
               myGoMetaModel.addNode(node);
             }
           }

@@ -90,32 +90,30 @@ const page = (props: any) => {
   
   return (
     <div>
-      <Layout user={ props.phUser?.focusUser } >
+      {/* <Layout user={ props.phUser?.focusUser } > */}
         <div id="index" >
           <div className="wrapper">
             <div className="header">
               {/* <Header title='HeaderTitle' /> */}
-              <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} />
+              {/* <hr style={{ borderTop: "1px solid #8c8b8", padding: "0px", margin: "0px", marginBottom: "1px" }} /> */}
             </div>
             <div className="workplace">
-              <div className="contextarea">
+              {/* <div className="contextarea">
                 {setContextDiv}
               </div>
               <div className="tasksarea">
                 <TasksHelp />
               </div>
               <div className="workarea">
-                
-                  {/* {postsDiv} */}
                   <Index />
-              </div>
+              </div> */}
             </div>
             <div className="footer">
               <Footer />
             </div>
           </div>
         </div>
-      </Layout>
+      {/* </Layout> */}
       <style jsx>{`
       .wrapper {
         display: grid;

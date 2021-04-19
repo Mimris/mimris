@@ -3,7 +3,7 @@ import imageUrlBuilder from '@sanity/image-url';
 import { useState, useEffect } from 'react';
 
 export default function Blog({ posts }) {
-  console.log('6', posts);
+  console.log('6 Blog posts', posts);
     
   const [mappedPosts, setMappedPosts] = useState([]);
   useEffect(() => {

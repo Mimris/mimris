@@ -32,7 +32,6 @@ import LoadLocal from '../../../components/LoadLocal'
 import { FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 import svgs from '../../utils/Svgs'
-import { isNullOrUndefined } from 'util';
 import { setMyMetisParameter } from '../../../actions/actions';
 import { iconList } from '../../forms/selectIcons';
 // import { stringify } from 'querystring';
@@ -40,12 +39,6 @@ import { iconList } from '../../forms/selectIcons';
 // import "../../../styles/styles.css"
 
 const AllowTopLevel = true;
-
-// const PopupExample = () => (
-//   <Popup trigger={<button> Trigger</button>} position="right center">
-//     <div>Popup content here !!</div>
-//   </Popup>
-// );
 
 interface DiagramProps {
   nodeDataArray:      Array<go.ObjectData>;

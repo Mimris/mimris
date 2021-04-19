@@ -9,49 +9,6 @@ import { setMyGoModel } from '../actions/actions';
 import { FaObjectUngroup } from 'react-icons/fa';
 const constants = require('./constants');
 
-
-export function askForTargetModel(context: any, create: boolean) {
-    const myMetis = context.myMetis;
-    const myModel = context.myModel;
-    const models = myMetis.models;
-    let mlist = "";
-    for (let i=0; i<models.length; i++) {
-        const m = models[i];
-        if (i == 0) 
-            mlist = "'" + m.name + "'";
-        else 
-            mlist += ",'" + m.name + "'";;
-    }
-    let mname = "";
-    if (!create) 
-        mname = prompt("Enter Model as one of " + mlist, myModel.name);
-    else 
-        mname = prompt("Enter Mmodel name");
-    if (mname == null || mname == "") {
-        alert("Operation was cancelled!");
-        return;
-    } else {
-        let model = myMetis.findModelByName(mname); 
-        if (debug) console.log('33 askForTargetModel', model, myMetis);
-        if (create && model) {
-            alert("Model already exists");
-            return;
-        }
-        if (!model) {
-            if (confirm("Create new model '" + mname + "' ?")) {
-                model = new akm.cxModel(utils.createGuid(), mname);
-                if (debug) console.log('41 ui_generateTypes', mname, model);
-                myMetis.addModel(model);
-            } else {
-                alert("Operation was cancelled!");
-                return;
-            }
-        }
-        if (debug) console.log('48 myMetis', myMetis);
-        return model;
-    }
-}
-
 export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
@@ -87,7 +44,7 @@ export function askForMetamodel(context: any, create: boolean, hideEKA: boolean)
         if (debug) console.log('67 askForMetamodel', myMetis);
         if (!metamodel) {
             if (confirm("Create new metamodel '" + mmname + "' ?")) {
-                metamodel = new akm.cxMetaModel(utils.createGuid(), mmname);
+                metamodel = new akm.cxMetaModel(utils.createGuid(), mmname, "");
                 myMetis.addMetamodel(metamodel);
             } else {
                 alert("Operation was cancelled!");
@@ -749,7 +706,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     if (objects) {
         for (let i=0; i<objects.length; i++) {
             let obj = objects[i];
-            if (obj)
+            if (obj && !obj.markedAsDeleted)
                 generateDatatype(obj, context);
         }
     }
@@ -757,13 +714,17 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     if (objectviews) {
         for (let i=0; i<objectviews.length; i++) {
             const objview = objectviews[i];
-            if (!objview) 
+            if (!objview || objview.markedAsDeleted) 
                 continue;
             let obj = objview.object;
+            if (!obj || obj.markedAsDeleted) 
+                continue;
             const  types = ['Information', 'Role', 'Task', 'View', 'Query', 'Property', 'Container']; // + Property ??
             for (let i=0; i<types.length; i++) {
                 const type = myMetis.findObjectTypeByName(types[i]);
                 if (type && obj && obj.type) {
+                    if (type.markedAsDeleted)
+                        continue;
                     // Check if obj inherits one of the specified types - otherwise do not generate type
                     if (obj.type.inherits(type, myMetis.allRelationshiptypes)) {
                         if (debug) console.log('746 obj', obj.name, obj);
@@ -932,150 +893,3 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
     return true;
 }
 
-export function generateTargetModel(currentTargetModelview, sourceModelview) {
-    if (!sourceModelview) return;
-    let model = sourceModelview.getModel();
-    if (!model) return;
-
-    let selection     = new Array();
-    let selectionInfo = new Array();
-    // First handle object views
-    let objectviews = sourceModelview.getObjectViews();
-    for (let i=0; i<objectviews.length; i++) {
-        let objview = objectviews[i];
-        if (!objview) continue;
-        let obj = objview.getObject();
-        if (!obj) continue;
-        let objtype = obj.getType();
-        if (!objtype) continue;
-        if (objtype.getName() === 'Task') selection.push(objview);
-        if (objtype.getName() === 'Role') selection.push(objview);
-        if (objtype.getName() === 'View') selection.push(objview);
-        if (objtype.getName() === 'Query') selection.push(objview);
-        if (objtype.getName() === 'Informatiom') selectionInfo.push(objview); // Her bør vi ta hensyn toil arv
-    }
-    // selection is an array of objectviews to be copied to targetmodelview
-    for (let i=0; i<selection.length; i++) {
-        let objview = selection[i];
-        copyObjectview(objview, currentTargetModelview);
-    }
-    
-    /* selection is an array of objectviews to be copied to targetmodelview
-    for (let i=0; i<selectionInfo.length; i++) {
-        let objview = selectionInfo[i];
-        copyObjectview(objview, currentTargetModelview);
-    }
-    */
-    
-    // Then handle relationship views
-    selection = new Array();
-    let relshipviews = sourceModelview.getRelationshipViews();
-    for (let i=0; i<relshipviews.length; i++) {
-        let relview = relshipviews[i];
-        if (!relview) continue;
-        let rel = relview.getRelationship();
-        if (!rel) continue;
-        let reltype = rel.getType();
-        if (!reltype) continue;
-        let fromview = relview.getFromObjectView();
-        let fromtype = fromview.object.type.name;
-        let toview   = relview.getToObjectView();
-        let totype   = toview.object.type.name;
-        if (fromtype === 'Task' || fromtype === 'Role' || fromtype === 'View') {
-            if (totype === 'Task' || totype === 'Role' || totype === 'View') {
-                selection.push(relview);
-            }
-        }
-/*
-        for (let i=0; i<selection.length; i++) {
-            let relview = selection[i];
-            copyRelshipview(relview, currentTargetModelview);
-        }
-*/        
-    } 
-}
-
-export function copyObjectview(fromObjview, toModelview) {
-    let ov = fromObjview;
-    let obj = ov.object;
-    let toModel = toModelview.getModel();
-    let toObj: cxObject | null = null;
-    /*
-    let objtype = obj.getType();
-    if (objtype.getName() === 'Information') {
-        let o = toModel.findObjectByTypeAndName(objtype, objname);
-    }
-    */
-    toObj   = toModel.findObjectByName(obj.getName());
-    if (!toObj) {
-        toObj = new akm.cxObject(utils.createGuid(), obj.name, obj.type, obj.description);
-        toModel.addObject(toObj);
-        metis.addObject(toObj);
-    }
-    // Then copy properties
-    // Then create the new objectview
-    let toObjview   = toModelview.findObjectViewByName(obj.getName());
-    if (!toObjview) {
-        toObjview = new akm.cxObjectView(utils.createGuid(), ov.name, toObj, ov.description);
-        toObjview.object = toObj;
-        toObjview.loc    = fromObjview.loc;
-        toObjview.size   = fromObjview.size;
-    }
-    let fromTypeview = fromObjview.typeview;
-    let toTypeview = new akm.cxObjectTypeView(utils.createGuid(), fromTypeview.name, fromTypeview.type, "");
-    for (let prop in fromTypeview.data) {
-        toTypeview.data[prop] = fromTypeview.data[prop];
-    }
-    toObjview.typeview = toTypeview;
-    toObj.addObjectView(toObjview);
-    metis.addObjectTypeView(toTypeview);
-    toModelview.addObjectView(toObjview);
-    metis.addObjectView(toObjview);
-}
-
-export function copyRelshipview(fromRelview, toModelview) {
-    let rv = fromRelview;
-    let fromRel = rv.relship;
-    let fromObj = fromRel.getFromObject();
-    let toObj   = fromRel.getToObject();
-    let toModel = toModelview.getModel();
-    let fromObjCopy = toModel.findObjectByName(fromObj.name);
-    let fromObjView = toModelview.findObjectViewByName(fromObj.name);
-    let toObjCopy   = toModel.findObjectByName(toObj.name);
-    let toObjView   = toModelview.findObjectViewByName(toObj.name);
-    let toRel       = toModel.findRelationship(fromObjCopy, toObjCopy, fromRel.type);
-    if (!toRel && fromObjCopy && toObjCopy) {
-        toRel = new akm.cxRelationship(utils.createGuid(), fromRel.type, fromObjCopy, toObjCopy, fromRel.name, fromRel.description);
-        toModel.addRelationship(toRel);
-        metis.addRelationship(toRel);
-    
-        // Then copy properties
-        let toRelview = toModelview.findRelationshipViewByName(fromRel.name);
-        if (!toRelview) {
-            toRelview = new akm.cxRelationshipView(utils.createGuid(), fromRel.name, toRel, rv.description);
-        }
-        if (toRelview) {
-            let fromTypeview = fromRelview.typeview;
-            let toTypeview = new akm.cxRelationshipTypeView(utils.createGuid(), fromTypeview.name, fromTypeview.type, "");
-            /*
-            for (let prop in fromTypeview.data) {
-                if (prop === 'id') continue;
-                if (prop === 'abstract') continue;
-                if (prop === 'deleted') continue;
-                if (prop === 'relshiptypeRef') continue;
-                toTypeview.data[prop] = fromTypeview.data[prop];
-            }
-            */
-            toRelview.typeview = toTypeview;
-            //myTargetMetamodel.addRelationshipTypeView(toTypeview);
-            metis.addRelationshipTypeView(toTypeview);
-            /**/
-            toRelview.setFromObjectView(fromObjView);
-            toRelview.setToObjectView(toObjView);
-
-            toRel.addRelationshipView(toRelview);
-            toModelview.addRelationshipView(toRelview);
-            metis.addRelationshipView(toRelview);
-        }
-    }
-}

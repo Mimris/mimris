@@ -286,6 +286,7 @@ export class cxMetis {
                                         if (debug) console.log('237 initImport', item);
                                         const mv = new cxModelView(item.id, item.name, null, item.description);
                                         if (!mv) continue;
+                                        mv.layout = item.layout;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
                                         mv.setModel(model);
@@ -638,6 +639,7 @@ export class cxMetis {
         if (model) {
             const modelview = this.findModelView(item.id);
             if (modelview) {
+                modelview.layout = item.layout;
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
                 objectviews.forEach(objview => {

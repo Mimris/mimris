@@ -932,13 +932,13 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    if (debug) console.log('898 createRelationship', data);
+    if (!debug) console.log('898 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; // added sf
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
-    if (debug) console.log('904 createRelationship', myGoModel, fromNode, toNode);
+    if (!debug) console.log('904 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode?.object;
     const toObj = toNode?.object;
     let typename = 'isRelatedTo' as string | null;
@@ -947,11 +947,13 @@ export function createRelationship(data: any, context: any) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetis.findObjectType(fromType?.id);
+        if (!fromType) fromType = myMetis.findObjectType(fromNode.object?.typeRef);
         if (fromType) {
             fromType.allObjecttypes = myMetis.objecttypes;
             fromType.allRelationshiptypes = myMetis.relshiptypes;
         }
         toType   = myMetis.findObjectType(toType?.id);
+        if (!toType) toType = myMetis.findObjectType(toNode.object?.typeRef);
         if (toType) {
             toType.allObjecttypes = myMetis.objecttypes;
             toType.allRelationshiptypes = myMetis.relshiptypes;

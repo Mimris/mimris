@@ -539,23 +539,21 @@ export class goObjectTypeNode extends goNode {
     loadNodeContent(metamodel: akm.cxMetaModel | null) {
         if (this.objecttype) {
             const objtype = this.objecttype;
-            if (!objtype.markedAsDeleted) {
-                const typeview = this.typeview;
-                if (typeview) {
-                    const data = typeview.getData();
-                    this.addData(data);
-                    this.setName(objtype.getName());
-                    this.setType(constants.gojs.C_OBJECTTYPE);
-                    if (!metamodel) {
-                        let model = this.parentModel;
-                        metamodel = model ? model.metamodel : null;
-                    }
-                    if (metamodel) {
-                        let loc = objtype.getLoc(metamodel)
-                        this.setLoc(loc);
-                        let size = objtype.getSize(metamodel);
-                        this.setSize(size);
-                    }
+            const typeview = this.typeview;
+            if (typeview) {
+                const data = typeview.getData();
+                this.addData(data);
+                this.setName(objtype.getName());
+                this.setType(constants.gojs.C_OBJECTTYPE);
+                if (!metamodel) {
+                    let model = this.parentModel;
+                    metamodel = model ? model.metamodel : null;
+                }
+                if (metamodel) {
+                    let loc = objtype.getLoc(metamodel)
+                    this.setLoc(loc);
+                    let size = objtype.getSize(metamodel);
+                    this.setSize(size);
                 }
             }
             if (debug) console.log('455 loadNodeContent', this);
@@ -737,6 +735,8 @@ export class goRelshipTypeLink extends goLink {
                 = reltype.getDefaultTypeView();
             if (typeview) {
                 this.typeview = typeview;
+                const data = typeview.getData();
+                this.addData(data);
                 const fromObjtype: akm.cxObjectType | null = reltype.getFromObjType();
                 if (fromObjtype) {
                     this.fromNode = model.findTypeNode(fromObjtype.getId());

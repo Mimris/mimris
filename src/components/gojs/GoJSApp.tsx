@@ -887,46 +887,46 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
 
     this.state.phFocus.focusModelview = myMetis.currentModelview;
-    if (debug) console.log('874 modifiedNodes', modifiedNodes);
+    if (debug) console.log('890 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
       if (debug) console.log('877 UPDATE_OBJECTVIEW_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
-    if (debug) console.log('881 modifiedTypeNodes', modifiedTypeNodes);
+    if (debug) console.log('897 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
-      if (debug) console.log('884 UPDATE_OBJECTTYPE_PROPERTIES', data)
+      if (debug) console.log('900 UPDATE_OBJECTTYPE_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
     })
 
-    if (debug) console.log('888 modifiedTypeViews', modifiedTypeViews);
+    if (debug) console.log('904 modifiedTypeViews', modifiedTypeViews);
     modifiedTypeViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
       if (debug) console.log('892 data', data);
     })
 
-    if (debug) console.log('895 modifiedTypeGeos', modifiedTypeGeos);
+    if (debug) console.log('911 modifiedTypeGeos', modifiedTypeGeos);
     modifiedTypeGeos?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
     })
 
-    // if (debug) console.log('901 modifiedLinks', modifiedLinks);
+    // if (debug) console.log('917 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
 
-    // if (debug) console.log('907 modifiedLinkTypes', modifiedLinkTypes);
+    // if (debug) console.log('923 modifiedLinkTypes', modifiedLinkTypes);
     modifiedTypeLinks?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
     })
 
-    // if (debug) console.log('913 modifiedLinkTypeViews', modifiedLinkTypeViews);
+    // if (debug) console.log('929 modifiedLinkTypeViews', modifiedLinkTypeViews);
     modifiedLinkTypeViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
@@ -935,35 +935,35 @@ class GoJSApp extends React.Component<{}, AppState> {
     // if (debug) console.log('919 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
-      if (debug) console.log('922 UPDATE_OBJECT_PROPERTIES', data)
+      if (debug) console.log('938 UPDATE_OBJECT_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 
-    // if (debug) console.log('926 modifiedRelships', modifiedRelships);
+    // if (debug) console.log('942 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
       let data = (mn) && mn
-      if (debug) console.log('929 data', data);
+      if (debug) console.log('945 data', data);
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 
-    // if (debug) console.log('643 selectedObjectViews', selectedObjectViews);
+    // if (debug) console.log('949 selectedObjectViews', selectedObjectViews);
     selectedObjectViews?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
     })
 
-    // if (debug) console.log('677 selectedRelshipViews', selectedRelshipViews);
+    // if (debug) console.log('955 selectedRelshipViews', selectedRelshipViews);
     selectedRelshipViews?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
     })
 
-    // if (debug) console.log('643 selectedObjectTypes', selectedObjectTypes);
+    // if (debug) console.log('961 selectedObjectTypes', selectedObjectTypes);
     selectedObjectTypes?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
     })
-    // if (debug) console.log('689 selectedRelationshipTypes', selectedRelationshipTypes);
+    // if (debug) console.log('966 selectedRelationshipTypes', selectedRelationshipTypes);
     selectedRelationshipTypes?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })

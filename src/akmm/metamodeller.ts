@@ -74,6 +74,7 @@ export class cxMetis {
         this.name        = importedData.name;
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
+        if (debug) console.log('77 this', this);
         // Handle metamodels
         const metamodels = (importedData) && importedData.metamodels;
         if (metamodels && metamodels.length) {
@@ -84,7 +85,6 @@ export class cxMetis {
             }
         }
         if (debug) console.log('85 Imported metamodel type', this);
-
         // Handle models next
         const models: any[] = (importedData) && importedData.models;
         if (models && models.length) {
@@ -136,6 +136,7 @@ export class cxMetis {
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels
+        if (debug) console.log('140 this', this);
         const metamodels = (importedData) && importedData.metamodels;
         if (metamodels && metamodels.length) {
             for (let i = 0; i < metamodels.length; i++) {
@@ -231,6 +232,7 @@ export class cxMetis {
                 }
             }
         }
+        if (debug) console.log('235 this', this);
         // Import models
         const models = (importedData) && importedData.models;
         if (models && models.length) {
@@ -284,6 +286,7 @@ export class cxMetis {
                                         if (debug) console.log('237 initImport', item);
                                         const mv = new cxModelView(item.id, item.name, null, item.description);
                                         if (!mv) continue;
+                                        mv.layout = item.layout;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
                                         mv.setModel(model);
@@ -329,17 +332,19 @@ export class cxMetis {
         if (datatypes && datatypes.length) {
             datatypes.forEach(datatype => {
                 if (datatype)
-                        this.importDatatype(datatype, metamodel);
+                    this.importDatatype(datatype, metamodel);
             });
         }
+        if (debug) console.log('335 this', this);
         let objecttypes: any[] = item.objecttypes;
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
                 if (objtype)
-                     this.importObjectType(objtype, metamodel);
+                    this.importObjectType(objtype, metamodel);
             });
         }
-
+        // utils.removeArrayDuplicates(this.objecttypes);
+        if (debug) console.log('342 this', this);
         let objtypegeos: any[] = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {
             objtypegeos.forEach(objtypegeo => {
@@ -347,7 +352,7 @@ export class cxMetis {
                     this.importObjectTypegeo(objtypegeo, metamodel);
             });
         }
-
+        if (debug) console.log('350 this', this);
         let objecttypeviews: any[] = item.objecttypeviews;
         if (objecttypeviews && objecttypeviews.length) {
             objecttypeviews.forEach(objtypeview => {
@@ -355,29 +360,34 @@ export class cxMetis {
                     this.importObjectTypeView(objtypeview, metamodel);
             });
         }
+        if (debug) console.log('358 this', this);
 
-        objecttypes = item.objecttypes;
-        if (objecttypes && objecttypes.length) {
-            objecttypes.forEach(objtype => {
-                if (objtype) {
-                    this.importObjectType(objtype, metamodel);
-                }
-            });
-        }
-        objtypegeos = item.objtypegeos;
-        if (objtypegeos && objtypegeos.length) {
-            objtypegeos.forEach(objtypegeo => {
-                if (objtypegeo)
-                    this.importObjectTypegeo(objtypegeo, metamodel);
-            });
-        }
-        objecttypeviews = item.objecttypeviews;
-        if (objecttypeviews && objecttypeviews.length) {
-            objecttypeviews.forEach(objtypeview => {
-                if (objtypeview)
-                    this.importObjectTypeView(objtypeview, metamodel);
-            });
-        }
+        // objecttypes = item.objecttypes;
+        // if (debug) console.log('360 objecttypes', objecttypes);
+        // if (objecttypes && objecttypes.length) {
+        //     objecttypes.forEach(objtype => {
+        //         if (objtype) {
+        //             this.importObjectType(objtype, metamodel);
+        //         }
+        //     });
+        // }
+        // if (debug) console.log('368 this', this);
+        // objtypegeos = item.objtypegeos;
+        // if (objtypegeos && objtypegeos.length) {
+        //     objtypegeos.forEach(objtypegeo => {
+        //         if (objtypegeo)
+        //             this.importObjectTypegeo(objtypegeo, metamodel);
+        //     });
+        // }
+        // if (debug) console.log('376 this', this);
+        // objecttypeviews = item.objecttypeviews;
+        // if (objecttypeviews && objecttypeviews.length) {
+        //     objecttypeviews.forEach(objtypeview => {
+        //         if (objtypeview)
+        //             this.importObjectTypeView(objtypeview, metamodel);
+        //     });
+        // }
+        // if (debug) console.log('384 this', this);
 
         let relshiptypes: any[] = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
@@ -386,6 +396,7 @@ export class cxMetis {
                     this.importRelshipType(reltype, metamodel);
             });
         }
+        if (debug) console.log('391 this', this);
         let relshiptypeviews: any[] = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
@@ -407,6 +418,7 @@ export class cxMetis {
                     this.importRelshipTypeView(reltypeview, metamodel);
             });
         }
+        if (debug) console.log('413 this', this);
     }
     importDatatype(item: any, metamodel: cxMetaModel) {
         let dtyperef = item.id;
@@ -426,7 +438,7 @@ export class cxMetis {
             objtype = new cxObjectType(item.id, item.name, item.description);
         }
         if (objtype) {
-            if (debug) console.log('405 item, objtype', item, objtype);
+            if (debug) console.log('439 item, objtype', item, objtype);
             objtype.markedAsDeleted = item.markedAsDeleted;
             let otype = (objtype as any);
             for (const prop in item) {
@@ -628,6 +640,7 @@ export class cxMetis {
         if (model) {
             const modelview = this.findModelView(item.id);
             if (modelview) {
+                modelview.layout = item.layout;
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
                 objectviews.forEach(objview => {
@@ -3255,6 +3268,7 @@ export class cxObjectType extends cxType {
         this.allObjecttypes = null;
         this.allRelationshiptypes = null;
         this.markedAsDeleted = false;
+        if (debug) console.log('3268 this', this);
     }
     // Methods
     getLoc(metamodel: cxMetaModel): string {

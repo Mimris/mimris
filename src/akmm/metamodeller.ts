@@ -332,7 +332,7 @@ export class cxMetis {
         if (datatypes && datatypes.length) {
             datatypes.forEach(datatype => {
                 if (datatype)
-                        this.importDatatype(datatype, metamodel);
+                    this.importDatatype(datatype, metamodel);
             });
         }
         if (debug) console.log('335 this', this);
@@ -340,9 +340,10 @@ export class cxMetis {
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
                 if (objtype)
-                     this.importObjectType(objtype, metamodel);
+                    this.importObjectType(objtype, metamodel);
             });
         }
+        // utils.removeArrayDuplicates(this.objecttypes);
         if (debug) console.log('342 this', this);
         let objtypegeos: any[] = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {

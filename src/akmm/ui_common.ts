@@ -616,7 +616,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
             relship?.removeRelationshipView(relview);
             const delLink = new gql.gqlRelshipView(relview);
             deletedLinks.push(delLink);
-            if (debug) console.log('539 deleteLink', relship, relview);
+            if (!debug) console.log('539 deleteLink', relship, relview);
             return;
         }
         // Else handle delete relships AND relship views

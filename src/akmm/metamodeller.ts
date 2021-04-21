@@ -132,7 +132,7 @@ export class cxMetis {
             if (model)
                 this.currentTemplateModel = model;
         }
-        if (debug) console.log('133 this', this);
+        if (!debug) console.log('133 this', this);
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels
@@ -711,7 +711,6 @@ export class cxMetis {
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
-                    relview.markedAsDeleted = item.markedAsDeleted;
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
                         if (reltypeview) {
@@ -724,9 +723,11 @@ export class cxMetis {
                             }
                         }
                     }
+                    relview.markedAsDeleted = item.markedAsDeleted;
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
-                    if (debug) console.log("Importing object: " + item.id + ", " + item.name);
+                    if (!debug) console.log("729 item, relview: ", item.markedAsDeleted, relview.markedAsDeleted);
+                    if (!debug) console.log("730 item, relview: ", item, relview);
                 }
             }
         }

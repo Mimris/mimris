@@ -537,7 +537,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          if (debug) console.log('464 myMetis', myMetis); 
+          if (!debug) console.log('464 myMetis', myMetis); 
         }
       }
       break;

@@ -4480,6 +4480,32 @@ export class cxModel extends cxMetaObject {
         }
         return null;
     }
+    findRelationship2(fromObj: cxObject, toObj: cxObject, relname: string, reltype: cxRelationshipType): cxRelationship | null {
+        const relships = this.relships;
+        if (relships) {
+            const len = utils.objExists(relships) ? relships.length : 0;
+            for (let i = 0; i < len; i++) {
+                const rel = relships[i];
+                if (rel && rel.name === relname) {
+                    let rtype = rel.getType();
+                    if (rtype) {
+                        let relFromObj = rel.getFromObject();
+                        let relToObj = rel.getToObject();
+                        if (relFromObj && relToObj) {
+                            if (rtype.id === reltype.id) {
+                                if (relFromObj.id === fromObj.id) {
+                                    if (relToObj.id === toObj.id) {
+                                        return rel;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
     findEkaRelationship(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType): cxObject | null {
         if (!utils.objExists(fromObj) || !utils.objExists(toObj) || !utils.objExists(reltype))
             return null;

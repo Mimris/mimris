@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -68,6 +68,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
    */
   private diagramRef: React.RefObject<ReactDiagram>;
+  private myMetis: akm.cxMetis;
+  private myGoModel: gjs.goModel;
+  private myGoMetamodel: gjs.goModel;
 
   /** @internal */
   constructor(props: DiagramProps) {
@@ -578,7 +581,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const selectedOption = selected.value;
     if (debug) console.log('590 this.state', selectedOption, this.state, modalContext);
-    // let typeview, typename, metamodelName;
+    let typename;
     switch(modalContext.case) {
 
       case "Change Object type":    
@@ -653,7 +656,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
 
       case "Change Relationship type":    
-        const typename = (selectedOption) && selectedOption;
+        typename = (selectedOption) && selectedOption;
         const link = myMetis.currentLink;
         let fromNode = myGoModel?.findNode(link.from);
         let toNode   = myGoModel?.findNode(link.to);
@@ -808,7 +811,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myInstview = myMetis.findObjectView(instview?.id);
       typeview = inst?.type?.typeview;
       if (myInstview) {
-        for (let prop in typeview.data) {
+        for (let prop in typeview?.data) {
           myInstview[prop] = obj[prop];
         }
       }

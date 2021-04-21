@@ -575,27 +575,34 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else // object
           {
             part.category = 'Object';
-            if (debug) console.log('484 part', part);
+            if (debug) console.log('578 part', part);
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
-              console.log('487 obj', obj);
+              console.log('581 obj', obj);
             }
             if (part.objecttype?.viewkind === 'Container') {
               part.isGroup = true;
               part.viewkind = 'Container';
             }
-            if (debug) console.log('487 part', part);
+            if (debug) console.log('587 part', part);
             if (part.parentModel == null)
               myMetis.pasteViewsOnly = true;
+            if (debug) console.log('590 myMetis', myMetis);
             const objview = uic.createObject(part, context);
-            if (debug) console.log('496 New object', part, objview);
+            if (debug) console.log('592 myMetis', myMetis);
+            if (debug) console.log('593 New object', part, objview);
             if (objview) {
+              let otype = objview.object.type;
+              if (!otype) {
+                otype = myMetis.findObjectType(objview.object.typeRef);
+                objview.object.type = otype;
+              }
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
-              if (debug) console.log('680 New object', gqlObjview, modifiedNodes);
+              if (debug) console.log('595 New object', gqlObjview, modifiedNodes);
               const gqlObj = new gql.gqlObject(objview.object);
               modifiedObjects.push(gqlObj);
-              if (debug) console.log('683 New object', gqlObj);
+              if (debug) console.log('598 New object', gqlObj);
             }
           }
           if (debug) console.log('506 myGoModel', myGoModel);

@@ -740,17 +740,19 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             const gqlObjectType = new gql.gqlObjectType(objtype, true);
                             if (debug) console.log('757 Generate Object Type', gqlObjectType);
                             modifiedTypeNodes.push(gqlObjectType);
-
-                            const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-                            if (debug) console.log('761 Generate Object Type', gqlObjTypeview);
-                            modifiedObjTypeViews.push(gqlObjTypeview);
-
+                            if (objtype.typeview) {
+                                const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
+                                if (debug) console.log('761 Generate Object Type', gqlObjTypeview);
+                                modifiedObjTypeViews.push(gqlObjTypeview);
+                            }
                             let geo = context.myTargetMetamodel.findObjtypeGeoByType(objtype);
                             if (!geo) 
                                 geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype, "", "");
-                            const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-                            if (debug) console.log('768 Generate Object Type', gqlObjTypegeo, myMetis);
-                            modifiedGeos.push(gqlObjTypegeo);
+                            if (geo) {
+                                const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
+                                if (debug) console.log('768 Generate Object Type', gqlObjTypegeo, myMetis);
+                                modifiedGeos.push(gqlObjTypegeo);
+                            }
                         }
                     }
                 }
@@ -783,9 +785,11 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     const modifiedTypeLinks = new Array();
                     modifiedTypeLinks.push(gqlRelshipType);
                     const relTypeview = reltype.typeview;
-                    const gqlRelTypeview = new gql.gqlRelshipTypeView(relTypeview);
-                    if (debug) console.log('789 Generate Reltypeview', gqlRelTypeview);
-                    modifiedRelTypeViews.push(gqlRelTypeview);
+                    if (relTypeview) {
+                        const gqlRelTypeview = new gql.gqlRelshipTypeView(relTypeview);
+                        if (debug) console.log('789 Generate Reltypeview', gqlRelTypeview);
+                        modifiedRelTypeViews.push(gqlRelTypeview);
+                    }
                 }
             }
         }

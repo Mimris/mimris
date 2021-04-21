@@ -348,7 +348,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
-      if (debug) console.log('318 modelview, relviews', modelview.name, relviews);
+      if (!debug) console.log('318 modelview, relviews', modelview.name, relviews);
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
         let includeRelview = false;
@@ -356,7 +356,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         const rel = relview.relship;
         if (rel?.markedAsDeleted == undefined)
           rel.markedAsDeleted = false;
-        relview.markedAsDeleted = rel?.markedAsDeleted;
+        if (rel.markedAsDeleted)
+          relview.markedAsDeleted = rel?.markedAsDeleted;
         relview.name = rel?.name;
         let relcolor = "black";
         if (includeDeleted) {

@@ -137,7 +137,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let val = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
-        if (k !== 'deleted') {
+        if (k !== 'markedAsDeleted') {
           if (!uic.isPropIncluded(k, type)) 
             continue;
         } else if (!val) {          
@@ -172,11 +172,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (debug) console.log('169 k, val', k, item[k], selObj[k]);
         val = (item.id === inst.id) ? item[k] : selObj[k];
-        if (item.id === inst.id) {
-          val = item[k];
-        } else {
-          val = selObj[k];
-        }
+        // if (item.id === inst.id) {
+        //   val = item[k];
+        // } else {
+        //   val = selObj[k];
+        // }
         if ((what === 'editObjectType') || (what === 'editRelationshipType')) {
           val = item[k];
         }
@@ -272,6 +272,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case "loc":
           case "id":
             disabled = true;
+            break;
           default:
             name = utils.capitalizeFirstLetter(k);
             break;

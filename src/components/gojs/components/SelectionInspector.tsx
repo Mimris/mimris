@@ -77,6 +77,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let useItem = false;
     const what = modalContext?.what;
     switch (what) {
+      case "toBeDefined":
       // case 'editProject':
       //   item = modalContext.gojsModel?.nodes[0];
       //   useItem = true;
@@ -89,6 +90,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       //   item = myMetis.currentModelview;
       //   useItem = true;
       //   break;
+      break;
       case "editObjectType":
         item = inst.objecttype;
         break;

@@ -348,7 +348,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
-      if (!debug) console.log('318 modelview, relviews', modelview.name, relviews);
+      if (debug) console.log('318 modelview, relviews', modelview.name, relviews);
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
         let includeRelview = false;
@@ -420,8 +420,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
-    if (metamodel?.objecttypes) {
-      if (debug) console.log('419 includeDeleted, metamodel', includeDeleted, metamodel);
+    metamodel.objecttypes = utils.removeArrayDuplicates(metamodel.objecttypes);
+    if (metamodel.objecttypes) {
+      if (debug) console.log('419 metamodel', metamodel);
       let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
       const objtypes = metamodel?.getObjectTypes();
       if (objtypes) {
@@ -448,6 +449,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               if (!objtype.typeview) 
                 objtype.typeview = objtype.newDefaultTypeView('Object');
               const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
+              console.log('451 objtype, node', objtype, node);
               node.loadNodeContent(metamodel);
               node.strokecolor = strokecolor;
               //node.fillcolor = fillcolor;
@@ -457,7 +459,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
         }
       }
-      let relshiptypes = metamodel.getRelshipTypes();
+      metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel.relshiptypes);
+      let relshiptypes = metamodel.relshiptypes;
       if (debug) console.log('425 relshiptypes', relshiptypes);
       if (relshiptypes) {
         for (let i = 0; i < relshiptypes.length; i++) {

@@ -10,6 +10,8 @@ import {
   CardTitle, CardSubtitle, Button, CardLink, CardDeck, CardColumns
 } from 'reactstrap';
 import Page from './page';
+import Blog from './Blog'
+import { toNamespacedPath } from "path";
 
 const page = (props) => {
   // console.log('12', props);
@@ -34,158 +36,304 @@ const page = (props) => {
   //   gojsmodel = state.phFocus.gojsModel
   // }, [focusModelview])
 
+
   return (
     <>
-      <div className="workpad p-1 bg-light">
-        <div className="homepage1 bg-light ">
+      <div className="workpad p-1 bg-light" >
+        <div className="homepage pt-2 pr-2" >
           <div>
-            <CardColumns>
-              <Card className="card bg-secondary p-0 mb-2" >
-                <CardBody className="homepage2 p-1" style={{backgroundColor: "#fa0"}}>
-                  {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
-                  <CardTitle style={{ fontWeight: "bolder" }}>To get started !</CardTitle>
-                  <CardText className="bg-light text-danger p-3" >
+            <CardColumns >
+              <Card className="card" 
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "0px"
+                }}
+              >
+                <CardHeader className="card-header ">Modelling with AKM Modeller:</CardHeader>
+                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,195,0.6)"}}>
+                  <CardTitle className="card-title-bold">To get started !</CardTitle>
+                  <CardText className="card-text"> 
                     <strong>Select Modelling in the top menu </strong><br />
-                    (An initial example template model is loaded)
-                    <br /><br /><strong>Click the "Local" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the LocalStore.
-                    <br /><br /><strong>Click the "Server" button (above the modelling area) </strong><br />to open the diaglog for Saving and Loading models to/from the Server Repository.
-                    <br /><br /><strong>For help: Click "Task / Help" bar to the left!</strong> <span className="text-secondary" >(Not fully implemented yet !!!)</span>
-                    {/* <br /><br />
-                    <br /> Log in by clicking on the arrow to the right in the top-menu.<br /> ( if you are not registered, you will be asked to Sign up first)
-                    <br /><br />Start modelling by select "Modelling" in the main menu above.  */}
+                    (An initial empty model is loaded)
+                    <br /><br /><strong>Start modelling by Select, drag and drop objecttypes from the left palette to the modelling area to the right. </strong><br /> 
+                    We recomment to start with a container and then drop objects into the container. You can resize the the container by draging the corners.
+                    <br /><br /><strong>You can save your Project to Local Store by clicking the "Local" button above the modelleing area.</strong> 
+                    <br /> Then click on the "Save the Project to LocalStorage" button.
+                    <br /><br />You can also download the Project to your computer by clicking on the "Download Project to file" button.
+                    <br /><br />Projects can be uploaded from files by clicking on the "Upload Model(s) from file and select file. 
+                    <br /><br /><strong>Upload to Server</strong><br />Projects can also be uploaded to a Cloud Server by clicking on the "Server" button. 
                   </CardText>
                 </CardBody>
               </Card>
-              <Card className="card bg-light p-0 mb-2" >
-                <CardBody className="homepage2 p-1" style={{backgroundColor: "#fd0"}}>
-                  {/* <CardHeader className="header2 bg-light p-2">To get started:</CardHeader> */}
-                  <CardTitle style={{ fontWeight: "bolder" }}>Tips !</CardTitle>
-                  <CardText className="bg-light text-info  p-3" >
-                    <strong><strong>Save current model to a file: <br />
-                    <br />Click on the "Local" button </strong>
-                    <br />Select "Download Current Model to File". </strong>
-                    <br />... the model is downloaded to the "downloads" folder. 
+              <Card className="card "
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "2px"
+                }}
+              >
+                <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,225,0.4)"}}>
+                  <CardHeader className="card-header">Terminologi!</CardHeader>
+                  <CardTitle className="card-title-bold" >IRTV</CardTitle>
+                  <CardText className="card-text "> 
+                    <strong> IRTV stands for: Information, Role, Task, View</strong>
+                    <br />We start with an built in IRTV-Metamodel, wich contain the basic building blocks for AKM Models <br />(shown in the left Palette in the modelling page). 
+                    <br /><br />We use these building blocks to build an Active Knowledge Model, which in turn can be use to generate Solution models for interactive Role and Task oriented Workplaces for all Roles in enterprise projects . 
+
+                  </CardText>
+                  <CardTitle style={{ fontWeight: "bolder", fontSize: "150%" }}>Metamodel & Model</CardTitle>
+                  <CardText className="card-text "> 
+                     When building a model, we use some predefined objects called "Object Types". <br />   
+                     <i>(Its can be compared to building a Lego model. Depending on which Lego blocks you have, we can build different models)</i>
+                    <br /><br />In AKM modelling we have predefined a Metamodel with the IRTV building blocks. From these we can build any new Metamodels and Models of any kind. 
+                    <br /><strong>(The App that builds the App). </strong>
+                 
+                    <br /><br /><i>(It is possible to build your own Metamodel from a basic Object and Relationship type)</i><strong> </strong>
+
+                  </CardText>
+                </CardBody>
+              </Card>
+
+              <Card className="card "
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "2px"
+                }}
+              >
+                <CardHeader className="card-header">AKM Modeller</CardHeader>
+                <CardBody className="card-body" >
+                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
+                  <CardText className="card-text">          
+                  AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
                     <br /><br />
-                    <strong><strong>In case of hang or crash </strong></strong><br />
-                    <strong> 
-                      - Reload the webpage! ...then before anything else:<br />
-                      - Select "Recover Unseaved Models from MemoryStorage". </strong>
-  
-                    <br /><br /><strong> </strong>
-                    {/* <strong>Save current models to a file: <br />(Requirement:</strong> Chrome browser with RemoteDev DevTools Extensions installed) 
-                    
-                    <br /><br /><strong>Right click the meny bar at the top </strong>
-                    <br />Select "Inpect" (a ).
-                    <br /><br /><strong>Click "Export" at the bottom meny) </strong>
-                    <br />... the Redux store (incl. all actions) will be exported and downloaded to "downloads" folder. 
-                    <br /> (Tip: Rename the file to include date and move/copy it to a folder to keep history of your model).
-                    <br />(The file can be loaded later or sent by email to someone for review) */}
-
+                  With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
+                  The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
                   </CardText>
                 </CardBody>
               </Card>
 
-                <Card className="card bg-secondary p-0 mb-2" >
-                  <CardBody id="lighten" className="homepage2 bg-secondary p-1" >
-                    <CardHeader className="header2 bg-light p-2">AKM Modeller</CardHeader>
-                    {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM Modeller</CardTitle> */}
-                    <CardText className="bg-light p-3">          
-                    AKM Modeller is the tool for building Active Knowledge Models, a modeling tool with integrated Use-case Modeling and Meta-modelling capabilities.
-                      <br /><br />
-                    With IRTV we can easily model new product structures, such as self-configurable components, systems and product families. This is supported by top-down as well as bottom-up workspace designed processes and role-oriented workspaces. 
+              <Card className="card" body outline color="warning"
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  // position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  margin: "0 auto",
+                  padding: "2px"
+                }}              
+              >
+                <CardHeader className="card-header">Active Knowledge Modelling</CardHeader>
+                <CardBody className="card-body" >
+                  {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
+                  <CardText className="card-text">
+                    Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
+                    AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
+                    <br /><br />
+                    The AKM novelty comes from how relationships between roles, tasks and information are captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
+                    <br /><br />
+                    The effects from deploying AKM based solutions are many.
+                    Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. I.e. supporting design parameter balancing, and that task execution is in line with applicable regulations and policies.
+                    Secondly, task execution might create new tasks for other roles, and as such AKM makes collaboration more transparent, effective and precise, with direct impact on safety and security.
+                    <br /><br />
+                    <br /><br />
+                    (more in the About page ....)
+                    <br /><br />           
+                  </CardText>
+                </CardBody>
+              </Card>
 
+              <Card className="card" body outline  
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.4)",
+                  // position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  // padding: "2px"
+                }}
+                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"} }} 
+                // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
+              >
+                  <CardHeader className="card-header " >AKMM release blog ... </CardHeader>
+                  <CardBody className="card-body" >  
+                    <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
+                    <CardText >
+                        &bull; Workplace templates for reflective workplace modelling! <br />
+                        &bull; Popup select menu for new relships!<br />
+                        &bull; Strokewidth for synbol border and relship line!<br />
+                        &bull; GraphQL shema reporting from Solution models!<br />
+                        &bull; Instruction videos for modelling Best Practices! <br />
+                        &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.04.12</CardTitle>
+                    <CardText >
+                          &bull; Added "Delete Objecttypes and Relationshiptypes" in Metamodelling.<br />
+                          &bull; Copies of Objectviews are shown with lightblue bordercolor.<br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.03.28</CardTitle>
+                    <CardText >
+                          &bull; New rightclick menuitem "Change icon" on objectviews.<br />
+                          &bull; New button "Show deleted" under diagram for showing deleted objects.<br />
+                          &bull; Background menu "Undelete Selection" to undelete objects/objectviews.<br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.03.18</CardTitle>
+                    <CardText >
+                          &bull; Added automatic layout!<br />
+                          &bull; Fix typeview chances in metamodel works in model!<br />
+                          &bull; New button "File" to Export/Import to/from file<br />
+                          &bull; "Local &gt; Recovery" button recovers the whole project<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.03.12</CardTitle>
+                    <CardText >
+                          &bull; Kavca logo with link to kavca.no!<br />
+                          &bull; Added button for save/upload local file!<br />
+                          &bull; Input pattern and Field type related to Datatype<br />
+                          &bull; Attributes with inputpattern and value dropdownlist generated to TargetMetamodel<br />
+                    </CardText>
+                  </CardBody>
+       
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.02.24</CardTitle>
+                    <CardText >
+                        &bull; New popup menues for Edit ......!<br />
+                        &bull; Added popup menu for "Change Icon" on Objectviews!<br />
+                        &bull; Added Select all views of this object!<br />
+                         -  (Showing all objectview copies of an object (Instance) )<br />
+                        &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.02.16</CardTitle>
+                    <CardText >
+                        &bull; Added Delete ivisible Objects - mark as deleted on objects with no objectviews!<br />
+                        &bull; Added Add Missing Reationship Views - restores relshipview from existing relships !<br />
+                        &bull; Added Verify and Repair Model - Repairs some errors in the model!<br />
+                        &bull; Added Edit Project - to change Project name and descriptions!<br />
+                        &bull; Added colorpicker on object/relationship views!<br />
+                        &bull; Added !PURGE DELETED! Cleanup of objects with no views.<br />
+                        &bull; Bugfixes in Objects tab in Palette!<br />
+                        &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.02.11</CardTitle>
+                    <CardText >
+                        &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                  <CardTitle className="card-title.bold" >Release 2021.02.05</CardTitle>
+                  <CardText >
+                      New features added:<br />
+                        &bull; Projects as collection of Models and Metamodels!<br />
+                        &bull; Popup menues for editing Objects attributes!<br />
+                        &bull; Layout improvements!<br />
+                        &bull; Added Tooltips to many Buttons !<br />
+                        &bull; Bugfixes!<br />
+                  </CardText>
+                </CardBody>
 
-The AKM Modeller can enhance the design and operation of Products, Organizations, Processes and Systems (POPS) by adding new concepts, properties, tasks,and work enhancing views.
-                    </CardText>
-                  </CardBody>
-                </Card>
-                <Card body outline color="warning">
-                  <CardHeader>Aktive Knowledge Modelling</CardHeader>
-                  <CardBody className="akm-intro" >
-                    {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
-                    <CardText>
-                      Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
-                      AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
-                      <br /><br />
-                      The AKM novelty comes from how relationships between roles, tasks and information are captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
-                      <br /><br />
-                      The effects from deploying AKM based solutions are many.
-                      Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. I.e. supporting design parameter balancing, and that task execution is in line with applicable regulations and policies.
-                      Secondly, task execution might create new tasks for other roles, and as such AKM makes collaboration more transparent, effective and precise, with direct impact on safety and security.
-                      <br /><br />
-                      <br /><br />
-                      (more in the About page ....)
-                      <br /><br />
-                      {/* <a href='On AKM modelling (7).html'>Paper: On AKM Modelling</a> */}                
-                    </CardText>
-                  </CardBody>
-                  {/* </Card> */}
-                  {/* <Link href="/usersessions"><Button color="light">Show User Sessions</Button></Link> */}
-                  {/* <Card> */}
-                </Card>
-     
-                <Card className="bg-info" body outline color="primary" >
-                  <CardHeader>Blog AKMM releases </CardHeader>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                       <br /> <br /> - Bugfixes  
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
-                    <CardText>
+                <CardBody className="card-body" >
+                  <CardTitle className="card-title" >Release 2020.12.18</CardTitle>
+                  <CardText >
                     akmclient-beta.herokuapp.com
-                    <br /><br />Bugfix and new features:
-                       <br /> - added Tables in top menu. 
-                       <br /> - faster response when modelling <br />(not neccessary to refresh so often)
-                       
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />Bugfix and added download upload of models from file.  
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.10.16</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />4th test version!
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.11</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />3rd test version!
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06.09</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />2nd test version!
-                    </CardText>
-                  </CardBody>
-                  <CardBody className="homepage1 bg-light" >
-                    <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
-                    <CardText>
-                      akmclient-beta.herokuapp.com
-                      <br /><br />1st test version of AKMM awailable on Heroku! 
-                    </CardText>
-                  </CardBody>
-                </Card>
+                      <br /> <br /> - Bugfixes
+                  </CardText>
+                </CardBody>
+                <CardBody className="card-body" >
+                  <CardTitle >Test Release 2020.11.18</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                      <br /> <br /> - Bugfixes in metamodelling
+                  </CardText>
+                </CardBody>
+                <CardBody className="card-body" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.16</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                      <br /> <br /> - Bugfixes  
+                  </CardText>
+                </CardBody>
+                <CardBody className="card-body" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.11.13</CardTitle>
+                  <CardText>
+                  akmclient-beta.herokuapp.com
+                  <br /><br />Bugfix and new features:
+                      <br /> - added Tables in top menu. 
+                      <br /> - faster response when modelling <br />(not neccessary to refresh so often)
+                      
+                  </CardText>
+                </CardBody>
+                <CardBody className="card-body" >
+                  <CardTitle style={{ fontWeight: "bolder" }}>Test Release 2020.06 06</CardTitle>
+                  <CardText>
+                    akmclient-beta.herokuapp.com
+                    <br /><br />1st test version of AKMM awailable on Heroku! 
+                  </CardText>
+                </CardBody>
+              </Card>
+              {/* <Card className="card" 
+                style={{
+                  background: "rgba(255,255,255,0.4)",
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                  position: "relative",
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  // display: "block",
+                  // margin: "0 auto",
+                  padding: "0px"
+                }}
+              >
+              <CardHeader className="card-header " >Kavca Blog:</CardHeader>
+              <CardBody  className="card-body">
+                <CardTitle style={{ fontWeight: "bolder" }} >News: </CardTitle>
+   
+                  <Blog />
 
+              </CardBody>
+            </Card> */}
             </CardColumns>
           </div>
         </div>
-      <style jsx>{`
- 
-          `}</style>
+        <style jsx>{`
+        `}</style>
       </div>
     </>
   )

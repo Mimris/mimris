@@ -26,6 +26,7 @@ export let relkinds = {
 
 export let gojs = {
      C_UNITCATEGORY        : "Unit category",
+     C_CONTAINER           : "Container",
      C_DATATYPE            : "Datatype",
      C_ENUMERATION         : "Enumeration",
      C_METAMODEL           : "Metamodel",
@@ -104,11 +105,19 @@ export let types = {
          AKM_PROPERTY          : "Property",
          AKM_DATATYPE          : "Datatype",
          AKM_VALUE             : "Value",
+         AKM_INPUTPATTERN      : "InputPattern",
+         AKM_VIEWFORMAT        : "ViewFormat",
+         AKM_FIELDTYPE         : "FieldType",
          AKM_UNIT              : "Unit",
+         AKM_HAS_MEMBER        : "hasMember",
+         AKM_HAS_PART          : "hasPart",
          AKM_HAS_PROPERTY      : "has",
          AKM_IS_OF_DATATYPE    : "isOf",
          AKM_IS_DEFAULTVALUE   : "isDefault",
          AKM_HAS_ALLOWED_VALUE : "hasAllowed",
+         AKM_HAS_INPUTPATTERN  : "has",
+         AKM_HAS_VIEWFORMAT    : "has",
+         AKM_HAS_FIELDTYPE     : "has",
     
     // Type properties
          OBJECTTYPE_ID         : "objecttype",

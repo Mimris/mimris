@@ -50,6 +50,32 @@ export let removeElementFromArray = (arr: any[], id: string) => {
     }
 }
 
+export function camelize(str: string): string {
+    return str.replace(/\W+(.)/g, function(match, chr) {
+        return chr.toUpperCase();
+    });
+}
+
+export function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function uncapitalizeFirstLetter(string) {
+    return string.charAt(0).toLowerCase() + string.slice(1);
+}
+
+export function removeArrayDuplicates(array: any): any {
+    const uniqueSet = new Set(array); 
+    console.log('1502 uniqueSet', uniqueSet);
+    const uniqueArray = [...uniqueSet];
+    console.log('1504 uniqueSet', uniqueArray);
+    // array.filter((item, index) => array.indexOf(item) === index);
+    // array.reduce((unique, item) => 
+    //     unique.includes(item) ? unique : [...unique, item], []);
+    return uniqueArray;
+}
+
+
 // -----------  TEMPLATES -----------------
 
 // ---------  Read key value arrays -------

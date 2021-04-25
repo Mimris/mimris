@@ -1,18 +1,22 @@
+// EditProperties.tsx
+
+// Gets all attributes on an selected objectview passed as "props.item" 
+// and dispatch the edited values to "props.type" in phData
 
 //@ts-nocheck
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useSelector, useDispatch } from 'react-redux'
-import { mainModule } from 'process';
+// import { mainModule } from 'process';
 import FieldDiv from './FieldDiv'
-import SelectColor from './SelectColor'
-import { colorOptions } from './data';
-// import { update_objecttypeview_properties } from '../actions/actions'
-// import { loadData, setFocusObject, setfocusSource, setFocusOrg, setFocusProj, setFocusRole, setFocusTask } from '../../actions/actions'
+import { selectIcons } from './selectIcons'
+// import SelectColor from './SelectColor'
+// import { colorOptions } from './data';
 
 const EditProperties = (props) => {
+
   const debug = false
-  if (debug) console.log('8 EditProperties', props);
+  if (debug) console.log('19 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);
@@ -22,29 +26,21 @@ const EditProperties = (props) => {
   const [strokecolorvalue, setStrokecolorvalue] = useState(props.item.strokecolor)
   const [strokewidthvalue, setStrokewidthvalue] = useState(props.item.strokewidth)
   const [iconvalue, setIconvalue] = useState(props.item.icon)
-  // const otype = pprops.item.typeRef
-  // console.log('25 EditProperties', props.item);
-  // console.log('26 EditProperties', props.item.fillcolor, colorvalue);
-  
-  // let collection
-  // if (!props.collection || !props.collection.length) {
-  //   collection = [objects[1]]
-  //   // console.log('27', collection);
-  // } else {
-  //   collection = props.collection
-  // }
 
   useEffect((colorvalue) => {
     setColorvalue(colorvalue)
   }, [colorvalue]);
 
-  const onSubmit = (e) => {
-    
+  const onSubmit = (e) => { // dispatch the edititem to phData
+    // const data = e 
     const data = { ...edititem, ...e }
-    if (debug) console.log('41 EditProperties', data, props.type);
-    if (data && data.id) {
-      dispatch({ type: props.type, data })
-    }
+    if (debug) console.log('36 EditProperties', props, data);
+    // props.onInputChange(e)
+    // if (data && data.id) {
+      // props.handleInputChange(e)
+    dispatch({ type: props.type, data })
+    // }
+    if (debug) console.log('41 EditProperties', edititem, e, props.item);
   }
 
   function listAllProperties(o) { // list all obj properties incl prototype properties
@@ -73,9 +69,34 @@ const EditProperties = (props) => {
   }
   const handleChangesicon = (event) => {
     const iconvalue= event.target.value
-    // console.log('66 EditProperties', iconvalue); 
     setIconvalue(iconvalue)
   }
+
+  const fields1 = listAllProperties(edititem).map(p => // filter away js prototype properties and some others
+    ( (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
+      (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
+      (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
+      // (p !== 'deleted') && (p !== 'modified') && 
+      (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
+      (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') && (p !== 'pasteViewsOnly') && (p !== 'deleteViewsOnly') &&
+      (p !== 'datatypes') && (p !== 'relshiptypes') && (p !== 'inputrels') &&(p !== 'outputrels') &&
+      // (p.slice(-3) !== 'Ref') &&
+      (p !== 'unittypes') && (p !== 'objtypegeos') ) &&
+      //  (p !== 'viewkind') && 
+      (p !== 'relshipviews') && (p !== 'objecttypes')
+      && p // and return the rest
+    ).filter(Boolean)
+
+    const fields = fields1.map(f => {
+      if (f.slice(-3) === 'Ref') {
+        return props.curobj?.models?.find(m => m.name && (m.id === f))
+      } else {
+        return f
+      }
+    })
+
+  const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
+  // console.log('223 EditProperties', fieldsDiv);
 
   function fieldDiv(p, curitem) {
     switch (p) {
@@ -172,57 +193,61 @@ const EditProperties = (props) => {
           </>
       )
       case 'icon':
-        return (
-          <>
-            <div key={curitem.id + p} className="field" >
-              <label className="label mt-1" htmlFor="name">
-                {/* icon //: Currentvalue = {props.item.icon} <br/> */}
-                icon
-                <select className="selectpicker ml-2 float-right" value={iconvalue} onChange={handleChangesicon} >
-                  {/* <option value={`${iconvalue}`}>Current</option> */}
-                  <option value="https://img.icons8.com/color/2x/object.png">Object</option>
-                  <option value="https://img.icons8.com/clouds/2x/services.png">Services</option>
-                  <option value="https://img.icons8.com/color/2x/important-property.png">Important-property</option>
-                  <option value="https://img.icons8.com/color/2x/urgent-property.png">Urgent-property</option>
-                  <option value="https://img.icons8.com/color/2x/add-property-1.png">Property</option>
-                  <option value="https://img.icons8.com/color/2x/information.png">Info</option>
-                  <option value="https://img.icons8.com/color/2x/admin-settings-male.png">Role</option>
-                  <option value="https://img.icons8.com/color/2x/task.png">Task</option>
-                  <option value="https://img.icons8.com/color/2x/view-file.png">View</option>
-                  <option value="https://img.icons8.com/cotton/72/tear-off-calendar.png">Event</option>
-                  <option value="https://img.icons8.com/color/2x/rules-book.png">Rule</option>
-                  <option value="https://img.icons8.com/color/2x/approve.png">Decision</option>
-                  <option value="https://img.icons8.com/color/2x/energy-meter.png">Unittype</option>
-                  <option value="https://img.icons8.com/color/2x/data-.png">Datatype</option>
-                  <option value="https://img.icons8.com/color/2x/variable.png">Datavalue</option>
-                  <option value="https://img.icons8.com/color/2x/person-male.png">Person</option>
-                  <option value="https://img.icons8.com/color/search">Search</option>
-                  <option value="analyse.png">Analyse.png</option>
-                  <option value="automated.jfif">Inclusive.png</option>
-                  <option value="book.png">Book.png</option>
-                  <option value="car.png">Car.png</option>
-                  <option value="default.png">Default.png</option>
-                  <option value="exclusive.png">Exclusive.png</option>
-                  <option value="inclusive.png">Inclusive.png</option>
-                  <option value="info.svg">Info.svg</option>
-                  <option value="parallel.png">Parallel.png</option>
-                  <option value="task1.jfif">Task1.jfif</option>
-                  <option value="tiger.svg">tiger.svg</option>
-                </select>
-              </label>
-              <span className="ml-4">Url :</span>
-              <input className="input pt-1 float-right" onChange={handleChangesicon}
-                type="text"
-                id={`${curitem.id}+${p}`}
-                name={`${p}`}
-                value={iconvalue}
-                ref={register({ required: false })}
-                />
-            </div>
-            {/* <div><img src={iconvalue}/></div> */}
-          </>
-      )
-    
+
+        console.log('188',
+         selectIcons(curitem, p, iconvalue, register, handleChangesicon)
+         );
+        return (selectIcons(curitem, p, iconvalue, register, handleChangesicon))
+        // return (
+        //   <>
+        //     <div key={curitem.id + p} className="field" >
+        //       <label className="label mt-1" htmlFor="name">
+        //         {/* icon //: Currentvalue = {props.item.icon} <br/> */}
+        //         icon
+        //         <select className="selectpicker ml-2 float-right" value={iconvalue} onChange={handleChangesicon} >
+        //           {/* <option value={`${iconvalue}`}>Current</option> */}
+        //           <option value="https://img.icons8.com/color/2x/object.png">Object</option>
+        //           <option value="https://img.icons8.com/clouds/2x/services.png">Services</option>
+        //           <option value="https://img.icons8.com/color/2x/important-property.png">Important-property</option>
+        //           <option value="https://img.icons8.com/color/2x/urgent-property.png">Urgent-property</option>
+        //           <option value="https://img.icons8.com/color/2x/add-property-1.png">Property</option>
+        //           <option value="https://img.icons8.com/color/2x/information.png">Info</option>
+        //           <option value="https://img.icons8.com/color/2x/admin-settings-male.png">Role</option>
+        //           <option value="https://img.icons8.com/color/2x/task.png">Task</option>
+        //           <option value="https://img.icons8.com/color/2x/view-file.png">View</option>
+        //           <option value="https://img.icons8.com/cotton/72/tear-off-calendar.png">Event</option>
+        //           <option value="https://img.icons8.com/color/2x/rules-book.png">Rule</option>
+        //           <option value="https://img.icons8.com/color/2x/approve.png">Decision</option>
+        //           <option value="https://img.icons8.com/color/2x/energy-meter.png">Unittype</option>
+        //           <option value="https://img.icons8.com/color/2x/data-.png">Datatype</option>
+        //           <option value="https://img.icons8.com/color/2x/variable.png">Datavalue</option>
+        //           <option value="https://img.icons8.com/color/2x/person-male.png">Person</option>
+        //           <option value="https://img.icons8.com/color/search">Search</option>
+        //           <option value="analyse.png">Analyse.png</option>
+        //           <option value="automated.jfif">Inclusive.png</option>
+        //           <option value="book.png">Book.png</option>
+        //           <option value="car.png">Car.png</option>
+        //           <option value="default.png">Default.png</option>
+        //           <option value="exclusive.png">Exclusive.png</option>
+        //           <option value="inclusive.png">Inclusive.png</option>
+        //           <option value="info.svg">Info.svg</option>
+        //           <option value="parallel.png">Parallel.png</option>
+        //           <option value="task1.jfif">Task1.jfif</option>
+        //           <option value="tiger.svg">tiger.svg</option>
+        //         </select>
+        //       </label>
+        //       <span className="ml-1">Url :</span>
+        //       <input className="input ml-1 pt-1 w-50" onChange={handleChangesicon}
+        //         type="text"
+        //         id={`${curitem.id}+${p}`}
+        //         name={`${p}`}
+        //         value={iconvalue}
+        //         ref={register({ required: false })}
+        //         />
+        //     </div>
+        //     {/* <div><img src={iconvalue}/></div> */}
+        //   </>
+        // )
         break; 
       default:
         return <FieldDiv key={curitem.id + p} p={p} curitem={curitem} register={register} errors={errors} />
@@ -230,34 +255,18 @@ const EditProperties = (props) => {
       }
   }
 
-  const fields = listAllProperties(edititem).map(p => // remove js prototype properties
-    ((p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
-      (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
-      (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
-      (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
-      (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') && (p !== 'pasteViewsOnly') && (p !== 'deleteViewsOnly') &&
-      (p !== 'datatypes') && (p !== 'relshiptypes') && (p !== 'inputrels') &&(p !== 'outputrels') &&
-      (p.slice(-3) !== 'Ref') &&
-      (p !== 'unittypes') && (p !== 'objtypegeos') )
-      //  (p !== 'viewkind') && (p !== 'relshipviews') && (p !== 'objecttypes')
-      && p
-  ).filter(Boolean)
-
-  const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
-  // console.log('223 EditProperties', fieldsDiv);
-
-  const previewIcon =  (iconvalue) && (iconvalue.substring(0, 4) === 'http')
+  const previewIcon =  (iconvalue) && (iconvalue.substring(0, 4) === 'http') // preview choosen icon can be localserver-icon or link
     ? <div className="ml-2"><img src={iconvalue} /></div>
     // : (iconvalue.includes('/')
-    //   ? <div><img src={iconvalue} /></div>
-      : <div><img src={`./../images/${iconvalue}`}/></div>
+    // ? <div><img src={iconvalue} /></div>
+    : <div ><img src={`./../images/${iconvalue}`}/></div>
 
   return (
     <div className="edit bg-light">
       <div className="edit-dialog" >
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldsDiv}
-          {previewIcon}
+          <span  className="img float-right">{previewIcon}</span>
           <button className="btn-primary" type="submit">Save</button>
         </form>
       </div>

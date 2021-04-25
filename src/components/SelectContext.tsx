@@ -6,10 +6,13 @@ import Selector from './utils/Selector'
 import { loadState, saveState } from './utils/LocalStorage'
 import { FaJoint } from 'react-icons/fa';
 
+const debug = false;
+
 const SelectContext = (props: any) => {
   // console.log('8 8', props.modal);
   const dispatch = useDispatch()
   let state = useSelector((state:any) => state) // Selecting the whole redux store
+  if (debug) console.log('12 state', state);
   const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
   const models = useSelector(models => state.phData?.metis?.models)  // selecting the models array
   const focusModel = useSelector(focusModel => state.phFocus?.focusModel) 
@@ -37,24 +40,24 @@ const SelectContext = (props: any) => {
   
   // find object with type
   const type = (metamodels, model, objects, curov) => {                                                                                                                                                                                          
-    const mmod = metamodels?.find(mm => mm.id === model.metamodelRef)
+    const mmod = metamodels?.find(mm => (mm) && mm.id === model.metamodelRef)
     const o = objects.find(o => o.id === curov.objectRef)
     // console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
-    const type = mmod.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
+    const type = mmod?.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
     // console.log('43 SelectContext', mmod.objecttypes.name, o, type);
     return type
   }
 
   // function handleSendContextAsEmail() {
-    const emailAddress = 'snorres@gmail.com'
-    const subject = "Context subject"
-    const bodyFocus = JSON.stringify(props.phFocus)
-    // const bodyData = JSON.stringify(state.phData)
-    const body = bodyFocus
-  const hrefGmail = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=' + emailAddress+'&subject=' + subject + '&body=' + body
-  const hrefEmail = 'mailto:' + emailAddress+'?subject=' + subject + '&body=' + body
-  const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
-  const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
+  //   const emailAddress = 'snorres@gmail.com'
+  //   const subject = "Context subject"
+  //   const bodyFocus = JSON.stringify(props.phFocus)
+  //   // const bodyData = JSON.stringify(state.phData)
+  //   const body = bodyFocus
+  // const hrefGmail = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=' + emailAddress+'&subject=' + subject + '&body=' + body
+  // const hrefEmail = 'mailto:' + emailAddress+'?subject=' + subject + '&body=' + body
+  // const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
+  // const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
   // const emailDiv = <a href="mailto:${emailAddress}?subject=${subject}&body=${body}">Send mail with Link to  context</a>
   //https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=target@email.com&subject=MISSED%20CALL%20EZTRADER&body=Hello%2C%0A%0AI%20tried%20contacting%20you%20today%20but%20you%20seem%20to%20have%20missed%20my%20call.%20%0A%0APlease%20return%20my%20call%20as%20soon%20as%20you%E2%80%99re%20available.%20%0A%0AIn%20any%20case%2C%20I%20will%20try%20ringing%20you%20at%20a%20later%20time.%0A%0A%0ATy%2C%0A%0A%0A%0A
   // console.log('51 SelectContext', emailDivMailto);
@@ -70,7 +73,8 @@ const SelectContext = (props: any) => {
   const selproperties = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Property')
   const selInfo = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Information')
 
-
+  if (debug) console.log('76', uniqueovs, selobjviews);
+  
   // let optionModel
   const handlePhDataChange = (event:any) => {
     // const id = JSON.parse(event.value).id
@@ -132,28 +136,44 @@ const SelectContext = (props: any) => {
   
   return (
     <>
-      <button className="btn-context btn-link float-right mb-0 pr-2" size="sm" color="link" onClick={toggle}>{buttonLabel}
+      <button className="btn-context btn-link btn-sm float-right mb-0 py-0 pr-2" style={{height: "22px"}} color="link" onClick={toggle}>{buttonLabel}
       </button>
-      <Modal isOpen={modal} toggle={toggle} className={className} style={{marginTop: "90px"}} >
+      <Modal isOpen={modal} toggle={toggle}  >
         <ModalHeader toggle={toggle}>Set Context: </ModalHeader>
         <ModalBody >
-          <div className="context-list border-bottom border-dark">Context :
-            Model: <strong>{props.phFocus?.focusModel?.name}</strong> |
-            Modelview: <strong>{props.phFocus?.focusModelview?.name}</strong> |
-            Objectview: <strong>{props.phFocus?.focusObjectview?.name}</strong> |
-            {/* Object: <strong>{phFocus?.focusObject?.name}</strong> | */}
-            Org: <strong>{props.phFocus?.focusOrg?.name}</strong> |
-            Proj: <strong>{props.phFocus?.focusProj?.name}</strong> |
-            Role: <strong>{props.phFocus?.focusRole?.name}</strong> |
-            Task: <strong>{props.phFocus?.focusTask?.name}</strong> |
+          <div className="context-list1 border-bottom border-dark">Current Context / Focus :<br />
+            <span className="context-item">Model: <strong className="focusValue">{ props.phFocus?.focusModel?.name }</strong> </span><br />
+            <span className="context-item">Modelview: <strong className="focusValue">{props.phFocus?.focusModelview?.name}</strong> </span><br />
+            <span className="context-item">Objectview: <strong className="focusValue">{props.phFocus?.focusObjectview?.name}</strong> </span><br />
+            <span className="context-item">Focus Object: <strong className="focusValue">{props.phFocus?.focusObject?.name}</strong> </span><br />
+            {/* <span className="context-item">Objecttype: <strong className="focusValue">{props.phFocus?.focusObjecttype?.name}</strong> </span> */}
+            {/* <span className="context-item">Objecttypeview: <strong className="focusValue">{props.phFocus?.focusObjecttypeview?.name}</strong> </span> */}
+            {/* <span className="context-item">Relshipview: <strong className="focusValue">{props.phFocus?.focusRelshipview?.name}</strong> </span> */}
+            {/* <span className="context-item">Relship: <strong className="focusValue">{props.phFocus?.focusRelship?.name}</strong> </span> */}
+            {/* <span className="context-item">Relshiptype: <strong className="focusValue"{props.phFocus?.focusRelshiptype?.name}</strong> </span> */}
+            <span className="context-item">Org: <strong className="focusValue">{props.phFocus?.focusOrg?.name}</strong> </span><br />
+            <span className="context-item">Proj: <strong className="focusValue">{props.phFocus?.focusProj?.name}</strong> </span><br />
+            <span className="context-item">Role: <strong className="focusValue">{props.phFocus?.focusRole?.name}</strong> </span><br />
+            <span className="context-item">Task: <strong className="focusValue">{props.phFocus?.focusTask?.name}</strong> </span><br />
+            {/* <span className="context-item"><SelectContext buttonLabel='Context' className='ContextModal' phFocus={phFocus} /> </span> */}
+            {/* <span className="context-item">FocusModel: <strong className="focusValue">{props.phFocus?.focusModel?.name}</strong> </span><br />
+            <span className="context-item">FocusModelview: <strong className="focusValue">{props.phFocus?.focusModelview?.name}</strong> </span><br /> */}
+            {/* <span className="context-item">Tab: <strong className="focusValue">{pprops.hFocus?.focusTab}</strong> </span> */}
+            <span className="context-item">Template: <strong className="focusValue">{props.phFocus?.focusTemplateModel?.name}</strong> </span><br />
+            <span className="context-item">TemplateModelview: <strong className="focusValue">{props.phFocus?.focusTemplateModelview?.name}</strong> </span><br />
+            <span className="context-item">TargetModel: <strong className="focusValue">{props.phFocus?.focusTargetModel?.name}</strong> </span><br />
+            <span className="context-item">TargetModelview: <strong className="focusValue">{props.phFocus?.focusTargetModelview?.name}</strong> </span><br />
           </div>
           <div className="select bg-light pt-0 ">
-            <Selector key='1' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
-            <Selector key='2' type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />
-            <Selector key='3' type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg' />
-            <Selector key='4' type='SET_FOCUS_PROJ' selArray={selprojs} selName='Projects' focustype='focusProj' />
+            <Selector key='Tab' type='SET_FOCUS_TAB' selArray={seltasks} selName='Tab' focustype='focusTab' />
+            <Selector key='Task' type='SET_FOCUS_TASK' selArray={seltasks} selName='Tasks' focustype='focusTask' />
+            <Selector key='Role'  type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' />
+            {/* <Selector key='Tab'  type='SET_FOCUS_ROLE' selArray={selroles} selName='Roles' focustype='focusRole' /> */}
+            {/* <Selector key={selName}  type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg'  /> */}
+            {/* <Selector key={selName} ' type='SET_FOCUS_ORG' selArray={selorgs} selName='Orgs' focustype='focusOrg' focus={state.phFocus.focusOrg.name} /> */}
+            {/* <Selector key={selName}  type='SET_FOCUS_PROJ' selArray={selprojs} selName='Projects' focustype='focusProj' /> */}
             {/* <Selector type='SET_FOCUS_PROJ' selArray={seloprojs} selName='Projects' focustype='focusProj' /> */}
-            <Selector key='5' type='SET_FOCUS_OBJECTVIEW' selArray={selobjviews} selName='Objectviews' focustype='focusObjectview' />
+            <Selector key='Objectview'  type='SET_FOCUS_OBJECTVIEW' selArray={selobjviews} selName='Object(view)' focustype='focusObjectview'/>
             {/* <hr style={{ borderTop: "1px solid #8c8b8" , backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} /> */}
             {/* <h6>Model repository (Firebase) </h6> */}
             <hr style={{ backgroundColor: "#ccc", padding: "1px", marginTop: "5px", marginBottom: "0px" }} />
@@ -161,95 +181,17 @@ const SelectContext = (props: any) => {
  
  
         </ModalBody>
-          <div className="ml-2">{emailDivGmail}</div>
-        <div className="ml-2">{emailDivMailto}</div>
+          {/* <div className="ml-2">{emailDivGmail}</div>
+        <div className="ml-2">{emailDivMailto}</div> */}
         <ModalFooter>
-          <Button color="primary" onClick={toggle}>Set</Button>{' '}
+          {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
           <Button color="link" onClick={toggle}>Exit</Button>
         </ModalFooter>
       </Modal>
     
    
       <style jsx>{`
-            .list-obj {
-              min-Width: 90px;
-            }
-            /*******************************
-            * MODAL AS LEFT/RIGHT SIDEBAR
-            * Add "left" or "right" in modal parent div, after className="modal".
-            * Get free snippets on bootpen.com
-            *******************************/
-            .modal {
-                z-index: 1;
-                margin-top: 38%;
-            }
-            .modal.right .modal-dialog {
-              position: fixed;
-              top: 50%;
-              margin: 150px auto 200px auto;
-              width: 380px;
-              height: 60%;
-              color: black;
-              -webkit-transform: translate3d(0%, 0, 0);
-              -ms-transform: translate3d(0%, 0, 0);
-              -o-transform: translate3d(0%, 0, 0);
-              transform: translate3d(0%, 0, 0);
-            }
-
-            .modal.right .modal-content {
-              height: 80%;
-              overflow-y: auto;
-            }
-
-            .modal.right .modal-body {
-              padding: 15px 15px 80px;
-              color: #444;
-            }
-
-            .modal.right.fade .modal-dialog {
-              position: abolute;
-              top: 100px;
-              right: 320px;
-              -webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
-              -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
-              -o-transition: opacity 0.3s linear, left 0.3s ease-out;
-              transition: opacity 0.3s linear, left 0.3s ease-out;
-            }
-            .modal.fade.in {
-              opacity: 1;
-            }
-            .modal.right.fade.show .modal-dialog {
-              right: 0;
-              transform: translate(0,0);
-            }
-
-            /* ----- MODAL STYLE ----- */
-            .modal-content {
-              border-radius: 0;
-              border: none;
-            }
-
-            .modal-header {
-              border-bottom-color: #eeeeee;
-              background-color: #fafafa;
-            }
-            .modal-body {
-               width: 400px;
-            }
-            .modal-backdrop .fade .in {
-              /* display: none; */
-              /* opacity: 0; */
-              /* opacity: 0.5; */
-              /* filter: alpha(opacity=50) !important; */
-              /* background: #fff; */
-                    }
-            .modal-background {
-              display: none;
-            }
-            .btn-context {
-              // font-size: 80%;
-              font-weight: bold;
-            }
+    
             `}</style> 
     </>
   )

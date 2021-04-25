@@ -1,7 +1,8 @@
-//@ts-nocheck
-// import React, { useState } from "react";
+// @ts-nocheck
+import React, { useState,  useEffect } from "react";
 // import { connect } from 'react-redux';
 import { connect, useDispatch }  from 'react-redux';
+// import imageUrlBuilder from '@sanity/image-url';
 import { loadData } from '../actions/actions'
 import Page from '../components/page';
 import Layout from '../components/Layout';
@@ -10,15 +11,71 @@ import Footer from "../components/Footer"
 import Index from '../components/Index';
 import SetContext from '../defs/SetContext'
 import TasksHelp from '../components/TasksHelp'
+import styles from '../styles/Home.module.css'
 
 const page = (props: any) => {
-
+  
   // console.log(props)
   const dispatch = useDispatch()
-
+  const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
+  
   if (!props.phData) {
     dispatch(loadData())
   }
+  // if (!props.phBlog) {
+  //   console.log('16 index', props);
+  //   dispatch(loadDataBlog())
+  // }
+
+  // let posts =  props?.phBlog?.posts || null
+
+
+  // useEffect(() => {
+  //   posts = props.phBlog?.posts
+  // }, [props?.phBlog]); 
+  
+  // useEffect(() => {
+  //   if (posts && posts.length) {
+  //     console.log('34 index', posts);
+  //     const imgBuilder = imageUrlBuilder({
+  //       projectId: 'qx699h4j',
+  //       dataset: 'production',
+  //     });
+  //     console.log('44 index', imgBuilder);
+      
+  //     setMappedPosts(
+  //       posts.map(p => {
+  //         console.log('48 p', p);
+  //         return {
+  //           ...p,
+  //           mainImage: imgBuilder.image(p.mainImage).width(500).height(250),
+  //         }
+  //       })
+  //       );
+  //       console.log('44 index', mappedPosts[0]);
+  //   } 
+  //   // else {
+  //   //   setMappedPosts([]);
+  //   // }
+  // }, [posts]);
+
+  // const postsDiv =   
+                // <div className={styles.main}>
+                //   <h1>Welcome To My Blog</h1>
+
+                //   <h3>Recent Posts: </h3>
+
+                //   <div className={styles.feed}>
+                //     {mappedPosts.length ? mappedPosts.map((p, index) => (p) && (
+                //       <div onClick={() => router.push(`/post/${p.slug.current}`)} key={index} className={styles.post}>
+                //         <h3>{p.title}</h3>
+                //         <img className={styles.mainImage} src={p.mainImage} />
+                //       </div>
+                //     )) : <>No Posts Yet</>}
+                //   </div>
+                // </div>
+
+
 
   // const state = useSelector(state => state)
   // const metis = (state.phData) && state.phData.metis
@@ -30,7 +87,7 @@ const page = (props: any) => {
 // * Set up the Context items and link to select Context modal,
 // */
   const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
-
+  
   return (
     <div>
       <Layout user={ props.phUser?.focusUser } >
@@ -48,13 +105,12 @@ const page = (props: any) => {
                 <TasksHelp />
               </div>
               <div className="workarea">
-                <Index />
+                  <Index />
               </div>
             </div>
             <div className="footer">
               <Footer />
             </div>
-            
           </div>
         </div>
       </Layout>
@@ -137,4 +193,3 @@ const page = (props: any) => {
 // export default Page;
 export default Page(connect(state => state)(page));
 // export default authenticated(Page(connect(state => state)(page)));
-

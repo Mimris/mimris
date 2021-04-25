@@ -18,6 +18,7 @@ p {
   /* min-width: 300px; */
   /* min-height: 82vh; */
   height: 76vh;
+  /* height: 16vh; */
   width: 100%;
   /* height: 100%; */
   border: solid 1px black;
@@ -29,19 +30,22 @@ p {
   cursor: default;
   margin-top: 2px;
   width: 250px;
-  background-color: #DDDDDD;
+  background-color: #EEEEEE;
 }
 
 .inspector td, th {
-  padding: 0px;
+  padding-left: 2px;
+  /* padding-right: 4px; */
+  border-bottom: 1px solid #bbb8b8; /* Grey 900 */
 }
 
 .inspector input {
   font: 300 1rem Roboto, helvetica, sans-serif;
   border: 0;
   outline: none;
-  border-bottom: 1px solid #212121; /* Grey 900 */
+  border-bottom: 1px solid #EEEEEE; /* Grey 900 */
   padding: 2px;
+  padding-right: 0px;
 }
 
 .inspector input:disabled {

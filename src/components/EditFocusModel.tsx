@@ -50,30 +50,30 @@ const EditFocusModel = (props) => {
   const currtypeview = curmetamodel?.relshiptypeviews?.find(tv => tv.id === currelview?.typeviewRef)
   
   
-  if (debug) console.log('42 EditFocusModel', props.modelType, curtableobj, curobj);
+  if (debug) console.log('42 EditFocusModel', props.modelType, curmmrel, curmmobj);
   
   const editmpropertyDiv = (props.modelType === 'modelview') 
-    && (curmodel) && <EditProperties item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
+    && (curmodel) && <EditProperties key={curmodel.id} item={curmodel} curobj={curmodel} type={'UPDATE_MODEL_PROPERTIES'} />
   const editmvpropertyDiv = (props.modelType === 'modelview') 
-    && (curmodelview) && <EditProperties item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
+    && (curmodelview) && <EditProperties key={curmodelview.id} item={curmodelview} curobj={curmodelview} type={'UPDATE_MODELVIEW_PROPERTIES'} />
   const editmmpropertyDiv = (props.modelType === 'modelview') 
-    && (curmetamodel) && <EditProperties item={curmetamodel} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
+    && (curmetamodel) && <EditProperties key={curmetamodel.id} curobj={curmetamodel} type={'UPDATE_METAMODEL_PROPERTIES'} />
 
   const editovpropertyDiv = (props.modelType === 'model') 
     ? (props.buttonLabel === 'Obj')
-      ? (curobjview) && <EditProperties item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
-      : (currelview) && <EditProperties item={currelview} curobj={currel} type={'UPDATE_RELSHIPVIEW_PROPERTIES'} />
+      ? (curobjview) && <EditProperties key={curobjview.id} item={curobjview} curobj={curobj} type={'UPDATE_OBJECTVIEW_PROPERTIES'} />
+      : (currelview) && <EditProperties key={currelview.id} curobj={currel} type={'UPDATE_RELSHIPVIEW_PROPERTIES'} />
     : (props.buttonLabel === 'Obj')
-      ? (curmmobj) && <EditProperties item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
-      : (curmmrel) && <EditProperties item={curmmrel} curobj={curmmrel} type={'UPDATE_RELSHIPTYPE_PROPERTIES'} />
+      ? (curmmobj) && <EditProperties key={curmmobj.id} item={curmmobj} curobj={curobj} type={'UPDATE_OBJECTTYPE_PROPERTIES'} />
+      : (curmmrel) && <EditProperties key={curmmrel.id} item={curmmrel} curobj={curmmrel} type={'UPDATE_RELSHIPTYPE_PROPERTIES'} />
 
   const editopropertyDiv = (props.modelType === 'model' || 'objects') &&
      (props.modelType === 'model') 
       ?  (props.buttonLabel === 'Obj') 
           ?
-            (curobj) && <EditProperties item={curobj} type={'UPDATE_OBJECT_PROPERTIES'} /> ||
-            (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
-          : (currel) && <EditProperties item={currel} type={'UPDATE_RELSHIP_PROPERTIES'} />
+            (curobj) && <EditProperties key={curobj.id} item={curobj} type={'UPDATE_OBJECT_PROPERTIES'} /> ||
+            (curmmotypegeos) && <EditProperties key={curmmotypegeos.id} item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
+          : (currel) && <EditProperties key={currel.id} item={currel} type={'UPDATE_RELSHIP_PROPERTIES'} />
           // : (props.buttonLabel === 'Obj')
           //   ? (curmmotypegeos) && <EditProperties item={curmmotypegeos} type={'UPDATE_OBJECTTYPEGEOS_PROPERTIES'} />
           //   : <></>
@@ -84,11 +84,11 @@ const EditFocusModel = (props) => {
     //   ? <div className="helptext p-4 text-info">This Objectview has no local typeview.<br /> Right-Click the object's icon and select "Add local typeview" to create a local Typevew</div>
     //   : (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
     ? (props.buttonLabel === 'Obj')
-      ? (curotypeview) && <EditProperties item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+      ? (curotypeview) && <EditProperties key={curotypeview.id} item={curotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
       : (currtypeview) && <EditProperties key={currtypeview.id} item={currtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
     : (props.buttonLabel === 'Obj')
-      ? (curmmotypeview) && <EditProperties item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
-      : (curmmrtypeview) && <EditProperties item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
+      ? (curmmotypeview) && <EditProperties key={curmmotypeview.id} item={curmmotypeview} type={'UPDATE_OBJECTTYPEVIEW_PROPERTIES'} />
+      : (curmmrtypeview) && <EditProperties key={curmmrtypeview.id} item={curmmrtypeview} type={'UPDATE_RELSHIPTYPEVIEW_PROPERTIES'} />
 
   const idNameDiv = (props.modelType === 'modelview') 
     ? 
@@ -133,24 +133,24 @@ const EditFocusModel = (props) => {
 
   const objectviewheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'Obj')
-      ? 'Objectview:' : 'Relshipview'
+      ? 'Objectview' : 'Relshipview'
     : (props.buttonLabel === 'Obj')
-      ? 'Objecttype:' : 'Relshiptype' 
+      ? 'Objecttype' : 'Relshiptype' 
 
-  const objectheader = (props.modelType === 'model' || 'objects') 
-    ? (props.modelType === 'objects') &&  'Object'
-    :  (props.buttonLabel === 'Obj')
-      ?'Object:' 
-      :'Relship:' 
+  const objectheader = (props.modelType === 'model' || 'objects') &&
+    // ? (props.modelType === 'objects') && 'Object'
+    (props.buttonLabel === 'Obj')
+      ?'Object' 
+      :'Relship' 
     // : (props.buttonLabel === 'Obj')
     //   ? 'Objecttypegeos'
     //   : ''
 
   const typeviewheader = (props.modelType === 'model') 
     ? (props.buttonLabel === 'Obj')
-      ? 'Typeview:' : 'Typeview'
+      ? 'Typeview' : 'Typeview'
     : (props.buttonLabel === 'Obj')
-      ? 'Typeview:' : 'Typeview'
+      ? 'Typeview' : 'Typeview'
 
   // console.log('34 EditFocusModel', curmmobj, curmmotypegeos, curmmotypeview);
   let dialogDiv
@@ -221,7 +221,7 @@ const EditFocusModel = (props) => {
   const toggle = () => setModal(!modal);
   return (
     <>
-      < button className="btn-primary float-right px-3 mr-1"  onClick={toggle} > {buttonLabel}
+      < button className="btn-dark float-right px-3 mr-1"  onClick={toggle} > {buttonLabel}
       </button >
       <Modal isOpen={modal} toggle={toggle} className={className} style={{ marginTop: "96px", fontSize: "90%"}} >
         <ModalHeader toggle={toggle}>{modalheader}</ModalHeader>

@@ -1,8 +1,8 @@
 
-// @ts -nocheck
+// @ts-nocheck
 import { hash } from 'bcryptjs';
 import { NextApiRequest, NextApiResponse } from 'next';
-import sqlite from 'sqlite';
+import sqlite from 'sqlite3';
 
 export default async function signup(
   req: NextApiRequest,

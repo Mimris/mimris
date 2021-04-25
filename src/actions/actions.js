@@ -2,33 +2,27 @@ import {
   FAILURE, 
   LOAD_DATA, 
   LOAD_DATA_SUCCESS, 
+  LOAD_DATAMODELLIST, 
+  LOAD_DATAMODELLIST_SUCCESS, 
+  LOAD_DATAMODEL, 
+  LOAD_DATAMODEL_SUCCESS, 
   LOAD_TOSTORE_PHDATA, 
   LOAD_TOSTORE_PHSOURCE,
   LOAD_TOSTORE_PHFOCUS, 
   LOAD_TOSTORE_NEWMODEL,
   LOAD_TOSTORE_NEWMODELVIEW,
   SET_FOCUS_USER, 
+  SET_FOCUS_TAB,
+  SET_FOCUS_MODEL, 
+  SET_FOCUS_MODELVIEW,
+  SET_FOCUS_TARGETMODEL, 
+  SET_FOCUS_TARGETMODELVIEW,
   SET_FOCUS_OBJECT, 
   SET_FOCUS_OBJECTVIEW, 
   SET_FOCUS_RELSHIP, 
   SET_FOCUS_RELSHIPVIEW, 
   SET_FOCUS_OBJECTTYPE, 
   SET_FOCUS_RELSHIPTYPE, 
-  SET_MYMETIS_MODEL,
-  SET_MYMETIS_PARAMETER,
-  SET_MY_GOMODEL,
-  SET_MY_GOMETAMODEL,
-  SET_FOCUS_MODEL, 
-  SET_FOCUS_MODELVIEW,
-  SET_FOCUS_TARGETMODEL, 
-  SET_FOCUS_TARGETMODELVIEW,
-  SET_GOJS_MODEL, 
-  SET_GOJS_TARGETMODEL,
-  SET_GOJS_MODELOBJECTS,
-  SET_GOJS_METAMODEL,
-  SET_GOJS_METAMODELPALETTE, 
-  SET_GOJS_METAMODELMODEL,
-  SET_GOJS_TARGETMETAMODEL,
   SET_FOCUS_PROJ, 
   SET_FOCUS_ORG, 
   SET_FOCUS_ROLE, 
@@ -36,6 +30,23 @@ import {
   SET_FOCUS_TASK, 
   SET_FOCUS_SOURCE, 
   SET_FOCUS_REFRESH, 
+  SET_USER_SHOWDELETED,
+
+  SET_MYMETIS_MODEL,
+  SET_MYMETIS_PARAMETER,
+  SET_MY_GOMODEL,
+  SET_MY_GOMETAMODEL,
+
+  SET_GOJS_MODEL, 
+  SET_GOJS_TARGETMODEL,
+  SET_GOJS_MODELOBJECTS,
+  SET_GOJS_METAMODEL,
+  SET_GOJS_METAMODELPALETTE, 
+  SET_GOJS_METAMODELMODEL,
+  SET_GOJS_TARGETMETAMODEL,
+
+
+  UPDATE_PROJECT_PROPERTIES,
   UPDATE_MODEL_PROPERTIES,
   UPDATE_MODELVIEW_PROPERTIES,
   UPDATE_METAMODEL_PROPERTIES,
@@ -66,6 +77,8 @@ import {
   UPDATE_OBJECTVIEW_NAME
 } from './types';
 
+const debug = false
+
 export const failure = (error) => {
   return {
     type: FAILURE,
@@ -85,6 +98,32 @@ export const loadDataSuccess = (data) => {
   }
 }
 
+export const loadDataModelList = () => {
+  if (debug) console.log('93 actions loadDataModelList ');
+  return { type: LOAD_DATAMODELLIST }
+}
+
+export const loadDataModelListSuccess = (data) => {
+  if (debug) console.log('37 loadDataModelListSuccess ', data);
+  return {
+    type: LOAD_DATAMODELLIST_SUCCESS,
+    data
+  }
+}
+
+export const loadDataModel = (data) => {
+  return { type: LOAD_DATAMODEL },
+  data
+}
+
+export const loadDataModelSuccess = (data) => {
+  if (debug) console.log('110 actions loadDataModelSuccess ', data);
+  return {
+    type: LOAD_DATAMODEL_SUCCESS,
+    data
+  }
+}
+
 export const loadToStorePhsource = (data) => {
   // console.log('46---actions |setFocusPhsource ', data);
   return {
@@ -92,6 +131,7 @@ export const loadToStorePhsource = (data) => {
     data: JSON.parse(data.value)
   }
 }
+
 export const loadToStorePhdata = (data) => {
   // console.log('21---actions | setFocusPhdata ', data);
   return {
@@ -125,6 +165,13 @@ export const setFocusUser = (data) => {
   // console.log('21---actions |', data);
   return {
     type: SET_FOCUS_USER,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusTab = (data) => {
+  // console.log('21---actions |', data);
+  return {
+    type: SET_FOCUS_TAB,
     data: JSON.parse(data.value)
   }
 }
@@ -304,6 +351,21 @@ export const setfocusRefresh = (data) => {
   }
 }
 
+export const setUserShowDeleted = (data) => {
+  // console.log('action-type-data', data);
+  return {
+    type: SET_USER_SHOWDELETED,
+    data: JSON.parse(data.value)
+  }
+}
+
+export const update_project_properties = (data) => {
+  // console.log('76 actions update_model_properties', data.payload);
+  return {
+    type: UPDATE_PROJECT_PROPERTIES,
+    data: JSON.parse(data.value)
+  }
+}
 export const update_model_properties = (data) => {
   // console.log('76 actions update_model_properties', data.payload);
   return {

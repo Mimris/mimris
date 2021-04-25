@@ -5,6 +5,8 @@
 import * as go from 'gojs';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
+import * as akm from '../../../akmm/metamodeller';
+import * as gjs from '../../../akmm/ui_gojs';
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 //import { stringify } from 'querystring';
@@ -16,6 +18,8 @@ interface DiagramProps {
   linkDataArray: Array<go.ObjectData>;
   layout: string | null;
   modelData: go.ObjectData;
+  myMetis: akm.cxMetis;
+  myGoModel: gjs.goModel;
   skipsDiagramUpdate: boolean;
   onDiagramEvent: (e: go.DiagramEvent) => void;
   onModelChange: (e: go.IncrementalData) => void;
@@ -26,10 +30,13 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
      * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
      */
     private diagramRef: React.RefObject<ReactDiagram>;
+    public myMetis: akm.cxMetis;
     /** @internal */
     constructor(props: DiagramProps) {
       super(props);
+      this.myMetis = props.myMetis;
       this.diagramRef = React.createRef();
+      this.initPalette = this.initPalette.bind(this);
     }
   
     /**
@@ -63,6 +70,8 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
      */
     private initPalette(): go.Diagram {
       const $ = go.GraphObject.make;
+      // const myMetis = this.myMetis;
+      // console.log('74 myMetis', myMetis);
       // define myPalette
       let myPalette;
       // console.log('68 myPalette', this);      
@@ -76,9 +85,11 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
               maxSelectionCount: 1,
               layout: $(go.GridLayout,
                 {
-                  sorting: go.GridLayout.Ascending,
+                  // sorting: go.GridLayout.Ascending,
+                  sorting: go.GridLayout.Forward,
                   wrappingColumn: 1
                 }),
+
               draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
               grid: $(go.Panel, "Grid",
                     $(go.Shape, "LineH", { stroke: "lightgray", strokeWidth: 0.5 }),
@@ -90,11 +101,27 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                 {
                   linkKeyProperty: 'key'
                 })
+                  
             });
 
             let paletteNodeTemplate: any;
             paletteNodeTemplate = 
             $(go.Node, "Auto",
+              {
+                click: function(e, node) {
+                  // const myMetis = this.myMetis;
+                  // console.log('103 node, myMetis', node, myMetis);
+                  // const diagram = myMetis.myDiagram;
+                  // const n = diagram.findNodeForKey(node?.key);
+                  // console.log('105 n, node', n, node);
+                  // diagram.startTransaction("highlight");
+                  // // remove any previous highlighting
+                  // diagram.clearHighlighteds();           
+                  // n.isHighlighted = true; 
+                  // for each Link coming out of the Node, set Link.isHighlighted
+                  // diagram.commitTransaction("highlight");                        
+                }  
+              },
               // for sorting, have the Node.text be the data.name
               new go.Binding("text", "name"),
                 
@@ -109,7 +136,7 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
                   new go.Binding("stroke", "strokecolor"),
                   new go.Binding("strokeWidth", "strokewidth")
               ),
-                
+              
               $(go.Panel, "Horizontal",
                   $(go.Picture,
                     {

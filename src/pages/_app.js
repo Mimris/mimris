@@ -9,6 +9,7 @@ import "../styles/styles.css"
 import "../styles/styles-grid.css"
 // import "../styles/styles-dm.scss"
 import "../styles/gojs.css"
+// import 'reactjs-popup/dist/index.css';
 
 
 class MyApp extends App {

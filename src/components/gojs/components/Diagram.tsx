@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -31,7 +31,7 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 import { FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
-import svgs from '../../utils/Svgs'
+// import svgs from '../../utils/Svgs'
 import { setMyMetisParameter } from '../../../actions/actions';
 import { iconList } from '../../forms/selectIcons';
 // import { stringify } from 'querystring';
@@ -468,7 +468,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           const node = myDiagram.findNodeForKey(selObj.key);
           data = node.data;
           if (debug) console.log('284 objtypeview, data', data);
-          typeview = data.objectview.typeview;
+          typeview = data.objectview?.typeview;
           typeview = data.typeview;
           typeview = myMetis.findObjectTypeView(typeview.id);
           const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
@@ -3209,7 +3209,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 $(go.Panel, "Spot",
                   { contextMenu: partContextMenu },
                   $(go.Shape, {  // this is the square around the image
-                    fill: "white", stroke: "#ddd", opacity: "0.4",
+                    fill: "white", stroke: "#ddd", opacity: 0.4,
                     desiredSize: new go.Size(50, 50), 
                     margin: new go.Margin(0, 6, 0, 2),
                     // shadowVisible: true,
@@ -3297,7 +3297,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               )
           },
           {
-            routing: go.Link.AvoidsNodes,
+            // routing: go.Link.AvoidsNodes,
             // routing: go.Link.Orthogonal,
             routing: go.Link.Normal,
             // curve: go.Link.JumpOver,
@@ -3306,7 +3306,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           },  // link route should avoid nodes
           { contextMenu: linkContextMenu },
           new go.Binding("points").makeTwoWay(),
-          $(go.Shape, { stroke: "black", strokeWidth: "1", strokeDashArray: null, shadowVisible: true, },
+          $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("strokeWidth", "strokewidth"),
             new go.Binding("strokeDashArray", "dash",
@@ -3477,7 +3477,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // name: "SHAPE", //fill: "rgba(228,228,228,0.53)",
               // name: "SHAPE", fill: "transparent",
               name: "SHAPE", fill: "white",
-              opacity: "0.95",
+              opacity: 0.95,
               minSize: new go.Size(180, 120), 
               desiredSize: new go.Size(300, 200),
               margin: new go.Margin(0, 1, 1, 4),
@@ -3551,7 +3551,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Shape, "Rectangle",
             {
               name: "SHAPE", fill: "lightyellow",
-              // opacity: "0.7",
+              // opacity: 0.7,
               //desiredSize: new go.Size(100, 20),
               //margin: new go.Margin(100, 0, 0, 0),
             },

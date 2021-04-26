@@ -5404,7 +5404,7 @@
           "objects": [
             {
               "id": "7f802fae-6d5d-4588-7aee-c6b34f421f70",
-              "name": "Process",
+              "name": "",
               "description": "",
               "typeRef": "3c016a34-394e-4ccd-283c-5d69d4667c6b",
               "typeName": "Process",
@@ -5416,13 +5416,21 @@
               "defaultValue": "",
               "markedAsDeleted": false,
               "generatedTypeId": "",
-              "modified": true,
+              "modified": false,
               "isGroup": "",
               "Type": ""
             },
             {
               "id": "6a932553-e8f0-4ceb-e672-64f600804fe2",
+<<<<<<< public/akmmodels/IDEF.json
+<<<<<<< public/akmmodels/IDEF.json
               "name": "Interface",
+=======
+              "name": "",
+>>>>>>> public/akmmodels/AKMM-Project_IDEF.json
+=======
+              "name": "",
+>>>>>>> public/akmmodels/AKMM-Project_IDEF.json
               "description": "",
               "typeRef": "3d80af1d-ae2f-4b19-ff18-bd38df630c87",
               "typeName": "Interface",
@@ -5434,6 +5442,8 @@
               "defaultValue": "",
               "markedAsDeleted": false,
               "generatedTypeId": "",
+<<<<<<< public/akmmodels/IDEF.json
+<<<<<<< public/akmmodels/IDEF.json
               "modified": true,
               "iType": "",
               "icon": ""
@@ -5453,6 +5463,13 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true
+=======
+=======
+>>>>>>> public/akmmodels/AKMM-Project_IDEF.json
+              "modified": false,
+              "iType": "",
+              "icon": ""
+>>>>>>> public/akmmodels/AKMM-Project_IDEF.json
             }
           ],
           "relships": [],
@@ -5496,16 +5513,16 @@
                 },
                 {
                   "id": "301c3b96-8218-4e6b-4d10-17bf0035264b",
-                  "name": "Process",
+                  "name": "",
                   "description": "",
                   "objectRef": "7f802fae-6d5d-4588-7aee-c6b34f421f70",
                   "typeviewRef": "6c94ceb1-c923-4bf0-a4d2-1a5a7af9df7f",
-                  "group": "b97bd759-8f18-40e3-3c63-852fe3d8c0de",
+                  "group": "",
                   "isGroup": false,
                   "loc": "-380 -280",
                   "size": "",
                   "markedAsDeleted": false,
-                  "modified": true,
+                  "modified": false,
                   "figure": "",
                   "fillcolor": "",
                   "strokecolor": "",
@@ -5514,15 +5531,25 @@
                 },
                 {
                   "id": "d8a58d32-f212-470b-9e04-ab79883253c6",
-                  "name": "Interface",
+                  "name": "",
                   "description": "",
                   "objectRef": "6a932553-e8f0-4ceb-e672-64f600804fe2",
                   "typeviewRef": "e2a96ce2-5f61-47ec-362f-8796e2836e46",
+<<<<<<< public/akmmodels/IDEF.json
+<<<<<<< public/akmmodels/IDEF.json
                   "group": "b97bd759-8f18-40e3-3c63-852fe3d8c0de",
+=======
+                  "group": "",
+>>>>>>> public/akmmodels/AKMM-Project_IDEF.json
+=======
+                  "group": "",
+>>>>>>> public/akmmodels/AKMM-Project_IDEF.json
                   "isGroup": false,
                   "loc": "-380 -190",
                   "size": "",
                   "markedAsDeleted": false,
+<<<<<<< public/akmmodels/IDEF.json
+<<<<<<< public/akmmodels/IDEF.json
                   "modified": true,
                   "figure": "",
                   "fillcolor": "",
@@ -5542,6 +5569,12 @@
                   "size": "275 235",
                   "markedAsDeleted": false,
                   "modified": true,
+=======
+                  "modified": false,
+>>>>>>> public/akmmodels/AKMM-Project_IDEF.json
+=======
+                  "modified": false,
+>>>>>>> public/akmmodels/AKMM-Project_IDEF.json
                   "figure": "",
                   "fillcolor": "",
                   "strokecolor": "",
@@ -5585,8 +5618,8 @@
       "name": "Property 1"
     },
     "focusObjectview": {
-      "id": "d8a58d32-f212-470b-9e04-ab79883253c6",
-      "name": ""
+      "id": "ebc88e48-3e12-45fd-68b0-064db1ac15d6",
+      "name": "Types"
     },
     "focusRelship": {
       "id": null,

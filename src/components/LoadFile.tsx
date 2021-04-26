@@ -152,7 +152,7 @@ const LoadFile = (props: any) => {
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export to file </h6>
-                  {buttonSaveAllToFileDiv}
+                  {/* {buttonSaveAllToFileDiv} */}
                   {buttonSaveAllToFileDateDiv}
                   {buttonSaveModelToFileDiv}
                   {buttonSaveModelviewToFileDiv}

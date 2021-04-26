@@ -9,7 +9,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
-import { SaveModelToFile, SaveAllToFile, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
+import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 
 const LoadFile = (props: any) => {
   
@@ -32,11 +32,20 @@ const LoadFile = (props: any) => {
       phSource: 'localFile'
     }
 
+
+
   function handleSaveAllToFile() {
     const projectname = props.ph.phData.metis.name
     console.log('37 LoadFile', data);
     
     SaveAllToFile(data, projectname, 'AKMM-Project')
+  } 
+
+  function handleSaveAllToFileDate() {
+    const projectname = props.ph.phData.metis.name
+    console.log('37 LoadFile', data);
+    
+    SaveAllToFileDate(data, projectname, 'AKMM-Project')
   }
   
   function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
@@ -78,7 +87,14 @@ const LoadFile = (props: any) => {
       className="btn-primary  mr-2 mb-3 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-      onClick={handleSaveAllToFile}>Save Project (all) to File
+      onClick={handleSaveAllToFile}>Save Project (all) to File without date
+    </button >
+  const buttonSaveAllToFileDateDiv = 
+    <button 
+      className="btn-primary  mr-2 mb-3 w-100  " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to download the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+      onClick={handleSaveAllToFileDate}>Save Project (all) to File
     </button >
   const buttonSaveModelToFileDiv = 
     <button className="btn-primary text-white-50 btn-sm mr-2 w-100  " 
@@ -132,10 +148,12 @@ const LoadFile = (props: any) => {
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current) </h6>
                   <input className="select-input w-100" type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+             
                 </div>
                 <div className="selectbox mb-2 border">
                   <h6>Export to file </h6>
-                  {buttonSaveAllToFileDiv}
+                  {/* {buttonSaveAllToFileDiv} */}
+                  {buttonSaveAllToFileDateDiv}
                   {buttonSaveModelToFileDiv}
                   {buttonSaveModelviewToFileDiv}
                 </div>

@@ -936,6 +936,7 @@ export function createRelationship(data: any, context: any) {
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; // added sf
+    const myMetamodel = myMetis.currentMetamodel;
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
     if (debug) console.log('904 createRelationship', myGoModel, fromNode, toNode);
@@ -961,7 +962,7 @@ export function createRelationship(data: any, context: any) {
         const choices: string[]  = [];
         if (fromType && toType) {
             let defText = "";
-            const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
+            const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
             if (debug) console.log('873 createRelationship', reltypes, fromType, toType);
             if (reltypes) {
                 if (true) { 
@@ -1599,7 +1600,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === '__gohashid') retVal = false;
     if (k === 'class') retVal = false;
     if (k === 'category') retVal = false;
-    if (k === 'abstract') retVal = false;
+    // if (k === 'abstract') retVal = false;
     if (k === 'nameId') retVal = false;
     if (k === 'fs_collection') retVal = false;
     if (k === 'parent') retVal = false;
@@ -1627,8 +1628,8 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'fromObjviewRef') retVal = false;
     if (k === 'toObjview') retVal = false;
     if (k === 'fromObjview') retVal = false;
-    if (k === 'viewkind') retVal = false;
-    if (k === 'relshipkind') retVal = false;
+    // if (k === 'viewkind') retVal = false;
+    // if (k === 'relshipkind') retVal = false;
     if (k === 'valueset') retVal = false;
     if (k === 'inputrels') retVal = false;
     if (k === 'outputrels') retVal = false;

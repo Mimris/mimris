@@ -59,6 +59,9 @@ export class cxMetis {
     currentTemplateMetamodel:   cxModel | null = null;
     currentTemplateModel:       cxModel | null = null;
     currentTemplateModelview:   cxModelView | null = null;
+    currentNode:        any;
+    currentLink:        any;
+    myDiagram:          any;
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
     selectedData:       any = null;
@@ -1653,9 +1656,9 @@ export class cxMetis {
             return null;
         let reltypes = new Array();
         let types = this.getRelationshipTypes();
-        if (utils.isArrayEmpty(types)) {
+        if (!types) {
             return null;
-        } else if (types) {
+        } else {
             let i = 0;
             let reltype;
             for (i = 0; i < types.length; i++) {
@@ -2933,6 +2936,7 @@ export class cxMetaModel extends cxMetaObject {
     findRelationshipTypesBetweenTypes(fromType: cxObjectType, toType: cxObjectType, includeGen: boolean): cxRelationshipType[] | null {
         if (!fromType || !toType) return null;
         const types = this.getRelshipTypes();
+        if (debug) console.log('2939 reltypes, objtypes', types, this.objecttypes);
         if (!types) return null;
         const reltypes = new Array();
         let i = 0;
@@ -2941,7 +2945,9 @@ export class cxMetaModel extends cxMetaObject {
             reltype = types[i];
             if (reltype.isDeleted()) continue;
             if (includeGen) {
+                if (debug) console.log('2948 reltype, fromType', reltype, fromType);
                 if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
+                    if (debug) console.log('2950 reltype, toType', reltype, toType);
                     if (reltype.isAllowedToType(toType, this.objecttypes, this.relshiptypes)) {
                         reltypes.push(reltype);
                     }
@@ -3405,7 +3411,7 @@ export class cxObjectType extends cxType {
     findRelatedObjectTypes(relkind: string): cxObjectType[] | null {
         const objtypes = new Array();
         const types = this.allRelationshiptypes;
-        if (debug) console.log('3061 allReltypes', types);
+        if (debug) console.log('3414 allReltypes', types);
         if (!types) {
             return null;
         } else {
@@ -3417,10 +3423,10 @@ export class cxObjectType extends cxType {
                     if (reltype.getRelshipKind() === relkind) {
                         const fromType = reltype.getFromObjType();
                         if (fromType) {
-                            if (debug) console.log('3073 reltype', fromType.name);
+                            if (debug) console.log('3426 reltype', fromType.name);
                             if (reltype.getFromObjType().id === this.id) {
                                 const toType = reltype.getToObjType();
-                                if (debug) console.log('3076 reltype', toType.name);
+                                if (debug) console.log('3429 reltype', toType.name);
                                 objtypes.push(toType);
                             }
                         }
@@ -3433,23 +3439,23 @@ export class cxObjectType extends cxType {
     }
     inherits(type: cxObjectType, allReltypes: cxRelationshipType[]): boolean {   
         // Check if this (objecttype) inherits from type
-        if (debug) console.log('3120 this.name, type.name', this.name, type.name);
+        if (debug) console.log('3442 this.name, type.name', this.name, type.name);
         let retval = false;
         this.allRelationshiptypes = allReltypes;
         if (this.id === type.id) {
             return true;
         } else {
             const types = this.findRelatedObjectTypes(constants.relkinds.GEN);
-            if (debug) console.log('3091 this, types', this, types);
+            if (debug) console.log('3449 this, objtypes', this, types);
             if (types) {
                 for (let i = 0; i < types.length; i++) {
-                    if (debug) console.log('3096 this, type', this, type);
+                    if (debug) console.log('3452 this, objtype', this, type);
                     const supertype = types[i];
                     if (supertype.id === type.id) {
-                        if (debug) console.log('3099 Found supertype', supertype.name);
+                        if (debug) console.log('3455 Found supertype', supertype.name);
                         return true;
                     } else {
-                        if (debug) console.log('3102 find supertype of', supertype.name, supertype);
+                        if (debug) console.log('3458 find supertype of', supertype.name, supertype);
                         retval = supertype.inherits(type, allReltypes);
                         if (retval)
                             return true;
@@ -3657,9 +3663,11 @@ export class cxRelationshipType extends cxObjectType {
     }
     isAllowedFromType(objtype: cxObjectType, allObjtypes: cxObjectType[], allReltypes: cxRelationshipType[]): boolean {
         if (objtype && this.fromObjtype) {
-            if (debug) console.log('3332 objtype', objtype.name, this.fromObjtype.name);
-            if (objtype.inherits(this.fromObjtype, allReltypes))
-                return true;
+            if (debug) console.log('3666 objtype', objtype.name, this.fromObjtype.name);
+            if (objtype.inherits(this.fromObjtype, allReltypes)) {
+                if (debug) console.log('3668 inherits, true');
+                    return true;
+            }
         }
         return false;
     }
@@ -5358,6 +5366,7 @@ export class cxObjectView extends cxMetaObject {
     visible: boolean;
     loc: string;
     size: string;
+    viewkind: string;
     figure: string;
     fillcolor: string;
     strokecolor: string;
@@ -5378,6 +5387,7 @@ export class cxObjectView extends cxMetaObject {
         this.parent = "";
         this.isCollapsed = false;
         this.visible = true;
+        this.viewkind = "";
         this.loc = "";
         this.size = "";
         this.figure = "";

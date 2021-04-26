@@ -44,7 +44,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const focusObject = (props.phFocus) && props.phFocus.focusObject
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
     if (debug) console.log('46 gengojsmodel', models, curmod, curmod.modelviews, focusModelview)
-    const curmodview = (curmod && focusModelview?.id) && curmod.modelviews.find((mv: any) => mv.id === focusModelview.id)
+    const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
     const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodelRef)
     const curtargetmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodelRef)
     const curtargetmodel = (models && focusTargetModel?.id) && models.find((m: any) => m.id === curmod?.targetModelRef)
@@ -420,7 +420,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
-    metamodel.objecttypes = utils.removeArrayDuplicates(metamodel.objecttypes);
+    metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
     if (metamodel.objecttypes) {
       if (debug) console.log('419 metamodel', metamodel);
       let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
@@ -449,7 +449,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               if (!objtype.typeview) 
                 objtype.typeview = objtype.newDefaultTypeView('Object');
               const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
-              console.log('451 objtype, node', objtype, node);
               node.loadNodeContent(metamodel);
               node.strokecolor = strokecolor;
               //node.fillcolor = fillcolor;
@@ -459,7 +458,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
         }
       }
-      metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel.relshiptypes);
+      metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel?.relshiptypes);
       let relshiptypes = metamodel.relshiptypes;
       if (debug) console.log('425 relshiptypes', relshiptypes);
       if (relshiptypes) {

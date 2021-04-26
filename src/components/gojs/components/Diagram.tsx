@@ -450,8 +450,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           data = node.data;
           if (debug) console.log('455 data', data);
           typeview = data.typeview;
-          typeview = myMetis.findObjectTypeView(typeview.id);
-          for (let prop in typeview.data) {
+          typeview = myMetis.findObjectTypeView(typeview?.id);
+          for (let prop in typeview?.data) {
             typeview.data[prop] = selObj[prop];
             typeview[prop] = selObj[prop];
           }
@@ -587,7 +587,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case "Change Object type":    
         typename = (selectedOption) && selectedOption;
         const node = myMetis.currentNode;
-        typeview = node.typeview;
         const objtype = myMetis.findObjectTypeByName(typename);
         if (debug) console.log('189 objtype', objtype);
         const objview = (objtype) && uic.setObjectType(node, objtype, context);

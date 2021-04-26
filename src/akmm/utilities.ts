@@ -66,9 +66,7 @@ export function uncapitalizeFirstLetter(string) {
 
 export function removeArrayDuplicates(array: any): any {
     const uniqueSet = new Set(array); 
-    console.log('1502 uniqueSet', uniqueSet);
     const uniqueArray = [...uniqueSet];
-    console.log('1504 uniqueSet', uniqueArray);
     // array.filter((item, index) => array.indexOf(item) === index);
     // array.reduce((unique, item) => 
     //     unique.includes(item) ? unique : [...unique, item], []);

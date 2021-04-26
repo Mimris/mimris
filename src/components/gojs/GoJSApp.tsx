@@ -213,13 +213,14 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('207 myNode', myNode);
               if (myNode) {
                 data.name = text;
+                if (debug) console.log('216 data, field, text', data, field, text);
                 uic.updateObjectType(data, field, text, context);
-                if (debug) console.log('213 TextEdited', data);
+                if (debug) console.log('218 TextEdited', data);
                 const objtype = myMetis.findObjectType(data.objecttype?.id);
                 if (objtype) {
                   const gqlObjType = new gql.gqlObjectType(objtype, true);
                   modifiedTypeNodes.push(gqlObjType);
-                  if (debug) console.log('218 TextEdited', gqlObjType);
+                  if (debug) console.log('223 TextEdited', gqlObjType);
                 }
               }
             } else { // Object           
@@ -736,7 +737,14 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('650 myGoModel', myGoModel);
         const it = selection.iterator;
         const pastedNodes = new Array();
-          // First handle the objects
+        // Handle object types
+        while (it.next()) {
+          const data = it.value.data;
+          if (data.category === 'Object type') {
+            if (debug) console.log('743 data', data);
+          }
+        }
+        // First handle the objects
         while (it.next()) {
           const data = it.value.data;
           if (data.category === 'Object') {

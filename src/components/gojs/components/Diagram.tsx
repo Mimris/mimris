@@ -985,6 +985,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       msg += printf(format2, "Type", d.object.type.name);
       msg += printf(format2, "Name", d.name);
       msg += printf(format2, "Description", d.object.description);
+      msg += printf(format2, "Inputpattern", d.object.inputPattern);
       if (d.group) {
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);

@@ -125,7 +125,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('122 item', inst, item);
     for (let k in item) {
       if (k === 'abstract') {
-        if (category !== 'Object type')
+        if (!(category === 'Object' || category === 'Object type'))
           continue;
       }
       if (k === 'viewkind') {

@@ -576,7 +576,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else // object
           {
             part.category = 'Object';
-            if (debug) console.log('578 part', part);
+            if (!debug) console.log('578 part', part);
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
               console.log('581 obj', obj);

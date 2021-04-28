@@ -192,7 +192,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                         }
                     }
                     if (objtype) {
-                        objtype.typeview.applyObjectViewParameters(objview);
+                        objtype.typeview?.applyObjectViewParameters(objview);
                         if (debug) console.log('220 typeview', objview, objtype.typeview);
                         objtype.properties = objtype.properties;
                         // objtype.allObjecttypes = myMetis.objecttypes;
@@ -242,7 +242,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 objtype = myMetis.findObjectType(objtype.id);
                 const typeview = objtype.typeview;
                 if (debug) console.log('268 objview, typeview', objview, typeview);
-                typeview.applyObjectViewParameters(objview);
+                typeview?.applyObjectViewParameters(objview);
                 if (debug) console.log('270 typeview', typeview);
             }
             if (debug) console.log('272 objtype, myMetis', objtype, myMetis);
@@ -688,10 +688,11 @@ export function generateUnit(object: akm.cxObject, context: any) {
 }
 
 export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[], context: any) {
-    const myMetis   = context.myMetis;
-    const model     = context.myModel;
-    const metamodel = context.myTargetMetamodel;
-    const myDiagram = context.myDiagram;
+    const myMetis     = context.myMetis;
+    const myMetamodel = context.myMetamodel;
+    const model       = context.myModel;
+    const metamodel   = context.myTargetMetamodel;
+    const myDiagram   = context.myDiagram;
     const modifiedTypeNodes    = new Array();
     const modifiedObjTypeViews = new Array();
     const modifiedGeos         = new Array();
@@ -699,7 +700,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const modifiedRelTypeViews = new Array();
     const modifiedMetamodels   = new Array();
 
-    context.myMetamodel = metamodel; 
+    // context.myMetamodel = metamodel; 
 
     const objects = model?.getObjectsByTypename('Datatype', false);
     // For each Datatype object call generateDatatype
@@ -710,7 +711,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 generateDatatype(obj, context);
         }
     }
-    if (debug) console.log('733 objectviews', objectviews);
+    if (!debug) console.log('713 objectviews', objectviews);
     if (objectviews) {
         for (let i=0; i<objectviews.length; i++) {
             const objview = objectviews[i];
@@ -719,38 +720,42 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let obj = objview.object;
             if (!obj || obj.markedAsDeleted) 
                 continue;
-            const  types = ['Information', 'Role', 'Task', 'View', 'Query', 'Property', 'Container']; // + Property ??
+            // const  types = ['Information', 'Role', 'Task', 'View', 'Query', 'Property', 'Container']; // + Property ??
+            const  types = ['Information']; 
             for (let i=0; i<types.length; i++) {
-                const type = myMetis.findObjectTypeByName(types[i]);
+                const type = myMetamodel.findObjectTypeByName(types[i]);
+                if (!debug) console.log('725 type, obj', type, obj);
                 if (type && obj && obj.type) {
                     if (type.markedAsDeleted)
                         continue;
                     // Check if obj inherits one of the specified types - otherwise do not generate type
                     if (obj.type.inherits(type, myMetis.allRelationshiptypes)) {
-                        if (debug) console.log('746 obj', obj.name, obj);
+                        if (!debug) console.log('730 obj', obj.name, obj);
                         let objtype;
                         if ((obj.name === obj.type.name) || (obj.type.name === 'Information')) { 
-                            if (debug) console.log('749 obj, objview', obj, objview);                       
+                            if (!debug) console.log('733 obj, objview', obj, objview);                       
                             objtype = generateObjectType(obj, objview, context);
+                            if (!debug) console.log('735 obj, objview', obj, objview);                       
+                            metamodel.addObjectType(objtype);
                         }
                         // Prepare dispatches
                         if (objtype) {
-                            if (debug) console.log('754 objtype', objtype.name, objtype);
+                            if (debug) console.log('740 objtype', objtype.name, objtype);
                             // Generate GQL
                             const gqlObjectType = new gql.gqlObjectType(objtype, true);
-                            if (debug) console.log('757 Generate Object Type', gqlObjectType);
+                            if (debug) console.log('743 Generate Object Type', gqlObjectType);
                             modifiedTypeNodes.push(gqlObjectType);
                             if (objtype.typeview) {
                                 const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-                                if (debug) console.log('761 Generate Object Type', gqlObjTypeview);
+                                if (debug) console.log('747 Generate Object Type', gqlObjTypeview);
                                 modifiedObjTypeViews.push(gqlObjTypeview);
                             }
-                            let geo = context.myTargetMetamodel.findObjtypeGeoByType(objtype);
+                            let geo = metamodel.findObjtypeGeoByType(objtype);
                             if (!geo) 
                                 geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype, "", "");
                             if (geo) {
                                 const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-                                if (debug) console.log('768 Generate Object Type', gqlObjTypegeo, myMetis);
+                                if (debug) console.log('755 Generate Object Type', gqlObjTypegeo, myMetis);
                                 modifiedGeos.push(gqlObjTypegeo);
                             }
                         }
@@ -796,12 +801,12 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
 
     // Add system types 
-    //const objtypes = [];
-    const objtypes = ['Property', 'Container', 'Datatype', 'Generic'];
-    for (let i=0; i<objtypes.length; i++) {
-        const typename = objtypes[i];
-        const objtype = myMetis.findObjectTypeByName(typename);
-        if (debug) console.log('839 objtype', objtype, myMetis);
+    // First object types
+    const typenames = ['Container', 'Generic', 'Property', 'Datatype', 'Value', 'ViewFormat', 'FieldType', 'InputPattern'];
+    for (let i=0; i<typenames.length; i++) {
+        const typename = typenames[i];
+        const objtype = myMetamodel.findObjectTypeByName(typename);
+        if (!debug) console.log('839 objtype', objtype, myMetis);
         if (objtype) {
             metamodel.addObjectType(objtype);
             metamodel.addObjectTypeView(objtype.typeview);
@@ -809,12 +814,43 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             metamodel.addObjtypeGeo(geo);
             const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
             if (debug) console.log('846 Generate Object Type', gqlObjTypegeo, myMetis);
-            modifiedGeos.push(gqlObjTypegeo);
+            modifiedGeos.push(gqlObjTypegeo); 
         }
     }
-
+    // Then add relationship types
+    const reltypes = [];
+    let reltype;
+    reltype = {"from": "Object", "type": "has", "to": "Property"}
+    reltypes.push(reltype);
+    reltype = {"from": "Property", "type": "has", "to": "Value"}
+    reltypes.push(reltype);
+    reltype = {"from": "Property", "type": "isOf", "to": "Datatype"}
+    reltypes.push(reltype);
+    reltype = {"from": "Datatype", "type": "hasDefault", "to": "Value"}
+    reltypes.push(reltype);
+    reltype = {"from": "Datatype", "type": "hasAllowed", "to": "Value"}
+    reltypes.push(reltype);
+    reltype = {"from": "Datatype", "type": "has", "to": "FieldType"}
+    reltypes.push(reltype);
+    reltype = {"from": "Datatype", "type": "has", "to": "InputPattern"}
+    reltypes.push(reltype);
+    reltype = {"from": "Datatype", "type": "has", "to": "ViewFormat"}
+    reltypes.push(reltype);
+    const len = reltypes.length;
+    if (!debug) console.log('840 len, reltypes', len, reltypes);
+    for (let i=0; i<len; i++) {
+        const rtype = reltypes[i];
+        const fromType = myMetamodel.findObjectTypeByName(rtype.from);
+        const toType = myMetamodel.findObjectTypeByName(rtype.to);
+        const reltype = myMetamodel.findRelationshipTypeByName2(rtype.type, fromType, toType);
+        if (!debug) console.log('845 reltype, fromType, toType', reltype, fromType, toType);
+        if (reltype) {
+            metamodel.addRelationshipType(reltype);
+            metamodel.addRelationshipTypeView(reltype.typeview);        
+        }
+    }
     // Prepare dispatch of the metamodel
-    if (debug) console.log('852 Target metamodel', metamodel);
+    if (!debug) console.log('852 Target metamodel', metamodel);
     const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
     modifiedMetamodels.push(gqlMetamodel);
 
@@ -850,6 +886,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         modifiedMetamodels.map(mn => {
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
+            if (!debug) console.log('889 gqlMetamodel', data);
             myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data });
         });
     }
@@ -882,9 +919,9 @@ export function generateTargetMetamodel(targetmetamodel: akm.cxMetaModel, source
         objectviews = currentNode.getGroupMembers2(context.myGoModel);
         relshipviews = currentNode.getGroupLinkMembers2(context.myGoModel);
     }
-    if (debug) console.log('920 objviews. relviews', objectviews, relshipviews);
+    if (!debug) console.log('920 objviews. relviews', objectviews, relshipviews);
     generateMetamodel(objectviews, relshipviews, context);
-    if (debug) console.log('922 myMetis', myMetis);
+    if (!debug) console.log('922 myMetis', myMetis);
 
 
     // Look up the relationships between Roles and Tasks

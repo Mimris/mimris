@@ -4587,6 +4587,7 @@ export class cxInstance extends cxMetaObject {
     typeviewRef: string;
     fromObject: cxInstance | null;
     toObject: cxInstance | null;
+    abstract: boolean;
     relshipkind: string;
     viewkind: string;
     generatedTypeId: string;
@@ -4607,6 +4608,7 @@ export class cxInstance extends cxMetaObject {
         this.fromObject = null;
         this.toObject = null;
         this.relshipkind = "";
+        this.abstract = false;
         this.viewkind = "";
         this.generatedTypeId = "";
         this.valueset = null;

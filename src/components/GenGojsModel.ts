@@ -354,11 +354,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let includeRelview = false;
         let relview = relviews[i];
         const rel = relview.relship;
-        if (rel?.markedAsDeleted == undefined)
-          rel.markedAsDeleted = false;
-        if (rel.markedAsDeleted)
-          relview.markedAsDeleted = rel?.markedAsDeleted;
-        relview.name = rel?.name;
+        if (rel) {
+          if (rel.markedAsDeleted == undefined)
+            rel.markedAsDeleted = false;
+          if (rel.markedAsDeleted)
+            relview.markedAsDeleted = rel?.markedAsDeleted;
+          relview.name = rel?.name;
+        }
         let relcolor = "black";
         if (includeDeleted) {
           if (relview.markedAsDeleted && relview.relship?.markedAsDeleted) {

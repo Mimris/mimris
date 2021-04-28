@@ -36,6 +36,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const obj1 = myMetis.findObject(obj.id);
         if (obj1) obj = obj1;
         let name = context.pasted ? data.name : "";
+        if (!data.parentModel) name = data.name;
         if (debug) console.log('35 createObject', context, name);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);

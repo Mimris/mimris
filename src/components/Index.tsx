@@ -308,7 +308,7 @@ const page = (props) => {
                   </CardText>
                 </CardBody>
               </Card>
-              <Card className="card" 
+              {/* <Card className="card" 
                 style={{
                   background: "rgba(255,255,255,0.4)",
                   borderRadius: "10px",
@@ -328,7 +328,7 @@ const page = (props) => {
                   <Blog />
 
               </CardBody>
-            </Card>
+            </Card> */}
             </CardColumns>
           </div>
         </div>

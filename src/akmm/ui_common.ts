@@ -248,7 +248,7 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObject         = myMetis.findObject(currentObject.id);
         let currentObjectView = data.objectview;
         let otype             = data.objecttype;
-        if (currentObject.name === otype?.name) {
+        if (currentObject?.name === otype?.name) {
             // This is a new object - check if the new name already exists
             const obj = myMetis.findObjectByTypeAndName(otype, data.name);
             if (obj) {
@@ -949,13 +949,13 @@ export function createRelationship(data: any, context: any) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetis.findObjectType(fromType?.id);
-        if (!fromType) fromType = myMetis.findObjectType(fromNode.object?.typeRef);
+        if (!fromType) fromType = myMetis.findObjectType(fromNode?.object?.typeRef);
         if (fromType) {
             fromType.allObjecttypes = myMetis.objecttypes;
             fromType.allRelationshiptypes = myMetis.relshiptypes;
         }
         toType   = myMetis.findObjectType(toType?.id);
-        if (!toType) toType = myMetis.findObjectType(toNode.object?.typeRef);
+        if (!toType) toType = myMetis.findObjectType(toNode?.object?.typeRef);
         if (toType) {
             toType.allObjecttypes = myMetis.objecttypes;
             toType.allRelationshiptypes = myMetis.relshiptypes;

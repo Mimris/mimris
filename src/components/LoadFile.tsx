@@ -33,14 +33,14 @@ const LoadFile = (props: any) => {
     }
 
 
-
+  // Save all models and metamodels in current project to a file (no date in name) to the downloads folder
   function handleSaveAllToFile() {
     const projectname = props.ph.phData.metis.name
     console.log('37 LoadFile', data);
     
     SaveAllToFile(data, projectname, 'AKMM-Project')
   } 
-
+  // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
   function handleSaveAllToFileDate() {
     const projectname = props.ph.phData.metis.name
     console.log('37 LoadFile', data);
@@ -48,6 +48,8 @@ const LoadFile = (props: any) => {
     SaveAllToFileDate(data, projectname, 'AKMM-Project')
   }
   
+
+  // Save current modelview (without instances) to a file in downloads foler 
   function handleSaveModelviewToFile() {  // Todo:  Save objects and relships with the objectviews ???
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
@@ -59,13 +61,15 @@ const LoadFile = (props: any) => {
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
 
+  // Save current model to a file with date and time in the name to the downloads folder
   function handleSaveModelToFile() {
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     SaveModelToFile(model, model.name, 'AKMM-Model')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
-
+  
+  // Save current metamodel to a file with date and time in the name to the downloads folder
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) 

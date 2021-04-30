@@ -738,12 +738,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         const it = selection.iterator;
         const pastedNodes = new Array();
         // Handle object types
-        while (it.next()) {
-          const data = it.value.data;
-          if (data.category === 'Object type') {
-            if (debug) console.log('743 data', data);
-          }
-        }
+        // while (it.next()) {
+        //   const data = it.value.data;
+        //   if (data.category === 'Object type') {
+        //     if (debug) console.log('743 data', data);
+        //   }
+        // }
         // First handle the objects
         while (it.next()) {
           const data = it.value.data;

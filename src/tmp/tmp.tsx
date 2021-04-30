@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 import Select from 'react-select'
 import { loadData, loadDataModelList, loadDataModel } from '../actions/actions'
 import Selector from './utils/Selector'
-import SaveModelData from './utils/SaveModelData'
+import saveModelDataToServer from './utils/saveModelDataToServer'
 // import GetStoreFromHtml from './utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
 const debug = false
@@ -56,7 +56,7 @@ const SelectSource = (props: any) => {
       }
     }
     // if (debug) console.log('72 LoadServer', data);
-    SaveModelData(data)
+    saveModelDataToServer(data)
   }
  
   const models = props.ph.phData?.metis?.models

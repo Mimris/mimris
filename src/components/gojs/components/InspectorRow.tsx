@@ -68,6 +68,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       alert ('Input is not valid: ' + val );
     }
     if (this.props.type !== 'select') {
+      if (debug) console.log('71 type', this.props.type);
       return (  
         <tr>
           <td className="pr-2" >{this.props.id}</td> 
@@ -87,7 +88,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       );
     } 
     else {
-      const listname = "ModelStatus"; // Cannot include spaces
+      const listname = "Select_" + this.props.id; // Cannot include spaces
       const values = this.props.values;
       const optionsDiv = values.map((option) => <option key={option} value={option}/>)
       const optionslistDiv = <datalist id={listname}>{optionsDiv}</datalist>

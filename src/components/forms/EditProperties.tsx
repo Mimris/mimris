@@ -16,7 +16,7 @@ import { selectIcons } from './selectIcons'
 const EditProperties = (props) => {
 
   const debug = false
-  if (debug) console.log('8 EditProperties', props);
+  if (debug) console.log('19 EditProperties', props);
   const dispatch = useDispatch()
   let edititem = props.item
   // console.log('27', edititem);
@@ -72,19 +72,28 @@ const EditProperties = (props) => {
     setIconvalue(iconvalue)
   }
 
-  const fields = listAllProperties(edititem).map(p => // filter away js prototype properties and some others
+  const fields1 = listAllProperties(edititem).map(p => // filter away js prototype properties and some others
     ( (p.substring(0, 2) !== '__') && (p !== 'constructor') && (p !== 'hasOwnProperty') && (p !== 'isPrototypeOf') &&
       (p !== 'propertyIsEnumerable') && (p !== 'toString') && (p !== 'valueOf') && (p !== 'toLocaleString') && (p !== 'id') &&
       (p !== 'group') && (p !== 'isGroup') && (p !== 'propertyValues') && (p !== 'size') && (p !== 'properties') && 
-      (p !== 'deleted') && (p !== 'modified') && (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
+      // (p !== 'deleted') && (p !== 'modified') && 
+      (p !== 'objects') && (p !== 'relships') && (p !== 'modelviews') && (p !== 'objectviews') && 
       (p !== 'objecttypeviews') && (p !== 'relshiptypeviews') && (p !== 'pasteViewsOnly') && (p !== 'deleteViewsOnly') &&
       (p !== 'datatypes') && (p !== 'relshiptypes') && (p !== 'inputrels') &&(p !== 'outputrels') &&
-      (p.slice(-3) !== 'Ref') &&
+      // (p.slice(-3) !== 'Ref') &&
       (p !== 'unittypes') && (p !== 'objtypegeos') ) &&
       //  (p !== 'viewkind') && 
       (p !== 'relshipviews') && (p !== 'objecttypes')
       && p // and return the rest
     ).filter(Boolean)
+
+    const fields = fields1.map(f => {
+      if (f.slice(-3) === 'Ref') {
+        return props.curobj?.models?.find(m => m.name && (m.id === f))
+      } else {
+        return f
+      }
+    })
 
   const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
   // console.log('223 EditProperties', fieldsDiv);

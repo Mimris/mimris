@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 import Select from 'react-select'
 import { loadData, loadDataModelList } from '../actions/actions'
 import Selector from './utils/Selector'
-import SaveModelData from './utils/SaveModelData'
+// import saveModelDataToServer from './utils/saveModelDataToServer'
 // import GetStoreFromHtml from './utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
 

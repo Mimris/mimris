@@ -24,16 +24,19 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (debug) console.log('24 createObject', myMetis.pasteViewsOnly, data);
+        if (debug) console.log('24 createObject', context, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
             return null;
         if (debug) console.log('30 createObject', myMetis, data);
         let obj = data.object;
+        if (obj.id === "")
+            obj.id = utils.createGuid();
         const obj1 = myMetis.findObject(obj.id);
         if (obj1) obj = obj1;
-        if (debug) console.log('35 createObject', myMetis.pasteViewsOnly, obj);
+        let name = context.pasted ? data.name : "";
+        if (debug) console.log('35 createObject', context, name);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
             if (!pastedobj) {
@@ -45,8 +48,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 obj = pastedobj;
             }
         } else {
-            let guid = obj.id;
-            obj = new akm.cxObject(utils.createGuid(), data.name, objtype, data.description);
+            obj = new akm.cxObject(utils.createGuid(), name, objtype, data.description);
         }
         if (debug) console.log('49 createObject', obj, myMetis);
         if (obj) {
@@ -63,7 +65,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             if (debug) console.log('55 createObject', obj, myModel, myMetis);
             myMetis.addObject(obj);
             // Create the corresponding object view
-            objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+            objview = new akm.cxObjectView(utils.createGuid(), name, obj, "");
             if (objview) {
                 objview.setIsGroup(data.isGroup);
                 objview.setLoc(data.loc);
@@ -77,6 +79,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 // Then update the node with its new properties
                 // First set name and reference to the objectview
                 myDiagram.model.setDataProperty(data, "type", data.name);
+                myDiagram.model.setDataProperty(data, "name", name);
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();
@@ -244,7 +247,7 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObject         = myMetis.findObject(currentObject.id);
         let currentObjectView = data.objectview;
         let otype             = data.objecttype;
-        if (currentObject.name === otype?.name) {
+        if (currentObject?.name === otype?.name) {
             // This is a new object - check if the new name already exists
             const obj = myMetis.findObjectByTypeAndName(otype, data.name);
             if (obj) {
@@ -703,7 +706,8 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                         oview.group = grp.objectview.id;
                         nod.group = grp.key;
                         const n = myDiagram.findNodeForKey(nod.key);
-                        myDiagram.model.setDataProperty(n?.data, "group", grp.key);
+                        if (n?.data)
+                            myDiagram.model.setDataProperty(n.data, "group", grp.key);
                         const modNode = new gql.gqlObjectView(oview);
                         nodes.push(modNode);
                     }
@@ -932,26 +936,33 @@ export function createRelationship(data: any, context: any) {
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; // added sf
+    const myMetamodel = myMetis.currentMetamodel;
     const fromNode = myGoModel.findNode(data.from);
     const toNode = myGoModel.findNode(data.to);
     if (debug) console.log('904 createRelationship', myGoModel, fromNode, toNode);
-    const fromObj = fromNode.object;
-    const toObj = toNode.object;
+    const fromObj = fromNode?.object;
+    const toObj = toNode?.object;
     let typename = 'isRelatedTo' as string | null;
     let reltype;
     if (!reltype) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetis.findObjectType(fromType?.id);
-        fromType.allObjecttypes = myMetis.objecttypes;
-        fromType.allRelationshiptypes = myMetis.relshiptypes;
+        if (!fromType) fromType = myMetis.findObjectType(fromNode?.object?.typeRef);
+        if (fromType) {
+            fromType.allObjecttypes = myMetis.objecttypes;
+            fromType.allRelationshiptypes = myMetis.relshiptypes;
+        }
         toType   = myMetis.findObjectType(toType?.id);
-        toType.allObjecttypes = myMetis.objecttypes;
-        toType.allRelationshiptypes = myMetis.relshiptypes;
+        if (!toType) toType = myMetis.findObjectType(toNode?.object?.typeRef);
+        if (toType) {
+            toType.allObjecttypes = myMetis.objecttypes;
+            toType.allRelationshiptypes = myMetis.relshiptypes;
+        }
         const choices: string[]  = [];
         if (fromType && toType) {
             let defText = "";
-            const reltypes = myMetis.findRelationshipTypesBetweenTypes(fromType, toType);
+            const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
             if (debug) console.log('873 createRelationship', reltypes, fromType, toType);
             if (reltypes) {
                 if (true) { 
@@ -1356,7 +1367,7 @@ export function createLink(data: any, context: any): any {
             if (fromObj && toObj) {
                 // Find relationship if it already exists
                 const myModel = context.myModel;
-                let relship = myModel.findRelationship1(fromObj, toObj, reltype);
+                let relship = myModel.findRelationship2(fromObj, toObj, reltype.name, reltype);
                 if (!relship) {
                     relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
                     if (relship) {
@@ -1589,7 +1600,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === '__gohashid') retVal = false;
     if (k === 'class') retVal = false;
     if (k === 'category') retVal = false;
-    if (k === 'abstract') retVal = false;
+    // if (k === 'abstract') retVal = false;
     if (k === 'nameId') retVal = false;
     if (k === 'fs_collection') retVal = false;
     if (k === 'parent') retVal = false;
@@ -1617,8 +1628,8 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'fromObjviewRef') retVal = false;
     if (k === 'toObjview') retVal = false;
     if (k === 'fromObjview') retVal = false;
-    if (k === 'viewkind') retVal = false;
-    if (k === 'relshipkind') retVal = false;
+    // if (k === 'viewkind') retVal = false;
+    // if (k === 'relshipkind') retVal = false;
     if (k === 'valueset') retVal = false;
     if (k === 'inputrels') retVal = false;
     if (k === 'outputrels') retVal = false;
@@ -1646,13 +1657,13 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'targetModelRef') retVal = false;
     if (k === 'isTemplate') retVal = false;
     if (k === 'isMetamodel') retVal = false;
-    if (type?.name !== 'ViewFormat') {
+    if (type?.name !== 'ViewFormat' && type?.name !== 'Datatype') {
       if (k === 'viewFormat') retVal = false;
     }
-    if (type?.name !== 'InputPattern') {
+    if (type?.name !== 'InputPattern' && type?.name !== 'Datatype') {
       if (k === 'inputPattern') retVal = false;
     }
-    if (type?.name !== 'FieldType') {
+    if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
       if (k === 'fieldType') retVal = false;
     }
     return retVal;
@@ -2080,9 +2091,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     const rel = rview.relship;
                     if (rel && rel.type) {
                         if (debug) console.log('1601 relshipview', rel);
-                        rel.name = rel.type.name;
-                        rview.name = rel.type.name;
-
                         if (rel.markedAsDeleted && !rview.markedAsDeleted) {
                             rview.markedAsDeleted = true;
                             msg = "\tVerifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";

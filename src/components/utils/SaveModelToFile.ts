@@ -24,7 +24,7 @@ export const SaveModelToFile = (model, name, type) => {
     const fileName = type+"_"+name+'_'+today;
   
     const json = JSON.safeStringify(model);
-    const blob = new Blob([json],{type:'application/json'});
+    const blob = new Blob([json], {type:'application/json'});
     const href = URL.createObjectURL(blob);
     // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -35,11 +35,26 @@ export const SaveModelToFile = (model, name, type) => {
     document.body.removeChild(link);
 }
 export const SaveAllToFile = (model, name, type) => {
+    const fileName = name;
+    if (debug) console.log('22 LoadLocal', model, fileName);
+  
+    const json = JSON.safeStringify(model);
+    const blob = new Blob([json],{type:'application/json'});
+    const href = URL.createObjectURL(blob);
+    // const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+export const SaveAllToFileDate = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
     const fileName = type+"_"+name+'_'+today;
-    if (!debug) console.log('22 LoadLocal', model, fileName);
+    if (debug) console.log('22 LoadLocal', model, fileName);
   
-    const json = JSON.stringify(model);
+    const json = JSON.safeStringify(model);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
     // const href = await URL.createObjectURL(blob);

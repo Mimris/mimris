@@ -31,8 +31,7 @@ import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 import { FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
-import svgs from '../../utils/Svgs'
-import { isNullOrUndefined } from 'util';
+// import svgs from '../../utils/Svgs'
 import { setMyMetisParameter } from '../../../actions/actions';
 import { iconList } from '../../forms/selectIcons';
 // import { stringify } from 'querystring';
@@ -40,12 +39,6 @@ import { iconList } from '../../forms/selectIcons';
 // import "../../../styles/styles.css"
 
 const AllowTopLevel = true;
-
-// const PopupExample = () => (
-//   <Popup trigger={<button> Trigger</button>} position="right center">
-//     <div>Popup content here !!</div>
-//   </Popup>
-// );
 
 interface DiagramProps {
   nodeDataArray:      Array<go.ObjectData>;
@@ -75,6 +68,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    * Ref to keep a reference to the Diagram component, which provides access to the GoJS diagram via getDiagram().
    */
   private diagramRef: React.RefObject<ReactDiagram>;
+  private myMetis: akm.cxMetis;
+  private myGoModel: gjs.goModel;
+  private myGoMetamodel: gjs.goModel;
 
   /** @internal */
   constructor(props: DiagramProps) {
@@ -350,6 +346,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (debug) console.log('330 data', data);
           this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         })
+        if (debug) console.log('353 data', data);
         for (let prop in objtypeview?.data) {
           if (prop === 'figure' && objview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, objview[prop]);
@@ -376,7 +373,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const objview = data.objectview;
             objview['icon'] = data['icon'];
             const gqlObjview = new gql.gqlObjectView(data.objectview);
-            if (!debug) console.log('388 gqlObjview', data, gqlObjview);
+            if (debug) console.log('388 gqlObjview', data, gqlObjview);
             modifiedObjviews.push(gqlObjview);
             modifiedObjviews.map(mn => {
               let data = mn;
@@ -453,9 +450,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           data = node.data;
           if (debug) console.log('455 data', data);
           typeview = data.typeview;
-          typeview = myMetis.findObjectTypeView(typeview.id);
-          for (let prop in typeview.data) {
+          typeview = myMetis.findObjectTypeView(typeview?.id);
+          for (let prop in typeview?.data) {
             typeview.data[prop] = selObj[prop];
+            typeview[prop] = selObj[prop];
           }
           if (debug) console.log('461 typeview', typeview, data);
            const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
@@ -470,7 +468,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           const node = myDiagram.findNodeForKey(selObj.key);
           data = node.data;
           if (debug) console.log('284 objtypeview, data', data);
-          typeview = data.objectview.typeview;
+          typeview = data.objectview?.typeview;
           typeview = data.typeview;
           typeview = myMetis.findObjectTypeView(typeview.id);
           const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
@@ -515,17 +513,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           })
         }
         if (data) {
-          if (debug) console.log('423 data', data);
+          if (debug) console.log('518 data', data);
           for (let prop in typeview) {
             if (prop === 'figure' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-            if (prop === 'fillcolor' && typeview[prop] !== "") 
+            if (prop === 'fillcolor' && typeview[prop] !== "") {
+              if (debug) console.log('524 fillcolor', typeview[prop]);
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            }
             if (prop === 'strokecolor' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
             if (prop === 'strokewidth' && typeview[prop] !== "")
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-            if (prop === 'icon' && typeview[prop] !== "") 
+            if (prop === 'icon'/* && typeview[prop] !== "" */) 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
             if (prop === 'dash' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);
@@ -581,13 +581,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const selectedOption = selected.value;
     if (debug) console.log('590 this.state', selectedOption, this.state, modalContext);
-    // let typeview, typename, metamodelName;
+    let typename;
     switch(modalContext.case) {
 
       case "Change Object type":    
         typename = (selectedOption) && selectedOption;
         const node = myMetis.currentNode;
-        typeview = node.typeview;
         const objtype = myMetis.findObjectTypeByName(typename);
         if (debug) console.log('189 objtype', objtype);
         const objview = (objtype) && uic.setObjectType(node, objtype, context);
@@ -656,7 +655,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
 
       case "Change Relationship type":    
-        const typename = (selectedOption) && selectedOption;
+        typename = (selectedOption) && selectedOption;
         const link = myMetis.currentLink;
         let fromNode = myGoModel?.findNode(link.from);
         let toNode   = myGoModel?.findNode(link.to);
@@ -809,8 +808,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       instview = node.objectview;
       myInstview = myMetis.findObjectView(instview?.id);
       typeview = inst?.type?.typeview;
-      for (let prop in typeview.data) {
-        myInstview[prop] = obj[prop];
+      if (myInstview) {
+        for (let prop in typeview?.data) {
+          myInstview[prop] = obj[prop];
+        }
       }
       if (debug) console.log('699 myInst', inst, myInstview, typeview);
       if (context?.what === "editObjectview") {
@@ -976,32 +977,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (debug) console.log('988 nodeInfo', d, d.object);
+      if (debug) console.log('980 nodeInfo', d, d.object);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
       let msg = "";
       msg += printf(format2, "Type", d.object.type.name);
       msg += printf(format2, "Name", d.name);
       msg += printf(format2, "Description", d.object.description);
+      msg += printf(format2, "Inputpattern", d.object.inputPattern);
       if (d.group) {
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);
       }
-      if (debug) console.log('999 msg', msg);
+      if (debug) console.log('991 msg', msg);
       let str = "Attributes:"; 
       msg += printf(format1, str);      
       const obj = d.object;
       const props = obj.type.properties;
-      if (debug) console.log('1004 obj, props', obj, props, msg);   
+      if (debug) console.log('996 obj, props', obj, props, msg);   
       for (let i=0; i<props.length; i++) {
         const prop = props[i];
-        if (debug) console.log('1007 prop', prop);
-        const value = obj.getStringValue2(prop.name); 
-        if (debug) console.log('1009 value', value);
-        const p = prop.name + ': ' + value;
+        if (debug) console.log('999 prop', prop);
+        const value = obj[prop.name]; 
+        console.log('1001 prop, value', prop, value);
         msg += printf(format2, prop.name, value);
       }
-      if (debug) console.log('1012 nodeInfo', obj, msg);
+      if (debug) console.log('1005 nodeInfo', obj, msg);
       return msg;
     }
 
@@ -1359,8 +1360,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return o.diagram.commandHandler.canCutSelection(); 
             }),
- 
-
           makeButton("Delete",
             function (e: any, obj: any) {
               if (confirm('Do you really want to delete the current selection?')) {
@@ -1379,8 +1378,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         const gjsNode = myDiagram.findNodeForKey(member?.key);
                       }                    
                     }
-                    node = myDiagram.findNodeForKey(node.key);
-                    node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
+                    node = myDiagram.findNodeForKey(node?.key);
+                    if (node)
+                      node.findLinksConnected().each(function(l) {
+                         l.isSelected = true;
+                      });                    
                   }
                   if (inst.category === 'Object type') {
                     const node = myDiagram.findNodeForKey(inst.key);
@@ -1416,8 +1418,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } else {
                 return false;
               }
-            }),
-  
+            }),  
           makeButton("----------"),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
@@ -1615,39 +1616,91 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("----------"),
           makeButton("Generate Metamodel",
-            function (e: any, obj: any) { 
-              // node is a container (group)
-              const node = obj.part.data;
+          function (e: any, obj: any) { 
+            // node is a container (group)
+            const node = obj.part.data;
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel,
+              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+              "myModel":            myMetis.currentModel,
+              "myCurrentModelview": myMetis.currentModelview,
+              "myGoModel":          myMetis.gojsModel,
+              "myCurrentNode":      node,    
+              "myDiagram":          e.diagram,
+              "dispatch":           e.diagram.dispatch
+            }
+            context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+            if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                  alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                  context.myTargetMetamodel = null;
+            } else if (context.myTargetMetamodel == undefined) { // sf
+                context.myTargetMetamodel = null;
+            }
+            myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+            const targetMetamodel = myMetis.currentTargetMetamodel;
+            const sourceModelview = myMetis.currentModelview;
+            gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
+          },
+          function (o: any) { 
+            const node = o.part.data;
+            if (node.isGroup)
+              return true;
+            else
+              return false;
+          }),
+          makeButton("Generate Target Object Type",
+          function(e: any, obj: any) { 
               const context = {
                 "myMetis":            myMetis,
                 "myMetamodel":        myMetis.currentMetamodel,
                 "myTargetMetamodel":  myMetis.currentTargetMetamodel,
                 "myModel":            myMetis.currentModel,
                 "myCurrentModelview": myMetis.currentModelview,
-                "myGoModel":          myMetis.gojsModel,
-                "myCurrentNode":      node,    
                 "myDiagram":          e.diagram,
                 "dispatch":           e.diagram.dispatch
               }
-              context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+              if (debug) console.log('441 myMetis', myMetis);
+              const contextmenu = obj.part;  
+              const part = contextmenu.adornedPart; 
+              const currentObj = part.data.object;
+              context.myTargetMetamodel = myMetis.currentTargetMetamodel;
+              if (debug) console.log('446 context', context);
+                context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
               if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
                     alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
                     context.myTargetMetamodel = null;
               } else if (context.myTargetMetamodel == undefined) { // sf
                   context.myTargetMetamodel = null;
-              }
+              }    
               myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-              const targetMetamodel = myMetis.currentTargetMetamodel;
-              const sourceModelview = myMetis.currentModelview;
-              gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-            },
-            function (o: any) { 
-              const node = o.part.data;
-              if (node.isGroup)
-                return true;
-              else
-                return false;
-            }),
+              if (debug) console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
+              if (context.myTargetMetamodel) {  
+                myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
+                if (debug) console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
+                const gqlModel = new gql.gqlModel(context.myModel, true);
+                const modifiedModels = new Array();
+                modifiedModels.push(gqlModel);
+                modifiedModels.map(mn => {
+                  let data = (mn) && mn;
+                  data = JSON.parse(JSON.stringify(data));
+                  myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+                })
+                if (debug) console.log('467 gqlModel', gqlModel);
+                const currentObjview = part.data.objectview;
+                const objtype = gen.generateObjectType(currentObj, currentObjview, context);
+                if (debug) console.log('470 Generate Object Type', objtype, myMetis);
+              }
+          },  
+          function(o: any) { 
+               let obj = o.part.data.object;
+               let objtype = obj.type;
+               if (objtype.name === constants.types.AKM_INFORMATION)
+                   return true;
+               else
+                   return false;
+          }),
+          makeButton("----------"),
           makeButton("Select all objects of this type",
             function (e: any, obj: any) {
               const node = obj.part.data;
@@ -1677,57 +1730,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
             return true;
             }),
-          makeButton("Generate Target Object Type",
-            function(e: any, obj: any) { 
-                const context = {
-                  "myMetis":            myMetis,
-                  "myMetamodel":        myMetis.currentMetamodel,
-                  "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-                  "myModel":            myMetis.currentModel,
-                  "myCurrentModelview": myMetis.currentModelview,
-                  "myDiagram":          e.diagram,
-                  "dispatch":           e.diagram.dispatch
-                }
-                if (debug) console.log('441 myMetis', myMetis);
-                const contextmenu = obj.part;  
-                const part = contextmenu.adornedPart; 
-                const currentObj = part.data.object;
-                context.myTargetMetamodel = myMetis.currentTargetMetamodel;
-                if (debug) console.log('446 context', context);
-                  context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-                if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                      alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                      context.myTargetMetamodel = null;
-                } else if (context.myTargetMetamodel == undefined) { // sf
-                    context.myTargetMetamodel = null;
-                }    
-                myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-                if (debug) console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
-                if (context.myTargetMetamodel) {  
-                  myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                  if (debug) console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
-                  const gqlModel = new gql.gqlModel(context.myModel, true);
-                  const modifiedModels = new Array();
-                  modifiedModels.push(gqlModel);
-                  modifiedModels.map(mn => {
-                    let data = (mn) && mn;
-                    data = JSON.parse(JSON.stringify(data));
-                    myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                  })
-                  if (debug) console.log('467 gqlModel', gqlModel);
-                  const currentObjview = part.data.objectview;
-                  const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                  if (debug) console.log('470 Generate Object Type', objtype, myMetis);
-                }
-            },  
-            function(o: any) { 
-                 let obj = o.part.data.object;
-                 let objtype = obj.type;
-                 if (objtype.name === constants.types.AKM_INFORMATION)
-                     return true;
-                 else
-                     return false;
-            }),
+
           makeButton("TEST",
             function (e: any, obj: any) { 
               const myDiagram = e.diagram;
@@ -2141,6 +2144,83 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false; 
             }),
           makeButton("----------"),
+          makeButton("Generate Relationship Type",             
+          function (e: any, obj: any) { 
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel,
+              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+              "myModel":            myMetis.currentModel,
+              "myCurrentModelview": myMetis.currentModelview,
+              "myDiagram":          e.diagram,
+              "dispatch":           e.diagram.dispatch
+              }
+              if (debug) console.log('935 myMetis', myMetis);
+            const contextmenu = obj.part;  
+            const part = contextmenu.adornedPart; 
+            const currentRel = part.data.relship;
+            context.myTargetMetamodel = myMetis.currentTargetMetamodel;
+            if (debug) console.log('940 context', currentRel, context);
+            context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+            if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
+                alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                context.myTargetMetamodel = null;
+            } else if (context.myTargetMetamodel == undefined)  // sf
+              context.myTargetMetamodel = null;
+            myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+            if (debug) console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
+            if (context.myTargetMetamodel) {  
+              myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
+              if (debug) console.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
+              const gqlModel = new gql.gqlModel(context.myModel, true);
+              const modifiedModels = new Array();
+              modifiedModels.push(gqlModel);
+              modifiedModels.map(mn => {
+                let data = (mn) && mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+              })
+              const currentRelview = part.data.relshipview;
+              if (debug) console.log('962 currentRelview', currentRelview);
+              const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
+              if (debug) console.log('964 Generate Relationship Type', reltype, myMetis);
+              if (reltype) {
+                const reltypeview = reltype.typeview;
+                if (debug) console.log('976 reltype', reltype);
+                const gqlRelshipType = new gql.gqlRelationshipType(reltype);
+                if (debug) console.log('979 Generate Relationship Type', reltype,gqlRelshipType);
+                const modifiedTypeLinks = new Array();
+                modifiedTypeLinks.push(gqlRelshipType);
+                modifiedTypeLinks.map(mn => {
+                  let data = (mn) && mn;
+                  data = JSON.parse(JSON.stringify(data));
+                  myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
+                });
+                const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
+                if (debug) console.log('987 Generate Relationship Type', gqlRelTypeview);
+                const modifiedTypeViews = new Array();
+                modifiedTypeViews.push(gqlRelTypeview);
+                modifiedTypeViews?.map(mn => {
+                  let data = (mn) && mn;
+                  data = JSON.parse(JSON.stringify(data));
+                  myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
+                })
+                if (debug) console.log('994 myMetis', myMetis);
+              }
+            }
+          },
+          function(o: any) { 
+            const rel = o.part.data.relship;
+            const fromObj = rel.fromObject;
+            const toObj = rel.toObject;
+            let reltype = rel.type;
+            if (fromObj.type.name === constants.types.AKM_INFORMATION) {
+              if (toObj.type.name === constants.types.AKM_INFORMATION)
+                return true;
+            } else
+                return false;
+          }),
+          makeButton("----------"),
 
           makeButton("Select all views of this relationship",
             function (e: any, obj: any) {
@@ -2211,82 +2291,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true;
             }),
-          makeButton("Generate Relationship Type",             
-            function (e: any, obj: any) { 
-              const context = {
-                "myMetis":            myMetis,
-                "myMetamodel":        myMetis.currentMetamodel,
-                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-                "myModel":            myMetis.currentModel,
-                "myCurrentModelview": myMetis.currentModelview,
-                "myDiagram":          e.diagram,
-                "dispatch":           e.diagram.dispatch
-                }
-                if (debug) console.log('935 myMetis', myMetis);
-              const contextmenu = obj.part;  
-              const part = contextmenu.adornedPart; 
-              const currentRel = part.data.relship;
-              context.myTargetMetamodel = myMetis.currentTargetMetamodel;
-              if (debug) console.log('940 context', currentRel, context);
-              context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-              if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                  alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                  context.myTargetMetamodel = null;
-              } else if (context.myTargetMetamodel == undefined)  // sf
-                context.myTargetMetamodel = null;
-              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-              if (debug) console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
-              if (context.myTargetMetamodel) {  
-                myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                if (debug) console.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
-                const gqlModel = new gql.gqlModel(context.myModel, true);
-                const modifiedModels = new Array();
-                modifiedModels.push(gqlModel);
-                modifiedModels.map(mn => {
-                  let data = (mn) && mn;
-                  data = JSON.parse(JSON.stringify(data));
-                  myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                })
-                const currentRelview = part.data.relshipview;
-                if (debug) console.log('962 currentRelview', currentRelview);
-                const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
-                if (debug) console.log('964 Generate Relationship Type', reltype, myMetis);
-                if (reltype) {
-                  const reltypeview = reltype.typeview;
-                  if (debug) console.log('976 reltype', reltype);
-                  const gqlRelshipType = new gql.gqlRelationshipType(reltype);
-                  if (debug) console.log('979 Generate Relationship Type', reltype,gqlRelshipType);
-                  const modifiedTypeLinks = new Array();
-                  modifiedTypeLinks.push(gqlRelshipType);
-                  modifiedTypeLinks.map(mn => {
-                    let data = (mn) && mn;
-                    data = JSON.parse(JSON.stringify(data));
-                    myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-                  });
-                  const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
-                  if (debug) console.log('987 Generate Relationship Type', gqlRelTypeview);
-                  const modifiedTypeViews = new Array();
-                  modifiedTypeViews.push(gqlRelTypeview);
-                  modifiedTypeViews?.map(mn => {
-                    let data = (mn) && mn;
-                    data = JSON.parse(JSON.stringify(data));
-                    myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
-                  })
-                  if (debug) console.log('994 myMetis', myMetis);
-                }
-              }
-            },
-            function(o: any) { 
-              const rel = o.part.data.relship;
-              const fromObj = rel.fromObject;
-              const toObj = rel.toObject;
-              let reltype = rel.type;
-              if (fromObj.type.name === constants.types.AKM_INFORMATION) {
-                if (toObj.type.name === constants.types.AKM_INFORMATION)
-                  return true;
-              } else
-                  return false;
-            }),
+
           makeButton("Undo",
             function(e, obj) { e.diagram.commandHandler.undo(); 
             },
@@ -2702,6 +2707,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
           }),
+          makeButton("Set Target Metamodel",
+          function (e: any, obj: any) {
+            const context = {
+              "myMetis":            myMetis,
+              "myMetamodel":        myMetis.currentMetamodel, 
+              "myModel":            myMetis.currentModel,
+              "myModelview":        myMetis.currentModelview,
+              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
+              "myDiagram":          e.diagram
+            }
+            const modalContext = {
+              what: "selectDropdown",
+              title: "Select Target Metamodel",
+              case: "Set Target Metamodel",
+              myDiagram: myDiagram
+            } 
+            const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
+            if (debug) console.log('2511', mmNameIds, modalContext, context);
+            myDiagram.handleOpenModal(mmNameIds, modalContext);
+            if (debug) console.log('2770 targetMetamodel', myMetis.currentTargetMetamodel);
+          },
+          function (o: any) { 
+            if (myMetis.modelType === 'Metamodelling')
+              return false;
+            return true; 
+          }),
           makeButton("Generate Metamodel",
           function (e: any, obj: any) { 
             const context = {
@@ -2731,32 +2762,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
           }),
-          makeButton("Set Target Metamodel",
-            function (e: any, obj: any) {
-              const context = {
-                "myMetis":            myMetis,
-                "myMetamodel":        myMetis.currentMetamodel, 
-                "myModel":            myMetis.currentModel,
-                "myModelview":        myMetis.currentModelview,
-                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-                "myDiagram":          e.diagram
-              }
-              const modalContext = {
-                what: "selectDropdown",
-                title: "Select Target Metamodel",
-                case: "Set Target Metamodel",
-                myDiagram: myDiagram
-              } 
-              const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-              if (debug) console.log('2511', mmNameIds, modalContext, context);
-              myDiagram.handleOpenModal(mmNameIds, modalContext);
-              if (debug) console.log('2770 targetMetamodel', myMetis.currentTargetMetamodel);
-            },
-            function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true; 
-            }),
+
 
           makeButton("Undo",
             function (e: any, obj: any) { 
@@ -2817,8 +2823,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // Relview(s) does not exist, but from and to objviews exist, create relview(s)
                 const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
                 if (relview.markedAsDeleted) continue;
-                relview.setFromObjectView(fromObjviews[0]);
-                relview.setToObjectView(toObjviews[0]);
+                if (fromObjviews) relview.setFromObjectView(fromObjviews[0]);
+                if (toObjviews) relview.setToObjectView(toObjviews[0]);
                 if (debug) console.log('2203 relview', relview);
                 // Add link
                 const myGoModel = myMetis.gojsModel;
@@ -2999,25 +3005,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
-          makeButton("Verify and Repair Model",
-            function (e: any, obj: any) {
-              if (debug) console.log('2340 myMetis', myMetis);
-              const myModel = myMetis.currentModel;
-              const myModelview = myMetis.currentModelview;
-              const myMetamodel = myMetis.currentMetamodel;
-              const myGoModel = myMetis.gojsModel;
-              if (debug) console.log('2346 myMetis', myMetis);
-              myDiagram.myGoModel = myGoModel;
-              if (debug) console.log('2345 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
-              uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram, myMetis);
-              if (debug) console.log('2348 myMetis', myMetis);
-              alert("The current model has been repaired");
-            },
-            function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
-              return true; 
-            }),
           makeButton("----------",
             function (e: any, obj: any) {
             },
@@ -3136,6 +3123,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
+            makeButton("Verify and Repair Model",
+            function (e: any, obj: any) {
+              if (debug) console.log('2340 myMetis', myMetis);
+              const myModel = myMetis.currentModel;
+              const myModelview = myMetis.currentModelview;
+              const myMetamodel = myMetis.currentMetamodel;
+              const myGoModel = myMetis.gojsModel;
+              if (debug) console.log('2346 myMetis', myMetis);
+              myDiagram.myGoModel = myGoModel;
+              if (debug) console.log('2345 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
+              uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram, myMetis);
+              if (debug) console.log('2348 myMetis', myMetis);
+              alert("The current model has been repaired");
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true; 
+            }),
           makeButton("!!! PURGE DELETED !!!",
             function (e: any, obj: any) { 
               if (confirm('Do you really want to permamently delete all instances marked as deleted?')) {
@@ -3202,13 +3208,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 $(go.Panel, "Spot",
                   { contextMenu: partContextMenu },
                   $(go.Shape, {  // this is the square around the image
-                    fill: "white", stroke: "#ddd", opacity: "0.4",
+                    fill: "white", stroke: "#ddd", opacity: 0.4,
                     desiredSize: new go.Size(50, 50), 
                     margin: new go.Margin(0, 6, 0, 2),
                     // shadowVisible: true,
                   },
-                  // new go.Binding("fill", "isHighlighted", function(h) { return h ? "blue" : "white"; })
-                  // .ofObject(),
+                  new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
+                  new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
                   // new go.Binding("fill", "color"),
                   new go.Binding("figure")),
                   $(go.Picture,  // the image
@@ -3216,6 +3222,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     {
                       name: "Picture",
                       desiredSize: new go.Size(46, 46),
+                      // imageStretch: go.GraphObject.Fill,
                       // margin: new go.Margin(2, 2, 2, 4),
                       // margin: new go.Margin(4, 4, 4, 4),
                     },
@@ -3289,7 +3296,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               )
           },
           {
-            routing: go.Link.AvoidsNodes,
+            // routing: go.Link.AvoidsNodes,
             // routing: go.Link.Orthogonal,
             routing: go.Link.Normal,
             // curve: go.Link.JumpOver,
@@ -3298,7 +3305,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           },  // link route should avoid nodes
           { contextMenu: linkContextMenu },
           new go.Binding("points").makeTwoWay(),
-          $(go.Shape, { stroke: "black", strokeWidth: "1", strokeDashArray: null, shadowVisible: true, },
+          $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("strokeWidth", "strokewidth"),
             new go.Binding("strokeDashArray", "dash",
@@ -3407,10 +3414,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Panel,  // the header
           // $(go.TextBlock,     // group title in the background
           //   {
+          //     alignment: new go.Spot(0,0),
           //     // defaultAlignment: go.Spot.Top,
           //     font: "Bold 24pt Sans-Serif",
           //     // margin: new go.Margin(0, 0, 0, 0),
-          //     // editable: true, isMultiline: false,
+          //     editable: true, isMultiline: true,
           //     name: "name"
           //   },
           //   new go.Binding("text", "name").makeTwoWay()
@@ -3418,11 +3426,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Picture, //"actualBounds",                  // the image
             {
               name: "Picture",
-              imageStretch: go.GraphObject.Uniform,
-              minSize: new go.Size(120, 80),
+              stretch:  go.GraphObject.Fill,
+              imageStretch:  go.GraphObject.Fill,
+              // minSize: new go.Size(120, 80),
               // desiredSize: new go.Size(600, 400),
               // minSize: new go.Binding("minSize", "size"),
-              margin: new go.Margin(0, 0, 0, 0),
+              // margin: new go.Margin(0, 0, 0, 0),
             },
             // new go.Binding("minSize", "size"),
             // new go.Binding("desiredSize", "size"),
@@ -3437,7 +3446,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Panel, "Horizontal",  // the header
             { defaultAlignment: go.Spot.Top },
             $("SubGraphExpanderButton",
-            {margin: new go.Margin(1, 0, 1, 4),
+            {margin: new go.Margin(1, 2, 1, 4),
             scale: 1.5},
             // {margin: new go.Margin(4, 0, 0, 4)},
             ),  // this Panel acts as a Button
@@ -3467,7 +3476,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               // name: "SHAPE", //fill: "rgba(228,228,228,0.53)",
               // name: "SHAPE", fill: "transparent",
               name: "SHAPE", fill: "white",
-              opacity: "0.95",
+              opacity: 0.95,
               minSize: new go.Size(180, 120), 
               desiredSize: new go.Size(300, 200),
               margin: new go.Margin(0, 1, 1, 4),
@@ -3541,7 +3550,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Shape, "Rectangle",
             {
               name: "SHAPE", fill: "lightyellow",
-              // opacity: "0.7",
+              // opacity: 0.7,
               //desiredSize: new go.Size(100, 20),
               //margin: new go.Margin(100, 0, 0, 0),
             },
@@ -3792,8 +3801,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
         <Modal className="" isOpen={this.state.showModal}  >
-          {/* <div className="modal-dialog w-100 mt-5"> */}
-            {/* <div className="modal-content"> */}
+          {/* <div className="modal-dialog w-100 mt-5">
+            <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
                   onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
@@ -3814,10 +3823,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               <ModalFooter className="modal-footer">
                 <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
               </ModalFooter>
-            {/* </div> */}
-          {/* </div> */}
+            {/* </div>
+          </div> */}
         </Modal>        
         <style jsx>{`
+        
         `}
         </style> 
       </div>

@@ -31,7 +31,7 @@ const LoadLocal = (props: any) => {
   // let locStatus = false
   // let memoryStatus = false
 
-  function handleDispatchToStoreFromLocal() {  // load store from LocalStore (state)
+  function handleDispatchToStoreFromLocal() {  // load redux store from the whole LocalStore, i.e. the total project
     // locStatus = true
     // console.log('43 LoadLocal', locState);
     let data;
@@ -54,7 +54,7 @@ const LoadLocal = (props: any) => {
     } else alert('No Modeles saved to Local Storage')
   }
 
-  function handleSelectLocalModelDropdownChange(e) {
+  function handleSelectLocalModelDropdownChange(e) { // load reduxstore from selected model
     if (debug) console.log('57 LoadLocal', e);
     const metis = locState.phData.metis
     // find model in localStore
@@ -74,21 +74,12 @@ const LoadLocal = (props: any) => {
   //
   // Reset store (Redux) to last memoryModel in localStore
   //
-  function handleSelectMemoryModelDropdownChange(e) {
+  function handleSelectMemoryModelDropdownChange(e) { // load reduxstore from memoryStore, i.e. the whole project
     if (debug) console.log('73 LoadMemory', e);
     const metis = memoryState.phData.metis
-    // find model in localStore
+    // find the selected model in memoryStore
     const memoryModel = metis.models.find(m => m && m.id === e.value)
-    // const memoryMetamodel = metis.metamodel?.find(mm => mm && mm.id === localModel.metamodelRef)
-    // check if metamodel exist in redux
-    // const reduxMetamodel = props.ph.phData.metis.metamodels.find(mm => mm && mm.id === localModel.metamodelRef)
-    // if (reduxMetamodel) {
-    //   dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: localModel })
-    // } else {
-    //   dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data: localMetamodel })
-      dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: memoryModel })
-    // } 
-      // if (debug) console.log('59 LoadLocal', localMetamodel, localModel);
+    dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: memoryModel })
   }
   
   const options = locState?.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});
@@ -122,7 +113,7 @@ const LoadLocal = (props: any) => {
       </div>
     
   //
-  // load to Redux-store from memoryState in localStorage
+  // load to Redux-store from memoryState in localStorage. This is save for every refresh)
   //
   function handleDispatchToStoreFromMemory() {  
     // memoryStatus = true

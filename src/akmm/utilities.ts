@@ -64,6 +64,15 @@ export function uncapitalizeFirstLetter(string) {
     return string.charAt(0).toLowerCase() + string.slice(1);
 }
 
+export function removeArrayDuplicates(array: any): any {
+    const uniqueSet = new Set(array); 
+    const uniqueArray = [...uniqueSet];
+    // array.filter((item, index) => array.indexOf(item) === index);
+    // array.reduce((unique, item) => 
+    //     unique.includes(item) ? unique : [...unique, item], []);
+    return uniqueArray;
+}
+
 
 // -----------  TEMPLATES -----------------
 

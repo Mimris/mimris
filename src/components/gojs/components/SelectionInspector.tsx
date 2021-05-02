@@ -77,6 +77,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let useItem = false;
     const what = modalContext?.what;
     switch (what) {
+      case "toBeDefined":
       // case 'editProject':
       //   item = modalContext.gojsModel?.nodes[0];
       //   useItem = true;
@@ -89,6 +90,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       //   item = myMetis.currentModelview;
       //   useItem = true;
       //   break;
+      break;
       case "editObjectType":
         item = inst.objecttype;
         break;
@@ -122,21 +124,32 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     }
     if (debug) console.log('122 item', inst, item);
     for (let k in item) {
+      if (k === 'abstract') {
+        if (category !== 'Object type')
+          continue;
+      }
+      if (k === 'viewkind') {
+        if (!(category === 'Object' || category === 'Object type'))
+          continue;
+      }
+      if (k === 'relshipkind') {
+        if (!(category === 'Relationship' || category === 'Relationship type'))
+          continue;
+      }
       let row;
-      let fieldType = 'text';
-      let readonly = false;
-      let disabled = false;
-      let checked  = false;
-      let pattern  = "";
-      let required = false;
-      let defValue = "";
-      let values   = [];
-      let keys     = [];
       if (k) {
-        let val = item[k]; 
+        let fieldType = 'text';
+        let readonly = false;
+        let disabled = false;
+        let checked  = false;
+        let pattern  = "";
+        let required = false;
+        let defValue = "";
+        let values   = [];
+        let val      = item[k]; 
         if (typeof(val) === 'object') continue;
         if (typeof(val) === 'function') continue;
-        if (k !== 'deleted') {
+        if (k !== 'markedAsDeleted') {
           if (!uic.isPropIncluded(k, type)) 
             continue;
         } else if (!val) {          
@@ -145,8 +158,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description') continue; 
         }
-        if (k === 'typeName' || k === 'typename' || k === 'id' || k === 'markedAsDeleted' || k === 'loc')
-          disabled = true;
         if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
@@ -159,13 +170,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 pattern   = dtype.inputPattern;
                 defValue  = dtype.defaultValue;
                 values    = dtype.allowedValues;
-                // if (values.length > 0) {
-                //   // Create map 
-                //   const map = new Map(); 
-                //   for(let i = 0; i < keys.length; i++){ 
-                //       map.set(keys[i], values[i]); 
-                //   } 
-                // }
               }
             }
             if (debug) console.log('198 prop, dtype, fieldType: ', prop, fieldType);
@@ -173,17 +177,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (debug) console.log('169 k, val', k, item[k], selObj[k]);
         val = (item.id === inst.id) ? item[k] : selObj[k];
-        if (item.id === inst.id) {
-          val = item[k];
-        } else {
-          val = selObj[k];
-        }
         if ((what === 'editObjectType') || (what === 'editRelationshipType')) {
           val = item[k];
         }
         if (debug) console.log('179 k, val', k, val, item[k], selObj[k]);
         if (useItem) val = item[k];
-        if (useColor && (k === 'fillcolor' || k === 'strokecolor')){
+        if (useColor && (k === 'fillcolor' || k === 'strokecolor')) {
           if (debug) console.log('203 val', val);
           fieldType = 'color';
           if (val?.substr(0,4) === 'rgb(') {
@@ -201,20 +200,34 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }         
           if (debug) console.log('218 color', val);
         }
+
+        switch(k) {
+          case 'cardinality':
+          case 'fieldType':
+          case 'viewkind':
+          case 'relshipkind':
+            let dtype = myMetis.findDatatypeByName(k);
+            if (dtype) {
+              fieldType = dtype.fieldType;
+              pattern   = dtype.inputPattern;
+              defValue  = dtype.defaultValue;
+              values    = dtype.allowedValues;
+            }
+            break;
+          case 'abstract':
+            dtype = myMetis.findDatatypeByName('boolean');
+            fieldType = 'checkbox';
+            break;
+        }
+
         if (fieldType === 'checkbox') {
           if (debug) console.log('171 val', val);
           checked = val;
           if (debug) console.log('174 checked, val', checked, val);
         }
-        if (k === 'cardinality') {
-          fieldType = 'radio';
-          values.push("0-1");
-          values.push("0-n");
-          values.push("n-n");
-          defValue = "n-n";
-        }
+
         if (fieldType === 'radio') {
-          if (debug) console.log('181 values, defValue', values, defValue);
+          if (debug) console.log('238 values, defValue', values, defValue);
           fieldType = 'select';
           const p1 = "^(";
           const p2 = ")$";
@@ -222,7 +235,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           let cnt = 0;
           for (let i=0; i<values.length; i++) {
             const value = values[i];
-            if (debug) console.log('196 value', i, value);
+            if (debug) console.log('246 value', i, value);
             if (p === "") {
               p = value;
             } else {
@@ -230,17 +243,37 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
           }
           pattern = p1 + p + p2;
-          if (debug) console.log('191 pattern', pattern);
+          if (debug) console.log('254 pattern', pattern);
         }
 
         if (fieldType === 'select') {
-          if (debug) console.log('185 values, defValue', values, defValue);
+          if (debug) console.log('258 values, defValue', values, defValue);
           if (val === "")
             val = defValue;
         }
-        k = utils.capitalizeFirstLetter(k);
-        if (debug) console.log('237 selObj, item:', selObj, item);
-        if (debug) console.log('238 id, value:', k, val);
+
+        switch(k) {
+          case "typename":
+          case "typeName":
+            name = "Type name";
+            disabled = true;
+            break;
+          case "markedAsDeleted":
+            name = "Is deleted";
+            disabled = true;
+            break;
+          case "loc":
+          case "id":
+            disabled = true;
+            break;
+          default:
+            name = utils.capitalizeFirstLetter(k);
+            break;
+        }
+
+        if (debug) console.log('274 selObj, item:', selObj, item);
+        if (debug) console.log('275 id, value:', k, val);
+        if (debug) console.log('276 k, fieldType', k, fieldType, defValue, values);
         row  = <InspectorRow
           key={k}
           id={k}
@@ -265,12 +298,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    if (debug) console.log('263 SelectionInspector ', dets);
+    if (debug) console.log('306 SelectionInspector ', dets);
     return dets;
   }
   
   public render() {
-    if (debug) console.log('268 SelectionInspector ', this.renderObjectDetails());
+    if (debug) console.log('311 SelectionInspector ', this.renderObjectDetails());
     const modalContext = this.props.context;
     if (!modalContext)
       return null;

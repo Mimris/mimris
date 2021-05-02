@@ -744,13 +744,14 @@ function reducer(state = InitialState, action) {
                 {
                   ...curmo.objects[curoindexo], 
                   ...action.data,
-                  // id: action.data.id,
-                  // name: action.data.name,
-                  // description: action.data.description,
-                  // typeRef: action.data.typeRef,
-                  // objectviews: action.data.objectviews,
-                  // markedAsDeleted: action.data.markedAsDeleted,
-                  // modified: action.data.modified,    
+                  id: action.data.id,
+                  name: action.data.name,
+                  description: action.data.description,
+                  typeRef: action.data.typeRef,
+                  objectviews: action.data.objectviews,
+                  markedAsDeleted: action.data.markedAsDeleted,
+                  generatedTypeId: action.data.generatedTypeId,
+                  modified: action.data.modified,    
                 },
                 ...curmo.objects.slice(curoindexo + 1, curmo.objects.length)
               ],
@@ -940,6 +941,7 @@ function reducer(state = InitialState, action) {
                     //   ...curmv.relships[r2index].propvalues,
                     // }
                     markedAsDeleted: action.data.markedAsDeleted,
+                    generatedTypeId: action.data.generatedTypeId,
                     modified: action.data.modified,    
                   },
                   ...curmr.relships.slice(r2index+1 , curmr.relships.length)

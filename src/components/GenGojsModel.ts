@@ -355,9 +355,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let relview = relviews[i];
         const rel = relview.relship;
         if (rel) {
-          if (rel?.markedAsDeleted == undefined)
+          if (rel.markedAsDeleted == undefined)
             rel.markedAsDeleted = false;
-          if (rel?.markedAsDeleted)
+          if (rel.markedAsDeleted)
             relview.markedAsDeleted = rel?.markedAsDeleted;
           relview.name = rel.name;
         }
@@ -481,6 +481,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             }
           }
           if (includeReltype) {
+            if (debug) console.log('484 reltype', reltype);
             if (!reltype.typeview) 
                 reltype.typeview = reltype.newDefaultTypeView(constants.relkinds.REL);
             const key = utils.createGuid();

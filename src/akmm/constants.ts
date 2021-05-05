@@ -36,6 +36,7 @@ export let gojs = {
      C_OBJECT              : "Object",
      C_OBJECTTYPE          : "Object type",
      C_OBJECTTYPEVIEW      : "Object type view",
+     C_OBJECTTYPEGEO       : "Object type geo",
      C_OBJECTVIEW          : "Object view",
      C_PALETTEGROUP_OBJ    : "typeitem",
      C_PROPERTY            : "Property",
@@ -45,7 +46,10 @@ export let gojs = {
      C_RELSHIPVIEW         : "Relationship view",
      C_UNIT                : "Unit",
      C_PROPVALUE           : "Property value",
-     C_VALUE               : "Value"
+     C_VALUE               : "Value",
+     C_VIEWFORMAT          : "View format",
+     C_FIELDTYPE           : "Field type",
+     C_INPUTPATTERN        : "Input pattern"
 };
 
 // Define Firestore constants

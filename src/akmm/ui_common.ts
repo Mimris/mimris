@@ -36,6 +36,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const obj1 = myMetis.findObject(obj.id);
         if (obj1) obj = obj1;
         let name = context.pasted ? data.name : "";
+        if (!data.parentModel) name = data.name;
         if (debug) console.log('35 createObject', context, name);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
@@ -145,7 +146,6 @@ export function createObjectType(data: any, context: any): any {
     const myDiagram   = context.myDiagram;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
         if (debug) console.log('87 createObjectType', data);
-        data.class = "goObjectTypeNode";
         const typeid   = data.type;
         let typename = data.name;
         let objtype;
@@ -1333,13 +1333,11 @@ export function createLink(data: any, context: any): any {
     const myMetis = context.myMetis;
     if (data.category === constants.gojs.C_RELSHIPTYPE) {
         let reltype = null;
-        data.class  = "goRelshipTypeLink";
     } else if (data.category === constants.gojs.C_RELATIONSHIP) {    
         const myGoModel = context.myGoModel;
         // Identify  type   
         let reltype = null;
         let relshipview;
-        data.class = "goRelshipLink";
         let fromNode = data.fromNode;
         if (!fromNode)
             fromNode = myGoModel.findNode(data.from);

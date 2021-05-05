@@ -30,6 +30,8 @@ export let gojs = {
      C_DATATYPE            : "Datatype",
      C_ENUMERATION         : "Enumeration",
      C_METAMODEL           : "Metamodel",
+     C_METACONTAINER       : "Metacontainer",
+     C_METIS               : "Metis",
      C_MODEL               : "Model",
      C_MODELVIEW           : "Model view",
      C_AKM_OBJECT          : "AKM Object",

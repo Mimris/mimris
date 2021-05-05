@@ -10,6 +10,7 @@ const convert = require('color-convert');
 // import './Inspector.css';
 import * as uic from '../../../akmm/ui_common';
 import * as utils from '../../../akmm/utilities';
+import * as constants from '../../../akmm/constants';
 
 const debug = false;
 interface SelectionInspectorProps {
@@ -33,7 +34,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let inst, instview, typeview, item;
     if (selObj.type === 'GraphLinksModel') {
       return;
-    } else if (category === 'Object') {
+    } else if (category === constants.gojs.C_OBJECT) {
       inst = selObj.object;
       if (debug) console.log('108 inst', inst);
       inst = myMetis.findObject(inst?.id);
@@ -42,21 +43,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       // instview = myMetis.findObjectView(instview?.id);
       instview = selObj;
       typeview = instview?.typeview;
-    } else if (category === 'Relationship') {
+    } else if (category === constants.gojs.C_RELATIONSHIP) {
       inst = selObj.relship;
       inst = myMetis.findRelationship(inst?.id);
       instview = selObj.relshipview;
       instview = myMetis.findRelationshipView(instview?.id);
       typeview = instview?.typeview;
-    } else if (category === 'Object type') {
+    } else if (category === constants.gojs.C_OBJECTTYPE) {
       inst = selObj;
       instview = null;
-    } else if (category === 'Relationship type') {
+    } else if (category === constants.gojs.C_RELSHIPTYPE) {
       inst = selObj;
       instview = null;
-    } else if (category === 'Metis') {
+    } else if (category === constants.gojs.C_METIS) {
       inst = selObj;
-    } else if (category === 'Model view') {
+    } else if (category === constants.gojs.C_MODELVIEW) {
       inst = selObj;
     }
     if (debug) console.log('122 inst, instview', inst, instview);
@@ -125,15 +126,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('122 item', inst, item);
     for (let k in item) {
       if (k === 'abstract') {
-        if (!(category === 'Object' || category === 'Object type'))
+        if (!(category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE))
           continue;
       }
       if (k === 'viewkind') {
-        if (!(category === 'Object' || category === 'Object type'))
+        if (!(category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE))
           continue;
       }
       if (k === 'relshipkind') {
-        if (!(category === 'Relationship' || category === 'Relationship type'))
+        if (!(category === constants.gojs.C_RELATIONSHIP || category === constants.gojs.C_RELSHIPTYPE))
           continue;
       }
       let row;

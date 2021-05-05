@@ -56,7 +56,7 @@ export class cxMetis {
     currentTargetMetamodel:     cxMetaModel | null = null;
     currentTargetModel:         cxModel | null = null;
     currentTargetModelview:     cxModelView | null = null;
-    currentTemplateMetamodel:   cxModel | null = null;
+    currentTemplateMetamodel:   cxMetaModel | null = null;
     currentTemplateModel:       cxModel | null = null;
     currentTemplateModelview:   cxModelView | null = null;
     currentNode:        any;
@@ -66,6 +66,7 @@ export class cxMetis {
     pasteViewsOnly:     boolean = false;
     deleteViewsOnly:    boolean = false;
     pasted:             boolean = false;
+    modelType:          string = "";
     // Constructor
     constructor() {
         this.id = utils.createGuid();
@@ -609,7 +610,7 @@ export class cxMetis {
         const obj = this.findObject(item.id);
         if (obj) {
             const objtype = this.findObjectType(item.typeRef);
-            if (debug) console.log('590 item, objtype', item, objtype);
+            if (!debug) console.log('613 item, obj, objtype', item, obj, objtype);
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
@@ -619,6 +620,7 @@ export class cxMetis {
                 obj.typeName = item.typeName;
                 obj.typeRef  = item.typeRef;
             }
+            if (!debug) console.log('623 model', model);
         }
     }
     importRelship(item: any, model: cxModel | null) {
@@ -4350,7 +4352,7 @@ export class cxModel extends cxMetaObject {
             this.modelviews.push(modelview);
     }
     addObject(obj: cxObject) {
-        if (obj.category === "cxObject") {
+        if (obj.category === constants.gojs.C_OBJECT) {
             if (this.objects == null)
                 this.objects = new Array();
             if (!this.findObject(obj.id))
@@ -4368,7 +4370,7 @@ export class cxModel extends cxMetaObject {
         }
     }
     addRelationship(rel: cxRelationship) {
-        if (rel.category === "cxRelationship") {
+        if (rel.category === constants.gojs.C_RELATIONSHIP) {
             if (this.relships == null)
                 this.relships = new Array();
             if (!this.findRelationship(rel.id))

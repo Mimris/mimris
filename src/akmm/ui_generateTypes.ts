@@ -244,9 +244,9 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 // To ensure that objtype is a class instance
                 objtype = myMetis.findObjectType(objtype.id);
                 const typeview = objtype.typeview;
-                if (debug) console.log('268 objview, typeview', objview, typeview);
+                if (debug) console.log('247 objview, typeview', objview, typeview);
                 typeview?.applyObjectViewParameters(objview);
-                if (debug) console.log('270 typeview', typeview);
+                if (debug) console.log('249 typeview', typeview);
             }
             if (debug) console.log('251 objtype, myMetis', objtype, myMetis);
             let parentType: akm.cxObjectType | null = null;
@@ -276,6 +276,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 if (debug) console.log('289 generateObjectType', myMetis);
             }  
         }
+    } else {
+        const typeview = objtype.typeview;
+        if (debug) console.log('281 objview, typeview', objview, typeview);
+        typeview?.applyObjectViewParameters(objview);
+        if (debug) console.log('283 typeview', typeview);
     }
     // Handle properties
     const proptypes  = new Array();

@@ -207,7 +207,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const category = data.category;
             if (debug) console.log('206 data', data);
             // Object type
-            if (category === 'Object type') {
+            if (category === constants.gojs.C_OBJECTTYPE) {
               if (text === 'Edit name') {
                 text = prompt('Enter name');
               }
@@ -392,7 +392,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const selection = e.subject;
         const data = selection.first().data;
         if (debug) console.log('391 data, selection', data, selection);
-        if (data.category === 'Object type' || data.category === 'Relationship type') {
+        if (data.category === constants.gojs.C_OBJECTTYPE || data.category === constants.gojs.C_RELSHIPTYPE) {
           if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
             renameTypes = true;
           }
@@ -404,7 +404,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('401 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
-          if (data.category === 'Relationship type') {
+          if (data.category === constants.gojs.C_RELSHIPTYPE) {
             const defRelType = myMetis.findRelationshipTypeByName('isRelatedTo');
             const reltype = myMetis.findRelationshipType(data.reltype?.id);
             if (reltype) {
@@ -450,7 +450,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (debug) console.log('448 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
-          if (data.category === 'Object type') {
+          if (data.category === constants.gojs.C_OBJECTTYPE) {
             const defObjType = myMetis.findObjectTypeByName('Generic');
             const objtype = myMetis.findObjectType(data.objecttype?.id);
             if (objtype) {
@@ -500,7 +500,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const sel  = it.value;
           const data = sel.data;
           const key  = data.key;
-          if (data.category === 'Object') {
+          if (data.category === constants.gojs.C_OBJECT) {
             if (debug) console.log('448 sel, data', sel, data);
             const key  = data.key;
             const myNode = this.getNode(context.myGoModel, key);
@@ -520,7 +520,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const sel  = it.value;
           const data = sel.data;
           const key  = data.key;
-          if (data.category === 'Relationship') {
+          if (data.category === constants.gojs.C_RELATIONSHIP) {
             const myLink = this.getLink(context.myGoModel, key);
             if (debug) console.log('427 SelectionDeleted', myLink);
             uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedLinkTypeViews, context);
@@ -742,7 +742,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         while (it.next()) {
           if (debug) console.log('749 it.value', it.value);
           const data = it.value.data;
-          if (data.category === 'Object') {
+          if (data.category === constants.gojs.C_OBJECT) {
               context.pasted = true;
               if (debug) console.log('753 ClipboardPasted', data, myGoModel);
               const objview = uic.createObject(data, context);
@@ -774,7 +774,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Then handle the relationships
         while (it1.next()) {
           const data = it1.value.data;
-          if (data.category === 'Relationship') {
+          if (data.category === constants.gojs.C_RELATIONSHIP) {
             if (debug) console.log('641 ClipboardPasted', data);
             if (debug) console.log('644 ClipboardPasted', data, pastedNodes);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
@@ -821,10 +821,10 @@ class GoJSApp extends React.Component<{}, AppState> {
 
         if (debug) console.log('676 LinkDrawn', fromNode, toNode, data);
         // Handle relationship types
-        if (fromNode?.data?.category === 'Object type') {
-          data.category = 'Relationship type';
+        if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
+          data.category = constants.gojs.C_RELSHIPTYPE;
           if (debug) console.log('932 link', fromNode, toNode);
-          link.category = 'Relationship type';
+          link.category = constants.gojs.C_RELSHIPTYPE;
           const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
           if (reltype) {
             if (debug) console.log('937 reltype', reltype);
@@ -840,7 +840,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         // Handle relationships
-        if (fromNode?.data?.category === 'Object') {
+        if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = 'Relationship';
           let relview;
           relview = uic.createRelationship(data, context);

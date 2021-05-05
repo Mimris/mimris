@@ -176,6 +176,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const selectedObjectTypes   = new Array();
     const selectedRelationshipTypes   = new Array();
     let done = false;
+    let pasted = false;
     const context = {
       "myMetis":          myMetis,
       "myMetamodel":      myMetamodel,
@@ -185,6 +186,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myGoMetamodel":    myGoMetamodel,
       "myDiagram":        myDiagram,
       "dispatch":         dispatch,
+      "pasted":           pasted,
       "done":             done
     }
     if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
@@ -576,7 +578,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else // object
           {
             part.category = 'Object';
-            if (!debug) console.log('578 part', part);
+            if (debug) console.log('578 part', part);
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
               console.log('581 obj', obj);
@@ -734,29 +736,22 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ClipboardPasted': {
         const selection = e.subject;
         context.pasted  = true;
-        if (debug) console.log('650 myGoModel', myGoModel);
         const it = selection.iterator;
         const pastedNodes = new Array();
-        // Handle object types
-        while (it.next()) {
-          const data = it.value.data;
-          if (data.category === 'Object type') {
-            if (debug) console.log('743 data', data);
-          }
-        }
         // First handle the objects
         while (it.next()) {
+          if (debug) console.log('749 it.value', it.value);
           const data = it.value.data;
           if (data.category === 'Object') {
               context.pasted = true;
-              if (debug) console.log('654 ClipboardPasted', data, myGoModel);
+              if (debug) console.log('753 ClipboardPasted', data, myGoModel);
               const objview = uic.createObject(data, context);
-              if (debug) console.log('655 ClipboardPasted', data, objview);
+              if (debug) console.log('755 ClipboardPasted', data, objview);
               if (objview) {
                 const node = new gjs.goObjectNode(data.key, objview);
-                if (debug) console.log('614 node', node);
+                if (debug) console.log('758 node', node);
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
-                if (debug) console.log('662 group', group)
+                if (debug) console.log('760 group', group)
                 if (group && node) {
                   objview.group = group.objectview?.id;
                   node.group = group.key;
@@ -766,15 +761,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                 objview.object = myMetis.findObject(objid);
                 const gqlObjview = new gql.gqlObjectView(objview);
                 modifiedNodes.push(gqlObjview);
-                if (debug) console.log('672 ClipboardPasted', modifiedNodes);
+                if (debug) console.log('770 ClipboardPasted', modifiedNodes);
                 const gqlObj = new gql.gqlObject(objview.object);
                 modifiedObjects.push(gqlObj);
-                if (debug) console.log('675 ClipboardPasted', modifiedObjects);
+                if (debug) console.log('773 ClipboardPasted', modifiedObjects);
               }
           }
         }
-        if (debug) console.log('681 pastedNodes', pastedNodes);
-        if (debug) console.log('679 ClipboardPasted', context.myGoModel);
+        if (debug) console.log('777 pastedNodes', pastedNodes);
+        if (debug) console.log('778 ClipboardPasted', context.myGoModel);
         const it1 = selection.iterator;
         // Then handle the relationships
         while (it1.next()) {
@@ -796,7 +791,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (debug) console.log('710 ClipboardPasted', modifiedLinks, modifiedRelships);       
+        if (debug) console.log('800 ClipboardPasted', modifiedLinks, modifiedRelships);       
         myDiagram.requestUpdate();
       }
       break;
@@ -830,7 +825,6 @@ class GoJSApp extends React.Component<{}, AppState> {
           data.category = 'Relationship type';
           if (debug) console.log('932 link', fromNode, toNode);
           link.category = 'Relationship type';
-          link.class = 'goRelshipTypeLink';
           const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
           if (reltype) {
             if (debug) console.log('937 reltype', reltype);

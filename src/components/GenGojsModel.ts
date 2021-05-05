@@ -359,7 +359,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             rel.markedAsDeleted = false;
           if (rel.markedAsDeleted)
             relview.markedAsDeleted = rel?.markedAsDeleted;
-          relview.name = rel?.name;
+          relview.name = rel.name;
         }
         let relcolor = "black";
         if (includeDeleted) {
@@ -481,6 +481,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             }
           }
           if (includeReltype) {
+            if (debug) console.log('484 reltype', reltype);
             if (!reltype.typeview) 
                 reltype.typeview = reltype.newDefaultTypeView(constants.relkinds.REL);
             const key = utils.createGuid();

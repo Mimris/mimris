@@ -108,17 +108,17 @@ const Modeller = (props: any) => {
         setActiveTab(0)
         genGojsModel(props, dispatch);
     }
-    if (debug) console.log('89 Modeller useEffect 1', activeTab); 
+    if (!debug) console.log('89 Modeller useEffect 1', activeTab); 
   }, [focusModel])
   
   useEffect(() => {
     setActiveTab(activetabindex)
-    if (debug) console.log('94 Modeller useEffect 2', activeTab); 
+    if (!debug) console.log('94 Modeller useEffect 2', activeTab); 
     // genGojsModel(props, dispatch);
   }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('99 Modeller useEffect 3', props); 
+    if (!debug) console.log('99 Modeller useEffect 3', props); 
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel?.id)
     if (model) {
@@ -136,7 +136,7 @@ const Modeller = (props: any) => {
   }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('125 Modeller useEffect 5', props); 
+    if (!debug) console.log('125 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
 

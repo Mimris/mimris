@@ -248,14 +248,12 @@ export class goModel {
 
 export class goMetaObject {
     key: string;
-    class: string;
     name: string;
     category: string;
     type: any;
     parentModel: goModel | null;
     data: any;
     constructor(key: string) {
-        this.class = this.constructor.name;
         this.parentModel = null;
         this.key = key;
         this.category = "default";
@@ -342,7 +340,6 @@ export class goObjectNode extends goNode {
     constructor(key: string, objview: akm.cxObjectView) {
         super(key, null);
         this.category       = constants.gojs.C_OBJECT;
-        this.class          = 'goObjectNode';
         this.objectview     = objview;
         this.object         = null;
         this.objecttype     = null;

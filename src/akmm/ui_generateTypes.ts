@@ -785,7 +785,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
-    const typenames = ['Object', 'Container', 'Generic', 'Property', 'Datatype', 'Value', 'ViewFormat', 'FieldType', 'InputPattern'];
+    // const typenames = ['Element', 'Object', 'Information', 'Property'];
+    const typenames = ['Element', 'Object', 'Container', 'Generic', 'Information', 'Property', 'Datatype', 'Value', 'ViewFormat', 'FieldType', 'InputPattern'];
     for (let i=0; i<typenames.length; i++) {
         const typename = typenames[i];
         const objtype = myMetamodel.findObjectTypeByName(typename);
@@ -805,8 +806,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     if (debug) console.log('823 reltypes', reltypes);
     for (let i=0; i<reltypes.length;i++) {
         const reltype = reltypes[i];
-        if (reltype)
+        if (reltype) {
             metamodel.addRelationshipType(reltype);
+            if (debug) console.log('811 reltype', reltype);
+        }
     }
 
     // Prepare dispatch of the metamodel

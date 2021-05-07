@@ -947,17 +947,19 @@ export function createRelationship(data: any, context: any) {
     if (!reltype) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
-        fromType = myMetis.findObjectType(fromType?.id);
-        if (!fromType) fromType = myMetis.findObjectType(fromNode?.object?.typeRef);
+        fromType = myMetamodel.findObjectType(fromType?.id);
+        if (!debug) console.log('951 fromType', fromType);
+        if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
         if (fromType) {
-            fromType.allObjecttypes = myMetis.objecttypes;
-            fromType.allRelationshiptypes = myMetis.relshiptypes;
+            fromType.allObjecttypes = myMetamodel.objecttypes;
+            fromType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
-        toType   = myMetis.findObjectType(toType?.id);
-        if (!toType) toType = myMetis.findObjectType(toNode?.object?.typeRef);
+        toType   = myMetamodel.findObjectType(toType?.id);
+        if (!debug) console.log('958 toType', toType);
+        if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
         if (toType) {
-            toType.allObjecttypes = myMetis.objecttypes;
-            toType.allRelationshiptypes = myMetis.relshiptypes;
+            toType.allObjecttypes = myMetamodel.objecttypes;
+            toType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
         const choices: string[]  = [];
         if (fromType && toType) {
@@ -974,7 +976,7 @@ export function createRelationship(data: any, context: any) {
                     }                    
                     if (choices.length == 1) defText = choices[0];
                     typename = prompt('Enter type name, one of ' + choices, defText);
-                    reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+                    reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
                     if (debug) console.log('888 reltype', reltype);
 
                     if (!reltype) {

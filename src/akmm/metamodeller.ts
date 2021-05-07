@@ -377,11 +377,12 @@ export class cxMetis {
                     if (debug) console.log('376 reltypes', reltypes); 
                     reltypes.forEach(rtype => {
                         if (rtype.id === reltype.id) {
+                            rtype.fromObjtype = reltype.fromObjtype;
+                            rtype.fromobjtypeRef = reltype.fromobjtypeRef;
+                            rtype.toObjtype = reltype.toObjtype;
+                            rtype.toobjtypeRef = reltype.toobjtypeRef;
+                            rtype.relshipkind = reltype.relshipkind;
                             if (debug) console.log('379 rtype', rtype);
-                            if (!rtype.fromObjtype) {
-                                rtype.fromObjtype === this.findObjectType(reltype.fromobjtypeRef);
-                                if (debug) console.log('382 rtype.fromObjtype, rtype', rtype.fromObjtype, rtype);
-                            }
                         }
                     })
                 }
@@ -610,7 +611,7 @@ export class cxMetis {
         const obj = this.findObject(item.id);
         if (obj) {
             const objtype = this.findObjectType(item.typeRef);
-            if (!debug) console.log('613 item, obj, objtype', item, obj, objtype);
+            if (debug) console.log('613 item, obj, objtype', item, obj, objtype);
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
@@ -620,7 +621,7 @@ export class cxMetis {
                 obj.typeName = item.typeName;
                 obj.typeRef  = item.typeRef;
             }
-            if (!debug) console.log('623 model', model);
+            if (debug) console.log('623 model', model);
         }
     }
     importRelship(item: any, model: cxModel | null) {
@@ -794,6 +795,16 @@ export class cxMetis {
                 this.metamodels = new Array();
             if (!this.findMetamodel(metamodel.id))
                 this.metamodels.push(metamodel);
+            else {
+                const mms = this.metamodels;
+                for (let i=0; i<mms.length; i++) {
+                    const mm = mms[i];
+                    if (mm.id === metamodel.id) {
+                        mms[i] = metamodel;
+                        break;
+                    }
+                }
+            }
         }
     }
     addModel(model: cxModel) {
@@ -2945,6 +2956,20 @@ export class cxMetaModel extends cxMetaObject {
         for (i = 0; i < types.length; i++) {
             reltype = types[i];
             if (reltype.isDeleted()) continue;
+            if (!reltype.fromObjtype) {
+                const objtype = this.findObjectType(reltype.fromobjtypeRef);
+                if (objtype)
+                    reltype.fromObjtype = objtype;
+                else
+                    continue;
+            }
+            if (!reltype.toObjtype) {
+                const objtype = this.findObjectType(reltype.toobjtypeRef);
+                if (objtype)
+                    reltype.toObjtype = objtype;
+                else
+                    continue;
+            }
             if (includeGen) {
                 if (debug) console.log('2948 reltype, fromType', reltype, fromType);
                 if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
@@ -3309,7 +3334,7 @@ export class cxObjectType extends cxType {
         }
         this.inputreltypes = reltypes;
     }
-    addOutputreltype(reltype: cxRelationship) {
+    addOutputreltype(reltype: cxRelationshipType) {
         if (!this.outputreltypes)
             this.outputreltypes = new Array();
         const len = this.outputreltypes.length;
@@ -3322,7 +3347,7 @@ export class cxObjectType extends cxType {
         }
         this.outputreltypes.push(reltype);
     }
-    removeOutputreltype(reltype: cxRelationship) {
+    removeOutputreltype(reltype: cxRelationshipType) {
         if (!this.outputreltypes)
             return;
         const reltypes = new Array();
@@ -3573,7 +3598,6 @@ export class cxObjectType extends cxType {
         if (otypes && otypes.length > 0) {
             for (let j = 0; j < otypes.length; j++) {
                 const otype = otypes[j];
-                // objtype inherits from otype?
                 if (objtype.inherits(otype, this.allRelationshiptypes)) {
                     const rtype: cxRelationshipType | null = this.findRelshipTypeByKind1(relkind, otype, this.allRelationshiptypes);
                     if (rtype)

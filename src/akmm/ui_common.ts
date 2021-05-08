@@ -948,14 +948,14 @@ export function createRelationship(data: any, context: any) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetamodel.findObjectType(fromType?.id);
-        if (!debug) console.log('951 fromType', fromType);
+        if (debug) console.log('951 fromType', fromType);
         if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
         if (fromType) {
             fromType.allObjecttypes = myMetamodel.objecttypes;
             fromType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
         toType   = myMetamodel.findObjectType(toType?.id);
-        if (!debug) console.log('958 toType', toType);
+        if (debug) console.log('958 toType', toType);
         if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
         if (toType) {
             toType.allObjecttypes = myMetamodel.objecttypes;
@@ -1178,8 +1178,8 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                     myDiagram.model.setDataProperty(data, "reltype", reltype);
                     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                     reltype.setModified();
-                    reltype.setFromObjtype(fromTypeNode.objtype);
-                    reltype.setToObjtype(toTypeNode.objtype);
+                    reltype.setFromObjtype(fromTypeNode.objecttype);
+                    reltype.setToObjtype(toTypeNode.objecttype);
                     if (debug) console.log('1110 reltype', reltype);
                     myMetamodel.addRelationshipType(reltype);
                     myMetis.addRelationshipType(reltype);

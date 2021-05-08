@@ -208,6 +208,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case 'viewkind':
           case 'relshipkind':
             let dtype = myMetis.findDatatypeByName(k);
+            if (!debug) console.log('211 dtype', dtype);
             if (dtype) {
               fieldType = dtype.fieldType;
               pattern   = dtype.inputPattern;

@@ -1633,8 +1633,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
             context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
             if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                  alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                  context.myTargetMetamodel = null;
+                  // alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                  // context.myTargetMetamodel = null;
             } else if (context.myTargetMetamodel == undefined) { // sf
                 context.myTargetMetamodel = null;
             }

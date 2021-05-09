@@ -235,7 +235,7 @@ const page = (props:any) => {
         <TabPane  tabId="1">
           <div className="workpad p-1 pt-2 bg-white" >
           {/* <div className="workpad p-1" > */}
-            <Row className="row1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
+            <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
               <Col className="col1 m-0 p-0 pl-3" xs="auto">
               {/* <Col xs="ml-3 mr-0 pr-0 pl-0 " sm={8}> */}
               <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
@@ -279,7 +279,7 @@ const page = (props:any) => {
         {/* Modelling ---------------------------------------*/}
         <TabPane tabId="2">
           <div className="workpad p-1 pt-2 bg-white">
-            <Row className="row1">
+            <Row className="row d-flex flex-nowrap h-100">
               <Col className="col1 m-0 p-0 pl-3" xs="auto">
                 {/* <div className="myPalette pl-1 pr-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
                 <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
@@ -397,20 +397,24 @@ const page = (props:any) => {
 
   return (
     <>
-      <div className="diagramtabs pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "200px" , whitespace: "nowrap"}}>
-        <div className="buttonrow mt-0 pt-0  float-right" style={{ transform: "scale(0.7)"}}>
-          {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" > {loadfile}</span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" >Edit: {EditFocusModalRDiv} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
-            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
-            <span className="sourceName" style={{ backgroundColor: "#fff", color: "#b00",  fontWeight: "bolder"}}> Current source: {props.phSource} </span> 
-            <span className="btn-link btn-sm"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" >{refresh ? 'refresh' : 'refresh'} </span>
-          {/* </div>  */}
-        </div> 
+      <div className="diagramtabs pl-1 pb-1">
+      {/* <div className="diagramtabs pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "100px" , whitespace: "nowrap"}}> */}
+          <div className="buttonrow ml-5 d-inline-flex float-right" style={{ transform: "scale(0.6)", position: "absolute"}}>
+            {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
+              <span className="pt-1 pr-2 bg-secondary" > Edit:  </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
+ 
+              <span className="pt-1 pr-2" > </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" > {loadfile} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span>
+              <span className="sourceName p-1 ml-4 " style={{ backgroundColor: "#fff", color: "#b00",  fontWeight: "bolder"}}> Current source: {props.phSource} </span> 
+              <span className="btn-link btn-sm "  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+            {/* </div>  */}
+          </div> 
         <div className="modellingContent pt-1 pr-2"  >
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>

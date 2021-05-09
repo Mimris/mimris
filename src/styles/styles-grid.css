@@ -54,8 +54,9 @@
   "contextarea contextarea"
   "tasksarea workarea";
 }
-@media only screen and (max-width: 275px) {
+@media only screen and (max-width: 360px) {
  .workplace {
+     height: 500vh;
      grid-area: workplace;
      display: grid ;
      background-color: #aaf;
@@ -65,8 +66,10 @@
      "taskarea workarea";
    }
  }
-@media only screen and (max-width: 1060px) {
- .row1 {
+@media only screen and (max-width: 360px) {
+
+.row {
+    height: 100%;
      grid-area: row1;
      display: grid ;
      background-color: #aaf;
@@ -74,8 +77,9 @@
      grid-template-areas:
      "col2 col2"
      "col1 col3";
-   }
- }
+  }
+}
+
  /* .row {
    background-color: blue;
  } */

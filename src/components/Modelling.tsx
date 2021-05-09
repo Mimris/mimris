@@ -399,7 +399,8 @@ const page = (props:any) => {
     <>
       <div className="diagramtabs pl-1 pb-1">
       {/* <div className="diagramtabs pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "100px" , whitespace: "nowrap"}}> */}
-          <div className="buttonrow ml-5 d-inline-flex float-right" style={{ transform: "scale(0.6)", position: "absolute"}}>
+          <span className="btn-link btn-sm float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+          <div className="buttonrow m-0 d-inline-flex float-right" style={{ minWidth: "830px",transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
             {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
               <span className="pt-1 pr-2 bg-secondary" > Edit:  </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
@@ -411,8 +412,7 @@ const page = (props:any) => {
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span>
-              <span className="sourceName p-1 ml-4 " style={{ backgroundColor: "#fff", color: "#b00",  fontWeight: "bolder"}}> Current source: {props.phSource} </span> 
-              <span className="btn-link btn-sm "  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+              <span className="sourceName p-1 ml-4 " style={{ minWidth: "130px", backgroundColor: "#fff", color: "#b00",  fontWeight: "bolder"}}>Current source: {props.phSource} </span> 
             {/* </div>  */}
           </div> 
         <div className="modellingContent pt-1 pr-2"  >

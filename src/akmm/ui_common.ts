@@ -1662,6 +1662,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     }
     if (type?.name !== 'InputPattern' && type?.name !== 'Datatype') {
       if (k === 'inputPattern') retVal = false;
+      if (k === 'inputExample') retVal = false;
     }
     if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
       if (k === 'fieldType') retVal = false;

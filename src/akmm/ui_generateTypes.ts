@@ -318,6 +318,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         } else {
             prop = myMetis.findProperty(prop.id);
+            objtype.addProperty(prop);
             myTargetMetamodel.addProperty(prop);
         }
         if (debug) console.log('347 prop && target metamodel', prop, myTargetMetamodel);

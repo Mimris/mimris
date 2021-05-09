@@ -641,22 +641,22 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         const data = sel.data;
-        if (debug) console.log('523 selected', sel);
+        if (debug) console.log('644 selected', sel);
         this.state.selectedData = data
-        if (debug) console.log('551 GoJSApp :', data, data.name, data.object);
+        if (debug) console.log('646 GoJSApp :', data, data.name, data.object);
         if (sel) {
           if (sel instanceof go.Node) {
             const key = data.key;
             const text = data.name;
             const typename = data.type;
-            if (debug) console.log('560 typename, text', typename, text);
+            if (debug) console.log('652 typename, text', typename, text);
             if (typename === 'Object type') {
               const myNode = this.getNode(context.myGoMetamodel, key);
-              if (debug) console.log('560 GoJSApp', myNode.objtype);  
+              if (debug) console.log('655 GoJSApp', myNode.objtype);  
               if (myNode && myNode.objtype) {
                 const gqlNode = new gql.gqlObjectType(myNode.objtype, true);
                 selectedObjectTypes.push(gqlNode);
-                if (debug) console.log('564 GoJSApp', selectedObjectTypes);
+                if (debug) console.log('659 GoJSApp', selectedObjectTypes);
                 } 
             } else { // object
               myDiagram.clearHighlighteds();
@@ -701,11 +701,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             {
               let relshipview = sel.data.relshipview;
               relshipview = myMetis.findRelationshipView(relshipview?.id);
-              // Do whatever you like
-              // ..
-              const gqlRelshipView = new gql.gqlRelshipView(relshipview);
-              selectedRelshipViews.push(gqlRelshipView);
-              // if (debug) console.log('527 GoJSApp :', gqlRelshipView);                
+              if (relshipview) {
+                // Do whatever you like
+                // ..
+                const gqlRelshipView = new gql.gqlRelshipView(relshipview);
+                selectedRelshipViews.push(gqlRelshipView);
+                if (debug) console.log('709 GoJSApp :', gqlRelshipView); 
+              }               
             }
           }
         }

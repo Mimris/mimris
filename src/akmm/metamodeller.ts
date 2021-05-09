@@ -1899,6 +1899,7 @@ export class cxMetaObject {
     id:                 string;
     name:               string;
     nameId:             string;
+    title:              string;
     category:           string;
     description:        string;
     markedAsDeleted:    boolean;
@@ -1910,6 +1911,7 @@ export class cxMetaObject {
         this.id = id;
         this.name = name;
         this.nameId = name;
+        this.title = "";
         this.category = "";
         this.markedAsDeleted = false;
         this.modified = false;
@@ -1925,11 +1927,8 @@ export class cxMetaObject {
         txt.replace(/ /g, '_').replace(/./g, '_');
         return txt;
     }
-    getClass(): string {
-        return this.class;
-    }
     getId(): string {
-        if (utils.objExists(this.id))
+        if (this.id)
             return this.id;
         else
             return "";
@@ -1944,8 +1943,17 @@ export class cxMetaObject {
         this.name = name;
     }
     getName(): string {
-        if (utils.objExists(this.name))
+        if (this.name)
             return this.name;
+        else
+            return "";
+    }
+    setTitle(title: string) {
+        this.title = title;
+    }
+    getTitle(): string {
+        if (this.title)
+            return this.title;
         else
             return "";
     }
@@ -1953,7 +1961,7 @@ export class cxMetaObject {
         this.description = description;
     }
     getDescription(): string {
-        if (utils.objExists(this.description))
+        if (this.description)
             return this.description;
         else
             return "";
@@ -4981,8 +4989,9 @@ export class cxInstance extends cxMetaObject {
 export class cxObject extends cxInstance {
     objectviews: cxObjectView[] | null;
     viewFormat: string;
-    inputPattern: string;
     fieldType: string;
+    inputPattern: string;
+    inputExample: string;
     allowedValues: string[];
     defaultValue: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
@@ -4993,6 +5002,7 @@ export class cxObject extends cxInstance {
         this.viewFormat = "";
         this.fieldType = "";
         this.inputPattern = "";
+        this.inputExample = "";
         this.allowedValues = [];
         this.defaultValue = "";
 

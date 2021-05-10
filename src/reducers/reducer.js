@@ -948,6 +948,9 @@ function reducer(state = InitialState, action) {
                     fromobjectRef: action.data.fromobjectRef,
                     toobjectRef: action.data.toobjectRef,
                     relshipviews: action.data.relshipviews,
+                    cardinality: action.data.cardinality,
+                    cardinalityFrom: action.data.cardinalityFrom,
+                    cardinalityTo: action.data.cardinalityTo,
                     // propvalues: {
                     //   ...curmv.relships[r2index].propvalues,
                     // }
@@ -1774,7 +1777,9 @@ function reducer(state = InitialState, action) {
                     isGroup: action.data.isGroup,
                     relshipkind: action.data.relshipkind,
                     viewkind: action.data.viewkind,
-                    cardinality: action.data.cardinality,
+                    cardinality: action.data,cardinality,
+                    cardinalityFrom: action.data.cardinalityFrom,
+                    cardinalityTo: action.data.cardinalityTo,
                     fromobjtypeRef: action.data.fromobjtypeRef,
                     toobjtypeRef: action.data.toobjtypeRef,
                     // properties: {

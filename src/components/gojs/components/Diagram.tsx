@@ -3325,19 +3325,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Shape, { toArrow: "Standard", stroke: null },
             new go.Binding("toArrow", "toArrow"),
           ),
-          $(go.TextBlock,  "name",   // this is a Link label
+          $(go.TextBlock,  "",   // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
               editable: true,  // allow in-place editing by user
             },
             new go.Binding("text", "name").makeTwoWay(),
           ),
-          $(go.TextBlock, "from",
+          $(go.TextBlock, "",
               { segmentIndex: NaN, segmentFraction: 0.2},
               new go.Binding("text", "cardinalityFrom"),
           ),
           // $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
-          $(go.TextBlock, "to",
+          $(go.TextBlock, "",
             { segmentIndex: NaN, segmentFraction: 0.8},
             new go.Binding("text", "cardinalityTo"),
           ),

@@ -3709,6 +3709,8 @@ export class cxRelationshipType extends cxObjectType {
     relshipkind: string;
     viewkind: string;
     cardinality: string;
+    cardinalityFrom: string;
+    cardinalityTo: string;
     constructor(id: string, name: string, fromObjtype: cxObjectType | null, toObjtype: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPES;     // Firestore collection
@@ -3721,6 +3723,8 @@ export class cxRelationshipType extends cxObjectType {
         this.relshipkind = constants.relkinds.REL;
         this.viewkind = "";
         this.cardinality = "";
+        this.cardinalityFrom = "";
+        this.cardinalityTo = "";
         this.markedAsDeleted = false;
     }
     // Methods
@@ -3748,6 +3752,24 @@ export class cxRelationshipType extends cxObjectType {
     }
     getCardinality() : string {
         return this.cardinality;
+    }
+    getCardinalityFrom(): string {
+        let retval = "";
+        const cardinality = this.cardinality;
+        if (cardinality.length >0) {
+            const pos = cardinality.indexOf('-');
+            retval = cardinality.slice(0, pos);
+        }
+        return retval;
+    }
+    getCardinalityTo(): string {
+        let retval = "";
+        const cardinality = this.cardinality;
+        if (cardinality.length >0) {
+            const pos = cardinality.indexOf('-');
+            retval = cardinality.slice(pos+1);
+        }
+        return retval;
     }
     isInstantiable(): boolean {
         let retval = true;

@@ -984,8 +984,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let msg = "";
       msg += printf(format2, "Type", d.object.type.name);
       msg += printf(format2, "Name", d.name);
+      msg += printf(format2, "Title", d.title);
       msg += printf(format2, "Description", d.object.description);
+      msg += printf(format2, "ViewFormat", d.object.viewFormat);
+      msg += printf(format2, "FieldType", d.object.fieldType);
       msg += printf(format2, "Inputpattern", d.object.inputPattern);
+      msg += printf(format2, "InputExample", d.object.inputExample);
+      msg += printf(format2, "Value", d.object.value);
       if (d.group) {
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);
@@ -3235,7 +3240,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
-                  maxSize: new go.Size(96, 999), 
+                  maxSize: new go.Size(100, 999), 
                   // margin: new go.Margin(2),
                   defaultAlignment: go.Spot.Left,
                 },

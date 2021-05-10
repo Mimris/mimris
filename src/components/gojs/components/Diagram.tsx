@@ -300,12 +300,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           break;
         if (debug) console.log('277 link', link);
         const data = link.data;
+
+        let relship = data.relship;
+        relship = myMetis.findRelationship(relship.id);
+        relship['cardinalityFrom'] = relship.getCardinalityFrom();
+        relship['cardinalityTo'] = relship.getCardinalityTo();
+        if (debug) console.log('307 relship', relship);
         for (let k in data) {
           if (typeof(rel[k]) === 'object')    continue;
           if (typeof(rel[k]) === 'function')  continue;
           if (!uic.isPropIncluded(k, type))  continue;
           myDiagram.model.setDataProperty(data, k, rel[k]);
-          const gqlRelship = new gql.gqlRelationship(link.data.relship);
+          const gqlRelship = new gql.gqlRelationship(relship);
           if (debug) console.log('285 gqlRelship', gqlRelship);
           modifiedRelships.push(gqlRelship);
           modifiedRelships.map(mn => {
@@ -3288,7 +3294,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         linkTemplate =
         $(go.Link,
           new go.Binding("deletable"),
-          { relinkableFrom: true, relinkableTo: true, toShortLength: 2 },
+          { relinkableFrom: true, relinkableTo: true, toShortLength: 4 },
           // new go.Binding('relinkableFrom', 'canRelink').ofModel(),
           // new go.Binding('relinkableTo', 'canRelink').ofModel(),
           {
@@ -3306,6 +3312,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             routing: go.Link.Normal,
             // curve: go.Link.JumpOver,
             curve: go.Link.JumpGap,
+            // curve: go.Link.Bezier,
             corner: 10
           },  // link route should avoid nodes
           { contextMenu: linkContextMenu },
@@ -3316,30 +3323,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             new go.Binding("strokeDashArray", "dash",
             function(d) { return d === "Dotted Line" ? dotted :
                                 (d === "Dashed Line" ? dashed : null); }),
-                              ),
-          $(go.TextBlock,     // this is a Link label
-            {
-              isMultiline: false,  // don't allow newlines in text
-              editable: true,  // allow in-place editing by user
-            }),
+            ),
           $(go.Shape, { fromArrow: "", stroke: null },
             new go.Binding("fromArrow", "fromArrow"),
           ),
           $(go.Shape, { toArrow: "Standard", stroke: null },
             new go.Binding("toArrow", "toArrow"),
           ),
-          $(go.TextBlock,     // this is a Link label
+          $(go.TextBlock,  "",   // this is a Link label
             {
               isMultiline: false,  // don't allow newlines in text
               editable: true,  // allow in-place editing by user
-              //textEditor: customEditor,
             },
-
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("text", "choices"),
+          ),
+          $(go.TextBlock, "",
+              { segmentIndex: NaN, segmentFraction: 0.2},
+              new go.Binding("text", "cardinalityFrom"),
+          ),
+          // $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
+          $(go.TextBlock, "",
+            { segmentIndex: NaN, segmentFraction: 0.8},
+            new go.Binding("text", "cardinalityTo"),
           ),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
           $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
+
         );
     }
     // Define the group template with fixed size containers

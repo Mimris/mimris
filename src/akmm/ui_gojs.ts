@@ -592,6 +592,8 @@ export class goRelshipLink extends goLink {
     toNode: goNode | null;
     from: string;
     to: string;
+    cardinalityFrom: string;
+    cardinalityTo: string;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
         this.category = constants.gojs.C_RELATIONSHIP;
@@ -604,6 +606,8 @@ export class goRelshipLink extends goLink {
         this.toNode = null;
         this.from = "";
         this.to = "";
+        this.cardinalityFrom = "";
+        this.cardinalityTo = "";
 
         if (relview) {
             const relship = relview.getRelationship();
@@ -615,6 +619,8 @@ export class goRelshipLink extends goLink {
                 this.name = this.relship.getName();
                 if (this.name.length == 0)
                     this.name = this.typename;
+                this.cardinalityFrom = this.relship.cardinalityFrom;
+                this.cardinalityTo = this.relship.cardinalityTo;
                 if (debug) console.log('507 relshipLink', this);
                 }
             this.typeview = relview.getTypeView();

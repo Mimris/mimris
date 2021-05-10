@@ -637,6 +637,9 @@ export class cxMetis {
                     rel.setToObject(toObj);
                     fromObj.addOutputrel(rel);
                     toObj.addInputrel(rel);
+                    rel.cardinality     = item.cardinality;
+                    rel.cardinalityFrom = item.cardinalityFrom;
+                    rel.cardinalityTo   = item.cardinalityTo;
                     rel.markedAsDeleted = item.markedAsDeleted;
                     rel.generatedTypeId = item.generatedTypeId;
                     model.addRelationship(rel);
@@ -3706,6 +3709,8 @@ export class cxRelationshipType extends cxObjectType {
     relshipkind: string;
     viewkind: string;
     cardinality: string;
+    cardinalityFrom: string;
+    cardinalityTo: string;
     constructor(id: string, name: string, fromObjtype: cxObjectType | null, toObjtype: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPES;     // Firestore collection
@@ -3718,6 +3723,8 @@ export class cxRelationshipType extends cxObjectType {
         this.relshipkind = constants.relkinds.REL;
         this.viewkind = "";
         this.cardinality = "";
+        this.cardinalityFrom = "";
+        this.cardinalityTo = "";
         this.markedAsDeleted = false;
     }
     // Methods
@@ -3745,6 +3752,24 @@ export class cxRelationshipType extends cxObjectType {
     }
     getCardinality() : string {
         return this.cardinality;
+    }
+    getCardinalityFrom(): string {
+        let retval = "";
+        const cardinality = this.cardinality;
+        if (cardinality.length >0) {
+            const pos = cardinality.indexOf('-');
+            retval = cardinality.slice(0, pos);
+        }
+        return retval;
+    }
+    getCardinalityTo(): string {
+        let retval = "";
+        const cardinality = this.cardinality;
+        if (cardinality.length >0) {
+            const pos = cardinality.indexOf('-');
+            retval = cardinality.slice(pos+1);
+        }
+        return retval;
     }
     isInstantiable(): boolean {
         let retval = true;
@@ -5091,6 +5116,8 @@ export class cxRelationship extends cxInstance {
     toobjectRef: string;
     relshipviews: cxRelationshipView[] | null;
     cardinality: string;
+    cardinalityFrom: string;
+    cardinalityTo: string;
     constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, name: string, description: string) {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_RELATIONSHIPS;  // Firestore collection
@@ -5100,6 +5127,8 @@ export class cxRelationship extends cxInstance {
         this.fromobjectRef = "";
         this.toobjectRef = "";
         this.cardinality = "";
+        this.cardinalityFrom = this.getCardinalityFrom();
+        this.cardinalityTo = this.getCardinalityTo();
         if (!this.typeName) this.typeName = name;
     }
     // Methods
@@ -5136,6 +5165,24 @@ export class cxRelationship extends cxInstance {
     }
     getRelationshipType(): cxRelationshipType | null {
         return this.type as cxRelationshipType;
+    }
+    getCardinalityFrom(): string {
+        let retval = "";
+        const cardinality = this.cardinality;
+        if (cardinality.length >0) {
+            const pos = cardinality.indexOf('-');
+            retval = cardinality.slice(0, pos);
+        }
+        return retval;
+    }
+    getCardinalityTo(): string {
+        let retval = "";
+        const cardinality = this.cardinality;
+        if (cardinality.length >0) {
+            const pos = cardinality.indexOf('-');
+            retval = cardinality.slice(pos+1);
+        }
+        return retval;
     }
 }
 

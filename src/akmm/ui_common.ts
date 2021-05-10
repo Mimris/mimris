@@ -36,6 +36,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const obj1 = myMetis.findObject(obj.id);
         if (obj1) obj = obj1;
         let name = context.pasted ? data.name : "";
+        if (!data.parentModel) name = data.name;
         if (debug) console.log('35 createObject', context, name);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
@@ -145,7 +146,6 @@ export function createObjectType(data: any, context: any): any {
     const myDiagram   = context.myDiagram;
     if (data.category === constants.gojs.C_OBJECTTYPE) {
         if (debug) console.log('87 createObjectType', data);
-        data.class = "goObjectTypeNode";
         const typeid   = data.type;
         let typename = data.name;
         let objtype;
@@ -947,17 +947,19 @@ export function createRelationship(data: any, context: any) {
     if (!reltype) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
-        fromType = myMetis.findObjectType(fromType?.id);
-        if (!fromType) fromType = myMetis.findObjectType(fromNode?.object?.typeRef);
+        fromType = myMetamodel.findObjectType(fromType?.id);
+        if (debug) console.log('951 fromType', fromType);
+        if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
         if (fromType) {
-            fromType.allObjecttypes = myMetis.objecttypes;
-            fromType.allRelationshiptypes = myMetis.relshiptypes;
+            fromType.allObjecttypes = myMetamodel.objecttypes;
+            fromType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
-        toType   = myMetis.findObjectType(toType?.id);
-        if (!toType) toType = myMetis.findObjectType(toNode?.object?.typeRef);
+        toType   = myMetamodel.findObjectType(toType?.id);
+        if (debug) console.log('958 toType', toType);
+        if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
         if (toType) {
-            toType.allObjecttypes = myMetis.objecttypes;
-            toType.allRelationshiptypes = myMetis.relshiptypes;
+            toType.allObjecttypes = myMetamodel.objecttypes;
+            toType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
         const choices: string[]  = [];
         if (fromType && toType) {
@@ -974,7 +976,7 @@ export function createRelationship(data: any, context: any) {
                     }                    
                     if (choices.length == 1) defText = choices[0];
                     typename = prompt('Enter type name, one of ' + choices, defText);
-                    reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
+                    reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
                     if (debug) console.log('888 reltype', reltype);
 
                     if (!reltype) {
@@ -1176,8 +1178,8 @@ export function createRelationshipType(fromTypeNode: any, toTypeNode: any, data:
                     myDiagram.model.setDataProperty(data, "reltype", reltype);
                     myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELSHIPTYPE);
                     reltype.setModified();
-                    reltype.setFromObjtype(fromTypeNode.objtype);
-                    reltype.setToObjtype(toTypeNode.objtype);
+                    reltype.setFromObjtype(fromTypeNode.objecttype);
+                    reltype.setToObjtype(toTypeNode.objecttype);
                     if (debug) console.log('1110 reltype', reltype);
                     myMetamodel.addRelationshipType(reltype);
                     myMetis.addRelationshipType(reltype);
@@ -1333,13 +1335,11 @@ export function createLink(data: any, context: any): any {
     const myMetis = context.myMetis;
     if (data.category === constants.gojs.C_RELSHIPTYPE) {
         let reltype = null;
-        data.class  = "goRelshipTypeLink";
     } else if (data.category === constants.gojs.C_RELATIONSHIP) {    
         const myGoModel = context.myGoModel;
         // Identify  type   
         let reltype = null;
         let relshipview;
-        data.class = "goRelshipLink";
         let fromNode = data.fromNode;
         if (!fromNode)
             fromNode = myGoModel.findNode(data.from);
@@ -1662,6 +1662,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     }
     if (type?.name !== 'InputPattern' && type?.name !== 'Datatype') {
       if (k === 'inputPattern') retVal = false;
+      if (k === 'inputExample') retVal = false;
     }
     if (type?.name !== 'FieldType' && type?.name !== 'Datatype') {
       if (k === 'fieldType') retVal = false;

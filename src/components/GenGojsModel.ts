@@ -354,11 +354,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let includeRelview = false;
         let relview = relviews[i];
         const rel = relview.relship;
-        if (rel?.markedAsDeleted == undefined)
-          rel.markedAsDeleted = false;
-        if (rel.markedAsDeleted)
-          relview.markedAsDeleted = rel?.markedAsDeleted;
-        relview.name = rel?.name;
+        if (rel) {
+          if (rel.markedAsDeleted == undefined)
+            rel.markedAsDeleted = false;
+          if (rel.markedAsDeleted)
+            relview.markedAsDeleted = rel?.markedAsDeleted;
+          relview.name = rel.name;
+        }
         let relcolor = "black";
         if (includeDeleted) {
           if (relview.markedAsDeleted && relview.relship?.markedAsDeleted) {
@@ -479,8 +481,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             }
           }
           if (includeReltype) {
+            if (debug) console.log('484 reltype', reltype);
             if (!reltype.typeview) 
                 reltype.typeview = reltype.newDefaultTypeView(constants.relkinds.REL);
+            if (!reltype.fromObjtype && reltype.fromobjtypeRef) 
+                reltype.fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
+            if (!reltype.toObjtype && reltype.toobjtypeRef) 
+                reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetaModel, reltype);
             if (debug) console.log('449 link', link);

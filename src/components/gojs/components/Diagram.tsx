@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -365,7 +365,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const selectedData = this.state.selectedData;
         if (debug) console.log('378 data', this.state.selectedData, this.state.modalContext);
         if (this.state.modalContext.title === 'Select Icon') {
-          if (selectedData.category === 'Object') {
+          if (selectedData.category === constants.gojs.C_OBJECT) {
             const selObj = selectedData;
             const node = myDiagram.findNodeForKey(selObj.key);
             if (debug) console.log('238 node', node);
@@ -384,7 +384,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (prop === 'icon' && objview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, objview[prop]);
             }
-          } else if (selectedData.category === 'Object type') {
+          } else if (selectedData.category === constants.gojs.C_OBJECTTYPE) {
             const node = selectedData;
             if (debug) console.log('332 node', node);
             let objtype = node.objecttype;
@@ -444,7 +444,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         let selObj = this.state.selectedData; 
         if (debug) console.log('449 selObj', selObj);
         let inst, data, typeview;
-        if (selObj.category === 'Object type') {
+        if (selObj.category === constants.gojs.C_OBJECTTYPE) {
           let node = myMetis.currentNode;
           node = myDiagram.findNodeForKey(node.key);
           data = node.data;
@@ -464,7 +464,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             this.props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
           })
         }
-        if (selObj.category === 'Object') {
+        if (selObj.category === constants.gojs.C_OBJECT) {
           const node = myDiagram.findNodeForKey(selObj.key);
           data = node.data;
           if (debug) console.log('284 objtypeview, data', data);
@@ -479,7 +479,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             this.props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
           })
         }
-        if (selObj.category === 'Relationship type') {
+        if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
           const link = myDiagram.findLinkForKey(selObj.key);
           data = link.data;
           if (debug) console.log('377 data', data);
@@ -498,7 +498,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             this.props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
-        if (selObj.category === 'Relationship') {
+        if (selObj.category === constants.gojs.C_RELATIONSHIP) {
           const link = myDiagram.findLinkForKey(selObj.key);
           data = link.data;
           typeview = data.relshipview.typeview;
@@ -646,7 +646,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case "Set Target Metamodel":    
         const metamodelName = (selectedOption) && selectedOption;
         const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
-        myMetis.currentTargetMetamodel = targetMetamodel
+        myMetis.currentTargetMetamodel = targetMetamodel;
         myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
         if (debug) console.log('542 Diagram', targetMetamodel, myMetis);
         const mmdata = new gql.gqlModel(myMetis.currentModel, true);
@@ -769,14 +769,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (isBlur) {
           const key = data.key;
           if (debug) console.log('669 key', key);
-          if (obj.category === 'Object') {
+          if (obj.category === constants.gojs.C_OBJECT) {
             const idx = this.mapNodeKeyIdx.get(key);
             if (idx !== undefined) {
               draft.nodeDataArray[idx] = data;
               draft.skipsDiagramUpdate = false;
             }
           }
-          if (obj.category === 'Relationship') {  
+          if (obj.category === constants.gojs.C_RELATIONSHIP) {  
             const idx = this.mapLinkKeyIdx.get(key);
             if (idx !== undefined) {
               draft.linkDataArray[idx] = data;
@@ -792,7 +792,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // const myDiagram = context.myDiagram;
     let inst, instview, typeview, myInst, myInstview, myItem;
     // Handle object types
-    if (obj.category === 'Object type') {
+    if (obj.category === constants.gojs.C_OBJECTTYPE) {
       const node = obj;
       if (debug) console.log('689 node', node);
       inst = node.objecttype;
@@ -801,7 +801,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (debug) console.log('693 myItem', myItem);
     }
     // Handle objects
-    if (obj.category === 'Object') {
+    if (obj.category === constants.gojs.C_OBJECT) {
       const node = obj;
       inst = node.object;
       myInst = myMetis.findObject(inst.id);
@@ -826,7 +826,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     if (debug) console.log('817 myItem', myItem);
     // Handle relationship types
-    if (obj.category === 'Relationship type') {
+    if (obj.category === constants.gojs.C_RELSHIPTYPE) {
       const link = obj;
       if (debug) console.log('821 link', link);
       inst = link.reltype;
@@ -835,7 +835,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (debug) console.log('825 myItem', myItem);
     }
     // Handle relationships
-    if (obj.category === 'Relationship') {
+    if (obj.category === constants.gojs.C_RELATIONSHIP) {
         const link = obj;
         inst = link.relship;
         myInst = myMetis.findRelationship(inst.id);
@@ -1042,7 +1042,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           },
           function (o: any) { 
             const node = o.part.data;
-            if (node.category === 'Object') 
+            if (node.category === constants.gojs.C_OBJECT) 
               return o.diagram.commandHandler.canCopySelection(); 
             }),
           makeButton("Paste",
@@ -1193,7 +1193,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Attribute",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 if (!object) return;
                 object = myMetis.findObject(object.id);
@@ -1229,7 +1229,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return false;
               const node = o.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 const object = node.object;
                 const objtype = object?.type;
                 if (objtype) {
@@ -1259,7 +1259,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 return true;
               }
               return false; 
@@ -1282,7 +1282,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }, 
             function (o: any) { 
               const node = o.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 return true;
               }
               return false; 
@@ -1307,7 +1307,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 return true;
               } else {
                 return false;
@@ -1316,7 +1316,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Test InputPattern",
             function (e: any, obj: any) {
               const node = obj.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 object = myMetis.findObject(object.id);
                 const objtype = object?.type;
@@ -1338,7 +1338,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 if (!object) return;
                 object = myMetis.findObject(object.id);
@@ -1355,7 +1355,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 return false;
               }
               return o.diagram.commandHandler.canCutSelection(); 
@@ -1368,7 +1368,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myMetis.deleteViewsOnly = false;
                 myDiagram.selection.each(function(sel) {
                   const inst = sel.data;
-                  if (inst.category === 'Object') {
+                  if (inst.category === constants.gojs.C_OBJECT) {
                     let node = myGoModel.findNode(inst.key);
                     if (debug) console.log('1375 node', node);
                     if (node?.isGroup) {
@@ -1384,7 +1384,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                          l.isSelected = true;
                       });                    
                   }
-                  if (inst.category === 'Object type') {
+                  if (inst.category === constants.gojs.C_OBJECTTYPE) {
                     const node = myDiagram.findNodeForKey(inst.key);
                     node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
                   }
@@ -1413,7 +1413,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.category === 'Object') {
+              if (node.category === constants.gojs.C_OBJECT) {
                 return o.diagram.commandHandler.canDeleteSelection();
               } else {
                 return false;
@@ -1517,7 +1517,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.category === 'Object type') {
+              if (node.category === constants.gojs.C_OBJECTTYPE) {
                 return true;
               }
               return false; 
@@ -1556,7 +1556,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
               function (o: any) {
                 const node = o.part.data;
-                if (node.category === 'Object') {
+                if (node.category === constants.gojs.C_OBJECT) {
                   return true;
                 } else {
                   return false;
@@ -1581,9 +1581,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             else {
               const node = o.part.data;
-              if (node.category === 'Object')
+              if (node.category === constants.gojs.C_OBJECT)
                 return true;
-              if (node.category === 'Object type')
+              if (node.category === constants.gojs.C_OBJECTTYPE)
                 return true;
             }
             return false;
@@ -1608,7 +1608,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           },
             function (o: any) {
               const node = o.part.data;
-              if (node.category === 'Object type') {
+              if (node.category === constants.gojs.C_OBJECTTYPE) {
                 return true;
               } else {
                 return false;
@@ -1632,8 +1632,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
             context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
             if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                  alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                  context.myTargetMetamodel = null;
+                  // alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
+                  // context.myTargetMetamodel = null;
             } else if (context.myTargetMetamodel == undefined) { // sf
                 context.myTargetMetamodel = null;
             }
@@ -1793,7 +1793,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const node = o.part.data;
-              if (node.category === 'Relationship') {
+              if (node.category === constants.gojs.C_RELATIONSHIP) {
                 return true;
               }
               return false; 
@@ -1813,7 +1813,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }, 
             function (o: any) { 
               const link = o.part.data;
-              if (link.category === 'Relationship') {
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 return true;
               }
               return false; 
@@ -1845,7 +1845,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o) { 
               const link = o.part.data;
-              if (link.category === 'Relationship') {
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 return o.diagram.commandHandler.canDeleteSelection(); 
               } else {
                 return false;
@@ -1856,7 +1856,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) { 
               //const link = e.diagram.selection.first().data;
               const link = obj.part.data;
-              if (link.category === 'Relationship') {
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 const currentRelship = myMetis.findRelationship(link.relship?.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview?.id);
                 if (currentRelship && currentRelshipView) {                   
@@ -1910,7 +1910,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               else {
               const link = o.part.data;
-                if (link.category === 'Relationship') {
+                if (link.category === constants.gojs.C_RELATIONSHIP) {
                   const currentRelship = link.relship;
                   const currentRelshipView = link.relshipview;
                   if (currentRelship && currentRelshipView) {                   
@@ -1922,7 +1922,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     }
                   }
                 }
-                else if (link.category === 'Relationship type') {
+                else if (link.category === constants.gojs.C_RELSHIPTYPE) {
                     return false;
                 }
                 return false;
@@ -1944,7 +1944,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const link = o.part.data;
-              if (link.category === 'Relationship type') {
+              if (link.category === constants.gojs.C_RELSHIPTYPE) {
                 return true;
               }
               return false; 
@@ -1994,7 +1994,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o) {
               const link = o.part.data;
-              if (link.category === 'Relationship') {
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 return true;
               } else {
                 return false;
@@ -2018,9 +2018,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               else {
                 const link = o.part.data;
-                if (link.category === 'Relationship')
+                if (link.category === constants.gojs.C_RELATIONSHIP)
                   return true;
-                if (link.category === 'Relationship type')
+                if (link.category === constants.gojs.C_RELSHIPTYPE)
                   return true;
             }
               return false;
@@ -2028,7 +2028,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Reset Typeview",
             function (e: any, obj: any) { 
               const link = obj.part.data;
-              if (link.category === 'Relationship') {
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 const currentRelship = myMetis.findRelationship(link.relship.id);
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview.id);
                 if (currentRelship && currentRelshipView) {                   
@@ -2061,7 +2061,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               else {
                 const link = o.part.data;
-                if (link.category === 'Relationship') {
+                if (link.category === constants.gojs.C_RELATIONSHIP) {
                   const currentRelship = link.relship;
                   const currentRelshipView = link.relshipview;
                   if (currentRelship && currentRelshipView) {                   
@@ -2073,7 +2073,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     }
                   }
                 }
-                else if (link.category === 'Relationship type') {
+                else if (link.category === constants.gojs.C_RELSHIPTYPE) {
                     return false;
                 }
                 return false;
@@ -2083,7 +2083,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Attribute",
             function (e: any, obj: any) { 
               const link = obj.part.data;
-              if (link.category === 'Relationship') {
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 const relship = link.relship;
                 const reltype = relship?.type;
                 if (reltype) {
@@ -2107,7 +2107,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   myMetis.myDiagram = myDiagram;
                   myDiagram.handleOpenModal(choices, modalContext);
                   }
-              } else if (link.category === 'Relationship type') {
+              } else if (link.category === constants.gojs.C_RELSHIPTYPE) {
                 const choices: string[]  = [];
                 choices.push('description');
                 choices.push('cardinality');
@@ -2129,7 +2129,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const link = o.part.data;
-              if (link.category === 'Relationship') {
+              if (link.category === constants.gojs.C_RELATIONSHIP) {
                 const relship = link.relship;
                 const reltype = relship?.type;
                 if (reltype) {
@@ -2138,7 +2138,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     return true;
                   }
                 }
-              } else if (link.category === 'Relationship type') {
+              } else if (link.category === constants.gojs.C_RELSHIPTYPE) {
                 return true;
               }
               return false; 
@@ -2726,7 +2726,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
             if (debug) console.log('2511', mmNameIds, modalContext, context);
             myDiagram.handleOpenModal(mmNameIds, modalContext);
-            if (debug) console.log('2770 targetMetamodel', myMetis.currentTargetMetamodel);
           },
           function (o: any) { 
             if (myMetis.modelType === 'Metamodelling')
@@ -2903,7 +2902,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 myDiagram.selection.each(function(sel) {
                   if (debug) console.log('1435 sel', sel.data);
                   const inst = sel.data;
-                  if (inst.category === 'Object') {
+                  if (inst.category === constants.gojs.C_OBJECT) {
                     let objview = sel.data.objectview;
                     if (objview) {
                       objview = myMetis.findObjectView(objview.id);
@@ -2917,7 +2916,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                         obj.markedAsDeleted = false;
                     }
                   }
-                  if (inst.category === 'Relationship') {
+                  if (inst.category === constants.gojs.C_RELATIONSHIP) {
                     let relview = sel.data.relshipview;
                     if (relview) {
                       relview = myMetis.findRelationshipView(relview.id);

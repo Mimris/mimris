@@ -91,6 +91,7 @@ export class gqlExportMetaModel {
 export class gqlMetaModel {
     id:                 string;
     name:               string;
+    title:              string;
     description:        string;
     objecttypes:        gqlObjectType[];
     relshiptypes:       gqlRelationshipType[];
@@ -105,6 +106,7 @@ export class gqlMetaModel {
     constructor(metamodel: akm.cxMetaModel, includeViews: boolean) {
         this.id = metamodel.id;
         this.name = metamodel.name;
+        this.title = metamodel.title;
         this.description = (metamodel.description) ? metamodel.description : "";
         this.objecttypes = [];
         this.relshiptypes = [];
@@ -256,6 +258,7 @@ export class gqlMetaModel {
 export class gqlObjectType {
     id:             string;
     name:           string;
+    title:          string;
     description:    string;
     abstract:       boolean;
     viewkind:       string;
@@ -267,6 +270,7 @@ export class gqlObjectType {
     constructor(objtype: akm.cxObjectType, includeViews: boolean) {
         this.id             = objtype.id;
         this.name           = objtype.name;
+        this.title          = objtype.title;
         this.abstract       = objtype.abstract;
         this.viewkind       = objtype.viewkind;
         this.typename       = 'Object type';
@@ -303,6 +307,7 @@ export class gqlObjectType {
 export class gqlRelationshipType {
     id:             string;
     name:           string;
+    title:          string;
     description:    string;
     typeviewRef:    string;
     properties:     gqlProperty[];
@@ -316,6 +321,7 @@ export class gqlRelationshipType {
     constructor(reltype: akm.cxRelationshipType, includeViews: boolean) {
         this.id             = reltype.id;
         this.name           = reltype.name;
+        this.title          = reltype.title;
         this.relshipkind    = reltype.relshipkind;
         this.viewkind       = reltype.viewkind;
         this.fromobjtypeRef = (reltype.fromObjtype) ? reltype.fromObjtype.id : "";
@@ -367,6 +373,7 @@ export class gqlExportDatatypes {
 export class gqlDatatype {
     id:                 string;
     name:               string;
+    title:              string;
     description:        string;
     datatypeRef:        string;
     defaultValue:       string;
@@ -379,6 +386,7 @@ export class gqlDatatype {
     constructor(dtype: akm.cxDatatype) {
         this.id              = dtype.id;
         this.name            = dtype.name;
+        this.title           = dtype.title;
         this.description     = "";
         this.datatypeRef     = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
         this.defaultValue    = dtype.defaultValue;
@@ -397,12 +405,14 @@ export class gqlDatatype {
 export class gqlUnitCategory {
     id:              string;
     name:            string;
+    title:           string;
     description:     string;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(utype: akm.cxUnitCategory) {
         this.id              = utype.id;
         this.name            = utype.name;
+        this.title           = utype.title;
         this.description     = "";
         this.markedAsDeleted = utype.markedAsDeleted;
         this.modified        = utype.modified;
@@ -414,12 +424,14 @@ export class gqlUnitCategory {
 export class gqlUnit {
     id:              string;
     name:            string;
+    title:           string;
     description:     string;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(unit: akm.cxUnit) {
         this.id              = unit.id;
         this.name            = unit.name;
+        this.title           = unit.title;
         this.description     = "";
         this.markedAsDeleted = unit.markedAsDeleted;
         this.modified        = unit.modified;
@@ -431,6 +443,7 @@ export class gqlUnit {
 export class gqlObjectTypeView {
     id:              string;
     name:            string;
+    title:           string;
     description:     string;
     typeRef:         string;
     viewkind:        string;
@@ -447,6 +460,7 @@ export class gqlObjectTypeView {
     constructor(objtypeview: akm.cxObjectTypeView) {
         this.id              = objtypeview.id;
         this.name            = objtypeview.name;
+        this.title           = objtypeview.title;
         this.description     = "";
         this.typeRef         = objtypeview.type.id;
         this.isGroup         = objtypeview.getIsGroup();
@@ -489,6 +503,7 @@ export class gqlObjectTypegeo {
 export class gqlRelshipTypeView {
     id:              string;
     name:            string;
+    title:           string;
     description:     string;
     typeRef:         string;
     strokecolor:     string;
@@ -504,6 +519,7 @@ export class gqlRelshipTypeView {
     constructor(reltypeview: akm.cxRelationshipTypeView) {
         this.id              = reltypeview.id;
         this.name            = reltypeview.name;
+        this.title           = reltypeview.title;
         this.description     = (reltypeview.description) ? reltypeview.description : "";
         this.typeRef         = reltypeview.type.id;
         this.strokecolor     = reltypeview.getStrokecolor();
@@ -521,6 +537,7 @@ export class gqlRelshipTypeView {
 export class gqlProperty {
     id:                 string;
     name:               string;
+    title:              string;
     description:        string;
     datatypeRef:        string;
     unitCategoryRef:    string;
@@ -529,6 +546,7 @@ export class gqlProperty {
     constructor(prop: akm.cxProperty) {
         this.id              = prop.id;
         this.name            = prop.name;
+        this.title           = prop.title;
         this.markedAsDeleted = prop.markedAsDeleted;
         this.modified        = prop.modified;
         // Code
@@ -546,6 +564,7 @@ export class gqlProperty {
 export class gqlModel {
     id:                     string;
     name:                   string;
+    title:                  string;
     description:            string;
     metamodelRef:           string;
     targetMetamodelRef:     string;
@@ -561,6 +580,7 @@ export class gqlModel {
     constructor(model: akm.cxModel, includeViews: boolean) {
         this.id              = model.id;
         this.name            = model.name;
+        this.title           = model.title;
         this.description     = model.description ? model.description : "";
         this.metamodelRef    = model.getMetamodel() ? model.getMetamodel().id : "";
         this.sourceMetamodelRef = model.sourceMetamodelRef;
@@ -701,11 +721,13 @@ export class gqlExportModel {
 export class gqlObject {
     id:              string;
     name:            string;
+    title:           string;
     description:     string;
     typeRef:         string;
     typeName:        string;
     viewFormat:      string;
     inputPattern:    string;
+    inputExample:         string;
     fieldType:       string;
     propertyValues:  any[];
     allowedValues:   string;
@@ -716,12 +738,14 @@ export class gqlObject {
     constructor(object: akm.cxObject) {
         this.id              = object.id;
         this.name            = object.name;
+        this.title           = object.title;
         this.description     = object.description ? object.description : "";
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.propertyValues  = [];
         this.viewFormat      = object.viewFormat;
         this.inputPattern    = object.inputPattern;
+        this.inputExample    = object.inputExample;
         this.fieldType       = object.fieldType;
         this.markedAsDeleted = object.markedAsDeleted;
         this.generatedTypeId = object.generatedTypeId;
@@ -845,6 +869,7 @@ export class gqlPropertyDefinition {
 export class gqlRelationship {
     id:              string;
     name:            string;
+    title:           string;
     description:     string;
     typeRef:         string;
     fromobjectRef:   string;
@@ -856,6 +881,7 @@ export class gqlRelationship {
     constructor(relship: akm.cxRelationship) {
         this.id              = relship.id;
         this.name            = relship.name;
+        this.title           = relship.title;
         this.description     = relship.description;
         this.fromobjectRef   = relship.fromObject ? relship.fromObject.id : "";
         this.toobjectRef     = relship.toObject ? relship.toObject.id : "";
@@ -901,6 +927,7 @@ export class gqlPropertyValue {
 export class gqlModelView {
     id:                 string;
     name:               string;
+    title:              string;
     description:        string;
     layout:             string;
     modelRef:           string;
@@ -913,6 +940,7 @@ export class gqlModelView {
     constructor(mv: akm.cxModelView) {
         this.id                 = mv?.id;
         this.name               = mv?.getName();
+        this.title              = mv?.title;
         this.description        = mv?.description;
         this.layout             = mv?.layout;
         this.modelRef           = mv?.getModel()?.id;
@@ -986,6 +1014,7 @@ export class gqlModelView {
 export class gqlObjectView {
     id:              string;
     name:            string;
+    title:           string;
     description:     string;
     objectRef:       string;
     typeviewRef:     string;
@@ -1003,6 +1032,7 @@ export class gqlObjectView {
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
         this.name            = objview?.name;
+        this.title           = objview?.title;
         this.description     = objview?.description;
         this.objectRef       = objview?.object?.id;
         this.typeviewRef     = objview?.typeview?.id;
@@ -1022,6 +1052,7 @@ export class gqlObjectView {
 export class gqlRelshipView {
     id:              string;
     name:            string;
+    title:           string;
     description:     string;
     relshipRef:      string;
     typeviewRef:     string;
@@ -1039,6 +1070,7 @@ export class gqlRelshipView {
     constructor(relview: akm.cxRelationshipView) {
         this.id              = relview.id;
         this.name            = relview.name;
+        this.title           = relview.title;
         this.description     = "";
         this.relshipRef      = "";
         this.typeviewRef     = "";

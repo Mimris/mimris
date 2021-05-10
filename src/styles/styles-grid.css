@@ -27,8 +27,13 @@
           .tab-content {grid-area: tab-content; }
             .tab-pane {grid-area: tab-pane; } */
               .workpad     { grid-area: workpad; }
-                .myPalette     { grid-area: myPalette; }
-                .myModeller    { grid-area: myModeller; }
+                .row1       { grid-area: row1; }
+                  .col1     { grid-area: col1; }
+                  .col2     { grid-area: col2; }
+                  .col3     { grid-area: col3; }
+                  /* .myPalette     { grid-area: myPalette; }
+                  .myModeller    { grid-area: myModeller; }
+                  .myTargetMeta    { grid-area: myTargetMeta; } */
 .footer          { grid-area: footer; }   
 .properties { grid-area: properties }
 .settings       { grid-area: settings; }
@@ -49,8 +54,9 @@
   "contextarea contextarea"
   "tasksarea workarea";
 }
-@media only screen and (max-width: 575px) {
+@media only screen and (max-width: 360px) {
  .workplace {
+     height: 500vh;
      grid-area: workplace;
      display: grid ;
      background-color: #aaf;
@@ -60,6 +66,20 @@
      "taskarea workarea";
    }
  }
+@media only screen and (max-width: 360px) {
+
+.row {
+    height: 100%;
+     grid-area: row1;
+     display: grid ;
+     background-color: #aaf;
+     grid-template-columns: auto ;
+     grid-template-areas:
+     "col2 col2"
+     "col1 col3";
+  }
+}
+
  /* .row {
    background-color: blue;
  } */

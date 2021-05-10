@@ -1641,6 +1641,8 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'visible') retVal = false;
     if (k === 'deleted') retVal = false;
     if (k === 'modified') retVal = false;
+    if (k === 'cardinalityFrom') retVal = false;
+    if (k === 'cardinalityTo') retVal = false;
     if (k === 'defaultValue') retVal = false;
     if (k === 'allowedValues') retVal = false;
     if (k === 'currentTargetModelview') retVal = false;

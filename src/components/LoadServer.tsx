@@ -1,4 +1,4 @@
-// @ts- snocheck
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 // import { useSelector, useDispatch } from 'react-redux'
@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux'
 import Select from 'react-select'
 import { loadData, loadDataModelList, loadDataModel } from '../actions/actions'
 import Selector from './utils/Selector'
-import saveModelDataToServer from './utils/saveModelDataToServer'
+import saveModelDataToServer from './utils/SaveModelDataToServer'
 // import GetStoreFromHtml from './utils/GetStoreFromHtml'
 // import { FaJoint } from 'react-icons/fa';
 const debug = false

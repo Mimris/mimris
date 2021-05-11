@@ -985,6 +985,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
       if (debug) console.log('980 nodeInfo', d, d.object);
+      const formattedDescr = d.object.type.description.match(/.{1,20}/g).replace(/,/g,'\n'); //.split(",").reverse().join().match(/.{1, 20}/).map(function(s:string) { return s.split(",").reverse().join(); }));
+      if (!debug) console.log('989 descr', formattedDescr)
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
 
@@ -992,7 +994,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       msg += "-------------------\n";
       msg += printf(format2, "-Type", d.object.type.name);
       msg += printf(format2, "-Title", d.object.type.title);
-      msg += printf(format2, "-Descr", d.object.type.description);//.match(/.{1,20}/g).replace(/,/g,'\n')); //.split(",").reverse().join().match(/.{1, 20}/).map(function(s:string) { return s.split(",").reverse().join(); }));
+      // msg += printf(format2, "-Descr", formattedDescr);
+      msg += printf(format2, "-Descr", d.object.type.description);
       msg += "\n";
       msg += "Instance props:\n";
       msg += "---------------------\n";
@@ -1039,7 +1042,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const format2 = " %-10s: %s\n";
       const format3 = "%-8s: %s\n";
   
-      let msg = "Relationship Type props:\n";
+      let msg = "Relationship:\n";
+      msg += "Type props:\n";
       msg += "-------------------\n";
       msg += printf(format2, "-Type", d.relship.type.name);
       msg += printf(format2, "-Title", d.relship.type.title);

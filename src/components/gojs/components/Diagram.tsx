@@ -987,33 +987,40 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       if (debug) console.log('980 nodeInfo', d, d.object);
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
-      let msg = "";
-      msg += printf(format2, "Type", d.object.type.name);
-      msg += printf(format2, "Name", d.name);
-      msg += printf(format2, "Title", d.title);
-      msg += printf(format2, "Description", d.object.description);
-      msg += printf(format2, "ViewFormat", d.object.viewFormat);
-      msg += printf(format2, "FieldType", d.object.fieldType);
-      msg += printf(format2, "Inputpattern", d.object.inputPattern);
-      msg += printf(format2, "InputExample", d.object.inputExample);
-      msg += printf(format2, "Value", d.object.value);
+
+      let msg = "Object Type props:\n";
+      msg += "-------------------\n";
+      msg += printf(format2, "-Type", d.object.type.name);
+      msg += printf(format2, "-Title", d.object.type.title);
+      msg += printf(format2, "-Descr", d.object.type.description);//.match(/.{1,20}/g).replace(/,/g,'\n')); //.split(",").reverse().join().match(/.{1, 20}/).map(function(s:string) { return s.split(",").reverse().join(); }));
+      msg += "\n";
+      msg += "Instance props:\n";
+      msg += "---------------------\n";
+      msg += printf(format2, "-Name", d.name);
+      msg += printf(format2, "-Title", d.object.title);
+      msg += printf(format2, "-Description", d.object.description);
+      msg += printf(format2, "-ViewFormat", d.object.viewFormat);
+      msg += printf(format2, "-FieldType", d.object.fieldType);
+      msg += printf(format2, "-Inputpattern", d.object.inputPattern);
+      msg += printf(format2, "-InputExample", d.object.inputExample);
+      msg += printf(format2, "-Value", d.object.value);
       if (d.group) {
         const group = myMetis.gojsModel.findNode(d.group);
         msg += printf(format2, "member of", group.name);
       }
       if (debug) console.log('991 msg', msg);
-      let str = "Attributes:"; 
-      msg += printf(format1, str);      
-      const obj = d.object;
-      const props = obj.type.properties;
-      if (debug) console.log('996 obj, props', obj, props, msg);   
-      for (let i=0; i<props.length; i++) {
-        const prop = props[i];
-        if (debug) console.log('999 prop', prop);
-        const value = obj[prop.name]; 
-        console.log('1001 prop, value', prop, value);
-        msg += printf(format2, prop.name, value);
-      }
+      // let str = "Attributes:"; 
+      // msg += printf(format1, str);      
+      // const obj = d.object;
+      // const props = obj.type.properties;
+      // if (debug) console.log('996 obj, props', obj, props, msg);   
+      // for (let i=0; i<props.length; i++) {
+      //   const prop = props[i];
+      //   if (debug) console.log('999 prop', prop);
+      //   const value = obj[prop.name]; 
+      //   console.log('1001 prop, value', prop, value);
+      //   msg += printf(format2, prop.name, value);
+      // }
       if (debug) console.log('1005 nodeInfo', obj, msg);
       return msg;
     }
@@ -1028,11 +1035,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const toObj = toNode?.object;
       const toObjtype = reltype.getToObjType();
       if (debug) console.log('229 linkInfo', d);
-      let str = "Link: ";
-      str += d.name + " (" + typename + ")\n";
-      str += "from: " + fromObj?.name + "\n";
-      str += "to: " + toObj?.name;
-      return str;
+      const format1 = "%s\n";
+      const format2 = " %-10s: %s\n";
+      const format3 = "%-8s: %s\n";
+  
+      let msg = "Relationship Type props:\n";
+      msg += "-------------------\n";
+      msg += printf(format2, "-Type", d.relship.type.name);
+      msg += printf(format2, "-Title", d.relship.type.title);
+      msg += printf(format2, "-Descr", d.relship.type.description);
+      msg += "\n";
+      msg += "Instance props:\n";
+      msg += "---------------------\n";
+      msg += printf(format2, "-Name", d.name);
+      msg += printf(format2, "-Title", d.relship.title);
+      msg += printf(format2, "-Description", d.relship.description);
+      msg += printf(format3, "-from", fromObj?.name);
+      msg += printf(format2, "-to   ", toObj?.name);
+      // str += "from: " + fromObj?.name + "\n";
+      // str += "to: " + toObj?.name;
+      // return str;
+      return msg;
     }
 
     function diagramInfo(model: any) {  // Tooltip info for the diagram's model
@@ -3246,7 +3269,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
-                  maxSize: new go.Size(100, 999), 
+                  maxSize: new go.Size(104, 999), 
                   // margin: new go.Margin(2),
                   defaultAlignment: go.Spot.Left,
                 },

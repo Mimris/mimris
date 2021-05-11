@@ -981,12 +981,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       );
     //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
     myMetis.myDiagram = myDiagram;
-
+    // break long string in lines
+    const breakString = (str, limit) => {
+      let brokenString = '';
+      for(let i = 0, count = 0; i < str.length; i++){
+         if(count >= limit && str[i] === ' '){
+            count = 0;
+            brokenString += '\n';
+         }else{
+            count++;
+            brokenString += str[i];
+         }
+      }
+      return brokenString;
+   }
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (debug) console.log('980 nodeInfo', d, d.object);
-      const formattedDescr = d.object.type.description.match(/.{1,20}/g).replace(/,/g,'\n'); //.split(",").reverse().join().match(/.{1, 20}/).map(function(s:string) { return s.split(",").reverse().join(); }));
-      if (!debug) console.log('989 descr', formattedDescr)
+      if (!debug) console.log('987 nodeInfo', d, d.object);
+  
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
 
@@ -994,14 +1006,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       msg += "-------------------\n";
       msg += printf(format2, "-Type", d.object.type.name);
       msg += printf(format2, "-Title", d.object.type.title);
-      // msg += printf(format2, "-Descr", formattedDescr);
-      msg += printf(format2, "-Descr", d.object.type.description);
+      msg += printf(format2, "-Descr", breakString(d.object.description, 64));
+      // msg += printf(format2, "-Descr", d.object.type.description);
       msg += "\n";
       msg += "Instance props:\n";
       msg += "---------------------\n";
       msg += printf(format2, "-Name", d.name);
       msg += printf(format2, "-Title", d.object.title);
-      msg += printf(format2, "-Description", d.object.description);
+      msg += printf(format2, "-Description", breakString(d.object.description, 64));
       msg += printf(format2, "-ViewFormat", d.object.viewFormat);
       msg += printf(format2, "-FieldType", d.object.fieldType);
       msg += printf(format2, "-Inputpattern", d.object.inputPattern);
@@ -1047,13 +1059,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       msg += "-------------------\n";
       msg += printf(format2, "-Type", d.relship.type.name);
       msg += printf(format2, "-Title", d.relship.type.title);
-      msg += printf(format2, "-Descr", d.relship.type.description);
+      msg += printf(format2, "-Descr", breakString(d.relship.type.description, 64))
       msg += "\n";
       msg += "Instance props:\n";
       msg += "---------------------\n";
       msg += printf(format2, "-Name", d.name);
       msg += printf(format2, "-Title", d.relship.title);
-      msg += printf(format2, "-Description", d.relship.description);
+      msg += printf(format2, "-Description", breakString(d.relship.description, 64));
       msg += printf(format3, "-from", fromObj?.name);
       msg += printf(format2, "-to   ", toObj?.name);
       // str += "from: " + fromObj?.name + "\n";

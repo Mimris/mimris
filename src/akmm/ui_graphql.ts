@@ -466,7 +466,7 @@ export class gqlObjectTypeView {
         this.name            = objtypeview.name;
         this.title           = objtypeview.title;
         this.description     = "";
-        this.typeRef         = objtypeview.type.id;
+        this.typeRef         = objtypeview.type?.id;
         this.isGroup         = objtypeview.getIsGroup();
         this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
@@ -525,7 +525,7 @@ export class gqlRelshipTypeView {
         this.name            = reltypeview.name;
         this.title           = reltypeview.title;
         this.description     = (reltypeview.description) ? reltypeview.description : "";
-        this.typeRef         = reltypeview.type.id;
+        this.typeRef         = reltypeview.type?.id;
         this.strokecolor     = reltypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor1;
         this.strokewidth     = reltypeview.getStrokewidth();
@@ -727,6 +727,8 @@ export class gqlObject {
     name:            string;
     title:           string;
     description:     string;
+    abstract:        boolean;
+    viewkind:        string;
     typeRef:         string;
     typeName:        string;
     viewFormat:      string;
@@ -744,6 +746,8 @@ export class gqlObject {
         this.name            = object.name;
         this.title           = object.title;
         this.description     = object.description ? object.description : "";
+        this.abstract        = object.abstract;
+        this.viewkind        = object.viewkind;
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.propertyValues  = [];
@@ -875,6 +879,7 @@ export class gqlRelationship {
     name:            string;
     title:           string;
     description:     string;
+    relshipkind:     string;
     typeRef:         string;
     fromobjectRef:   string;
     toobjectRef:     string;
@@ -890,6 +895,7 @@ export class gqlRelationship {
         this.name            = relship.name;
         this.title           = relship.title;
         this.description     = relship.description;
+        this.relshipkind     = relship.relshipkind;
         this.fromobjectRef   = relship.fromObject ? relship.fromObject.id : "";
         this.toobjectRef     = relship.toObject ? relship.toObject.id : "";
         this.typeRef         = "";
@@ -940,6 +946,8 @@ export class gqlModelView {
     title:              string;
     description:        string;
     layout:             string;
+    routing:            string;
+    linkcurve:          string;
     modelRef:           string;
     objectviews:        gqlObjectView[];
     relshipviews:       gqlRelshipView[];
@@ -953,6 +961,8 @@ export class gqlModelView {
         this.title              = mv?.title;
         this.description        = mv?.description;
         this.layout             = mv?.layout;
+        this.routing            = mv?.routing;
+        this.linkcurve          = mv?.linkcurve;
         this.modelRef           = mv?.getModel()?.id;
         this.objectviews        = [];
         this.relshipviews       = [];

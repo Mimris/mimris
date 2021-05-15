@@ -592,6 +592,7 @@ export class goRelshipLink extends goLink {
     toNode: goNode | null;
     from: string;
     to: string;
+    cardinality: string;
     cardinalityFrom: string;
     cardinalityTo: string;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
@@ -606,6 +607,7 @@ export class goRelshipLink extends goLink {
         this.toNode = null;
         this.from = "";
         this.to = "";
+        this.cardinality = "";
         this.cardinalityFrom = "";
         this.cardinalityTo = "";
 

@@ -192,7 +192,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         for (let k in selObj) {
           if (typeof(type[k]) === 'object')    continue;
           if (typeof(type[k]) === 'function')  continue;
-          if (!uic.isPropIncluded(k))        continue;
+          if (!uic.isPropIncluded(k, type))    continue;
           type[k] = selObj[k];
           myDiagram.model.setDataProperty(data, k, type[k]);
         }
@@ -209,31 +209,44 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
       case "editRelationshipType": {
         const selObj = this.state.selectedData;
-        if (debug) console.log('236 selObj', selObj);
-        // selObj is a link representing an relationship type
+        if (debug) console.log('212 selObj', selObj);
+        // selObj is a link representing a relationship type
+        
         let link = selObj;
-        let type = link.reltype;
-        link = myDiagram.findLinkForKey(link.key);
-        type = myMetis.findRelationshipType(type.id);
-        if (debug) console.log('241 link', link, type);
         const data = link.data;
-        if (debug) console.log('243 link, type', data, type);
+        let type = link.reltype;
+        if (!type) type = data.reltype;
+        link = myDiagram.findLinkForKey(link.key);
+        if (!link)
+            break;
+        type = myMetis.findRelationshipType(type?.id);
+        if (type) {
+          const cardinalityFrom = type.getCardinalityFrom();
+          const cardinalityTo = type.getCardinalityTo();
+          if (debug) console.log('226 cardinalities', cardinalityFrom, cardinalityTo);
+          type.cardinalityFrom = cardinalityFrom;
+          type.cardinalityTo = cardinalityTo;
+          if (debug) console.log('229 link', link, type);
+          if (debug) console.log('230 link, type', data, type);
+        } else 
+          break;
         for (let k in selObj) {
           if (typeof(type[k]) === 'object')    continue;
           if (typeof(type[k]) === 'function')  continue;
-          if (!uic.isPropIncluded(k))        continue;
+          if (!uic.isPropIncluded(k, type))    continue;
           type[k] = selObj[k];
-          myDiagram.model.setDataProperty(data, k, type[k]);
+          myDiagram.model.setDataProperty(link.data, k, type[k]);
+          if (debug) console.log('239 type', type);
         }
         // Do the dispatches
         const gqlReltype = new gql.gqlRelationshipType(type, true);
-        if (debug) console.log('256 gqlReltype', type, gqlReltype);
+        if (debug) console.log('237 gqlReltype', type, gqlReltype);
         modifiedReltypes.push(gqlReltype);
         modifiedReltypes.map(mn => {
           let data = mn;
           this.props.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
         })
-        if (debug) console.log('262 selObj', selObj);
+        if (debug) console.log('243 selObj', selObj);
         break;
       }
       case "editObject": {
@@ -271,7 +284,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         for (let k in data) {
           if (typeof(obj[k]) === 'object')    continue;
           if (typeof(obj[k]) === 'function')  continue;
-          if (!uic.isPropIncluded(k))         continue;
+          if (!uic.isPropIncluded(k, type))   continue;
+          if (k === 'abstract') obj[k] = selObj[k];
+          if (k === 'viewkind') obj[k] = selObj[k];
           if (debug) console.log('280 prop', k);
           if (debug) console.log('281 node', node, data, obj);
           myDiagram.model.setDataProperty(data, k, obj[k]);
@@ -298,36 +313,46 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const link = myDiagram.findLinkForKey(rel.key);
         if (!link)
           break;
-        if (debug) console.log('277 link', link);
+        if (debug) console.log('314 link', link);
         const data = link.data;
-
+        if (debug) console.log('316 data', data);
         let relship = data.relship;
         relship = myMetis.findRelationship(relship.id);
         relship['cardinalityFrom'] = relship.getCardinalityFrom();
         relship['cardinalityTo'] = relship.getCardinalityTo();
-        if (debug) console.log('307 relship', relship);
+        if (debug) console.log('321 relship, rel', relship, rel);
         for (let k in data) {
           if (typeof(rel[k]) === 'object')    continue;
           if (typeof(rel[k]) === 'function')  continue;
           if (!uic.isPropIncluded(k, type))  continue;
-          myDiagram.model.setDataProperty(data, k, rel[k]);
-          const gqlRelship = new gql.gqlRelationship(relship);
-          if (debug) console.log('285 gqlRelship', gqlRelship);
-          modifiedRelships.push(gqlRelship);
-          modifiedRelships.map(mn => {
-            let data = mn;
-            this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-          })
-          const gqlRelview = new gql.gqlRelshipView(link.data.relshipview);
-          gqlRelview.name = gqlRelship.name;
-          if (debug) console.log('293 gqlRelview', gqlRelview);
-          modifiedRelviews.push(gqlRelview);
-          modifiedRelviews.map(mn => {
-            let data = mn;
-            if (debug) console.log('297 gqlRelview', data);
-            this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-          })
+          relship[k] = rel[k];
+          myDiagram.model.setDataProperty(data, k, relship[k]);
         }
+        myDiagram.model.setDataProperty(data, 'cardinalityFrom', relship['cardinalityFrom']);
+        myDiagram.model.setDataProperty(data, 'cardinalityTo', relship['cardinalityTo']);
+        const gqlRelship = new gql.gqlRelationship(relship);
+        if (debug) console.log('329 gqlRelship', gqlRelship);
+        modifiedRelships.push(gqlRelship);
+        modifiedRelships.map(mn => {
+          let data = mn;
+          this.props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+        });
+        let relview = link.data.relshipview;
+        relview = myMetis.findRelationshipView(relview.id);
+        if (relship.relshipkind.length > 0) {
+          relview.setFromArrow2(relship.relshipkind);
+          relview.setToArrow2(relship.relshipkind);
+          if (debug) console.log('339 relship, relview', relship, relview);
+        }
+        const gqlRelview = new gql.gqlRelshipView(link.data.relshipview);
+        gqlRelview.name = gqlRelship.name;
+        if (debug) console.log('337 gqlRelview', gqlRelview);
+        modifiedRelviews.push(gqlRelview);
+        modifiedRelviews.map(mn => {
+          let data = mn;
+          if (debug) console.log('341 gqlRelview', data);
+          this.props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        })        
         break;
       }
       case "editObjectview": {
@@ -377,18 +402,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (debug) console.log('238 node', node);
             const data = node.data;
             const objview = data.objectview;
-            objview['icon'] = data['icon'];
-            const gqlObjview = new gql.gqlObjectView(data.objectview);
-            if (debug) console.log('388 gqlObjview', data, gqlObjview);
-            modifiedObjviews.push(gqlObjview);
-            modifiedObjviews.map(mn => {
-              let data = mn;
-              if (debug) console.log('392 data', data);
-              this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-            })
-            for (let prop in objview?.data) {
-              if (prop === 'icon' && objview[prop] !== "") 
-              myDiagram.model.setDataProperty(data, prop, objview[prop]);
+            if (objview) {
+              objview.icon = data.icon;
+              const gqlObjview = new gql.gqlObjectView(data.objectview);
+              if (debug) console.log('388 gqlObjview', data, gqlObjview);
+              modifiedObjviews.push(gqlObjview);
+              modifiedObjviews.map(mn => {
+                let data = mn;
+                if (debug) console.log('392 data', data);
+                this.props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+              })
+              for (let prop in objview?.data) {
+                if (prop === 'icon' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              }
             }
           } else if (selectedData.category === constants.gojs.C_OBJECTTYPE) {
             const node = selectedData;
@@ -447,14 +474,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
       }
       case "editTypeview": {   
-        let selObj = this.state.selectedData; 
+        const selObj = this.state.selectedData;
         if (debug) console.log('449 selObj', selObj);
         let inst, data, typeview;
         if (selObj.category === constants.gojs.C_OBJECTTYPE) {
           let node = myMetis.currentNode;
           node = myDiagram.findNodeForKey(node.key);
           data = node.data;
-          if (debug) console.log('455 data', data);
+          if (debug) console.log('455 node, data', node, data);
           typeview = data.typeview;
           typeview = myMetis.findObjectTypeView(typeview?.id);
           for (let prop in typeview?.data) {
@@ -612,7 +639,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         myMetis.myDiagram.requestUpdate();
         break;
 
-      case "Set Layout Scheme":    
+      case "Set Layout Scheme": {
         const layout = (selectedOption) && selectedOption;
         myModelView.layout = layout; 
         const modifiedModelviews = new Array();
@@ -624,15 +651,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         })
         if (debug) console.log('619 gqlModelview', gqlModelview);
         break;
-
+        }
+      case "Set Routing Scheme": {  
+        const routing = (selectedOption) && selectedOption;
+        if (debug) console.log('655 link routing', routing);
+        myModelView.routing = routing; 
+        const modifiedModelviews = new Array();
+        const gqlModelview = new gql.gqlModelView(myModelView);
+        modifiedModelviews.push(gqlModelview);
+        modifiedModelviews.map(mn => {
+          let data = mn;
+          this.props.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+        })
+        if (debug) console.log('664 gqlModelview', gqlModelview);
+        break;
+      }
+      case "Set Link Curve": {  
+        const curve = (selectedOption) && selectedOption;
+        if (debug) console.log('671 link curve', curve);
+        myModelView.linkcurve = curve; 
+        const modifiedModelviews = new Array();
+        const gqlModelview = new gql.gqlModelView(myModelView);
+        modifiedModelviews.push(gqlModelview);
+        modifiedModelviews.map(mn => {
+          let data = mn;
+          this.props.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+        })
+        if (debug) console.log('664 gqlModelview', gqlModelview);
+        break;
+      }
       case "New Model":    
-        console.log('351', selected);
+        console.log('668', selected);
         const refMetamodelName = (selectedOption) && selectedOption;
         const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
         
         // myMetis.currentTargetMetamodel = targetMetamodel
         // myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (debug) console.log('352 Diagram', refMetamodel, myMetis);
+        if (debug) console.log('674 Diagram', refMetamodel, myMetis);
         // let mmdata = myMetis.currentModel;
         // if (debug) console.log('357 Diagram', mmdata);        
         // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
@@ -643,9 +698,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetModel = myMetis.findModelByName(modelName);
         myMetis.currentTargetModel = targetModel
         myMetis.currentModel.targetModelRef = targetModel.id
-        if (debug) console.log('352 Diagram', targetModel, myMetis);
+        if (debug) console.log('685 Diagram', targetModel, myMetis);
         const mdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (debug) console.log('357 Diagram', mdata);        
+        if (debug) console.log('687 Diagram', mdata);        
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
         break;
 
@@ -654,9 +709,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
         myMetis.currentTargetMetamodel = targetMetamodel;
         myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-        if (debug) console.log('542 Diagram', targetMetamodel, myMetis);
+        if (debug) console.log('696 Diagram', targetMetamodel, myMetis);
         const mmdata = new gql.gqlModel(myMetis.currentModel, true);
-        if (debug) console.log('544 Diagram', mmdata);        
+        if (debug) console.log('698 Diagram', mmdata);        
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata })
         break;
 
@@ -665,22 +720,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const link = myMetis.currentLink;
         let fromNode = myGoModel?.findNode(link.from);
         let toNode   = myGoModel?.findNode(link.to);
-        if (debug) console.log('560 from and toNode', fromNode, toNode);
+        if (debug) console.log('707 from and toNode', fromNode, toNode);
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetis.findObjectType(fromType?.id);
         toType   = myMetis.findObjectType(toType?.id);
-        if (debug) console.log('565 link', fromType, toType);
+        if (debug) console.log('712 link', fromType, toType);
         const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-        if (debug) console.log('567 reltype', reltype, fromType, toType);
+        if (debug) console.log('714 reltype', reltype, fromType, toType);
         const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
-        if (debug) console.log('569 relview', relview);
+        if (debug) console.log('716 relview', relview);
         myMetis.myDiagram.requestUpdate();
         break;
 
       case "Edit Attribute":
         const propname = selected.value;
-        if (debug) console.log('197 propname', propname);
+        if (debug) console.log('722 propname', propname);
         if (propname && propname.length > 0) {
           const node = myMetis.currentNode;
           const link = myMetis.currentLink;
@@ -699,21 +754,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           defValue = inst[propname];
           const value = prompt('Enter value of ' + propname, defValue);
           if (value) {
-            if (debug) console.log('236', propname, value);
+            if (debug) console.log('741', propname, value);
             if (propname === 'description') {
               inst.description = value;
             } else {
-              console.log('240 prop, value', propname, value);
+              console.log('745 prop, value', propname, value);
               inst[propname] = value;
             }
             switch(inst.category) {
             case 'Relationship':
               inst = myMetis.findRelationship(inst.id);
               inst[propname] = value;
-              if (debug) console.log('245 inst', inst);
+              if (debug) console.log('752 inst', inst);
               const modifiedRelships = new Array();
               const gqlRel = new gql.gqlRelationship(inst);
-              if (debug) console.log('248 inst, gqlRel', inst, gqlRel);
+              if (debug) console.log('755 inst, gqlRel', inst, gqlRel);
               modifiedRelships.push(gqlRel);
               modifiedRelships?.map(mn => {
                 let data = (mn) && mn
@@ -725,17 +780,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (propname === 'cardinality') {
                 const patt = '\\b(n|[0-9])\\b[-]\\b(n|[1-9])\\b';
                 const regex = new RegexParser(patt);
-                console.log('710 regex:', regex, value);
+                console.log('767 regex:', regex, value);
                 if (!regex.test(value)) {
                   alert('Value: ' + value + ' IS NOT valid');
                   break;
                 }
               }
               inst[propname] = value;
-              if (debug) console.log('256 inst', inst);
+              if (debug) console.log('774 inst', inst);
               const modifiedReltypes = new Array();
-              const gqlRelType = new gql.gqlRelationshipType(inst);
-              if (debug) console.log('259 inst, gqlRel', inst, gqlRelType);
+              const gqlRelType = new gql.gqlRelationshipType(inst, true);
+              if (debug) console.log('777 inst, gqlRel', inst, gqlRelType);
               modifiedReltypes.push(gqlRelType);
               modifiedReltypes?.map(mn => {
                 let data = (mn) && mn
@@ -969,6 +1024,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.handleOpenModal = this.handleOpenModal;
     myDiagram.handleCloseModal = this.handleCloseModal;
     myDiagram.selectedOption = this.state.selectedOption;
+    myDiagram.routing = go.Link.Normal;
     myDiagram.state = this.state;
     myDiagram.toolTip =
       $("ToolTip", { margin: 4 },
@@ -3074,7 +3130,62 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              return true;
+              return true; 
+            }),
+          makeButton("Set Link Routing",
+            function (e: any, obj: any) {
+              const routingList = () => [
+                {value:"Normal", label: "Normal"},
+                {value:"Orthogonal", label: "Orthogonal"},
+                {value:"AvoidsNodes", label: "Avoids Nodes"},
+              ];
+              const rlist = routingList();
+              if (debug) console.log('3143 routingList', rlist );
+              const routingLabels = rlist.map(rl => (rl) && rl.label);
+              if (debug) console.log('3145', routingLabels, rlist );
+              const modalContext = {
+                what:  "selectDropdown",
+                title: "Set Routing Scheme",
+                case:  "Set Routing Scheme",
+                routingList : routingList(),
+                myDiagram: myDiagram
+              } 
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(myDiagram, modalContext);
+              if (debug) console.log('3155 myMetis', myMetis);
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true; 
+            }),
+          makeButton("Set Link Curve",
+            function (e: any, obj: any) {
+              const curveList = () => [
+                {value:"None", label: "None"},
+                {value:"Bezier", label: "Bezier"},
+                {value:"JumpOver", label: "Jump Over"},
+                {value:"JumpGap", label: "Jump Gap"},
+              ];
+              const clist = curveList();
+              if (debug) console.log('3171 curveList', clist );
+              const curveLabels = clist.map(cl => (cl) && cl.label);
+              if (debug) console.log('3173', curveLabels, clist );
+              const modalContext = {
+                what:  "selectDropdown",
+                title: "Set Link Curve",
+                case:  "Set Link Curve",
+                curveList : curveList(),
+                myDiagram: myDiagram
+              } 
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(myDiagram, modalContext);
+              if (debug) console.log('3183 myMetis', myMetis);
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true; 
             }),
           makeButton("Zoom All",
             function (e: any, obj: any) {
@@ -3289,9 +3400,87 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         linkTemplate =
         $(go.Link,
           new go.Binding("deletable"),
-          { relinkableFrom: true, relinkableTo: true, toShortLength: 4 },
+          { selectable: true },
+          { toShortLength: 3, relinkableFrom: true, relinkableTo: true, reshapable: true },
+          // { relinkableFrom: true, relinkableTo: true, toShortLength: 4 },
           // new go.Binding('relinkableFrom', 'canRelink').ofModel(),
           // new go.Binding('relinkableTo', 'canRelink').ofModel(),
+          // { selectable: true, selectionAdornmentTemplate: linkSelectionAdornmentTemplate },
+
+          // link route 
+          { routing: go.Link.Normal,  corner: 10},  // link route should avoid nodes
+          new go.Binding("routing", "routing",
+            function(r) {
+              switch(r) {
+                case 'Normal':
+                  return go.Link.Normal;
+                case 'Orthogonal':
+                  return go.Link.Orthogonal;
+                case 'AvoidsNodes':
+                  return go.Link.AvoidsNodes;
+               default:
+                  return go.Link.Normal;
+              }
+            }
+          ),
+          new go.Binding("curve", "curve",
+            function (c) {
+              switch(c) {
+                case 'Bezier':
+                  return go.Link.Bezier;
+                case 'JumpOver':
+                  return go.Link.JumpOver;
+                case 'JumpGap': 
+                  return go.Link.JumpGap;
+                default:
+                  return "";
+              }
+            }
+          ),
+          new go.Binding("points").makeTwoWay(),
+          // context menu
+          { contextMenu: linkContextMenu },
+          // link shape
+          $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
+            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("strokeWidth", "strokewidth"),
+            new go.Binding("strokeDashArray", "dash",
+            function(d) { return d === "Dotted Line" ? dotted :
+                                (d === "Dashed Line" ? dashed : null); }),
+            ),
+          // the "from" arrowhead
+          $(go.Shape, { fromArrow: "", stroke: "black" },
+            new go.Binding("fromArrow", "fromArrow"),
+            new go.Binding("fill", "fromArrowColor"),
+            { scale: 1.3, fill: "" }
+          ),
+          // the "to" arrowhead
+          $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" },  
+            new go.Binding("toArrow", "toArrow"),
+            new go.Binding("fill", "toArrowColor"),
+            { scale: 1.3, fill: "white" }
+          ),
+          // cardinality from
+          $(go.TextBlock, "",
+              { segmentIndex: NaN, segmentFraction: 0.15},
+              { segmentOffset: new go.Point(0, 10) },
+              new go.Binding("text", "cardinalityFrom"),
+          ),
+          // cardinality to
+          $(go.TextBlock, "",
+            { segmentIndex: NaN, segmentFraction: 0.85},
+            { segmentOffset: new go.Point(0, -10) },
+            new go.Binding("text", "cardinalityTo"),
+          ),
+          // link label
+          $(go.TextBlock,  "",
+            {
+              isMultiline: false,  // don't allow newlines in text
+              editable: true,  // allow in-place editing by user
+            },
+            { segmentOffset: new go.Point(0, 10) },
+            new go.Binding("text", "name").makeTwoWay(),
+          ),
           {
             toolTip:
               $(go.Adornment, "Auto",
@@ -3301,49 +3490,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   new go.Binding("text", "", linkInfo))
               )
           },
-          {
-            // routing: go.Link.AvoidsNodes,
-            // routing: go.Link.Orthogonal,
-            routing: go.Link.Normal,
-            // curve: go.Link.JumpOver,
-            curve: go.Link.JumpGap,
-            // curve: go.Link.Bezier,
-            corner: 10
-          },  // link route should avoid nodes
-          { contextMenu: linkContextMenu },
-          new go.Binding("points").makeTwoWay(),
-          $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
-            new go.Binding("stroke", "strokecolor"),
-            new go.Binding("strokeWidth", "strokewidth"),
-            new go.Binding("strokeDashArray", "dash",
-            function(d) { return d === "Dotted Line" ? dotted :
-                                (d === "Dashed Line" ? dashed : null); }),
-            ),
-          $(go.Shape, { fromArrow: "", stroke: null },
-            new go.Binding("fromArrow", "fromArrow"),
-          ),
-          $(go.Shape, { toArrow: "Standard", stroke: null },
-            new go.Binding("toArrow", "toArrow"),
-          ),
-          $(go.TextBlock,  "",   // this is a Link label
-            {
-              isMultiline: false,  // don't allow newlines in text
-              editable: true,  // allow in-place editing by user
-            },
-            new go.Binding("text", "name").makeTwoWay(),
-          ),
-          $(go.TextBlock, "",
-              { segmentIndex: NaN, segmentFraction: 0.2},
-              new go.Binding("text", "cardinalityFrom"),
-          ),
-          // $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
-          $(go.TextBlock, "",
-            { segmentIndex: NaN, segmentFraction: 0.8},
-            new go.Binding("text", "cardinalityTo"),
-          ),
-          $(go.TextBlock, "", { segmentOffset: new go.Point(0, -10) }),
-          $(go.TextBlock, "", { segmentOffset: new go.Point(0, 10) }),
-
         );
     }
     // Define the group template with fixed size containers
@@ -3685,7 +3831,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     switch (modalContext?.what) {      
       case 'selectDropdown': 
-
         let options =  '' 
         let comps = ''
         const { Option } = components
@@ -3713,15 +3858,34 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
         else if (modalContext?.title === 'Set Layout Scheme') {
           let layout, img; 
-            options = this.state.modalContext.layoutList.map(ll => {
+          options = this.state.modalContext.layoutList.map(ll => {
+            img = './../images/default.png'
+            layout = ll.value 
+            return {value: layout, label: ll.label}
+          })
+          comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
+        }
+        else if (modalContext?.title === 'Set Routing Scheme') {
+          let routing, img; 
+            options = this.state.modalContext.routingList.map(rr => {
               img = './../images/default.png'
-              layout = ll.value 
-              return {value: layout, label: ll.label}
+              routing = rr.value 
+              return {value: routing, label: rr.label}
             })
             comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
-        } else {
-          options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
-          comps = null
+        } 
+        else if (modalContext?.title === 'Set Link Curve') {
+            let curve, img; 
+            options = this.state.modalContext.curveList.map(cc => {
+              img = './../images/default.png'
+              curve = cc.value 
+              return {value: curve, label: cc.label}
+            })
+            comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
+        } 
+        else {
+            options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
+            comps = null
         }
         if (debug) console.log('2296 options', options);
         const { selectedOption } = this.state;

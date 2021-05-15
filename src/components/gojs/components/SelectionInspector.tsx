@@ -27,10 +27,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
+    const myMetamodel = myMetis.currentMetamodel;
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (debug) console.log('102 selObj', selObj, myMetis);
+    if (debug) console.log('102 selObj', selObj, myMetamodel);
     let inst, instview, typeview, item;
     if (selObj.type === 'GraphLinksModel') {
       return;
@@ -39,15 +40,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (debug) console.log('108 inst', inst);
       inst = myMetis.findObject(inst?.id);
       if (debug) console.log('110 inst', inst);
-      // instview = selObj.objectview;
-      // instview = myMetis.findObjectView(instview?.id);
       instview = selObj;
       typeview = instview?.typeview;
     } else if (category === constants.gojs.C_RELATIONSHIP) {
-      inst = selObj.relship;
-      inst = myMetis.findRelationship(inst?.id);
       instview = selObj.relshipview;
       instview = myMetis.findRelationshipView(instview?.id);
+      inst = selObj.relship;
+      if (!inst) inst = instview?.relship;
+      inst = myMetis.findRelationship(inst?.id);
       typeview = instview?.typeview;
     } else if (category === constants.gojs.C_OBJECTTYPE) {
       inst = selObj;
@@ -60,7 +60,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_MODELVIEW) {
       inst = selObj;
     }
-    if (debug) console.log('122 inst, instview', inst, instview);
+    if (debug) console.log('63 inst, instview', inst, instview);
     if (inst == undefined)
       return;
     let type = inst.type;
@@ -207,7 +207,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case 'fieldType':
           case 'viewkind':
           case 'relshipkind':
-            let dtype = myMetis.findDatatypeByName(k);
+            let dtype = myMetamodel.findDatatypeByName(k);
             if (debug) console.log('211 dtype', dtype);
             if (dtype) {
               fieldType = dtype.fieldType;

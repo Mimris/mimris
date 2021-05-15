@@ -19,9 +19,9 @@ const page = (props: any) => {
   const dispatch = useDispatch()
   const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
   
-  if (!props.phData) {
-    dispatch(loadData())
-  }
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
   // if (!props.phBlog) {
   //   console.log('16 index', props);
   //   dispatch(loadDataBlog())

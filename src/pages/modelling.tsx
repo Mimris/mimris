@@ -51,12 +51,12 @@ const page = (props:any) => {
   //   dispatch(loadData())
   // }
 
-  useEffect(() => {
-    if (debug) console.log('47 modelling - useEffect', props);
-    if (!props.phList) {
-      dispatch(loadDataModelList()) // load list of models in repository
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (debug) console.log('47 modelling - useEffect', props);
+  //   if (!props.phList) {
+  //     dispatch(loadDataModelList()) // load list of models in repository
+  //   }
+  // }, [])
   
   const state = useSelector(state => state)
   if (debug) console.log('57 modelling', (props.phList) && props.phList);

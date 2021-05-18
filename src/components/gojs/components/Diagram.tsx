@@ -1006,7 +1006,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       msg += "-------------------\n";
       msg += printf(format2, "-Type", d.object.type.name);
       msg += printf(format2, "-Title", d.object.type.title);
-      msg += printf(format2, "-Descr", breakString(d.object.description, 64));
+      msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
       // msg += printf(format2, "-Descr", d.object.type.description);
       msg += "\n";
       msg += "Instance props:\n";
@@ -1055,7 +1055,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const format3 = "%-8s: %s\n";
   
       let msg = "Relationship:\n";
-      msg += "Type props:\n";
+      msg += "Type props:\n"; 
       msg += "-------------------\n";
       msg += printf(format2, "-Type", d.relship.type.name);
       msg += printf(format2, "-Title", d.relship.type.title);
@@ -3227,7 +3227,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             toolTip:
               $(go.Adornment, "Auto",
                 $(go.Shape, { fill: "lightyellow" }),
-                $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling nodeInfo(data)
+                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
                   new go.Binding("text", "", nodeInfo))
               )
           },
@@ -3285,7 +3285,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
-                  maxSize: new go.Size(104, 999), 
+                  maxSize: new go.Size(116, 999), 
                   // margin: new go.Margin(2),
                   defaultAlignment: go.Spot.Left,
                 },

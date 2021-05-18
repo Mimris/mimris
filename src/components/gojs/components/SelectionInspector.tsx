@@ -235,7 +235,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           const p2 = ")$";
           let p = "";
           let cnt = 0;
-          for (let i=0; i<values.length; i++) {
+          for (let i=0; i<values?.length; i++) {
             const value = values[i];
             if (debug) console.log('246 value', i, value);
             if (p === "") {

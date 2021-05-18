@@ -429,6 +429,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
+    if (!metamodel)
+      return;
     metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
     if (metamodel.objecttypes) {
       if (debug) console.log('419 metamodel', metamodel);

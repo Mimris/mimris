@@ -90,7 +90,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     else {
       const listname = "Select_" + this.props.id; // Cannot include spaces
       const values = this.props.values;
-      const optionsDiv = values.map((option) => <option key={option} value={option}/>)
+      const optionsDiv = values?.map((option) => <option key={option} value={option}/>)
       const optionslistDiv = <datalist id={listname}>{optionsDiv}</datalist>
 
       return (

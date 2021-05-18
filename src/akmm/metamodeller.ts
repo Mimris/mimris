@@ -117,6 +117,9 @@ export class cxMetis {
                 this.importRelship(rel, null);
             })
         }
+        // Postprocessing objecttypes
+
+
         // Handle current variables
         if (importedData.currentMetamodelRef) {
             const metamodel = this.findMetamodel(importedData.currentMetamodelRef);
@@ -418,7 +421,7 @@ export class cxMetis {
     importDatatype(item: any, metamodel: cxMetaModel) {
         let dtyperef = item.id;
         let datatype = this.findDatatype(dtyperef);
-        if (debug) console.log('412 item, datatype', item);
+        if (debug) console.log('412 item', item);
         if (datatype) {
             for (const prop in item) {
                 datatype[prop] = item[prop];
@@ -3892,7 +3895,7 @@ export class cxObjectTypeView extends cxMetaObject {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
         this.category    = constants.gojs.C_OBJECTTYPEVIEW;
-        this.type        = null;
+        this.type        = type;
         this.typeRef     = type?.id;
         this.figure      = "RoundedRectangle";
         this.fillcolor   = "lightyellow";
@@ -4082,7 +4085,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPEVIEWS;  // Firestore collection
         this.category = constants.gojs.C_RELSHIPTYPEVIEW;
-        this.type     = null;
+        this.type     = type;
         this.typeRef  = type?.id;
         this.data     = new cxReltypeviewData();
     }

@@ -1203,16 +1203,16 @@ function reducer(state = InitialState, action) {
       return retval;
 
     case UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES:
-      if (!debug) console.log('1201 UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', action);
+      if (debug) console.log('1201 UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', action);
       const curmodtotv     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmtotv    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtotv.targetMetamodelRef)
       const curmmindextotv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtotv.targetMetamodelRef) 
       const curtotv = curmmtotv?.objecttypeviews?.find(ot => ot.id === action?.data?.id)
       const lengthtotv = curmmtotv?.objecttypeviews.length
       let indextotv = curmmtotv?.objecttypeviews?.findIndex(ot => ot.id === curtotv?.id)
-      if (!debug) console.log('1208 indextotv', indextotv, lengthtotv);
+      if (debug) console.log('1208 indextotv', indextotv, lengthtotv);
       if (indextotv < 0) {indextotv = lengthtotv} 
-      if (!debug) console.log('1210 indextotv', indextotv, lengthtotv);
+      if (debug) console.log('1210 indextotv', indextotv, lengthtotv);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
       const retval_TARGETOBJECTTYPEVIEW = 
@@ -1253,7 +1253,7 @@ function reducer(state = InitialState, action) {
             },
           },
       }
-      if (!debug) console.log('1256 retval_TARGETOBJECTTYPEVIEW', retval_TARGETOBJECTTYPEVIEW);
+      if (debug) console.log('1256 retval_TARGETOBJECTTYPEVIEW', retval_TARGETOBJECTTYPEVIEW);
       return retval_TARGETOBJECTTYPEVIEW;
 
     case UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES:
@@ -1531,7 +1531,7 @@ function reducer(state = InitialState, action) {
         },
       }
     case UPDATE_OBJECTTYPEVIEW_PROPERTIES:
-      if (!debug) console.log('501 UPDATE_OBJECTTYPEVIEW_PROPERTIES', action);
+      if (debug) console.log('501 UPDATE_OBJECTTYPEVIEW_PROPERTIES', action);
       const curmodotv     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmotv    = state.phData?.metis?.metamodels?.find(m => m.id === curmodotv.metamodelRef)
       const curmmindexotv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodotv.metamodelRef) 
@@ -1622,17 +1622,17 @@ function reducer(state = InitialState, action) {
          },
       }
     case UPDATE_DATATYPE_PROPERTIES:
-      if (debug) console.log('501 UPDATE_DATATYPE_PROPERTIES', action);
+      if (debug) console.log('1621 UPDATE_DATATYPE_PROPERTIES', action);
       const curmoddtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-      if (debug) console.log('765', curmoddtot)
+      if (debug) console.log('1627', curmoddtot)
       const curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot.targetMetamodelRef)
       const curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot.targetMetamodelRef) 
       const curddot = curmmddot?.datatypes?.find(ot => ot.id === action?.data?.id)
       const lengthotdd = curmmddot?.datatypes?.length
       let indexddot = curmmddot?.datatypes?.findIndex(ot => ot.id === curddot?.id)
       if (indexddot < 0) {indexddot = lengthotdd} 
-      if (debug) console.log('607 reducer', lengthotdd, indexddot);   
-      return {
+      if (debug) console.log('1634 reducer', lengthotdd, indexddot);   
+      let retval_UPDATE_DATATYPE_PROPERTIES = {
         ...state,
         phData: {
           ...state.phData,
@@ -1667,6 +1667,8 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      if (debug) console.log('1670 retval', retval_UPDATE_DATATYPE_PROPERTIES);
+      return retval_UPDATE_DATATYPE_PROPERTIES;
     case UPDATE_PROPERTY_PROPERTIES:
       // if (debug) console.log('501 UPDATE_PROPERTY_PROPERTIES', action);
       const curmopot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)

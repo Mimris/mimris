@@ -484,6 +484,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (debug) console.log('455 node, data', node, data);
           typeview = data.typeview;
           typeview = myMetis.findObjectTypeView(typeview?.id);
+          let objtype = node.objecttype;
+          if (!typeview) typeview = objtype.newDefaultTypeView('Object');
           for (let prop in typeview?.data) {
             typeview.data[prop] = selObj[prop];
             typeview[prop] = selObj[prop];
@@ -522,6 +524,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             typeview.data[prop] = selObj[prop];
             data[prop] = selObj[prop];
           }
+          typeview.setFromArrow2(selObj.relshipkind);
+          typeview.setToArrow2(selObj.relshipkind);
           if (debug) console.log('384 typeview', typeview, data);
           const gqlReltypeview = new gql.gqlRelshipTypeView(typeview);
           if (debug) console.log('386 gqlReltypeview', gqlReltypeview);
@@ -1053,7 +1057,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    }
     // Tooltip functions
     function nodeInfo(d) {  // Tooltip info for a node data object
-      if (!debug) console.log('987 nodeInfo', d, d.object);
+      if (debug) console.log('987 nodeInfo', d, d.object);
   
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
@@ -1738,10 +1742,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "dispatch":           e.diagram.dispatch
             }
             context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-            if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                  // alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                  // context.myTargetMetamodel = null;
-            } else if (context.myTargetMetamodel == undefined) { // sf
+            if (context.myTargetMetamodel == undefined) { // sf
                 context.myTargetMetamodel = null;
             }
             myMetis.currentTargetMetamodel = context.myTargetMetamodel;
@@ -1774,10 +1775,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               context.myTargetMetamodel = myMetis.currentTargetMetamodel;
               if (debug) console.log('446 context', context);
                 context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-              if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                    alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                    context.myTargetMetamodel = null;
-              } else if (context.myTargetMetamodel == undefined) { // sf
+              if (context.myTargetMetamodel == undefined) { // sf
                   context.myTargetMetamodel = null;
               }    
               myMetis.currentTargetMetamodel = context.myTargetMetamodel;
@@ -2269,10 +2267,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             context.myTargetMetamodel = myMetis.currentTargetMetamodel;
             if (debug) console.log('940 context', currentRel, context);
             context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-            if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                context.myTargetMetamodel = null;
-            } else if (context.myTargetMetamodel == undefined)  // sf
+            if (context.myTargetMetamodel == undefined)  // sf
               context.myTargetMetamodel = null;
             myMetis.currentTargetMetamodel = context.myTargetMetamodel;
             if (debug) console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
@@ -2851,10 +2846,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "dispatch":           e.diagram.dispatch
             }
             context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-            if (context.myTargetMetamodel?.name === "IRTV Metamodel") {  
-                  alert("IRTV Metamodel is not valid as Target metamodel!"); // sf dont generate on EKA Metamodel
-                  context.myTargetMetamodel = null;
-            } else if (context.myTargetMetamodel == undefined)  // sf
+            if (context.myTargetMetamodel == undefined)  // sf
                 context.myTargetMetamodel = null;
             myMetis.currentTargetMetamodel = context.myTargetMetamodel;
             const targetMetamodel = myMetis.currentTargetMetamodel;

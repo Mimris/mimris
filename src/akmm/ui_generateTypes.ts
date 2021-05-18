@@ -229,7 +229,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 const id = utils.createGuid();
                 const objtypeview = new akm.cxObjectTypeView(id, id, objtype, obj.description);
                 objtypeview.applyObjectViewParameters(objview);
-                if (!debug) console.log('229 objtype, objtypeview', objtype, objtypeview);
+                if (debug) console.log('229 objtype, objtypeview', objtype, objtypeview);
                 objtype.typeview = objtypeview;
                 objtype.typeviewRef = objtypeview.id;
                 objtype.setModified(true);
@@ -371,7 +371,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         });
         if (debug) console.log('368 modifiedProps', modifiedProps);
     }
-    if (!debug) console.log('370 objtype', objtype);
+    if (debug) console.log('370 objtype', objtype);
     const gqlObjectType = new gql.gqlObjectType(objtype, true);
     if (debug) console.log('372 gqlObjectType', gqlObjectType);
     const modifiedTypeNodes = new Array();
@@ -381,10 +381,10 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
     });
-    if (!debug) console.log('380 modifiedTypeNodes', modifiedTypeNodes, myMetis);
+    if (debug) console.log('380 modifiedTypeNodes', modifiedTypeNodes, myMetis);
     if (objtype.typeview) {
         const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-        if (!debug) console.log('383 gqlObjTypeview', gqlObjTypeview);
+        if (debug) console.log('383 gqlObjTypeview', gqlObjTypeview);
         modifiedTypeViews.push(gqlObjTypeview);
         modifiedTypeViews?.map(mn => {
             let data = (mn) && mn;
@@ -425,7 +425,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         if (debug) console.log('484 data', data);
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
         })
-    if (!debug) console.log('424 objtype', objtype);
+    if (debug) console.log('424 objtype', objtype);
     return objtype;
 }
 
@@ -493,7 +493,8 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         myTargetMetamodel.addRelationshipTypeView(reltypeview);
         myMetis.addRelationshipTypeView(reltypeview);
         if (debug) console.log('553 reltypeview', reltypeview);
-
+        reltype.cardinality = relship.cardinality;
+        reltype.relshipkind = relship.relshipkind;
         const gqlRelshipType = new gql.gqlRelationshipType(reltype, true);
         if (debug) console.log('556 Generate Relationship Type', reltype, gqlRelshipType);
         const modifiedTypeLinks = new Array();

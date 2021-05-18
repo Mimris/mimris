@@ -4,6 +4,7 @@ const debug = false;
 const utils = require('./utilities');
 const glb = require('./akm_globals');
 import * as akm from './metamodeller';
+import { goRelshipTypeLink } from './ui_gojs';
 //import * as gojs  from './components/akmm/ui_gojs';
 
 export class gqlExportMetis {
@@ -232,7 +233,7 @@ export class gqlMetaModel {
     addObjectTypeView(objtypeview: akm.cxObjectTypeView) {
         if (objtypeview && !objtypeview.isDeleted()
         ) {
-            if (objtypeview.type) {
+            if (objtypeview.typeRef) {
                 const gObjtypeview = new gqlObjectTypeView(objtypeview);
                 this.objecttypeviews.push(gObjtypeview);
             }
@@ -247,11 +248,31 @@ export class gqlMetaModel {
     addRelshipTypeView(reltypeview: akm.cxRelationshipTypeView) {
         if (reltypeview &&
             !reltypeview.isDeleted()) {
-            if (reltypeview.type) {
+            if (reltypeview.typeRef) {
                 const gReltypeview = new gqlRelshipTypeView(reltypeview);
                 this.relshiptypeviews.push(gReltypeview);
             }
         }
+    }
+    findObjectType(id: string): gqlObjectType {
+        const objtypes = this.objecttypes;
+        for (let i=0; i<objtypes.length; i++) {
+            const objtype = objecttypes[i];
+            if (objtype.id === id) {
+                return objtype;
+            }
+        }
+        return null;
+    }
+    findRelationshipType(id: string): gqlRelationshipType {
+        const reltypes = this.relshiptypes;
+        for (let i=0; i<reltypes.length; i++) {
+            const reltype = reltypes[i];
+            if (reltype.id === id) {
+                return reltype;
+            }
+        }
+        return null;
     }
     //
 }

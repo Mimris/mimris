@@ -593,6 +593,7 @@ export class goRelshipLink extends goLink {
     toNode: goNode | null;
     from: string;
     to: string;
+    cardinality: string;
     cardinalityFrom: string;
     cardinalityTo: string;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
@@ -607,6 +608,7 @@ export class goRelshipLink extends goLink {
         this.toNode = null;
         this.from = "";
         this.to = "";
+        this.cardinality = "";
         this.cardinalityFrom = "";
         this.cardinalityTo = "";
 
@@ -623,7 +625,7 @@ export class goRelshipLink extends goLink {
                 this.cardinalityFrom = this.relship.cardinalityFrom;
                 this.cardinalityTo = this.relship.cardinalityTo;
                 if (debug) console.log('507 relshipLink', this);
-                }
+            }
             this.typeview = relview.getTypeView();
             const fromObjview = relview.getFromObjectView();
             if (fromObjview) {
@@ -722,6 +724,9 @@ export class goRelshipTypeLink extends goLink {
     toNode:     goNode | null;
     from:       string | undefined;
     to:         string | undefined;
+    cardinality: string;
+    cardinalityFrom: string;
+    cardinalityTo: string;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
         this.category   = constants.gojs.C_RELSHIPTYPE;
@@ -731,10 +736,15 @@ export class goRelshipTypeLink extends goLink {
         this.toNode     = null;
         this.from       = "";
         this.to         = "";
+        this.cardinality = "";
+        this.cardinalityFrom = "";
+        this.cardinalityTo = "";
 
         if (reltype) {
             this.setName(reltype.getName());
             this.setType(constants.gojs.C_RELSHIPTYPE);
+            this.cardinalityFrom = this.reltype.cardinalityFrom;
+            this.cardinalityTo = this.reltype.cardinalityTo;
             const typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null
                 = reltype.getDefaultTypeView();
             if (typeview) {

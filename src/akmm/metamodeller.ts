@@ -117,6 +117,9 @@ export class cxMetis {
                 this.importRelship(rel, null);
             })
         }
+        // Postprocessing objecttypes
+
+
         // Handle current variables
         if (importedData.currentMetamodelRef) {
             const metamodel = this.findMetamodel(importedData.currentMetamodelRef);
@@ -293,6 +296,8 @@ export class cxMetis {
                                         const mv = new cxModelView(item.id, item.name, null, item.description);
                                         if (!mv) continue;
                                         mv.layout = item.layout;
+                                        mv.routing = item.routing;
+                                        mv.linkcurve = item.linkcurve;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
                                         mv.setModel(model);
@@ -416,7 +421,7 @@ export class cxMetis {
     importDatatype(item: any, metamodel: cxMetaModel) {
         let dtyperef = item.id;
         let datatype = this.findDatatype(dtyperef);
-        if (debug) console.log('412 item, datatype', item);
+        if (debug) console.log('412 item', item);
         if (datatype) {
             for (const prop in item) {
                 datatype[prop] = item[prop];
@@ -637,6 +642,7 @@ export class cxMetis {
                     rel.setToObject(toObj);
                     fromObj.addOutputrel(rel);
                     toObj.addInputrel(rel);
+                    rel.relshipkind     = item.relshipkind;
                     rel.cardinality     = item.cardinality;
                     rel.cardinalityFrom = item.cardinalityFrom;
                     rel.cardinalityTo   = item.cardinalityTo;
@@ -3340,7 +3346,7 @@ export class cxObjectType extends cxType {
         for (let i=0; i<len; i++) {
             const rtype = this.inputreltypes[i];
             if (rtype.id !== reltype.id) {
-                reltypes.push(rel);
+                reltypes.push(reltype);
             }
         }
         this.inputreltypes = reltypes;
@@ -3888,9 +3894,9 @@ export class cxObjectTypeView extends cxMetaObject {
     constructor(id: string, name: string, type: cxType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
-        this.category = constants.gojs.C_OBJECTTYPEVIEW;
-        this.type = type as cxObjectType;
-        this.typeRef     = "";
+        this.category    = constants.gojs.C_OBJECTTYPEVIEW;
+        this.type        = type;
+        this.typeRef     = type?.id;
         this.figure      = "RoundedRectangle";
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
@@ -3929,9 +3935,12 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     setType(type: cxObjectType) {
         this.type = type;
+        this.typeRef = type?.id;
     }
     getType(): cxObjectType | null {
-        return this.type;
+        if (this.type)
+            return this.type;
+        return null;
     }
     setData(data: any) {
         // If is valid JSON
@@ -4076,9 +4085,9 @@ export class cxRelationshipTypeView extends cxMetaObject {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPEVIEWS;  // Firestore collection
         this.category = constants.gojs.C_RELSHIPTYPEVIEW;
-        this.type = type;
-        this.typeRef = "";
-        this.data = new cxReltypeviewData();
+        this.type     = type;
+        this.typeRef  = type?.id;
+        this.data     = new cxReltypeviewData();
     }
     // Methods
     applyRelationshipViewParameters(relview: cxRelationshipView) {
@@ -4107,7 +4116,9 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.type = type;
     }
     getType(): cxRelationshipType | null {
-        return this.type;
+        if (this.type)
+            return this.type;
+        return null;
     }
     setData(data: cxReltypeviewData) {
         // If is valid JSON
@@ -5261,6 +5272,8 @@ export class cxModelView extends cxMetaObject {
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
     layout: string;
+    routing: string;
+    linkcurve: string;
     template: any;
     isTemplate: boolean;
     diagrams: cxDiagram[] | null;
@@ -5274,6 +5287,8 @@ export class cxModelView extends cxMetaObject {
         this.objectviews = null;
         this.relshipviews = null;
         this.layout = "Tree";
+        this.routing = "Normal";
+        this.linkcurve = "None";
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;
@@ -5290,6 +5305,12 @@ export class cxModelView extends cxMetaObject {
     }
     getLayout(): string {
         return this.layout;
+    }
+    setRouting(routing: string) {
+        this.routing = routing;
+    }
+    getRouting(): string {
+        return this.routing;
     }
     setTemplate(template: any) {
         this.template = template;
@@ -5740,6 +5761,51 @@ export class cxRelationshipView extends cxMetaObject {
             if (k === 'relshipkind') continue;
             this[k] = "";
         }
+    }
+    setFromArrow(fromArrow: string) {
+        this.fromArrow = fromArrow;
+    }
+    setFromArrowColor(color: string) {
+        this.fromArrowColor = color;
+    }
+    setFromArrow2(relshipkind: string) {
+        let arrow = '';
+        let color = '';
+        switch (relshipkind) {
+            case 'Composition':
+                arrow = 'StretchedDiamond';
+                color = "black";
+                break;
+            case 'Aggregation':
+                arrow = 'StretchedDiamond';
+                color = 'white';
+                break;
+            default:
+                break;
+        }
+        this.setFromArrow(arrow);
+        this.setFromArrowColor(color);
+        if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
+    }
+    setToArrow(toArrow: string) {
+        this.toArrow = toArrow;
+    }
+    setToArrowColor(color: string) {
+        this.toArrowColor = color;
+    }
+    setToArrow2(relshipkind: string) {
+        let arrow = 'OpenTriangle';
+        let color = '';
+        switch (relshipkind) {
+            case 'Generalization':
+                arrow = 'Triangle';
+                color = "white";
+                break;
+            default:
+                break;
+        }
+        this.setToArrow(arrow);
+        this.setToArrowColor(color);
     }
 }
 

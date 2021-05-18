@@ -788,6 +788,7 @@ export function onClipboardPasted(selection: any, context: any) {
 
 // Function to connect node object to group object
 export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjectNode | null {
+    if (!loc) return;
     const nodes = model.nodes;
     if (debug) console.log('687 ', nodes, loc);
     const groups = new Array();
@@ -932,14 +933,16 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 
 // functions to handle links
 export function createRelationship(data: any, context: any) {
-    if (debug) console.log('898 createRelationship', data);
+    if (debug) console.log('936 createRelationship', data);
     const myDiagram = context.myDiagram;
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; // added sf
     const myMetamodel = myMetis.currentMetamodel;
     const fromNode = myGoModel.findNode(data.from);
+    const nodeFrom = myDiagram.findNodeForKey(fromNode.key)
     const toNode = myGoModel.findNode(data.to);
-    if (debug) console.log('904 createRelationship', myGoModel, fromNode, toNode);
+    const nodeTo   = myDiagram.findNodeForKey(toNode.key)
+    if (debug) console.log('943 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode?.object;
     const toObj = toNode?.object;
     let typename = 'isRelatedTo' as string | null;
@@ -948,14 +951,14 @@ export function createRelationship(data: any, context: any) {
         let fromType = fromNode?.objecttype;
         let toType   = toNode?.objecttype;
         fromType = myMetamodel.findObjectType(fromType?.id);
-        if (debug) console.log('951 fromType', fromType);
+        if (debug) console.log('952 fromType', fromType);
         if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
         if (fromType) {
             fromType.allObjecttypes = myMetamodel.objecttypes;
             fromType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
         toType   = myMetamodel.findObjectType(toType?.id);
-        if (debug) console.log('958 toType', toType);
+        if (debug) console.log('959 toType', toType);
         if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
         if (toType) {
             toType.allObjecttypes = myMetamodel.objecttypes;
@@ -965,7 +968,7 @@ export function createRelationship(data: any, context: any) {
         if (fromType && toType) {
             let defText = "";
             const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
-            if (debug) console.log('873 createRelationship', reltypes, fromType, toType);
+            if (debug) console.log('969 createRelationship', reltypes, fromType, toType);
             if (reltypes) {
                 if (true) { 
                     for (let i=0; i<reltypes.length; i++) {
@@ -977,25 +980,43 @@ export function createRelationship(data: any, context: any) {
                     if (choices.length == 1) defText = choices[0];
                     typename = prompt('Enter type name, one of ' + choices, defText);
                     reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-                    if (debug) console.log('888 reltype', reltype);
+                    if (debug) console.log('981 reltype', reltype);
 
                     if (!reltype) {
                         alert("Relationship type given does not exist!")
                         myDiagram.model.removeLinkData(data);
                         return;
                     }
-                    if (debug) console.log('942 createRelationship', reltype);
+                    if (debug) console.log('988 data, reltype', data, reltype);
+
+                    const linkIt = nodeFrom.findLinksOutOf(); // get all links out from it
+                    while (linkIt.next()) { // for each link get the link text and toNode text
+                      const link = linkIt.value;
+                      if (
+                          (nodeFrom.key === link?.data?.from)
+                          &&
+                          (nodeTo.key === link?.data?.to)
+                          &&
+                          (link?.data.name === typename)
+                      ) {
+                        alert("Relationship already exists!\nOperation is cancelled.")
+                        myDiagram.model.removeLinkData(data);
+                        return;
+                      }
+
+                    }
+                  
                     data.relshiptype = reltype;
                     const reltypeview = reltype.typeview;
                     myDiagram.model.setDataProperty(data, "name", typename);
                     const relshipview = createLink(data, context);
-                    if (debug) console.log('947 relshipview', relshipview);
+                    if (debug) console.log('993 relshipview', relshipview);
                     if (relshipview) {
                         relshipview.setTypeView(reltypeview);
                         const relship = relshipview.relship; 
                         relship.addRelationshipView(relshipview);
                     }
-                    if (debug) console.log('953 myGoModel', myGoModel);
+                    if (debug) console.log('999 myGoModel', myGoModel);
                     myDiagram.requestUpdate();
                     return relshipview;
                 }
@@ -1363,11 +1384,12 @@ export function createLink(data: any, context: any): any {
             if (toObjView) {
                 toObj = toObjView.object;
             }
-            if (debug) console.log('946 createLink', fromObj, toObj);
+            if (debug) console.log('1387 createLink', fromObj, toObj);
             if (fromObj && toObj) {
                 // Find relationship if it already exists
                 const myModel = context.myModel;
                 let relship = myModel.findRelationship2(fromObj, toObj, reltype.name, reltype);
+                if (debug) console.log('1392 relship', relship);
                 if (!relship) {
                     relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
                     if (relship) {
@@ -1380,7 +1402,7 @@ export function createLink(data: any, context: any): any {
                         myMetis.addRelationship(relship);
                     }
                 }
-                if (debug) console.log('1271 relship', relship);
+                if (debug) console.log('1405 relship', relship);
                 if (relship) {
                     let typeview = reltype.getDefaultTypeView();
                     relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
@@ -1397,7 +1419,7 @@ export function createLink(data: any, context: any): any {
                         myMetis.addRelationshipView(relshipview);
                         let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
                     }
-                    if (debug) console.log('1288 relship', relshipview);
+                    if (debug) console.log('1422 relshipview', relshipview);
                 }
             }
         }

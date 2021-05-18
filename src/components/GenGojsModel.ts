@@ -198,7 +198,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               const otype = metis.findObjectTypeByName(objtype.name);
               if (otype) {
                 typeview = otype.getDefaultTypeView();
-              }
+              } else
+                typeview = objtype.newDefaultTypeView('Object');
           }
           // End hack
           objview.setTypeView(typeview);
@@ -278,7 +279,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
-      if (debug) console.log('266 modelview, objviews:', modelview.name, objviews);
+      if (debug) console.log('281 modelview, objviews:', modelview.name, objviews);
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -343,12 +344,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
       }
-      if (debug) console.log('325 nodes', nodes);
+      if (debug) console.log('346 nodes', nodes);
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
-      if (debug) console.log('318 modelview, relviews', modelview.name, relviews);
+      if (debug) console.log('351 modelview, relviews', modelview.name, relviews);
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
         let includeRelview = false;
@@ -360,6 +361,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (rel.markedAsDeleted)
             relview.markedAsDeleted = rel?.markedAsDeleted;
           relview.name = rel.name;
+          relview.setFromArrow2(rel.relshipkind);
+          relview.setToArrow2(rel.relshipkind);
         }
         let relcolor = "black";
         if (includeDeleted) {
@@ -390,17 +393,21 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           includeRelview = true;
         }
         if (includeRelview) {
-          if (debug) console.log('352 relview:', relview);
+          if (debug) console.log('393 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
           link.strokecolor = relcolor;
+          link.routing = modelview.routing;
+          link.curve = modelview.linkcurve;
+          if (debug) console.log('410 modelview:', modelview, link);
+          // }
           myGoModel.addLink(link);
-          if (debug) console.log('357 buildGoModel - link', link, myGoModel);
+          if (debug) console.log('413 buildGoModel - link', link, myGoModel);
         }
       }
     }
-    if (debug) console.log('361 myGoModel', myGoModel);
+    if (debug) console.log('417 myGoModel', myGoModel);
     return myGoModel;
   }
 
@@ -422,6 +429,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
+    if (!metamodel)
+      return;
     metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
     if (metamodel.objecttypes) {
       if (debug) console.log('419 metamodel', metamodel);
@@ -468,6 +477,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let includeReltype = false;
           let strokecolor = "black";
           let reltype = relshiptypes[i];
+          if (reltype.cardinality.length > 0) {
+            reltype.cardinalityFrom = reltype.getCardinalityFrom(); 
+            reltype.cardinalityTo = reltype.getCardinalityTo();
+          }
           if (reltype.markedAsDeleted === undefined)
             reltype.markedAsDeleted = false;
           if (reltype && !reltype.markedAsDeleted)
@@ -483,7 +496,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (includeReltype) {
             if (debug) console.log('484 reltype', reltype);
             if (!reltype.typeview) 
-                reltype.typeview = reltype.newDefaultTypeView(constants.relkinds.REL);
+                reltype.typeview = reltype.newDefaultTypeView(reltype.relshipkind);
             if (!reltype.fromObjtype && reltype.fromobjtypeRef) 
                 reltype.fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
             if (!reltype.toObjtype && reltype.toobjtypeRef) 

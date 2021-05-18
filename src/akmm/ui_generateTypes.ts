@@ -179,7 +179,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                     // check if it already is part of the target metamodel
                     objtype = myTargetMetamodel?.findObjectTypeByName(typename);
                     if (debug) console.log('204 objtype', objtype);
-                    if (!objtype) {
+                    if (false) { // if (!objtype) {
                         // If not, find the type in the IRTV metamodel
                         const irtvMetamodel = myMetis.findMetamodelByName('IRTV Metamodel');
                         objtype = irtvMetamodel?.findObjectTypeByName(typename);    
@@ -210,7 +210,10 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             if (!objtype) {     // New object type - Create it                
                 let name = objname;
                 objtype = new akm.cxObjectType(utils.createGuid(), name, obj.description);
-                const properties = obj?.type?.properties;
+                // Handle special attributes
+                objtype.viewkind = obj.viewkind;
+                // Handle the properties
+                const properties = obj.type?.properties;
                 if (properties !== undefined && properties !== null && properties.length > 0)
                     objtype.properties = properties;
                 else
@@ -289,7 +292,8 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (rels) {
         for (let i=0; i < rels.length; i++) {
             let rel = rels[i];
-            if (rel.name === constants.types.AKM_HAS_PROPERTY) {
+            const toObj = rel?.getToObject();
+            if (toObj.type?.name === constants.types.AKM_PROPERTY) {
                 const proptype = rel.getToObject();
                 // Check if property type already exists
                 for (let j=0; j<proptypes.length; j++) {
@@ -300,7 +304,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
     }
-    if (debug) console.log('364 generateObjectType', proptypes);
+    if (debug) console.log('303 generateObjectType', proptypes);
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -365,11 +369,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_PROPERTY_PROPERTIES', data })
         });
-        if (debug) console.log('391 modifiedProps', modifiedProps);
+        if (debug) console.log('368 modifiedProps', modifiedProps);
     }
-
+    if (debug) console.log('370 objtype', objtype);
     const gqlObjectType = new gql.gqlObjectType(objtype, true);
-    if (debug) console.log('395 gqlObjectType', gqlObjectType);
+    if (debug) console.log('372 gqlObjectType', gqlObjectType);
     const modifiedTypeNodes = new Array();
     modifiedTypeNodes.push(gqlObjectType);
     modifiedTypeNodes.map(mn => {
@@ -377,17 +381,17 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
     });
-    if (debug) console.log('403 modifiedTypeNodes', modifiedTypeNodes, myMetis);
+    if (debug) console.log('380 modifiedTypeNodes', modifiedTypeNodes, myMetis);
     if (objtype.typeview) {
         const gqlObjTypeview = new gql.gqlObjectTypeView(objtype.typeview);
-        if (debug) console.log('406 gqlObjTypeview', gqlObjTypeview);
+        if (debug) console.log('383 gqlObjTypeview', gqlObjTypeview);
         modifiedTypeViews.push(gqlObjTypeview);
         modifiedTypeViews?.map(mn => {
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', data })
         });
-        if (debug) console.log('414 modifiedTypeViews', modifiedTypeViews);
+        if (debug) console.log('390 modifiedTypeViews', modifiedTypeViews);
     }
 
     const geo = myTargetMetamodel.findObjtypeGeoByType(objtype);
@@ -406,14 +410,14 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (parentRelType) {
         const modifiedTypeLinks = new Array();
         const gqlRelshipType = new gql.gqlRelationshipType(parentRelType, true);
-        if (debug) console.log('473 Generate Relationship Type', parentRelType, gqlRelshipType);
+        if (debug) console.log('409 Generate Relationship Type', parentRelType, gqlRelshipType);
         modifiedTypeLinks.push(gqlRelshipType);
         modifiedTypeLinks.map(mn => {
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
         });
-        if (debug) console.log('481 myMetis', modifiedTypeLinks, myMetis);                                    // Then handle the object type
+        if (debug) console.log('416 myMetis', modifiedTypeLinks, myMetis);                                    // Then handle the object type
     }
 
     modifiedObjects?.map(mn => {
@@ -421,7 +425,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         if (debug) console.log('484 data', data);
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
         })
-    if (debug) console.log('487 objtype', objtype);
+    if (debug) console.log('424 objtype', objtype);
     return objtype;
 }
 
@@ -489,7 +493,8 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         myTargetMetamodel.addRelationshipTypeView(reltypeview);
         myMetis.addRelationshipTypeView(reltypeview);
         if (debug) console.log('553 reltypeview', reltypeview);
-
+        reltype.cardinality = relship.cardinality;
+        reltype.relshipkind = relship.relshipkind;
         const gqlRelshipType = new gql.gqlRelationshipType(reltype, true);
         if (debug) console.log('556 Generate Relationship Type', reltype, gqlRelshipType);
         const modifiedTypeLinks = new Array();
@@ -786,8 +791,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
+    const typenames = [];
     // const typenames = ['Element', 'Object', 'Information', 'Property'];
-    const typenames = ['Element', 'Object', 'Container', 'Generic', 'Information', 'Property', 'Datatype', 'Value', 'ViewFormat', 'FieldType', 'InputPattern'];
+    // const typenames = ['Element', 'Object', 'Container', 'Generic', 'Information', 'Property', 'Datatype', 'Value', 'ViewFormat', 'FieldType', 'InputPattern'];
     for (let i=0; i<typenames.length; i++) {
         const typename = typenames[i];
         const objtype = myMetamodel.findObjectTypeByName(typename);

@@ -177,11 +177,13 @@ const Modeller = (props: any) => {
     <>
       <Nav tabs >
         {navitemDiv}  
+        <NavItem >
         <button className="btn-sm bg-warning text-white py-0 ml-3 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
                   Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
         </button>
-        
+         
+        </NavItem>
       </Nav>
       <TabContent > 
         <TabPane  >

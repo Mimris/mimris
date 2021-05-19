@@ -2985,7 +2985,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       modifiedObjviews.push(gqlObjview);
                   }
                 } 
-                if (debug) console.log('2328 modifiedObjviews', modifiedObjviews);
+                if (debug) console.log('2988 modifiedObjviews', objviews, modifiedObjviews);
                 modifiedObjviews.map(mn => {
                   let data = mn;
                   e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })

@@ -30,11 +30,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
 
   if (metis != null) {
-    console.log('24 GenGojsModel phData, metis:', props.phData, props);
+    console.log('33 GenGojsModel phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
     if (debug) console.log('26 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
-    console.log('28 GenGojsModel myMetis', myMetis);
+    if (debug) console.log('28 GenGojsModel myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -240,12 +240,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       }
       if (!includeNoType) {
         if (!obj.typeRef) {
+          if (debug) console.log('243 obj', obj);
           obj.markedAsDeleted = true;
         }
       }        
       if (includeNoType) {
         if (!obj.typeRef) {
-          if (debug) console.log('236 obj', obj);
+          if (debug) console.log('249 obj', obj);
           objview.strokecolor = "green";
           includeObject = true;
         }

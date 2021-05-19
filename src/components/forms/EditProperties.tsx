@@ -33,14 +33,14 @@ const EditProperties = (props) => {
 
   const onSubmit = (e) => { // dispatch the edititem to phData
     // const data = e 
+    if (!debug) console.log('36 EditProperties', edititem, e, props.item);
     const data = { ...edititem, ...e }
-    if (debug) console.log('36 EditProperties', props, data);
+    if (!debug) console.log('38 EditProperties', props, data);
     // props.onInputChange(e)
     // if (data && data.id) {
       // props.handleInputChange(e)
     dispatch({ type: props.type, data })
     // }
-    if (debug) console.log('41 EditProperties', edititem, e, props.item);
   }
 
   function listAllProperties(o) { // list all obj properties incl prototype properties
@@ -94,20 +94,20 @@ const EditProperties = (props) => {
       } else {
         return f
       }
-    })
+    }).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
-  // console.log('223 EditProperties', fieldsDiv);
+  console.log('100 EditProperties',  props.item, edititem, fields1, fields,  fieldsDiv);
 
   function fieldDiv(p, curitem) {
     switch (p) {
       case 'fillcolor':
         return (
-          <>
-            <div key={curitem.id + p} className="field" >
+          <div >
+            <div key={curitem.id + p} className="field d-flex mr-1 float-right" >
               <label className="label mt-1" htmlFor="name">
                 fillcolor
-                <select className="sel ml-2" value={colorvalue} onChange={handleChangefc} >
+                <select className="input ml-3" value={colorvalue} onChange={handleChangefc} >
                   <option value={`${colorvalue}`}>Select ...</option>
                   <option value="transparent">transparent</option>
                   <option value="lightgray">Gray</option>
@@ -119,10 +119,9 @@ const EditProperties = (props) => {
                   <option value="#D58181">Brown</option>
                   <option value="#e8bfd3">Purple</option>
                   <option value="orange">Orange</option>
-                </select>
-              </label>
-              <span className="ml-1">colorcode :</span>
-              <input className="input pt-1 float-right " onChange={handleChangefc} style={{backgroundColor: `${colorvalue}`}}
+                </select> colorcode :
+              </label>     
+              <input className="input pt-0 mt-1 mb-3" onChange={handleChangefc} style={{backgroundColor: `${colorvalue}`}}
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
@@ -130,12 +129,12 @@ const EditProperties = (props) => {
                 ref={register({ required: false })}
               />
             </div>
-          </>
+          </div>
       )
       case 'strokecolor':
         return (
           <>
-            <div key={curitem.id + p} className="field" >
+            <div key={curitem.id + p} className="field d-flex mr-1 float-right"  >
               <label className="label mt-1" htmlFor="name">
                 strokecolor
                 <select className="sel ml-2" value={strokecolorvalue} onChange={handleChangesc} >
@@ -150,10 +149,9 @@ const EditProperties = (props) => {
                   <option value="#D58181">Brown</option>
                   <option value="#e8bfd3">Purple</option>
                   <option value="orange">Orange</option>
-                </select>
+                </select> color :
               </label>
-              <span className="ml-0">color :</span>
-              <input className="input pt-1 float-right " onChange={handleChangesc} style={{ backgroundColor: `${strokecolorvalue}` }}
+              <input className="input pt-0 mt-1 mb-3" onChange={handleChangesc} style={{ backgroundColor: `${strokecolorvalue}` }}
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
@@ -167,7 +165,7 @@ const EditProperties = (props) => {
       case 'strokewidth':
         return (
           <>
-            <div key={curitem.id + p} className="field" >
+            <div key={curitem.id + p} className="field d-flex mr-1 float-right"  >
               <label className="label mt-1" htmlFor="name">
                 strokewidth
                 <select className="sel ml-2" value={strokewidthvalue} onChange={handleChangesw} >
@@ -179,10 +177,10 @@ const EditProperties = (props) => {
                   <option value={5}>5</option>
                   <option value={6}>6</option>
                   <option value={7}>7</option>
-                </select>
+                </select> width :
               </label>
-              <span className="ml-0">width :</span>
-              <input className="input pt-1 float-right " onChange={handleChangesw}
+
+              <input className="input pt-0 mt-1 mb-3" onChange={handleChangesw}
                 type="text"
                 id={`${curitem.id}+${p}`}
                 name={`${p}`}
@@ -195,60 +193,10 @@ const EditProperties = (props) => {
       )
       case 'icon':
 
-        console.log('188',
+        if (debug) console.log('188',
          selectIcons(curitem, p, iconvalue, register, handleChangesicon)
          );
         return (selectIcons(curitem, p, iconvalue, register, handleChangesicon))
-        // return (
-        //   <>
-        //     <div key={curitem.id + p} className="field" >
-        //       <label className="label mt-1" htmlFor="name">
-        //         {/* icon //: Currentvalue = {props.item.icon} <br/> */}
-        //         icon
-        //         <select className="selectpicker ml-2 float-right" value={iconvalue} onChange={handleChangesicon} >
-        //           {/* <option value={`${iconvalue}`}>Current</option> */}
-        //           <option value="https://img.icons8.com/color/2x/object.png">Object</option>
-        //           <option value="https://img.icons8.com/clouds/2x/services.png">Services</option>
-        //           <option value="https://img.icons8.com/color/2x/important-property.png">Important-property</option>
-        //           <option value="https://img.icons8.com/color/2x/urgent-property.png">Urgent-property</option>
-        //           <option value="https://img.icons8.com/color/2x/add-property-1.png">Property</option>
-        //           <option value="https://img.icons8.com/color/2x/information.png">Info</option>
-        //           <option value="https://img.icons8.com/color/2x/admin-settings-male.png">Role</option>
-        //           <option value="https://img.icons8.com/color/2x/task.png">Task</option>
-        //           <option value="https://img.icons8.com/color/2x/view-file.png">View</option>
-        //           <option value="https://img.icons8.com/cotton/72/tear-off-calendar.png">Event</option>
-        //           <option value="https://img.icons8.com/color/2x/rules-book.png">Rule</option>
-        //           <option value="https://img.icons8.com/color/2x/approve.png">Decision</option>
-        //           <option value="https://img.icons8.com/color/2x/energy-meter.png">Unittype</option>
-        //           <option value="https://img.icons8.com/color/2x/data-.png">Datatype</option>
-        //           <option value="https://img.icons8.com/color/2x/variable.png">Datavalue</option>
-        //           <option value="https://img.icons8.com/color/2x/person-male.png">Person</option>
-        //           <option value="https://img.icons8.com/color/search">Search</option>
-        //           <option value="analyse.png">Analyse.png</option>
-        //           <option value="automated.jfif">Inclusive.png</option>
-        //           <option value="book.png">Book.png</option>
-        //           <option value="car.png">Car.png</option>
-        //           <option value="default.png">Default.png</option>
-        //           <option value="exclusive.png">Exclusive.png</option>
-        //           <option value="inclusive.png">Inclusive.png</option>
-        //           <option value="info.svg">Info.svg</option>
-        //           <option value="parallel.png">Parallel.png</option>
-        //           <option value="task1.jfif">Task1.jfif</option>
-        //           <option value="tiger.svg">tiger.svg</option>
-        //         </select>
-        //       </label>
-        //       <span className="ml-1">Url :</span>
-        //       <input className="input ml-1 pt-1 w-50" onChange={handleChangesicon}
-        //         type="text"
-        //         id={`${curitem.id}+${p}`}
-        //         name={`${p}`}
-        //         value={iconvalue}
-        //         ref={register({ required: false })}
-        //         />
-        //     </div>
-        //     {/* <div><img src={iconvalue}/></div> */}
-        //   </>
-        // )
         break; 
       default:
         return <FieldDiv key={curitem.id + p} p={p} curitem={curitem} register={register} errors={errors} />
@@ -267,7 +215,7 @@ const EditProperties = (props) => {
       <div className="edit-dialog" >
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldsDiv}
-          <span  className="img float-right">{previewIcon}</span>
+          <span  className="img float-left">{previewIcon}</span>
           <button className="btn-primary" type="submit">Save</button>
         </form>
       </div>
@@ -275,34 +223,34 @@ const EditProperties = (props) => {
         .edit {
           font - family: sans-serif;
         }
-          .field {
-            display: flex;
-            align-items: center;
-            // margin-bottom: 5px;
-            width: 100%;
-          }
-          .field label {
-            // color: green;
-            display: inline-block;
-            width: 25%;
-            text-align: right;
-            margin-right: 3px;
-            margin-top: 3px;
-          }
-          .field input {
-            // color: green;
-            display: inline-block;
-            width: 70%;
-            margin-left: 2px;
-            margin-right: 3px;
-            padding-top: 0px;
-          }
-          .field .error {
-            color: red;
-            margin-left: 3px;
-            font-size: 0.8em;
-            width: 100px;
-          }
+        .field {
+          align-items: center;
+          // margin-bottom: 5px;
+          width: 100%;
+        }
+        .field label {
+          // color: green;
+          display: inline-block;
+          width: 25%;
+          text-align: right;
+          margin-right: 3px;
+          margin-top: 3px;
+        }
+        .field input {
+          // color: green;
+          display: inline-block;
+          width: 75%;
+          hight: 10px;
+          margin-left: 2px;
+          margin-right: 3px;
+          padding-top: 0px;
+        }
+        .field .error {
+          color: red;
+          margin-left: 3px;
+          font-size: 0.8em;
+          width: 100px;
+        }
         form button[type="submit"] {  
           margin-top: 5px;
           // margin-left: 2px;

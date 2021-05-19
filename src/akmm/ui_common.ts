@@ -24,7 +24,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (debug) console.log('24 createObject', context, data);
+        if (debug) console.log('27 createObject', context, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)

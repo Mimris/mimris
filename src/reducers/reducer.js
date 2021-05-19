@@ -791,70 +791,9 @@ function reducer(state = InitialState, action) {
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
       // if (debug) console.log('506  reduser', curm);
 
-      if (debug) console.log('783 UPDATE_OBJECTVIEW_PROPERTIES', {
-        ...state,
-        phData: {
-          ...state.phData,
-          metis: {
-            ...state.phData.metis,
-            models: [
-              ...state.phData.metis.models.slice(0, curmindex),
-              {
-                ...state.phData.metis.models[curmindex],
-                modelviews: [
-                  ...curm?.modelviews?.slice(0, curmvindex),
-                  {
-                    ...curm?.modelviews[curmvindex],
-                    objectviews: [
-                      ...curmv?.objectviews?.slice(0, ovindex),
-                      {
-                        ...curmv.objectviews[ovindex],
-                        id: action.data.id,
-                        name: action.data.name,
-                        title: action.data.title,
-                        description: action.data.description,
-                        objectRef: action.data.objectRef,
-                        typeviewRef: action.data.typeviewRef,
-                        group: action.data.group,
-                        isGroup: action.data.isGroup,
-                        loc: action.data.loc,
-                        size: action.data.size,
-                        markedAsDeleted: action.data.markedAsDeleted,
-                        modified: action.data.modified,
-                        figure: action.data.figure,
-                        fillcolor: action.data.fillcolor,
-                        strokecolor: action.data.strokecolor,
-                        strokewidth: action.data.strokewidth,
-                        icon: action.data.icon,
-                      },
-                      ...curmv?.objectviews?.slice(ovindex + 1, curmv?.objectviews.length)
-                    ]
-                  },
-                  ...curm?.modelviews?.slice(curmvindex + 1, curm.modelviews.length),
-                ],
-                // objects: [
-                //   ...curm.objects.slice(0, curoindex),
-                //   {
-                //     ...curo,                 
-                //     name: action.data.name,
-                //     title: action.data.title,
-                //     description: action.data.desctription,
-                //     typeRef: action.data.typeviewRef,
-                //     // ...curopropertyValues: [
-                //     //   ...curo.propertyValues
-                //     // ]
-                //   },
-                //   ...curm.objects.slice(curoindex + 1, curm.objects.length )  
-                // ]
-              },
-              ...state.phData.metis.models.slice(curmindex + 1, state.phData.metis.models.length),
-            ]
-          }
-        }
-      }
-      )
 
-      return (curmv) && {
+      const retval_UPDATE_OBJECTVIEW_PROPERTIES = 
+      {
         ...state,
         phData: {
           ...state.phData,
@@ -915,6 +854,8 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      if (!debug) console.log('857 retval', retval_UPDATE_OBJECTVIEW_PROPERTIES);
+      return retval_UPDATE_OBJECTVIEW_PROPERTIES
 
     case UPDATE_RELSHIP_PROPERTIES:
       if (debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);

@@ -501,6 +501,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                 reltype.fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
             if (!reltype.toObjtype && reltype.toobjtypeRef) 
                 reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
+            reltype.typeview.setRelshipKind(reltype.relshipkind);
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetaModel, reltype);
             if (debug) console.log('449 link', link);

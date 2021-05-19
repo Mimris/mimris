@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 // this Kernel code
@@ -560,8 +560,10 @@ export class cxMetis {
             reltypeview.setStrokecolor(item.strokecolor);
             reltypeview.setStrokewidth(item.strokewidth);
             reltypeview.setDash(item.dash);
-            reltypeview.setFromArrow(item.fromarrow);
-            reltypeview.setToArrow(item.toarrow);
+            reltypeview.setFromArrow(item.fromArrow);
+            reltypeview.setToArrow(item.toArrow);
+            reltypeview.setFromArrowColor(item.fromArrowColor);
+            reltypeview.setToArrowColor(item.toArrowColor);
             metamodel.addRelationshipTypeView(reltypeview);
             if (debug) console.log("Importing reltypeview: " + item.id + ", " + item.name);
         }
@@ -4088,6 +4090,8 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.type     = type;
         this.typeRef  = type?.id;
         this.data     = new cxReltypeviewData();
+        this.setFromArrow2(type?.relshipkind);
+        this.setToArrow2(type?.relshipkind);
     }
     // Methods
     applyRelationshipViewParameters(relview: cxRelationshipView) {
@@ -4271,6 +4275,7 @@ export class cxModel extends cxMetaObject {
     templates: cxModelView[];
     isTemplate: boolean;
     isMetamodel: boolean;
+    layer: string;
     submodels: cxModel[] | null;
     objects: cxObject[] | null;
     relships: cxRelationship[] | null;
@@ -4288,6 +4293,7 @@ export class cxModel extends cxMetaObject {
         this.templates = null;
         this.isTemplate = false;
         this.isMetamodel = false;
+        this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;
         this.relships = null;

@@ -220,16 +220,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (!link)
             break;
         type = myMetis.findRelationshipType(type?.id);
+        const reltypeview = type?.typeview;
         if (type) {
           const cardinalityFrom = type.getCardinalityFrom();
           const cardinalityTo = type.getCardinalityTo();
           if (debug) console.log('226 cardinalities', cardinalityFrom, cardinalityTo);
           type.cardinalityFrom = cardinalityFrom;
           type.cardinalityTo = cardinalityTo;
+          reltypeview.setRelshipKind(type.relshipkind);
           if (debug) console.log('229 link', link, type);
           if (debug) console.log('230 link, type', data, type);
         } else 
           break;
+
         for (let k in selObj) {
           if (typeof(type[k]) === 'object')    continue;
           if (typeof(type[k]) === 'function')  continue;

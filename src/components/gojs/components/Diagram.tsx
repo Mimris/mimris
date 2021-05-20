@@ -3356,17 +3356,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ),
       
           $(go.Panel, "Table", 
-            { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
+            { defaultAlignment: go.Spot.Left, margin: 0, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
             $(go.Panel, "Horizontal",
               { margin: new go.Margin(0, 0, 0, 0) },
+              {
+                defaultAlignment: go.Spot.BottomCenter
+              },
               $(go.Panel, "Vertical",
+
                 $(go.Panel, "Spot",
                   { contextMenu: partContextMenu },
+
                   $(go.Shape, {  // this is the square around the image
                     fill: "white", stroke: "#ddd", opacity: 0.4,
-                    desiredSize: new go.Size(50, 50), 
-                    margin: new go.Margin(0, 6, 0, 2),
+                    desiredSize: new go.Size(10, 10), 
+                    margin: new go.Margin(0, 0, 2, 0),
                     // shadowVisible: true,
                   },
                   new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
@@ -3377,7 +3382,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     // { contextMenu: partContextMenu },
                     {
                       name: "Picture",
-                      desiredSize: new go.Size(46, 46),
+                      desiredSize: new go.Size(8, 8),
                       // imageStretch: go.GraphObject.Fill,
                       // margin: new go.Margin(2, 2, 2, 4),
                       // margin: new go.Margin(4, 4, 4, 4),
@@ -3391,7 +3396,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
-                  maxSize: new go.Size(116, 999), 
+                  maxSize: new go.Size(128, 999), 
                   // margin: new go.Margin(2),
                   defaultAlignment: go.Spot.Left,
                 },

@@ -820,8 +820,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
-    const typenames = [];
-    // const typenames = ['Element', 'Object', 'Information', 'Property'];
+    // const typenames = [];
+    const typenames = ['Element', 'Object', 'Information', 'Property'];
     // const typenames = ['Element', 'Object', 'Container', 'Generic', 'Information', 'Property', 'Datatype', 'Value', 'ViewFormat', 'FieldType', 'InputPattern'];
     for (let i=0; i<typenames.length; i++) {
         const typename = typenames[i];

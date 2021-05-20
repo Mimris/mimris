@@ -9,6 +9,8 @@ import { setMyGoModel } from '../actions/actions';
 import { FaObjectUngroup } from 'react-icons/fa';
 const constants = require('./constants');
 
+const includeSystemtypes = false;
+
 export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
@@ -820,9 +822,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
-    // const typenames = [];
-    const typenames = ['Element', 'Object', 'Information', 'Property'];
-    // const typenames = ['Element', 'Object', 'Container', 'Generic', 'Information', 'Property', 'Datatype', 'Value', 'ViewFormat', 'FieldType', 'InputPattern'];
+    let typenames = [];
+    if (includeSystemtypes) 
+        typenames = ['Element', 'Object', 'Information', 'Property'];
     for (let i=0; i<typenames.length; i++) {
         const typename = typenames[i];
         const objtype = myMetamodel.findObjectTypeByName(typename);

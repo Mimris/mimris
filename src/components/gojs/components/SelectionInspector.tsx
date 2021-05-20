@@ -60,7 +60,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_MODELVIEW) {
       inst = selObj;
     }
-    if (debug) console.log('63 inst, instview', inst, instview);
+    if (!debug) console.log('63 inst, instview', inst, instview);
     if (inst == undefined)
       return;
     let type = inst.type;

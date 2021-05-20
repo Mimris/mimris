@@ -3342,6 +3342,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               cursor: "alias",        // cursor: "pointer",
               name: 'SHAPE', fill: 'red', stroke: "#dddddd",  strokeWidth: 2, 
               shadowVisible: true,
+              desiredSize: new go.Size(148, 60), 
               // set the port properties:
               portId: "",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
@@ -3365,7 +3366,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               },
               $(go.Panel, "Vertical",
 
-                $(go.Panel, "Spot",
+                $(go.Panel, "Spot", // icon area
                   { contextMenu: partContextMenu },
 
                   $(go.Shape, {  // this is the square around the image
@@ -3396,9 +3397,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
-                  maxSize: new go.Size(128, 999), 
+                  desiredSize: new go.Size(128, 60),
+                  maxSize: new go.Size(130, 999), 
                   // margin: new go.Margin(2),
-                  defaultAlignment: go.Spot.Left,
+                  defaultAlignment: go.Spot.Center,
                 },
                 $(go.RowColumnDefinition, { column: 2, width: 4 }),
                 // content
@@ -3425,7 +3427,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     row: 1, column: 1, columnSpan: 6,
                     editable: false, isMultiline: false,
                     minSize: new go.Size(10, 4),
-                    margin: new go.Margin(2, 0, 0, 2)
+                    margin: new go.Margin(2, 0, 1, 2)
                   },
                   new go.Binding("text", "typename")
                   //new go.Binding("text", "choices")

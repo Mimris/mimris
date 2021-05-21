@@ -298,6 +298,7 @@ export class cxMetis {
                                         mv.layout = item.layout;
                                         mv.routing = item.routing;
                                         mv.linkcurve = item.linkcurve;
+                                        mv.showCardinality = item.showCardinality;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
                                         mv.setModel(model);
@@ -664,6 +665,7 @@ export class cxMetis {
             const modelview = this.findModelView(item.id);
             if (modelview) {
                 modelview.layout = item.layout;
+                modelview.showCardinality = item.showCardinality;
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
                 objectviews.forEach(objview => {
@@ -5280,6 +5282,7 @@ export class cxModelView extends cxMetaObject {
     layout: string;
     routing: string;
     linkcurve: string;
+    showCardinality: boolean;
     template: any;
     isTemplate: boolean;
     diagrams: cxDiagram[] | null;
@@ -5295,6 +5298,7 @@ export class cxModelView extends cxMetaObject {
         this.layout = "Tree";
         this.routing = "Normal";
         this.linkcurve = "None";
+        this.showCardinality = true;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;

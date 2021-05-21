@@ -155,17 +155,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const metamodel = (curmod && metamodels) && metamodels.find((mm: any) => (mm && mm.id) && mm.id === curmod.metamodelRef);
            
       // update the Gojs arrays in the store
-          dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
-          dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
-          dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
-          dispatch({ type: 'SET_GOJS_MODELOBJECTS', gojsModelObjects })
-          dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
-          dispatch({ type: 'SET_GOJS_TARGETMODEL', gojsTargetModel })
-          dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
-          dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
-          dispatch({ type: 'SET_MYMETIS_METAMODEL', myMetis })
-          dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
-          dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
+        dispatch({ type: 'SET_GOJS_METAMODELPALETTE', gojsMetamodelPalette })
+        dispatch({ type: 'SET_GOJS_METAMODELMODEL', gojsMetamodelModel })
+        dispatch({ type: 'SET_GOJS_METAMODEL', gojsMetamodel })
+        dispatch({ type: 'SET_GOJS_MODELOBJECTS', gojsModelObjects })
+        dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
+        dispatch({ type: 'SET_GOJS_TARGETMODEL', gojsTargetModel })
+        dispatch({ type: 'SET_GOJS_TARGETMETAMODEL', gojsTargetMetamodel })
+        dispatch({ type: 'SET_MYMETIS_MODEL', myMetis })
+        dispatch({ type: 'SET_MYMETIS_METAMODEL', myMetis })
+        dispatch({ type: 'SET_MY_GOMODEL', myGoModel })
+        dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
     }
   }
 
@@ -361,8 +361,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (rel.markedAsDeleted)
             relview.markedAsDeleted = rel?.markedAsDeleted;
           relview.name = rel.name;
-          relview.setFromArrow2(rel.relshipkind);
-          relview.setToArrow2(rel.relshipkind);
         }
         let relcolor = "black";
         if (includeDeleted) {
@@ -389,7 +387,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             includeRelview = true;
           }
         }
-        if (!relview.markedAsDeleted && relview.relship) {
+        if (!relview.markedAsDeleted && relview.relship) { 
           includeRelview = true;
         }
         if (includeRelview) {
@@ -400,6 +398,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           link.strokecolor = relcolor;
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
+          if (modelview.showCardinality) {
+            link.cardinalityFrom = rel.cardinalityFrom;
+            link.cardinalityTo = rel.cardinalityTo;
+          } else {
+            link.cardinalityFrom = "";
+            link.cardinalityTo = "";
+          }
           if (debug) console.log('410 modelview:', modelview, link);
           // }
           myGoModel.addLink(link);

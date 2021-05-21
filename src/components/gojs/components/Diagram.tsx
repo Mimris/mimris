@@ -1078,7 +1078,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       msg += "-------------------\n";
       msg += printf(format2, "-Type", d.object.type.name);
       msg += printf(format2, "-Title", d.object.type.title);
-      msg += printf(format2, "-Descr", breakString(d.object.description, 64));
+      msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
       // msg += printf(format2, "-Descr", d.object.type.description);
       msg += "\n";
       msg += "Instance props:\n";
@@ -1127,7 +1127,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const format3 = "%-8s: %s\n";
   
       let msg = "Relationship:\n";
-      msg += "Type props:\n";
+      msg += "Type props:\n"; 
       msg += "-------------------\n";
       msg += printf(format2, "-Type", d.relship.type.name);
       msg += printf(format2, "-Title", d.relship.type.title);
@@ -2992,7 +2992,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       modifiedObjviews.push(gqlObjview);
                   }
                 } 
-                if (debug) console.log('2328 modifiedObjviews', modifiedObjviews);
+                if (debug) console.log('2988 modifiedObjviews', objviews, modifiedObjviews);
                 modifiedObjviews.map(mn => {
                   let data = mn;
                   e.diagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
@@ -3366,7 +3366,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             toolTip:
               $(go.Adornment, "Auto",
                 $(go.Shape, { fill: "lightyellow" }),
-                $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling nodeInfo(data)
+                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
                   new go.Binding("text", "", nodeInfo))
               )
           },
@@ -3375,6 +3375,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               cursor: "alias",        // cursor: "pointer",
               name: 'SHAPE', fill: 'red', stroke: "#dddddd",  strokeWidth: 2, 
               shadowVisible: true,
+              desiredSize: new go.Size(148, 60), 
               // set the port properties:
               portId: "",
               fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
@@ -3389,17 +3390,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ),
       
           $(go.Panel, "Table", 
-            { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
+            { defaultAlignment: go.Spot.Left, margin: 0, cursor: "move" },
             $(go.RowColumnDefinition, { column: 1, width: 4 }),
             $(go.Panel, "Horizontal",
               { margin: new go.Margin(0, 0, 0, 0) },
+              {
+                defaultAlignment: go.Spot.BottomCenter
+              },
               $(go.Panel, "Vertical",
-                $(go.Panel, "Spot",
+
+                $(go.Panel, "Spot", // icon area
                   { contextMenu: partContextMenu },
+
                   $(go.Shape, {  // this is the square around the image
                     fill: "white", stroke: "#ddd", opacity: 0.4,
-                    desiredSize: new go.Size(50, 50), 
-                    margin: new go.Margin(0, 6, 0, 2),
+                    desiredSize: new go.Size(10, 10), 
+                    margin: new go.Margin(0, 0, 2, 0),
                     // shadowVisible: true,
                   },
                   new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
@@ -3410,7 +3416,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     // { contextMenu: partContextMenu },
                     {
                       name: "Picture",
-                      desiredSize: new go.Size(46, 46),
+                      desiredSize: new go.Size(8, 8),
                       // imageStretch: go.GraphObject.Fill,
                       // margin: new go.Margin(2, 2, 2, 4),
                       // margin: new go.Margin(4, 4, 4, 4),
@@ -3424,9 +3430,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 { contextMenu: partContextMenu },
                 {
                   defaultRowSeparatorStroke: "black",
-                  maxSize: new go.Size(104, 999), 
+                  desiredSize: new go.Size(128, 60),
+                  maxSize: new go.Size(130, 999), 
                   // margin: new go.Margin(2),
-                  defaultAlignment: go.Spot.Left,
+                  defaultAlignment: go.Spot.Center,
                 },
                 $(go.RowColumnDefinition, { column: 2, width: 4 }),
                 // content
@@ -3453,7 +3460,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     row: 1, column: 1, columnSpan: 6,
                     editable: false, isMultiline: false,
                     minSize: new go.Size(10, 4),
-                    margin: new go.Margin(2, 0, 0, 2)
+                    margin: new go.Margin(2, 0, 1, 2)
                   },
                   new go.Binding("text", "typename")
                   //new go.Binding("text", "choices")

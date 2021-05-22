@@ -3765,20 +3765,21 @@ export class cxRelationshipType extends cxObjectType {
     }
     getCardinalityFrom(): string {
         let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(0, pos);
-        }
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(0, pos);
+        // }
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(pos+1);
-        }
+        let retval = this.cardinality;
+        // let retval = "";
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(pos+1);
+        // }
         return retval;
     }
     isInstantiable(): boolean {
@@ -5187,20 +5188,23 @@ export class cxRelationship extends cxInstance {
     }
     getCardinalityFrom(): string {
         let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(0, pos);
-        }
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(0, pos);
+        // }
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(pos+1);
-        }
+        let retval = this.cardinality;
+        if (retval[0] === retval[3])
+            retval = retval[3];
+        // let retval = "";
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(pos+1);
+        // }
         return retval;
     }
 }

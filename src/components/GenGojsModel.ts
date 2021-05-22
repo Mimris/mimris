@@ -400,8 +400,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {
-            link.cardinalityFrom = rel.cardinalityFrom;
-            link.cardinalityTo = rel.cardinalityTo;
+            link.cardinalityFrom = rel.getCardinalityFrom(); 
+            link.cardinalityTo = rel.getCardinalityTo();
           } else {
             link.cardinalityFrom = "";
             link.cardinalityTo = "";

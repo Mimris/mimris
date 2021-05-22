@@ -317,19 +317,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const link = myDiagram.findLinkForKey(rel.key);
         if (!link)
           break;
-        if (debug) console.log('320 link', link);
+        if (debug) console.log('320 rel, link', rel, link);
         const data = link.data;
         if (debug) console.log('322 data', data);
         let relship = data.relship;
         relship = myMetis.findRelationship(relship.id);
         relship['cardinalityFrom'] = relship.getCardinalityFrom();
         relship['cardinalityTo'] = relship.getCardinalityTo();
+        relship.cardinalityTo = relship.cardinality;
         if (debug) console.log('327 relship, rel', relship, rel);
-        for (let k in data) {
+        for (let k in rel) {
           if (typeof(rel[k]) === 'object')    continue;
           if (typeof(rel[k]) === 'function')  continue;
           if (!uic.isPropIncluded(k, type))  continue;
-          relship[k] = rel[k];
           myDiagram.model.setDataProperty(data, k, relship[k]);
         }
         const gqlRelship = new gql.gqlRelationship(relship);
@@ -349,8 +349,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           if (debug) console.log('351 relship, relview', relship, relview);
         }
         if (myModelview.showCardinality) {
-          myDiagram.model.setDataProperty(data, 'cardinalityFrom', relship['cardinalityFrom']);
-          myDiagram.model.setDataProperty(data, 'cardinalityTo', relship['cardinalityTo']);
+          myDiagram.model.setDataProperty(data, 'cardinalityFrom', relship.getCardinalityFrom());
+          myDiagram.model.setDataProperty(data, 'cardinalityTo', relship.getCardinalityTo());
           if (debug) console.log('354 myModelview', myModelview);
         } else {
           myDiagram.model.setDataProperty(data, 'cardinalityFrom', '');
@@ -3233,7 +3233,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
-          makeButton("Toggle Cardinality",
+          makeButton("Toggle Cardinality On/Off",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               if (modelview.showCardinality == undefined)

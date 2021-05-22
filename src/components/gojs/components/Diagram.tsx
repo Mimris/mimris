@@ -167,6 +167,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const what = this.state.modalContext.what;
     const myDiagram = this.state.modalContext.myDiagram;
     const myMetis = this.props.myMetis;
+    const myModelview = myMetis.currentModelview;
     if (debug) console.log('236 state', this.props);
     // Prepare for dispatches
     const modifiedObjtypes     = new Array();    
@@ -316,25 +317,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const link = myDiagram.findLinkForKey(rel.key);
         if (!link)
           break;
-        if (debug) console.log('314 link', link);
+        if (debug) console.log('320 rel, link', rel, link);
         const data = link.data;
-        if (debug) console.log('316 data', data);
+        if (debug) console.log('322 data', data);
         let relship = data.relship;
         relship = myMetis.findRelationship(relship.id);
         relship['cardinalityFrom'] = relship.getCardinalityFrom();
         relship['cardinalityTo'] = relship.getCardinalityTo();
-        if (debug) console.log('321 relship, rel', relship, rel);
-        for (let k in data) {
+        relship.cardinalityTo = relship.cardinality;
+        if (debug) console.log('327 relship, rel', relship, rel);
+        for (let k in rel) {
           if (typeof(rel[k]) === 'object')    continue;
           if (typeof(rel[k]) === 'function')  continue;
           if (!uic.isPropIncluded(k, type))  continue;
-          relship[k] = rel[k];
           myDiagram.model.setDataProperty(data, k, relship[k]);
         }
-        myDiagram.model.setDataProperty(data, 'cardinalityFrom', relship['cardinalityFrom']);
-        myDiagram.model.setDataProperty(data, 'cardinalityTo', relship['cardinalityTo']);
         const gqlRelship = new gql.gqlRelationship(relship);
-        if (debug) console.log('329 gqlRelship', gqlRelship);
+        if (debug) console.log('340 gqlRelship', gqlRelship);
         modifiedRelships.push(gqlRelship);
         modifiedRelships.map(mn => {
           let data = mn;
@@ -345,11 +344,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (relship.relshipkind.length > 0) {
           relview.setFromArrow2(relship.relshipkind);
           relview.setToArrow2(relship.relshipkind);
-          if (debug) console.log('339 relship, relview', relship, relview);
+          myDiagram.model.setDataProperty(data, 'fromArrowColor', relview.fromArrowColor);
+          myDiagram.model.setDataProperty(data, 'toArrowColor', relview.toArrowColor);
+          if (debug) console.log('351 relship, relview', relship, relview);
         }
-        const gqlRelview = new gql.gqlRelshipView(link.data.relshipview);
+        if (myModelview.showCardinality) {
+          myDiagram.model.setDataProperty(data, 'cardinalityFrom', relship.getCardinalityFrom());
+          myDiagram.model.setDataProperty(data, 'cardinalityTo', relship.getCardinalityTo());
+          if (debug) console.log('354 myModelview', myModelview);
+        } else {
+          myDiagram.model.setDataProperty(data, 'cardinalityFrom', '');
+          myDiagram.model.setDataProperty(data, 'cardinalityTo', '');
+        }
+        const gqlRelview = new gql.gqlRelshipView(relview);
         gqlRelview.name = gqlRelship.name;
-        if (debug) console.log('337 gqlRelview', gqlRelview);
+        if (debug) console.log('355 gqlRelview', gqlRelview);
         modifiedRelviews.push(gqlRelview);
         modifiedRelviews.map(mn => {
           let data = mn;
@@ -2863,8 +2872,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
           }),
-
-
           makeButton("Undo",
             function (e: any, obj: any) { 
               e.diagram.commandHandler.undo(); 
@@ -3220,6 +3227,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(myDiagram, modalContext);
               if (debug) console.log('3183 myMetis', myMetis);
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true; 
+            }),
+          makeButton("Toggle Cardinality On/Off",
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              if (modelview.showCardinality == undefined)
+                modelview.showCardinality = false;
+              modelview.showCardinality = !modelview.showCardinality;
+              if (!modelview.showCardinality) {
+                alert("Cardinality on relationships will NOT be shown!");
+              } else {
+                alert("Cardinality on relationships WILL be shown!");
+              }
+              if (debug) console.log('3234 showCardinality', modelview.showCardinality)
+              const gqlModelview = new gql.gqlModelView(modelview);
+              if (debug) console.log('3236 gqlModelview', gqlModelview);
+              const modifiedModelviews = new Array();
+              modifiedModelviews.push(gqlModelview);
+              modifiedModelviews.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
             },
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')

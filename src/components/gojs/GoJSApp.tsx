@@ -589,13 +589,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               part.isGroup = true;
               part.viewkind = 'Container';
             }
-            if (debug) console.log('587 part', part);
+            if (debug) console.log('592 part', part);
             if (part.parentModel == null)
               myMetis.pasteViewsOnly = true;
-            if (debug) console.log('590 myMetis', myMetis);
+            if (debug) console.log('595 myMetis', myMetis);
             const objview = uic.createObject(part, context);
-            if (debug) console.log('592 myMetis', myMetis);
-            if (debug) console.log('593 New object', part, objview);
+            if (debug) console.log('597 myMetis', myMetis);
+            if (debug) console.log('598 New object', part, objview);
             if (objview) {
               let otype = objview.object.type;
               if (!otype) {
@@ -604,13 +604,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
-              if (debug) console.log('595 New object', gqlObjview, modifiedNodes);
+              if (debug) console.log('607 New object', gqlObjview, modifiedNodes);
               const gqlObj = new gql.gqlObject(objview.object);
               modifiedObjects.push(gqlObj);
-              if (debug) console.log('598 New object', gqlObj);
+              if (debug) console.log('610 New object', gqlObj);
             }
           }
-          if (debug) console.log('506 myGoModel', myGoModel);
+          if (debug) console.log('613 myGoModel', myGoModel);
           // myDiagram.model.setDataProperty(node, "isGroup", part.isGroup);
         })
         myDiagram.requestUpdate();

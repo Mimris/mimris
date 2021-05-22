@@ -298,6 +298,7 @@ export class cxMetis {
                                         mv.layout = item.layout;
                                         mv.routing = item.routing;
                                         mv.linkcurve = item.linkcurve;
+                                        mv.showCardinality = item.showCardinality;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
                                         mv.setModel(model);
@@ -664,6 +665,7 @@ export class cxMetis {
             const modelview = this.findModelView(item.id);
             if (modelview) {
                 modelview.layout = item.layout;
+                modelview.showCardinality = item.showCardinality;
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
                 objectviews.forEach(objview => {
@@ -3763,20 +3765,21 @@ export class cxRelationshipType extends cxObjectType {
     }
     getCardinalityFrom(): string {
         let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(0, pos);
-        }
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(0, pos);
+        // }
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(pos+1);
-        }
+        let retval = this.cardinality;
+        // let retval = "";
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(pos+1);
+        // }
         return retval;
     }
     isInstantiable(): boolean {
@@ -5185,20 +5188,23 @@ export class cxRelationship extends cxInstance {
     }
     getCardinalityFrom(): string {
         let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(0, pos);
-        }
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(0, pos);
+        // }
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(pos+1);
-        }
+        let retval = this.cardinality;
+        if (retval[0] === retval[3])
+            retval = retval[3];
+        // let retval = "";
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(pos+1);
+        // }
         return retval;
     }
 }
@@ -5280,6 +5286,7 @@ export class cxModelView extends cxMetaObject {
     layout: string;
     routing: string;
     linkcurve: string;
+    showCardinality: boolean;
     template: any;
     isTemplate: boolean;
     diagrams: cxDiagram[] | null;
@@ -5295,6 +5302,7 @@ export class cxModelView extends cxMetaObject {
         this.layout = "Tree";
         this.routing = "Normal";
         this.linkcurve = "None";
+        this.showCardinality = true;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;

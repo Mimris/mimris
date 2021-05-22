@@ -969,6 +969,7 @@ export class gqlModelView {
     layout:             string;
     routing:            string;
     linkcurve:          string;
+    showCardinality:    boolean;
     modelRef:           string;
     objectviews:        gqlObjectView[];
     relshipviews:       gqlRelshipView[];
@@ -985,6 +986,7 @@ export class gqlModelView {
         this.routing            = mv?.routing;
         this.linkcurve          = mv?.linkcurve;
         this.modelRef           = mv?.getModel()?.id;
+        this.showCardinality    = mv?.showCardinality;
         this.objectviews        = [];
         this.relshipviews       = [];
         this.objecttypeviews    = [];

@@ -80,12 +80,25 @@ import {
 
 import InitStateJson from './InitialState.json'
 
+
 const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
+
+// import { IntitalProjectJson } from '/akmmodels/AKMM-Project_IDEF.json'
+// const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
+// const InitProject = JSON.parse(JSON.stringify(InitProject))
+// // const InitMetamodels = JSON.parse(JSON.stringify(InitMetamodelsJson)) 
+// // const InitModels = JSON.parse(JSON.stringify(InitModelsJson)) 
+// let InitphData = InitState
+
+// if (InitProject) InitphData = InitProject
+
+
 // if (debug) console.log('38 InitialState', InitState);
 
 export const InitialState = {
+  // phData: InitphData,
   phData: InitState.phData,
-  phList: null,
+  phList: null, // list of models from AMMServer (firebase)
   phFocus: InitState.phFocus,
   phGojs: null,
   phMymetis: null,
@@ -111,7 +124,7 @@ let focusRole
 let focusCollection
 
 
-function reducer(state = InitialState, action) {
+function reducer(state = InitialStateStr, action) {
   
   switch (action.type) {
     

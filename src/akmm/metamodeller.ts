@@ -3896,7 +3896,7 @@ export class cxObjectTypeView extends cxMetaObject {
     strokecolor: string;
     strokewidth: string;
     icon: string;
-    constructor(id: string, name: string, type: cxType | null, description: string) {
+    constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
         this.category    = constants.gojs.C_OBJECTTYPEVIEW;
@@ -5014,7 +5014,7 @@ export class cxInstance extends cxMetaObject {
         }
         return relships;
     }
-    addJsonValue(item_key: string, item_value: cxValue) {
+    addJsonValue(item_key: string, item_value: string) {
         if (!this.valueset)
             this.valueset = new Array();
         const allProps = this.allProperties;
@@ -5211,8 +5211,8 @@ export class cxRelationship extends cxInstance {
 
 export class cxPropertyValue {
     property: cxProperty;
-    value: cxValue;
-    constructor(prop: cxProperty, value: cxValue) {
+    value: string;
+    constructor(prop: cxProperty, value: string) {
         this.property = prop;
         this.value = value;
     }

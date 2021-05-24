@@ -476,9 +476,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       });
       let relview = link.data.relshipview;
       relview = myMetis.findRelationshipView(relview.id);
-      if (relship.relshipkind.length > 0) {
+      if (relship.relshipkind) {
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);
+        myDiagram.model.setDataProperty(data, 'fromArrow', relview.fromArrow);
+        myDiagram.model.setDataProperty(data, 'toArrow', relview.toArrow);
         myDiagram.model.setDataProperty(data, 'fromArrowColor', relview.fromArrowColor);
         myDiagram.model.setDataProperty(data, 'toArrowColor', relview.toArrowColor);
         if (debug) console.log('351 relship, relview', relship, relview);

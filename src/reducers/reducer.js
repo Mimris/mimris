@@ -78,12 +78,17 @@ import {
 } from '../actions/types';
 
 
-import InitStateJson from './InitialState.json'
+// import InitStateJson from './InitialState.json'
 
+import StartInitStateJson from './InitialState.json'
+import StartmodelJson from '../startupModel/AKMM-Project_IRTV-Startup.json'
 
-const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
+const InitStateJson = (StartmodelJson) ? StartmodelJson : StartInitStateJson
 
-// import { IntitalProjectJson } from '/akmmodels/AKMM-Project_IDEF.json'
+console.log('86', InitStateJson);
+const InitState =  JSON.parse(JSON.stringify(InitStateJson)) 
+
+// import { IntitalProjectJson } from 'git/akmmodels/AKMM-Project_IDEF.json'
 // const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
 // const InitProject = JSON.parse(JSON.stringify(InitProject))
 // // const InitMetamodels = JSON.parse(JSON.stringify(InitMetamodelsJson)) 
@@ -96,7 +101,6 @@ const InitState = JSON.parse(JSON.stringify(InitStateJson))
 // if (debug) console.log('38 InitialState', InitState);
 
 export const InitialState = {
-  // phData: InitphData,
   phData: InitState.phData,
   phList: null, // list of models from AMMServer (firebase)
   phFocus: InitState.phFocus,

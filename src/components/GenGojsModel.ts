@@ -217,8 +217,21 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     return myGoPaletteModel;
   }
 
+  function compare(a: any, b: any) {
+    if (a.name < b.name){
+      return -1;
+    }
+    if (a.name > b.name){
+      return 1;
+    }
+    return 0;
+  }
+  
   function buildObjectPalette(objects: akm.cxObject[]) {
     const myGoObjectPalette = new gjs.goModel(utils.createGuid(), "myObjectPalette", null);
+    if (objects) {
+      objects.sort(compare);
+    }
     const nodeArray = new Array();
     for (let i=0; i<objects?.length; i++) {
       let includeObject = false;

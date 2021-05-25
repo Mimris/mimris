@@ -151,7 +151,7 @@ const LoadFile = (props: any) => {
                   <h5>Model</h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import from file (will overwrite current) </h6>
-                  <input className="select-input w-100" type="file" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
+                  <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} />
              
                 </div>
                 <div className="selectbox mb-2 border">
@@ -172,7 +172,7 @@ const LoadFile = (props: any) => {
                  <h5>Metamodel </h5>
                 <div className="selectbox mb-2 border"> 
                  <h6>Import from file (will overwrite current)</h6>
-                  <input className="select-input" type="file" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
+                  <input className="select-input" type="file" accept=".json" onChange={(e) => ReadMetamodelFromFile(props.ph, dispatch, e)} />
                 </div>
                 <div className="selectbox mb-2 border"> 
                   <h6>Export to file </h6>

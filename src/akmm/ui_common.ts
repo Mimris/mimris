@@ -66,6 +66,9 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             if (debug) console.log('55 createObject', obj, myModel, myMetis);
             myMetis.addObject(obj);
             // Create the corresponding object view
+            if (!debug) console.log('69 obj', obj);
+            const oviews = obj.objectviews;
+            const oview = oviews ? oviews[0] : null;            
             objview = new akm.cxObjectView(utils.createGuid(), name, obj, "");
             if (objview) {
                 objview.setIsGroup(data.isGroup);

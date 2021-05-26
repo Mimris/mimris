@@ -958,6 +958,7 @@ function reducer(state = InitialState, action) {
                           toArrow: action.data.toArrow,
                           fromArrowColor: action.data.fromArrowColor,
                           toArrowColor: action.data.toArrowColor,
+                          points: action.data.points,
                           markedAsDeleted: action.data.markedAsDeleted,
                           modified: action.data.modified,    
                         },

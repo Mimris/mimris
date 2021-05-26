@@ -192,7 +192,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('157 handleEvent', myMetis);
     if (debug) console.log('158 this', this);
-    if (debug) console.log('189 event name', name);
+    if (!debug) console.log('189 event name', name);
 
     switch (name) {
       case 'TextEdited': {
@@ -802,7 +802,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'LinkDrawn': {
         const link = e.subject;
         const data = link.data;
-        if (debug) console.log('668 link', link, link.fromNode, link.toNode);
+        if (!debug) console.log('668 link', link, link.fromNode, link.toNode);
 
         // Prepare for linkToLink
         if (linkToLink) {
@@ -871,7 +871,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
         const toNode = link.toNode?.data;
-        if (debug) console.log('727 link, fromNode, toNode', link, fromNode, toNode);
+        if (!debug) console.log('727 link, fromNode, toNode', link, fromNode, toNode);
         const newLink = e.subject.data;
         newLink.category = 'Relationship';
         if (debug) console.log('729 newLink', newLink);
@@ -884,6 +884,16 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('723 LinkRelinked', modifiedRelships);
         if (debug) console.log('724 LinkRelinked', modifiedTypeLinks);
         myDiagram.requestUpdate();
+      }
+      break;
+      case "LinkReshaped": {
+        const link = e.subject; 
+        const parameter = e.parameter;
+        const data = myDiagram.model.findLinkDataForKey(link.key);
+        if (debug) console.log('893 link', link);
+        if (debug) console.log('894 link.data ', link.data);
+        if (debug) console.log('895 link points', link.data.points);
+        if (debug) console.log('896 link parameter, data', parameter, data);
       }
       break;
       case "BackgroundSingleClicked": {

@@ -110,6 +110,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
+      diagram.addDiagramListener('LinkReshaped', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -138,6 +139,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkRelinked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('LinkReshaped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -2692,7 +2694,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }
           ),
-          new go.Binding("points").makeTwoWay(),
+          new go.Binding("points", "points").makeTwoWay(),
           // context menu
           { contextMenu: linkContextMenu },
           // link shape

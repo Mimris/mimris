@@ -872,7 +872,7 @@ function reducer(state = InitialStateStr, action) {
           },
         },
       }
-      if (!debug) console.log('857 retval', retval_UPDATE_OBJECTVIEW_PROPERTIES);
+      if (debug) console.log('857 retval', retval_UPDATE_OBJECTVIEW_PROPERTIES);
       return retval_UPDATE_OBJECTVIEW_PROPERTIES
 
     case UPDATE_RELSHIP_PROPERTIES:

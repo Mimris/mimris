@@ -196,9 +196,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const obj = props.obj;
     const context = props.context;
     const pattern = props.pattern;
-    if (!debug) console.log('391 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
+    if (debug) console.log('391 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
     if (debug) console.log('392 this.state', this.state);
-    if (!debug) console.log('393 obj', obj);
+    if (debug) console.log('393 obj', obj);
     this.setState(
       produce((draft: AppState) => {
         let data = draft.selectedData as any;  // only reached if selectedData isn't null
@@ -229,8 +229,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       })
     );
-    if (!debug) console.log('424 obj, context', obj, context);
-    if (!debug) console.log('425 propname, value, isBlur:', propname, value, isBlur);
+    if (debug) console.log('424 obj, context', obj, context);
+    if (debug) console.log('425 propname, value, isBlur:', propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }

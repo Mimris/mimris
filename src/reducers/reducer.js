@@ -78,14 +78,31 @@ import {
 } from '../actions/types';
 
 
-import InitStateJson from './InitialState.json'
+// import InitStateJson from './InitialState.json'
 
-const InitState = JSON.parse(JSON.stringify(InitStateJson)) 
+import StartInitStateJson from './InitialState.json'
+import StartmodelJson from '../startupModel/AKMM-Project_IRTV-Startup.json'
+
+const InitStateJson = (StartmodelJson) ? StartmodelJson : StartInitStateJson
+
+console.log('86', InitStateJson);
+const InitState =  JSON.parse(JSON.stringify(InitStateJson)) 
+
+// import { IntitalProjectJson } from 'git/akmmodels/AKMM-Project_IDEF.json'
+// const InitState = JSON.parse(JSON.stringify(InitProjectJson)) 
+// const InitProject = JSON.parse(JSON.stringify(InitProject))
+// // const InitMetamodels = JSON.parse(JSON.stringify(InitMetamodelsJson)) 
+// // const InitModels = JSON.parse(JSON.stringify(InitModelsJson)) 
+// let InitphData = InitState
+
+// if (InitProject) InitphData = InitProject
+
+
 // if (debug) console.log('38 InitialState', InitState);
 
 export const InitialState = {
   phData: InitState.phData,
-  phList: null,
+  phList: null, // list of models from AMMServer (firebase)
   phFocus: InitState.phFocus,
   phGojs: null,
   phMymetis: null,
@@ -111,7 +128,7 @@ let focusRole
 let focusCollection
 
 
-function reducer(state = InitialState, action) {
+function reducer(state = InitialStateStr, action) {
   
   switch (action.type) {
     
@@ -675,6 +692,9 @@ function reducer(state = InitialState, action) {
                           title: action.data.title,
                           description: action.data.description,
                           layout: action.data.layout,
+                          routing: action.data.routing,
+                          linkcurve: action.data.linkcurve,
+                          showCardinality: action.data.showCardinality,
                           markedAsDeleted: action.data.markedAsDeleted,
                           modified: action.data.modified,    
                     },
@@ -753,6 +773,8 @@ function reducer(state = InitialState, action) {
                   name: action.data.name,
                   title: action.data.title,
                   description: action.data.description,
+                  abstract: action.data.abstract,
+                  viewkind: action.data.viewkind,
                   typeRef: action.data.typeRef,
                   objectviews: action.data.objectviews,
                   markedAsDeleted: action.data.markedAsDeleted,
@@ -768,7 +790,7 @@ function reducer(state = InitialState, action) {
       }
     }
     
-  case UPDATE_OBJECTVIEW_PROPERTIES:
+    case UPDATE_OBJECTVIEW_PROPERTIES:
       if (debug) console.log('765 UPDATE_OBJECTVIEW_PROPERTIES', action);
       const curm = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindex = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
@@ -787,70 +809,9 @@ function reducer(state = InitialState, action) {
       const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef) // curretn objectindex
       // if (debug) console.log('506  reduser', curm);
 
-      if (debug) console.log('783 UPDATE_OBJECTVIEW_PROPERTIES', {
-        ...state,
-        phData: {
-          ...state.phData,
-          metis: {
-            ...state.phData.metis,
-            models: [
-              ...state.phData.metis.models.slice(0, curmindex),
-              {
-                ...state.phData.metis.models[curmindex],
-                modelviews: [
-                  ...curm?.modelviews?.slice(0, curmvindex),
-                  {
-                    ...curm?.modelviews[curmvindex],
-                    objectviews: [
-                      ...curmv?.objectviews?.slice(0, ovindex),
-                      {
-                        ...curmv.objectviews[ovindex],
-                        id: action.data.id,
-                        name: action.data.name,
-                        title: action.data.title,
-                        description: action.data.description,
-                        objectRef: action.data.objectRef,
-                        typeviewRef: action.data.typeviewRef,
-                        group: action.data.group,
-                        isGroup: action.data.isGroup,
-                        loc: action.data.loc,
-                        size: action.data.size,
-                        markedAsDeleted: action.data.markedAsDeleted,
-                        modified: action.data.modified,
-                        figure: action.data.figure,
-                        fillcolor: action.data.fillcolor,
-                        strokecolor: action.data.strokecolor,
-                        strokewidth: action.data.strokewidth,
-                        icon: action.data.icon,
-                      },
-                      ...curmv?.objectviews?.slice(ovindex + 1, curmv?.objectviews.length)
-                    ]
-                  },
-                  ...curm?.modelviews?.slice(curmvindex + 1, curm.modelviews.length),
-                ],
-                // objects: [
-                //   ...curm.objects.slice(0, curoindex),
-                //   {
-                //     ...curo,                 
-                //     name: action.data.name,
-                //     title: action.data.title,
-                //     description: action.data.desctription,
-                //     typeRef: action.data.typeviewRef,
-                //     // ...curopropertyValues: [
-                //     //   ...curo.propertyValues
-                //     // ]
-                //   },
-                //   ...curm.objects.slice(curoindex + 1, curm.objects.length )  
-                // ]
-              },
-              ...state.phData.metis.models.slice(curmindex + 1, state.phData.metis.models.length),
-            ]
-          }
-        }
-      }
-      )
 
-      return (curmv) && {
+      const retval_UPDATE_OBJECTVIEW_PROPERTIES = 
+      {
         ...state,
         phData: {
           ...state.phData,
@@ -911,6 +872,8 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      if (!debug) console.log('857 retval', retval_UPDATE_OBJECTVIEW_PROPERTIES);
+      return retval_UPDATE_OBJECTVIEW_PROPERTIES
 
     case UPDATE_RELSHIP_PROPERTIES:
       if (debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
@@ -944,6 +907,7 @@ function reducer(state = InitialState, action) {
                     name: action.data.name,
                     title: action.data.title,
                     description: action.data.description,
+                    relshipkind: action.data.relshipkind,
                     typeRef: action.data.typeRef,
                     fromobjectRef: action.data.fromobjectRef,
                     toobjectRef: action.data.toobjectRef,
@@ -1009,6 +973,8 @@ function reducer(state = InitialState, action) {
                           dash: action.data.dash,
                           fromArrow: action.data.fromArrow,
                           toArrow: action.data.toArrow,
+                          fromArrowColor: action.data.fromArrowColor,
+                          toArrowColor: action.data.toArrowColor,
                           markedAsDeleted: action.data.markedAsDeleted,
                           modified: action.data.modified,    
                         },
@@ -1198,18 +1164,20 @@ function reducer(state = InitialState, action) {
       return retval;
 
     case UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES:
-      if (debug) console.log('1110 UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', action);
+      if (debug) console.log('1201 UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', action);
       const curmodtotv     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
       const curmmtotv    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtotv.targetMetamodelRef)
       const curmmindextotv = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtotv.targetMetamodelRef) 
       const curtotv = curmmtotv?.objecttypeviews?.find(ot => ot.id === action?.data?.id)
       const lengthtotv = curmmtotv?.objecttypeviews.length
       let indextotv = curmmtotv?.objecttypeviews?.findIndex(ot => ot.id === curtotv?.id)
+      if (debug) console.log('1208 indextotv', indextotv, lengthtotv);
       if (indextotv < 0) {indextotv = lengthtotv} 
-      // if (debug) console.log('411 ovindex', ovindex, ovlength);
+      if (debug) console.log('1210 indextotv', indextotv, lengthtotv);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
       // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
-      return {
+      const retval_TARGETOBJECTTYPEVIEW = 
+      {
         ...state,
         phData: {
           ...state.phData,
@@ -1246,6 +1214,9 @@ function reducer(state = InitialState, action) {
             },
           },
       }
+      if (debug) console.log('1256 retval_TARGETOBJECTTYPEVIEW', retval_TARGETOBJECTTYPEVIEW);
+      return retval_TARGETOBJECTTYPEVIEW;
+
     case UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES:
       if (debug) console.log('930 UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', action);
       const curmodt     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
@@ -1612,17 +1583,17 @@ function reducer(state = InitialState, action) {
          },
       }
     case UPDATE_DATATYPE_PROPERTIES:
-      if (debug) console.log('501 UPDATE_DATATYPE_PROPERTIES', action);
+      if (debug) console.log('1621 UPDATE_DATATYPE_PROPERTIES', action);
       const curmoddtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-      if (debug) console.log('765', curmoddtot)
+      if (debug) console.log('1627', curmoddtot)
       const curmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot.targetMetamodelRef)
       const curmmddindexot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmoddtot.targetMetamodelRef) 
       const curddot = curmmddot?.datatypes?.find(ot => ot.id === action?.data?.id)
       const lengthotdd = curmmddot?.datatypes?.length
       let indexddot = curmmddot?.datatypes?.findIndex(ot => ot.id === curddot?.id)
       if (indexddot < 0) {indexddot = lengthotdd} 
-      if (debug) console.log('607 reducer', lengthotdd, indexddot);   
-      return {
+      if (debug) console.log('1634 reducer', lengthotdd, indexddot);   
+      let retval_UPDATE_DATATYPE_PROPERTIES = {
         ...state,
         phData: {
           ...state.phData,
@@ -1657,6 +1628,8 @@ function reducer(state = InitialState, action) {
           },
         },
       }
+      if (debug) console.log('1670 retval', retval_UPDATE_DATATYPE_PROPERTIES);
+      return retval_UPDATE_DATATYPE_PROPERTIES;
     case UPDATE_PROPERTY_PROPERTIES:
       // if (debug) console.log('501 UPDATE_PROPERTY_PROPERTIES', action);
       const curmopot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
@@ -1777,7 +1750,7 @@ function reducer(state = InitialState, action) {
                     isGroup: action.data.isGroup,
                     relshipkind: action.data.relshipkind,
                     viewkind: action.data.viewkind,
-                    cardinality: action.data,cardinality,
+                    cardinality: action.data.cardinality,
                     cardinalityFrom: action.data.cardinalityFrom,
                     cardinalityTo: action.data.cardinalityTo,
                     fromobjtypeRef: action.data.fromobjtypeRef,

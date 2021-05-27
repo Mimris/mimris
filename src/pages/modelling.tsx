@@ -51,17 +51,17 @@ const page = (props:any) => {
   //   dispatch(loadData())
   // }
 
-  useEffect(() => {
-    if (debug) console.log('47 modelling - useEffect', props);
-    if (!props.phList) {
-      dispatch(loadDataModelList()) // load list of models in repository
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (debug) console.log('47 modelling - useEffect', props);
+  //   if (!props.phList) {
+  //     dispatch(loadDataModelList()) // load list of models in repository
+  //   }
+  // }, [])
   
   const state = useSelector(state => state)
   if (debug) console.log('57 modelling', (props.phList) && props.phList);
   
-  const [visible,setVisible] = useState(false)
+  const [visible, setVisible] = useState(false)
   function toggle() { setVisible(!visible); }
   const [visibleTasks, setVisibleTasks] = useState(true)
   function toggleTasks() {
@@ -71,7 +71,6 @@ const page = (props:any) => {
   // /**
   // * Set up the Context items and link to select Context modal,
   // */
- 
   // const setContextDiv = (props.phFocus) && <SetContext phF={props.phFocus} />
   // useEffect(() => {
   //   return () => {
@@ -81,11 +80,9 @@ const page = (props:any) => {
   // console.log('42 modelling', state.phUser);
   
   const modellingDiv = <Modelling />
-
   const [videoURL, setVideoURL] = useState(null)
 
 // const videoDiv = <StartVideo  videoURI='/videos/snorres.mp4' />
-  
 
   return (
     <div>

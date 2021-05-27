@@ -83,37 +83,37 @@ function * loadDataSaga() {
     }
   }
 
-function * loadDataModelListSaga() {
-  if (debug) console.log('83 saga');
-  const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
-  const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
-  const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
-  // console.log('89 saga', _crf, _csrf, sessionCookie, document);
-  try {
-    let res = ''  
-    res = yield fetch(`${akmmhost}akm-model-list/`,
-      {
-        mode: 'no-cors', // comment in for  server login
-        headers: {
-          // "Access-Control-Allow-Origin": "*", // comment in for  server login
-          "Access-Control-Allow-Origin": "*", // comment in for  server login
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Cookie': `_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
-          "Access-Control-Allow-Credentials": 'include',  // comment in for  server login
-        },
-        credentials: 'include' // comment in for  server login
-      }
-    )
-      if (debug) console.log('102 saga', yield res.clone().json());
-      const modList = yield res.clone().json()
-      if (debug) console.log('104 Saga', modList);
-      yield put(loadDataModelListSuccess( modList ))
-    } catch (err) {
-      if (debug) console.log('107 saga', failure(err));  
-      yield put(failure(err))
-    }
-  }
+// function * loadDataModelListSaga() {
+//   if (debug) console.log('83 saga');
+//   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
+//   const _csrf = getCookie("_csrf", document) || ""; // comment in for  server login
+//   const sessionCookie = getCookie("session", document) || ""; // comment in for  server login
+//   // console.log('89 saga', _crf, _csrf, sessionCookie, document);
+//   try {
+//     let res = ''  
+//     res = yield fetch(`${akmmhost}akm-model-list/`,
+//       {
+//         mode: 'no-cors', // comment in for  server login
+//         headers: {
+//           // "Access-Control-Allow-Origin": "*", // comment in for  server login
+//           "Access-Control-Allow-Origin": "*", // comment in for  server login
+//           'Accept': 'application/json',
+//           'Content-Type': 'application/json',
+//           'Cookie': `_csrf:${_csrf}, session: ${sessionCookie}, XSRF-TOKEN: ${_crf}`, // comment in for  server login
+//           "Access-Control-Allow-Credentials": 'include',  // comment in for  server login
+//         },
+//         credentials: 'include' // comment in for  server login
+//       }
+//     )
+//       if (debug) console.log('102 saga', yield res.clone().json());
+//       const modList = yield res.clone().json()
+//       if (debug) console.log('104 Saga', modList);
+//       yield put(loadDataModelListSuccess( modList ))
+//     } catch (err) {
+//       if (debug) console.log('107 saga', failure(err));  
+//       yield put(failure(err))
+//     }
+//   }
 
 function * loadDataModelSaga(data) {
   const _crf = getCookie("XSRF-TOKEN", document) || ""; // comment in for  server login
@@ -181,7 +181,7 @@ function* rootSaga() {
   yield all([
     // console.log('175 saga', loadDataSaga, loadDataModelListSaga),
     takeLatest(LOAD_DATA, loadDataSaga),
-    takeLatest(LOAD_DATAMODELLIST, loadDataModelListSaga),
+    // takeLatest(LOAD_DATAMODELLIST, loadDataModelListSaga),
     takeLatest(LOAD_DATAMODEL, loadDataModelSaga)
     // takeLatest(SAVE_DATA, saveDataSaga)
     // take(LOAD_DATA, loadDataSaga)

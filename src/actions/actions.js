@@ -225,7 +225,7 @@ export const setMyGoModel = (data) => {
   }
 }
 export const setMyGoMetamodel = (data) => {
-  console.log('100---myGoMetamodel', data);
+  if (debug) console.log('100---myGoMetamodel', data);
   return {
     type: SET_MY_GOMETAMODEL,
     data: JSON.parse(data.value)

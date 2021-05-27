@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 // this Kernel code
@@ -117,6 +117,9 @@ export class cxMetis {
                 this.importRelship(rel, null);
             })
         }
+        // Postprocessing objecttypes
+
+
         // Handle current variables
         if (importedData.currentMetamodelRef) {
             const metamodel = this.findMetamodel(importedData.currentMetamodelRef);
@@ -293,6 +296,9 @@ export class cxMetis {
                                         const mv = new cxModelView(item.id, item.name, null, item.description);
                                         if (!mv) continue;
                                         mv.layout = item.layout;
+                                        mv.routing = item.routing;
+                                        mv.linkcurve = item.linkcurve;
+                                        mv.showCardinality = item.showCardinality;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
                                         mv.setModel(model);
@@ -416,7 +422,7 @@ export class cxMetis {
     importDatatype(item: any, metamodel: cxMetaModel) {
         let dtyperef = item.id;
         let datatype = this.findDatatype(dtyperef);
-        if (debug) console.log('412 item, datatype', item);
+        if (debug) console.log('412 item', item);
         if (datatype) {
             for (const prop in item) {
                 datatype[prop] = item[prop];
@@ -555,8 +561,10 @@ export class cxMetis {
             reltypeview.setStrokecolor(item.strokecolor);
             reltypeview.setStrokewidth(item.strokewidth);
             reltypeview.setDash(item.dash);
-            reltypeview.setFromArrow(item.fromarrow);
-            reltypeview.setToArrow(item.toarrow);
+            reltypeview.setFromArrow(item.fromArrow);
+            reltypeview.setToArrow(item.toArrow);
+            reltypeview.setFromArrowColor(item.fromArrowColor);
+            reltypeview.setToArrowColor(item.toArrowColor);
             metamodel.addRelationshipTypeView(reltypeview);
             if (debug) console.log("Importing reltypeview: " + item.id + ", " + item.name);
         }
@@ -637,6 +645,7 @@ export class cxMetis {
                     rel.setToObject(toObj);
                     fromObj.addOutputrel(rel);
                     toObj.addInputrel(rel);
+                    rel.relshipkind     = item.relshipkind;
                     rel.cardinality     = item.cardinality;
                     rel.cardinalityFrom = item.cardinalityFrom;
                     rel.cardinalityTo   = item.cardinalityTo;
@@ -656,6 +665,7 @@ export class cxMetis {
             const modelview = this.findModelView(item.id);
             if (modelview) {
                 modelview.layout = item.layout;
+                modelview.showCardinality = item.showCardinality;
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
                 objectviews.forEach(objview => {
@@ -3340,7 +3350,7 @@ export class cxObjectType extends cxType {
         for (let i=0; i<len; i++) {
             const rtype = this.inputreltypes[i];
             if (rtype.id !== reltype.id) {
-                reltypes.push(rel);
+                reltypes.push(reltype);
             }
         }
         this.inputreltypes = reltypes;
@@ -3755,20 +3765,21 @@ export class cxRelationshipType extends cxObjectType {
     }
     getCardinalityFrom(): string {
         let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(0, pos);
-        }
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(0, pos);
+        // }
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(pos+1);
-        }
+        let retval = this.cardinality;
+        // let retval = "";
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(pos+1);
+        // }
         return retval;
     }
     isInstantiable(): boolean {
@@ -3885,12 +3896,12 @@ export class cxObjectTypeView extends cxMetaObject {
     strokecolor: string;
     strokewidth: string;
     icon: string;
-    constructor(id: string, name: string, type: cxType | null, description: string) {
+    constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
-        this.category = constants.gojs.C_OBJECTTYPEVIEW;
-        this.type = type as cxObjectType;
-        this.typeRef     = "";
+        this.category    = constants.gojs.C_OBJECTTYPEVIEW;
+        this.type        = type;
+        this.typeRef     = type?.id;
         this.figure      = "RoundedRectangle";
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
@@ -3929,9 +3940,12 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     setType(type: cxObjectType) {
         this.type = type;
+        this.typeRef = type?.id;
     }
     getType(): cxObjectType | null {
-        return this.type;
+        if (this.type)
+            return this.type;
+        return null;
     }
     setData(data: any) {
         // If is valid JSON
@@ -4076,9 +4090,11 @@ export class cxRelationshipTypeView extends cxMetaObject {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPEVIEWS;  // Firestore collection
         this.category = constants.gojs.C_RELSHIPTYPEVIEW;
-        this.type = type;
-        this.typeRef = "";
-        this.data = new cxReltypeviewData();
+        this.type     = type;
+        this.typeRef  = type?.id;
+        this.data     = new cxReltypeviewData();
+        this.setFromArrow2(type?.relshipkind);
+        this.setToArrow2(type?.relshipkind);
     }
     // Methods
     applyRelationshipViewParameters(relview: cxRelationshipView) {
@@ -4107,7 +4123,9 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.type = type;
     }
     getType(): cxRelationshipType | null {
-        return this.type;
+        if (this.type)
+            return this.type;
+        return null;
     }
     setData(data: cxReltypeviewData) {
         // If is valid JSON
@@ -4260,6 +4278,7 @@ export class cxModel extends cxMetaObject {
     templates: cxModelView[];
     isTemplate: boolean;
     isMetamodel: boolean;
+    layer: string;
     submodels: cxModel[] | null;
     objects: cxObject[] | null;
     relships: cxRelationship[] | null;
@@ -4277,6 +4296,7 @@ export class cxModel extends cxMetaObject {
         this.templates = null;
         this.isTemplate = false;
         this.isMetamodel = false;
+        this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;
         this.relships = null;
@@ -4994,7 +5014,7 @@ export class cxInstance extends cxMetaObject {
         }
         return relships;
     }
-    addJsonValue(item_key: string, item_value: cxValue) {
+    addJsonValue(item_key: string, item_value: string) {
         if (!this.valueset)
             this.valueset = new Array();
         const allProps = this.allProperties;
@@ -5168,28 +5188,31 @@ export class cxRelationship extends cxInstance {
     }
     getCardinalityFrom(): string {
         let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(0, pos);
-        }
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(0, pos);
+        // }
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = "";
-        const cardinality = this.cardinality;
-        if (cardinality.length >0) {
-            const pos = cardinality.indexOf('-');
-            retval = cardinality.slice(pos+1);
-        }
+        let retval = this.cardinality;
+        if (retval[0] === retval[3])
+            retval = retval[3];
+        // let retval = "";
+        // const cardinality = this.cardinality;
+        // if (cardinality.length >0) {
+        //     const pos = cardinality.indexOf('-');
+        //     retval = cardinality.slice(pos+1);
+        // }
         return retval;
     }
 }
 
 export class cxPropertyValue {
     property: cxProperty;
-    value: cxValue;
-    constructor(prop: cxProperty, value: cxValue) {
+    value: string;
+    constructor(prop: cxProperty, value: string) {
         this.property = prop;
         this.value = value;
     }
@@ -5261,6 +5284,9 @@ export class cxModelView extends cxMetaObject {
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
     layout: string;
+    routing: string;
+    linkcurve: string;
+    showCardinality: boolean;
     template: any;
     isTemplate: boolean;
     diagrams: cxDiagram[] | null;
@@ -5274,6 +5300,9 @@ export class cxModelView extends cxMetaObject {
         this.objectviews = null;
         this.relshipviews = null;
         this.layout = "Tree";
+        this.routing = "Normal";
+        this.linkcurve = "None";
+        this.showCardinality = true;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;
@@ -5290,6 +5319,12 @@ export class cxModelView extends cxMetaObject {
     }
     getLayout(): string {
         return this.layout;
+    }
+    setRouting(routing: string) {
+        this.routing = routing;
+    }
+    getRouting(): string {
+        return this.routing;
     }
     setTemplate(template: any) {
         this.template = template;
@@ -5740,6 +5775,51 @@ export class cxRelationshipView extends cxMetaObject {
             if (k === 'relshipkind') continue;
             this[k] = "";
         }
+    }
+    setFromArrow(fromArrow: string) {
+        this.fromArrow = fromArrow;
+    }
+    setFromArrowColor(color: string) {
+        this.fromArrowColor = color;
+    }
+    setFromArrow2(relshipkind: string) {
+        let arrow = '';
+        let color = '';
+        switch (relshipkind) {
+            case 'Composition':
+                arrow = 'StretchedDiamond';
+                color = "black";
+                break;
+            case 'Aggregation':
+                arrow = 'StretchedDiamond';
+                color = 'white';
+                break;
+            default:
+                break;
+        }
+        this.setFromArrow(arrow);
+        this.setFromArrowColor(color);
+        if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
+    }
+    setToArrow(toArrow: string) {
+        this.toArrow = toArrow;
+    }
+    setToArrowColor(color: string) {
+        this.toArrowColor = color;
+    }
+    setToArrow2(relshipkind: string) {
+        let arrow = 'OpenTriangle';
+        let color = '';
+        switch (relshipkind) {
+            case 'Generalization':
+                arrow = 'Triangle';
+                color = "white";
+                break;
+            default:
+                break;
+        }
+        this.setToArrow(arrow);
+        this.setToArrowColor(color);
     }
 }
 

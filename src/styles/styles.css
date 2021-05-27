@@ -66,6 +66,7 @@
   align-items: center;
   justify-content: center;
   justify-content: space-evenly; */
+  max-width: 50vh;
 }
 .modal-content {
   margin-top: 38%;
@@ -80,6 +81,7 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
+  width: 100%;
   /* width: 42vh; */
 }
 .modal-body1 {

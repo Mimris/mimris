@@ -6,7 +6,6 @@ const FieldDiv = (props) => {
   
   return (
     <div>
-      <>
         <div className="field"  >
           <label className="label mt-1" htmlFor="name">{`${props.p}`}</label>
           <input className="input pt-1 float-right "
@@ -57,7 +56,6 @@ const FieldDiv = (props) => {
             width: 100px;
           }
         `}</style>
-      </>
     </div>
   );
 }

@@ -58,11 +58,11 @@ export const selectIcons = (curitem, p, iconvalue, register, handleChangesicon) 
 
   return (
     <>
-      <div key={curitem.id + p} className="field" >
+      <div key={curitem.id + p} className="field d-flex mr-1 float-right" >
         <label className="label mt-1" htmlFor="name">
           {/* icon //: Currentvalue = {props.item.icon} <br/> */}
           icon
-          <select className="selectpicker ml-2 float-right" value={iconvalue} onChange={handleChangesicon} >
+          <select className="selectpicker ml-1" value={iconvalue} onChange={handleChangesicon} >
             {/* <option value={`${iconvalue}`}>Current</option> */}
             <option value="https://img.icons8.com/color/2x/object.png">Object</option>
             <option value="https://img.icons8.com/clouds/2x/services.png">Services</option>
@@ -92,10 +92,9 @@ export const selectIcons = (curitem, p, iconvalue, register, handleChangesicon) 
             <option value="parallel.png">Parallel.png</option>
             <option value="task1.jfif">Task1.jfif</option>
             <option value="tiger.svg">tiger.svg</option>
-          </select>
+          </select> Url :
         </label>
-        <span className="ml-1">Url :</span>
-        <input className="input ml-1 pt-1 w-50" onChange={handleChangesicon}
+        <input className="input pt-0 mt-1 mb-3" style={{width: "360px"}} onChange={handleChangesicon}
           type="text"
           id={`${curitem.id}+${p}`}
           name={`${p}`}

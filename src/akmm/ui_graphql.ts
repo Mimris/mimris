@@ -1108,6 +1108,7 @@ export class gqlRelshipView {
     toArrow:         string;
     fromArrowColor:  string;
     toArrowColor:    string;
+    points:          string;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(relview: akm.cxRelationshipView) {
@@ -1126,6 +1127,7 @@ export class gqlRelshipView {
         this.toArrowColor    = relview.toArrowColor;
         this.fromobjviewRef  = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef    = relview && relview.toObjview ? relview.toObjview.id : "";
+        this.points          = relview.points;
         this.markedAsDeleted = relview.markedAsDeleted;
         this.modified        = relview.modified;
         // Code

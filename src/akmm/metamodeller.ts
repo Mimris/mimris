@@ -5716,6 +5716,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrow:        string;
     fromArrowColor: string;
     toArrowColor:   string;
+    points:         string;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection
@@ -5735,6 +5736,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.toArrow = "";
         this.fromArrowColor = "";
         this.toArrowColor = "";
+        this.points = "";
         }
     // Methods
     getRelationship(): cxRelationship | null {

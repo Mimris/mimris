@@ -886,6 +886,16 @@ class GoJSApp extends React.Component<{}, AppState> {
         myDiagram.requestUpdate();
       }
       break;
+      case "LinkReshaped": {
+        const link = e.subject; 
+        const parameter = e.parameter;
+        const data = myDiagram.model.findLinkDataForKey(link.key);
+        if (!debug) console.log('893 link', link);
+        if (!debug) console.log('894 link.data ', link.data);
+        if (!debug) console.log('895 link points', link.data.points);
+        if (!debug) console.log('896 link parameter, data', parameter, data);
+      }
+      break;
       case "BackgroundSingleClicked": {
         if (debug) console.log('790 myMetis', myMetis);
       }

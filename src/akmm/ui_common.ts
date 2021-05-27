@@ -66,6 +66,9 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             if (debug) console.log('55 createObject', obj, myModel, myMetis);
             myMetis.addObject(obj);
             // Create the corresponding object view
+            if (debug) console.log('69 obj', obj);
+            const oviews = obj.objectviews;
+            const oview = oviews ? oviews[0] : null;            
             objview = new akm.cxObjectView(utils.createGuid(), name, obj, "");
             if (objview) {
                 objview.setIsGroup(data.isGroup);
@@ -84,6 +87,21 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();
+                if (oview) {
+                    if (debug) console.log('91 oview', oview);
+                    const otdata = objtypeView.data;
+                    let modified = false;
+                    for (let prop in otdata) {
+                        if (oview[prop]) {
+                            objview[prop] = oview[prop];
+                            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+                            modified = true;
+                        }
+                    }
+                    if (debug) console.log('95 objview', objview);
+                    if (modified)
+                        return objview;
+                }
                 if (context.pasted) {
                     const id = data.typeview?.id;
                     objtypeView = myMetis.findObjectTypeView(id);

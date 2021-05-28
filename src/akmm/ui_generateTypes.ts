@@ -11,6 +11,7 @@ const constants = require('./constants');
 
 // Parameter to control whether system types should be included in the generated metamodel
 const includeSystemtypes = true;
+const systemtypes = ['Element', 'Object', 'Information', 'Property'];
 
 export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
     const myMetis = context.myMetis;
@@ -825,7 +826,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // First object types
     let typenames = [];
     if (includeSystemtypes) 
-        typenames = ['Element', 'Object', 'Information', 'Property'];
+        typenames = systemtypes;
     for (let i=0; i<typenames.length; i++) {
         const typename = typenames[i];
         const objtype = myMetamodel.findObjectTypeByName(typename);

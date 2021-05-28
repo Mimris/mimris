@@ -683,6 +683,7 @@ export class goRelshipLink extends goLink {
                     const data: any = typeview.getData();
                     this.addData(data);
                     this.setName(relview.getName());
+                    this.points = relview.points;
                     for (let prop in viewdata) {
                         if (relview[prop] && relview[prop] !== "") {
                             this[prop] = relview[prop];

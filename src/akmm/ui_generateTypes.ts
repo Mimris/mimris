@@ -10,7 +10,7 @@ import { FaObjectUngroup } from 'react-icons/fa';
 const constants = require('./constants');
 
 // Parameter to control whether system types should be included in the generated metamodel
-const includeSystemtypes = true;
+const includeSystemtypes = false;
 
 export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
     const myMetis = context.myMetis;

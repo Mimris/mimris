@@ -584,33 +584,35 @@ export class goLink extends goMetaObject {
 }
 
 export class goRelshipLink extends goLink {
-    relshipview: akm.cxRelationshipView | null;
-    relship: akm.cxRelationship | null;
-    relshiptype: akm.cxObjectType | akm.cxRelationshipType | null;
-    typename: string;
-    typeview: akm.cxRelationshipTypeView | null;
-    fromNode: goNode | null;
-    toNode: goNode | null;
-    from: string;
-    to: string;
-    cardinality: string;
-    cardinalityFrom: string;
-    cardinalityTo: string;
+    relshipview:        akm.cxRelationshipView | null;
+    relship:            akm.cxRelationship | null;
+    relshiptype:        akm.cxObjectType | akm.cxRelationshipType | null;
+    typename:           string;
+    typeview:           akm.cxRelationshipTypeView | null;
+    fromNode:           goNode | null;
+    toNode:             goNode | null;
+    from:               string;
+    to:                 string;
+    points:             string;
+    cardinality:        string;
+    cardinalityFrom:    string;
+    cardinalityTo:      string;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
-        this.category = constants.gojs.C_RELATIONSHIP;
-        this.relshipview = relview;
-        this.relship = null;
-        this.relshiptype = null;
-        this.typename = "";
-        this.typeview = null;
-        this.fromNode = null;
-        this.toNode = null;
-        this.from = "";
-        this.to = "";
-        this.cardinality = "";
+        this.category        = constants.gojs.C_RELATIONSHIP;
+        this.relshipview     = relview;
+        this.relship         = null;
+        this.relshiptype     = null;
+        this.typename        = "";
+        this.typeview        = null;
+        this.fromNode        = null;
+        this.toNode          = null;
+        this.from            = "";
+        this.to              = "";
+        this.points          = "";
+        this.cardinality     = "";
         this.cardinalityFrom = "";
-        this.cardinalityTo = "";
+        this.cardinalityTo   = "";
 
         if (relview) {
             const relship = relview.getRelationship();
@@ -681,6 +683,7 @@ export class goRelshipLink extends goLink {
                     const data: any = typeview.getData();
                     this.addData(data);
                     this.setName(relview.getName());
+                    this.points = relview.points;
                     for (let prop in viewdata) {
                         if (relview[prop] && relview[prop] !== "") {
                             this[prop] = relview[prop];

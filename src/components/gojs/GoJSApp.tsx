@@ -25,6 +25,8 @@ import * as uic from '../../akmm/ui_common';
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');
 
+const systemtypes = ['Element', 'Object', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
+
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
  * and modelData for demonstration purposes. Note, though, that
@@ -118,6 +120,15 @@ class GoJSApp extends React.Component<{}, AppState> {
     return null;
   }
 
+  private isSystemType(type) {
+    for (let i=0; i<systemtypes.length; i++) {
+      const systype = systemtypes[i];
+      if (type.name === systype.name)
+        return true;
+    }
+    return false;
+  }
+
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
@@ -142,6 +153,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodeDataArray: myGoModel?.nodes,
       linkDataArray: myGoModel?.links
     }
+    if (debug) console.log('156 gojsModel', gojsModel);
     const nodes = new Array();
     const nods = myGoMetamodel?.nodes;
     for (let i=0; i<nods?.length; i++) {
@@ -272,7 +284,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Relationship type
             if (typename === 'Relationship type') {
               const myLink = this.getLink(context.myGoMetamodel, key);
-              // if (debug) console.log('232 TextEdited', myLink);
+              if (debug) console.log('232 TextEdited', myLink);
               if (myLink) {
                 if (text === 'Edit name') {
                   text = prompt('Enter name');
@@ -398,6 +410,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
         if (debug) console.log('400 selection', selection);
+        // Handle relationship types
         for (let it = selection?.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
@@ -431,14 +444,23 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
               }
+              // Check if reltype comes from or goes to a systemtype
+              // If so, do not delete
+              const fromObjtype = reltype.fromObjtype;
+              if (!this.isSystemType(fromObjtype)) {
+                const toObjtype = reltype.toObjtype;
+                if (!this.isSystemType(toObjtype)) {
+                  continue;
+                }
+              }
               reltype.markedAsDeleted = deletedFlag;
-              //uic.deleteRelationshipType(reltype, deletedFlag);
+              uic.deleteRelationshipType(reltype, deletedFlag);
               const gqlReltype = new gql.gqlRelationshipType(reltype, true);
               modifiedTypeLinks.push(gqlReltype);
               if (debug) console.log('438 modifiedTypeLinks', modifiedTypeLinks);
               let reltypeview = reltype.typeview;
               if (reltypeview) {
-                  reltypeview.markedAsDeleted = deletedFlag;
+                  // reltypeview.markedAsDeleted = deletedFlag;
                   const gqlReltypeView = new gql.gqlRelshipTypeView(reltypeview);
                   modifiedTypeViews.push(gqlReltypeView);
                   if (debug) console.log('444 modifiedTypeViews', modifiedTypeViews);
@@ -446,6 +468,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+        // Handle objecttypes
         for (let it = selection?.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
@@ -477,6 +500,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
               }
+              // If systemtypes, just remove them from metamodel
+              if (this.isSystemType(objtype)) {
+                context.myMetamodel.removeObjectType(objtype);
+                continue;
+              }
+              // If other types, delete them
               objtype.markedAsDeleted = deletedFlag;
               const gqlObjtype = new gql.gqlObjectType(objtype, true);
               modifiedTypeNodes.push(gqlObjtype);
@@ -498,6 +527,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }          
           }
         }
+        // Handle objects
         for (let it = selection?.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
@@ -518,6 +548,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
+        // Handle relationships
         for (let it = selection?.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
@@ -886,6 +917,32 @@ class GoJSApp extends React.Component<{}, AppState> {
         myDiagram.requestUpdate();
       }
       break;
+      case "LinkReshaped": {
+        const link = e.subject; 
+        const parameter = e.parameter;
+        const data = myDiagram.model.findLinkDataForKey(link.key);
+        if (debug) console.log('895 data', data);
+        let relview = data.relshipview;
+        relview = myModelview.findRelationshipView(relview?.id);
+        let plist = link.data.points;
+        let points = "[";
+        let it = plist.iterator;
+        let firsttime = true;
+        while (it.next()) {
+          if (!firsttime) points += ",";
+          points += it.value.x;
+          points += "," + it.value.y
+          firsttime = false;
+        }
+        points += "]";
+        if (relview) {
+          relview.points = points;
+          const gqlRelview = new gql.gqlRelshipView(relview);
+          if (debug) console.log('912 relview, gqlRelview', relview, gqlRelview);
+          modifiedLinks.push(gqlRelview);
+        }
+      }
+      break;
       case "BackgroundSingleClicked": {
         if (debug) console.log('790 myMetis', myMetis);
       }
@@ -900,40 +957,40 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
 
     this.state.phFocus.focusModelview = myMetis.currentModelview;
-    if (debug) console.log('890 modifiedNodes', modifiedNodes);
+    if (debug) console.log('923 modifiedNodes', modifiedNodes);
     modifiedNodes.map(mn => {
       let data = mn
       if (debug) console.log('877 UPDATE_OBJECTVIEW_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
     })
 
-    if (debug) console.log('897 modifiedTypeNodes', modifiedTypeNodes);
+    if (debug) console.log('930 modifiedTypeNodes', modifiedTypeNodes);
     modifiedTypeNodes?.map(mn => {
       let data = (mn) && mn
       if (debug) console.log('900 UPDATE_OBJECTTYPE_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
     })
 
-    if (debug) console.log('904 modifiedTypeViews', modifiedTypeViews);
+    if (debug) console.log('937 modifiedTypeViews', modifiedTypeViews);
     modifiedTypeViews?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
       if (debug) console.log('892 data', data);
     })
 
-    if (debug) console.log('911 modifiedTypeGeos', modifiedTypeGeos);
+    if (debug) console.log('944 modifiedTypeGeos', modifiedTypeGeos);
     modifiedTypeGeos?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
     })
 
-    // if (debug) console.log('917 modifiedLinks', modifiedLinks);
+    if (debug) console.log('950 modifiedLinks', modifiedLinks);
     modifiedLinks.map(mn => {
       let data = mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
 
-    // if (debug) console.log('923 modifiedLinkTypes', modifiedLinkTypes);
+    if (debug) console.log('956 modifiedLinkTypes', modifiedLinkTypes);
     modifiedTypeLinks?.map(mn => {
       let data = (mn) && mn
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
@@ -945,38 +1002,38 @@ class GoJSApp extends React.Component<{}, AppState> {
       this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
     })
 
-    // if (debug) console.log('919 modifiedObjects', modifiedObjects);
+    if (debug) console.log('968 modifiedObjects', modifiedObjects);
     modifiedObjects?.map(mn => {
       let data = (mn) && mn
       if (debug) console.log('938 UPDATE_OBJECT_PROPERTIES', data)
       this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     })
 
-    // if (debug) console.log('942 modifiedRelships', modifiedRelships);
+    if (debug) console.log('975 modifiedRelships', modifiedRelships);
     modifiedRelships?.map(mn => {
       let data = (mn) && mn
       if (debug) console.log('945 data', data);
       this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 
-    // if (debug) console.log('949 selectedObjectViews', selectedObjectViews);
+    if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
     selectedObjectViews?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
     })
 
-    // if (debug) console.log('955 selectedRelshipViews', selectedRelshipViews);
+    if (debug) console.log('988 selectedRelshipViews', selectedRelshipViews);
     selectedRelshipViews?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
     })
 
-    // if (debug) console.log('961 selectedObjectTypes', selectedObjectTypes);
+    if (debug) console.log('994 selectedObjectTypes', selectedObjectTypes);
     selectedObjectTypes?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
     })
-    // if (debug) console.log('966 selectedRelationshipTypes', selectedRelationshipTypes);
+    if (debug) console.log('999 selectedRelationshipTypes', selectedRelationshipTypes);
     selectedRelationshipTypes?.map(mn => {
       let data = (mn) && { id: mn.id, name: mn.name }
       this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })

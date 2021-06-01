@@ -727,6 +727,7 @@ export class cxMetis {
     }
     importRelshipView(item: any, modelview: cxModelView) {
         if (modelview) {
+            if (debug) console.log('730 relshipview', item);
             const relview = this.findRelationshipView(item.id);
             if (relview) {
                 const relship = this.findRelationship(item.relshipRef);
@@ -736,6 +737,7 @@ export class cxMetis {
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
+                    relview.points = item.points;
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
                         if (reltypeview) {
@@ -2525,6 +2527,17 @@ export class cxMetaModel extends cxMetaObject {
                     }
                 }
             }
+        }
+    }
+    removeObjectType(objType: cxObjectType) {
+        if (objType.category === constants.gojs.C_OBJECTTYPE) {
+            const objtypes = new Array();
+            for (let i=0; i<this.objecttypes.length; i++) {
+                if (this.findObjectType(objType.id)) 
+                    continue;
+                objtypes.push(objType);                
+            }
+            this.objecttypes = objtypes;
         }
     }
     addObjectTypeView(objtypeView: cxObjectTypeView) {
@@ -5716,6 +5729,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrow:        string;
     fromArrowColor: string;
     toArrowColor:   string;
+    points:         string;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection
@@ -5735,6 +5749,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.toArrow = "";
         this.fromArrowColor = "";
         this.toArrowColor = "";
+        this.points = "";
         }
     // Methods
     getRelationship(): cxRelationship | null {

@@ -17,14 +17,14 @@ import * as constants from './constants';
 const RegexParser = require("regex-parser");
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
-  if (!debug) console.log('20 props', props);
+  if (debug) console.log('20 props', props);
   const propname = props.id;
   const fieldType = props.type;
   const obj = props.obj;
   const context = props.context;
   const pattern = props.pattern;
-  if (!debug) console.log('26 obj, context:', obj, context);
-  if (!debug) console.log('27 propname, value:', propname, value);
+  if (debug) console.log('26 obj, context:', obj, context);
+  if (debug) console.log('27 propname, value:', propname, value);
   // const myDiagram = context.myDiagram;
   let inst, instview, typeview, myInst, myInstview, myItem;
   // Handle object types

@@ -290,6 +290,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
     if (debug) console.log('263 GenGojsModel', metis, model, modelview);
+    if (!model) return;
+    if (!modelview) return;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
@@ -426,7 +428,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
     }
-    if (debug) console.log('417 myGoModel', myGoModel);
+    if (debug) console.log('417 myGoModel.links', myGoModel.links);
     return myGoModel;
   }
 

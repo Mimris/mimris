@@ -110,6 +110,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkRelinked', this.props.onDiagramEvent);
+      diagram.addDiagramListener('LinkReshaped', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -138,6 +139,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkDrawn', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkRelinked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('LinkReshaped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardChanged', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
@@ -194,9 +196,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const obj = props.obj;
     const context = props.context;
     const pattern = props.pattern;
-    if (!debug) console.log('391 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
+    if (debug) console.log('391 propname, value, obj, context, isBlur:', propname, value, obj, context, isBlur);
     if (debug) console.log('392 this.state', this.state);
-    if (!debug) console.log('393 obj', obj);
+    if (debug) console.log('393 obj', obj);
     this.setState(
       produce((draft: AppState) => {
         let data = draft.selectedData as any;  // only reached if selectedData isn't null
@@ -227,8 +229,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       })
     );
-    if (!debug) console.log('424 obj, context', obj, context);
-    if (!debug) console.log('425 propname, value, isBlur:', propname, value, isBlur);
+    if (debug) console.log('424 obj, context', obj, context);
+    if (debug) console.log('425 propname, value, isBlur:', propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -1148,6 +1150,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }),
           makeButton("----------"),
+          makeButton("TEST",
+            function (e: any, obj: any) { 
+              const myDiagram = e.diagram;
+              const link = obj.part;
+              console.log('1157 link', link);
+              let data = link.data;
+              console.log('1159 data', data);
+              myDiagram.model.setDataProperty(data, "points", "[-469,-214,-459,-214,-325,-214,-325,-104,-289,-104,-279,-104]");            },
+            function (o: any) { 
+              if (debug)
+                return true; 
+              return false;
+            }),
           makeButton("New Typeview",
             function (e: any, obj: any) { 
               //const link = e.diagram.selection.first().data;
@@ -2725,7 +2740,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }
           ),
-          new go.Binding("points").makeTwoWay(),
+          new go.Binding("points", "points").makeTwoWay(),
           // context menu
           { contextMenu: linkContextMenu },
           // link shape

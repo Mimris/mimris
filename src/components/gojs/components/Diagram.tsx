@@ -75,7 +75,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   /** @internal */
   constructor(props: DiagramProps) {
     super(props);
-
+    if (debug) console.log('78 Diagram props:', props);
     this.myMetis = props.myMetis;
     this.diagramRef = React.createRef(); 
     this.state = { 
@@ -2099,11 +2099,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const rel = outrels[j];
                 if (rel.markedAsDeleted) continue;
                 const rviews = rel.relviews;
+                const mrelviews = modelview.relshipviews;
+                let found = false;
                 if (rviews?.length > 0) {
+                  for (let i=0; i<rviews.length; i++) {
+                    const rv = rviews[i];
+                    for (let j=0; j<mrelviews.length; j++) {
+                      const mrv = mrelviews[j];
+                      if (mrv.id === rv.id) {
+                        found = true;
+                        break;
+                      }
+                    }                      
+                  }
                   // Relview is NOT missing - do nothing
-                  continue;
+                  if (found)
+                    continue;
                 }
-                if (debug) console.log('2183 rviews', rel, rviews);
+                if (!debug) console.log('2119 rviews', rel, rviews);
                 // Check if from- and to-objects have views in this modelview
                 const fromObj = rel.fromObject;
                 const fromObjviews = fromObj.objectviews;
@@ -2111,28 +2124,56 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   // From objview is NOT in modelview - do nothing
                   continue;
                 }
-                if (debug) console.log('2191 fromObjviews', fromObjviews);
+                if (!debug) console.log('2127 fromObjviews', fromObjviews);
                 const toObj = rel.toObject;
                 const toObjviews = toObj.objectviews;
                 if (toObjviews?.length == 0) {
                   // From objview is NOT in modelview - do nothing
                   continue;
                 }
-                if (debug) console.log('2198 toObjviews', toObjviews);
+                if (!debug) console.log('2134 toObjviews', toObjviews);
                 // Relview(s) does not exist, but from and to objviews exist, create relview(s)
                 const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
                 if (relview.markedAsDeleted) continue;
-                if (fromObjviews) relview.setFromObjectView(fromObjviews[0]);
-                if (toObjviews) relview.setToObjectView(toObjviews[0]);
-                if (debug) console.log('2203 relview', relview);
-                // Add link
-                const myGoModel = myMetis.gojsModel;
-                let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-                link.loadLinkContent(myGoModel);
-                myGoModel.addLink(link);
-                // Prepare and do the dispatch
-                const gqlRelview = new gql.gqlRelshipView(relview);
-                modifiedRelshipViews.push(gqlRelview);
+                const fromObjview = null;
+                for (let i=0; i<fromObjviews.length; i++) {
+                  const oview = fromObjviews[i];
+                  const moviews = modelview.objectviews;
+                  for (let j=0; j<moviews.length; j++) {
+                    if (moviews[j].id === oview.id) {
+                      fromObjview = oview;;
+                      break;
+                    }
+                  }
+                }
+                const toObjview = null;
+                for (let i=0; i<toObjviews.length; i++) {
+                  const oview = toObjviews[i];
+                  const moviews = modelview.objectviews;
+                  for (let j=0; j<moviews.length; j++) {
+                    if (moviews[j].id === oview.id) {
+                      toObjview = oview;;
+                      break;
+                    }
+                  }
+                }
+                if (fromObjview && toObjview) {
+                    relview.setFromObjectView(fromObjview);
+                    relview.setToObjectView(toObjview);
+                
+                    if (!debug) console.log('2203 relview', relview);
+                    modelview.addRelationshipView(relview);
+                    // Add link
+                    const myGoModel = myMetis.gojsModel;
+                    let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
+                    link.loadLinkContent(myGoModel);
+                    myGoModel.addLink(link);
+                    if (!debug) console.log('2146 relview, link', relview, link);
+                    // Prepare and do the dispatch
+                    const gqlRelview = new gql.gqlRelshipView(relview);
+                    modifiedRelshipViews.push(gqlRelview);
+                    myDiagram.model.addLinkData(link);
+                }
               }
             }
             modifiedRelshipViews.map(mn => {
@@ -3260,7 +3301,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       default:
         break;
     }
-    if (debug) console.log('2962 last in Diagram ', this.props.myMetis);
+    if (debug) console.log('2962 last in Diagram ', this.props);
     
     return (
       <div>

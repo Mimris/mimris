@@ -46,6 +46,7 @@ export let gojs = {
      C_RELSHIPTYPE         : "Relationship type",
      C_RELSHIPTYPEVIEW     : "Relationship type view",
      C_RELSHIPVIEW         : "Relationship view",
+     C_VIEWSTYLE           : "Viewstyle",
      C_UNIT                : "Unit",
      C_PROPVALUE           : "Property value",
      C_VALUE               : "Value",

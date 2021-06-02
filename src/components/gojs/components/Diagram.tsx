@@ -2089,7 +2089,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           function (e: any, obj: any) { 
             const modelview = myMetis.currentModelview;
             const links = uic.addMissingRelationshipViews(modelview, myMetis);
-            if(!debug) console.log('2092 links', links);
+            if(debug) console.log('2092 links', links);
             for (let i=0; i<links.length; i++) {
               const link = links[i];
               myDiagram.model.addLinkData(link);

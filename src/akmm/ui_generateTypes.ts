@@ -10,15 +10,6 @@ import { FaObjectUngroup } from 'react-icons/fa';
 const constants = require('./constants');
 
 // Parameter to control whether system types should be included in the generated metamodel
-<<<<<<< HEAD
-const includeSystemtypes = false;
-
-let systemtypes = [];
-if (includeSystemtypes) {
-    systemtypes = ['Element', 'Object', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
-} else {
-    systemtypes = ['Task', 'Role', 'Generic', 'Container'];
-=======
 const includeSystemtypes = true;
 
 let systemtypes = [];
@@ -28,7 +19,6 @@ if (includeSystemtypes) {
                    'Generic', 'Container'];
 } else {
     systemtypes = ['Generic', 'Container'];
->>>>>>> release/NOV20REL2
 }
 
 export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
@@ -843,13 +833,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
-<<<<<<< HEAD
-    let typenames = [];
-    // if (includeSystemtypes) 
-        typenames = systemtypes;
-=======
     let typenames = systemtypes;
->>>>>>> release/NOV20REL2
     for (let i=0; i<typenames.length; i++) {
         const typename = typenames[i];
         const objtype = myMetamodel.findObjectTypeByName(typename);

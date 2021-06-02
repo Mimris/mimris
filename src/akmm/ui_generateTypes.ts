@@ -10,6 +10,7 @@ import { FaObjectUngroup } from 'react-icons/fa';
 const constants = require('./constants');
 
 // Parameter to control whether system types should be included in the generated metamodel
+<<<<<<< HEAD
 const includeSystemtypes = false;
 
 let systemtypes = [];
@@ -17,6 +18,17 @@ if (includeSystemtypes) {
     systemtypes = ['Element', 'Object', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
 } else {
     systemtypes = ['Task', 'Role', 'Generic', 'Container'];
+=======
+const includeSystemtypes = true;
+
+let systemtypes = [];
+if (includeSystemtypes) {
+    systemtypes = ['Element', 'Object', 'Property', 'Datatype', 
+                   'Value', 'FieldType', 'InputPattern', 'ViewFormat', 
+                   'Generic', 'Container'];
+} else {
+    systemtypes = ['Generic', 'Container'];
+>>>>>>> release/NOV20REL2
 }
 
 export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
@@ -735,6 +747,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             metamodel.addDatatype(datatype);
     }
     // Add or generate objecttypes
+    const metaObject = 'Object';
     if (debug) console.log('713 objectviews', objectviews);
     if (objectviews) {
         for (let i=0; i<objectviews.length; i++) {
@@ -744,8 +757,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let obj = objview.object;
             if (!obj || obj.markedAsDeleted) 
                 continue;
-            // const  types = ['Information', 'Role', 'Task', 'View', 'Query', 'Property', 'Container']; // + Property ??
-            const  types = ['Information']; 
+            const  types = []; 
+            types.push(metaObject);
             for (let i=0; i<types.length; i++) {
                 const type = myMetamodel.findObjectTypeByName(types[i]);
                 if (debug) console.log('725 type, obj', type, obj);
@@ -754,9 +767,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         continue;
                     // Check if obj inherits one of the specified types - otherwise do not generate type
                     if (obj.type.inherits(type, myMetis.allRelationshiptypes)) {
-                        if (debug) console.log('738 obj', obj.name, obj);
+                        if (!debug) console.log('738 obj', obj.name, obj);
                         let objtype;
-                        if ((obj.name === obj.type.name) || (obj.type.name === 'Information')) { 
+                        if ((obj.name === obj.type.name) || (obj.type.name === metaObject)) { 
                             if (debug) console.log('741 obj, objview', obj, objview);                       
                             objtype = generateObjectType(obj, objview, context);
                             if (debug) console.log('735 objtype', objtype);   
@@ -807,7 +820,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             if (!toObjview) continue;
             const toObj = toObjview?.object;
             if (debug) console.log('775 relview', relview);
-            if ((fromObj?.type.name == 'Information') && (toObj?.type.name == 'Information')) {
+            if ((fromObj?.type.name === metaObject) && (toObj?.type.name === metaObject)) {
                 if (debug) console.log('778 rel', rel);
                 const reltype = generateRelshipType(rel, relview, context);
                 if (debug) console.log('780 reltype', reltype);
@@ -830,9 +843,13 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
+<<<<<<< HEAD
     let typenames = [];
     // if (includeSystemtypes) 
         typenames = systemtypes;
+=======
+    let typenames = systemtypes;
+>>>>>>> release/NOV20REL2
     for (let i=0; i<typenames.length; i++) {
         const typename = typenames[i];
         const objtype = myMetamodel.findObjectTypeByName(typename);
@@ -855,6 +872,16 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         if (reltype) {
             metamodel.addRelationshipType(reltype);
             if (debug) console.log('811 reltype', reltype);
+        }
+    }
+    typenames = ['isRelatedTo'];
+    for (let i=0; i<typenames.length; i++) {
+        const typename = typenames[i];
+        const reltype = myMetamodel.findRelationshipTypeByName(typename);
+        if (debug) console.log('839 reltype', reltype, myMetis);
+        if (reltype) {
+            metamodel.addRelationshipType(reltype);
+            metamodel.addRelationshipTypeView(reltype.typeview);
         }
     }
 

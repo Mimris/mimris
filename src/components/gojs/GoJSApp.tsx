@@ -25,7 +25,7 @@ import * as uic from '../../akmm/ui_common';
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');
 
-const systemtypes = ['Element', 'Object', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
+const systemtypes = ['Element', 'Object', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -69,8 +69,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       dispatch: this.props.dispatch,
       modelType: this.props.phFocus.focusTab,
     };
-    if (debug) console.log('69 modelType',this.state.modelType, this.props);
-    this.state.myMetis.modelType = this.state.modelType;
+    if (debug) console.log('69 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
   }
 
@@ -919,11 +918,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "LinkReshaped": {
         const link = e.subject; 
-        const parameter = e.parameter;
         const data = myDiagram.model.findLinkDataForKey(link.key);
         if (debug) console.log('895 data', data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
+        break;
         let plist = link.data.points;
         let points = "[";
         let it = plist.iterator;
@@ -1071,7 +1070,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   public render() {   
     const selectedData = this.state.selectedData;
-    if (debug) console.log('1075 selectedData', selectedData, this.props);
+    if (!debug) console.log('1075 selectedData', selectedData, this.props);
     let inspector;
     if (selectedData !== null) {
       inspector = 
@@ -1088,6 +1087,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     if (debug) console.log('1120 dispatch', this.state.myMetis.dispatch);
+    if (!debug) console.log('1091 linkdataarray:', this.state.nodeDataArray, this.state.linkDataArray);
     return ( (this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper

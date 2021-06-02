@@ -11,7 +11,7 @@ const debug = false;
 
 const Modeller = (props: any) => {
   const debug = false
-  if (debug) console.log('13 Modeller', props);
+  if (debug) console.log('13 Modeller: props', props);
   // let prevgojsmodel = null
   // let gojsmodel = {}
   const gojsmodel = props.gojsModel;
@@ -25,7 +25,7 @@ const Modeller = (props: any) => {
   function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
    }
 
-   if (debug) console.log('27 Modeller', props, refresh);
+   if (debug) console.log('27 Modeller: props, refresh', props, refresh);
 
   let focusModel = props.phFocus?.focusModel
   let focusModelview = props.phFocus?.focusModelview

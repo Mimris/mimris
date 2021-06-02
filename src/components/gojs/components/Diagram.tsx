@@ -2088,7 +2088,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Add Missing Relationship Views",
           function (e: any, obj: any) { 
             const modelview = myMetis.currentModelview;
-            uic.addMissingRelationshipViews(modelview);
+            const links = uic.addMissingRelationshipViews(modelview, myMetis);
+            if(!debug) console.log('2092 links', links);
+            for (let i=0; i<links.length; i++) {
+              const link = links[i];
+              myDiagram.model.addLinkData(link);
+            }
+            return;
           },
           function (o: any) { 
             if (myMetis.modelType === 'Metamodelling')

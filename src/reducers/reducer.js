@@ -83,7 +83,7 @@ import {
 import StartInitStateJson from './InitialState.json'
 import StartmodelJson from '../startupModel/AKMM-Project_IRTV-Startup.json'
 
-const InitStateJson = (StartmodelJson) ? StartmodelJson : StartInitStateJson
+const InitStateJson = /*(StartmodelJson) ? StartmodelJson :*/ StartInitStateJson
 
 console.log('86', InitStateJson);
 const InitState =  JSON.parse(JSON.stringify(InitStateJson)) 

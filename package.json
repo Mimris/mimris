@@ -83,7 +83,7 @@
     "@types/cookie": "0.3.3",
     "@types/jest": "^24.0.13",
     "@types/jsonwebtoken": "8.3.8",
-    "@types/node": "^13.13.15",
+    "@types/node": "^7.0.7",
     "@types/react": "^16.9.44",
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
@@ -100,7 +100,7 @@
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
     "tslint-react": "^4.1.0",
-    "typescript": "^3.9.5",
+    "typescript": "^4.2.4",
     "typescript-fsa": "^3.0.0-beta-2",
     "typescript-fsa-reducers": "^1.2.1"
   },

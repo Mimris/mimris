@@ -1,4 +1,4 @@
-import { authenticated } from '../../defs/authenticated'
+// import { authenticated } from '../../defs/authenticated'
 // import { NextApiRequest, NextApiResponse } from 'next';
 // import sqlite from 'sqlite';
 
@@ -15,3 +15,4 @@ import { authenticated } from '../../defs/authenticated'
 //   // res.json(people);
 //   res.json({people});
 // });
+export {}

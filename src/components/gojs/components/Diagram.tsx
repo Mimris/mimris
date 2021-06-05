@@ -166,8 +166,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleSelectDropdownChange = (selected) => {
     const myMetis = this.myMetis;
-    // const myGoModel = myMetis.gojsModel;
-    // const myModelView = myMetis.currentModelview;
     const context = {
       "myMetis":      myMetis,
       "myMetamodel":  myMetis.currentMetamodel,
@@ -594,7 +592,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Add Connected Objects",
             function (e: any, obj: any) { 
               myMetis.myDiagram = myDiagram;
-              const modelview = myMetis.currentModelview;
+              let modelview = myMetis.currentModelview;
+              modelview = myMetis.findModelView(modelview.id);
               const goModel = myMetis.gojsModel;
               const node = obj.part.data;
               const objview = node?.objectview;

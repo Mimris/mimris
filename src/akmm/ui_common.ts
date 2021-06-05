@@ -1550,6 +1550,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         for (let useinp = 0; useinp < 2; useinp++) {
             let rels  = useinp ? object.inputrels : object.outputrels;
             if (rels) {
+                let cnt = 0;
                 for (let i=0; i<rels.length; i++) {
                     let rel = rels[i];
                     if (rel.markedAsDeleted)
@@ -1577,8 +1578,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     const objviews = modelview.findObjectViewsByObj(toObj);
                     let toObjview;
                     if (objviews?.length >0) {
-                        for (let i=0; i<objviews.length; i++) {   
-                            const oview = objviews[i];
+                        for (let j=0; j<objviews.length; j++) {   
+                            const oview = objviews[j];
                             if (oview.markedAsDeleted)
                                 continue; 
                             if (debug) console.log('1572 Create relship views to objviews', object, objviews);
@@ -1586,14 +1587,18 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         }
                         // Create relship views and links to the found objviews if they do not exist
                         let relviews;
-                        if (useinp)
+                        if (useinp) {
                             relviews = modelview.findRelationshipViewsByRel2(rel, toObjview, objview);
-                        else 
+                            if (relviews.length == 0) i++;
+                        } else {
                             relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
+                            if (relviews.length == 0) i++;
+                        }
                         if (debug) console.log('1579 rel, relview', rel, relviews);                    
                         if (relviews.length > 0)
-                            continue;                        
+                            continue;    
                     } else {
+                        cnt++;
                         // Create an objectview of toObj and then a node
                         // Then create a relship view and a link from object to toObj
                         if (debug) console.log('1585 Create an object view and a relship view', object);
@@ -1613,13 +1618,15 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                                 myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
                         }
                         const locx = useinp ? nx - 300 : nx + 300;
-                        const locy = ny - 50 + i * 100;
+                        const locy = ny - 50 + cnt * 100;
                         const loc = locx + " " + locy;
                         toObjview.loc = loc;
                         goNode.loc = loc;
                         if (debug) console.log('1606 goNode', goNode);
                         goModel.addNode(goNode);
                         myDiagram.model.addNodeData(goNode);
+                        const gjsNode = myDiagram.findNodeForKey(goNode?.key)
+                        gjsNode.isSelected = true;
                         const gqlObjview = new gql.gqlObjectView(toObjview);
                         modifiedObjectViews.push(gqlObjview);
                     }

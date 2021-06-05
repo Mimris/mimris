@@ -599,6 +599,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const objview = node?.objectview;
               const retval: any = uic.addConnectedObjects(modelview, objview, null, goModel, myMetis);
               if (debug) console.log('602 retval', retval);
+              const gjsNode = myDiagram.findNodeForKey(node?.key)
+              gjsNode.isSelected = false;
+              gjsNode.isHighlighted = true;
             },
             function (o: any) { 
               const node = o.part.data;

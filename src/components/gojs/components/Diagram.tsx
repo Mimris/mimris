@@ -29,7 +29,7 @@ const RegexParser = require("regex-parser");
 
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
-import { FaTumblrSquare } from 'react-icons/fa';
+import { FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
 import { setMyMetisParameter } from '../../../actions/actions';
@@ -584,6 +584,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.handleOpenModal(node, modalContext);
                 // 
             }, 
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                return true;
+              }
+              return false; 
+            }),
+          makeButton("Add Connected Objects",
+            function (e: any, obj: any) { 
+              myMetis.myDiagram = myDiagram;
+              const modelview = myMetis.currentModelview;
+              const goModel = myMetis.gojsModel;
+              const node = obj.part.data;
+              const objview = node?.objectview;
+              const retval: any = uic.addConnectedObjects(modelview, objview, null, goModel, myMetis);
+              if (debug) console.log('602 retval', retval);
+            },
             function (o: any) { 
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {

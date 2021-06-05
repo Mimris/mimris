@@ -618,28 +618,28 @@ export class goRelshipLink extends goLink {
             const relship = relview.getRelationship();
             if (relship) {
                 this.relship = relship;
-                this.relshiptype = relship.getType();
+                this.relshiptype = relship.type;
                 // this.typename    = this.relshiptype.getName();
                 this.type = this.typename;
-                this.name = this.relship.getName();
+                this.name = this.relship.name;
                 if (this.name.length == 0)
                     this.name = this.typename;
                 this.cardinalityFrom = this.relship.cardinalityFrom;
                 this.cardinalityTo = this.relship.cardinalityTo;
-                if (debug) console.log('507 relshipLink', this);
+                if (debug) console.log('629 relshipLink', this);
             }
             this.typeview = relview.getTypeView();
             const fromObjview = relview.getFromObjectView();
             if (fromObjview) {
                 let node: goNode | null = model?.findNodeByViewId(fromObjview.id);
-                if (debug) console.log('512 fromNode', node);
+                if (debug) console.log('635 fromNode', node);
                 if (node) {
                     this.fromNode = node;
                     this.from = node.key;
                     const toObjview: akm.cxObjectView | null = relview.getToObjectView();
                     if (toObjview) {
-                        node = model.findNodeByViewId(toObjview.id);
-                        if (debug) console.log('519 toNode', node);
+                        node = model?.findNodeByViewId(toObjview.id);
+                        if (debug) console.log('642 toNode', node);
                         if (node) {
                             this.toNode = node;
                             this.to = node.key;
@@ -647,7 +647,7 @@ export class goRelshipLink extends goLink {
                     }
                 }
             }
-            if (debug) console.log('527 relshipLink', this);
+            if (debug) console.log('650 relshipLink', this);
         }
     }
     // Methods
@@ -679,10 +679,10 @@ export class goRelshipLink extends goLink {
         if ((relview) && (typeview)) {
             if (!relview.markedAsDeleted) {
                 if (this.toNode && this.fromNode) {
-                    const viewdata: any = typeview.getData();
-                    const data: any = typeview.getData();
+                    const viewdata: any = typeview.data;
+                    const data: any = typeview.data;
                     this.addData(data);
-                    this.setName(relview.getName());
+                    this.setName(relview.name);
                     this.points = relview.points;
                     for (let prop in viewdata) {
                         if (relview[prop] && relview[prop] !== "") {
@@ -700,7 +700,7 @@ export class goRelshipLink extends goLink {
                         if (reltype.typeview) {
                             const data: any = reltype.typeview.data;
                             this.addData(data);
-                            this.setName(relview.getName());
+                            this.setName(relview.name);
                         }
                     }
                 }

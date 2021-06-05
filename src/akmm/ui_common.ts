@@ -1552,6 +1552,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
             if (rels) {
                 for (let i=0; i<rels.length; i++) {
                     let rel = rels[i];
+                    if (rel.markedAsDeleted)
+                        continue;
                     rel = myMetis.findRelationship(rel.id);
                     let toObj;
                     if (useinp) 
@@ -1560,6 +1562,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         toObj = rel.toObject as akm.cxObject;
                     if (debug) console.log('1560 toObj', toObj);
                     toObj = myMetis.findObject(toObj.id);
+                    if (!toObj || toObj.markedAsDeleted)
+                        continue;
                     if (objtype) {
                         if (toObj.type.id !== objtype.id)
                             continue;
@@ -1573,9 +1577,14 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     const objviews = modelview.findObjectViewsByObj(toObj);
                     let toObjview;
                     if (objviews?.length >0) {
+                        for (let i=0; i<objviews.length; i++) {   
+                            const oview = objviews[i];
+                            if (oview.markedAsDeleted)
+                                continue; 
+                            if (debug) console.log('1572 Create relship views to objviews', object, objviews);
+                            toObjview = oview;
+                        }
                         // Create relship views and links to the found objviews if they do not exist
-                        if (debug) console.log('1572 Create relship views to objviews', object, objviews);
-                        toObjview = objviews[0];
                         let relviews;
                         if (useinp)
                             relviews = modelview.findRelationshipViewsByRel2(rel, toObjview, objview);
@@ -1583,7 +1592,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
                         if (debug) console.log('1579 rel, relview', rel, relviews);                    
                         if (relviews.length > 0)
-                            continue;
+                            continue;                        
                     } else {
                         // Create an objectview of toObj and then a node
                         // Then create a relship view and a link from object to toObj

@@ -1070,7 +1070,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   public render() {   
     const selectedData = this.state.selectedData;
-    if (!debug) console.log('1075 selectedData', selectedData, this.props);
+    if (debug) console.log('1075 selectedData', selectedData, this.props);
     let inspector;
     if (selectedData !== null) {
       inspector = 
@@ -1087,7 +1087,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     if (debug) console.log('1120 dispatch', this.state.myMetis.dispatch);
-    if (!debug) console.log('1091 linkdataarray:', this.state.nodeDataArray, this.state.linkDataArray);
+    if (debug) console.log('1091 linkdataarray:', this.state.nodeDataArray, this.state.linkDataArray);
     return ( (this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper

@@ -6,6 +6,7 @@ import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
 import { FaLessThan, FaNode } from 'react-icons/fa';
+import { setMyMetisParameter } from '../actions/actions';
 //import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
 const printf = require('printf');
@@ -1349,11 +1350,10 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                 const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
                 if (debug) console.log('1217 SetReltype', gqlRelView);
                 const modifiedRelshipViews = new Array();
-                modifiedRelshipViews.push(gqlRelView);
                 modifiedRelshipViews.map(mn => {
                     let data = mn;
                     myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-                })
+               })
             }
             const gqlRelship = (currentRelship) && new gql.gqlRelationship(currentRelship);
             const modifiedRelships = new Array();
@@ -1535,6 +1535,114 @@ export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relvi
     newArray.push(myLink);
     parent.linkDataArray = newArray;
     return myLink;
+}
+
+export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, objtype: akm.cxObjectType, 
+                                    goModel: gjs.goModel, myMetis: akm.cxMetis) {
+    const myDiagram = myMetis.myDiagram;
+    const modifiedObjectViews = new Array();
+    const modifiedRelshipViews = new Array();
+    if (objview) {
+        const nodeLoc = objview.loc.split(" ");
+        const nx = parseInt(nodeLoc[0]);
+        const ny = parseInt(nodeLoc[1]);
+        const object = objview.object;
+        for (let useinp = 0; useinp < 2; useinp++) {
+            let rels  = useinp ? object.inputrels : object.outputrels;
+            if (rels) {
+                for (let i=0; i<rels.length; i++) {
+                    let rel = rels[i];
+                    rel = myMetis.findRelationship(rel.id);
+                    let toObj;
+                    if (useinp) 
+                        toObj = rel.fromObject as akm.cxObject;
+                    else
+                        toObj = rel.toObject as akm.cxObject;
+                    if (debug) console.log('1560 toObj', toObj);
+                    toObj = myMetis.findObject(toObj.id);
+                    if (objtype) {
+                        if (toObj.type.id !== objtype.id)
+                            continue;
+                    }
+                    const toObjtype = toObj.type;
+                    const toObjtypeview = toObjtype.typeview;
+                    const toTypeviewData = toObjtypeview.data;
+                    const toObjviews = toObj.objectviews;
+                    if (debug) console.log('1566 toObjtypeview, toObjviews', toObjtypeview, toObjviews);
+                    // Find toObj in modelview
+                    const objviews = modelview.findObjectViewsByObj(toObj);
+                    let toObjview;
+                    if (objviews?.length >0) {
+                        // Create relship views and links to the found objviews if they do not exist
+                        if (debug) console.log('1572 Create relship views to objviews', object, objviews);
+                        toObjview = objviews[0];
+                        let relviews;
+                        if (useinp)
+                            relviews = modelview.findRelationshipViewsByRel2(rel, toObjview, objview);
+                        else 
+                            relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
+                        if (debug) console.log('1579 rel, relview', rel, relviews);                    
+                        if (relviews.length > 0)
+                            continue;
+                    } else {
+                        // Create an objectview of toObj and then a node
+                        // Then create a relship view and a link from object to toObj
+                        if (debug) console.log('1585 Create an object view and a relship view', object);
+                        const id1 = utils.createGuid();
+                        toObjview = new akm.cxObjectView(id1, toObj.name, toObj, "");
+                        toObj.addObjectView(toObjview);
+                        modelview.addObjectView(toObjview);
+                        myMetis.addObjectView(toObjview);
+                        if (debug) console.log('1591 toObjview', toObj, toObjview);
+                        const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
+                        const oview = toObjviews[0];
+                        for (let prop in toTypeviewData) {
+                            if (oview[prop] !== "") {
+                                toObjview[prop] = oview[prop];
+                                myDiagram.model.setDataProperty(goNode, prop, oview[prop]);
+                            } else
+                                myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
+                        }
+                        const locx = useinp ? nx - 300 : nx + 300;
+                        const locy = ny - 50 + i * 100;
+                        const loc = locx + " " + locy;
+                        toObjview.loc = loc;
+                        goNode.loc = loc;
+                        if (debug) console.log('1606 goNode', goNode);
+                        goModel.addNode(goNode);
+                        myDiagram.model.addNodeData(goNode);
+                        const gqlObjview = new gql.gqlObjectView(toObjview);
+                        modifiedObjectViews.push(gqlObjview);
+                    }
+                    const id2 = utils.createGuid();
+                    const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
+                    relview.fromObjview = useinp ? toObjview : objview;
+                    relview.toObjview = useinp ? objview : toObjview;
+                    rel.addRelationshipView(relview);
+                    modelview.addRelationshipView(relview);
+                    myMetis.addRelationshipView(relview);
+                    const gqlRelView = new gql.gqlRelshipView(relview);
+                    modifiedRelshipViews.push(gqlRelView);
+                    if (debug) console.log('1621 relview', relview);
+                    const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
+                    goLink.loadLinkContent(goModel);
+                    goModel.addLink(goLink);
+                    myDiagram.model.addLinkData(goLink);
+                    if (debug) console.log('1626 goLink', goLink);
+                    
+                }
+            }
+        }
+    }
+    modifiedObjectViews.map(mn => {
+        let data = mn;
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
+      });
+    modifiedRelshipViews.map(mn => {
+        let data = mn;
+        myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
+    });
+    // addMissingRelationshipViews(modelview, myMetis);
 }
 
 export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis: akm.cxMetis) {

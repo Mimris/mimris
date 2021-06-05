@@ -5818,6 +5818,22 @@ export class cxModelView extends cxMetaObject {
         }
         return relviews;
     }
+    findRelationshipViewsByRel2(rel: cxRelationship, fromObjview: cxObjectView, toObjview: cxObjectView): cxRelationshipView[] {
+        const relviews = new Array();
+        let rviews = this.relshipviews;
+        if (!rviews) 
+            return null;
+        for (let i=0; i<rviews.length; i++) {
+            const rv:cxRelationshipView = rviews[i];
+            if (rv?.relship?.id === rel.id) {
+                if (rv.fromObjview.id === fromObjview.id) {
+                    if (rv.toObjview.id === toObjview.id)
+                        relviews.push(rv);
+                }
+            }
+        }
+        return relviews;
+    }
     findRelationshipTypeView(id: string): cxRelationshipTypeView | null {
         if (!this.relshiptypeviews) return null;
         let i = 0;

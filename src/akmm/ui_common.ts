@@ -1007,7 +1007,6 @@ export function createRelationship(data: any, context: any) {
                         return;
                     }
                     if (debug) console.log('988 data, reltype', data, reltype);
-
                     const linkIt = nodeFrom.findLinksOutOf(); // get all links out from it
                     while (linkIt.next()) { // for each link get the link text and toNode text
                       const link = linkIt.value;
@@ -1022,20 +1021,19 @@ export function createRelationship(data: any, context: any) {
                         myDiagram.model.removeLinkData(data);
                         return;
                       }
-
                     }
-                  
+                    let relshipview;
                     data.relshiptype = reltype;
                     const reltypeview = reltype.typeview;
                     myDiagram.model.setDataProperty(data, "name", typename);
-                    const relshipview = createLink(data, context);
-                    if (debug) console.log('993 relshipview', relshipview);
+                    relshipview = createLink(data, context);
+                    if (!debug) console.log('1042 relshipview', relshipview);
                     if (relshipview) {
                         relshipview.setTypeView(reltypeview);
                         const relship = relshipview.relship; 
                         relship.addRelationshipView(relshipview);
                     }
-                    if (debug) console.log('999 myGoModel', myGoModel);
+                    if (!debug) console.log('1050 relshipview, myGoModel', relshipview, myGoModel);
                     myDiagram.requestUpdate();
                     return relshipview;
                 }
@@ -2108,7 +2106,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
 export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxModel, metamodel: akm.cxMetaModel, myDiagram: any, myMetis: akm.cxMetis) {
     // Handle the objects
     // Check if the referenced type exists - otherwse find a type that corresponds
-    if (debug) console.log('1519 model, modelview', model, modelview, myMetis);
+    if (debug) console.log('2111 model, modelview', model, modelview, myMetis);
     const myGoModel = myDiagram?.myGoModel;
     const defObjTypename = 'Generic';
     const objects = model.objects;
@@ -2121,7 +2119,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     // Handle the objects
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
-        if (obj.markedAsDeleted) console.log('1750 obj:', obj);
+        if (obj.markedAsDeleted) console.log('2124 obj:', obj);
         if (!obj.type) {
             if (debug) console.log('1581 obj, myMetis', obj, myMetis);
             const type = myMetis.findObjectTypeByName(defObjTypename);
@@ -2139,7 +2137,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         obj.outputrels = new Array();
         const typeRef = obj.typeRef;
         const typeName = obj.typeName;
-        if (debug) console.log('1441 obj', obj, model);
+        if (debug) console.log('2142 obj', obj, model);
         let objtype = metamodel.findObjectType(typeRef);
         msg = "\tVerifying object type " + typeRef + " (" + typeName + ")";
         report += printf(format, msg);
@@ -2147,7 +2145,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         if (!objtype) {
             msg = "\tObject type " + typeRef + " (" + typeName + ") was not found";
             report += printf(format, msg);
-            if (debug) console.log('1464 Type of object not found:', obj);
+            if (debug) console.log('2150 Type of object not found:', obj);
             objtype = metamodel.findObjectTypeByName(typeName);
             if (!objtype) {
                 objtype = metamodel.findObjectTypeByName(defObjTypename);
@@ -2198,8 +2196,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     }
     msg = "Verifying objects is completed\n";
     report += printf(format, msg);
-
-
     // Handle object views
     msg = "Verifying object views";
     report += printf(format, msg);
@@ -2209,7 +2205,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         const oview = oviews[i];
         if (oview) {
             if (!oview.markedAsDeleted) { // Object view is not deleted
-                if (debug) console.log('1842 oview, object:', oview, oview.object);
+                if (debug) console.log('2212 oview, object:', oview, oview.object);
                 if (oview.object?.markedAsDeleted) {
                     oview.object.markedAsDeleted = false;
                     const gqlObject = new gql.gqlObject(oview.object);
@@ -2225,7 +2221,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     const gqlObject = new gql.gqlObject(obj);
                     oview.object = obj;
                     oview.objectRef = obj.id;
-                    if (debug) console.log('1886 gqlObject', gqlObject);
+                    if (debug) console.log('2228 gqlObject', gqlObject);
                     modifiedObjects.push(gqlObject);
                 }
             }
@@ -2248,10 +2244,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     })
     msg = "Verifying object views is completed\n";
     report += printf(format, msg);
-
-
-    
-    if (true) {
+  
     // Handle the relationships
     msg += "Verifying relationships";
     report += printf(format, msg);
@@ -2263,7 +2256,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     if (relships) { // sf added
         for (let i=0; i<relships.length; i++) {
             const rel = relships[i];
-            if (debug) console.log('1510 rel', rel);
+            if (debug) console.log('2261 rel', rel);
             const fromObj  = rel.fromObject;
             const toObj    = rel.toObject
             let   fromType = fromObj?.type;
@@ -2284,12 +2277,12 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 }
             }
             let reltype = metamodel.findRelationshipType(typeRef);
-            if (debug) console.log('1518 fromType and toType', typeRef, typeName, fromType, toType, reltype);
+            if (debug) console.log('2282 fromType and toType', typeRef, typeName, fromType, toType, reltype);
             msg = "\tVerifying relationship type " + typeRef + " (" + typeName + ")";
             report += printf(format, msg);
             if (!reltype) {
                 msg = "\tRelationship type " + typeRef + " (" + typeName + ") was not found";
-                if (debug) console.log('1524 Relationship with unknown type:', typeName);
+                if (debug) console.log('2287 Relationship with unknown type:', typeName);
                 if (typeName === 'hasProperty')  {
                     typeName = 'has';
                     toType = metamodel.findObjectTypeByName('Property');
@@ -2311,7 +2304,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     toType = metamodel.findObjectTypeByName('Unittype');
                 }
                 const reltypes = metamodel.findRelationshipTypesByName(typeName);
-                if (debug) console.log('1530 Relationship with name:', typeName, reltypes);
+                if (debug) console.log('2309 Relationship type with name:', typeName, reltypes);
                 if (reltypes) {
                     for (let i=0; i<reltypes.length; i++) {
                         const rtype = reltypes[i] as akm.cxRelationshipType;
@@ -2319,9 +2312,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                         if (!fromObjType) fromObjType = rtype.fromObjtype;
                         let toObjType = toType;
                         if (!toObjType) toObjType   = rtype.toObjtype;
-                        if (debug) console.log('1548 fromType and toType', typeName, fromObjType, toObjType);
+                        if (debug) console.log('2317 fromType and toType', typeName, fromObjType, toObjType);
                         if (fromObjType && toObjType) {
-                            if (debug) console.log('1550 findreltypebyname', typeName, fromObjType.name, toObjType.name);
+                            if (debug) console.log('2319 findreltypebyname', typeName, fromObjType.name, toObjType.name);
                             const rtyp = metamodel.findRelationshipTypeByName2(typeName, fromObjType, toObjType);
                             if (rtyp) {
                                 reltype = rtyp;
@@ -2329,7 +2322,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                                 rel.name = typeName;
                                 msg = "\tRelationship type changed to: " + typeName;
                                 report += printf(format, msg);
-                                if (debug) console.log('1560 Found relationship type:', reltype);
+                                if (debug) console.log('2327 Found relationship type:', reltype);
                                 break;
                             }
                         }
@@ -2360,15 +2353,43 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     for (let i=0; i<mviews.length; i++) {
         const mview = mviews[i];
         if (mview && mview.id === modelview.id) {
-            if (debug) console.log('1595 modelview', mview);
             const rviews = mview.relshipviews;
+            if (debug) console.log('2359 modelview', mview);
             for (let j=0; j<rviews?.length; j++) {
                 const rview = rviews[j];
-                if (debug) console.log('1597 relshipview', rview);
+                const rel = rview.relship;
+                const fromObjview = rview.fromObjview;
+                const toObjview = rview.toObjview;
+                const relviews = mview.findRelationshipViewsByRel2(rel, fromObjview, toObjview);
+                if (debug) console.log('2366 rel, relviews', rel, relviews);
+                if (relviews.length > 1) {
+                    let n = 0;
+                    const rvs = [];
+                    for (let k=0; k<relviews.length; k++) {
+                        const rv = relviews[k];
+                        if (!rv.markedAsDeleted) {
+                            rvs.push(rv);
+                            n++;
+                        }
+                    }
+                    if (debug) console.log('2377 n, rel, rvs', n, rel, rvs);
+                    if (n>1) {
+                        for (let k=0; k<rvs.length; k++) {
+                            if (k == 0) 
+                                continue;
+                            const rv = rvs[k];
+                            rv.markedAsDeleted = true;
+                            const gqlRelview = new gql.gqlRelshipView(rv);
+                            modifiedRelviews.push(gqlRelview);
+                        }
+                    }
+                }
+
+                if (debug) console.log('2393 relshipview', rview);
                 if (rview && !rview.markedAsDeleted) {
                     const rel = rview.relship;
                     if (rel && rel.type) {
-                        if (debug) console.log('1601 relshipview', rel);
+                        if (debug) console.log('2397 relshipview', rel);
                         if (rel.markedAsDeleted && !rview.markedAsDeleted) {
                             rview.markedAsDeleted = true;
                             msg = "\tVerifying relationship " + rel.name + " that is deleted, but relationshipview is not.\n";
@@ -2384,7 +2405,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                             report += printf(format, msg);
                         }
                         const gqlRelview = new gql.gqlRelshipView(rview);
-                        if (debug) console.log('1613 gqlRelview', gqlRelview);
+                        if (debug) console.log('2413 gqlRelview', gqlRelview);
                         modifiedRelviews.push(gqlRelview);
                         const myLink = myGoModel.findLinkByViewId(rview.id);
                         if (myLink) {
@@ -2399,27 +2420,26 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             }
         }
     }
-    if (debug) console.log('1733 modifiedRelviews', modifiedRelviews);
+    if (debug) console.log('2425 modifiedRelviews', modifiedRelviews);
     modifiedRelviews?.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1629 data (relshipview)', data);
+        if (debug) console.log('2429 data (relshipview)', data);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
     })
     modifiedRelships?.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1611 data (relship)', data);
+        if (debug) console.log('2435 data (relship)', data);
         myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
     })
 
     msg = "Verifying relationships is completed\n\n";
     msg += "End Verification";
-    if (debug) console.log('2074 myGoModel', myGoModel);
+    if (debug) console.log('2441 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (debug) console.log(report);
+    if (!debug) console.log(report);
     myDiagram.requestUpdate();    
-    }                 
 } 
 
 // Local functions

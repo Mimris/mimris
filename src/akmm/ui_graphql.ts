@@ -366,7 +366,9 @@ export class gqlRelationshipType {
     toobjtypeRef:   string;
     cardinality:    string;
     cardinalityFrom: string;
-    cardinalityTo:   string;
+    cardinalityTo:  string;
+    nameFrom:       string;
+    nameTo:         string;
     markedAsDeleted: boolean;
     modified:       boolean;
     constructor(reltype: akm.cxRelationshipType, includeViews: boolean) {
@@ -383,6 +385,8 @@ export class gqlRelationshipType {
         this.cardinality    = reltype.cardinality;
         this.cardinalityFrom = reltype.cardinalityFrom;
         this.cardinalityTo   = reltype.cardinalityTo;
+        this.nameFrom       = reltype.nameFrom;
+        this.nameTo         = reltype.nameTo;
         this.markedAsDeleted = reltype.markedAsDeleted;
         this.modified       = reltype.modified;
         if (includeViews) {
@@ -930,6 +934,8 @@ export class gqlRelationship {
     cardinality:     string;
     cardinalityFrom: string;
     cardinalityTo:   string;
+    nameFrom:        string;
+    nameTo:          string;
     markedAsDeleted: boolean;
     generatedTypeId: string;
     modified:        boolean;
@@ -946,6 +952,8 @@ export class gqlRelationship {
         this.cardinality     = relship.cardinality;
         this.cardinalityFrom = relship.cardinalityFrom;
         this.cardinalityTo   = relship.cardinalityTo;
+        this.nameFrom        = relship.nameFrom;
+        this.nameTo          = relship.nameTo;
         this.markedAsDeleted = relship.markedAsDeleted;
         this.generatedTypeId = relship.generatedTypeId;
         this.modified        = relship.modified;

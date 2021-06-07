@@ -48,4 +48,4 @@
 //   const json = await myGet('/api/usersessions', ctx);
 //   return { usersessions: json };
 // }
-export {}
+export default {}

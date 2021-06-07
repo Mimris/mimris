@@ -1086,8 +1086,8 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
 
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
-    if (debug) console.log('1120 dispatch', this.state.myMetis.dispatch);
-    if (debug) console.log('1091 linkdataarray:', this.state.nodeDataArray, this.state.linkDataArray);
+    if (debug) console.log('1089 dispatch', this.state.myMetis.dispatch);
+    if (debug) console.log('1090 linkdataarray:', this.state.linkDataArray);
     return ( (this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper

@@ -138,7 +138,7 @@ export class goModel {
             let i = 0;
             while (i < this.links.length) {
                 const link: goLink = this.links[i] as goLink;
-                if (link.getKey() === key) {
+                if (link.key === key) {
                     return (link);
                 }
                 i++;
@@ -597,6 +597,8 @@ export class goRelshipLink extends goLink {
     cardinality:        string;
     cardinalityFrom:    string;
     cardinalityTo:      string;
+    nameFrom:           string;
+    nameTo:             string;
     constructor(key: string, model: goModel, relview: akm.cxRelationshipView) {
         super(key, model);
         this.category        = constants.gojs.C_RELATIONSHIP;
@@ -613,6 +615,8 @@ export class goRelshipLink extends goLink {
         this.cardinality     = "";
         this.cardinalityFrom = "";
         this.cardinalityTo   = "";
+        this.nameFrom        = "";
+        this.nameTo          = "";
 
         if (relview) {
             const relship = relview.getRelationship();
@@ -626,6 +630,8 @@ export class goRelshipLink extends goLink {
                     this.name = this.typename;
                 this.cardinalityFrom = this.relship.cardinalityFrom;
                 this.cardinalityTo = this.relship.cardinalityTo;
+                this.nameFrom = this.relship.nameFrom;
+                this.nameTo = this.relship.nameTo;
                 if (debug) console.log('629 relshipLink', this);
             }
             this.typeview = relview.getTypeView();
@@ -730,6 +736,8 @@ export class goRelshipTypeLink extends goLink {
     cardinality: string;
     cardinalityFrom: string;
     cardinalityTo: string;
+    nameFrom:   string;
+    nameTo:     string;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
         this.category   = constants.gojs.C_RELSHIPTYPE;
@@ -742,12 +750,16 @@ export class goRelshipTypeLink extends goLink {
         this.cardinality = "";
         this.cardinalityFrom = "";
         this.cardinalityTo = "";
+        this.nameFrom = "";
+        this.nameTo = "";
 
         if (reltype) {
             this.setName(reltype.getName());
             this.setType(constants.gojs.C_RELSHIPTYPE);
             this.cardinalityFrom = this.reltype.cardinalityFrom;
             this.cardinalityTo = this.reltype.cardinalityTo;
+            this.nameFrom = this.reltype.nameFrom;
+            this.nameTo = this.reltype.nameTo;
             const typeview: akm.cxObjectTypeView | akm.cxRelationshipTypeView | null
                 = reltype.getDefaultTypeView();
             if (typeview) {

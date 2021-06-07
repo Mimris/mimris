@@ -3945,6 +3945,8 @@ export class cxRelationshipType extends cxObjectType {
     cardinality: string;
     cardinalityFrom: string;
     cardinalityTo: string;
+    nameFrom: string;
+    nameTo: string;
     constructor(id: string, name: string, fromObjtype: cxObjectType | null, toObjtype: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPES;     // Firestore collection
@@ -3958,6 +3960,8 @@ export class cxRelationshipType extends cxObjectType {
         this.viewkind = "";
         this.cardinality = "";
         this.cardinalityFrom = "";
+        this.nameTo = "";
+        this.nameFrom = "";
         this.cardinalityTo = "";
         this.markedAsDeleted = false;
     }
@@ -4005,6 +4009,18 @@ export class cxRelationshipType extends cxObjectType {
         //     retval = cardinality.slice(pos+1);
         // }
         return retval;
+    }
+    setNameFrom(name: string) {
+        this.nameFrom = name;
+    }
+    getNameFrom(): string {
+        return this.nameFrom;
+    }
+    setNameTo(name: string) {
+        this.nameTo = name;
+    }
+    getNameTo(): string {
+        return this.nameTo;
     }
     isInstantiable(): boolean {
         let retval = true;
@@ -4585,6 +4601,7 @@ export class cxModel extends cxMetaObject {
     templates: cxModelView[];
     isTemplate: boolean;
     isMetamodel: boolean;
+    includeSystemtypes: boolean;
     layer: string;
     submodels: cxModel[] | null;
     objects: cxObject[] | null;
@@ -4604,6 +4621,7 @@ export class cxModel extends cxMetaObject {
         this.templates = null;
         this.isTemplate = false;
         this.isMetamodel = false;
+        this.includeSystemtypes = false;
         this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;
@@ -5446,6 +5464,8 @@ export class cxRelationship extends cxInstance {
     cardinality: string;
     cardinalityFrom: string;
     cardinalityTo: string;
+    nameFrom: string;
+    nameTo: string;
     constructor(id: string, type: cxRelationshipType | null, fromObj: cxObject | null, toObj: cxObject | null, name: string, description: string) {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_RELATIONSHIPS;  // Firestore collection
@@ -5457,9 +5477,23 @@ export class cxRelationship extends cxInstance {
         this.cardinality = "";
         this.cardinalityFrom = this.getCardinalityFrom();
         this.cardinalityTo = this.getCardinalityTo();
+        this.nameFrom = "";
+        this.nameTo = "";
         if (!this.typeName) this.typeName = name;
     }
     // Methods
+    setNameFrom(name: string) {
+        this.nameFrom = name;
+    }
+    getNameFrom(): string {
+        return this.nameFrom;
+    }
+    setNameTo(name: string) {
+        this.nameTo = name;
+    }
+    getNameTo(): string {
+        return this.nameTo;
+    }
     addRelationshipView(relview: cxRelationshipView) {
         if (!this.relshipviews)
             this.relshipviews = new Array();
@@ -5495,7 +5529,7 @@ export class cxRelationship extends cxInstance {
         return this.type as cxRelationshipType;
     }
     getCardinalityFrom(): string {
-        let retval = "";
+        let retval = this.cardinalityFrom;
         // const cardinality = this.cardinality;
         // if (cardinality.length >0) {
         //     const pos = cardinality.indexOf('-');
@@ -5504,9 +5538,9 @@ export class cxRelationship extends cxInstance {
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = this.cardinality;
-        if (retval[0] === retval[3])
-            retval = retval[3];
+        let retval = this.cardinalityTo;
+        // if (retval[0] === retval[3])
+        //     retval = retval[3];
         // let retval = "";
         // const cardinality = this.cardinality;
         // if (cardinality.length >0) {
@@ -5675,7 +5709,7 @@ export class cxModelView extends cxMetaObject {
     setRelationshipTypeViews(relshiptypeviews: cxRelationshipTypeView[]) {
         this.relshiptypeviews = relshiptypeviews;
     }
-    getRelationshipTypetViews(): cxRelationshipTypeView[] | null {
+    getRelationshipTypeViews(): cxRelationshipTypeView[] | null {
         return this.relshiptypeviews;
     }
     addObjectTypeView(objtypeView: cxObjectTypeView) {

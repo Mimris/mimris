@@ -268,7 +268,7 @@ export function handleSelectDropdownChange(selected, context) {
             break;
           case 'Relationship type':
             inst = myMetis.findRelationshipType(inst.id);
-            if (propname === 'cardinality') {
+            if (propname === 'cardinalityFrom' || propname === 'cardinalityTo') {
               const patt = '\\b(n|[0-9])\\b[-]\\b(n|[1-9])\\b';
               const regex = new RegexParser(patt);
               console.log('767 regex:', regex, value);
@@ -459,7 +459,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       relship = myMetis.findRelationship(relship.id);
       relship['cardinalityFrom'] = relship.getCardinalityFrom();
       relship['cardinalityTo'] = relship.getCardinalityTo();
-      relship.cardinalityTo = relship.cardinality;
+      // relship.cardinalityTo = relship.cardinality;
       if (debug) console.log('327 relship, rel', relship, rel);
       for (let k in rel) {
         if (typeof(rel[k]) === 'object')    continue;

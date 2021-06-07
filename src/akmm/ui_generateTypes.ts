@@ -739,7 +739,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             metamodel.addDatatype(datatype);
     }
     // Add or generate objecttypes
-    const metaObject = 'Object';
+    const metaObject = 'Element';
     if (debug) console.log('713 objectviews', objectviews);
     if (objectviews) {
         for (let i=0; i<objectviews.length; i++) {

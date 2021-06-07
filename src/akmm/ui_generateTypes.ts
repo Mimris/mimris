@@ -835,44 +835,53 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     if (debug) console.log('835 myMetamodel, model', myMetamodel, model);
     // Add system types 
     // First object types
+    let systemtypes = ['Generic', 'Container'];
+    let types;
     if (model.includeSystemtypes) {
-        let types = myMetamodel.objecttypes;
-        for (let i=0; i<types.length; i++) {
-            const typename = types[i].name;
-            const objtype = myMetamodel.findObjectTypeByName(typename);
-            if (debug) console.log('839 objtype', objtype, myMetis);
-            if (objtype) {
-                metamodel.addObjectType(objtype);
-                metamodel.addObjectTypeView(objtype.typeview);
-                let geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype, "", "");
-                metamodel.addObjtypeGeo(geo);
-                const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-                if (debug) console.log('846 Generate Object Type', gqlObjTypegeo, myMetis);
-                modifiedGeos.push(gqlObjTypegeo);
-            }
-        }
-        // Then relationship types
-        const reltypes = myMetamodel.relshiptypes;
-        if (debug) console.log('823 reltypes', reltypes);
-        for (let i=0; i<reltypes.length;i++) {
-            const reltype = reltypes[i];
-            if (reltype) {
-                metamodel.addRelationshipType(reltype);
-                if (debug) console.log('811 reltype', reltype);
-            }
-        }
-        let typenames = ['isRelatedTo'];
-        for (let i=0; i<typenames.length; i++) {
-            const typename = typenames[i];
-            const reltype = myMetamodel.findRelationshipTypeByName(typename);
-            if (debug) console.log('839 reltype', reltype, myMetis);
-            if (reltype) {
-                metamodel.addRelationshipType(reltype);
-                metamodel.addRelationshipTypeView(reltype.typeview);
-            }
+        types = myMetamodel.objecttypes;
+    } else {
+        types = [];
+        for (let i=0; i<systemtypes.length; i++) {
+            const typename = systemtypes[i];
+            const type = myMetamodel.findObjectTypeByName(typename);
+            types.push(type);
         }
     }
-
+    for (let i=0; i<types.length; i++) {
+        const typename = types[i].name;
+        const objtype = myMetamodel.findObjectTypeByName(typename);
+        if (debug) console.log('839 objtype', objtype, myMetis);
+        if (objtype) {
+            metamodel.addObjectType(objtype);
+            metamodel.addObjectTypeView(objtype.typeview);
+            let geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype, "", "");
+            metamodel.addObjtypeGeo(geo);
+            const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
+            if (debug) console.log('846 Generate Object Type', gqlObjTypegeo, myMetis);
+            modifiedGeos.push(gqlObjTypegeo);
+        }
+    }
+    // Then relationship types
+    systemtypes = ['isRelatedTo'];
+    let reltypes;
+    if (model.includeSystemtypes) {
+        reltypes = myMetamodel.relshiptypes;
+        if (debug) console.log('823 reltypes', reltypes);
+    } else {
+        reltypes = [];
+        for (let i=0; i<systemtypes.length; i++) {
+            const typename = systemtypes[i];
+            const reltype = myMetamodel.findRelationshipTypeByName(typename);
+            reltypes.push(reltype);
+        }
+    }
+    for (let i=0; i<reltypes.length;i++) {
+        const reltype = reltypes[i];
+        if (reltype) {
+            metamodel.addRelationshipType(reltype);
+            if (debug) console.log('811 reltype', reltype);
+        }
+    }
     // Prepare dispatch of the metamodel
     if (debug) console.log('831 Target metamodel', metamodel);
     const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);

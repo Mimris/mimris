@@ -4601,6 +4601,7 @@ export class cxModel extends cxMetaObject {
     templates: cxModelView[];
     isTemplate: boolean;
     isMetamodel: boolean;
+    includeSystemtypes: boolean;
     layer: string;
     submodels: cxModel[] | null;
     objects: cxObject[] | null;
@@ -4620,6 +4621,7 @@ export class cxModel extends cxMetaObject {
         this.templates = null;
         this.isTemplate = false;
         this.isMetamodel = false;
+        this.includeSystemtypes = false;
         this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;
@@ -5527,7 +5529,7 @@ export class cxRelationship extends cxInstance {
         return this.type as cxRelationshipType;
     }
     getCardinalityFrom(): string {
-        let retval = "";
+        let retval = this.cardinalityFrom;
         // const cardinality = this.cardinality;
         // if (cardinality.length >0) {
         //     const pos = cardinality.indexOf('-');
@@ -5536,9 +5538,9 @@ export class cxRelationship extends cxInstance {
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = this.cardinality;
-        if (retval[0] === retval[3])
-            retval = retval[3];
+        let retval = this.cardinalityTo;
+        // if (retval[0] === retval[3])
+        //     retval = retval[3];
         // let retval = "";
         // const cardinality = this.cardinality;
         // if (cardinality.length >0) {

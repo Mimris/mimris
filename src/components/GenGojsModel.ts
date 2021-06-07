@@ -172,7 +172,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
     if (debug) console.log('173 metamodel', metamodel);
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
-    const objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
+    let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
+    if (objecttypes) {
+      objecttypes.sort(utils.compare);
+    }
     if (debug) console.log('176 objecttypes', objecttypes);
     if (objecttypes) {
       for (let i = 0; i < objecttypes.length; i++) {

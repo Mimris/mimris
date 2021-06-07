@@ -1027,13 +1027,13 @@ export function createRelationship(data: any, context: any) {
                     const reltypeview = reltype.typeview;
                     myDiagram.model.setDataProperty(data, "name", typename);
                     relshipview = createLink(data, context);
-                    if (!debug) console.log('1042 relshipview', relshipview);
+                    if (debug) console.log('1042 relshipview', relshipview);
                     if (relshipview) {
                         relshipview.setTypeView(reltypeview);
                         const relship = relshipview.relship; 
                         relship.addRelationshipView(relshipview);
                     }
-                    if (!debug) console.log('1050 relshipview, myGoModel', relshipview, myGoModel);
+                    if (debug) console.log('1050 relshipview, myGoModel', relshipview, myGoModel);
                     myDiagram.requestUpdate();
                     return relshipview;
                 }
@@ -1870,8 +1870,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     // if (k === 'abstract') retVal = false;
     if (k === 'allowedValues') retVal = false;
     if (k === 'allProperties') retVal = false;
-    if (k === 'cardinalityFrom') retVal = false;
-    if (k === 'cardinalityTo') retVal = false;
+    if (k === 'cardinality') retVal = false;
     if (k === 'currentTargetModelview') retVal = false;
     if (k === 'category') retVal = false;
     if (k === 'class') retVal = false;
@@ -2438,7 +2437,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg += "End Verification";
     if (debug) console.log('2441 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (!debug) console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 } 
 

@@ -32,7 +32,7 @@ import LoadLocal from '../../../components/LoadLocal'
 import { FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
 // import * as svgs from '../../utils/SvgLetters'
 // import svgs from '../../utils/Svgs'
-import { setMyMetisParameter } from '../../../actions/actions';
+import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
 import { iconList } from '../../forms/selectIcons';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
@@ -2067,6 +2067,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "myDiagram":          e.diagram,
               "dispatch":           e.diagram.dispatch
             }
+            if (confirm('Do you want to include system types?')) {
+              myMetis.currentModel.includeSystemtypes = true;
+            }
             context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
             if (context.myTargetMetamodel == undefined)  // sf
                 context.myTargetMetamodel = null;
@@ -3234,7 +3237,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       default:
         break;
     }
-    if (debug) console.log('2962 last in Diagram ', this.props);
+    if (debug) console.log('3237 last in Diagram ', this.props);
     
     return (
       <div>
@@ -3243,7 +3246,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           divClassName='diagram-component'
           initDiagram={this.initDiagram}
           nodeDataArray={this.props.nodeDataArray}
-          linkDataArray={this.props?.linkDataArray}
+          linkDataArray={this.props.linkDataArray}
           myMetis={this.props.myMetis}
           modelData={this.props.modelData}
           modelType={this.props.modelType}

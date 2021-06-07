@@ -202,13 +202,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (debug) console.log('218 color', val);
         }
 
+        let dtype;
         switch(k) {
-          case 'cardinality':
+          case 'cardinalityFrom':
+          case 'cardinalityTo':
+            dtype = myMetamodel.findDatatypeByName('cardinality');
+            if (dtype) {
+              fieldType = dtype.fieldType;
+              pattern   = dtype.inputPattern;
+              defValue  = dtype.defaultValue;
+              values    = dtype.allowedValues;
+            }
+            break;
           case 'fieldType':
           case 'viewkind':
           case 'relshipkind':
-            let dtype = myMetamodel.findDatatypeByName(k);
-            if (debug) console.log('211 dtype', dtype);
+            dtype = myMetamodel.findDatatypeByName(k);
+            if (debug) console.log('220 dtype', dtype);
             if (dtype) {
               fieldType = dtype.fieldType;
               pattern   = dtype.inputPattern;

@@ -680,6 +680,7 @@ export class cxMetis {
                 }
                 const modelviews: any[] = item.modelviews;
                 if (modelviews && (modelviews.length > 0)) {
+                    modelviews.sort(utils.compare);
                     modelviews.forEach(mv => {
                         if (model) this.importModelView(mv, model);
                     });

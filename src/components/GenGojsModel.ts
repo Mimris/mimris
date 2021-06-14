@@ -400,11 +400,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           includeRelview = true;
         }
         if (includeRelview) {
+          relview.setFromArrow2(rel.relshipkind);
+          relview.setToArrow2(rel.relshipkind);
           if (debug) console.log('410 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
           link.strokecolor = relcolor;
+          link.fromArrow = relview.fromArrow;
+          link.toArrow = relview.toArrow;
+          link.fromArrowColor = relview.fromArrowColor;
+          link.toArrowColor = relview.toArrowColor;
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {

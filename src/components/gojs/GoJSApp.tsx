@@ -255,7 +255,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (node) {
                       if (debug) console.log('243 node', node);
                       node = myDiagram.findNodeForKey(node.key)
-                      myDiagram.model.setDataProperty(node.data, "name", myNode.name);
+                      myDiagram.model?.setDataProperty(node.data, "name", myNode.name);
                       const gqlObjview = new gql.gqlObjectView(objview);
                       modifiedNodes.push(gqlObjview);
                     } 
@@ -298,7 +298,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   if (debug) console.log('242 TextEdited', modifiedTypeLinks);
                 }
               }
-              context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
+              myDiagram.model?.setDataProperty(myLink.data, "name", myLink.name);
             }             
             else { // Relationship
               if (debug) console.log('290 data', data);
@@ -323,17 +323,16 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (link) {
                       link = myDiagram.findLinkForKey(link.key)
                       if (debug) console.log('311 link', link, relview);
-                      if (link) myDiagram.model.setDataProperty(link.data, "name", myLink.name);
+                      if (link) myDiagram.model?.setDataProperty(link.data, "name", myLink.name);
                       const gqlRelview = new gql.gqlRelshipView(relview);
                       modifiedLinks.push(gqlRelview);
                     } 
                   }
-                  if (debug) console.log('317 rel', rel);
+                  if (debug) console.log('317 rel, myLink', rel, myLink);
                   if (myLink.relshipview) {
                     const gqlRel = new gql.gqlRelationship(rel);
                     modifiedRelships.push(gqlRel);
                   }
-                  context.myDiagram.model.setDataProperty(myLink.data, "name", myLink.name);
                 }
               }
               const links = myGoModel.links;
@@ -641,7 +640,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
           if (debug) console.log('613 myGoModel', myGoModel);
-          // myDiagram.model.setDataProperty(node, "isGroup", part.isGroup);
+          // myDiagram.model?.setDataProperty(node, "isGroup", part.isGroup);
         })
         myDiagram.requestUpdate();
       }
@@ -904,6 +903,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('727 link, fromNode, toNode', link, fromNode, toNode);
         const newLink = e.subject.data;
         newLink.category = 'Relationship';
+        if (fromNode.category === 'Object type')
+          newLink.category = 'Relationship type';
         if (debug) console.log('729 newLink', newLink);
         context.modifiedLinks         = modifiedLinks;
         context.modifiedRelships      = modifiedRelships;
@@ -918,7 +919,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "LinkReshaped": {
         const link = e.subject; 
-        const data = myDiagram.model.findLinkDataForKey(link.key);
+        const data = myDiagram.model?.findLinkDataForKey(link.key);
         if (debug) console.log('895 data', data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);

@@ -613,6 +613,7 @@ function reducer(state = InitialStateStr, action) {
                     name: action.data.name,
                     title: action.data.title,
                     description: action.data.description, 
+                    includeSystemtypes: action.data.includeSystemtypes, 
                     templateModelRef: action.data.templateModelRef,
                     targetMetamodelRef: action.data.targetMetamodelRef,
                     sourceModelRef: action.data.sourceModelRef,

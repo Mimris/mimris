@@ -1492,22 +1492,23 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
     if (lnk.category === 'Relationship type') {
         const myGoMetamodel = context.myGoMetamodel;
         const link = myGoMetamodel.findLink(lnk.key) as gjs.goRelshipTypeLink;
-        if (debug) console.log('1185 lnk, link', lnk, link);
+        if (debug) console.log('1495 lnk, link', lnk, link);
         if (link) {
             const reltype = link.reltype;  // cxRelationshipType   
             if (reltype) {             
-                if (debug) console.log('1190 fromNode', fromNode);
+                if (debug) console.log('1499 fromNode', fromNode);
                 if (reltype && fromNode) {
                     link.fromNode = fromNode;
                     reltype.fromObjtype = fromNode.objtype;
                 }
-                if (debug) console.log('1196 toNode', toNode);
+                if (debug) console.log('1504 toNode', toNode);
                 if (reltype && toNode) {
                     link.toNode = toNode;
                     reltype.toObjtype = toNode.objtype;
                 }
                 const gqlReltype = new gql.gqlRelationshipType(reltype, true);
                 context.modifiedTypeLinks.push(gqlReltype);
+                if (debug) console.log('1511 gqlReltype', reltype, gqlReltype);
             }
         }
     }

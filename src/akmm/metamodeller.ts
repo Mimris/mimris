@@ -680,6 +680,7 @@ export class cxMetis {
                 }
                 const modelviews: any[] = item.modelviews;
                 if (modelviews && (modelviews.length > 0)) {
+                    modelviews.sort(utils.compare);
                     modelviews.forEach(mv => {
                         if (model) this.importModelView(mv, model);
                     });
@@ -2790,22 +2791,23 @@ export class cxMetaModel extends cxMetaObject {
     }
     addProperty(prop: cxProperty) {
         // Check if input is of correct category and not already in list (TBD)
-        if (prop.category === constants.gojs.C_PROPERTY) {
-            if (this.properties == null)
-                this.properties = new Array();
-            if (!this.findProperty(prop.id))
-                this.properties.push(prop);
-            else {
-                const props = this.properties;
-                for (let i = 0; i < props.length; i++) {
-                    const p = props[i];
-                    if (p.id === prop.id) {
-                        props[i] = p;
-                        break;
-                    }
-                }
+        const props = new Array();
+        const len = this.properties?.length;
+        for (let i=0; i<len; i++) {
+            const p = this.properties[i];
+            props.push(p);
+        }
+        this.properties = props;
+        let found = false;
+        for (let i=0; i<props.length; i++) {
+            const p = props[i];
+            if (p.id === prop.id) {
+                found = true;
+                break;
             }
         }
+        if (!found)
+            this.properties.push(prop);
     }
     addRelationshipType(relType: cxRelationshipType) {
         // Check if input is of correct category and not already in list (TBD)
@@ -3378,14 +3380,16 @@ export class cxType extends cxMetaObject {
             props.push(p);
         }
         this.properties = props;
-        this.properties.push(prop);
-        // Check if input is of correct category and not already in list (TBD)
-        // if (prop.category === constants.gojs.C_PROPERTY) {
-        //     if (!this.properties)
-        //         this.properties = new Array();
-        //     if (debug) console.log('2577 addProperty', prop, this.properties);
-        //     this.properties.push(prop);
-        // }
+        let found = false;
+        for (let i=0; i<props.length; i++) {
+            const p = props[i];
+            if (p.id === prop.id) {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+            this.properties.push(prop);
     }
     addProperty2(id: string, name: string, desc: string, dtype: cxDatatype) {
         // Check if prop already exists
@@ -5856,17 +5860,19 @@ export class cxModelView extends cxMetaObject {
     }
     findRelationshipViewsByRel2(rel: cxRelationship, fromObjview: cxObjectView, toObjview: cxObjectView): cxRelationshipView[] {
         const relviews = new Array();
-        let rviews = this.relshipviews;
-        if (!rviews) 
-            return null;
-        for (let i=0; i<rviews.length; i++) {
-            const rv:cxRelationshipView = rviews[i];
-            if (rv.markedAsDeleted)
-                continue;
-            if (rv?.relship?.id === rel.id) {
-                if (rv.fromObjview.id === fromObjview.id) {
-                    if (rv.toObjview.id === toObjview.id)
-                        relviews.push(rv);
+        if (fromObjview && toObjview) {
+            let rviews = this.relshipviews;
+            if (!rviews) 
+                return null;
+            for (let i=0; i<rviews.length; i++) {
+                const rv:cxRelationshipView = rviews[i];
+                if (rv.markedAsDeleted)
+                    continue;
+                if (rv?.relship?.id === rel?.id) {
+                    if (rv.fromObjview.id === fromObjview.id) {
+                        if (rv.toObjview.id === toObjview.id)
+                            relviews.push(rv);
+                    }
                 }
             }
         }

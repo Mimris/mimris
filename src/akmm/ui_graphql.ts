@@ -336,19 +336,20 @@ export class gqlObjectType {
         this.markedAsDeleted = objtype.markedAsDeleted;
         this.modified       = objtype.modified;
         // Code
-        const props = objtype.getProperties(true);
+        const props = objtype.getProperties(false);
         const cnt = props?.length;
         for (let i = 0; i < cnt; i++) {
             const prop = props[i];
             this.addProperty(prop);
         }
-        if (debug) console.log('345 objtype.properties', this.properties);
+        if (debug) console.log('345 objtype, props, this', objtype, props, this);
         //this.loc  = (includeViews) ? objtype.loc : "";
         //this.size = (includeViews) ? objtype.size : "";
     }
     addProperty(prop: akm.cxProperty) {
-        if (utils.objExists(prop)) {
+        if (prop) {
             const gProperty = new gqlProperty(prop);
+            if (debug) console.log('352 prop, gProperty', prop, gProperty);
             this.properties.push(gProperty);
         }
     }
@@ -377,8 +378,8 @@ export class gqlRelationshipType {
         this.title          = reltype.title;
         this.relshipkind    = reltype.relshipkind;
         this.viewkind       = reltype.viewkind;
-        this.fromobjtypeRef = (reltype.fromObjtype) ? reltype.fromObjtype.id : "";
-        this.toobjtypeRef   = (reltype.toObjtype) ? reltype.toObjtype.id : "";
+        this.fromobjtypeRef = reltype.fromobjtypeRef;
+        this.toobjtypeRef   = reltype.toobjtypeRef;
         this.typeviewRef    = "";
         this.description    = (reltype.description) ? reltype.description : "";
         this.properties     = [];
@@ -609,6 +610,7 @@ export class gqlProperty {
             this.unitCategoryRef = prop.unitCategoryRef;
         if (prop.defaultValue)
             this.description = prop.defaultValue;
+        if (debug) console.log('612 this', this);
     }
 }
 export class gqlModel {
@@ -622,6 +624,7 @@ export class gqlModel {
     sourceModelRef:         string;
     targetModelRef:         string;
     isTemplate:             boolean;
+    includeSystemtypes:     boolean;
     templates:              gqlModelView[];
     objects:                gqlObject[];
     relships:               gqlRelationship[];
@@ -639,6 +642,7 @@ export class gqlModel {
         this.sourceModelRef  = model.sourceModelRef;
         this.targetModelRef  = model.targetModelRef;
         this.isTemplate      = model.isTemplate;
+        this.includeSystemtypes = model.includeSystemtypes;
         this.templates       = [];
         this.objects         = [];
         this.relships        = [];

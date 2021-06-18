@@ -28,6 +28,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
     const myMetamodel = myMetis.currentMetamodel;
+    const myModel = myMetis.currentModel;
+    const allowsMetamodeling = myModel.includeSystemtypes;
+    if (debug) console.log('33 allowsMetamodeling', myModel, allowsMetamodeling);
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
@@ -213,6 +216,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               defValue  = dtype.defaultValue;
               values    = dtype.allowedValues;
             }
+            if (!allowsMetamodeling) disabled = true;
             break;
           case 'fieldType':
           case 'viewkind':
@@ -225,10 +229,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               defValue  = dtype.defaultValue;
               values    = dtype.allowedValues;
             }
+            if (!allowsMetamodeling) disabled = true;
             break;
           case 'abstract':
             dtype = myMetis.findDatatypeByName('boolean');
             fieldType = 'checkbox';
+            if (!allowsMetamodeling) disabled = true;
             break;
         }
 
@@ -284,7 +290,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
 
         if (debug) console.log('274 selObj, item:', selObj, item);
-        if (debug) console.log('275 id, value:', k, val);
+        if (debug) console.log('275 id, value, disabled:', k, val, disabled);
         if (debug) console.log('276 k, fieldType', k, fieldType, defValue, values);
         row  = <InspectorRow
           key={k}

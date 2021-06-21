@@ -10,6 +10,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
+import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
 
 const LoadFile = (props: any) => {
   
@@ -75,7 +76,14 @@ const LoadFile = (props: any) => {
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) 
     SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
-
+  
+  // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
+  function handleSaveJSONToFile() {
+    const projectname = props.ph.phData.metis.name
+    const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
+    SaveModelToFile(model, model.name, 'AKMM-Model')
+    // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
+  }
  
 
 
@@ -119,6 +127,12 @@ const LoadFile = (props: any) => {
       title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
       onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (Downloads)
     </button >
+  const buttonSaveJSONToFileDiv = 
+    <button className="btn-primary  btn-sm mr-2 w-100  " 
+      data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
+      onClick={handleSaveJSONToFile}>Save Current Model to File 
+    </button >
   
 
   // const projectname = props.ph.phData.metis.name
@@ -146,7 +160,7 @@ const LoadFile = (props: any) => {
           <div className="source bg-light p-2 ">
             <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
             <div className="loadsave px-2 pb-1 mb-0">
-            <div className="loadsave--modelToFile select mb-1 p-2  border border-dark">
+            <div className="loadsave--modelToFile select mb-1 p-2 border border-dark">
                 {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                   <h5>Model</h5>
                 <div className="selectbox mb-2 border">
@@ -180,6 +194,25 @@ const LoadFile = (props: any) => {
                 </div>
               </div>
             </div>
+            <div className="loadsave--JsonToFile select bg-success mb-1 p-2  border border-dark">
+                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
+                  <h5>OSDU JSON-file</h5>
+                <div className="selectbox mb-2 border">
+                  <h6>Import model from OSDU JSON-file </h6>
+                  <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadConvertJSONFromFile(props.ph, dispatch, e)} />
+                  {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
+             
+                </div>
+                <div className="selectbox mb-2 border">
+                  <h6>Export to JSON file </h6>
+                  {buttonSaveJSONToFileDiv}
+                </div>
+                  {/* <h6>Send Project by mail </h6>
+                  <div className="selectbox bg-white mb-2 border">
+                    <div className="ml-2">{emailDivGmail}</div>
+                    <div className="ml-2">{emailDivMailto}</div>
+                  </div> */}
+              </div>
           </div>
 
         </ModalBody>

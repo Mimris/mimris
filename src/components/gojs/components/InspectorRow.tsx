@@ -97,7 +97,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       <tr>
         <td className="pr-2" >{this.props.id}</td> 
         <td>
-          <input
+          <input 
             id={this.props.id}
             type="text"
             list={listname}

@@ -3269,7 +3269,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               </div>
               <ModalBody >
                 <div className="modal-body1">
-                  <div className="modal-pict"><img className="modal-image" src={icon}></img></div>
+                  {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
                   {modalContent}
                 </div>
               </ModalBody>

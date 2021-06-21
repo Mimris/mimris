@@ -3,7 +3,7 @@
   color: #212121; /* Grey 900 */
   cursor: default;
   margin-top: 2px;
-  width: 250px;
+  width: auto;
   background-color: #DDDDDD;
 }
 
@@ -12,6 +12,8 @@
 }
 
 .inspector input {
+  /* float: left; */
+  width: auto;
   font: 300 1rem Roboto, helvetica, sans-serif;
   border: 0;
   outline: none;

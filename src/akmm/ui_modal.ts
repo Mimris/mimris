@@ -304,6 +304,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const myDiagram = modalContext.myDiagram;
   const myMetis = props.myMetis;
   const myModelview = myMetis.currentModelview;
+  const myGoModel = myMetis.myGoModel;
   // Prepare for dispatches
   const modifiedObjtypes     = new Array();    
   const modifiedReltypes     = new Array();    
@@ -394,7 +395,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let node = selObj;
       let obj = selObj.object;
       obj = myMetis.findObject(obj?.id);
-      if (debug) console.log('250 selObj', selObj, obj);
+      if (debug) console.log('397 selObj', selObj, obj);
       const type = obj?.type;
       // Check if any of the values are NOT VALID
       const properties = type?.properties;
@@ -405,10 +406,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (dtype) {
           const pattern = dtype.inputPattern;
           const value = obj[prop.name];
-          if (debug) console.log('197 value', pattern, value);
-          if ((pattern.length > 0) && (value.length > 0)) {
-            const regex = new RegexParser(pattern);
-            if (debug) console.log('30 regex:', regex);
+          if (debug) console.log('408 value', pattern, value);
+          if (pattern && value) {
+              const regex = new RegexParser(pattern);
+            if (debug) console.log('411 regex:', regex);
             if (!regex.test(value)) {
               const errormsg = "Value: '" + value + "' of '" + prop.name + "' IS NOT valid"
               alert(errormsg);
@@ -417,21 +418,26 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           }
         }
       }
+      if (debug) console.log('420 node', node);
       node = myDiagram.findNodeForKey(node.key)
       const data = node.data;
-      if (debug) console.log('275 node', node);
+      if (debug) console.log('423 node', node);
       for (let k in data) {
         if (typeof(obj[k]) === 'object')    continue;
         if (typeof(obj[k]) === 'function')  continue;
         if (!uic.isPropIncluded(k, type))   continue;
         if (k === 'abstract') obj[k] = selObj[k];
         if (k === 'viewkind') obj[k] = selObj[k];
-        if (debug) console.log('280 prop', k);
-        if (debug) console.log('281 node', node, data, obj);
+        if (debug) console.log('430 prop', k);
+        if (debug) console.log('431 node', node, data, obj);
         myDiagram.model.setDataProperty(data, k, obj[k]);
       }
+      const myGoModel = myMetis.gojsModel;
+      const myNode = myGoModel.findNode(node.key);
+      myNode.name = data.name;
+      if (debug) console.log('438 myNode, myMetis', myNode, myMetis);
       const gqlObject = new gql.gqlObject(obj);
-      if (debug) console.log('285 gqlObject', gqlObject);
+      if (debug) console.log('440 gqlObject', gqlObject);
       modifiedObjects.push(gqlObject);
       // Do the dispatches
       modifiedObjects.map(mn => {
@@ -440,10 +446,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       })
       modifiedObjviews.map(mn => {
         let data = mn;
-        if (debug) console.log('298 gqlObjview', data);
+        if (debug) console.log('444 gqlObjview', data);
         props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
-      if (debug) console.log('301 selObj', selObj);
+      if (debug) console.log('447 selObj', selObj);
     break;
     }
     case "editRelationship": {

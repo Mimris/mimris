@@ -39,7 +39,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     if (e.type === 'blur') {
       if (debug) console.log('33 InspectorRow: value, checked', value, checked, this.props);
       const pattern = this.props.pattern;
-      if ((pattern.length > 0) && (value.length > 0)) {
+      if ((pattern?.length > 0) && (value?.length > 0)) {
         const regex = new RegexParser(pattern);
         if (debug) console.log('30 regex:', regex);
         if (!regex.test(value)) {

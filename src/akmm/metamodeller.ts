@@ -1000,11 +1000,20 @@ export class cxMetis {
     }
     addProperty(prop: cxProperty) {
         if (prop.category === constants.gojs.C_PROPERTY) {
-            //prop.setMetis(this);
-            if (this.properties == null)
-                this.properties = new Array();
-            if (!this.findProperty(prop.id))
-                this.properties.push(prop);
+            const props = new Array();
+            const len = this.properties?.length;
+            if (!len)
+                props.push(prop);
+            else {
+                for (let i=0; i<len; i++) {
+                    const p = this.properties[i];
+                    if (p.id === prop.id)
+                        props.push(prop);
+                    else
+                        props.push(p);
+                }
+            }
+            this.properties = props;
         }
     }
     addObjectType(objtype: cxObjectType) {
@@ -2814,21 +2823,35 @@ export class cxMetaModel extends cxMetaObject {
         // Check if input is of correct category and not already in list (TBD)
         const props = new Array();
         const len = this.properties?.length;
-        for (let i=0; i<len; i++) {
-            const p = this.properties[i];
-            props.push(p);
-        }
-        this.properties = props;
-        let found = false;
-        for (let i=0; i<props.length; i++) {
-            const p = props[i];
-            if (p.id === prop.id) {
-                found = true;
-                break;
+        if (!len)
+            props.push(prop);
+        else {
+            for (let i=0; i<len; i++) {
+                const p = this.properties[i];
+                if (p.id === prop.id)
+                    props.push(prop);
+                else
+                    props.push(p);
             }
         }
-        if (!found)
-            this.properties.push(prop);
+        this.properties = props;
+        // const props = new Array();
+        // const len = this.properties?.length;
+        // for (let i=0; i<len; i++) {
+        //     const p = this.properties[i];
+        //     props.push(p);
+        // }
+        // this.properties = props;
+        // let found = false;
+        // for (let i=0; i<props.length; i++) {
+        //     const p = props[i];
+        //     if (p.id === prop.id) {
+        //         found = true;
+        //         break;
+        //     }
+        // }
+        // if (!found)
+        //     this.properties.push(prop);
     }
     addRelationshipType(relType: cxRelationshipType) {
         // Check if input is of correct category and not already in list (TBD)
@@ -3396,21 +3419,28 @@ export class cxType extends cxMetaObject {
     addProperty(prop: cxProperty) {
         const props = new Array();
         const len = this.properties?.length;
-        for (let i=0; i<len; i++) {
-            const p = this.properties[i];
-            props.push(p);
-        }
-        this.properties = props;
-        let found = false;
-        for (let i=0; i<props.length; i++) {
-            const p = props[i];
-            if (p.id === prop.id) {
-                found = true;
-                break;
+        if (!len)
+            props.push(prop);
+        else {
+            for (let i=0; i<len; i++) {
+                const p = this.properties[i];
+                if (p.id === prop.id)
+                    props.push(prop);
+                else
+                    props.push(p);
             }
         }
-        if (!found)
-            this.properties.push(prop);
+        this.properties = props;
+        // let found = false;
+        // for (let i=0; i<props.length; i++) {
+        //     const p = props[i];
+        //     if (p.id === prop.id) {
+        //         found = true;
+        //         break;
+        //     }
+        // }
+        // if (!found)
+        //     this.properties.push(prop);
     }
     addProperty2(id: string, name: string, desc: string, dtype: cxDatatype) {
         // Check if prop already exists

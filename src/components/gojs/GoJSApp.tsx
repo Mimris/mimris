@@ -170,22 +170,22 @@ class GoJSApp extends React.Component<{}, AppState> {
       linkDataArray: myGoMetamodel?.links
     }
     if (debug) console.log('165 gojsMetamodel', gojsMetamodel);
-    const modifiedNodes         = new Array();
-    const modifiedLinks         = new Array();
-    const modifiedTypeNodes     = new Array();
-    const modifiedTypeViews     = new Array();
-    const modifiedTypeGeos      = new Array();
-    const modifiedTypeLinks     = new Array();
-    const modifiedLinkTypeViews = new Array();
-    const modifiedObjects       = new Array();
-    const modifiedRelships      = new Array();
-    const modifiedDatatypes     = new Array();
-    const modifiedUnits         = new Array();
-    const modifiedProperties    = new Array();
-    const selectedObjectViews   = new Array();
-    const selectedRelshipViews  = new Array();
-    const selectedObjectTypes   = new Array();
-    const selectedRelationshipTypes   = new Array();
+    let modifiedNodes         = new Array();
+    let modifiedLinks         = new Array();
+    let modifiedTypeNodes     = new Array();
+    let modifiedTypeViews     = new Array();
+    let modifiedTypeGeos      = new Array();
+    let modifiedTypeLinks     = new Array();
+    let modifiedLinkTypeViews = new Array();
+    let modifiedObjects       = new Array();
+    let modifiedRelships      = new Array();
+    let modifiedDatatypes     = new Array();
+    let modifiedUnits         = new Array();
+    let modifiedProperties    = new Array();
+    let selectedObjectViews   = new Array();
+    let selectedRelshipViews  = new Array();
+    let selectedObjectTypes   = new Array();
+    let selectedRelationshipTypes   = new Array();
     let done = false;
     let pasted = false;
     const context = {
@@ -241,7 +241,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 text = prompt('Enter name');
                 data.name = text;
               }
-              const myNode = this.getNode(context.myGoModel, key);
+              const myNode = this.getNode(myGoModel, key);
               if (debug) console.log('232 node', myNode);
               if (myNode) {
                 myNode.name = text;
@@ -262,8 +262,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                   }
                 }
                 data.name = myNode.name;
+                if (debug) console.log('265 node', data, myNode, objview);
                 const gqlObj = new gql.gqlObject(myNode.objectview.object);
                 modifiedObjects.push(gqlObj);
+                if (debug) console.log('268 node', gqlObj);
               }
             }
             const nodes = myGoModel?.nodes;
@@ -639,7 +641,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (debug) console.log('610 New object', gqlObj);
             }
           }
-          if (debug) console.log('613 myGoModel', myGoModel);
+          if (debug) console.log('613 myGoModel', myGoModel, myMetis);
           // myDiagram.model?.setDataProperty(node, "isGroup", part.isGroup);
         })
         myDiagram.requestUpdate();
@@ -672,7 +674,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         const data = sel.data;
-        if (debug) console.log('644 selected', sel);
+        if (debug) console.log('644 selected', sel.key);
         this.state.selectedData = data
         if (debug) console.log('646 GoJSApp :', data, data.name, data.object);
         if (sel) {
@@ -773,58 +775,61 @@ class GoJSApp extends React.Component<{}, AppState> {
         const pastedNodes = new Array();
         // First handle the objects
         while (it.next()) {
-          if (debug) console.log('749 it.value', it.value);
+          if (debug) console.log('776 it.value', it.value);
           const data = it.value.data;
           if (data.category === constants.gojs.C_OBJECT) {
               context.pasted = true;
-              if (debug) console.log('753 ClipboardPasted', data, myGoModel);
+              if (debug) console.log('780 ClipboardPasted', data, myGoModel);
               const objview = uic.createObject(data, context);
-              if (debug) console.log('755 ClipboardPasted', data, objview);
+              if (debug) console.log('782 ClipboardPasted', data, objview);
               if (objview) {
                 const node = new gjs.goObjectNode(data.key, objview);
-                if (debug) console.log('758 node', node);
+                if (debug) console.log('785 node', node);
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
-                if (debug) console.log('760 group', group)
+                if (debug) console.log('787 group', group)
                 if (group && node) {
                   objview.group = group.objectview?.id;
                   node.group = group.key;
+                  const gjsNode = myDiagram.findNodeForKey(node.key);
+                  myDiagram.model?.setDataProperty(gjsNode, "group", group.key);
                 }
+                if (debug) console.log('792 node', node);
                 pastedNodes.push(node);
                 const objid = objview.object?.id;
                 objview.object = myMetis.findObject(objid);
                 const gqlObjview = new gql.gqlObjectView(objview);
                 modifiedNodes.push(gqlObjview);
-                if (debug) console.log('770 ClipboardPasted', modifiedNodes);
+                if (debug) console.log('798 ClipboardPasted', modifiedNodes);
                 const gqlObj = new gql.gqlObject(objview.object);
                 modifiedObjects.push(gqlObj);
-                if (debug) console.log('773 ClipboardPasted', modifiedObjects);
+                if (debug) console.log('801 ClipboardPasted', modifiedObjects);
               }
           }
         }
-        if (debug) console.log('777 pastedNodes', pastedNodes);
-        if (debug) console.log('778 ClipboardPasted', context.myGoModel);
+        if (debug) console.log('805 pastedNodes', pastedNodes);
+        if (debug) console.log('806 ClipboardPasted', context.myGoModel);
         const it1 = selection.iterator;
         // Then handle the relationships
         while (it1.next()) {
           const data = it1.value.data;
           if (data.category === constants.gojs.C_RELATIONSHIP) {
-            if (debug) console.log('641 ClipboardPasted', data);
-            if (debug) console.log('644 ClipboardPasted', data, pastedNodes);
+            if (debug) console.log('812 ClipboardPasted', data);
+            if (debug) console.log('813 ClipboardPasted', data, pastedNodes);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
-            if (debug) console.log('646 relview', data, relview);
+            if (debug) console.log('815 relview', data, relview);
             if (relview) {
               const relid = relview.relship?.id;
               relview.relship = myMetis.findRelationship(relid);
               const gqlRelview = new gql.gqlRelshipView(relview);
-              if (debug) console.log('702 ClipboardPasted', gqlRelview, relview);
+              if (debug) console.log('820 ClipboardPasted', gqlRelview, relview);
               modifiedLinks.push(gqlRelview);
               const gqlRelship = new gql.gqlRelationship(relview.relship);
-              if (debug) console.log('705 ClipboardPasted', gqlRelship, relview.relship);
+              if (debug) console.log('823 ClipboardPasted', gqlRelship, relview.relship);
               modifiedRelships.push(gqlRelship);
             }
           }
         }
-        if (debug) console.log('800 ClipboardPasted', modifiedLinks, modifiedRelships);       
+        if (debug) console.log('828 ClipboardPasted', modifiedLinks, modifiedRelships);       
         myDiagram.requestUpdate();
       }
       break;

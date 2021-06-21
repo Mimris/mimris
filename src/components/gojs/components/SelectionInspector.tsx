@@ -68,13 +68,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     let type = inst.type;
     if (!type) type = selObj.objecttype;
-    const properties = type?.properties;
+    const properties = type?.getProperties(true);
+    if (debug) console.log('73 props, props2', properties, properties2);
     for (let i=0; i<properties?.length; i++) {
       const prop = properties[i];
       const v = inst[prop.name];
+      if (debug) console.log('75 prop.name, inst', prop.name, inst);
       if (!v) inst[prop.name] = "";  // Sets empty string if undefined
     }
-    if (debug) console.log('72 inst', properties, inst, selObj);
+    if (debug) console.log('78 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;
@@ -326,9 +328,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (!modalContext)
       return null;
     return (
-      <div id='myInspectorDiv' className='inspector d-flex justify-content-between  w-100'>
+      <div id='myInspectorDiv' className='inspector'>
         <table>
-          <tbody className="table-body ">
+          <tbody className="table-body">
             {this.renderObjectDetails()}
           </tbody>
         </table>

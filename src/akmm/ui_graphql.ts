@@ -427,8 +427,9 @@ export class gqlDatatype {
     title:              string;
     description:        string;
     datatypeRef:        string;
-    defaultValue:       string;
     allowedValues:      string[];
+    defaultValue:       string;
+    value:              string;
     inputPattern:       string;
     viewFormat:         string;
     fieldType:          string;
@@ -440,8 +441,9 @@ export class gqlDatatype {
         this.title           = dtype.title;
         this.description     = "";
         this.datatypeRef     = utils.objExists(dtype.isOfDatatype) ? dtype.id : "";
-        this.defaultValue    = dtype.defaultValue;
         this.allowedValues   = dtype.allowedValues;
+        this.defaultValue    = dtype.defaultValue;
+        this.value           = dtype.value;
         // this.isOfDatatype    = dtype.isOfDatatype;
         this.inputPattern    = dtype.inputPattern;
         this.viewFormat      = dtype.viewFormat;
@@ -592,12 +594,20 @@ export class gqlProperty {
     description:        string;
     datatypeRef:        string;
     unitCategoryRef:    string;
+    defaultValue:       string;
+    inputPattern:       string;
+    viewFormat:         string;
+    example:            string;
     markedAsDeleted:    boolean;
     modified:           boolean;
     constructor(prop: akm.cxProperty) {
         this.id              = prop.id;
         this.name            = prop.name;
         this.title           = prop.title;
+        this.defaultValue    = "";
+        this.inputPattern    = "";
+        this.viewFormat      = "";
+        this.example         = "";
         this.markedAsDeleted = prop.markedAsDeleted;
         this.modified        = prop.modified;
         // Code

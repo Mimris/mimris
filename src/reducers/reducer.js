@@ -709,7 +709,7 @@ function reducer(state = InitialStateStr, action) {
         }
 
     case UPDATE_OBJECT_PROPERTIES:
-      if (debug) console.log('637 UPDATE_OBJECT_PROPERTIES', action);     
+      if (debug) console.log('637 UPDATE_OBJECT_PROPERTIES', action.data);     
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object
@@ -722,7 +722,7 @@ function reducer(state = InitialStateStr, action) {
       // const { id, ...rest } = (action.data)
       // const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
 
-    if (debug) console.log('601 UPDATE_OBJECT_PROPERTIES', state.phData.metis.models, {
+    if (debug) console.log('725 UPDATE_OBJECT_PROPERTIES', state.phData.metis.models, {
       ...state,
       phData: {
         ...state.phData,
@@ -737,14 +737,17 @@ function reducer(state = InitialStateStr, action) {
                 {
                   ...curmo.objects[curoindexo], 
                   ...action.data, 
-                  // id: action.data.id,
-                  // name: action.data.name,
-                  // title: action.data.title,
-                  // description: action.data.description,
-                  // typeRef: action.data.typeRef,
-                  // objectviews: action.data.objectviews,
-                  // markedAsDeleted: action.data.markedAsDeleted,
-                  // modified: action.data.modified,    
+                  id: action.data.id,
+                  name: action.data.name,
+                  title: action.data.title,
+                  description: action.data.description,
+                  abstract: action.data.abstract,
+                  viewkind: action.data.viewkind,
+                  typeRef: action.data.typeRef,
+                  objectviews: action.data.objectviews,
+                  markedAsDeleted: action.data.markedAsDeleted,
+                  generatedTypeId: action.data.generatedTypeId,
+                  modified: action.data.modified,   
                 },
                 ...curmo.objects.slice(curoindexo + 1, curmo.objects.length)
               ],
@@ -1438,8 +1441,9 @@ function reducer(state = InitialStateStr, action) {
                     title: action.data.title,
                     description: action.data.description,
                     datatypeRef: action.data.datatypeRef,
-                    defaultValue: action.data.defaultValue,
                     allowedValues: action.data.allowedValues,
+                    defaultValue: action.data.defaultValue,
+                    value: action.data.value,
                     abstract: action.data.abstract,
                     modified: action.data.modified,    
                   },
@@ -1616,8 +1620,8 @@ function reducer(state = InitialStateStr, action) {
                     datatypeRef: action.data.datatypeRef,
                     defaultValue: action.data.defaultValue,
                     allowedValues: action.data.allowedValues,
-                    inputPattern: action.data.inputPattern,
-                    viewFormat: action.data.viewFormat,
+                    pattern: action.data.pattern,
+                    format: action.data.format,
                     fieldType: action.data.fieldType,
                     abstract: action.data.abstract,
                     modified: action.data.modified,    
@@ -1662,6 +1666,10 @@ function reducer(state = InitialStateStr, action) {
                     description: action.data.description,
                     datatypeRef: action.data.datatypeRef,
                     unitCategoryRef: action.data.unitCategoryRef,
+                    defaultValue: action.data.defaultValue,
+                    pattern: action.data.pattern,
+                    format: action.data.format,
+                    example: action.data.example,
                     markedAsDeleted: action.data.markedAsDeleted,
                     modified: action.data.modified,    
                   },

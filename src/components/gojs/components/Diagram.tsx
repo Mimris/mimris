@@ -2069,6 +2069,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
             if (confirm('Do you want to include system types?')) {
               myMetis.currentModel.includeSystemtypes = true;
+            } else {
+              myMetis.currentModel.includeSystemtypes = false;
             }
             context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
             if (context.myTargetMetamodel == undefined)  // sf
@@ -3269,7 +3271,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               </div>
               <ModalBody >
                 <div className="modal-body1">
-                  <div className="modal-pict"><img className="modal-image" src={icon}></img></div>
+                  {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
                   {modalContent}
                 </div>
               </ModalBody>

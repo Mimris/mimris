@@ -845,8 +845,8 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
         if (node.isGroup) {
             if (debug) console.log('692 getGroup', node);
             const nodeLoc = loc.split(" ");
-            const grpLoc = node.loc.split(" ");
-            const grpSize = node.size.split(" ");
+            const grpLoc = node.loc?.split(" ");
+            const grpSize = node.size?.split(" ");
             const nx = parseInt(nodeLoc[0]);
             const ny = parseInt(nodeLoc[1]);
             const gx = parseInt(grpLoc[0]);
@@ -958,9 +958,9 @@ export function createRelationship(data: any, context: any) {
     const myMetis = context.myMetis; // added sf
     const myMetamodel = myMetis.currentMetamodel;
     const fromNode = myGoModel.findNode(data.from);
-    const nodeFrom = myDiagram.findNodeForKey(fromNode.key)
+    const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
     const toNode = myGoModel.findNode(data.to);
-    const nodeTo   = myDiagram.findNodeForKey(toNode.key)
+    const nodeTo   = myDiagram.findNodeForKey(toNode?.key)
     if (debug) console.log('943 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode?.object;
     const toObj = toNode?.object;
@@ -1011,9 +1011,9 @@ export function createRelationship(data: any, context: any) {
                     while (linkIt.next()) { // for each link get the link text and toNode text
                       const link = linkIt.value;
                       if (
-                          (nodeFrom.key === link?.data?.from)
+                          (nodeFrom?.key === link?.data?.from)
                           &&
-                          (nodeTo.key === link?.data?.to)
+                          (nodeTo?.key === link?.data?.to)
                           &&
                           (link?.data.name === typename)
                       ) {
@@ -1499,12 +1499,14 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                 if (debug) console.log('1499 fromNode', fromNode);
                 if (reltype && fromNode) {
                     link.fromNode = fromNode;
-                    reltype.fromObjtype = fromNode.objtype;
+                    reltype.fromObjtype = fromNode.objecttype;
+                    reltype.fromobjtypeRef = reltype.fromObjtype.id;
                 }
                 if (debug) console.log('1504 toNode', toNode);
                 if (reltype && toNode) {
                     link.toNode = toNode;
-                    reltype.toObjtype = toNode.objtype;
+                    reltype.toObjtype = toNode.objecttype;
+                    reltype.toobjtypeRef = reltype.toObjtype.id;
                 }
                 const gqlReltype = new gql.gqlRelationshipType(reltype, true);
                 context.modifiedTypeLinks.push(gqlReltype);
@@ -1951,7 +1953,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     for (let k=0; k<models.length; k++) {
         const model = models[k];
         const modelviews = model?.modelviews;
-        for (let i=0; i<modelviews.length; i++) {
+        for (let i=0; i<modelviews?.length; i++) {
             const mview = modelviews[i];
             // Handle objectviews
             const oviews = mview.objectviews;

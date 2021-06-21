@@ -171,7 +171,20 @@ export class cxMetis {
                 this.currentTemplateModel = model;
         }
         if (debug) console.log('162 this', this);
+
+        // Postprocess objecttypes
+        const objtypes = this.objecttypes;
+        for (let i=0; i<objtypes.length; i++) {
+            const otype = objtypes[i];
+            const stypes = otype.findSupertypes();
+            for (let j=0; j<stypes?.length; j++) {
+                const stype = stypes[j];
+                otype.addSupertype(stype);
+            }
+            if (debug) console.log('184 otype, stypes', otype, stypes);
+        }
     }
+
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels
         if (debug) console.log('140 this', this);
@@ -492,8 +505,8 @@ export class cxMetis {
                 if (reltypeview)
                     this.importRelshipTypeView(reltypeview, metamodel);
             });
-        }
-        if (debug) console.log('411 metamodel', metamodel);
+        }        
+        if (debug) console.log('496 metamodel', metamodel);
     }
     importDatatype(item: any, metamodel: cxMetaModel) {
         let dtyperef = item.id;
@@ -987,11 +1000,20 @@ export class cxMetis {
     }
     addProperty(prop: cxProperty) {
         if (prop.category === constants.gojs.C_PROPERTY) {
-            //prop.setMetis(this);
-            if (this.properties == null)
-                this.properties = new Array();
-            if (!this.findProperty(prop.id))
-                this.properties.push(prop);
+            const props = new Array();
+            const len = this.properties?.length;
+            if (!len)
+                props.push(prop);
+            else {
+                for (let i=0; i<len; i++) {
+                    const p = this.properties[i];
+                    if (p.id === prop.id)
+                        props.push(prop);
+                    else
+                        props.push(p);
+                }
+            }
+            this.properties = props;
         }
     }
     addObjectType(objtype: cxObjectType) {
@@ -2218,19 +2240,21 @@ export class cxDatatype extends cxMetaObject {
     isOfDatatype:       cxDatatype | null;
     allowedValues:      string[];   // array of strings
     defaultValue:       string;
+    value:              string;
     inputPattern:       string;
     viewFormat:         string;
     fieldType:          string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_DATATYPES;  // Firestore collection
-        this.category = constants.gojs.C_DATATYPE;
-        this.isOfDatatype = null;
-        this.inputPattern = "";
-        this.viewFormat = "%s";
-        this.fieldType = "text";
+        this.category      = constants.gojs.C_DATATYPE;
+        this.isOfDatatype  = null;
+        this.inputPattern  = "";
+        this.viewFormat    = "";
+        this.fieldType     = "text";
         this.allowedValues = null;
-        this.defaultValue = "";
+        this.defaultValue  = "";
+        this.value         = "";
 
         if (debug) console.log('1915 datatype: ', this);
     }
@@ -2255,6 +2279,12 @@ export class cxDatatype extends cxMetaObject {
     }
     getDefaultValue(): string {
         return this.defaultValue;
+    }
+    setValue(val: string) {
+        this.value = val;
+    }
+    getValue(): string {
+        return this.value;
     }
     setIsOfDatatype(dtype: cxDatatype) {
         this.isOfDatatype = dtype;
@@ -2793,21 +2823,35 @@ export class cxMetaModel extends cxMetaObject {
         // Check if input is of correct category and not already in list (TBD)
         const props = new Array();
         const len = this.properties?.length;
-        for (let i=0; i<len; i++) {
-            const p = this.properties[i];
-            props.push(p);
-        }
-        this.properties = props;
-        let found = false;
-        for (let i=0; i<props.length; i++) {
-            const p = props[i];
-            if (p.id === prop.id) {
-                found = true;
-                break;
+        if (!len)
+            props.push(prop);
+        else {
+            for (let i=0; i<len; i++) {
+                const p = this.properties[i];
+                if (p.id === prop.id)
+                    props.push(prop);
+                else
+                    props.push(p);
             }
         }
-        if (!found)
-            this.properties.push(prop);
+        this.properties = props;
+        // const props = new Array();
+        // const len = this.properties?.length;
+        // for (let i=0; i<len; i++) {
+        //     const p = this.properties[i];
+        //     props.push(p);
+        // }
+        // this.properties = props;
+        // let found = false;
+        // for (let i=0; i<props.length; i++) {
+        //     const p = props[i];
+        //     if (p.id === prop.id) {
+        //         found = true;
+        //         break;
+        //     }
+        // }
+        // if (!found)
+        //     this.properties.push(prop);
     }
     addRelationshipType(relType: cxRelationshipType) {
         // Check if input is of correct category and not already in list (TBD)
@@ -3375,21 +3419,28 @@ export class cxType extends cxMetaObject {
     addProperty(prop: cxProperty) {
         const props = new Array();
         const len = this.properties?.length;
-        for (let i=0; i<len; i++) {
-            const p = this.properties[i];
-            props.push(p);
-        }
-        this.properties = props;
-        let found = false;
-        for (let i=0; i<props.length; i++) {
-            const p = props[i];
-            if (p.id === prop.id) {
-                found = true;
-                break;
+        if (!len)
+            props.push(prop);
+        else {
+            for (let i=0; i<len; i++) {
+                const p = this.properties[i];
+                if (p.id === prop.id)
+                    props.push(prop);
+                else
+                    props.push(p);
             }
         }
-        if (!found)
-            this.properties.push(prop);
+        this.properties = props;
+        // let found = false;
+        // for (let i=0; i<props.length; i++) {
+        //     const p = props[i];
+        //     if (p.id === prop.id) {
+        //         found = true;
+        //         break;
+        //     }
+        // }
+        // if (!found)
+        //     this.properties.push(prop);
     }
     addProperty2(id: string, name: string, desc: string, dtype: cxDatatype) {
         // Check if prop already exists
@@ -3459,26 +3510,37 @@ export class cxType extends cxMetaObject {
     getProperties(includeInherited: boolean): cxProperty[] | null  {
         if (!includeInherited)
             return this.properties;
-        const properties = new Array();
+        const props = this.properties;
         if (includeInherited) {
+            if (debug) console.log('3485 superprops', this.supertypes);
             if (this.supertypes) {
                 const noSupertypes = this.supertypes.length;
-                const i = 0;
-                while (i < noSupertypes) {
+                for (let i=0; i<noSupertypes; i++) {
                     const supertype = this.supertypes[i];
+                    if (debug) console.log('3490 supertype', supertype);
                     if (supertype) {
                         let superprops = supertype.properties;
-                        if (superprops) {
-                            // properties.push(...supertype.properties); // => don't remove duplication
-                            [...new Set([...properties, ...superprops])]; //   => remove duplication
+                        for (let j=0; j<superprops?.length; j++) {
+                            const sprop = superprops[j];
+                            if (sprop) {
+                                let found = false;
+                                for (let k=0; k<props.length; k++) {
+                                    const p = props[k];
+                                    if (p.id === sprop.id) {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found)
+                                    this.properties.push(sprop);
+                            }
                         }
                     }
                 }
             }
         }
-        if (this.properties && this.properties.length > 0)
-            properties.push(this.properties);
-        return properties;
+        if (debug) console.log('3505 properties', this.properties);
+        return this.properties;
     }
     hasProperties() {
         if (!utils.objExists(this.properties))
@@ -3555,8 +3617,12 @@ export class cxObjectType extends cxType {
         this.allRelationshiptypes = null;
         this.markedAsDeleted = false;
         if (debug) console.log('3268 this', this);
+
+        // const stypes = new Array();
     }
+
     // Methods
+    
     addInputreltype(reltype: cxRelationshipType) {
         if (!this.inputreltypes)
             this.inputreltypes = new Array();
@@ -3768,26 +3834,51 @@ export class cxObjectType extends cxType {
         }
         return objtypes;
     }
+    findSupertypes(): cxObjectType[] | null {
+        const supertypes = new Array();
+        const rtypes = this.outputreltypes;
+        if (rtypes) {
+            for (let i=0; i<rtypes?.length; i++) {
+                const rtype = rtypes[i];
+                if (rtype?.relshipkind === constants.relkinds.GEN) {
+                    const stype = rtype.toObjtype;
+                    if (stype) supertypes.push(stype);
+                    if (debug) console.log('3805 this, supertype', this, supertypes);
+                    const stypes = stype.findSupertypes();
+                    if (stypes) {
+                        for (let j=0; j<stypes.length; j++) {
+                            const stype = stypes[j];
+                            supertypes.push(stype);
+                        }
+                        if (debug) console.log('3809 this, supertype', this, supertypes);
+                    }
+                }
+            }
+        }
+        return supertypes;
+    }
     inherits(type: cxObjectType, allReltypes: cxRelationshipType[]): boolean {   
         // Check if this (objecttype) inherits from type
-        if (debug) console.log('3442 this.name, type.name', this.name, type.name);
+        if (debug) console.log('3781 this.name, type.name', this.name, type.name);
         let retval = false;
         this.allRelationshiptypes = allReltypes;
         if (this.id === type.id) {
             return true;
         } else {
             const types = this.findRelatedObjectTypes(constants.relkinds.GEN);
-            if (debug) console.log('3449 this, objtypes', this, types);
+            if (debug) console.log('3788 this, objtypes', this, types);
             if (types) {
                 for (let i = 0; i < types.length; i++) {
-                    if (debug) console.log('3452 this, objtype', this, type);
+                    if (debug) console.log('3791 this, objtype', this, type);
                     const supertype = types[i];
                     if (supertype) {
+                        if (this.id === supertype.id)
+                            continue;
                         if (supertype.id === type.id) {
-                            if (debug) console.log('3455 Found supertype', supertype.name);
+                            if (debug) console.log('3795 Found supertype', supertype.name);
                             return true;
                         } else {
-                            if (debug) console.log('3458 find supertype of', supertype.name, supertype);
+                            if (debug) console.log('3798 find supertype of', supertype, type);
                             retval = supertype.inherits(type, allReltypes);
                             if (retval)
                                 return true;
@@ -4061,20 +4152,26 @@ export class cxRelationshipType extends cxObjectType {
 }
 
 export class cxProperty extends cxMetaObject {
-    datatype: cxDatatype | null;
-    datatypeRef: string;
-    unitCategory: cxUnitCategory | null;
+    datatype:       cxDatatype | null;
+    datatypeRef:    string;
+    unitCategory:   cxUnitCategory | null;
     unitCategoryRef: string;
-    defaultValue: string;
+    defaultValue:   string;
+    inputPattern:   string;
+    viewFormat:     string;
+    example:        string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
-        this.fs_collection = constants.fs.FS_C_PROPERTIES;  // Firestore collection
-        this.category = constants.gojs.C_PROPERTY;
-        this.datatype = null;
-        this.datatypeRef = "";            // Neccessary ???
-        this.unitCategory = null;
-        this.unitCategoryRef = "";
-        this.defaultValue = "";
+        this.fs_collection      = constants.fs.FS_C_PROPERTIES;  // Firestore collection
+        this.category           = constants.gojs.C_PROPERTY;
+        this.datatype           = null;
+        this.datatypeRef        = "";            // Neccessary ???
+        this.unitCategory       = null;
+        this.unitCategoryRef    = "";
+        this.defaultValue       = "";
+        this.inputPattern       = "";
+        this.viewFormat         = "";
+        this.example            = "";
     }
     // Methods
     setDatatype(datatype: cxDatatype) {
@@ -4625,7 +4722,7 @@ export class cxModel extends cxMetaObject {
         this.templates = null;
         this.isTemplate = false;
         this.isMetamodel = false;
-        this.includeSystemtypes = false;
+        this.includeSystemtypes = true;
         this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;

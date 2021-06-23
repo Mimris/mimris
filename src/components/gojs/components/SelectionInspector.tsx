@@ -328,9 +328,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (!modalContext)
       return null;
     return (
-      <div id='myInspectorDiv' className='inspector d-flex justify-content-between  w-100'>
+      <div id='myInspectorDiv' className='inspector'>
         <table>
-          <tbody className="table-body ">
+          <tbody className="table-body">
             {this.renderObjectDetails()}
           </tbody>
         </table>

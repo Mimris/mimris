@@ -709,7 +709,7 @@ function reducer(state = InitialStateStr, action) {
         }
 
     case UPDATE_OBJECT_PROPERTIES:
-      if (debug) console.log('637 UPDATE_OBJECT_PROPERTIES', action.data);     
+      if (!debug) console.log('637 UPDATE_OBJECT_PROPERTIES', action.data);     
       const curmo = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object

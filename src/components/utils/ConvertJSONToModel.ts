@@ -10,21 +10,14 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
     const reader = new FileReader()
     reader.onload = async (e) => { 
         const text = (e.target.result)
-        
-        const osduModel = {'osdu-master-data': JSON.parse(text)}
-        if (!debug) console.log('11 convertJSONToModels',  osduModel);
-        let parentName = 'osdu-master-data'
-        let parentId = 'osdu-master-data'
-        let grandparentName = 'osdu-master-data'
-        // let id = utils.createGuid();
-
-        console.log('15', parentName, parentId);
+        // const osduModel = JSON.parse(text)
+        const osduModel = {'json': JSON.parse(text)}
+        // if (!debug) console.log('11 ',  osduModel);
         
         // function to find a object with name = matchingTitle
         // NB! for now its hardcoded and if x-osdu-relationship does not exist it returns null
         function searchTree(element, matchingTitle){
-            console.log('25 aaa', element, matchingTitle, element["x-osdu-relationship"]);
-            
+            // console.log('19', element, matchingTitle, element["x-osdu-relationship"]);
             if(element["x-osdu-relationship"]){
                  return element;
             }else if (element.children != null){
@@ -46,117 +39,157 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
 
         const informationTypeId = '6bab35bb-f339-4ca0-f458-6c0cb7d0d302'
         const propertyTypeId = '6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4' 
-        //called with every property and its value
-        function process(key,value) {
-            
-            // const tkey = String(key).replace(/\$id/g, 'id')
-            const tval = String(value).replace(/"/g, '')
-            const attributeJSON = `"${key}" : "${tval}"`;
-            return attributeJSON
-        }
-        let objectPath = ["osdu-master-data"]
-        let objectIdPath = ["osdu-master-data"]
+        const hasPartTypeId = '0c2653b4-f201-48bb-d738-75d97de01d36'
+
         
+        function process(key,value) { //called with every property and its value
+            // const tkey = String(key).replace(/\$id/g, 'id')
+            // const tval = String(value).replace(/"/g, '')
+            // const attribute = JSON.parse(`{"${key}" : "${value}"}`);
+            const attribute = {[key]:value}
+            // const attribute = {}
+            // Object.defineProperties(attribute, {[`${key}`]: {value: `${value}`,}});
+
+            // Object.defineProperties(attribute, {`${key}`: {value: `${value}`,}});
+            // console.log('52', attribute);
+            return attribute
+        }
+
+        const initNewObj = (typeName,typeRef) => { // set up new object with some initial attributes
+            return  {
+                id: utils.createGuid(),
+                name: typeName,
+                typeRef: typeRef,
+                abstract: false,
+                viewkind: "",
+                markedAsDeleted: false,
+                generatedTypeId: "",
+                modified: false
+            }
+        };     
+
+        const initNewRelship = (typeRef, typeName, fromObjRef, toObjRef) => { // set up new relship with some initial attributes
+            return {
+                cardinality: "",
+                cardinalityFrom: undefined,
+                cardinalityTo: undefined,
+                description: "",
+                fromobjectRef: fromObjRef,
+                generatedTypeId: "",
+                id: utils.createGuid(),
+                markedAsDeleted: false,
+                modified: true,
+                name: typeName,
+                relshipkind: "",
+                relshipviews: undefined,
+                title: "",
+                toobjectRef: toObjRef,
+                typeRef: typeRef,
+            }
+        
+        }
+
+
         // traversing the JSON tree to extract all objects and dispatch
         //-----------------------------------------------------------------------------------------------------
-        function traverse(o,func) {
-
-            const id = utils.createGuid();
-            console.log('49', objectPath);
-            const TypeId = (objectPath[objectPath.length - 2] === "properties") ? propertyTypeId : informationTypeId
-            let importedObjects = `
-            "id": "${id}",
-            "name": "${objectPath[objectPath.length - 1]}", 
-            "typeRef": "${TypeId}",
-            "abstract": false,
-            "viewkind": "",
-            "markedAsDeleted": false,
-            "generatedTypeId": "",
-            "modified": false  
-        `  
-       // if parent object make a hasPart relationship
-       if (parentId) {
-           const relship = {
-            cardinality: "",
-            cardinalityFrom: undefined,
-            cardinalityTo: undefined,
-            description: "",
-            fromobjectRef: parentId,
-            generatedTypeId: "",
-            id: utils.createGuid(),
-            markedAsDeleted: false,
-            modified: true,
-            name: "hasPart",
-            relshipkind: "",
-            relshipviews: undefined,
-            title: "",
-            toobjectRef: id,
-            typeRef: "857f3fea-ed22-4e5d-7072-c998d180163d",
-           }
-        console.log('65 relship', parentId, parentName, relship, id, objectPath[objectPath.length - 1]);
-        if (relship) props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: relship });
-        
-    }
-
-            console.log('61', o, o[0],parentId, importedObjects);
-            
+        function traverse(o, parentObj, parRel, func) {
+            let  parentId = parentObj.id
+            let parentName = parentObj.name
+            console.log('97 ----- : ', parentId, parentName, o, objectPath, objectIdPath);        
+            // console.log('94', Object.keys(o)[0], objectPath);
+            // const parName = Object.keys(o)[0]
+            let importedObject
             for (var i in o) {
-
-                console.log('62', objectPath);
-                parentName = objectPath[objectPath.length - 2]
-
-                // if (Object.keys(o[i])[0] !== "0") console.log('65',Object.keys(o[i])[0])                     
+                let  attributes, newObj, newRel       
+                console.log('105 :', typeof(o[i]), i, o[i]);                    
                 if (o[i] !== null && typeof(o[i]) === "object") {
-                    // create new object
-                    objectPath.push(i)
-                    const id = utils.createGuid();
-                    objectIdPath.push(id)
-                    //going one step down in the object tree!!
-                    // console.log('68', grandparentName, parentName, i, o[i]);
-                    // grandparentName = parentName
-                    parentId =  id
-                    parentName = objectPath[objectPath.length - 1]
-                    // console.log('74', parentName, parentId);   
-                    traverse(o[i],func);              
+  
+                    console.log('107 if object: ', typeof(o[i]), i, o[i]);   
+
+                    const typeRef = (parentName === "properties") ? propertyTypeId : informationTypeId     
+                    // init new Object   
+                    newObj = initNewObj(i,typeRef) 
+                    // if parent object make a hasPart relationship
+                    console.log('112 parentId newObj.id : ', parentId, parentName, newObj, newObj.id);
+                    // init new relationship
+                    newRel = (parentId && newObj.id) && initNewRelship(hasPartTypeId, parentObj.name+" hasPart", parentId, newObj.id) 
+                    
+                    console.log('115 ----- : ', objectPath,  objectIdPath, parentId, parentName);    
+                    objectPath.push(i) // add current object to path
+                    objectIdPath.push(newObj.id)
+                    console.log('117 ----- : ', newObj.name, objectPath,  objectIdPath, parentId, parentName);   
+                    console.log('118 :', o[i], newObj.id, i);
+                    // -------
+                        traverse(o[i], newObj, newRel, func);  //going one step down in the object tree!!   
+                    // -------      
+                    
+                    objectPath.pop()
+                    objectIdPath.pop()
+                    parentId =  objectIdPath[objectIdPath.length - 1]
+                    parentName=  objectPath[objectPath.length - 1]
+                    console.log('126 ----- : ', newObj.name, objectPath,  objectIdPath, parentId, parentName);    
+                                    
                 } else {
                     if (i === "id")  continue; // drop for now
-                    if (i === "$ref")  continue; // drop for now
-                    if (importedObjects.name === "x-osdu-relationship")  continue; // drop for now
-                    if (parentName === "required")  continue; // drop for now
-                    if (parentName === "additionalProperties")  continue; // drop for now
-                    if (parentName === "x-osdu-inheriting-fromkind")  continue; // drop for now
+                    // if (i === "$ref")  continue; // drop for now
+                    // if (i === "x-osdu-relationship")  continue; // drop for now
+                    // if (parentName === "required")  continue; // drop for now
+                    // if (parentName === "additionalProperties")  continue; // drop for now
+                    // if (parentName === "x-osdu-inheriting-fromkind")  continue; // drop for now
 
                     // chencking if a relationship is defined. We dont have the other end. We can make a temporary object?
-                    if (searchTree(o, 'x-osdu-relationship') !== null) {
-                        console.log('97 relship tobe created', o["x-osdu-relationship"]);
-                        // if (relatedObj) props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: relatedObj });
-                        // if (relationship) props.dispatch({ type: 'UPDATE_RELATIONSHIP_PROPERTIES', data: relationship });
-                        continue;
-                    };
+                    // if (searchTree(o, 'x-osdu-relationship') !== null) {
+                    //     console.log('130 relship tobe created :', o["x-osdu-relationship"]);
+                    //     // if (relatedObj) props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: relatedObj });
+                    //     // if (relationship) props.dispatch({ type: 'UPDATE_RELATIONSHIP_PROPERTIES', data: relationship });
+                    //     continue;
+                    // };
                     
-                    importedObjects += ' ,'+func.apply(this,[i,o[i]])+''                      
-                    console.log('76', grandparentName, parentName, importedObjects)
-                   
-                }                
-                objectPath.pop()
+                    // console.log('150',
+                    //     func.apply(this,[i,o[i]])                     
+                    // );
+                    const attribute = func.apply(this,[i,o[i]])                     
+                    // importedObjects += ' ,'+func.apply(this,[i,o[i]])+''                      
+                    console.log('141 : ', parentObj, attribute)
+                    attributes = {
+                       ...attributecoll,
+                       ...attribute,
+                    }   
+                    const attributecoll = attributes
+                    console.log('142 : ', attributes, attributecoll);
+                }
+
+                
+                console.log('148 etter if : ', parentObj, attributes);         
+                importedObject = {
+                    ...parentObj,
+                    ...attributes,
+                }   
             }
-            // parentName = owner
-            // console.log('95', owner);
-            const impObjJSON =  importedObjects.replace(/\\/g, '\\\\')
-            // console.log('95', impObjJSON);
-            const impObjStr = '{'+impObjJSON+'}'
-            // console.log('99', impObjStr)
             
-            const impObj = JSON.parse(impObjStr)
-            // console.log('101', impObj, parentName)
-             if (impObj && (
-                 impObj.name !== "0" &&  impObj.name !=="1" && impObj.name !== "2" && impObj.name !== "3" &&  impObj.name !=="4")) 
-                 props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: impObj });
+            console.log('165 for : ', importedObject);   
+            if (importedObject && importedObject.name !== undefined) 
+                props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject }
+            );  
+                // importedObject.name !== "0" &&  importedObject.name !=="1" &&
+                // importedObject.name !== "2" && importedObject.name !== "3" &&  importedObject.name !=="4") &&
+            if (parRel && parRel.id !== undefined) props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: parRel });
+            console.log('169 ----- : ', parentId, parentName, o);   
         }
+
+        const parentName = "top"
+        const parentId = "11111";
+        
+        // console.log('15', parentName, parentId);
+
+        let objectPath = [parentName] //Path to keep order of where we are in the structure
+        let objectIdPath = [parentId]
 
         //that's all... no magic, no bloated framework
         // traverse(osduModel, process);
-        traverse(osduModel["osdu-master-data"], process);
+        traverse(osduModel, parentId, parentName, process);
+      
+        
         
 
 

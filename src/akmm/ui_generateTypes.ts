@@ -333,16 +333,12 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 myTargetMetamodel.addProperty(prop);
                 myMetis.addProperty(prop);
                 if (debug) console.log('335 prop', prop);
-            } else {
-                prop = myMetis.findProperty(prop.id);
-                objtype.addProperty(prop);
-                myTargetMetamodel.addProperty(prop);
-                if (debug) console.log('340 prop', prop);
             }
         }
         if (debug) console.log('343 prop && targetMetamodel', prop, myTargetMetamodel);
         if (prop) {
-            prop = myMetis.findProperty(prop.id);
+            const p = myMetis.findProperty(prop.id);
+            prop = p ? p : prop;
             // Find datatype connected to current property
             let rels = proptype.findOutputRelships(myModel, constants.relkinds.REL);
             if (debug) console.log('348 rels', rels);
@@ -353,7 +349,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                         if (rel.name === constants.types.AKM_IS_OF_DATATYPE) {
                             let dtype = rel.toObject;
                             if (dtype) {
-                                let datatype = myMetis.findDatatypeByName(dtype.name);
+                                const datatype = myMetis.findDatatypeByName(dtype.name);
                                 if (debug) console.log('357 datatype', datatype);
                                 if (datatype) prop.setDatatype(datatype);
                             }
@@ -361,7 +357,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                         if (rel.name === constants.types.AKM_HAS_UNIT) {
                             let u = rel.toObject;
                             if (u) {
-                                let unit = myMetis.findUnitByName(u.name);
+                                const unit = myMetis.findUnitByName(u.name);
                                 if (unit) prop.setUnit(unit);
                             }
                         }

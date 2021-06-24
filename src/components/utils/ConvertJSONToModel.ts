@@ -46,6 +46,7 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
             // const tkey = String(key).replace(/\$id/g, 'id')
             // const tval = String(value).replace(/"/g, '')
             // const attribute = JSON.parse(`{"${key}" : "${value}"}`);
+            if (key === "id") key = "$id"
             const attribute = {[key]:value}
             // const attribute = {}
             // Object.defineProperties(attribute, {[`${key}`]: {value: `${value}`,}});
@@ -154,14 +155,14 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                     parentName=  objectPath[objectPath.length - 1]
                     console.log('126 ----- : ', newObj.name, objectPath,  objectIdPath, parentId, parentName);    
                                     
-                } else if (searchTree(o, 'x-osdu-relationship') !== null) { // new relationship making offpage object to link to other end
-                    console.log('158 : ', o[i], i, parentObj);
-                    // i er objectName
-                    createObj(o[i], i, parentObj, func)
+                // } else if (searchTree(o, 'x-osdu-relationship') !== null) { // new relationship making offpage object to link to other end
+                //     console.log('158 : ', o[i], i, parentObj);
+                //     // i er objectName
+                //     createObj(o[i], i, parentObj, func)
 
                 } else {
-                    if (i === "id")  continue; // drop for now
-                    if (i === "$ref")  continue; // drop for now
+                    // if (i === "id")  continue; // drop for now
+                    // if (i === "$ref")  continue; // drop for now
                     // if (i === "x-osdu-relationship")  continue; // drop for now
                     // if (parentName === "required")  continue; // drop for now
                     // if (parentName === "additionalProperties")  continue; // drop for now

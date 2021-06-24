@@ -598,7 +598,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const node = obj.part.data;
               const objview = node?.objectview;
               let noLevels = 0;
-              noLevels = prompt('Enter no of levels to follow', noLevels);
+              noLevels = prompt('Enter no of sublevels to follow', noLevels);
               uic.addConnectedObjects(modelview, objview, null, goModel, myMetis, noLevels);
               const gjsNode = myDiagram.findNodeForKey(node?.key)
               gjsNode.isSelected = false;

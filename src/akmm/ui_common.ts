@@ -1610,13 +1610,19 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         myMetis.addObjectView(toObjview);
                         if (debug) console.log('1591 toObjview', toObj, toObjview);
                         const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
-                        const oview = toObjviews[0];
-                        for (let prop in toTypeviewData) {
-                            if (oview[prop] !== "") {
-                                toObjview[prop] = oview[prop];
-                                myDiagram.model.setDataProperty(goNode, prop, oview[prop]);
-                            } else
+                        if (toObjviews) {
+                            const oview = toObjviews[0];
+                            for (let prop in toTypeviewData) {
+                                if (oview[prop] !== "") {
+                                    toObjview[prop] = oview[prop];
+                                    myDiagram.model.setDataProperty(goNode, prop, oview[prop]);
+                                } else
+                                    myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
+                            }
+                        } else {
+                            for (let prop in toTypeviewData) {
                                 myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
+                            }
                         }
                         const locx = useinp ? nx - 300 : nx + 300;
                         const locy = ny - 50 + cnt * 100;

@@ -40,7 +40,7 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         const informationTypeId = '6bab35bb-f339-4ca0-f458-6c0cb7d0d302'
         const propertyTypeId = '6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4' 
         const hasPartTypeId = '0c2653b4-f201-48bb-d738-75d97de01d36'
-
+        const hasMemberTypeId = "6d6aa1f9-4f2b-44f4-c009-65b52490bf22"
         
         function process(key,value) { //called with every property and its value
             // const tkey = String(key).replace(/\$id/g, 'id')
@@ -89,7 +89,32 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         
         }
 
-
+        const createObj = (sourceObject, currentName, parentObj, func) => { 
+            const typeRef = (parentName === "properties") ? propertyTypeId : informationTypeId     
+            console.log('94 : ', sourceObject, currentName, parentObj);
+            
+            // init new Object   
+            const newObj = initNewObj(sourceObject,typeRef) 
+            // if parent object make a hasPart relationship
+            console.log('97 parentId newObj.id : ', parentId, parentName, newObj, newObj.id);
+            // init new relationship
+            const newRel = (parentId && newObj.id) && initNewRelship(hasPartTypeId, parentObj.name+" hasPart", parentId, newObj.id) 
+            
+            console.log('101 ----- : ', objectPath,  objectIdPath, parentId, parentName);    
+            objectPath.push(currentName) // add current object to path
+            objectIdPath.push(newObj.id)
+            console.log('104 ----- : ', newObj.name, objectPath,  objectIdPath, parentId, parentName);   
+            console.log('105 :', sourceObject, newObj.id, sourceObject.name);
+            // -------
+                traverse(sourceObject, newObj, newRel, func);  //going one step down in the object tree!!   
+            // -------      
+            
+            objectPath.pop()
+            objectIdPath.pop()
+            // parentId =  objectIdPath[objectIdPath.length - 1]
+            // parentName=  objectPath[objectPath.length - 1]
+            console.log('114 ----- : ', newObj.name, objectPath,  objectIdPath);    
+        }
         // traversing the JSON tree to extract all objects and dispatch
         //-----------------------------------------------------------------------------------------------------
         function traverse(o, parentObj, parRel, func) {
@@ -100,9 +125,9 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
             // const parName = Object.keys(o)[0]
             let importedObject
             for (var i in o) {
-                let  attributes, newObj, newRel       
+                let  attributes, newObj, newRel, newLinkRel       
                 console.log('105 :', typeof(o[i]), i, o[i]);                    
-                if (o[i] !== null && typeof(o[i]) === "object") {
+                if (o[i] !== null && typeof(o[i]) === "object") { // new Object
   
                     console.log('107 if object: ', typeof(o[i]), i, o[i]);   
 
@@ -129,9 +154,14 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                     parentName=  objectPath[objectPath.length - 1]
                     console.log('126 ----- : ', newObj.name, objectPath,  objectIdPath, parentId, parentName);    
                                     
+                } else if (searchTree(o, 'x-osdu-relationship') !== null) { // new relationship making offpage object to link to other end
+                    console.log('158 : ', o[i], i, parentObj);
+                    // i er objectName
+                    createObj(o[i], i, parentObj, func)
+
                 } else {
                     if (i === "id")  continue; // drop for now
-                    // if (i === "$ref")  continue; // drop for now
+                    if (i === "$ref")  continue; // drop for now
                     // if (i === "x-osdu-relationship")  continue; // drop for now
                     // if (parentName === "required")  continue; // drop for now
                     // if (parentName === "additionalProperties")  continue; // drop for now
@@ -139,9 +169,6 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
 
                     // chencking if a relationship is defined. We dont have the other end. We can make a temporary object?
                     // if (searchTree(o, 'x-osdu-relationship') !== null) {
-                    //     console.log('130 relship tobe created :', o["x-osdu-relationship"]);
-                    //     // if (relatedObj) props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: relatedObj });
-                    //     // if (relationship) props.dispatch({ type: 'UPDATE_RELATIONSHIP_PROPERTIES', data: relationship });
                     //     continue;
                     // };
                     

@@ -597,8 +597,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const goModel = myMetis.gojsModel;
               const node = obj.part.data;
               const objview = node?.objectview;
-              const retval: any = uic.addConnectedObjects(modelview, objview, null, goModel, myMetis);
-              if (debug) console.log('602 retval', retval);
+              let noLevels = 0;
+              noLevels = prompt('Enter no of levels to follow', noLevels);
+              uic.addConnectedObjects(modelview, objview, null, goModel, myMetis, noLevels);
               const gjsNode = myDiagram.findNodeForKey(node?.key)
               gjsNode.isSelected = false;
               gjsNode.isHighlighted = true;

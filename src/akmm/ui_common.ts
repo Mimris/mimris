@@ -1597,8 +1597,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             if (relviews.length == 0) i++;
                         }
                         if (debug) console.log('1579 rel, relview', rel, relviews);                    
-                        if (relviews.length > 0)
-                            continue;    
+                        // if (relviews.length > 0)
+                        //     continue;    
                     } else {
                         cnt++;
                         // Create an objectview of toObj and then a node
@@ -1625,8 +1625,9 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                                 myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
                             }
                         }
+                        const diff = 100 // noLevels>0 ? 50 : 100;
                         const locx = useinp ? nx - 300 : nx + 300;
-                        const locy = ny + (cnt-1) * 100;
+                        const locy = ny - diff + cnt * 100;
                         const loc = locx + " " + locy;
                         toObjview.loc = loc;
                         goNode.loc = loc;
@@ -1640,21 +1641,26 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     }
                     if (toObjview)
                         objectviews.push(toObjview);
-                    const id2 = utils.createGuid();
-                    const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
-                    relview.fromObjview = useinp ? toObjview : objview;
-                    relview.toObjview = useinp ? objview : toObjview;
-                    rel.addRelationshipView(relview);
-                    modelview.addRelationshipView(relview);
-                    myMetis.addRelationshipView(relview);
-                    const gqlRelView = new gql.gqlRelshipView(relview);
-                    modifiedRelshipViews.push(gqlRelView);
-                    if (debug) console.log('1621 relview', relview);
-                    const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
-                    goLink.loadLinkContent(goModel);
-                    goModel.addLink(goLink);
-                    myDiagram.model.addLinkData(goLink);
-                    if (debug) console.log('1626 goLink', goLink);                    
+                    const oviewFrom = useinp ? toObjview : objview;
+                    const oviewTo = useinp ? objview : toObjview;
+                    const relviews2 = modelview.findRelationshipViewsByRel2(rel, oviewFrom, oviewTo);
+                    if (!relviews2 || relviews2?.length == 0) {
+                        const id2 = utils.createGuid();
+                        const relview = new akm.cxRelationshipView(id2, rel.name, rel, "");
+                        relview.fromObjview = oviewFrom;
+                        relview.toObjview = oviewTo;
+                        rel.addRelationshipView(relview);
+                        modelview.addRelationshipView(relview);
+                        myMetis.addRelationshipView(relview);
+                        const gqlRelView = new gql.gqlRelshipView(relview);
+                        modifiedRelshipViews.push(gqlRelView);
+                        if (debug) console.log('1621 relview', relview);
+                        const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
+                        goLink.loadLinkContent(goModel);
+                        goModel.addLink(goLink);
+                        myDiagram.model.addLinkData(goLink);
+                        if (debug) console.log('1626 goLink', goLink); 
+                    }                   
                 }
             }
         }
@@ -1667,7 +1673,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         let data = mn;
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
     });
-    if (!debug) console.log('1670 objectviews', objectviews);
+    if (debug) console.log('1670 objectviews', objectviews);
     if (noLevels > 0) {
         noLevels--;
         for (let i=0; i<objectviews?.length; i++) {

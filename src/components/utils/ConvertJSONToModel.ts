@@ -127,7 +127,8 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
             let importedObject
             for (var i in o) {
                 let  attributes, newObj, newRel, newLinkRel       
-                console.log('105 :', typeof(o[i]), i, o[i]);                    
+                console.log('105 :', typeof(o[i]), i, o[i]);       
+
                 if (o[i] !== null && typeof(o[i]) === "object") { // new Object
   
                     console.log('107 if object: ', typeof(o[i]), i, o[i]);   
@@ -156,9 +157,9 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                     console.log('126 ----- : ', newObj.name, objectPath,  objectIdPath, parentId, parentName);    
                                     
                 // } else if (searchTree(o, 'x-osdu-relationship') !== null) { // new relationship making offpage object to link to other end
-                //     console.log('158 : ', o[i], i, parentObj);
-                //     // i er objectName
-                //     createObj(o[i], i, parentObj, func)
+                    // console.log('158 : ', o[i], i, parentObj);
+                    // // i er objectName
+                    // createObj(o[i], i, parentObj, func)
 
                 } else {
                     // if (i === "id")  continue; // drop for now

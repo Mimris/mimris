@@ -997,6 +997,10 @@ export function createRelationship(data: any, context: any) {
                             defText = rtype.name;
                     }                    
                     if (choices.length == 1) defText = choices[0];
+
+
+
+
                     typename = prompt('Enter type name, one of ' + choices, defText);
                     reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
                     if (debug) console.log('981 reltype', reltype);
@@ -1540,6 +1544,8 @@ export function addLinkToDataArray(parent: any, myLink: gjs.goRelshipLink, relvi
 
 export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, objtype: akm.cxObjectType, 
                                     goModel: gjs.goModel, myMetis: akm.cxMetis, noLevels) {
+    if (noLevels < 1)
+        return;
     const objectviews = [];
     const myDiagram = myMetis.myDiagram;
     const modifiedObjectViews = new Array();
@@ -1674,7 +1680,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
     });
     if (debug) console.log('1670 objectviews', objectviews);
-    if (noLevels > 0) {
+    if (noLevels > 1) {
         noLevels--;
         for (let i=0; i<objectviews?.length; i++) {
             const oview = objectviews[i];

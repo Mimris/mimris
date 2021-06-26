@@ -60,16 +60,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       typeview = instview?.typeview;
     } else if (category === constants.gojs.C_OBJECTTYPE) {
       inst = selObj.objecttype;
-      if (!debug) console.log('57 inst', inst);
+      if (debug) console.log('63 inst', inst);
       inst = myMetis.findObjectType(inst?.id);
-      if (!debug) console.log('59 inst', inst);
+      if (debug) console.log('65 inst', inst);
       type = inst;
       instview = null;
     } else if (category === constants.gojs.C_RELSHIPTYPE) {
       inst = selObj.reltype;
-      if (debug) console.log('66 inst', inst);
+      if (debug) console.log('70 inst', inst);
       inst = myMetis.findRelationshipType(inst?.id);
-      if (debug) console.log('68 inst', inst);
+      if (debug) console.log('72 inst', inst);
       type = inst;
       instview = null;
     } else if (category === constants.gojs.C_METIS) {
@@ -77,7 +77,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_MODELVIEW) {
       inst = selObj;
     }
-    if (debug) console.log('76 inst, instview', inst, instview);
+    if (debug) console.log('80 inst, instview', inst, instview);
     if (inst == undefined)
       return;
     // type = inst.type;

@@ -2063,7 +2063,6 @@ export class cxMetaObject {
     id:                 string;
     name:               string;
     nameId:             string;
-    title:              string;
     category:           string;
     description:        string;
     markedAsDeleted:    boolean;
@@ -2075,7 +2074,6 @@ export class cxMetaObject {
         this.id = id;
         this.name = name;
         this.nameId = name;
-        this.title = "";
         this.category = "";
         this.markedAsDeleted = false;
         this.modified = false;
@@ -2109,15 +2107,6 @@ export class cxMetaObject {
     getName(): string {
         if (this.name)
             return this.name;
-        else
-            return "";
-    }
-    setTitle(title: string) {
-        this.title = title;
-    }
-    getTitle(): string {
-        if (this.title)
-            return this.title;
         else
             return "";
     }

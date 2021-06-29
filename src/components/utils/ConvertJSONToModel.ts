@@ -156,9 +156,9 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         
         // console.log('15', parentName, parentId);
         let attrnam, oList, listnam
-        const listName = prompt("Type in the name of the list:", listnam);
-        const list = prompt("Type a list of objects (delimited with ,", oList);
-        const nameAttribute = prompt("Type in the attribute to be used as Name (default is name):", attrnam);
+        const listName = prompt("Type in the name of the list (leave blank if nothing):", listnam);
+        const list = prompt("Type a list of objects (delimited with ,) (leave blank if nothing", oList);
+        const nameAttribute = prompt("Type in the attribute to be used as Name (leave blank if nothing):", attrnam);
         let listwithtop= (list !== "") && list + ",json, country" // top object must be included
         let objList= (listwithtop) ? listwithtop.split(",") : null;
         let objectPath = [parentName] //Path to keep order of where we are in the structure

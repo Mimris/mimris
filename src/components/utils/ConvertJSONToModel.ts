@@ -43,23 +43,17 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         const hasMemberTypeId = "6d6aa1f9-4f2b-44f4-c009-65b52490bf22"
         
         function process(key,value) { //called with every property and its value
-            // const tkey = String(key).replace(/\$id/g, 'id')
-            // const tval = String(value).replace(/"/g, '')
-            // const attribute = JSON.parse(`{"${key}" : "${value}"}`);
-            if (key === "id") key = "$id"
+            if (key === "id") key = "$id"  // We will use our own uuid so rename if source has id
+            // if (key === 'name' && (!value))  key = "contryName"
             const attribute = {[key]:value}
-            // const attribute = {}
-            // Object.defineProperties(attribute, {[`${key}`]: {value: `${value}`,}});
-
-            // Object.defineProperties(attribute, {`${key}`: {value: `${value}`,}});
-            // console.log('52', attribute);
             return attribute
         }
 
-        const initNewObj = (typeName,typeRef) => { // set up new object with some initial attributes
+        const initNewObj = (objectName, typeRef) => { // set up new object with some initial attributes
+
             return  {
                 id: utils.createGuid(),
-                name: typeName,
+                name: objectName,
                 typeRef: typeRef,
                 abstract: false,
                 viewkind: "",
@@ -69,7 +63,7 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
             }
         };     
 
-        const initNewRelship = (typeRef, typeName, fromObjRef, toObjRef) => { // set up new relship with some initial attributes
+        const initNewRelship = (typeRef, objectName, fromObjRef, toObjRef) => { // set up new relship with some initial attributes
             return {
                 cardinality: "",
                 cardinalityFrom: undefined,
@@ -80,7 +74,7 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                 id: utils.createGuid(),
                 markedAsDeleted: false,
                 modified: true,
-                name: typeName,
+                name: objectName,
                 relshipkind: "",
                 relshipviews: undefined,
                 title: "",
@@ -91,36 +85,48 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         }
 
         // Create AKMM object of the Json-object
-        const createObj = (sourceObject, currentName, parentObj, func) => { 
+        const createObj = (sourceObject, currentName, parentObj, nameAttr, listName, list, func) => { 
             const typeRef = (parentObj.name === "properties") ? propertyTypeId : informationTypeId     
             // init new Object   
-            const newObj = initNewObj(currentName,typeRef) 
+            const newObj = initNewObj(currentName, typeRef) 
             // if parent object make a hasPart relationship
             // init new relationship
             const newRel = (parentObj.id && newObj.id) && initNewRelship(hasPartTypeId, " hasPart", parentObj.id, newObj.id) 
             // -------
-                traverse(sourceObject, newObj, newRel, func);  //going one step down in the object tree!!   
+                console.log('96 :', sourceObject, newObj, newRel, nameAttr, objList);
+                
+                traverse(sourceObject, newObj, newRel, nameAttr, listName, list, func);  //going one step down in the object tree!!   
             // -------      
         }
         // traversing the JSON tree to extract all objects and dispatch
         //-----------------------------------------------------------------------------------------------------
-        function traverse(o, parentObj, parRel, func) {
+        function traverse(o, parentObj, parRel, nameAttr, listName, list, func) { // o = current object
             let  parentId = parentObj.id
             let parentName = parentObj.name
             let importedObject
-            for (var i in o) {
-                let  attributes, newObj, newRel, newLinkRel       
-                console.log('105 :', typeof(o[i]), i, o[i]);       
-
+            for (var i in o) { // i = child
+                let  attributes, newObj, newRel, newLinkRel           
                 if (o[i] !== null && typeof(o[i]) === "object") { // new Object
-                    createObj(o[i], i, parentObj, func)    // current objec, curObj name
+                    const sourceObj = o[i]
+                    let sourceObjName = (sourceObj[`${nameAttr}`]) ? i+': '+sourceObj[`${nameAttr}`] : i                    
+                    if (!list) { // if list is  not given, create all
+                        createObj(sourceObj, sourceObjName, parentObj, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject
+                    } else if (listName !== parentName) { // i parent is listname create object
+                        console.log('123 : ', listName, list, sourceObj, sourceObj[`${nameAttr}`]);
+                        createObj(sourceObj, sourceObjName, parentObj, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject 
+                    } else { // if list includes name create object
+                            if (list.includes(sourceObj[`${nameAttr}`])) {   
+                            createObj(sourceObj, sourceObjName, parentObj, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject 
+                        }
+                    }
+
                     // } else if (searchTree(o, 'x-osdu-relationship') !== null) { // new relationship making offpage object to link to other end
                     // console.log('158 : ', o[i], i, parentObj);
                     // // i er objectName
                     // createObj(o[i], i, parentObj, func)
                 } else {
-
-                    const attribute = func.apply(this,[i,o[i]])                     
+                
+                    const attribute = func.apply(this, [i,o[i]])                     
                     // importedObjects += ' ,'+func.apply(this,[i,o[i]])+''                      
                     attributes = {
                        ...attributecoll,
@@ -149,13 +155,19 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         const parentId = "";
         
         // console.log('15', parentName, parentId);
-
+        let attrnam, oList, listnam
+        const listName = prompt("Type in the name of the list:", listnam);
+        const list = prompt("Type a list of objects (delimited with ,", oList);
+        const nameAttribute = prompt("Type in the attribute to be used as Name (default is name):", attrnam);
+        let listwithtop= (list !== "") && list + ",json, country" // top object must be included
+        let objList= (listwithtop) ? listwithtop.split(",") : null;
         let objectPath = [parentName] //Path to keep order of where we are in the structure
         let objectIdPath = [parentId]
-
+        console.log('169 :', nameAttribute, list, objList);
+        
         //that's all... no magic, no bloated framework
-        // traverse(osduModel, process);
-        traverse(osduModel, parentId, parentName, process);
+        // traverse(currentObj, parentId, parentName, nameAttribute, process);
+        traverse(osduModel, parentId, parentName, nameAttribute, listName, objList, process);
         
     };
     reader.readAsText(e.target.files[0])

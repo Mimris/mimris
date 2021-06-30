@@ -999,19 +999,25 @@ export class cxMetis {
         }
     }
     addProperty(prop: cxProperty) {
+        if (!prop) return;
         if (prop.category === constants.gojs.C_PROPERTY) {
             const props = new Array();
             const len = this.properties?.length;
             if (!len)
                 props.push(prop);
             else {
+                let found = false;
                 for (let i=0; i<len; i++) {
                     const p = this.properties[i];
-                    if (p.id === prop.id)
+                    if (!p) continue;
+                    if (p.id === prop.id) {
                         props.push(prop);
-                    else
+                        found = true;
+                    } else
                         props.push(p);
                 }
+                if (!found)
+                    props.push(prop);
             }
             this.properties = props;
         }
@@ -2057,7 +2063,6 @@ export class cxMetaObject {
     id:                 string;
     name:               string;
     nameId:             string;
-    title:              string;
     category:           string;
     description:        string;
     markedAsDeleted:    boolean;
@@ -2069,7 +2074,6 @@ export class cxMetaObject {
         this.id = id;
         this.name = name;
         this.nameId = name;
-        this.title = "";
         this.category = "";
         this.markedAsDeleted = false;
         this.modified = false;
@@ -2103,15 +2107,6 @@ export class cxMetaObject {
     getName(): string {
         if (this.name)
             return this.name;
-        else
-            return "";
-    }
-    setTitle(title: string) {
-        this.title = title;
-    }
-    getTitle(): string {
-        if (this.title)
-            return this.title;
         else
             return "";
     }
@@ -2820,38 +2815,28 @@ export class cxMetaModel extends cxMetaObject {
         }
     }
     addProperty(prop: cxProperty) {
-        // Check if input is of correct category and not already in list (TBD)
-        const props = new Array();
-        const len = this.properties?.length;
-        if (!len)
-            props.push(prop);
-        else {
-            for (let i=0; i<len; i++) {
-                const p = this.properties[i];
-                if (p.id === prop.id)
+        if (!prop) return;
+        if (prop.category === constants.gojs.C_PROPERTY) {
+            const props = new Array();
+            const len = this.properties?.length;
+            if (!len)
+                props.push(prop);
+            else {
+                let found = false;
+                for (let i=0; i<len; i++) {
+                    const p = this.properties[i];
+                    if (!p) continue;
+                    if (p.id === prop.id) {
+                        props.push(prop);
+                        found = true;
+                    } else
+                        props.push(p);
+                }
+                if (!found)
                     props.push(prop);
-                else
-                    props.push(p);
             }
+            this.properties = props;
         }
-        this.properties = props;
-        // const props = new Array();
-        // const len = this.properties?.length;
-        // for (let i=0; i<len; i++) {
-        //     const p = this.properties[i];
-        //     props.push(p);
-        // }
-        // this.properties = props;
-        // let found = false;
-        // for (let i=0; i<props.length; i++) {
-        //     const p = props[i];
-        //     if (p.id === prop.id) {
-        //         found = true;
-        //         break;
-        //     }
-        // }
-        // if (!found)
-        //     this.properties.push(prop);
     }
     addRelationshipType(relType: cxRelationshipType) {
         // Check if input is of correct category and not already in list (TBD)
@@ -3417,30 +3402,28 @@ export class cxType extends cxMetaObject {
         }
     }
     addProperty(prop: cxProperty) {
-        const props = new Array();
-        const len = this.properties?.length;
-        if (!len)
-            props.push(prop);
-        else {
-            for (let i=0; i<len; i++) {
-                const p = this.properties[i];
-                if (p.id === prop.id)
+        if (!prop) return;
+        if (prop.category === constants.gojs.C_PROPERTY) {
+            const props = new Array();
+            const len = this.properties?.length;
+            if (!len)
+                props.push(prop);
+            else {
+                let found = false;
+                for (let i=0; i<len; i++) {
+                    const p = this.properties[i];
+                    if (!p) continue;
+                    if (p.id === prop.id) {
+                        props.push(prop);
+                        found = true;
+                    } else
+                        props.push(p);
+                }
+                if (!found)
                     props.push(prop);
-                else
-                    props.push(p);
             }
+            this.properties = props;
         }
-        this.properties = props;
-        // let found = false;
-        // for (let i=0; i<props.length; i++) {
-        //     const p = props[i];
-        //     if (p.id === prop.id) {
-        //         found = true;
-        //         break;
-        //     }
-        // }
-        // if (!found)
-        //     this.properties.push(prop);
     }
     addProperty2(id: string, name: string, desc: string, dtype: cxDatatype) {
         // Check if prop already exists

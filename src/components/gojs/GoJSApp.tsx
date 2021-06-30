@@ -9,7 +9,7 @@ import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';
 // import * as ReactModal from 'react-modal';
-// import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
 // import EditProperties  from '../forms/EditProperties'
@@ -21,6 +21,7 @@ import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
+import * as uim from '../../akmm/ui_modal';
 
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');
@@ -45,7 +46,9 @@ interface AppState {
   myGoMetamodel: gjs.goModel;
   phFocus: any;
   dispatch: any;
-  // showModal: boolean;
+  showModal: boolean;
+  modalContext: any;
+  selectedOption: any;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
@@ -71,7 +74,43 @@ class GoJSApp extends React.Component<{}, AppState> {
     };
     if (debug) console.log('69 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
+    this.handleOpenModal = this.handleOpenModal.bind(this);
+    this.handleCloseModal = this.handleCloseModal.bind(this);
+    this.handleSelectDropdownChange = this.handleSelectDropdownChange.bind(this);
   }
+
+  public handleOpenModal(node: any, modalContext: any) {
+    this.setState({ 
+      selectedData: node,
+      modalContext: modalContext,
+      selectedOption: null,
+      showModal: true
+    });
+    if (!debug) console.log('86 node', this.state.selectedData);
+  } 
+
+  public handleSelectDropdownChange = (selected) => {
+    const myMetis = this.myMetis;
+    const context = {
+      "myMetis":      myMetis,
+      "myMetamodel":  myMetis.currentMetamodel,
+      "myModel":      myMetis.currentModel,
+      "myModelView":  myMetis.currentModelview,
+      "myGoModel":    myMetis.gojsModel,
+      "myDiagram":    myMetis.myDiagram,
+      "modalContext": this.state.modalContext
+    }
+    uim.handleSelectDropdownChange(selected, context);
+  }
+
+  public handleCloseModal(e) {
+    const props = this.props;
+    const modalContext = this.state.modalContext;
+    if (debug) console.log('382 state', this.state);
+    uim.handleCloseModal(this.state.selectedData, props, modalContext);
+    this.setState({ showModal: false });
+  }
+  
 
     /**
      * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
@@ -652,23 +691,15 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = sel.data;
         this.state.selectedData = sel.data;
         if (debug) console.log('699 data', data.objecttype.viewkind, sel);
-        let modalContext
-        // if (data.objecttype.viewkind === "Container") {  // Zoom to container
-        //   modalContext = {
-        //     what: "Zoom Selection",
-        //     title: "Zoom Selection",
-        //     // icon: findImage(data.icon),
-        //     myDiagram: myDiagram
-        //   }
-        // } else {
-          modalContext = {
-            what: "editObjectview",
-            title: "Edit Object View",
-            icon: findImage(data.icon),
-            myDiagram: myDiagram
+        if (false) {
+          // Test open modal
+          const icon = findImage(data.icon);
+          const modalContext = {
+            what:       "Test",
           }
-        // } 
-        myDiagram.handleOpenModal(data, modalContext, null);
+          this.handleOpenModal(data, modalContext);
+          // End test
+        }
       }
       break;
       case "ObjectSingleClicked": {
@@ -880,6 +911,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         // Handle relationships
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = 'Relationship';
+
+
+
+          
           let relview;
           relview = uic.createRelationship(data, context);
           if (debug) console.log('700 relview', relview);
@@ -1077,7 +1112,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   public render() {   
     const selectedData = this.state.selectedData;
     if (debug) console.log('1075 selectedData', selectedData, this.props);
-    let inspector;
+    let modalContent, inspector, selector, header, category, typename;
     if (selectedData !== null) {
       inspector = 
         <div className="p-2" style={{backgroundColor: "#ddd"}}>
@@ -1110,7 +1145,32 @@ class GoJSApp extends React.Component<{}, AppState> {
           myGoMetamodel     ={this.state.myGoMetamodel}
           dispatch          ={this.state.dispatch}
         />
-        {/* {inspector} */}
+        <Modal className="" isOpen={this.state.showModal}  >
+          {/* <div className="modal-dialog w-100 mt-5">
+            <div className="modal-content"> */}
+              <div className="modal-head">
+                <Button className="modal-button btn-sm float-right m-1" color="link" 
+                  onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
+                  {/* onClick={() => { this.handleCloseModal('x') }} ><span>x</span> */}
+                </Button>
+                <ModalHeader className="modal-header" >
+                <span className="text-secondary">{header} </span> 
+                <span className="modal-name " >{this.state.selectedData?.name} </span>
+                <span className="modal-objecttype float-right"> {typename} </span> 
+              </ModalHeader>
+              </div>
+              <ModalBody >
+                <div className="modal-body1">
+                  {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
+                  {modalContent}
+                </div>
+              </ModalBody>
+              <ModalFooter className="modal-footer">
+                <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>
+              </ModalFooter>
+            {/* </div>
+          </div> */}
+        </Modal>        
       </div>
       
     );

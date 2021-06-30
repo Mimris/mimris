@@ -128,7 +128,7 @@ const LoadFile = (props: any) => {
       onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (Downloads)
     </button >
   const buttonSaveJSONToFileDiv = 
-    <button className="btn-primary  btn-sm mr-2 w-100  " 
+    <button className="btn-success text-white-50 btn-sm mr-2 w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
       onClick={handleSaveJSONToFile}>Save Current Model to File 
@@ -199,7 +199,7 @@ const LoadFile = (props: any) => {
                   <h5>OSDU JSON-file</h5>
                 <div className="selectbox mb-2 border">
                   <h6>Import model from OSDU JSON-file </h6>
-                  <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadConvertJSONFromFile(props.ph, dispatch, e)} />
+                  <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile(props.ph, dispatch, e)} />
                   {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
              
                 </div>

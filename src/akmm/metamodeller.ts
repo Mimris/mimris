@@ -4067,25 +4067,15 @@ export class cxRelationshipType extends cxObjectType {
             this.cardinality = cardinality; 
     }
     getCardinality() : string {
-        return this.cardinality;
+        let retval = this.cardinality;
+        return retval;
     }
     getCardinalityFrom(): string {
-        let retval = "";
-        // const cardinality = this.cardinality;
-        // if (cardinality.length >0) {
-        //     const pos = cardinality.indexOf('-');
-        //     retval = cardinality.slice(0, pos);
-        // }
+        let retval = this.cardinalityFrom;
         return retval;
     }
     getCardinalityTo(): string {
-        let retval = this.cardinality;
-        // let retval = "";
-        // const cardinality = this.cardinality;
-        // if (cardinality.length >0) {
-        //     const pos = cardinality.indexOf('-');
-        //     retval = cardinality.slice(pos+1);
-        // }
+        let retval = this.cardinalityTo;
         return retval;
     }
     setNameFrom(name: string) {
@@ -5156,6 +5146,9 @@ export class cxInstance extends cxMetaObject {
         this.outputrels = null;
         this.parentModel = null;
         this.allProperties = null;
+        if (this.type) {
+            this.relshipkind = this.getRelshipKind();
+        }
     }
     // Methods
     setAllProperties(allprops: cxProperty[]) {
@@ -5263,7 +5256,14 @@ export class cxInstance extends cxMetaObject {
         this.relshipkind = kind;
     }
     getRelshipKind(): string {
-        return this.relshipkind;
+        let retval = this.relshipkind;
+        if (!retval) retval = "";
+        if (retval.length == 0) {
+            const reltype = this.type as cxRelationshipType;
+            retval = reltype.getRelshipKind();
+            this.relshipkind = retval;
+        }
+        return retval;
     }
     setViewKind(kind: string) {
         this.viewkind = kind;
@@ -5559,11 +5559,16 @@ export class cxRelationship extends cxInstance {
         this.fromobjectRef = "";
         this.toobjectRef = "";
         this.cardinality = "";
-        this.cardinalityFrom = this.getCardinalityFrom();
-        this.cardinalityTo = this.getCardinalityTo();
+        this.cardinalityFrom = "";
+        this.cardinalityTo = "";
         this.nameFrom = "";
         this.nameTo = "";
         if (!this.typeName) this.typeName = name;
+        if (this.type) {
+            this.cardinality = this.getCardinality();
+            this.cardinalityFrom = this.getCardinalityFrom();
+            this.cardinalityTo = this.getCardinalityTo();
+        }
     }
     // Methods
     setNameFrom(name: string) {
@@ -5612,25 +5617,34 @@ export class cxRelationship extends cxInstance {
     getRelationshipType(): cxRelationshipType | null {
         return this.type as cxRelationshipType;
     }
+    getCardinality(): string {
+        let retval = this.cardinality;
+        if (!retval) retval = "";
+        if (retval.length == 0) {
+            const reltype = this.type as cxRelationshipType;
+            retval = reltype.getCardinality();
+            this.cardinality = retval;
+        }
+        return retval;
+    }
     getCardinalityFrom(): string {
         let retval = this.cardinalityFrom;
-        // const cardinality = this.cardinality;
-        // if (cardinality.length >0) {
-        //     const pos = cardinality.indexOf('-');
-        //     retval = cardinality.slice(0, pos);
-        // }
+        if (!retval) retval = "";
+        if (retval.length == 0) {
+            const reltype = this.type as cxRelationshipType;
+            retval = reltype.getCardinalityFrom();
+            this.cardinalityFrom = retval;
+        }
         return retval;
     }
     getCardinalityTo(): string {
         let retval = this.cardinalityTo;
-        // if (retval[0] === retval[3])
-        //     retval = retval[3];
-        // let retval = "";
-        // const cardinality = this.cardinality;
-        // if (cardinality.length >0) {
-        //     const pos = cardinality.indexOf('-');
-        //     retval = cardinality.slice(pos+1);
-        // }
+        if (!retval) retval = "";
+        if (retval.length == 0) {
+            const reltype = this.type as cxRelationshipType;
+            retval = reltype.getCardinalityTo();
+            this.cardinalityTo = retval;
+        }
         return retval;
     }
 }

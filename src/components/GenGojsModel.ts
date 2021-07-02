@@ -399,6 +399,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!relview.markedAsDeleted && relview.relship) { 
           includeRelview = true;
         }
+        if (!includeDeleted && !includeNoObject && !includeNoType)
+          relcolor = relview.strokecolor;
         if (includeRelview) {
           relview.setFromArrow2(rel.relshipkind);
           relview.setToArrow2(rel.relshipkind);

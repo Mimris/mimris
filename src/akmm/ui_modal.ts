@@ -1,11 +1,11 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 const debug = false;
 
 // import * as go from 'gojs';
-// import * as akm from '../../../akmm/metamodeller';
+import * as akm from '../akmm/metamodeller';
 // import * as gjs from '../../../akmm/ui_gojs';
 import * as gql from './ui_graphql';
 import * as uic from './ui_common';
@@ -92,18 +92,18 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
 }
 
 export function handleSelectDropdownChange(selected, context) {
+  const myDiagram = context.myDiagram;
   const myMetis = context.myMetis;
-  const myGoModel = context.gojsModel;
-  const myModelView = context.myModelView;
+  const myMetamodel = context.myMetamodel;
+  const myGoModel = context.myGoModel;
+  const myModelview = context.myModelview;
   const modalContext = context.modalContext;
-
   const selectedOption = selected.value;
-  if (debug) console.log('101 selectedOption, modalContext:', selectedOption, modalContext);
-  let typename;
+  if (!debug) console.log('101 selected, context:', selected, context);
   switch(modalContext.case) {
 
-    case "Change Object type":    
-      typename = (selectedOption) && selectedOption;
+    case "Change Object type": {
+      const typename = (selectedOption) && selectedOption;
       const node = myMetis.currentNode;
       const objtype = myMetis.findObjectTypeByName(typename);
       if (debug) console.log('109 objtype', objtype);
@@ -113,65 +113,70 @@ export function handleSelectDropdownChange(selected, context) {
       const data = n.data;
       myMetis.myDiagram.model.setDataProperty(data, "typename", typename);
       myMetis.myDiagram.requestUpdate();
-      break;
+    }
+    break;
 
-    case "Change Icon":    
+    case "Change Icon": {
       const icon = (selectedOption) && selectedOption;
       const inode = myMetis.currentNode;
       const icn = myMetis.myDiagram.findNodeForKey(inode.key);
       const idata = icn.data;
       myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
       myMetis.myDiagram.requestUpdate();
-      break;
+    }
+    break;
 
     case "Set Layout Scheme": {
-      if (!myModelView) 
+      if (!myModelview) 
         break;
       const layout = (selectedOption) && selectedOption;
-      myModelView.layout = layout; 
+      myModelview.layout = layout; 
       const modifiedModelviews = new Array();
-      const gqlModelview = new gql.gqlModelView(myModelView);
+      const gqlModelview = new gql.gqlModelView(myModelview);
       modifiedModelviews.push(gqlModelview);
       modifiedModelviews.map(mn => {
         let data = mn;
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
       })
       if (debug) console.log('619 gqlModelview', gqlModelview);
-      break;
       }
+    break;
+
     case "Set Routing Scheme": {  
-      if (!myModelView) 
+      if (!myModelview) 
         break;
       const routing = (selectedOption) && selectedOption;
       if (debug) console.log('655 link routing', routing);
-      myModelView.routing = routing; 
+      myModelview.routing = routing; 
       const modifiedModelviews = new Array();
-      const gqlModelview = new gql.gqlModelView(myModelView);
+      const gqlModelview = new gql.gqlModelView(myModelview);
       modifiedModelviews.push(gqlModelview);
       modifiedModelviews.map(mn => {
         let data = mn;
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
       })
       if (debug) console.log('664 gqlModelview', gqlModelview);
-      break;
     }
+    break;
+
     case "Set Link Curve": {  
-      if (!myModelView) 
+      if (!myModelview) 
         break;
       const curve = (selectedOption) && selectedOption;
       if (debug) console.log('671 link curve', curve);
-      myModelView.linkcurve = curve; 
+      myModelview.linkcurve = curve; 
       const modifiedModelviews = new Array();
-      const gqlModelview = new gql.gqlModelView(myModelView);
+      const gqlModelview = new gql.gqlModelView(myModelview);
       modifiedModelviews.push(gqlModelview);
       modifiedModelviews.map(mn => {
         let data = mn;
         myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
       })
       if (debug) console.log('664 gqlModelview', gqlModelview);
-      break;
     }
-    case "New Model":    
+    break;
+
+    case "New Model": {
       console.log('169', selected);
       const refMetamodelName = (selectedOption) && selectedOption;
       const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
@@ -182,9 +187,10 @@ export function handleSelectDropdownChange(selected, context) {
       // let mmdata = myMetis.currentModel;
       // if (debug) console.log('177 Diagram', mmdata);        
       // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
-      break;
+      } 
+    break;
 
-    case "Set Target Model":    
+    case "Set Target Model": { 
       const modelName = (selectedOption) && selectedOption;
       const targetModel = myMetis.findModelByName(modelName);
       myMetis.currentTargetModel = targetModel
@@ -193,9 +199,10 @@ export function handleSelectDropdownChange(selected, context) {
       const mdata = new gql.gqlModel(myMetis.currentModel, true);
       if (debug) console.log('188 Diagram', mdata);        
       myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
-      break;
+    }
+    break;
 
-    case "Set Target Metamodel":    
+    case "Set Target Metamodel": {  
       const metamodelName = (selectedOption) && selectedOption;
       const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
       myMetis.currentTargetMetamodel = targetMetamodel;
@@ -204,27 +211,29 @@ export function handleSelectDropdownChange(selected, context) {
       const mmdata = new gql.gqlModel(myMetis.currentModel, true);
       if (debug) console.log('199 Diagram', mmdata);        
       myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata })
-      break;
+    }
+    break;
 
-    case "Change Relationship type":    
-      typename = (selectedOption) && selectedOption;
+    case "Change Relationship type": { 
+      const typename = (selectedOption) && selectedOption;
       const link = myMetis.currentLink;
       let fromNode = myGoModel?.findNode(link.from);
       let toNode   = myGoModel?.findNode(link.to);
-      if (debug) console.log('208 from and toNode', fromNode, toNode);
+      if (!debug) console.log('222 myGoModel, link, from and toNode: ', myGoModel, link, fromNode, toNode);
       let fromType = fromNode?.objecttype;
       let toType   = toNode?.objecttype;
       fromType = myMetis.findObjectType(fromType?.id);
       toType   = myMetis.findObjectType(toType?.id);
-      if (debug) console.log('213 link', fromType, toType);
+      if (!debug) console.log('227 link', fromType, toType);
       const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-      if (debug) console.log('215 reltype', reltype, fromType, toType);
+      if (!debug) console.log('229 reltype', reltype, fromType, toType);
       const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
-      if (debug) console.log('217 relview', relview);
+      if (!debug) console.log('231 relview', relview);
       myMetis.myDiagram.requestUpdate();
-      break;
+    }
+    break;
 
-    case "Edit Attribute":
+    case "Edit Attribute": {
       const propname = selected.value;
       if (debug) console.log('223 propname', propname);
       if (propname && propname.length > 0) {
@@ -291,7 +300,79 @@ export function handleSelectDropdownChange(selected, context) {
           }
         }
       }
-      break;
+    }
+    break;
+
+    case "Create Relationship": {
+      if (!debug) console.log('307 context', context);
+      const myMetamodel = context.myMetamodel;
+      const myGoModel = context.myGoModel;
+      const myModelview = context.myModelview;
+      const myDiagram = context.myDiagram;
+      const modalContext = context.modalContext;
+      const data = modalContext.data;
+      const typename = selected.value;
+      modalContext.selected = selected;
+      if (!debug) console.log('315 typename', typename);
+      const fromNode = myGoModel.findNode(modalContext.data.from);
+      // const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
+      const toNode = myGoModel.findNode(modalContext.data.to);
+      // const nodeTo   = myDiagram.findNodeForKey(toNode?.key)
+      let fromType = fromNode?.objecttype;
+      let toType   = toNode?.objecttype;
+      fromType = myMetamodel.findObjectType(fromType?.id);
+      if (debug) console.log('322 fromType', fromType);
+      if (!fromType) fromType = myMetamodel.findObjectType(fromNode?.object?.typeRef);
+      if (fromType) {
+          fromType.allObjecttypes = myMetamodel.objecttypes;
+          fromType.allRelationshiptypes = myMetamodel.relshiptypes;
+      }
+      toType   = myMetamodel.findObjectType(toType?.id);
+      if (debug) console.log('329 toType', toType);
+      if (!toType) toType = myMetamodel.findObjectType(toNode?.object?.typeRef);
+      if (toType) {
+          toType.allObjecttypes = myMetamodel.objecttypes;
+          toType.allRelationshiptypes = myMetamodel.relshiptypes;
+      }
+      const reltype = context.myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
+      if (!debug) console.log('336 reltype', reltype);
+
+      if (!reltype) {
+          alert("Relationship type given does not exist!")
+          myDiagram.model.removeLinkData(data);
+          return;
+      }
+      if (!debug) console.log('343 data, reltype', data, reltype);
+      // const linkIt = nodeFrom.findLinksOutOf(); // get all links out from it
+      // while (linkIt.next()) { // for each link get the link text and toNode text
+      //   const link = linkIt.value;
+      //   if (
+      //       (nodeFrom?.key === link?.data?.from)
+      //       &&
+      //       (nodeTo?.key === link?.data?.to)
+      //       &&
+      //       (link?.data.name === typename)
+      //   ) {
+      //     alert("Relationship already exists!\nOperation is cancelled.")
+      //     myDiagram.model.removeLinkData(data);
+      //     return;
+      //   }
+      // }
+      data.relshiptype = reltype;
+      const reltypeview = reltype.typeview;
+      myDiagram.model.setDataProperty(data, "name", typename);
+      const relshipview = uic.createLink(data, context);
+      if (debug) console.log('363 relshipview', relshipview);
+      if (relshipview) {
+          relshipview.setTypeView(reltypeview);
+          const relship = relshipview.relship; 
+          relship.addRelationshipView(relshipview);
+          modalContext.relshipview = relshipview;
+      }
+      if (!debug) console.log('369 relshipview, myGoModel', relshipview, myGoModel);
+      myDiagram.requestUpdate();
+    }
+    break;
 
     default:
       break;
@@ -301,7 +382,8 @@ export function handleSelectDropdownChange(selected, context) {
 export function handleCloseModal(selectedData: any, props: any, modalContext: any) {
   if (debug) console.log('301 selectedData, props', selectedData, props);
   const what = modalContext.what;
-  const myDiagram = modalContext.myDiagram;
+  let myDiagram = modalContext.myDiagram;
+  if (!myDiagram && modalContext.context) myDiagram = modalContext.context.myDiagram;
   const myMetis = props.myMetis;
   const myModelview = myMetis.currentModelview;
   const myGoModel = myMetis.myGoModel;
@@ -731,21 +813,25 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       break;
     }
-    // case "editProject": {
-    //   const project = selectedData;
-    //   if (debug) console.log('323 myMetis', myMetis);
-    //   break;
-    // }
-    // case "editModel": {
-    //   const model = selectedData;
-    //   if (debug) console.log('327 obj', model);
-    //   break;
-    // }
-    // case "editModelview": {
-    //   const mview = selectedData;
-    //   if (debug) console.log('331 modelview', mview);
-    //   break;
-    // }
+
+    if (false) {
+      // case "editProject": {
+      //   const project = selectedData;
+      //   if (debug) console.log('323 myMetis', myMetis);
+      //   break;
+      // }
+      // case "editModel": {
+      //   const model = selectedData;
+      //   if (debug) console.log('327 obj', model);
+      //   break;
+      // }
+      // case "editModelview": {
+      //   const mview = selectedData;
+      //   if (debug) console.log('331 modelview', mview);
+      //   break;
+      // }
+    }
+
     // Handle all the dispatches
     modifiedObjTypeviews.map(mn => {
       let data = mn;

@@ -4,32 +4,40 @@ import * as utils from '../../akmm/utilities';
 
 const debug = false
 
+// function to find a object with name = matchingTitle
+// NB! for now its hardcoded and if x-osdu-relationship does not exist it returns null
+function searchTree(element, matchingTitle){
+    // console.log('19', element, matchingTitle, element["x-osdu-relationship"]);
+    if(element["x-osdu-relationship"]){
+            return element;
+    }else if (element.children != null){
+            var i;
+            var result = null;
+            for(i=0; result == null && i < element.children.length; i++){
+                result = searchTree(element.children[i], matchingTitle);
+            }
+            return result;
+    }
+    return null;
+}
+
 // read and convert OSDU Json format
 export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()
+    // reader.fileName = file.name
     reader.onload = async (e) => { 
         const text = (e.target.result)
-        // const osduModel = JSON.parse(text)
-        const osduModel = {'json': JSON.parse(text)}
-        // if (!debug) console.log('11 ',  osduModel);
+        const osduMod = JSON.parse(text)
         
-        // function to find a object with name = matchingTitle
-        // NB! for now its hardcoded and if x-osdu-relationship does not exist it returns null
-        function searchTree(element, matchingTitle){
-            // console.log('19', element, matchingTitle, element["x-osdu-relationship"]);
-            if(element["x-osdu-relationship"]){
-                 return element;
-            }else if (element.children != null){
-                 var i;
-                 var result = null;
-                 for(i=0; result == null && i < element.children.length; i++){
-                      result = searchTree(element.children[i], matchingTitle);
-                 }
-                 return result;
-            }
-            return null;
-       }
+        const osduSchemaSource = 'json-file-'+osduMod.title
+        // const osduSchemaSource = osduMod["x-osdu-schema-source"]
+        const topName = (osduSchemaSource) ? osduSchemaSource : "json"
+        console.log('34', osduMod, osduSchemaSource, { [topName]: osduMod });
+        const osduModel = { [topName]: osduMod }
+        if (debug) console.log('37 ', topName, osduModel);
+        
+
         // define a modelview from shemaInfo and identiy
         // const osduSchemaModelview = {
         //     id: osduModel.schemaInfo.schemaIdentity.id,
@@ -52,7 +60,8 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         const initNewObj = (objectName, typeRef) => { // set up new object with some initial attributes
 
             return  {
-                id: utils.createGuid(),
+                // id: utils.createGuid(),
+                id: objectName, // in Osdu objectname is unique
                 name: objectName,
                 typeRef: typeRef,
                 abstract: false,

@@ -28,13 +28,13 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
     // reader.fileName = file.name
     reader.onload = async (e) => { 
         const text = (e.target.result)
-        const osduMod = JSON.parse(text)
+        const osduMod = JSON.parse(text) // importert JSON file
         
-        const osduSchemaSource = 'json-file-'+osduMod.title
+        const osduSchemaSource = 'json-file-'+osduMod.title // adding text to top object to get uniqe name if import of different files
         // const osduSchemaSource = osduMod["x-osdu-schema-source"]
         const topName = (osduSchemaSource) ? osduSchemaSource : "json"
         console.log('34', osduMod, osduSchemaSource, { [topName]: osduMod });
-        const osduModel = { [topName]: osduMod }
+        const osduModel = { [topName]: osduMod } // top object is given topName as key 
         if (debug) console.log('37 ', topName, osduModel);
         
 
@@ -57,11 +57,18 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
             return attribute
         }
 
-        const initNewObj = (objectName, typeRef) => { // set up new object with some initial attributes
+        const initNewObj = (objectName, ancestryName, parentName, typeRef) => { // set up new object with some initial attributes
+            const osduIdPath = (ancestryName) 
+                ? (parentName) ? ancestryName+'::'+parentName+'::'+objectName : ancestryName+'::'+objectName 
+                : objectName
+            
+            console.log('65 : ',  ancestryName, parentName, objectName);
+            console.log('66 : ', 'osduIdPath', osduIdPath)//,  ancestryName, parentName, objectName);
 
             return  {
                 // id: utils.createGuid(),
-                id: objectName, // in Osdu objectname is unique
+                
+                id: (parentName === 'properties') ? objectName : osduIdPath, // in Osdu objectname is unique
                 name: objectName,
                 typeRef: typeRef,
                 abstract: false,
@@ -94,41 +101,40 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         }
 
         // Create AKMM object of the Json-object
-        const createObj = (sourceObject, currentName, parentObj, nameAttr, listName, list, func) => { 
+        const createObj = (sourceObject, currentName, parentObj, ancestryName, nameAttr, listName, list, func) => { 
             const typeRef = (parentObj.name === "properties") ? propertyTypeId : informationTypeId     
             // init new Object   
-            const newObj = initNewObj(currentName, typeRef) 
+            const newObj = initNewObj(currentName, ancestryName, parentName, typeRef) 
             // if parent object make a hasPart relationship
             // init new relationship
             const newRel = (parentObj.id && newObj.id) && initNewRelship(hasPartTypeId, " hasPart", parentObj.id, newObj.id) 
             // -------
-                console.log('96 :', sourceObject, newObj, newRel, nameAttr, objList);
-                
+                console.log('96 :', sourceObject, newObj, newRel, nameAttr, objList);             
                 traverse(sourceObject, newObj, newRel, nameAttr, listName, list, func);  //going one step down in the object tree!!   
             // -------      
         }
         // traversing the JSON tree to extract all objects and dispatch
         //-----------------------------------------------------------------------------------------------------
         function traverse(o, parentObj, parRel, nameAttr, listName, list, func) { // o = current object
-            let  parentId = parentObj.id
+            let parentId = parentObj.id
             let parentName = parentObj.name
             let importedObject
-            for (var i in o) { // i = child
+            for (var i in o) { // i = child in current object
                 let  attributes, newObj, newRel, newLinkRel           
-                if (o[i] !== null && typeof(o[i]) === "object") { // new Object
+                if (o[i] !== null && typeof(o[i]) === "object" ) { 
+                    ancestryName = parentName
                     const sourceObj = o[i]
                     let sourceObjName = (sourceObj[`${nameAttr}`]) ? i+': '+sourceObj[`${nameAttr}`] : i                    
-                    if (!list) { // if list is  not given, create all
-                        createObj(sourceObj, sourceObjName, parentObj, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject
-                    } else if (listName !== parentName) { // i parent is listname create object
+                    if (!list) { // if list is not given, create all
+                        createObj(sourceObj, sourceObjName, parentObj, ancestryName, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject
+                    } else if (listName !== parentName) { // if parent is listname create object
                         console.log('123 : ', listName, list, sourceObj, sourceObj[`${nameAttr}`]);
-                        createObj(sourceObj, sourceObjName, parentObj, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject 
+                        createObj(sourceObj, sourceObjName, parentObj, ancestryName, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject 
                     } else { // if list includes name create object
                             if (list.includes(sourceObj[`${nameAttr}`])) {   
-                            createObj(sourceObj, sourceObjName, parentObj, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject 
+                            createObj(sourceObj, sourceObjName, parentObj, ancestryName, nameAttr, listName, list, func)    // sourceobject, sourceObj name, parentobject 
                         }
                     }
-
                     // } else if (searchTree(o, 'x-osdu-relationship') !== null) { // new relationship making offpage object to link to other end
                     // console.log('158 : ', o[i], i, parentObj);
                     // // i er objectName
@@ -160,14 +166,15 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
             if (debug) console.log('169 ----- : ', parentId, parentName, o);   
         }
 
-        const parentName = ""
+        const parentName = "";
         const parentId = "";
+        let ancestryName = "json-top";
         
         // console.log('15', parentName, parentId);
-        let attrnam, oList, listnam
-        const listName = prompt("Type in the name of the list (leave blank if nothing):", listnam);
-        const list = prompt("Type a list of objects (delimited with ,) (leave blank if nothing", oList);
-        const nameAttribute = prompt("Type in the attribute to be used as Name (leave blank if nothing):", attrnam);
+        let attrnam, oList, listnam, list = "", listName, nameAttribute
+        // const listName = prompt("Type in the name of the list (leave blank if nothing):", listnam);
+        // const list = prompt("Type a list of objects (delimited with ,) (leave blank if nothing", oList);
+        // const nameAttribute = prompt("Type in the attribute to be used as Name (leave blank if nothing):", attrnam);
         let listwithtop= (list !== "") && list + ",json, country" // top object must be included
         let objList= (listwithtop) ? listwithtop.split(",") : null;
         let objectPath = [parentName] //Path to keep order of where we are in the structure
@@ -175,7 +182,7 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         console.log('169 :', nameAttribute, list, objList);
         
         //that's all... no magic, no bloated framework
-        // traverse(currentObj, parentId, parentName, nameAttribute, process);
+        // traverse(currentObj, parentId, parentName, nameAttribute, name-of-key-of-the-object-containing-the-lst, userinputlist-of-objects, process);
         traverse(osduModel, parentId, parentName, nameAttribute, listName, objList, process);
         
     };

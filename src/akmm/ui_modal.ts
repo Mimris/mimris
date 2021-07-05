@@ -99,7 +99,7 @@ export function handleSelectDropdownChange(selected, context) {
   const myModelview = context.myModelview;
   const modalContext = context.modalContext;
   const selectedOption = selected.value;
-  if (!debug) console.log('101 selected, context:', selected, context);
+  if (debug) console.log('101 selected, context:', selected, context);
   switch(modalContext.case) {
 
     case "Change Object type": {
@@ -219,16 +219,16 @@ export function handleSelectDropdownChange(selected, context) {
       const link = myMetis.currentLink;
       let fromNode = myGoModel?.findNode(link.from);
       let toNode   = myGoModel?.findNode(link.to);
-      if (!debug) console.log('222 myGoModel, link, from and toNode: ', myGoModel, link, fromNode, toNode);
+      if (debug) console.log('222 myGoModel, link, from and toNode: ', myGoModel, link, fromNode, toNode);
       let fromType = fromNode?.objecttype;
       let toType   = toNode?.objecttype;
       fromType = myMetis.findObjectType(fromType?.id);
       toType   = myMetis.findObjectType(toType?.id);
-      if (!debug) console.log('227 link', fromType, toType);
+      if (debug) console.log('227 link', fromType, toType);
       const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-      if (!debug) console.log('229 reltype', reltype, fromType, toType);
+      if (debug) console.log('229 reltype', reltype, fromType, toType);
       const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
-      if (!debug) console.log('231 relview', relview);
+      if (debug) console.log('231 relview', relview);
       myMetis.myDiagram.requestUpdate();
     }
     break;
@@ -304,7 +304,7 @@ export function handleSelectDropdownChange(selected, context) {
     break;
 
     case "Create Relationship": {
-      if (!debug) console.log('307 context', context);
+      if (debug) console.log('307 context', context);
       const myMetamodel = context.myMetamodel;
       const myGoModel = context.myGoModel;
       const myModelview = context.myModelview;
@@ -313,7 +313,7 @@ export function handleSelectDropdownChange(selected, context) {
       const data = modalContext.data;
       const typename = selected.value;
       modalContext.selected = selected;
-      if (!debug) console.log('315 typename', typename);
+      if (debug) console.log('315 typename', typename);
       const fromNode = myGoModel.findNode(modalContext.data.from);
       // const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
       const toNode = myGoModel.findNode(modalContext.data.to);
@@ -335,42 +335,15 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       const reltype = context.myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-      if (!debug) console.log('336 reltype', reltype);
+      if (debug) console.log('336 reltype', reltype);
 
       if (!reltype) {
           alert("Relationship type given does not exist!")
           myDiagram.model.removeLinkData(data);
           return;
       }
-      if (!debug) console.log('343 data, reltype', data, reltype);
-      // const linkIt = nodeFrom.findLinksOutOf(); // get all links out from it
-      // while (linkIt.next()) { // for each link get the link text and toNode text
-      //   const link = linkIt.value;
-      //   if (
-      //       (nodeFrom?.key === link?.data?.from)
-      //       &&
-      //       (nodeTo?.key === link?.data?.to)
-      //       &&
-      //       (link?.data.name === typename)
-      //   ) {
-      //     alert("Relationship already exists!\nOperation is cancelled.")
-      //     myDiagram.model.removeLinkData(data);
-      //     return;
-      //   }
-      // }
+      if (debug) console.log('343 data, reltype', data, reltype);
       data.relshiptype = reltype;
-      const reltypeview = reltype.typeview;
-      myDiagram.model.setDataProperty(data, "name", typename);
-      const relshipview = uic.createLink(data, context);
-      if (debug) console.log('363 relshipview', relshipview);
-      if (relshipview) {
-          relshipview.setTypeView(reltypeview);
-          const relship = relshipview.relship; 
-          relship.addRelationshipView(relshipview);
-          modalContext.relshipview = relshipview;
-      }
-      if (!debug) console.log('369 relshipview, myGoModel', relshipview, myGoModel);
-      myDiagram.requestUpdate();
     }
     break;
 

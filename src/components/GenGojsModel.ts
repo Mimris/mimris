@@ -73,7 +73,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
       if (debug) console.log('75 myMetamodelPalette', myMetamodelPalette);
-      const myGoMetamodel = buildGoMetaModel(myMetamodel);
+      const myGoMetamodel = buildGoMetaModel(myMetis, myMetamodel);
       if (debug) console.log('77 myGoMetamodel', myGoMetamodel);
       const myTargetMetamodelPalette = (myTargetMetamodel !== null) && buildGoPalette(myTargetMetamodel, myMetis);
       if (debug) console.log('79 myTargetModelPalette', myTargetMetamodel, myTargetMetamodelPalette);
@@ -171,16 +171,24 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
     if (debug) console.log('173 metamodel', metamodel);
-    const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
-    let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
+    let objecttypes: akm.cxObjectType[] | null = new Array();
+    metamodel.objecttypeRefs = utils.removeArrayDuplicates(metamodel?.objecttypeRefs);
+    const objtypeRefs = metamodel?.objecttypeRefs;
+    for (let i = 0; i < objtypeRefs?.length; i++) {
+      const objtype = metis.findObjectType(objtypeRefs[i]);
+      if (objtype)
+        objecttypes.push(objtype);
+    }
     if (objecttypes) {
       objecttypes.sort(utils.compare);
     }
-    if (debug) console.log('176 objecttypes', objecttypes);
+    const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
+    // let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
+    if (debug) console.log('187 objecttypes', objecttypes);
     if (objecttypes) {
       for (let i = 0; i < objecttypes.length; i++) {
         const objtype: akm.cxObjectType = objecttypes[i];  
-        if (debug) console.log('179 objtype', objtype); 
+        if (debug) console.log('191 objtype', objtype); 
         if (objtype && !objtype.markedAsDeleted && !objtype.abstract) {
           const id = utils.createGuid();
           const name = objtype.name;
@@ -188,12 +196,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (obj.id === "") obj.id = id;
           if (obj.name === "") obj.name = name;
           if (!obj.type) {
-            const otype = metamodel.findObjectType(obj.typeRef);
+            const otype = metis.findObjectType(obj.typeRef);
             obj.type = otype;
           }    
           if (obj.isDeleted()) 
               continue;
-          if (debug) console.log('193 obj, objtype', obj, objtype);
+          if (debug) console.log('204 obj, objtype', obj, objtype);
           const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
           let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
           // Hack
@@ -208,7 +216,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           objview.setTypeView(typeview);
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           node.loadNodeContent(myGoPaletteModel);
-          if (debug) console.log('208 node', objtype, objview, node);          
+          if (debug) console.log('219 node', objtype, objview, node);          
           node.isGroup = objtype.isContainer();
           if (node.isGroup)
               node.category = constants.gojs.C_PALETTEGROUP_OBJ;
@@ -454,26 +462,28 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     return myGoMetaPalette;
   }
 
-  function buildGoMetaModel(metamodel: akm.cxMetaModel): gjs.goModel {
+  function buildGoMetaModel(metis: akm.cxMetis, metamodel: akm.cxMetaModel): gjs.goModel {
     if (!metamodel)
       return;
-    metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
-    if (metamodel.objecttypes) {
-      if (debug) console.log('419 metamodel', metamodel);
+    metamodel.objecttypeRefs = utils.removeArrayDuplicates(metamodel?.objecttypeRefs);
+    if (metamodel.objecttypeRefs) {
+      if (debug) console.log('462 metamodel', metamodel);
       let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
-      const objtypes = metamodel?.getObjectTypes();
-      if (objtypes) {
-        if (debug) console.log('412 objtype', objtypes);
-        for (let i = 0; i < objtypes.length; i++) {
+      const objtypeRefs = metamodel?.objecttypeRefs;
+      // const objtypes = metamodel?.getObjectTypes();
+      if (objtypeRefs) {
+        if (debug) console.log('467 objtypeRefs', objtypeRefs);
+        for (let i = 0; i < objtypeRefs.length; i++) {
           let includeObjtype = false;
           let strokecolor = "black";
           let fillcolor = "white";
-          const objtype = objtypes[i];
+          // const objtype = objtypes[i];
+          const objtype = metis.findObjectType(objtypeRefs[i]);
           if (objtype) {
             if (!objtype.markedAsDeleted) 
               includeObjtype = true;
             else {
-              if (debug) console.log('432 objtype', objtype);
+              if (debug) console.log('478 objtype', objtype);
               if (includeDeleted) {
                 if (objtype.markedAsDeleted) {
                   strokecolor = "orange";
@@ -489,20 +499,22 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               node.loadNodeContent(metamodel);
               node.strokecolor = strokecolor;
               //node.fillcolor = fillcolor;
-              if (debug) console.log('445 node', node);
+              if (debug) console.log('494 node', node);
               myGoMetaModel.addNode(node);
             }
           }
         }
       }
-      metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel?.relshiptypes);
-      let relshiptypes = metamodel.relshiptypes;
-      if (debug) console.log('425 relshiptypes', relshiptypes);
+      let relshiptypes = metamodel?.relshiptypeRefs;
+      if (debug) console.log('501 relshiptypes', relshiptypes);
+      relshiptypes = utils.removeArrayDuplicates(metamodel?.relshiptypeRefs);
+      //let relshiptypes = metamodel.relshiptypes;
       if (relshiptypes) {
         for (let i = 0; i < relshiptypes.length; i++) {
           let includeReltype = false;
           let strokecolor = "black";
-          let reltype = relshiptypes[i];
+          let reltype = metis.findRelationshipType(relshiptypes[i]);
+          if (debug) console.log('509 reltype', relshiptypes[i], reltype);
           if (reltype.cardinality.length > 0) {
             reltype.cardinalityFrom = reltype.getCardinalityFrom(); 
             reltype.cardinalityTo = reltype.getCardinalityTo();

@@ -162,7 +162,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       }
       let row;
       if (k) {
-        let fieldType = 'text';
+        let fieldType = 'textarea';
         let readonly = false;
         let disabled = false;
         let checked  = false;

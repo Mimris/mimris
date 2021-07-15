@@ -73,7 +73,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
         <tr>
           <td className="pr-2" >{this.props.id}</td> 
           <td>
-            <input
+            <textarea
               disabled={this.props.disabled}
               id={this.props.id}
               value={val}
@@ -82,7 +82,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
               onChange={this.handleInputChange}
               onBlur={this.handleInputChange}
               >
-            </input>
+            </textarea>
           </td>
         </tr>
       );
@@ -97,7 +97,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       <tr>
         <td className="pr-2" >{this.props.id}</td> 
         <td>
-          <input 
+          <textarea
             id={this.props.id}
             type="text"
             list={listname}

@@ -1,24 +1,37 @@
 // @ts-nocheck
 
+const debut = false
 import * as utils from '../../akmm/utilities';
 
 // read and convert OSDU Json format
-        const informationTypeId = '6bab35bb-f339-4ca0-f458-6c0cb7d0d302'
-        const propertyTypeId = '6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4' 
-        const hasPartTypeId = '0c2653b4-f201-48bb-d738-75d97de01d36'
-        const hasMemberTypeId = "6d6aa1f9-4f2b-44f4-c009-65b52490bf22"
+        const informationTypeId = ['6bab35bb-f339-4ca0-f458-6c0cb7d0d302', 'Information']
+        const propertyTypeId = ['6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4','Property']
+        const hasPartTypeId = ['0c2653b4-f201-48bb-d738-75d97de01d36','hasPart']
+        const hasMemberTypeId = ['6d6aa1f9-4f2b-44f4-c009-65b52490bf22', 'hasMember']
+
+        let objecttypeRef = informationTypeId[0] // default partof relship in JSON structure
+        let reltypeRef = hasPartTypeId // default partof relship in JSON structure
 
 export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()
 
     // reader.fileName = file.name
-    reader.onload = async (e) => { 
+    reader.onload = async (e) =>  { 
         const text = (e.target.result)
         const osduMod = JSON.parse(text) // importert JSON file
-        const topName = "json"+osduMod.title
+        // console.log('19', osduMod,  osduMod["$id"], osduMod["x-osdu-schema-source"] );
+        // if (osduMod["$id"]) console.log('20',  osduMod["$id"].split('/').slice(-1)[0]  );
+        
+        const topName = (osduMod["$id"]) ? osduMod["$id"].split('/').slice(-1)[0] : osduMod["x-osdu-schema-source"] 
         const topModel ={[topName]: osduMod} // top object is given topName as key 
 
+                // console.log('39  :',
+                deepEntries(topModel)
+                // ) 
+
+        // deepEntries take all object-keys and concatinate them in curKey with a path showing all above levels
+        // the curKey is put in a array with curKey as first and the obect as second. 
         function deepEntries( obj ){
             'use-strict';
             var allkeys, curKey = '', len = 0, i = -1, entryK;
@@ -27,7 +40,7 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                entryK = entries.length;
                len += entries.length;
                while (entryK--)
-                 entries[entryK][0] = curKey+JSON.stringify(entries[entryK][0])+'-';
+                 entries[entryK][0] = curKey+JSON.stringify(entries[entryK][0])+'|'; // concatinate curKey with | as divider
                return entries;
             }
             allkeys = formatKeys( Object.entries(obj || {}) );
@@ -40,32 +53,76 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                         allkeys,
                         formatKeys( Object.entries(allkeys[i][1]) )
                     );
-                    console.log('35 :', curKey, curKey.slice(0, -1), allkeys[i][1]);
                     // console.log('35 :', i, entryK, len, curKey.slice(0, -1), allkeys[i][1]);
-                    const cKey = curKey.slice(0, -1).replace(/"/g, '')
-                    const pKey = cKey.split('-').slice(0, -1).join('-')
-                    const ppKey = pKey.split('-').slice(-1)[0]
-                    console.log('47', pKey.split('-'), pKey.split('-').slice(0, -1));
+                    const cleanPath = curKey.slice(0, -1).replace(/"/g, '') // clean key path ; remove "" from curkey to get a clean key string with the path as key
                     
-                    const cName = cKey.split('-').slice(-1)[0]
-                    const cVal =  allkeys[i][1] 
-                    console.log('36 :', cKey, 'pKey', pKey, 'ppKey', ppKey, 'cName :', cName, 'cVal:', cVal);
+                    let idPath =  cleanPath
+                    let newIdPath
+                    let newIdArray = idPath.split('|')
+                    if  (idPath.includes("|definitions")) {
+                        const [, ...rest] = newIdArray
+                        newIdPath = rest.join('|')
+                    } else {
+                        newIdPath = idPath
+                    } // split and slice it, pick last element 
+                    // if  (idPath.includes("|definitions|")) idPath = idPath.split('|').slice(-1)[0] // split and slice it, pick last element 
+                    // console.log('60 :', newIdPath);
+                    
+                    let oKey = newIdPath
 
-                    const cNewVal = filterObject(cVal)
-                    // console.log('43 :', allkeys[i][0], cNewVal );
-                    const typeRef = (ppKey === "properties") ? propertyTypeId : informationTypeId 
+                    // if parent = definitions remove whats before definitions in path
+                    // if  (cleanPath.split('|').slice(-2)[0] === 'definitions') oKey = 'definitions|'+cleanPath.split('|').slice(-1)[0] // split and slice it, pick last element 
+  
+
+                    // console.log('48 :', 
+                    //     '\n curKey : ', curKey,
+                    //     '\n allkeys : ', allkeys[i][1],
+                    //     '\n cleanPath : ', cleanPath,
+                    //     '\n idPath : ', idPath,
+                    //     '\n next last element : ', idPath.split('|').slice(-2)[0], 
+                    //     '\n oKey : ', oKey
+                    // );
+
+                    const oName = oKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
+                    // const parentKey = oKey.split('|').slice(0, -1).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
+                    const parentKey = oKey.split('|').slice(0, -1).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
+                    const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
+                    // console.log('53', parentKey.split('|'), parentKey.split('|').slice(0, -1));
+                    
+                    const oVal =  allkeys[i][1] // the object
+                    // console.log('57 :', '\n cleanPath: ', cleanPath, '\n oKey: ', oKey, '\n parentKey: ', parentKey, '\n parentName: ', parentName, '\n oName : ', oName, '\n oVal: ', oVal);
+
+                    const cNewVal = filterObject(oVal) // remove objects as attributes
+                    // console.log('93 : oKey', oKey, '\n oVal : ', oVal,'\n cNewVal : ', cNewVal);
+
+                    objecttypeRef = (parentName === "properties") ? propertyTypeId : informationTypeId // if parent is property use property typeRef
+
+                    let compositeName  = oName // temporary puttin title etc into objname for readability - later replace with a JSON - objecttype for the object
+                    if (!isNaN(oName)) compositeName = (oVal.title) ? oName + ' ' + oVal.title :  oName + ' ' +  oVal.$ref 
+                    if (oName === 'properties') compositeName = (oKey.split(':').slice(-2)[0] !== '0') ? oName + ' ' +  oKey.split(':').slice(-2)[0] : oName 
+                    if (oName === 'items') compositeName =  (oVal.type) ? oName + ' ' + oVal.type : oName+ ' ' + oVal.title
+                    if (parentName === 'x-osdu-relationship') compositeName =  (oVal.EntityType) ? oName + ' ' + oVal.EntityType : oName+ ' ' + oVal
+                    // if (parentName === 'oneOf') compositeName =  (oVal.title) ? oName + ' ' + oVal.title : oName+ ' ' + oVal.$ref
+                    //     ? oName + ' ' + oKey.split(':').slice(-2)[0] 
+                    //     : (cNewVal.EntityType) ? oName + ' ' + cNewVal.EntityType : oName
+                    //    compositeName =  (cNewVal.osduType?.enum[0]) ? cNewVal.osduType?.enum[0] : oName + ' ' + oKey.split('|').slice(-2)[0]
+                    //    compositeName =  (cNewVal.osduType?.enum[0]) ? cNewVal.osduType?.enum[0] : oName + ' ' + oKey.split('|').slice(-2)[0]
+                    reltypeRef = (parentName === 'allOf' || parentName === 'onOf')  ? hasMemberTypeId : hasPartTypeId // temporary set array to hasMember relship
+                    // console.log('110', parentName, reltypeRef[1]);
+                    
+
                     const importedObject = {
-                        id: cKey,
-                        name: cName,
-                        typeName: "Information",
-                        typeRef: typeRef,
+                        id: oKey,
+                        name: compositeName,
+                        // typeName: type,
+                        typeRef: objecttypeRef[0],
                         abstract: false,
                         markedAsDeleted: false,
                         modified: true,
-                        ...cNewVal
+                        JSONKey: oName,
+                        ...cNewVal // want only attributes 
                     }
                     // console.log('58 :', importedObject);
-                    
                     dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject } );  
                     
 
@@ -74,29 +131,26 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                         cardinalityFrom: undefined,
                         cardinalityTo: undefined,
                         description: "",
-                        fromobjectRef: pKey,
+                        fromobjectRef: parentKey,
                         generatedTypeId: "",
-                        id: utils.createGuid(),
+                        id: parentKey+oKey,
+                        // id: utils.createGuid(),
                         markedAsDeleted: false,
                         modified: true,
-                        name: "hasPart",
+                        name: reltypeRef[1],
                         relshipkind: "",
                         relshipviews: undefined,
                         title: "",
-                        toobjectRef: cKey,
-                        typeRef: hasPartTypeId,
+                        toobjectRef: oKey,
+                        typeRef: reltypeRef[0],
                     }
-
-                    console.log('87 :', importedRel);
-
+                    // console.log('146 :', importedRel);
                     dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
                 }
             return allkeys;
         }
 
-        // console.log('39  :',
-            deepEntries(topModel)
-        // ) 
+
         function stringifyEntries(allkeys){
             return allkeys.reduce(function(acc, x){
                 return acc+((acc&&'\n')+x[0])
@@ -107,33 +161,50 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
 
     reader.readAsText(e.target.files[0])
   }
+
+  // filter to get only attributes (objects removed)
   function filterObject(obj) {
     let newobj = {}
     for (var i in obj) {
         if (!obj.hasOwnProperty(i)) continue;
         if (typeof obj[i] == 'object') continue;
+        const tmpkey = i
+        if (i === 'type') tmpkey = 'osduType' // type is a akmm attribute probably not the same as osdu attribute
+
         newobj = {
             ...newobj,
-            [i]: obj[i]
+            [tmpkey]: obj[i]
         }
-        console.log('75', i, obj[i], newobj);
-        
+        // console.log('130', i, obj[i], newobj);
     }
-    console.log('76 :', obj, newobj);
+    // console.log('132 :', obj, newobj);
     
     return newobj;
+}
+
+function process(key,value) { //called with every property and its value
+    // if (key === "id") key = "$id"  // We will use our own uuid so rename if source has id
+    // if (key === 'name' && (!value))  key = "contryName"
+    const attribute = {[key]:value}
+    return attribute
 }
 
 
 
 
 
-          function process(key,value) { //called with every property and its value
-              // if (key === "id") key = "$id"  // We will use our own uuid so rename if source has id
-              // if (key === 'name' && (!value))  key = "contryName"
-              const attribute = {[key]:value}
-              return attribute
-          }
+
+        //   const cleanPath = curKey.slice(0, -1).replace(/"/g, '') // clean key path ; remove "" from curkey to get a clean key string with the path as key
+        //   // const oKey = cleanPath
+        //   const oKey = (cleanPath.split('|').slice(-1)[0].substring(0,5) === 'osdu:') 
+        //       ? cleanPath.split('|').slice(-1)[0] // split and slice it, pick last element 
+        //       : cleanPath
+        //   const oName = oKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
+        //   const parentKey = oKey.split('|').slice(0, -1).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
+        //   // const parentKey = (oKey.split('|').slice(-1)[0].substring(0,5) === 'osdu:') ? topName : oKey.split('|').slice(0, -1).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
+        //   const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
+        //   // console.log('53', parentKey.split('|'), parentKey.split('|').slice(0, -1));
+          
 
 
 

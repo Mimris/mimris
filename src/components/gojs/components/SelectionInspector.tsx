@@ -162,7 +162,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       }
       let row;
       if (k) {
-        let fieldType = 'text';
+        let fieldType = 'textarea';
         let readonly = false;
         let disabled = false;
         let checked  = false;
@@ -199,12 +199,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             if (debug) console.log('199 prop, dtype, fieldType: ', prop, fieldType);
           }
         }
-        if (!debug) console.log('202 k, val', k, item[k], selObj[k]);
+        if (debug) console.log('202 k, val', k, item[k], selObj[k]);
         val = (item.id === inst.id) ? item[k] : selObj[k];
         if ((what === 'editObjectType') || (what === 'editRelationshipType')) {
           val = item[k];
         }
-        if (!debug) console.log('207 k, val', k, val, item[k], selObj[k]);
+        if (debug) console.log('207 k, val', k, val, item[k], selObj[k]);
         if (useItem) val = item[k];
         if (useColor && (k === 'fillcolor' || k === 'strokecolor')) {
           if (debug) console.log('203 val', val);
@@ -224,7 +224,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }         
           if (debug) console.log('218 color', val);
         }
-        if (!debug) console.log('227 k, val', k, val, item[k], selObj[k]);
+        if (debug) console.log('227 k, val', k, val, item[k], selObj[k]);
         let dtype;
         switch(k) {
           case 'cardinalityFrom':

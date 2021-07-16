@@ -11,6 +11,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
+import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
 
 const LoadFile = (props: any) => {
   
@@ -81,7 +82,7 @@ const LoadFile = (props: any) => {
   function handleSaveJSONToFile() {
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-    SaveModelToFile(model, model.name, 'AKMM-Model')
+    WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
  

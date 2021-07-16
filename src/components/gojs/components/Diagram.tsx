@@ -170,11 +170,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       "myMetis":      myMetis,
       "myMetamodel":  myMetis.currentMetamodel,
       "myModel":      myMetis.currentModel,
-      "myModelView":  myMetis.currentModelview,
+      "myModelview":  myMetis.currentModelview,
       "myGoModel":    myMetis.gojsModel,
       "myDiagram":    myMetis.myDiagram,
       "modalContext": this.state.modalContext
     }
+    if (!debug) console.log('178 context', context);
     uim.handleSelectDropdownChange(selected, context);
   }
 
@@ -765,7 +766,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "myMetamodel":        myMetis.currentMetamodel,
                   "myTargetMetamodel":  myMetis.currentTargetMetamodel,
                   "myModel":            myMetis.currentModel,
-                  "myModelView":        myMetis.currentModelview,
+                  "myModelview":        myMetis.currentModelview,
                   "myDiagram":          e.diagram,
                   "dispatch":           e.diagram.dispatch
                 }
@@ -812,7 +813,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 "myMetamodel":        myMetis.currentMetamodel,
                 "myTargetMetamodel":  myMetis.currentTargetMetamodel,
                 "myModel":            myMetis.currentModel,
-                "myModelView":        myMetis.currentModelview,
+                "myModelview":        myMetis.currentModelview,
                 "myDiagram":          e.diagram,
                 "dispatch":           e.diagram.dispatch
               }
@@ -1312,7 +1313,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let   defText  = "";
               link.choices = [];
               link.choices.push('isRelatedTo');
-              if (debug) console.log('675 createRelationship', reltypes, myMetis);
+              if (!debug) console.log('675 createRelationship', reltypes, fromType, toType);
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {
                       const rtype = reltypes[i];

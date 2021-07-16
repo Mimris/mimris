@@ -4,11 +4,13 @@
 */
 const debug = false;
 const linkToLink= false;
+const selectRelshipTypesUsingModal = false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
 import * as React from 'react';
 // import * as ReactModal from 'react-modal';
+import Select, { components } from "react-select"
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import { DiagramWrapper } from './components/Diagram';
 import { SelectionInspector } from './components/SelectionInspector';
@@ -54,7 +56,7 @@ interface AppState {
 class GoJSApp extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props);
-    if (debug) console.log('48 GoJSApp',props.nodeDataArray);
+    if (debug) console.log('58 GoJSApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -72,7 +74,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       dispatch: this.props.dispatch,
       modelType: this.props.phFocus.focusTab,
     };
-    if (debug) console.log('69 this.state.linkDataArray: ',this.state.linkDataArray);
+    if (debug) console.log('76 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
     this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -86,16 +88,16 @@ class GoJSApp extends React.Component<{}, AppState> {
       selectedOption: null,
       showModal: true
     });
-    if (!debug) console.log('86 node', this.state.selectedData);
+    if (debug) console.log('86 node', this.state.selectedData);
   } 
 
   public handleSelectDropdownChange = (selected) => {
-    const myMetis = this.myMetis;
+    const myMetis = this.state.myMetis;
     const context = {
       "myMetis":      myMetis,
       "myMetamodel":  myMetis.currentMetamodel,
       "myModel":      myMetis.currentModel,
-      "myModelView":  myMetis.currentModelview,
+      "myModelview":  myMetis.currentModelview,
       "myGoModel":    myMetis.gojsModel,
       "myDiagram":    myMetis.myDiagram,
       "modalContext": this.state.modalContext
@@ -106,9 +108,20 @@ class GoJSApp extends React.Component<{}, AppState> {
   public handleCloseModal(e) {
     const props = this.props;
     const modalContext = this.state.modalContext;
-    if (debug) console.log('382 state', this.state);
-    uim.handleCloseModal(this.state.selectedData, props, modalContext);
-    this.setState({ showModal: false });
+    const myDiagram = modalContext.context.myDiagram;
+    const myGoModel = modalContext.context.myGoModel;
+    const args = {
+      data: modalContext.data,
+      typename: modalContext.selected.value,
+      fromType: modalContext.fromType,
+      toType: modalContext.toType,
+      nodeFrom: modalContext.nodeFrom,
+      nodeTo: modalContext.nodeTo,
+      context: modalContext.context
+    }
+    if (debug) console.log('122 myDiagram, args', myDiagram, args);
+    uic.createRelshipCallback(args);
+    this.setState({ showModal: false, selectedData: null, modalContext: null });
   }
   
 
@@ -691,7 +704,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = sel.data;
         this.state.selectedData = sel.data;
         if (debug) console.log('699 data', data.objecttype.viewkind, sel);
-        if (false) {
+        if (true) {
           // Test open modal
           const icon = findImage(data.icon);
           const modalContext = {
@@ -706,7 +719,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const sel = e.subject.part;
         const data = sel.data;
         if (debug) console.log('644 selected', sel.key);
-        this.state.selectedData = data
+        this.state.selectedData = data;
         if (debug) console.log('646 GoJSApp :', data, data.name, data.object);
         if (sel) {
           if (sel instanceof go.Node) {
@@ -725,6 +738,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             } else { // object
               myDiagram.clearHighlighteds();
               const object = data.object;
+              if (debug) console.log('741 object', object);
               const oviews = object?.objectviews;
               if (oviews) {
                 for (let j=0; j<oviews.length; j++) {
@@ -867,13 +881,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'LinkDrawn': {
         const link = e.subject;
         const data = link.data;
-        if (debug) console.log('668 link', link, link.fromNode, link.toNode);
+        if (debug) console.log('883 link', link, link.fromNode, link.toNode);
 
         // Prepare for linkToLink
         if (linkToLink) {
           let labels = link.labelNodes;
           for (let it = labels.iterator; it.next();) {     
-            if (debug) console.log('672 it.value', it.value);
+            if (debug) console.log('889 it.value', it.value);
             const linkLabel = it.value;
             // Connect linkLabel to relview
           }
@@ -884,56 +898,37 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
         }
 
-        if (debug) console.log('670 data', data);
+        if (debug) console.log('900 data', data);
         const fromNode = myDiagram.findNodeForKey(data.from);
         const toNode = myDiagram.findNodeForKey(data.to);
 
-        if (debug) console.log('676 LinkDrawn', fromNode, toNode, data);
+        if (debug) console.log('904 LinkDrawn', fromNode, toNode, data);
         // Handle relationship types
         if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
           data.category = constants.gojs.C_RELSHIPTYPE;
-          if (debug) console.log('932 link', fromNode, toNode);
+          if (debug) console.log('908 link', fromNode, toNode);
           link.category = constants.gojs.C_RELSHIPTYPE;
           const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
           if (reltype) {
-            if (debug) console.log('937 reltype', reltype);
+            if (debug) console.log('912 reltype', reltype);
             const gqlType = new gql.gqlRelationshipType(reltype, true);
             modifiedTypeLinks.push(gqlType);
-            if (debug) console.log('940 gqlType', gqlType);
+            if (debug) console.log('915 gqlType', gqlType);
             const reltypeview = reltype.typeview;
             if (reltypeview) {
               const gqlTypeView = new gql.gqlRelshipTypeView(reltypeview);
               modifiedLinkTypeViews.push(gqlTypeView);
-              if (debug) console.log('945 gqlTypeView', gqlTypeView);
+              if (debug) console.log('920 gqlTypeView', gqlTypeView);
             }
           }
         }
         // Handle relationships
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = 'Relationship';
-
-
-
-          
-          let relview;
-          relview = uic.createRelationship(data, context);
-          if (debug) console.log('700 relview', relview);
-          if (relview) {
-            let rel = relview.relship;
-            rel = myMetis.findRelationship(rel.id);
-            const myLink = new gjs.goRelshipLink(data.key, myGoModel, relview);
-            myLink.fromNode = fromNode;
-            myLink.toNode   = toNode;
-            if (debug) console.log('675 relview', relview, myLink);
-            const gqlRelview = new gql.gqlRelshipView(relview);
-            if (debug) console.log('678 LinkDrawn', link, gqlRelview);
-            modifiedLinks.push(gqlRelview);
-            const gqlRelship = new gql.gqlRelationship(rel);
-            if (debug) console.log('681 LinkDrawn', gqlRelship);
-            modifiedRelships.push(gqlRelship);
-          }
-        }
-        myDiagram.requestUpdate();
+          context.handleOpenModal = this.handleOpenModal;
+          uic.createRelationship(data, context);
+       }
+       myDiagram.requestUpdate();
       }
       break;
       case "LinkRelinked": {
@@ -995,90 +990,91 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('802 GoJSApp event name: ', name);
         break;
     }
+    // Dispatches
+    if (true) {
+      this.state.phFocus.focusModelview = myMetis.currentModelview;
+      if (debug) console.log('923 modifiedNodes', modifiedNodes);
+      modifiedNodes.map(mn => {
+        let data = mn
+        if (debug) console.log('877 UPDATE_OBJECTVIEW_PROPERTIES', data)
+        this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+      })
 
-    this.state.phFocus.focusModelview = myMetis.currentModelview;
-    if (debug) console.log('923 modifiedNodes', modifiedNodes);
-    modifiedNodes.map(mn => {
-      let data = mn
-      if (debug) console.log('877 UPDATE_OBJECTVIEW_PROPERTIES', data)
-      this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-    })
+      if (debug) console.log('930 modifiedTypeNodes', modifiedTypeNodes);
+      modifiedTypeNodes?.map(mn => {
+        let data = (mn) && mn
+        if (debug) console.log('900 UPDATE_OBJECTTYPE_PROPERTIES', data)
+        this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+      })
 
-    if (debug) console.log('930 modifiedTypeNodes', modifiedTypeNodes);
-    modifiedTypeNodes?.map(mn => {
-      let data = (mn) && mn
-      if (debug) console.log('900 UPDATE_OBJECTTYPE_PROPERTIES', data)
-      this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
-    })
+      if (debug) console.log('937 modifiedTypeViews', modifiedTypeViews);
+      modifiedTypeViews?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+        if (debug) console.log('892 data', data);
+      })
 
-    if (debug) console.log('937 modifiedTypeViews', modifiedTypeViews);
-    modifiedTypeViews?.map(mn => {
-      let data = (mn) && mn
-      this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-      if (debug) console.log('892 data', data);
-    })
+      if (debug) console.log('944 modifiedTypeGeos', modifiedTypeGeos);
+      modifiedTypeGeos?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
+      })
 
-    if (debug) console.log('944 modifiedTypeGeos', modifiedTypeGeos);
-    modifiedTypeGeos?.map(mn => {
-      let data = (mn) && mn
-      this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
-    })
+      if (debug) console.log('950 modifiedLinks', modifiedLinks);
+      modifiedLinks.map(mn => {
+        let data = mn
+        this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+      })
 
-    if (debug) console.log('950 modifiedLinks', modifiedLinks);
-    modifiedLinks.map(mn => {
-      let data = mn
-      this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-    })
+      if (debug) console.log('956 modifiedLinkTypes', modifiedLinkTypes);
+      modifiedTypeLinks?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+      })
 
-    if (debug) console.log('956 modifiedLinkTypes', modifiedLinkTypes);
-    modifiedTypeLinks?.map(mn => {
-      let data = (mn) && mn
-      this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
-    })
+      // if (debug) console.log('929 modifiedLinkTypeViews', modifiedLinkTypeViews);
+      modifiedLinkTypeViews?.map(mn => {
+        let data = (mn) && mn
+        this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+      })
 
-    // if (debug) console.log('929 modifiedLinkTypeViews', modifiedLinkTypeViews);
-    modifiedLinkTypeViews?.map(mn => {
-      let data = (mn) && mn
-      this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-    })
+      if (debug) console.log('968 modifiedObjects', modifiedObjects);
+      modifiedObjects?.map(mn => {
+        let data = (mn) && mn
+        if (debug) console.log('938 UPDATE_OBJECT_PROPERTIES', data)
+        this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+      })
 
-    if (debug) console.log('968 modifiedObjects', modifiedObjects);
-    modifiedObjects?.map(mn => {
-      let data = (mn) && mn
-      if (debug) console.log('938 UPDATE_OBJECT_PROPERTIES', data)
-      this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
-    })
+      if (debug) console.log('975 modifiedRelships', modifiedRelships);
+      modifiedRelships?.map(mn => {
+        let data = (mn) && mn
+        if (debug) console.log('945 data', data);
+        this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+      })
 
-    if (debug) console.log('975 modifiedRelships', modifiedRelships);
-    modifiedRelships?.map(mn => {
-      let data = (mn) && mn
-      if (debug) console.log('945 data', data);
-      this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
-    })
+      if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
+      selectedObjectViews?.map(mn => {
+        let data = (mn) && { id: mn.id, name: mn.name }
+        this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
+      })
 
-    if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
-    selectedObjectViews?.map(mn => {
-      let data = (mn) && { id: mn.id, name: mn.name }
-      this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
-    })
+      if (debug) console.log('988 selectedRelshipViews', selectedRelshipViews);
+      selectedRelshipViews?.map(mn => {
+        let data = (mn) && { id: mn.id, name: mn.name }
+        this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
+      })
 
-    if (debug) console.log('988 selectedRelshipViews', selectedRelshipViews);
-    selectedRelshipViews?.map(mn => {
-      let data = (mn) && { id: mn.id, name: mn.name }
-      this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
-    })
-
-    if (debug) console.log('994 selectedObjectTypes', selectedObjectTypes);
-    selectedObjectTypes?.map(mn => {
-      let data = (mn) && { id: mn.id, name: mn.name }
-      this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
-    })
-    if (debug) console.log('999 selectedRelationshipTypes', selectedRelationshipTypes);
-    selectedRelationshipTypes?.map(mn => {
-      let data = (mn) && { id: mn.id, name: mn.name }
-      this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
-    })
-
+      if (debug) console.log('994 selectedObjectTypes', selectedObjectTypes);
+      selectedObjectTypes?.map(mn => {
+        let data = (mn) && { id: mn.id, name: mn.name }
+        this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
+      })
+      if (debug) console.log('999 selectedRelationshipTypes', selectedRelationshipTypes);
+      selectedRelationshipTypes?.map(mn => {
+        let data = (mn) && { id: mn.id, name: mn.name }
+        this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
+      })
+    }
     // Function to identify images related to an image id
     function findImage(image: string) {
       if (!image) return "";
@@ -1111,21 +1107,65 @@ class GoJSApp extends React.Component<{}, AppState> {
 
   public render() {   
     const selectedData = this.state.selectedData;
-    if (debug) console.log('1075 selectedData', selectedData, this.props);
+    if (debug) console.log('1111 selectedData', selectedData, this.props);
     let modalContent, inspector, selector, header, category, typename;
-    if (selectedData !== null) {
-      inspector = 
-        <div className="p-2" style={{backgroundColor: "#ddd"}}>
-          <p>Selected Object Properties:</p>
-          <SelectionInspector 
-            myMetis={this.state.myMetis}
-            selectedData={this.state.selectedData}
-            context={this.state.context}
-            onInputChange={this.handleInputChange}
-          />;
-        </div>
-    }
+    const modalContext = this.state.modalContext;
+    if (debug) console.log('1115 modalContext ', modalContext);
+    const context = modalContext?.context;
+    if (modalContext?.what === 'selectDropdown') {      
+        let options =  '' 
+        let comps = ''
+        const { Option } = components
+        const CustomSelectOption = props => 
+        (
+          <Option {...props}>
+            <img className="option-img mr-2" src={props.data.value} />
+            {props.data.label}
+          </Option>
+        )
+        const CustomSelectValue = props => (
+          <div>
+            {/* <i className={`icon icon-${props.data.icon}`} /> */}
+            <img className="option-img mr-2" src={props.data.value} />
+             {props.data.label}
+          </div>
+        )
+        options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
+        comps = null
+        if (debug) console.log('1138 options', options, this.state);
+        const { selectedOption } = this.state;
 
+        const value = (selectedOption)  ? selectedOption.value : options[0];
+        if (debug) console.log('1142 context', context);
+        if (debug) console.log('1143 selectedOption, value ', selectedOption, value);
+        header = modalContext.title;
+        modalContent = 
+          <div className="modal-selection d-flex justify-content-center">
+            <Select className="modal-select"
+              options={options}
+              components={comps}
+              onChange={value => this.handleSelectDropdownChange(value, context)}
+              value={value}
+            />
+          </div>
+          {/* <option value={option.value}>{label: option.label, option.value}</option>
+          */}      
+          
+    } else {
+        if (selectedData !== null) {
+          inspector = 
+            <div className="p-2" style={{backgroundColor: "#ddd"}}>
+              <p>Selected Object Properties:</p>
+              <SelectionInspector 
+                myMetis={this.state.myMetis}
+                selectedData={this.state.selectedData}
+                context={this.state.context}
+                onInputChange={this.handleInputChange}
+              />;
+            </div>
+        }
+    }
+    
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
     if (debug) console.log('1089 dispatch', this.state.myMetis.dispatch);
     if (debug) console.log('1090 linkdataarray:', this.state.linkDataArray);
@@ -1150,7 +1190,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
-                  onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
+                  onClick={() => { this.setState({ showModal: false, selectedData: null, modalContext: null }) }} ><span>x</span>
                   {/* onClick={() => { this.handleCloseModal('x') }} ><span>x</span> */}
                 </Button>
                 <ModalHeader className="modal-header" >

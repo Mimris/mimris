@@ -57,3 +57,20 @@ p {
   border-bottom: 1px solid #BDBDBD; /* Grey 900 */
   width: 100%;
 }
+.inspector textarea {
+  font: 300 1rem Roboto, helvetica, sans-serif;
+  border: 0;
+  outline: none;
+  border-bottom: 1px solid #EEEEEE; /* Grey 900 */
+  padding: 2px;
+  padding-right: 0px;
+  width: 100%;
+}
+
+.inspector textarea:disabled {
+  background-color: #EEEEEE; /* Grey 400 */
+  color: #616161; /* Grey 700 */
+  border-bottom: 1px solid #BDBDBD; /* Grey 900 */
+  width: 100%;
+  min-width: 450px;
+}

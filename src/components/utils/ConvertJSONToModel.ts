@@ -98,15 +98,15 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                     objecttypeRef = (parentName === "properties") ? propertyTypeId : informationTypeId // if parent is property use property typeRef
 
                     let compositeName  = oName // temporary puttin title etc into objname for readability - later replace with a JSON - objecttype for the object
-                    if (!isNaN(oName)) compositeName = (oVal.title) ? oName + ' ' + oVal.title :  oName + ' ' +  oVal.$ref 
-                    if (oName === 'properties') compositeName = (oKey.split(':').slice(-2)[0] !== '0') ? oName + ' ' +  oKey.split(':').slice(-2)[0] : oName 
-                    if (oName === 'items') compositeName =  (oVal.type) ? oName + ' ' + oVal.type : oName+ ' ' + oVal.title
-                    if (parentName === 'x-osdu-relationship') compositeName =  (oVal.EntityType) ? oName + ' ' + oVal.EntityType : oName+ ' ' + oVal
+                    // if (!isNaN(oName)) compositeName = (oVal.title) ? oName + ' ' + oVal.title :  oName + ' ' +  oVal.$ref 
+                    // if (oName === 'properties') compositeName = (oKey.split(':').slice(-2)[0] !== '0') ? oName + ' ' +  oKey.split(':').slice(-2)[0] : oName 
+                    // if (oName === 'items') compositeName =  (oVal.type) ? oName + ' ' + oVal.type : oName+ ' ' + oVal.title
+                    // if (parentName === 'x-osdu-relationship') compositeName =  (oVal.EntityType) ? oName + ' ' + oVal.EntityType : oName+ ' ' + oVal
                     // if (parentName === 'oneOf') compositeName =  (oVal.title) ? oName + ' ' + oVal.title : oName+ ' ' + oVal.$ref
                     //     ? oName + ' ' + oKey.split(':').slice(-2)[0] 
                     //     : (cNewVal.EntityType) ? oName + ' ' + cNewVal.EntityType : oName
-                    //    compositeName =  (cNewVal.osduType?.enum[0]) ? cNewVal.osduType?.enum[0] : oName + ' ' + oKey.split('|').slice(-2)[0]
-                    //    compositeName =  (cNewVal.osduType?.enum[0]) ? cNewVal.osduType?.enum[0] : oName + ' ' + oKey.split('|').slice(-2)[0]
+                    //    compositeName =  (cNewVal.jsontype?.enum[0]) ? cNewVal.jsontype?.enum[0] : oName + ' ' + oKey.split('|').slice(-2)[0]
+                    //    compositeName =  (cNewVal.jsontype?.enum[0]) ? cNewVal.jsontype?.enum[0] : oName + ' ' + oKey.split('|').slice(-2)[0]
                     reltypeRef = (parentName === 'allOf' || parentName === 'onOf')  ? hasMemberTypeId : hasPartTypeId // temporary set array to hasMember relship
                     // console.log('110', parentName, reltypeRef[1]);
                     
@@ -169,7 +169,7 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         if (!obj.hasOwnProperty(i)) continue;
         if (typeof obj[i] == 'object') continue;
         const tmpkey = i
-        if (i === 'type') tmpkey = 'osduType' // type is a akmm attribute probably not the same as osdu attribute
+        if (i === 'type') tmpkey = 'jsonType' // type is a akmm attribute probably not the same as osdu attribute
 
         newobj = {
             ...newobj,

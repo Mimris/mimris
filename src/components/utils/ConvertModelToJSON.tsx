@@ -56,17 +56,22 @@ export const ConvertObjectsToJsonStructure = (objects) => {
         // console.log('56 : ', objects);
         
         const jsonobj = objects.map((o, i) =>  { 
+            console.log('59 : ', o);
+            
             let hasObj = false
             // if (i < objects.length) {
                 hasObj = (objects[i+1]?.JSONKey === 'items') && true
             // }
 
-            const current = o.id.split('|').slice(-1)[0] //.join('|')
-            const parent = o.id.split('|').slice(-2)[0] //.join('|')
-            const prev = objects[i-1]?.id
-            const next = objects[i+1]?.id
-            const nextParent = objects[i+1]?.id.split('|').slice(-2)[0]
             const curId = o.id
+            const current = o.id.split('|').slice(-1)[0] //.join('|')
+            const parentId = o.id.split('|').slice(0, -2).join('|')
+            const parent = o.id.split('|').slice(-2)[0] //.join('|')
+            const prevId = objects[i-1]?.id
+            const previous = objects[i-1]?.id.split('|').slice(-1)[0]
+            const nextId = objects[i+1]?.id
+            const next = objects[i+1]?.id.split('|').slice(-1)[0] //.join('|')
+            const nextParent = objects[i+1]?.id.split('|').slice(-1)[0]
 
             const filteredObj = JSON.stringify(filterObject(o)) // keep only attributes (remove objects)
             const removedLastChar = filteredObj.slice(0, -1) // remove the last }
@@ -80,30 +85,40 @@ export const ConvertObjectsToJsonStructure = (objects) => {
         
             prePath = [...prePath, preChar]
             postPath = [...postPath, postChar]    
-            // console.log('83 \n prev : ', prev,' \n curId : ', curId, '\n next : ', next, '\n parent : ' , parent, '\n ' , hasObj);
+            console.log('83 \n prev : ', prevId, previous, ' \n curId : ', curId, current, '\n next : ', nextId, next, '\n parent : ' , parentId, parent, '\n ' , hasObj);
             
-            const prevLength = prev?.split('|').length 
+            const prevLength = prevId?.split('|').length 
             const curLength = curId?.split('|').length 
-            const nextLength = next?.split('|').length 
+            const nextLength = nextId?.split('|').length 
             const restLength = prevLength - curLength 
-            // console.log('89 : ', prevLength, curLength, nextLength, restLength);
+            console.log('89 : ', prevLength, curLength, nextLength, restLength);
 
             if (o.JSONKey === undefined) {
-                objAll += `{ ${removedFirstAndLastChar} ,`
-            } else if ((o.id.split('|').slice(-1)[0] === "allOf")) {
-                objAll += `"${o.JSONKey}": [ ${removedFirstAndLastChar} ` 
+                objAll += `{ ${removedFirstAndLastChar},`
+            } else if ((current === "allOf") || (current === 'x-osdu-supported-file-formats')) {
+                objAll += `"${o.JSONKey}": [ ${removedFirstAndLastChar}` 
             } else if (!isNaN(o.JSONKey)) {
                 objAll += (removedFirstAndLastChar.includes("$ref")) 
                     ? (restLength < 1 ) ? `{ ${removedFirstAndLastChar}},` : `}},{ ${removedFirstAndLastChar}}`
                     : `{ ${removedFirstAndLastChar},`
             } else  if  (!hasObj) {
                 objAll += (parent === "properties")  
-                    ? `"${o.JSONKey}": { ${removedFirstAndLastChar} },` // error a , to much
-                    : (current === 'properties' || current === 'items') 
-                        ?`"${o.JSONKey}": { ${removedFirstAndLastChar}` 
-                        :`"${o.JSONKey}": { ${removedFirstAndLastChar},` 
+                    ? (current === 'tags')
+                        ? `"${o.JSONKey}": { ${removedFirstAndLastChar},`
+                        : `"${o.JSONKey}": { ${removedFirstAndLastChar} },` 
+                    : (current === 'properties') 
+                        ? `"${o.JSONKey}": { ${removedFirstAndLastChar}` 
+                        : (current === 'items' || current === 'required') 
+                            ?  `"${o.JSONKey}": { ${removedFirstAndLastChar} }},`  
+                            : (parent === 'tags') 
+                                ? (current === 'example') 
+                                    ? `"${o.JSONKey}": { ${removedFirstAndLastChar} }},`  
+                                    : `"${o.JSONKey}": { ${removedFirstAndLastChar} },`  
+                                : `"${o.JSONKey}": { ${removedFirstAndLastChar},` 
             } else if (parent === "items")  {
-                objAll += `"${o.JSONKey}": { ${removedFirstAndLastChar}},`     
+                objAll += (removedFirstAndLastChar.includes("$ref")) 
+                    ? `}},{ ${removedFirstAndLastChar}}`
+                    : `"${o.JSONKey}": { ${removedFirstAndLastChar}},`     
             } else {
                 objAll += `"${o.JSONKey}": { ${removedFirstAndLastChar},`  
             }
@@ -117,27 +132,31 @@ export const ConvertObjectsToJsonStructure = (objects) => {
             let n = prevLength - curLength
             let pn = curId  
             if (n > 0) {
-            // if ((next === undefined)) {      
+            // if ((nextId === undefined)) {      
                 // objAll += '}'       
                 while (n > 0) {
                     const nextP =  myParent(pn)               
                     // console.log('135 : ', n, pn, nextP);             
-                    objAll += (nextP === 'allOf')
-                        ? ']' 
-                        : '},'                
+                    objAll += (nextP === 'allOf' || nextP === 'x-osdu-supported-file-formats')
+                        ? (next !== undefined) ? '],a' : ']b' 
+                        : (next === 'required') 
+                            ? '}c,' 
+                            : (parent === 'properties') 
+                                ? 'd'
+                                : (nextP === 'x-osdu-supported-file-formats') ? ']e' : '}ee'
                     pn = myPId(pn)
                     n--;
                 }
             } 
             
-            let nn = curLength - 2
-            if (next === undefined) {
+            let nn = curLength - restLength
+            if (nextId === undefined) {
                 while (nn > 0 ) {
                     const nextP =  myParent(pn)               
                     // console.log('135 : ', n, pn, nextP);             
-                    objAll += (nextP === 'allOf')
-                        ? ']' 
-                        : '}'                 
+                    objAll += (nextP === 'allOf' || nextP === 'x-osdu-supported-file-formats')
+                        ? (next === undefined) ? '}}]f' : ']g' 
+                        : '}h'                 
                     pn = myPId(pn)
                     nn--;
                 }
@@ -163,7 +182,7 @@ export const ConvertObjectsToJsonStructure = (objects) => {
 
 
         // console.log('99 objects',  objects)
-        const JSONObject = objAll.replace(/\",}/g, '"}').replace(/},}/g, '}}').replace(/,}/g, '}}')
+        const JSONObject = objAll//.replace(/\",}/g, '"}').replace(/},}/g, '}}').replace(/,}/g, '}}')
         // console.log('167 ', JSONObject)  
        
         return JSONObject
@@ -202,7 +221,7 @@ export const ConvertObjectsToJsonStructure = (objects) => {
         if (i === 'JSONKey') continue;
 
         const tmpkey = i
-        if (i === 'osduType') tmpkey = 'type' // type is a akmm attribute probably not the same as osdu attribute
+        if (i === 'jsonType') tmpkey = 'type' // type is a akmm attribute probably not the same as osdu attribute
 
         newobj = {
                     ...newobj,

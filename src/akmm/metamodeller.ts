@@ -701,9 +701,9 @@ export class cxMetis {
                         if (model) this.importModelView(mv, model);
                     });
                 }
-                model.targetMetamodel = item.targetMetamodel;
-                model.sourceModel = item.sourceModel;
-                model.targetModel = item.targetModel;
+                model.targetMetamodelRef = item.targetMetamodelRef;
+                model.sourceModelRef = item.sourceModelRef;
+                model.targetModelRef = item.targetModelRef;
             }
             if (debug) console.log('583 model', model);
         }

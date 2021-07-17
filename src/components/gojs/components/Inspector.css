@@ -17,6 +17,16 @@
   font: 300 1rem Roboto, helvetica, sans-serif;
   border: 0;
   outline: none;
+  /* border-bottom: 1px solid #212121; Grey 900 */
+  padding: 2px;
+}
+.inspector textarea {
+  float: left;
+  width: auto;
+  min-height: 20px;
+  font: 300 1rem Roboto, helvetica, sans-serif;
+  border: 0;
+  outline: none;
   border-bottom: 1px solid #212121; /* Grey 900 */
   padding: 2px;
 }
@@ -25,4 +35,9 @@
   background-color: #EEEEEE; /* Grey 400 */
   color: #616161; /* Grey 700 */
   border-bottom: 1px solid #BDBDBD; /* Grey 900 */
+}
+.inspector textarea:disabled {
+  background-color: #EEEEEE; /* Grey 400 */
+  color: #616161; /* Grey 700 */
+  /* border-bottom: 1px solid #BDBDBD; Grey 900 */
 }

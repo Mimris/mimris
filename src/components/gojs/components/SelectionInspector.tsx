@@ -227,6 +227,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('227 k, val', k, val, item[k], selObj[k]);
         let dtype;
         switch(k) {
+          case 'description':
+            fieldType = 'textarea';
+            break;
           case 'cardinalityFrom':
           case 'cardinalityTo':
             dtype = myMetamodel.findDatatypeByName('cardinality');
@@ -311,7 +314,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
 
         if (debug) console.log('312 selObj, item:', selObj, item);
         if (debug) console.log('313 id, value, disabled:', k, val, disabled);
-        if (debug) console.log('314 k, fieldType', k, fieldType, defValue, values);
+        if (!debug) console.log('314 k, fieldType', k, fieldType, defValue, values);
         row  = <InspectorRow
           key={k}
           id={k}

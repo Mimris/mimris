@@ -12,7 +12,7 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
         const text = (e.target.result)
         // const osduModel = JSON.parse(text)
         const osduModel = {'json': JSON.parse(text)}
-        // if (!debug) console.log('11 ',  osduModel);
+        // if (debug) console.log('11 ',  osduModel);
         
         // function to find a object with name = matchingTitle
         // NB! for now its hardcoded and if x-osdu-relationship does not exist it returns null

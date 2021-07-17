@@ -134,7 +134,7 @@ export class gqlMetaModel {
         this.objecttypeviews = [];
         this.objtypegeos = [];
         this.relshiptypeviews = [];
-        this.markedAsDeleted  = false;
+        this.markedAsDeleted  = metamodel.markedAsDeleted;
         this.modified = false;
 
         // Code
@@ -624,13 +624,13 @@ export class gqlModel {
         this.id              = model.id;
         this.name            = model.name;
         this.description     = model.description ? model.description : "";
-        this.metamodelRef    = model.getMetamodel() ? model.getMetamodel().id : "";
+        this.metamodelRef       = model.metamodel.id;
         this.sourceMetamodelRef = model.sourceMetamodelRef;
         this.targetMetamodelRef = model.targetMetamodelRef;
-        this.sourceModelRef  = model.sourceModelRef;
-        this.targetModelRef  = model.targetModelRef;
-        this.isTemplate      = model.isTemplate;
+        this.sourceModelRef     = model.sourceModelRef;
+        this.targetModelRef     = model.targetModelRef;
         this.includeSystemtypes = model.includeSystemtypes;
+        this.isTemplate      = model.isTemplate;
         this.templates       = [];
         this.objects         = [];
         this.relships        = [];
@@ -1519,18 +1519,18 @@ export class gqlImportMetis {
         }
     }
     importRelshipView(item: akm.cxRelationshipView, modelview: akm.cxModelView) {
-        if (item.relshipRef) {
-            const relship = glb.metis.findRelationship(item.relshipRef);
+        if (item) {
+            const relship = glb.metis.findRelationship(item.relship.id);
             if (relship) {
                 const relview = new akm.cxRelationshipView(item.id, item.name, relship, item.description);
                 relview.setRelationship(relship);
-                const fromobjview: any = modelview.findObjectView(item.fromObjviewRef);
-                const toobjview: any = modelview.findObjectView(item.toObjviewRef);
+                const fromobjview: any = modelview.findObjectView(item.fromObjview.id);
+                const toobjview: any = modelview.findObjectView(item.toObjview.id);
                 relview.setFromObjectView(fromobjview);
                 relview.setToObjectView(toobjview);
                 // relview.setData(item.data);
-                if (item.typeviewRef) {
-                    const reltypeview = glb.metis.findRelationshipTypeView(item.typeviewRef);
+                if (item.typeview.id) {
+                    const reltypeview = glb.metis.findRelationshipTypeView(item.typeview.id);
                     if (reltypeview)
                         relview.setTypeView(reltypeview);
                 }

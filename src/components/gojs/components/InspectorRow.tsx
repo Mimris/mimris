@@ -26,14 +26,14 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
 
   private handleInputChange(e: any) {
-    if (!debug) console.log('29 handleInput', this.props);
+    if (debug) console.log('29 handleInput', this.props);
     const fieldType = this.props.type;
     let value = e.target.value;
     if ((fieldType === 'checkbox') && (this.props.value === 'true')) {
       e.target.checked = true;
     }
     if (fieldType === 'checkbox') value = e.target.checked;
-    if (!debug) console.log('33 e.target', e.target, e.type, this.props);
+    if (debug) console.log('33 e.target', e.target, e.type, this.props);
     const checked = e.target.checked;
     this.props.onInputChange(this.props, value, e.type === 'blur');
     if (e.type === 'blur') {

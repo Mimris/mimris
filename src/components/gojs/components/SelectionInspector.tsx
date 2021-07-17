@@ -92,7 +92,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (debug) console.log('92 prop.name, inst', prop.name, inst);
       if (!v) inst[prop.name] = "";  // Sets empty string if undefined
     }
-    if (!debug) console.log('95 inst', properties, inst, selObj);
+    if (debug) console.log('95 inst', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;

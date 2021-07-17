@@ -98,6 +98,7 @@ export function handleSelectDropdownChange(selected, context) {
   const myGoModel = context.myGoModel;
   const myModelview = context.myModelview;
   const modalContext = context.modalContext;
+  modalContext.selected = selected;
   const selectedOption = selected.value;
   if (debug) console.log('101 selected, context:', selected, context);
   switch(modalContext.case) {
@@ -202,15 +203,16 @@ export function handleSelectDropdownChange(selected, context) {
     }
     break;
 
-    case "Set Target Metamodel": {  
+    case "Set Target Metamodel":   
+    case "Generate Target Metamodel": {
       const metamodelName = (selectedOption) && selectedOption;
       const targetMetamodel = myMetis.findMetamodelByName(metamodelName);
-      myMetis.currentTargetMetamodel = targetMetamodel;
+      // myMetis.currentTargetMetamodel = targetMetamodel;
       myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
-      if (debug) console.log('197 Diagram', targetMetamodel, myMetis);
+      if (debug) console.log('212 Diagram', targetMetamodel, myMetis);
       const mmdata = new gql.gqlModel(myMetis.currentModel, true);
-      if (debug) console.log('199 Diagram', mmdata);        
-      myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata })
+      if (debug) console.log('214 Diagram', mmdata);        
+      myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
     }
     break;
 
@@ -353,7 +355,7 @@ export function handleSelectDropdownChange(selected, context) {
 }
 
 export function handleCloseModal(selectedData: any, props: any, modalContext: any) {
-  if (debug) console.log('301 selectedData, props', selectedData, props);
+  if (debug) console.log('356 selectedData, props, modalContext: ', selectedData, props, modalContext);
   const what = modalContext.what;
   let myDiagram = modalContext.myDiagram;
   if (!myDiagram && modalContext.context) myDiagram = modalContext.context.myDiagram;
@@ -642,7 +644,35 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           })
         }
       }
-      break;
+      else if (modalContext.case === 'New Model') {
+        // Selected metamodel
+        const selectedValue = modalContext.selected?.value;
+        if (debug) console.log('648 selected: ', modalContext.selectedValue);
+        const metamodel = myMetis.findMetamodelByName(selectedValue); 
+        const context = modalContext.context;
+        context.args.metamodel = metamodel;
+        modalContext.context.postOperation(context);        
+      }
+      else if (modalContext.case === 'Generate Target Metamodel') {
+        const context = modalContext.context;
+        const selectedValue = modalContext.selected?.value;
+        if (debug) console.log('657 selected: ', modalContext.selectedValue);
+        const metamodel = myMetis.findMetamodelByName(selectedValue); 
+        context.myTargetMetamodel = metamodel;
+        context.myCurrentModelview = myMetis.currentModelview;
+        myMetis.currentModel.targetMetamodelRef = metamodel.id;
+        // const modelview = modalContext.modelview;
+        modalContext.context.postOperation(context);        
+      } 
+      else if (modalContext.case === 'Delete Metamodel') {
+        const selectedValue = modalContext.selected?.value;
+        const metamodel = myMetis.findMetamodelByName(selectedValue); 
+        if (debug) console.log('667 metamodel, modalContext: ', metamodel, modalContext);
+        const context = modalContext.context;
+        context.args.metamodel = metamodel;
+        modalContext.context.postOperation(context);        
+        break;
+      }
     }
     case "editRelshipview": {
       let selRelview = selectedData;

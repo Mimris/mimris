@@ -1,6 +1,6 @@
 // @ts- nocheck
 const debug = false; 
-const selectRelshipTypesUsingModal = true;
+
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
@@ -957,6 +957,7 @@ export function createRelationship(data: any, context: any) {
     const myGoModel = context.myGoModel;
     const myMetis = context.myMetis; 
     const myMetamodel = myMetis.currentMetamodel;
+    const myModel = context.myModel;
     const fromNode = myGoModel.findNode(data.from);
     const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
     const toNode = myGoModel.findNode(data.to);
@@ -983,68 +984,53 @@ export function createRelationship(data: any, context: any) {
             toType.allObjecttypes = myMetamodel.objecttypes;
             toType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
-        let choices: string[]  = [];
         if (fromType && toType) {
-            let defText = "";
+            let defText = 'isRelatedTo';
             const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
             if (debug) console.log('990 createRelationship', reltypes, fromType, toType);
             if (reltypes) {
+                const choices1: string[] = [];
+                choices1.push(defText);
+                let choices2: string[]  = [];
                 for (let i=0; i<reltypes.length; i++) {
                     const rtype = reltypes[i];
-                    choices.push(rtype.name);  
-                    if (rtype.name === 'isRelatedTo')
-                        defText = rtype.name;
+                    if (rtype.name === defText) {
+                        continue;
+                    }
+                    choices2.push(rtype.name);  
                 }  
-                choices = [...new Set(choices)];
-                choices.sort();
-                if (choices.length == 1) defText = choices[0];
-
+                choices2 = [...new Set(choices2)];
+                choices2.sort();
+                const choices = choices1.concat(choices2);
+                // if (choices.length == 1) defText = choices[0];
                 // Calling routine to select reltype from list
-                if (!selectRelshipTypesUsingModal) {    // set to false when using a modal dialog
-                    typename = selectNameFromNameList('Enter type name, one of ', choices, defText);
-                    if (typename) {
-                        let relshipview: akm.cxRelationshipView; 
-                        const args = {
-                            data: data,
-                            typename: typename,
-                            fromType: fromType,
-                            toType: toType,
-                            nodeFrom: nodeFrom,
-                            nodeTo: nodeTo,
-                            context: context
-                        }
-                        relshipview = createRelshipCallback(args);
-                        return relshipview;
-                    }
-                } else {
-                    const args = {
-                        data: data,
-                        typename: typename,
-                        fromType: fromType,
-                        toType: toType,
-                        nodeFrom: nodeFrom,
-                        nodeTo: nodeTo,
-                        diagramModel: myDiagram.diagramModel,
-                        context: context
-                    }
-                    const modalContext = {
-                        what: "selectDropdown",
-                        title: "Select Relationship Type",
-                        case: "Create Relationship",
-                        myDiagram: myDiagram,
-                        context: context,
-                        data: data,
-                        typename: typename,
-                        fromType: fromType,
-                        toType: toType,
-                        nodeFrom: nodeFrom,
-                        nodeTo: nodeTo,
-                    } 
-                    if (debug) console.log('1042 myDiagram, args', myDiagram, args);
-                    // myDiagram.model.setDataProperty(data, "name", typename);
-                    context.handleOpenModal(choices, modalContext);
-                    if (debug) console.log('1038 modalContext', modalContext);                
+                const args = {
+                    data: data,
+                    typename: defText,
+                    fromType: fromType,
+                    toType: toType,
+                    nodeFrom: nodeFrom,
+                    nodeTo: nodeTo,
+                    diagramModel: myDiagram.diagramModel,
+                    context: context
                 }
+                const modalContext = {
+                    what: "selectDropdown",
+                    title: "Select Relationship Type",
+                    case: "Create Relationship",
+                    myDiagram: myDiagram,
+                    context: context,
+                    data: data,
+                    typename: defText,
+                    fromType: fromType,
+                    toType: toType,
+                    nodeFrom: nodeFrom,
+                    nodeTo: nodeTo,
+                } 
+                if (debug) console.log('1042 myDiagram, args', myDiagram, args);
+                // myDiagram.model.setDataProperty(data, "name", typename);
+                context.handleOpenModal(choices, modalContext);
+                if (debug) console.log('1038 modalContext', modalContext);                
             }
         }
     }
@@ -1055,6 +1041,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const myGoModel = args.context.myGoModel;
     const myMetis = args.context.myMetis; 
     const myMetamodel = myMetis.currentMetamodel;
+    const myModel = args.context.myModel;
     const data = args.data;
     const typename = args.typename;
     const fromType = args.fromType;
@@ -1065,53 +1052,24 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const objTo   = nodeTo.data.object;
     const context = args.context;
     const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-    if (debug) console.log('1068 reltype', reltype);
+    if (debug) console.log('1071 reltype', reltype);
     if (!reltype) {
         alert("Relationship type given does not exist!")
         myDiagram.model.removeLinkData(data);
         return;
     }
-    if (debug) console.log('1074 typename, data, reltype', typename, data, reltype);
-    if (selectRelshipTypesUsingModal) {
-        let found = false;
-        const outrels = objFrom.outputrels;
-        const inprels = objTo.inputrels;
-        if (outrels && inprels) {
-            for (let i=0; i<outrels.length; i++) {
-                const toObj = outrels[i].toObject;
-                if (toObj.id === objTo.id) {
-                    found = true;
-                    break;
-                }
-            }
-        }
-        if (found) {
-            alert("Relationship already exists!\nOperation is cancelled.")
-            myDiagram.model.removeLinkData(data);
-            return;
-        }
-    } else {
-        const linkIt = nodeFrom.findLinksOutOf(); // get all links out from it
-        while (linkIt.next()) { // for each link get the link text and toNode text
-            const link = linkIt.value;
-            if (
-                (nodeFrom?.key === link?.data?.from)
-                &&
-                (nodeTo?.key === link?.data?.to)
-                &&
-                (link?.data.name === typename)
-            ) {
-            alert("Relationship already exists!\nOperation is cancelled.")
-            myDiagram.model.removeLinkData(data);
-            return;
-            }
-        }
+    if (debug) console.log('1077 typename, data, reltype', typename, data, reltype);
+    const rel = myModel.findRelationship2(objFrom, objTo, reltype, typename);
+    if (rel) {
+        alert("Relationship already exists!\nOperation is cancelled.")
+        myDiagram.model.removeLinkData(data);
+        return;
     }
     let relshipview: akm.cxRelationshipView;
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
     relshipview = createLink(data, context); 
-    if (debug) console.log('1114 data, relshipview', data, relshipview);
+    if (debug) console.log('1117 data, relshipview', data, relshipview);
     if (relshipview) {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
@@ -1140,7 +1098,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
         })      
     }        
-    if (debug) console.log('1143 relshipview', relshipview);
+    if (debug) console.log('1146 relshipview', relshipview);
 }
 
 export function pasteRelationship(data: any, nodes: any[], context: any) {
@@ -1643,7 +1601,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         toObj = rel.fromObject as akm.cxObject;
                     else
                         toObj = rel.toObject as akm.cxObject;
-                    if (debug) console.log('1560 toObj', toObj);
+                    if (debug) console.log('1604 toObj', toObj);
                     toObj = myMetis.findObject(toObj.id);
                     if (!toObj || toObj.markedAsDeleted)
                         continue;
@@ -1655,7 +1613,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     const toObjtypeview = toObjtype.typeview;
                     const toTypeviewData = toObjtypeview.data;
                     const toObjviews = toObj.objectviews;
-                    if (debug) console.log('1566 toObjtypeview, toObjviews', toObjtypeview, toObjviews);
+                    if (debug) console.log('1616 toObjtypeview, toObjviews', toObjtypeview, toObjviews);
                     // Find toObj in modelview
                     const objviews = modelview.findObjectViewsByObj(toObj);
                     let toObjview;
@@ -1664,7 +1622,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             const oview = objviews[j];
                             if (oview.markedAsDeleted)
                                 continue; 
-                            if (debug) console.log('1572 Create relship views to objviews', object, objviews);
+                            if (debug) console.log('1625 Create relship views to objviews', object, objviews);
                             toObjview = oview;
                         }
                         // Create relship views and links to the found objviews if they do not exist
@@ -1676,20 +1634,20 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
                             if (relviews.length == 0) i++;
                         }
-                        if (debug) console.log('1579 rel, relview', rel, relviews);                    
+                        if (debug) console.log('1637 rel, relview', rel, relviews);                    
                         // if (relviews.length > 0)
                         //     continue;    
                     } else {
                         cnt++;
                         // Create an objectview of toObj and then a node
                         // Then create a relship view and a link from object to toObj
-                        if (debug) console.log('1585 Create an object view and a relship view', object);
+                        if (debug) console.log('1644 Create an object view and a relship view', object);
                         const id1 = utils.createGuid();
                         toObjview = new akm.cxObjectView(id1, toObj.name, toObj, "");
                         toObj.addObjectView(toObjview);
                         modelview.addObjectView(toObjview);
                         myMetis.addObjectView(toObjview);
-                        if (debug) console.log('1591 toObjview', toObj, toObjview);
+                        if (debug) console.log('1650 toObjview', toObj, toObjview);
                         const goNode = new gjs.goObjectNode(utils.createGuid(), toObjview);
                         if (toObjviews) {
                             const oview = toObjviews[0];
@@ -1711,7 +1669,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         const loc = locx + " " + locy;
                         toObjview.loc = loc;
                         goNode.loc = loc;
-                        if (debug) console.log('1606 goNode', goNode);
+                        if (debug) console.log('1672 goNode', goNode);
                         goModel.addNode(goNode);
                         myDiagram.model.addNodeData(goNode);
                         const gjsNode = myDiagram.findNodeForKey(goNode?.key)
@@ -1734,12 +1692,12 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         myMetis.addRelationshipView(relview);
                         const gqlRelView = new gql.gqlRelshipView(relview);
                         modifiedRelshipViews.push(gqlRelView);
-                        if (debug) console.log('1621 relview', relview);
+                        if (debug) console.log('1695 relview', relview);
                         const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
                         goLink.loadLinkContent(goModel);
                         goModel.addLink(goLink);
                         myDiagram.model.addLinkData(goLink);
-                        if (debug) console.log('1626 goLink', goLink); 
+                        if (debug) console.log('1700 goModel', goModel); 
                     }                   
                 }
             }

@@ -108,18 +108,26 @@ class GoJSApp extends React.Component<{}, AppState> {
   public handleCloseModal(e) {
     const props = this.props;
     const modalContext = this.state.modalContext;
+    let typename = modalContext.selected?.value;
+    if (!typename) typename = modalContext.typename;
+    if (debug) console.log('113 typename: ', typename);
     const myDiagram = modalContext.context.myDiagram;
-    const myGoModel = modalContext.context.myGoModel;
+    const data = modalContext.data;
+    if (e === 'x') {
+      myDiagram.model.removeLinkData(data);
+      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      return;
+    }
     const args = {
       data: modalContext.data,
-      typename: modalContext.selected.value,
+      typename: typename,
       fromType: modalContext.fromType,
       toType: modalContext.toType,
       nodeFrom: modalContext.nodeFrom,
       nodeTo: modalContext.nodeTo,
       context: modalContext.context
     }
-    if (debug) console.log('122 myDiagram, args', myDiagram, args);
+    if (debug) console.log('128 args', args);
     uic.createRelshipCallback(args);
     this.setState({ showModal: false, selectedData: null, modalContext: null });
   }
@@ -1190,8 +1198,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
-                  onClick={() => { this.setState({ showModal: false, selectedData: null, modalContext: null }) }} ><span>x</span>
-                  {/* onClick={() => { this.handleCloseModal('x') }} ><span>x</span> */}
+                onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
                 </Button>
                 <ModalHeader className="modal-header" >
                 <span className="text-secondary">{header} </span> 

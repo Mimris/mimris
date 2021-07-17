@@ -1105,19 +1105,19 @@ function reducer(state = InitialStateStr, action) {
         },
       }
     case UPDATE_TARGETOBJECTTYPE_PROPERTIES:
-      if (debug) console.log('1065 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
-      const curmodtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
-      const curmmtot    = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.targetMetamodelRef)
-      if (debug) console.log('1068 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmodtot.targetMetamodelRef, curmmtot);
+      if (debug) console.log('1108 UPDATE_TARGETOBJECTTYPE_PROPERTIES', action);
+      const curmodtot = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+      const curmmtot  = state.phData?.metis?.metamodels?.find(m => m.id === curmodtot.targetMetamodelRef)
+      if (debug) console.log('1111 UPDATE_TARGETOBJECTTYPE_PROPERTIES', curmmtot, curmodtot);
       if (!curmmtot) return state;
       const curmmindextot = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodtot.targetMetamodelRef) 
       const curtot = curmmtot?.objecttypes?.find(ot => ot.id === action?.data?.id)
       const lengthtot = curmmtot?.objecttypes?.length
       let indextot = curmmtot?.objecttypes?.findIndex(ot => ot.id === curtot?.id)
       if (indextot < 0) {indextot = lengthtot} 
-      if (debug) console.log('1075 reducer', lengthtot, indextot, curmmtot?.objecttypes);
-      if (debug) console.log('1076 objecttypes', curmmtot?.objecttypes);
-      if (debug) console.log('1077 action.data', action.data);
+      if (debug) console.log('1118 reducer', lengthtot, indextot, curmmtot?.objecttypes);
+      if (debug) console.log('1119 objecttypes', curmmtot?.objecttypes);
+      if (debug) console.log('1120 action.data', action.data);
          
       const retval = {
         ...state,
@@ -1162,7 +1162,7 @@ function reducer(state = InitialStateStr, action) {
       const curtotv = curmmtotv?.objecttypeviews?.find(ot => ot.id === action?.data?.id)
       const lengthtotv = curmmtotv?.objecttypeviews.length
       let indextotv = curmmtotv?.objecttypeviews?.findIndex(ot => ot.id === curtotv?.id)
-      if (debug) console.log('1208 indextotv', indextotv, lengthtotv);
+      if (debug) console.log('1208 indextotv', curmmtotv, indextotv, lengthtotv);
       if (indextotv < 0) {indextotv = lengthtotv} 
       if (debug) console.log('1210 indextotv', indextotv, lengthtotv);
       // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
@@ -1179,7 +1179,7 @@ function reducer(state = InitialStateStr, action) {
                 {
                   ...state.phData.metis.metamodels[curmmindextotv],
                   objecttypeviews: [
-                    ...curmmtotv?.objecttypeviews.slice(0, indextotv),
+                    ...curmmtotv?.objecttypeviews?.slice(0, indextotv),
                     {
                       ...curmmtotv?.objecttypeviews[indextotv],  
                       id: action.data.id,           

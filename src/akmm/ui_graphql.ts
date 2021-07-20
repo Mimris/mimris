@@ -804,6 +804,7 @@ export class gqlObject {
         const props = objtype?.properties;
         for (let i=0; i<props?.length; i++) {
           const prop = props[i];
+          if (!prop) continue;
           const propname = prop.name;
           const value = object.getStringValue2(propname);
           if (debug) console.log('747 propname, value', propname, value);

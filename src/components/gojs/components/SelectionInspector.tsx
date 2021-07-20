@@ -43,7 +43,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (debug) console.log('43 inst', inst);
       inst = myMetis.findObject(inst?.id);
       if (debug) console.log('45 inst', inst);
-      type = inst.type;
+      type = inst?.type;
       if (!type) type = selObj.objecttype;
       instview = selObj;
       typeview = instview?.typeview;
@@ -88,6 +88,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('88 props, props2', properties, properties2);
     for (let i=0; i<properties?.length; i++) {
       const prop = properties[i];
+      if (!prop) 
+        continue;
       const v = inst[prop.name];
       if (debug) console.log('92 prop.name, inst', prop.name, inst);
       if (!v) inst[prop.name] = "";  // Sets empty string if undefined
@@ -186,7 +188,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (debug) console.log('191 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
             const prop = properties[i];
-            if (prop.name === k) {
+            if (prop && prop.name === k) {
               const dtypeRef = prop.datatypeRef;
               const dtype = myMetis.findDatatype(dtypeRef);
               if (dtype) {
@@ -314,7 +316,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
 
         if (debug) console.log('312 selObj, item:', selObj, item);
         if (debug) console.log('313 id, value, disabled:', k, val, disabled);
-        if (!debug) console.log('314 k, fieldType', k, fieldType, defValue, values);
+        if (debug) console.log('314 k, fieldType', k, fieldType, defValue, values);
         row  = <InspectorRow
           key={k}
           id={k}

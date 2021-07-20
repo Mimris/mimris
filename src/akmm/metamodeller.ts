@@ -3484,6 +3484,40 @@ export class cxType extends cxMetaObject {
             return null;
         }
     }
+    findPropertyByName2(propname: string, includeInherited: boolean): cxProperty | null {
+        if (debug) console.log('3488 propname, this', propname, this);
+        let properties = this.properties;
+        if (properties) {
+            const noProperties = properties.length;
+            let i = 0; 
+            while (i < noProperties) {
+                if (properties[i].name === propname)
+                    return properties[i];
+                i++;
+            }
+        }
+        if (includeInherited) {
+            if (debug) console.log('3501 supertypes', this.supertypes);
+            if (this.supertypes) {
+                const noSupertypes = this.supertypes.length;
+                for (let i=0; i<noSupertypes; i++) {
+                    const supertype = this.supertypes[i];
+                    if (debug) console.log('3490 supertype', supertype);
+                    if (supertype) {
+                        let superprops = supertype.properties;
+                        for (let j=0; j<superprops?.length; j++) {
+                            const sprop = superprops[j];
+                            if (sprop) {
+                                if (sprop.name === propname)
+                                    return sprop;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
     getViewKind(): string {
         if (utils.objExists(this.viewkind))
             return this.viewkind;
@@ -3524,7 +3558,7 @@ export class cxType extends cxMetaObject {
                                 let found = false;
                                 for (let k=0; k<props.length; k++) {
                                     const p = props[k];
-                                    if (p.id === sprop.id) {
+                                    if (p && p.id === sprop.id) {
                                         found = true;
                                         break;
                                     }
@@ -5444,7 +5478,7 @@ export class cxObject extends cxInstance {
         const props = this.type?.properties;
         for (let i=0; i<props?.length; i++) {
           const prop = props[i];
-          this[prop.name] = "";
+          if (prop) this[prop.name] = "";
         } 
         if (debug) console.log('4600 obj', this);   
     }

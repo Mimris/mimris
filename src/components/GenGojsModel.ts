@@ -450,7 +450,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     let linkArray = JSON.parse(links);
     myGoMetaPalette.nodes = nodeArray;
     myGoMetaPalette.links = linkArray;
-    if (debug) console.log('275 myGoMetaPalette', myGoMetaPalette);
+    if (debug) console.log('453 myGoMetaPalette', myGoMetaPalette);
     return myGoMetaPalette;
   }
 
@@ -459,11 +459,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       return;
     metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
     if (metamodel.objecttypes) {
-      if (debug) console.log('419 metamodel', metamodel);
+      if (debug) console.log('462 metamodel', metamodel);
       let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
       const objtypes = metamodel?.getObjectTypes();
       if (objtypes) {
-        if (debug) console.log('412 objtype', objtypes);
+        if (debug) console.log('466 objtypes', objtypes);
         for (let i = 0; i < objtypes.length; i++) {
           let includeObjtype = false;
           let strokecolor = "black";
@@ -473,7 +473,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             if (!objtype.markedAsDeleted) 
               includeObjtype = true;
             else {
-              if (debug) console.log('432 objtype', objtype);
+              if (debug) console.log('476 objtype', objtype);
               if (includeDeleted) {
                 if (objtype.markedAsDeleted) {
                   strokecolor = "orange";
@@ -489,15 +489,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               node.loadNodeContent(metamodel);
               node.strokecolor = strokecolor;
               //node.fillcolor = fillcolor;
-              if (debug) console.log('445 node', node);
+              if (debug) console.log('492 node', node);
               myGoMetaModel.addNode(node);
             }
           }
         }
       }
-      metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel?.relshiptypes);
+      // metamodel.relshiptypes = utils.removeArrayDuplicates(metamodel?.relshiptypes);
       let relshiptypes = metamodel.relshiptypes;
-      if (debug) console.log('425 relshiptypes', relshiptypes);
+      if (debug) console.log('500 relshiptypes', relshiptypes);
       if (relshiptypes) {
         for (let i = 0; i < relshiptypes.length; i++) {
           let includeReltype = false;
@@ -520,20 +520,20 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             }
           }
           if (includeReltype) {
-            if (debug) console.log('484 reltype', reltype);
+            if (debug) console.log('523 reltype', reltype);
             if (!reltype.typeview) 
                 reltype.typeview = reltype.newDefaultTypeView(reltype.relshipkind);
             if (!reltype.fromObjtype) 
-                reltype.fromObjtype = metamodel.findObjectType(reltype.fromObjtype?.id);
+                reltype.fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
             if (!reltype.toObjtype) 
-                reltype.toObjtype = metamodel.findObjectType(reltype.toObjtype?.id);
+                reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
             reltype.typeview.setRelshipKind(reltype.relshipkind);
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetaModel, reltype);
-            if (debug) console.log('449 link', link);
-            if (link.loadLinkContent()) {
+            if (debug) console.log('533 link', link);
+            if (link.loadLinkContent(metamodel)) {
               link.strokecolor = strokecolor;
-              if (debug) console.log('450 link', link);
+              if (debug) console.log('536 link', link);
               myGoMetaModel.addLink(link);
             }            
           }

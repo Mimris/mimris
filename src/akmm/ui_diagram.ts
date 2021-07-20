@@ -3,6 +3,7 @@ const debug = false;
 // import * as go from 'gojs';
 import * as utils from './utilities';
 import * as uic from './ui_common';
+import * as ui_mtd from './ui_methods';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
@@ -121,7 +122,7 @@ export function deleteModelview(modelView: akm.cxModelView, myMetis: akm.cxMetis
         objview.markedAsDeleted = true;
         const obj = objview.object;
         const oviews = obj?.objectviews;
-        if (oviews.length == 1) {
+        if (oviews?.length == 1) {
             obj.markedAsDeleted = true;
         }
     }
@@ -220,7 +221,7 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     let noLevels = '1';
     noLevels = prompt('Enter no of sublevels to follow', noLevels);
     if (debug) console.log('222 objview', objview);
-    uic.addConnectedObjects(modelview, objview, null, goModel, myMetis, noLevels);
+    ui_mtd.addConnectedObjects(modelview, objview, null, goModel, myMetis, noLevels);
     const gjsNode = myDiagram.findNodeForKey(node?.key);
     if (debug) console.log('225 gjsNode', gjsNode);
     gjsNode.isSelected = false;

@@ -21,6 +21,7 @@ import * as gql from '../../../akmm/ui_graphql';
 import * as uic from '../../../akmm/ui_common';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uim from '../../../akmm/ui_modal';
+import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
@@ -1033,6 +1034,48 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
             return true;
+            }),
+          makeButton("Generate OSDU ids",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                let object = node.object;
+                if (!object) return;
+                object = myMetis.findObject(object.id);
+                let reltype = myMetis.findRelationshipTypeByName('hasPart');
+                let objtype = myMetis.findObjectTypeByName('Information');
+                const context = {
+                  "myMetis":    myMetis,
+                  "myModel":    myMetis.currentModel,
+                  "myDiagram":  myDiagram,
+                  "reltype":    reltype,
+                  "objtype":    null,
+                  "propname":   "OSDU id",
+                  "preaction":  ui_mtd.generateOSDUid,
+                  "postaction": null
+                }
+                const args = {
+                  "parent":     null
+                }
+                context.preaction(object, context);
+                ui_mtd.traverse(object, context, args);
+              }
+            },
+            function (obj: any) { 
+              const node = obj.part.data;
+              if (debug) console.log('1066 node', node);
+              if (node.category === constants.gojs.C_OBJECT) {
+                const object = node.object;
+                let type = object.type;
+                type = myMetis.findObjectType(type.id);
+                const propname = "OSDU id";
+                if (debug) console.log('1070 type', type);
+                if (type.findPropertyByName2(propname, true)) {
+                  if (debug) console.log('1074 type, propname', type, propname);
+                  return true; 
+                }
+              }
+              return false;
             }),
 
           makeButton("TEST",

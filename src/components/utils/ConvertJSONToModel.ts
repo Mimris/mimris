@@ -369,7 +369,7 @@ function process(key,value) { //called with every property and its value
 //                     // // i er objectName
 //                     // createObj(o[i], i, parentObj, func)
 //                     // -------
-//                     if (!debug) console.log('113 :', newObject, sourceObj, newObject, ancestryPath);    
+//                     if (debug) console.log('113 :', newObject, sourceObj, newObject, ancestryPath);    
 //                     // ------currentObj, parentObj, rel, ancestryName, nameAttribute, name-of-key-of-the-object-containing-the-lst, userinputlist-of-objects, process-----------------------------------         
 //                     traverse(newO, sourceObj, newObject.newRel, ancestryPath, nameAttr, listName, list, func);  //going one step down in the object tree!!   
 //                     // -------      
@@ -400,13 +400,13 @@ function process(key,value) { //called with every property and its value
 
  
             
-//             if (!debug) console.log('165 for : ', importedObject);   
+//             if (debug) console.log('165 for : ', importedObject);   
 //             if (importedObject && importedObject.name !== undefined) 
 //                 props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject }
 //             );  
 //             // importedObject.name !== "0" &&  importedObject.name !=="1" &&
 //             // importedObject.name !== "2" && importedObject.name !== "3" &&  importedObject.name !=="4") &&
-//             if (!debug) console.log('169 ----- : ', parRel);   
+//             if (debug) console.log('169 ----- : ', parRel);   
 //             if (parRel && parRel.id !== undefined) props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: parRel });
 
 //             console.log('200 :'. ancestryPath);

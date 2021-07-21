@@ -1860,7 +1860,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
 }
 
 export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
-    // handle modelviews
+    // handle modelview contentss
     const models = metis.models;
     for (let k=0; k<models.length; k++) {
         const model = models[k];
@@ -2009,6 +2009,34 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     }        
     metis.relshiptypeviews = rtypeviews;
 
+    const allMetamodels = metis.metamodels;
+    const allModels = metis.models;
+    const allModelviews = metis.modelviews;
+    // Handle metamodels
+    metis.metamodels = new Array();
+    for (let i=0; i<allMetamodels.length; i++) {
+        const mm = allMetamodels[i];
+        if (mm.markedAsDeleted)
+            continue;
+        metis.metamodels.push(mm);
+    }
+    // Handle models
+    metis.models = new Array();
+    for (let i=0; i<allModels.length; i++) {
+        const m = allModels[i];
+        if (m.markedAsDeleted)
+            continue;
+        metis.models.push(m);
+    }
+    // Handle modelviews
+    metis.modelviews = new Array();
+    for (let i=0; i<allModelviews.length; i++) {
+        const mv = allModelviews[i];
+        if (mv.markedAsDeleted)
+            continue;
+        metis.modelviews.push(mv);
+    }
+    
     // Dispatch metis
     const gqlMetis = new gql.gqlExportMetis(metis, true);
     const data = {metis: gqlMetis}

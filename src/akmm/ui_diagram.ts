@@ -289,6 +289,8 @@ function deleteMetamodel2(context: any) {
           let data = mn;
           myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
         });
+
+        uic.purgeDeletions(myMetis, myDiagram);
     } 
     if (debug) console.log('99 myMetis', myMetis);
 }

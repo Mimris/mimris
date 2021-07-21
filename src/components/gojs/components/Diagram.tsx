@@ -1724,12 +1724,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
-          makeButton("Delete Current Model",
+          makeButton("Delete Model",
             function (e: any, obj: any) {
-              const model = myMetis.currentModel as akm.cxModel;
-              if (confirm('Do you really want to delete the current model?')) {
-                  uid.deleteModel(model, myDiagram);
-              }
+              uid.deleteModel(myMetis, myDiagram);
             },
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')

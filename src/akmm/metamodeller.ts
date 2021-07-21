@@ -1126,7 +1126,7 @@ export class cxMetis {
         for (let i=0; i<mdls.length; i++) {
             const model = mdls[i];
             const mm = model.metamodel;
-            if (!includeDeleted && !mm.isDeleted()) {
+            if (!includeDeleted && mm && !mm.isDeleted()) {
                 if (mm.id === metamodel.id) {
                     models.push(model);
                 }

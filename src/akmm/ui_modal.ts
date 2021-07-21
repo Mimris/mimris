@@ -673,6 +673,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         modalContext.context.postOperation(context);        
         break;
       }
+      else if (modalContext.case === 'Delete Model') {
+        const selectedValue = modalContext.selected?.value;
+        const model = myMetis.findModelByName(selectedValue); 
+        if (debug) console.log('667 model, modalContext: ', model, modalContext);
+        const context = modalContext.context;
+        context.args.model = model;
+        modalContext.context.postOperation(context);        
+        break;
+      }
     }
     case "editRelshipview": {
       let selRelview = selectedData;

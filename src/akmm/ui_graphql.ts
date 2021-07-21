@@ -624,7 +624,7 @@ export class gqlModel {
         this.id              = model.id;
         this.name            = model.name;
         this.description     = model.description ? model.description : "";
-        this.metamodelRef       = model.metamodel.id;
+        this.metamodelRef       = model.metamodel?.id;
         this.sourceMetamodelRef = model.sourceMetamodelRef;
         this.targetMetamodelRef = model.targetMetamodelRef;
         this.sourceModelRef     = model.sourceModelRef;

@@ -84,16 +84,22 @@ export function newModel(myMetis: akm.cxMetis, myDiagram: any) {
 
 }
 
-export function deleteModel(model: akm.cxModel, myDiagram: any) {
-    const modifiedModels = new Array();
-    model.markedAsDeleted = true;
-    const gqlModel = new gql.gqlModel(model, true);
-    if (debug) console.log('97 gqlModel', gqlModel);
-    modifiedModels.push(gqlModel);
-    modifiedModels.map(mn => {
-        let data = mn;
-        myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
-    })
+export function deleteModel(myMetis: akm.cxMetis, myDiagram: any) {
+    // Select model among all models (except the current)
+    const args = {
+        "model":              "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentModel":     myMetis.currentModel,
+        "myDiagram":          myDiagram,
+        "case":               "Delete Model",
+        "title":              "Select Model to Delete",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      deleteModel1,
+        "args":               args
+    }
+    askForModel(context);
 }
 
 export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
@@ -138,6 +144,7 @@ export function deleteModelview(modelView: akm.cxModelView, myMetis: akm.cxMetis
         let data = mn;
         myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
     });
+    uic.purgeDeletions(myMetis, myDiagram);
 }
 
 export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
@@ -261,29 +268,29 @@ function deleteMetamodel2(context: any) {
     const metamodel = context.args.metamodel;
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
-    if (debug) console.log('70 metamodel, myMetis', metamodel, myMetis);
+    if (debug) console.log('271 metamodel, myMetis', metamodel, myMetis);
     const modifiedMetamodels = new Array();
     const models = myMetis.getModelsByMetamodel(metamodel, false);
-    if (debug) console.log('73 models', models);
+    if (debug) console.log('274 models', models);
     let doDelete = false;
     if (models.length > 0) {
-        let msg = "There are models based on the chosen metamodel.\n";
+        let msg = "There are models based on the metamodel '" + metamodel.name + "'.\n";
         msg += "The models will also be deleted!\n";
         msg += "Do you still want to continue?";
         doDelete = confirm(msg);
     } else {
-        doDelete = confirm('Do you really want to delete the chosen metamodel?');
+        doDelete = confirm("Do you really want to delete the metamodel '" + metamodel.name + "'?");
     }
     if (!doDelete) {
             return;
     } else {
         for (let i=0; i<models.length; i++) {
             const model = models[i];
-            deleteModel(model, myDiagram);
+            deleteModel2(model, myMetis, myDiagram);
         }
         metamodel.markedAsDeleted = true;
         const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
-        if (debug) console.log('91 gqlMetamodel', gqlMetamodel);
+        if (debug) console.log('293 gqlMetamodel', gqlMetamodel);
         modifiedMetamodels.push(gqlMetamodel);
         modifiedMetamodels.map(mn => {
           let data = mn;
@@ -292,7 +299,7 @@ function deleteMetamodel2(context: any) {
 
         uic.purgeDeletions(myMetis, myDiagram);
     } 
-    if (debug) console.log('99 myMetis', myMetis);
+    if (debug) console.log('302 myMetis', myMetis);
 }
 
 function createModel(context: any) {
@@ -321,6 +328,61 @@ function createModel(context: any) {
         }
     }
 }
+
+function askForModel(context: any) {
+    if (debug) console.log('348 context', context);
+    const myMetis = context.myMetis;
+    let myModel = context.myCurrentModel;
+    const myDiagram = context.myDiagram;
+    const modalContext = {
+        what:           "selectDropdown",
+        title:          context.title,
+        case:           context.case,
+        myDiagram:      myDiagram,
+        context:        context,
+      } 
+      const models = new Array();
+      const allModels = myMetis.models;
+      for (let i=0; i<allModels?.length; i++) {
+        const model = allModels[i];
+        if (model.markedAsDeleted)
+            continue;
+        if (context.case === "Delete Model") {
+            if (model.id === myModel.id)
+                continue;
+        }
+        models.push(model);
+      }
+      const mmNameIds = models.map(mm => mm && mm.nameId);
+      if (debug) console.log('372', mmNameIds, modalContext, context);
+      myDiagram.handleOpenModal(mmNameIds, modalContext);
+}
+
+function deleteModel1(context: any) {
+    const model = context.args.model;
+    if (!confirm("Do you really want to delete '" + model.name + "'?"))
+        return;
+    const myMetis = context.myMetis;
+    const myDiagram = context.myDiagram;
+    if (debug) console.log('367 model, myMetis', model, myMetis);
+    deleteModel2(model, myMetis, myDiagram);
+}
+
+function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('372 model, myMetis', model, myMetis);
+    const modifiedModels = new Array();
+    model.markedAsDeleted = true;
+    const gqlModel = new gql.gqlModel(model, true);
+    if (debug) console.log('376 gqlModel', gqlModel);
+    modifiedModels.push(gqlModel);
+    modifiedModels.map(mn => {
+        let data = mn;
+        myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+    });
+    alert("The model '" + model.name + "' has been deleted!");
+    uic.purgeDeletions(myMetis, myDiagram);
+}
+
 
 // Function to identify images related to an image id
 function findImage(image: string) {

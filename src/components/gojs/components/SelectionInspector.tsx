@@ -140,15 +140,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         useColor = true;
         break;
       case "editTypeview":
-        if (instview) item = instview.typeview?.data;
-        else item = inst;
+        // if (instview) 
+        //   item = instview.typeview?.data;
+        if (selObj.category === 'Relationship')
+          item = inst.type.typeview;
+        else 
+          item = inst.typeview;
         hideNameAndDescr = true;
-        if (debug) console.log('144 item', item);
+        if (debug) console.log('150 inst, item', inst, item);
         break;  
       default:
         item = inst;
     }
-    if (debug) console.log('149 item', inst, item);
+    if (debug) console.log('155 item', item);
     for (let k in item) {
       if (k === 'abstract') {
         if (!(category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE))

@@ -660,6 +660,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;               
             }),
+          makeButton("Test Eval",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                let object = node.object;
+                object = myMetis.findObject(object.id);
+                // Assuming object has a property 'weight'
+                const propval = object['weight'];
+                let myScript = "2 * propval";
+                let result = eval(myScript);
+                alert(result);
+              }
+            },
+            function (o: any) { 
+              return false;               
+            }),
           makeButton("Cut",
             function (e: any, obj: any) { 
               e.diagram.commandHandler.cutSelection(); 
@@ -1972,6 +1988,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             gen.generateTargetMetamodel(obj, myMetis, myDiagram);
           },
           function (o: any) { 
+            if (debug) console.log('1991 myMetis', myMetis);
             if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
@@ -3089,10 +3106,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editTypeview': {
         header = modalContext.title + ':';
         category = this.state.selectedData.category;
-        if (debug) console.log('2860 category ', category);
+        if (debug) console.log('3108 category ', category);
       
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2863 Diagram ', this.state.selectedData, this.myMetis);
+          if (debug) console.log('3111 Diagram ', this.state, this.myMetis);
           modalContent = 
             <div className="modal-prop" >
               <SelectionInspector 
@@ -3108,7 +3125,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       default:
         break;
     }
-    if (debug) console.log('3237 last in Diagram ', this.props);
+    if (debug) console.log('3127 last in Diagram ', this.props);
     
     return (
       <div>

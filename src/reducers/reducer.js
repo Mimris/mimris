@@ -80,8 +80,8 @@ import {
 
 // import InitStateJson from './InitialState.json'
 
-import StartInitStateJson from '../startupModel/AKMM-Project_IRTV-Startup.json'
-// import StartInitStateJson from '../startupModel/AKMM-Project_Init_Model.json'
+// import StartInitStateJson from '../startupModel/AKMM-Project_IRTV-Startup.json'
+import StartInitStateJson from '../startupModel/AKMM-Project_Init_Model.json'
 
 const InitStateJson = /*(StartmodelJson) ? StartmodelJson :*/ StartInitStateJson
 

@@ -2208,7 +2208,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Do Layout", 
             function (e: any, obj: any) {
               const myGoModel = myMetis.gojsModel;
-              const layout = myGoModel.modelView?.layout;
+              let layout = myGoModel.modelView?.layout;
+              if (myMetis.modelType === 'Metamodelling') 
+                layout = myMetamodel.layout;
               switch (layout) {
                 case 'Circular':
                   myDiagram.layout = $(go.CircularLayout); 

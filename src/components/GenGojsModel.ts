@@ -534,7 +534,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             if (debug) console.log('533 link', link);
             if (link.loadLinkContent(metamodel)) {
               link.strokecolor = strokecolor;
-              if (debug) console.log('536 link', link);
+              link.routing = metamodel.routing;
+              link.curve = metamodel.linkcurve;
+                  if (debug) console.log('536 link', link);
               myGoMetaModel.addLink(link);
             }            
           }

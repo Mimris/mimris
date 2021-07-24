@@ -194,6 +194,9 @@ export class cxMetis {
                 if (includeDeleted || !item.markedAsDeleted) { 
                     const metamodel = (item) && new cxMetaModel(item.id, item.name, item.description);
                     metamodel.markedAsDeleted = item.markedAsDeleted;
+                    metamodel.layout = item.layout;
+                    metamodel.routing = item.routing;
+                    metamodel.linkcurve = item.linkcurve;
                     if (!metamodel) continue;
                     this.addMetamodel(metamodel);
                     if (debug) console.log('198 item, metamodel', item, metamodel);
@@ -2416,6 +2419,9 @@ export class cxMetaModel extends cxMetaObject {
     fieldTypes: cxFieldType[] | null;
     inputpatterns: cxInputPattern[] | null;
     categories: cxUnitCategory[] | null;
+    layout: string;
+    routing: string;
+    linkcurve: string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_METAMODELS;  // Firestore collection
@@ -2434,6 +2440,9 @@ export class cxMetaModel extends cxMetaObject {
         this.datatypes = null;
         this.categories = null;
         this.isEKA = false;
+        this.layout = "Tree";
+        this.routing = "Normal";
+        this.linkcurve = "None";
     }
     // Methods
     getLoc(type: cxObjectType): string {
@@ -3367,6 +3376,18 @@ export class cxMetaModel extends cxMetaObject {
     }
     getIsEKA(): boolean {
         return this.isEKA;
+    }
+    setLayout(layout: string) {
+        this.layout = layout;
+    }
+    getLayout(): string {
+        return this.layout;
+    }
+    setRouting(routing: string) {
+        this.routing = routing;
+    }
+    getRouting(): string {
+        return this.routing;
     }
 }
 

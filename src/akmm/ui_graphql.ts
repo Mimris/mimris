@@ -115,10 +115,13 @@ export class gqlMetaModel {
     relshiptypes:       gqlRelationshipType[];
     properties:         gqlProperty[];
     datatypes:          gqlDatatype[];
-    unittypes:          gqlUnitCategory[];
+    units:              gqlUnit[];
     objecttypeviews:    gqlObjectTypeView[];
     objtypegeos:        gqlObjectTypegeo[];
     relshiptypeviews:   gqlRelshipTypeView[];
+    layout:             string;
+    routing:            string;
+    linkcurve:          string;
     markedAsDeleted:    boolean;
     modified:           boolean;
     constructor(metamodel: akm.cxMetaModel, includeViews: boolean) {
@@ -130,10 +133,13 @@ export class gqlMetaModel {
         this.relshiptypes = [];
         this.properties = [];
         this.datatypes = [];
-        this.unittypes = [];
+        this.units = [];
         this.objecttypeviews = [];
         this.objtypegeos = [];
         this.relshiptypeviews = [];
+        this.layout           = metamodel.layout;
+        this.routing          = metamodel.routing;
+        this.linkcurve        = metamodel.linkcurve;
         this.markedAsDeleted  = metamodel.markedAsDeleted;
         this.modified = false;
 
@@ -171,12 +177,12 @@ export class gqlMetaModel {
             }
         }
 
-        // let unittypes = metamodel.getUnitCategories();
-        // if (unittypes) {
-        //     let cnt = unittypes.length;
+        // let units = metamodel.getUnits();
+        // if (units) {
+        //     let cnt = units.length;
         //     for (let i = 0; i < cnt; i++) {
-        //         let unittype = unittypes[i];
-        //         this.addUnittype(unittype);
+        //         let unit = units[i];
+        //         this.addUnit(unit);
         //     }
         // }
         if (includeViews) {
@@ -249,10 +255,10 @@ export class gqlMetaModel {
             this.properties.push(gProp);
         }
     }
-    addUnittype(unittype: akm.cxUnitCategory) {
-        if (utils.objExists(unittype)) {
-            let gUnittype = new gqlUnitCategory(unittype);
-            this.unittypes.push(gUnittype);
+    addUnit(unit: akm.cxUnit) {
+        if (utils.objExists(unit)) {
+            let gUnit = new gqlUnit(unit);
+            this.units.push(gUnit);
         }
     }
     addViewStyle(vstyle: akm.cxViewStyle) {

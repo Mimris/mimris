@@ -1,14 +1,11 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 // /**
 // * Generate GoJS model and metamodel from the metisobject in the store,
 // */
-//import glb from '../akmm/akm_globals';
 import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
-//import {gqlImportMetis} from '../Server/src/akmm/ui_graphql'
-const glb = require('../akmm/akm_globals');
 
 const constants = require('../akmm/constants');
 
@@ -22,7 +19,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   if (debug) console.log('23 GenGojsModel showDeleted', includeDeleted, props.phUser?.focusUser?.diagram?.showDeleted)
-  const debug = false
   const metis = (props.phData) && props.phData.metis
   const models = (metis) && metis.models
   // const modelviews = (metis) && metis.modelviews

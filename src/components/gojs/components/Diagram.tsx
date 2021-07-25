@@ -668,14 +668,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let object = node.object;
                 object = myMetis.findObject(object.id);
                 // Assuming object has a property 'weight'
-                const propval = object['weight'];
-                let myScript = "2 * propval";
+                const weight = object['weight'];
+                let myScript = "2 * weight";
                 let result = eval(myScript);
                 alert(result);
               }
             },
             function (o: any) { 
-              return false;               
+              return true;               
             }),
           makeButton("Cut",
             function (e: any, obj: any) { 
@@ -1067,7 +1067,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "myDiagram":  myDiagram,
                   "reltype":    reltype,
                   "objtype":    null,
-                  "propname":   "OSDU id",
+                  "propname":   "OsduId",
                   "preaction":  ui_mtd.generateOSDUid,
                   "postaction": null
                 }
@@ -1994,7 +1994,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
           }),
-
           makeButton("Delete Metamodel",
             function (e: any, obj: any) {
               uid.deleteMetamodel(myMetis, myDiagram);

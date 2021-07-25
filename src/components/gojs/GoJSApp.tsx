@@ -1,10 +1,9 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 const debug = false;
 const linkToLink= false;
-const selectRelshipTypesUsingModal = false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
@@ -200,7 +199,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
-    // myMetis.modelType = this.state.modelType;
     if (debug) console.log('139 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel.id);
     const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview.id);

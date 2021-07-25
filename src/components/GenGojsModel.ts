@@ -34,7 +34,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const myMetis = new akm.cxMetis();
     if (debug) console.log('35 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
-    if (!debug) console.log('37 GenGojsModel: myMetis', myMetis);
+    console.log('37 GenGojsModel: myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -461,7 +461,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     metamodel.objecttypes = utils.removeArrayDuplicates(metamodel?.objecttypes);
     if (metamodel.objecttypes) {
       if (debug) console.log('462 metamodel', metamodel);
-      let myGoMetaModel = new gjs.goModel(utils.createGuid(), "myMetaModel", null);
+      const myGoMetamodel = new gjs.goModel(utils.createGuid(), "myMetamodel", null);
       const objtypes = metamodel?.getObjectTypes();
       if (objtypes) {
         if (debug) console.log('466 objtypes', objtypes);
@@ -491,7 +491,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               node.strokecolor = strokecolor;
               //node.fillcolor = fillcolor;
               if (debug) console.log('492 node', node);
-              myGoMetaModel.addNode(node);
+              myGoMetamodel.addNode(node);
             }
           }
         }
@@ -530,19 +530,19 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                 reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
             reltype.typeview.setRelshipKind(reltype.relshipkind);
             const key = utils.createGuid();
-            const link = new gjs.goRelshipTypeLink(key, myGoMetaModel, reltype);
+            const link = new gjs.goRelshipTypeLink(key, myGoMetamodel, reltype);
             if (debug) console.log('533 link', link);
             if (link.loadLinkContent(metamodel)) {
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;
                   if (debug) console.log('536 link', link);
-              myGoMetaModel.addLink(link);
+              myGoMetamodel.addLink(link);
             }            
           }
         }
       }
-      return myGoMetaModel;
+      return myGoMetamodel;
     }
   }
 }

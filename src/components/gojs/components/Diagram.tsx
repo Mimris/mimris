@@ -79,6 +79,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     super(props);
     if (debug) console.log('78 Diagram props:', props);
     this.myMetis = props.myMetis;
+    this.myMetis.modelType = props.modelType;
     this.diagramRef = React.createRef(); 
     this.state = { 
       showModal: false,
@@ -2210,7 +2211,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const myGoModel = myMetis.gojsModel;
               let layout = myGoModel.modelView?.layout;
               if (myMetis.modelType === 'Metamodelling') 
-                layout = myMetamodel.layout;
+                layout = myGoModel.metamodel?.layout;
               switch (layout) {
                 case 'Circular':
                   myDiagram.layout = $(go.CircularLayout); 
@@ -2259,8 +2260,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (debug) console.log('3155 myMetis', myMetis);
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
               return true; 
             }),
           makeButton("Set Link Curve",
@@ -2287,8 +2286,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (debug) console.log('3183 myMetis', myMetis);
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
               return true; 
             }),
           makeButton("Toggle Cardinality On/Off",

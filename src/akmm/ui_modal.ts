@@ -160,7 +160,7 @@ export function handleSelectDropdownChange(selected, context) {
       if (!item) 
         break;
       const routing = (selectedOption) && selectedOption;
-      if (!debug) console.log('163 link routing', routing);
+      if (debug) console.log('163 link routing', routing);
       if (!metamodelling) {
         myModelview.routing = routing;
         const modifiedModelviews = new Array();
@@ -170,7 +170,7 @@ export function handleSelectDropdownChange(selected, context) {
           let data = mn;
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
-        if (!debug) console.log('173 gqlModelview', gqlModelview);
+        if (debug) console.log('173 gqlModelview', gqlModelview);
       } else {
         myMetamodel.routing = routing;
         const modifiedMetamodels = new Array();
@@ -180,7 +180,7 @@ export function handleSelectDropdownChange(selected, context) {
           let data = mn;
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
-        if (!debug) console.log('183 gqlMetamodel', gqlMetamodel);
+        if (debug) console.log('183 gqlMetamodel', gqlMetamodel);
       }
     }
     break;

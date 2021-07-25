@@ -4704,7 +4704,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
 
 // ---------------------------------------------------------------------
 export class cxModel extends cxMetaObject {
-    modeltype: string;
+    // modeltype: string;
     metamodel: cxMetaModel | null;
     sourceMetamodelRef: string;
     targetMetamodelRef: string;
@@ -4723,7 +4723,7 @@ export class cxModel extends cxMetaObject {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_MODELS;  // Firestore collection
         this.category = constants.gojs.C_MODEL;
-        this.modeltype = "";
+        // this.modeltype = "";
         this.metamodel = metamodel;
         this.sourceMetamodelRef = "";
         this.targetMetamodelRef = "";
@@ -4739,12 +4739,12 @@ export class cxModel extends cxMetaObject {
         this.relships = null;
         this.modelviews = null;
     }
-    setModelType(modeltype: string) {
-        this.modeltype = modeltype;
-    }
-    getModelType(): string {
-        return this.modeltype;
-    }
+    // setModelType(modeltype: string) {
+    //     this.modeltype = modeltype;
+    // }
+    // getModelType(): string {
+    //     return this.modeltype;
+    // }
     setMetamodel(metamodel: cxMetaModel) {
         this.metamodel = metamodel;
     }

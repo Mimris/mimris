@@ -667,9 +667,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 object = myMetis.findObject(object.id);
+                const propname = prompt('Enter name of property');
                 // Assuming object has a property 'weight'
-                const weight = object['weight'];
-                let myScript = "2 * weight";
+                const prop = object[propname];
+                let myScript = "prop";
                 let result = eval(myScript);
                 alert(result);
               }
@@ -1085,7 +1086,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const object = node.object;
                 let type = object.type;
                 type = myMetis.findObjectType(type.id);
-                const propname = "OSDU id";
+                const propname = "OsduId";
                 if (debug) console.log('1070 type', type);
                 if (type.findPropertyByName2(propname, true)) {
                   if (debug) console.log('1074 type, propname', type, propname);

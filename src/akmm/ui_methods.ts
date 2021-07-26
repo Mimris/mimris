@@ -238,3 +238,26 @@ export function generateOSDUid(object: akm.cxObject, context: any) {
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     });
 }
+
+export function calculatePropertyValue(object: akm.cxObject, context: any) {
+    const myDiagram = context.myDiagram;
+    const myModel   = context.myModel;
+    const reltype   = context.reltype;
+    const reldir    = context.reldir;   // Either 'in' or 'out'
+    const useinp = (reldir === 'in');
+    let parent: akm.cxObject;
+    let rels  = useinp ? object.outputrels : object.inputrels;
+    if (rels) {
+        for (let i=0; i<rels.length; i++) {
+            const rel = rels[i];
+            if (rel?.type.id !== reltype.id)
+                continue;
+            if (useinp) 
+                parent = rel.toObject as akm.cxObject;
+            else
+                parent = rel.fromObject as akm.cxObject;
+            if (debug) console.log('215 parent', parent);
+        }
+    }
+
+}

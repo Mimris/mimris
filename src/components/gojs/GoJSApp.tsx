@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -27,7 +27,7 @@ import * as uim from '../../akmm/ui_modal';
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');
 
-const systemtypes = ['Element', 'Object', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
+const systemtypes = ['Element', 'Entity', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -456,33 +456,33 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "SelectionDeleting": {
-        if (debug) console.log('389 myMetis', myMetis); 
+        if (debug) console.log('459 myMetis', myMetis); 
         const deletedFlag = true;
         let renameTypes = false;
         const selection = e.subject;
         const data = selection.first().data;
-        if (debug) console.log('394 data, selection', data, selection);
+        if (debug) console.log('464 data, selection', data, selection);
         if (data.category === constants.gojs.C_OBJECTTYPE || data.category === constants.gojs.C_RELSHIPTYPE) {
           if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
             renameTypes = true;
           }
         }
-        if (debug) console.log('400 selection', selection);
+        if (debug) console.log('470 selection', selection);
         // Handle relationship types
         for (let it = selection?.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
-          if (debug) console.log('404 sel, data', sel, data);
+          if (!debug) console.log('475 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
           if (data.category === constants.gojs.C_RELSHIPTYPE) {
             const defRelType = myMetis.findRelationshipTypeByName('isRelatedTo');
             const reltype = myMetis.findRelationshipType(data.reltype?.id);
-            if (debug) console.log('410 reltype', reltype);
+            if (!debug) console.log('481 reltype', reltype);
             if (reltype) {
               // Check if reltype instances exist
               const rels = myMetis.getRelationshipsByType(reltype);
-              if (debug) console.log('414 reltype, rels, myMetis', reltype, rels, myMetis);
+              if (!debug) console.log('485 reltype, rels, myMetis', reltype, rels, myMetis);
               if (rels.length > 0) {
                 if (renameTypes) {
                   for (let i=0; i<rels.length; i++) {
@@ -498,24 +498,26 @@ class GoJSApp extends React.Component<{}, AppState> {
                     rel.markedAsDeleted = deletedFlag;
                     const gqlRel = new gql.gqlRelationship(rel);
                     modifiedRelships.push(gqlRel);
-                    if (debug) console.log('430 gqlRel', gqlRel);
+                    if (debug) console.log('501 gqlRel', gqlRel);
                   }
                 }
               }
               // Check if reltype comes from or goes to a systemtype
               // If so, do not delete
               const fromObjtype = reltype.fromObjtype;
+              const toObjtype   = reltype.toObjtype;
+              if (!debug) console.log('509 fromObjtype, toObjtype', fromObjtype, toObjtype);
               if (!this.isSystemType(fromObjtype)) {
-                const toObjtype = reltype.toObjtype;
                 if (!this.isSystemType(toObjtype)) {
                   continue;
                 }
               }
+              if (!debug) console.log('514 reltype', reltype);
               reltype.markedAsDeleted = deletedFlag;
               uic.deleteRelationshipType(reltype, deletedFlag);
               const gqlReltype = new gql.gqlRelationshipType(reltype, true);
               modifiedTypeLinks.push(gqlReltype);
-              if (debug) console.log('438 modifiedTypeLinks', modifiedTypeLinks);
+              if (debug) console.log('519 modifiedTypeLinks', modifiedTypeLinks);
               let reltypeview = reltype.typeview;
               if (reltypeview) {
                   // reltypeview.markedAsDeleted = deletedFlag;

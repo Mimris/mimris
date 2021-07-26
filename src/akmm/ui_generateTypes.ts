@@ -382,7 +382,8 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     let newName  = currentRel?.getName();
     let oldName = "";
     newName = utils.camelize(newName);
-    newName = utils.uncapitalizeFirstLetter(newName);
+    if (newName !== 'Is')
+        newName = utils.uncapitalizeFirstLetter(newName);
     let relname = newName;
     let reltype;
     if (typid?.length > 0) {
@@ -411,17 +412,19 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             reltype.relshipkind = relship.relshipkind;
             reltype.cardinality = relship.cardinality;
             const reltypeview = reltype.typeview;
-            reltypeview.setRelshipKind(reltype.relshipkind);
-            if (debug) console.log('498 reltypeview', reltypeview);
-            const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
-            if (debug) console.log('500 Generate Relationship Type', gqlRelTypeview);
-            const modifiedTypeViews = new Array();
-            modifiedTypeViews.push(gqlRelTypeview);
-            modifiedTypeViews?.map(mn => {
-                let data = (mn) && mn;
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
-            });
+            if (reltypeview) {
+                reltypeview.setRelshipKind(reltype.relshipkind);
+                if (debug) console.log('498 reltypeview', reltypeview);
+                const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
+                if (debug) console.log('500 Generate Relationship Type', gqlRelTypeview);
+                const modifiedTypeViews = new Array();
+                modifiedTypeViews.push(gqlRelTypeview);
+                modifiedTypeViews?.map(mn => {
+                    let data = (mn) && mn;
+                    data = JSON.parse(JSON.stringify(data));
+                    myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
+                });
+            }
         }
     }
     if (!reltype) {

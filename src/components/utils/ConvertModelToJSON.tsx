@@ -1,208 +1,212 @@
 // @ts-nocheck
 
-import { stringify } from "querystring";
-
 const debug = false
-
-
 
 // export const WriteConvertModelToJSONFile = async (model, name, type) => {
 export const WriteConvertModelToJSONFile = async (model, name, type) => {
 
-    const objectsToConvert = model.objects
+    const objectsToConvert = model.objects  // ToDo:  this must be only objects from  current modelview
+    // Filter only objects from current modelview
 
     // console.log('12', 'objectsToConvert: ', objectsToConvert);
     const convertedModel = ConvertObjectsToJsonStructure(objectsToConvert);
     // console.log('14', 'ConvertedObjects: ', convertedModel);
     // const jsonObjWithArray = convertedModel.map(obj => (obj.allOf) ? Object.keys(obj).map(k => obj[k]) : obj)
     // console.log('18', 'jsonObjWithArray: ', jsonObjWithArray);
- 
     
     const today = new Date().toISOString().slice(0, 19)
-    const fileName = type+"_"+name+'_'+today;
-    
+    // const fileName = type+"_"+name+'_'+today;
+    const fileName = today+"_"+name+'_Osdu-JSON-Import';
 
-    const json = JSON.safeStringify(convertedModel);
-    const blob = new Blob([json], {type:'application/json'});
+    const json = convertedModel //JSON.stringify(convertedModel);
+    // const json = JSON.safeStringify(convertedModel);
+    // const blob = new Blob([json], {type:'application/json'});
+    const blob = new Blob([json], {type:'application/txt'});  // downlaod as txt file
     const href = URL.createObjectURL(blob);
     // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
-    // console.log('25',  json, '\n blob : ', blob, href, link, link.href );
+    if (debug) console.log('25', convertedModel, json, '\n blob : ', blob, href, link, link.href );
     
-    // link.download = fileName + ".json";
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 export const ConvertObjectsToJsonStructure = (objects) => {
 
-    // const objectlist = objects.map(o => [o.id, o])
+    // const objectlist = objects.map(o => [o.osduId, o])
     // console.log('36', objects[0]);
-    objects.sort((a,b) => (a.id > b.id) ? 1 : ((b.id > a.id) ? -1 : 0))
+    objects.sort((a,b) => (a.osduId > b.osduId) ? 1 : ((b.osduId > a.osduId) ? -1 : 0))
 
     let objAll = '{'
     let preChar = '{'
     let postChar = '}'
-    let prePath = [' ']
-    let firstPath = ' '
-    let postPath = [' ']
-    let lastPath = [' ']
-    let previousLength = 0
-    let previousParent = ''
+    // let prePath = [' ']
+    // let postPathStr = ' '
+    let postPath = []
+    let lastChar = ''
+    let restChar = ''    
+    let restPath = []
+    // let previousLength = 0
     
     const genJsonObj = (objects) => {
-        // console.log('56 : ', objects);
+        if (debug) console.log('51 : ', objects.map(o => o.osduId));
         
         const jsonobj = objects.map((o, i) =>  { 
-            console.log('59 : ', o);
-            
-            let hasObj = false
-            // if (i < objects.length) {
-                hasObj = (objects[i+1]?.JSONKey === 'items') && true
-            // }
+            const curOsduId = o.osduId
+            const current = o.osduId.split('|').slice(-1)[0] //.join('|')
+            const parentOsduId = o.osduId.split('|').slice(0, -2).join('|')
+            const parent = o.osduId.split('|').slice(-2)[0] //.join('|')
+            const prevOsduId = objects[i-1]?.osduId
+            const previous = objects[i-1]?.osduId.split('|').slice(-1)[0]
+            const nextOsduId = objects[i+1]?.osduId
+            const next = objects[i+1]?.osduId.split('|').slice(-1)[0] //.join('|')
+            const nextParent = objects[i+1]?.osduId.split('|').slice(-1)[0]
 
-            const curId = o.id
-            const current = o.id.split('|').slice(-1)[0] //.join('|')
-            const parentId = o.id.split('|').slice(0, -2).join('|')
-            const parent = o.id.split('|').slice(-2)[0] //.join('|')
-            const prevId = objects[i-1]?.id
-            const previous = objects[i-1]?.id.split('|').slice(-1)[0]
-            const nextId = objects[i+1]?.id
-            const next = objects[i+1]?.id.split('|').slice(-1)[0] //.join('|')
-            const nextParent = objects[i+1]?.id.split('|').slice(-1)[0]
-
-            const filteredObj = JSON.stringify(filterObject(o)) // keep only attributes (remove objects)
-            const removedLastChar = filteredObj.slice(0, -1) // remove the last }
-            const removedFirstAndLastChar = removedLastChar.substring(1) // remove first {
-            
-            // console.log('79 : ', o.JSONKey, objects[i+1]?.JSONKey, i, i+1);
-            
-            
-            preChar = " " 
-            postChar = " "
-        
-            prePath = [...prePath, preChar]
-            postPath = [...postPath, postChar]    
-            console.log('83 \n prev : ', prevId, previous, ' \n curId : ', curId, current, '\n next : ', nextId, next, '\n parent : ' , parentId, parent, '\n ' , hasObj);
-            
-            const prevLength = prevId?.split('|').length 
-            const curLength = curId?.split('|').length 
-            const nextLength = nextId?.split('|').length 
-            const restLength = prevLength - curLength 
-            console.log('89 : ', prevLength, curLength, nextLength, restLength);
-
-            if (o.JSONKey === undefined) {
-                objAll += `{ ${removedFirstAndLastChar},`
-            } else if ((current === "allOf") || (current === 'x-osdu-supported-file-formats')) {
-                objAll += `"${o.JSONKey}": [ ${removedFirstAndLastChar}` 
-            } else if (!isNaN(o.JSONKey)) {
-                objAll += (removedFirstAndLastChar.includes("$ref")) 
-                    ? (restLength < 1 ) ? `{ ${removedFirstAndLastChar}},` : `}},{ ${removedFirstAndLastChar}}`
-                    : `{ ${removedFirstAndLastChar},`
-            } else  if  (!hasObj) {
-                objAll += (parent === "properties")  
-                    ? (current === 'tags')
-                        ? `"${o.JSONKey}": { ${removedFirstAndLastChar},`
-                        : `"${o.JSONKey}": { ${removedFirstAndLastChar} },` 
-                    : (current === 'properties') 
-                        ? `"${o.JSONKey}": { ${removedFirstAndLastChar}` 
-                        : (current === 'items' || current === 'required') 
-                            ?  `"${o.JSONKey}": { ${removedFirstAndLastChar} }},`  
-                            : (parent === 'tags') 
-                                ? (current === 'example') 
-                                    ? `"${o.JSONKey}": { ${removedFirstAndLastChar} }},`  
-                                    : `"${o.JSONKey}": { ${removedFirstAndLastChar} },`  
-                                : `"${o.JSONKey}": { ${removedFirstAndLastChar},` 
-            } else if (parent === "items")  {
-                objAll += (removedFirstAndLastChar.includes("$ref")) 
-                    ? `}},{ ${removedFirstAndLastChar}}`
-                    : `"${o.JSONKey}": { ${removedFirstAndLastChar}},`     
+            let filteredObj
+            if (o.name === 'required') { // special handling for required , it has just a list of propertynames.
+                const propNameList = o.propNames.split(',')
+                filteredObj =    JSON.stringify(propNameList)
             } else {
-                objAll += `"${o.JSONKey}": { ${removedFirstAndLastChar},`  
+                filteredObj = JSON.stringify(filterObject(o)) // keep only attributes (remove objects)
             }
+            const removedLastChar = (filteredObj !== 'false') ? filteredObj.slice(0, -1) : '' // remove the last }
+            const removedFirstAndLastChar = (filteredObj !== 'false') ? removedLastChar.substring(1) : '' // remove first {
 
+            const prevLength = prevOsduId?.split('|').length 
+            const curLength  = curOsduId?.split('|').length 
+            const nextLength = nextOsduId?.split('|').length || 0
+            const restLength = prevLength - curLength 
+
+            if (debug) console.log(`77
+                prev        : %c ${prevOsduId}  : %c ${previous} 
+                curOsduId   : %c ${curOsduId}   : %c ${current} 
+                next        : %c ${nextOsduId}  : %c ${next}
+                parent      : %c ${parentOsduId}: %c ${parent} 
+                `,
+                "color: green",
+                "color: blue",
+                "color: green",
+                "color: blue",
+                "color: green",
+                "color: blue",
+                "color: green",
+                "color: blue",
+            );
+
+            if (debug) console.log('96  prev, cur, next, rest :', 
+                prevLength, curLength, nextLength, restLength, 
+                ((curLength > prevLength) || (curLength !== nextLength ))
+            );
+            preChar = (o.jsonType === 'isArray') ? '[' : '{'
+            postChar = (o.jsonType === 'isArray') ? ']' : '}'
+
+            postPath.unshift(postChar) // putting postChar at the beginning of the array
+            // console.log('105  postChar: ', postChar, 'postPath: ', postPath )
+
+            if (debug) console.log('107 ',
+                        '\n pc ', postChar,
+                        '\n pp ', postPath,
+                        '\n pp0', postPath[0],
+                        '\n lc ', lastChar,
+                        '\n rpc', restChar,
+                        // '\n ', ` ${removedFirstAndLastChar}`,
+                    )
             
-            const myParent = (c) =>  c.split('|').slice(-2)[0]
-            const myPId = (c) => c.split('|').slice(0, -1).join('|')
-            // console.log('130 : ', myParent(curId));
-            // console.log('132 : ', myPId(curId));
-            
-            let n = prevLength - curLength
-            let pn = curId  
-            if (n > 0) {
-            // if ((nextId === undefined)) {      
-                // objAll += '}'       
-                while (n > 0) {
-                    const nextP =  myParent(pn)               
-                    // console.log('135 : ', n, pn, nextP);             
-                    objAll += (nextP === 'allOf' || nextP === 'x-osdu-supported-file-formats')
-                        ? (next !== undefined) ? '],a' : ']b' 
-                        : (next === 'required') 
-                            ? '}c,' 
-                            : (parent === 'properties') 
-                                ? 'd'
-                                : (nextP === 'x-osdu-supported-file-formats') ? ']e' : '}ee'
-                    pn = myPId(pn)
-                    n--;
-                }
+            // prepare current object 
+            let thisobjAll = (!isNaN(o.jsonKey)) 
+                ? `${preChar}${removedFirstAndLastChar}`
+                : `"${o.jsonKey}": ${preChar}${removedFirstAndLastChar}`
+
+            //create function to make a restPath wile removing the last char of the postPath
+            const makeRestChar = (i) => {
+                restPath = []
+                i = (i) ? i : curLength - nextLength ; 
+                do { 
+                    const rest = postPath.shift(); 
+                    restPath.unshift(rest)
+                    i=i-1
+                } while ( i > 0)
+                return (restPath.length > 1) ? restPath.reverse().join('') : restPath[0]
             } 
-            
-            let nn = curLength - restLength
-            if (nextId === undefined) {
-                while (nn > 0 ) {
-                    const nextP =  myParent(pn)               
-                    // console.log('135 : ', n, pn, nextP);             
-                    objAll += (nextP === 'allOf' || nextP === 'x-osdu-supported-file-formats')
-                        ? (next === undefined) ? '}}]f' : ']g' 
-                        : '}h'                 
-                    pn = myPId(pn)
-                    nn--;
+
+            // if we are traversing back (up the tree), we need to use the postChar and remove it from the postPath
+            if ((curLength > prevLength) && (curLength !== nextLength)) {
+                if (debug) console.log('127', curLength, prevLength, nextLength, postPath, postChar);
+                if (prevLength > curLength) {
+                    restChar = makeRestChar()
+                    if (debug) console.log('129',prevLength, curLength, nextLength, restChar)
+                } else if (curLength > prevLength && curLength > nextLength ) {
+                    const i = (curLength - prevLength) + (curLength - nextLength)
+                    restChar = makeRestChar(i)+','
+                    if (debug) console.log('133', prevLength, curLength, nextLength, i, restChar)
+                } else {
+                    restChar = ''
+                    if (debug) console.log('137', prevLength, curLength, nextLength, restChar)
+                }
+            } else  if (curLength === prevLength) {
+                if (curLength < nextLength) {
+                    if ((thisobjAll.charAt(thisobjAll.length-1) === '{')) {
+                        restChar = ''
+                        if (debug) console.log('143', thisobjAll, prevLength, curLength, nextLength, restChar)
+                    } else {
+                        restChar = ','
+                        if (debug) console.log('146', prevLength, curLength, nextLength, restChar)
+                    }
+                } else {
+                    const i = (curLength - prevLength) + (curLength - nextLength)
+                    restChar = makeRestChar(i)+','
+                    if (debug) console.log('151', prevLength, curLength, nextLength, i, restChar)
+                }
+            } else {
+                if (!prevLength) {
+                    restChar = ','
+                    if (debug) console.log('156', prevLength, curLength, nextLength, restChar)
+                } else if (!((prevLength === curLength) || (curLength === nextLength))) {
+                    const i = 3
+                    restChar = makeRestChar(i)+','
+                    if (debug) console.log('160', prevLength, curLength, nextLength, i, restChar)
+                } else {
+                    restChar = makeRestChar()+','
+                    if (debug) console.log('163', prevLength, curLength, nextLength,  restChar)
                 }
             }
 
-            lastPath = postPath.pop()
-            firstPath = prePath.pop()
-
-            previousLength = o.id.split('|').length
-            previousParent = parent
-
-            // console.log('89 : prePath', preChar, '\n objAll : ', objAll, '\n postPaht: ', postChar);
+            // lastChar = restChar 
+            thisobjAll += restChar  // add last char
             
-        
-            // postChar = (o.id === parent) ? postPath.splice(0, postPath.length-1) : '---'
-            // postPath.shift()
+            if (debug) console.log('172 restPath : ', restPath, 'postPath : ',postPath, 'restChar : ', restChar);       
+            if (debug) console.log('173 #######------- \n', 'o.jkey : ', o.jsonKey, '\n', thisobjAll);
+            
+            objAll += thisobjAll
+            // console.log('166 ', objAll);
         })
 
-
-        const oVal = filterObject(objects[0]) // remove objects as attributes
-        const oVal1 = filterObject(objects[1]) // remove objects as attributes
-        let prevOId
-
-
+        objAll += postPath.reverse().join(',') //add in reverse the last postChar's to the end of the json string
+        objAll = objAll + '}' // add the last } to the end of the json string
         // console.log('99 objects',  objects)
-        const JSONObject = objAll//.replace(/\",}/g, '"}').replace(/},}/g, '}}').replace(/,}/g, '}}')
+
+        // remove uneccessary , in beginning objects and arrays
+        const JSONObject = objAll.replace(/,}/g, '}').replace(/,]/g, ']')//.replace(/\",}/g, '"}').replace(/,}/g, '}}').replace(/{,/g, '{')
         // console.log('167 ', JSONObject)  
        
         return JSONObject
         
-
     };
 
     const generatedJSON =  genJsonObj(objects);
-
     console.log('132 : ', generatedJSON);
    
     return generatedJSON
     
 }
 
-
-  // filter to get only attributes (objects removed)
-  function filterObject(obj) {
+// filter to get only attributes (objects removed)
+function filterObject(obj) {
     let newobj = {} 
-    newobj = (obj?.id.split('|').slice(-1)[0] === "allOf") && []
+    newobj = (obj?.osduId.split('|').slice(-1)[0] === "allOf") || (obj?.osduId.split('|').slice(-1)[0] === "items") && [] // ToDo: remove allOf and replace with isArray ??
 
     for (var i in obj) {
         if (!obj.hasOwnProperty(i)) continue;
@@ -218,7 +222,9 @@ export const ConvertObjectsToJsonStructure = (objects) => {
         if (i === 'modified') continue;
         if (i === 'id') continue;
         if (i === 'name') continue;
-        if (i === 'JSONKey') continue;
+        if (i === 'jsonKey') continue;
+        if (i === 'jsonType') continue;
+        if (i === 'osduId') continue;
 
         const tmpkey = i
         if (i === 'jsonType') tmpkey = 'type' // type is a akmm attribute probably not the same as osdu attribute
@@ -227,10 +233,10 @@ export const ConvertObjectsToJsonStructure = (objects) => {
                     ...newobj,
                     [tmpkey]: obj[i]
                 } 
-            // console.log('130', i, obj[i], newobj);
+        // console.log('251', i, obj[i], newobj);
     }
-    // console.log('132 :', obj, newobj);
-    return newobj;
+    // console.log('286 :', obj, newobj);
+    return (newobj === false || newobj === true) ? '' : newobj;
 }
 
 // safely handles circular references
@@ -249,58 +255,3 @@ JSON.safeStringify = (obj, indent = 2) => {
     cache = null;
     return retVal;
 };
-
-
-
-
-
-      //---------------------------------------------------------------------------------------------
-        // const genJSON = (obj) => prePaht + `"${obj.JSONKey}": ${JSON.stringify(filterObject(obj)).slice(0, -1)}` +postPath
-
-
-        // const jsonobj = `{${objects.map(o =>  { 
-        //     const parentId = o.id.split('|').slice(0, -1).join('|')
-        //     const grandParentId = o.id.split('|').slice(0, -2).join('|')
-        //     const prevParentId = prevOId?.split('|').slice(0, -1).join('|')
-        //     const prevGParentId = prevOId?.split('|').slice(0, -2).join('|')
-        //     const prevGGParentId = prevOId?.split('|').slice(0, -3).join('|')
-        //     const prevGGGParentId = prevOId?.split('|').slice(0, -4).join('|')
-        //     const prevGGGGParentId = prevOId?.split('|').slice(0, -5).join('|')
-            // if (!isNaN(obj))  
-            // const ret = 
-            //     (!prevOId && !parentId && !grandParentId) 
-            //     ? genJSON(o)
-            //     : (!parentId && !grandParentId) 
-            //         ? '}}},'+genJSON(o)
-            //         : (!parentId)
-            //             ? genJSON(o)
-            //             : (!grandParentId && (o.id === prevParentId ))
-            //                 ? '}},'+genJSON(o) 
-            //                 : (parentId === prevOId) 
-            //                     ? genJSON(o)  
-            //                     : (parentId === prevParentId) 
-            //                         ? '},'+genJSON(o) 
-            //                         : (parentId === prevGParentId) 
-            //                             ? '}},'+genJSON(o) 
-            //                             : (parentId === prevGGParentId) 
-            //                                 ? '}}},'+genJSON(o) 
-            //                                 : (parentId === prevGGGParentId) 
-            //                                     ? '}}}}'+genJSON(o) 
-            //                                     : (parentId === prevGGGGParentId) 
-            //                                         ? '}}}}}'+genJSON(o) 
-            //                                         : '}'
-            
-            // console.log(
-            //     '58 oid :', o.id, 
-            //     '\n parentId : ', parentId, 
-            //     '\n grandParentId : ', grandParentId, 
-            //     '\n prevOId : ', prevOId, 
-            //     '\n prevParentId : ' , prevParentId,
-            //     '\n prevGParentId : ' , prevGParentId,
-            //     '\n prevGGParentId : ' , prevGGParentId
-            //     );
-        //     console.log('93 ret :', ret);
-            
-        //     prevOId = o.id
-        //     return ret
-        // } ) } }}}}}}`

@@ -447,7 +447,7 @@
             },
             {
               "id": "3d020371-4fba-4b69-7709-aaa7ba18c1db",
-              "name": "OSDU id",
+              "name": "osduId",
               "description": "",
               "datatypeRef": "7c4672a0-c6ee-48a2-0bc5-e344d1564cbb",
               "unitCategoryRef": "",
@@ -1327,7 +1327,7 @@
                 },
                 {
                   "id": "3d020371-4fba-4b69-7709-aaa7ba18c1db",
-                  "name": "OSDU id",
+                  "name": "osduId",
                   "description": "",
                   "datatypeRef": "7c4672a0-c6ee-48a2-0bc5-e344d1564cbb",
                   "unitCategoryRef": "",
@@ -2069,7 +2069,7 @@
             },
             {
               "id": "3d020371-4fba-4b69-7709-aaa7ba18c1db",
-              "name": "OSDU id",
+              "name": "osduId",
               "description": "",
               "datatypeRef": "7c4672a0-c6ee-48a2-0bc5-e344d1564cbb",
               "unitCategoryRef": "",
@@ -3025,7 +3025,7 @@
             },
             {
               "id": "4380e422-c4fc-4daa-4185-ff4a64f5729d",
-              "name": "OSDU id",
+              "name": "osduId",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -3754,7 +3754,7 @@
                 },
                 {
                   "id": "8e84c38e-99a4-49ac-e4a2-4ec287e2a3e9",
-                  "name": "OSDU id",
+                  "name": "osduId",
                   "description": "",
                   "objectRef": "4380e422-c4fc-4daa-4185-ff4a64f5729d",
                   "typeviewRef": "e05d9ee2-7592-4313-4b53-865f7964294a",
@@ -4002,7 +4002,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "OSDU id": ""
+              "osduId": ""
             },
             {
               "id": "c67f89a3-17a2-4179-a2ee-5dcac515eb7c",
@@ -4022,7 +4022,7 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "OSDU id": ""
+              "osduId": ""
             }
           ],
           "relships": [

@@ -7,6 +7,7 @@ const debug = false;
 import * as akm from '../akmm/metamodeller';
 import * as gql from './ui_graphql';
 import * as uic from './ui_common';
+import * as ui_mtd from './ui_methods';
 import * as constants from './constants';
 const RegexParser = require("regex-parser");
 
@@ -514,6 +515,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             }
           }
         }
+        let mtd = prop.method;
+        if (!mtd && prop.methodRef) 
+          mtd = myMetis.findMethod(prop.methodRef);
+          if (mtd && mtd.expression) {
+            const expr = ui_mtd.expandPropScript(obj, prop, myMetis);
+            obj[prop.name] = expr;
+          }
       }
       if (debug) console.log('518 node', node);
       node = myDiagram.findNodeForKey(node.key)

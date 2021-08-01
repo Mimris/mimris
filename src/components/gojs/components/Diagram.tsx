@@ -667,16 +667,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 object = myMetis.findObject(object.id);
-                const propname = prompt('Enter name of property');
-                // Assuming object has a property 'weight'
-                const prop = object[propname];
-                let myScript = "prop";
-                let result = eval(myScript);
+                let prop = object.type.findPropertyByName('Area');
+                prop = myMetis.findProperty(prop.id); 
+                let result = ui_mtd.expandPropScript(object, prop, myMetis);
                 alert(result);
               }
             },
             function (o: any) { 
-              return true;               
+              return false;               
             }),
           makeButton("Cut",
             function (e: any, obj: any) { 
@@ -1098,16 +1096,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
           makeButton("TEST",
             function (e: any, obj: any) { 
-              const myDiagram = e.diagram;
-              const node1 = obj.part;
-              console.log('1226 node1', node1);
-              let data = node1.data;
-              console.log('1228 data', data);
-              const node2 = myDiagram.findNodeForKey(data.key);
-              console.log('1230 nodeForKey (node2)', node2);
-              data = node2.data;
-              console.log('1232 data', data);
-              myDiagram.model.setDataProperty(data, "fillcolor", "pink");
+              const node = obj.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                let object = node.object;
+                if (!object) return;
+                object = myMetis.findObject(object.id);
+                const context = {
+                  "myMetis":    myMetis,
+                  "myModel":    myMetis.currentModel,
+                  "myDiagram":  myDiagram,
+                  "reltype":    "hasPart",
+                  "objtype":    null,
+                  "propname":   "cost",
+                  "function":   "current[propname] = sum(child[propname])",
+                  "preaction":  null,
+                  "postaction": ui_mtd.calculatePropertyValue
+                }
+                const args = {
+                  "parent":     null
+                }
+                ui_mtd.traverse(object, context, args);
+                context.postaction(object, context);
+              }
             },
             function (o: any) { 
               if (debug)

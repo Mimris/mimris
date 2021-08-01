@@ -197,9 +197,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (!typeview) {
               const otype = metis.findObjectTypeByName(objtype.name);
               if (otype) {
-                typeview = otype.getDefaultTypeView();
+                typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
               } else
-                typeview = objtype.newDefaultTypeView('Object');
+                typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
           }
           // End hack
           objview.setTypeView(typeview);
@@ -227,7 +227,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       let includeObject = false;
       const obj = objects[i];
       const objtype = obj?.getObjectType();
-      const typeview = objtype?.getDefaultTypeView();
+      const typeview = objtype?.getDefaultTypeView() as akm.cxObjectTypeView;
       const objview = new akm.cxObjectView(utils.createGuid(), objtype?.getName(), obj, "");
       objview.setTypeView(typeview);
       if (debug) console.log('233 obj, objview:', obj, objview);
@@ -345,7 +345,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       }
       const nodes = myGoModel.nodes;
       for (let i = 0; i < nodes.length; i++) {
-          const node = nodes[i];
+          const node = nodes[i] as gjs.goObjectNode;
           const objview = node.objectview;
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
@@ -485,7 +485,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
               node.loadNodeContent(metamodel);
               node.strokecolor = strokecolor;
-              //node.fillcolor = fillcolor;
+              // node.fillcolor = fillcolor;
               if (debug) console.log('492 node', node);
               myGoMetamodel.addNode(node);
             }
@@ -524,11 +524,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                 reltype.fromObjtype = metamodel.findObjectType(reltype.fromobjtypeRef);
             if (!reltype.toObjtype) 
                 reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
-            reltype.typeview.setRelshipKind(reltype.relshipkind);
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetamodel, reltype);
             if (debug) console.log('533 link', link);
-            if (link.loadLinkContent(metamodel)) {
+            if (link.loadLinkContent()) {
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;

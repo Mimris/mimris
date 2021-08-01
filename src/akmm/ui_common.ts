@@ -1841,6 +1841,8 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'type') retVal = false;
     if (k === 'typeid') retVal = false;
     if (k === 'typeRef') retVal = false;
+    if (k === 'toobjtypeRef') retVal = false;
+    if (k === 'fromobjtypeRef') retVal = false;
     if (k === 'typeview') retVal = false;
     if (k === 'typeviewRef') retVal = false;
     if (k === 'valueset') retVal = false;
@@ -2036,7 +2038,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
             continue;
         metis.modelviews.push(mv);
     }
-    
+
     // Dispatch metis
     const gqlMetis = new gql.gqlExportMetis(metis, true);
     const data = {metis: gqlMetis}

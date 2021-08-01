@@ -12,6 +12,7 @@ import * as uic from '../akmm/ui_common';
 // import * as gen from '../akmm/ui_generateTypes';
 import * as utils from '../akmm/utilities';
 import * as constants from '../akmm/constants';
+import exp from 'constants';
 const RegexParser = require("regex-parser");
 
 export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxObjectView, objtype: akm.cxObjectType, 
@@ -237,4 +238,77 @@ export function generateosduId(object: akm.cxObject, context: any) {
         let data = (mn) && mn
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     });
+}
+
+export function calculatePropertyValue(object: akm.cxObject, context: any) {
+    const myDiagram = context.myDiagram;
+    const myModel   = context.myModel;
+    const propname  = context.propname;
+    const current   = object;
+    const value     = object[propname];
+}
+
+export function expandPropScript(object: akm.cxObject, prop: akm.cxProperty, myMetis: akm.cxMetis): string {
+    let retval = "";
+    const pi = 3.14159265
+    let mtd = prop.method;
+    if (!mtd) mtd = myMetis.findMethod(prop.methodRef);
+    let expression = mtd?.expression;
+    if (expression) {
+        const type = object.type;
+        expression = substitutePropnamesInExpression(expression, type);
+        if (debug) console.log('280 expression', expression);
+        try {
+            retval = eval(expression);
+        } catch(e) {
+            if (e instanceof SyntaxError) {
+                alert(e.message);
+            }
+            retval = "";
+        }
+    }  
+    return retval;
+}
+
+function substitutePropnamesInExpression(expression: string, type: akm.cxObjectType): string {
+    let retval = "";
+    const props = type.properties;
+    for (let i=0; i<props.length; i++) {
+        const prop = props[i];
+        if (expression.indexOf(prop.name) == -1)
+            continue;
+        const propname = 'object["' + prop.name + '"]';
+        const len = prop.name.length;
+        if (debug) console.log('274 propname', propname);
+        let pos = [];
+        let p = 0;
+        let px = 0;
+        let diff = 0;
+        let indx = 0;
+        pos.push(p)
+        for (let j=0; j<expression.length; j++) {   
+            const expr = expression.substring(indx);     
+            px = expr.indexOf(prop.name);
+            if (px == -1) break;
+            if (j == 0) 
+                p = px;
+            else
+                p += px+1;
+            diff += px+1;
+            pos.push(p);
+            indx = p+1;
+        }
+        if (debug) console.log('284 pos', pos);
+        // Substitute all prop.names starting with the last one
+        let siz = pos.length;
+        if (debug) console.log('288 siz', siz);
+        for (let j=siz-1; j>0; j--) {
+            let px = pos[j]+len;
+            let endstr = expression.substr(px);
+            let newExpr = expression.substring(0, pos[j]) + propname + endstr;
+            expression = newExpr;
+        }
+    }
+    if (debug) console.log('297 expression', expression);
+    return expression;
 }

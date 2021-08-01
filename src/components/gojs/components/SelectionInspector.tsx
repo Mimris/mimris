@@ -7,8 +7,10 @@ import * as React from 'react';
 import { InspectorRow } from './InspectorRow';
 const toHex = require('colornames');
 const convert = require('color-convert');
+const printf = require('printf');
 // import './Inspector.css';
 import * as uic from '../../../akmm/ui_common';
+import * as ui_mtd from '../../../akmm/ui_methods';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
 
@@ -140,15 +142,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         useColor = true;
         break;
       case "editTypeview":
-        if (instview) item = instview.typeview?.data;
-        else item = inst;
+        // if (instview) 
+        //   item = instview.typeview?.data;
+        if (selObj.category === 'Relationship')
+          item = inst.type.typeview;
+        else 
+          item = inst.typeview;
         hideNameAndDescr = true;
-        if (debug) console.log('144 item', item);
+        if (debug) console.log('150 inst, item', inst, item);
         break;  
       default:
         item = inst;
     }
-    if (debug) console.log('149 item', inst, item);
+    if (debug) console.log('155 item', item);
     for (let k in item) {
       if (k === 'abstract') {
         if (!(category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE))
@@ -165,6 +171,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let row;
       if (k) {
         let fieldType = 'text';
+        let viewFormat = "";
         let readonly = false;
         let disabled = false;
         let checked  = false;
@@ -184,6 +191,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description' || k === 'title') continue; 
         }
+        if (debug) console.log('202 k, val', k, item[k], selObj[k]);
+        val = (item.id === inst.id) ? item[k] : selObj[k];
         if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
@@ -192,17 +201,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               const dtypeRef = prop.datatypeRef;
               const dtype = myMetis.findDatatype(dtypeRef);
               if (dtype) {
-                fieldType = dtype.fieldType;
-                pattern   = dtype.inputPattern;
-                defValue  = dtype.defaultValue;
-                values    = dtype.allowedValues;
+                fieldType   = dtype.fieldType;
+                viewFormat  = dtype.viewFormat
+                pattern     = dtype.inputPattern;
+                defValue    = dtype.defaultValue;
+                values      = dtype.allowedValues;
+              }
+              const mtdRef = prop.methodRef;
+              if (mtdRef) {
+                disabled = true;
+                val = ui_mtd.expandPropScript(inst, prop, myMetis);
+                if (debug) console.log('209 inst, prop, val', inst, prop, val);
+                if (viewFormat)
+                  val = printf(viewFormat, val);
               }
             }
             if (debug) console.log('199 prop, dtype, fieldType: ', prop, fieldType);
           }
         }
-        if (debug) console.log('202 k, val', k, item[k], selObj[k]);
-        val = (item.id === inst.id) ? item[k] : selObj[k];
         if ((what === 'editObjectType') || (what === 'editRelationshipType')) {
           val = item[k];
         }
@@ -236,10 +252,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case 'cardinalityTo':
             dtype = myMetamodel.findDatatypeByName('cardinality');
             if (dtype) {
-              fieldType = dtype.fieldType;
-              pattern   = dtype.inputPattern;
-              defValue  = dtype.defaultValue;
-              values    = dtype.allowedValues;
+              fieldType   = dtype.fieldType;
+              viewFormat  = dtype.viewFormat
+              pattern     = dtype.inputPattern;
+              defValue    = dtype.defaultValue;
+              values      = dtype.allowedValues;
             }
             if (!allowsMetamodeling) disabled = true;
             break;

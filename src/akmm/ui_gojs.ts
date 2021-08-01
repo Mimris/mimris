@@ -297,14 +297,18 @@ export class goMetaObject {
 
 export class goNode extends goMetaObject {
     parentModel: goModel | null;
-    loc: string;
-    size: string;
+    loc:             string;
+    size:            string;
+    strokecolor:     string;
+    fillcolor:       string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
         this.parentModel = model;  // goModel
         this.loc = "";
         this.size = "";
+        this.strokecolor = "";
+        this.fillcolor = "";
         this.markedAsDeleted = false;
     }
     // Methods
@@ -593,6 +597,13 @@ export class goRelshipLink extends goLink {
     toNode:             goNode | null;
     from:               string;
     to:                 string;
+    strokecolor:        string;
+    fromArrow:          string;
+    toArrow:            string;
+    fromArrowColor:     string;
+    toArrowColor:       string;
+    routing:            string;
+    curve:              string;
     points:             string;
     cardinality:        string;
     cardinalityFrom:    string;
@@ -611,6 +622,13 @@ export class goRelshipLink extends goLink {
         this.toNode          = null;
         this.from            = "";
         this.to              = "";
+        this.strokecolor     = "";
+        this.fromArrow       = "";
+        this.toArrow         = "";
+        this.fromArrowColor  = "";
+        this.toArrowColor    = "";
+        this.routing         = "";
+        this.curve           = "";
         this.points          = "";
         this.cardinality     = "";
         this.cardinalityFrom = "";
@@ -726,7 +744,7 @@ export class goRelshipLink extends goLink {
     }
 }
 
-export class goRelshipTypeLink extends goLink {
+export class goRelshipTypeLink extends goRelshipLink {
     reltype:    akm.cxRelationshipType | null;
     typeview:   akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
     fromNode:   goNode | null;

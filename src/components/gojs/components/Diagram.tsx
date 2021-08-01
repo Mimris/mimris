@@ -79,6 +79,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     super(props);
     if (debug) console.log('78 Diagram props:', props);
     this.myMetis = props.myMetis;
+    this.myMetis.modelType = props.modelType;
     this.diagramRef = React.createRef(); 
     this.state = { 
       showModal: false,
@@ -660,6 +661,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               return false;               
             }),
+          makeButton("Test Eval",
+            function (e: any, obj: any) {
+              const node = obj.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                let object = node.object;
+                object = myMetis.findObject(object.id);
+                let prop = object.type.findPropertyByName('Area');
+                prop = myMetis.findProperty(prop.id); 
+                let result = ui_mtd.expandPropScript(object, prop, myMetis);
+                alert(result);
+              }
+            },
+            function (o: any) { 
+              return false;               
+            }),
           makeButton("Cut",
             function (e: any, obj: any) { 
               e.diagram.commandHandler.cutSelection(); 
@@ -1080,16 +1096,28 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
           makeButton("TEST",
             function (e: any, obj: any) { 
-              const myDiagram = e.diagram;
-              const node1 = obj.part;
-              console.log('1226 node1', node1);
-              let data = node1.data;
-              console.log('1228 data', data);
-              const node2 = myDiagram.findNodeForKey(data.key);
-              console.log('1230 nodeForKey (node2)', node2);
-              data = node2.data;
-              console.log('1232 data', data);
-              myDiagram.model.setDataProperty(data, "fillcolor", "pink");
+              const node = obj.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                let object = node.object;
+                if (!object) return;
+                object = myMetis.findObject(object.id);
+                const context = {
+                  "myMetis":    myMetis,
+                  "myModel":    myMetis.currentModel,
+                  "myDiagram":  myDiagram,
+                  "reltype":    "hasPart",
+                  "objtype":    null,
+                  "propname":   "cost",
+                  "function":   "current[propname] = sum(child[propname])",
+                  "preaction":  null,
+                  "postaction": ui_mtd.calculatePropertyValue
+                }
+                const args = {
+                  "parent":     null
+                }
+                ui_mtd.traverse(object, context, args);
+                context.postaction(object, context);
+              }
             },
             function (o: any) { 
               if (debug)
@@ -1972,11 +2000,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             gen.generateTargetMetamodel(obj, myMetis, myDiagram);
           },
           function (o: any) { 
+            if (debug) console.log('1991 myMetis', myMetis);
             if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
           }),
-
           makeButton("Delete Metamodel",
             function (e: any, obj: any) {
               uid.deleteMetamodel(myMetis, myDiagram);
@@ -2191,7 +2219,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Do Layout", 
             function (e: any, obj: any) {
               const myGoModel = myMetis.gojsModel;
-              const layout = myGoModel.modelView?.layout;
+              let layout = myGoModel.modelView?.layout;
+              if (myMetis.modelType === 'Metamodelling') 
+                layout = myGoModel.metamodel?.layout;
               switch (layout) {
                 case 'Circular':
                   myDiagram.layout = $(go.CircularLayout); 
@@ -2240,8 +2270,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (debug) console.log('3155 myMetis', myMetis);
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
               return true; 
             }),
           makeButton("Set Link Curve",
@@ -2268,8 +2296,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (debug) console.log('3183 myMetis', myMetis);
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
-                return false;
               return true; 
             }),
           makeButton("Toggle Cardinality On/Off",
@@ -3089,10 +3115,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editTypeview': {
         header = modalContext.title + ':';
         category = this.state.selectedData.category;
-        if (debug) console.log('2860 category ', category);
+        if (debug) console.log('3108 category ', category);
       
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2863 Diagram ', this.state.selectedData, this.myMetis);
+          if (debug) console.log('3111 Diagram ', this.state, this.myMetis);
           modalContent = 
             <div className="modal-prop" >
               <SelectionInspector 
@@ -3108,7 +3134,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       default:
         break;
     }
-    if (debug) console.log('3237 last in Diagram ', this.props);
+    if (debug) console.log('3127 last in Diagram ', this.props);
     
     return (
       <div>

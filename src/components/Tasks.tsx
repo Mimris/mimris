@@ -15,19 +15,29 @@ const Tasks = () => {
   // console.log('16 Sel', models, focusModel, state);
 
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id)
+  const mothermodel = models?.find ((mom: any) => mom?.targetMetamodelRef === curmodel?.metamodelRef)
+  console.log('19 Tasks', models, curmodel, mothermodel)
+  const mothermodelviews = mothermodel?.modelviews
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
-  const objects = curmodel?.objects //.map((o: any) => o)
+  const objects = mothermodel?.objects //.map((o: any) => o)
+  // const objects = curmodel?.objects //.map((o: any) => o)
+  const taskmodelview = mothermodelviews?.find(mv => mv.name === 'Usecase1')
   // const objectviews = curmodel?.objectviews //.map((o: any) => o)
   // find object with type
 
+  const objectviews2 = taskmodelview?.objectviews
+  
   const objectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews
-  const uniqueovs = objectviews?.filter((ov, index, self) =>
+
+  console.log('27 Tasks',  modelviews, mothermodelviews, objectviews2, objectviews);
+
+  const uniqueovs = objectviews2?.filter((ov, index, self) =>
     index === self.findIndex((t) => (
       t.place === ov.place && t.id === ov.id
     ))
   )
 
-  // console.log('32 SelectContext :', modelviews);
+  console.log('39 Tasks :', modelviews);
 
   // find object with type
   const type = (metamodels, model, objects, curov) => {
@@ -35,10 +45,10 @@ const Tasks = () => {
       .objecttypes?.find(ot => ot.id === objects?.find(o => o.id === curov.objectRef)?.typeRef)?.name
   }
 
-  const seltasks = uniqueovs?.filter(ov => type(metamodels, curmodel, objects, ov) === 'Task')
+  const seltasks = uniqueovs?.filter(ov => type(metamodels, mothermodel, objects, ov) === 'Task')
   const tasksDiv = seltasks?.map((t: any) => 
     <li key={t.id} className="li bg-light">
-    {t.name}
+    {t.name} {t.description}
     </li>
     )
   // console.log('43', tasksDiv);

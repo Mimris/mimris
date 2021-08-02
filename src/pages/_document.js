@@ -12,7 +12,7 @@ class MyDocument extends Document {
 
   render() {
     return (
-      <Html>
+      <Html lang="en">
         <meta name="viewport" content="initial-scale = 0.8, maximum-scale = 1.0" />
         <meta charSet="utf-8" />
         <title>AKM Modelling Platform</title>

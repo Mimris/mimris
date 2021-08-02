@@ -1,0 +1,41 @@
+{
+    "Well.1.0.0.json": {
+        "$id": "https://schema.osdu.opengroup.org/json/master-data/Well.1.0.0.json",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Well",
+        "description": "The origin of a set of wellbores.",
+        "viewFormat": "",
+        "inputPattern": "",
+        "inputExample": "",
+        "fieldType": "",
+        "defaultValue": "",b"allOf": [a{
+                "$ref": "../abstract/AbstractMaster.1.0.0.json"
+            },b{
+                "$ref": "../abstract/AbstractFacility.1.0.0.json"
+            },b{},b"properties": {
+                ,b"DefaultVerticalCRSID": {
+                    "description": "The default vertical coordinate reference system used in the vertical measurements for a well or wellbore if absent from input vertical measurements and there is no other recourse for obtaining a valid CRS.",
+                    "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-CoordinateReferenceSystem:[\\w\\-\\.\\:\\%]+:[0-9]*$"
+                },b"DefaultVerticalMeasurementID": {
+                    "description": "The default datum reference point, or zero depth point, used to determine other points vertically in a well.  References an entry in the VerticalMeasurements array."
+                },b"InterestTypeID": {
+                    "description": "Pre-defined reasons for interest in the well or information about the well.",
+                    "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-WellInterestType:[\\w\\-\\.\\:\\%]+:[0-9]*$"
+                },b"VerticalMeasurements": {
+                    "description": "List of all depths and elevations pertaining to the well, like, water depth, mud line elevation, etc."
+                },b"items": {
+                    ,b"allOf": [a{
+                            ,b"properties": {
+                                ,b"VerticalMeasurementID": {
+                                    "description": "The ID for a distinct vertical measurement within the Wellbore VerticalMeasurements array so that it may be referenced by other vertical measurements if necessary.",b{
+                                        "$ref": "../abstract/AbstractFacilityVerticalMeasurement.1.0.0.json"
+                                    }
+                                }
+                            }
+                        },b"x-osdu-indexing": {}
+                    ]
+                }
+            }
+        ]
+    },b
+}

@@ -48,3 +48,7 @@ export default function Usersessions({ usersessions }: any, ctx: NextPageContext
 //   const json = await myGet('/api/usersessions', ctx);
 //   return { usersessions: json };
 // }
+<<<<<<< HEAD
+=======
+export default {}
+>>>>>>> release/NOV20REL2

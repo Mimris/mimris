@@ -966,52 +966,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
     }
-<<<<<<< HEAD
-
-    // Add system types 
-    // First object types
-    let typenames = systemtypes;
-    for (let i=0; i<typenames.length; i++) {
-        const typename = typenames[i];
-        const objtype = myMetamodel.findObjectTypeByName(typename);
-        if (!debug) console.log('839 objtype', typename, objtype, myMetis);
-        if (objtype) {
-            metamodel.addObjectType(objtype);
-            metamodel.addObjectTypeView(objtype.typeview);
-            let geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype, "", "");
-            metamodel.addObjtypeGeo(geo);
-            const gqlObjTypegeo = new gql.gqlObjectTypegeo(geo);
-            if (debug) console.log('846 Generate Object Type', gqlObjTypegeo, myMetis);
-            modifiedGeos.push(gqlObjTypegeo);
-        }
-    }
-    // Then relationship types
-    const reltypes = myMetamodel.relshiptypes;
-    if (debug) console.log('823 reltypes', reltypes);
-    for (let i=0; i<reltypes.length;i++) {
-        const reltype = reltypes[i];
-        if (reltype) {
-            metamodel.addRelationshipType(reltype);
-            if (debug) console.log('811 reltype', reltype);
-        }
-    }
-    typenames = ['isRelatedTo'];
-    for (let i=0; i<typenames.length; i++) {
-        const typename = typenames[i];
-        const reltype = myMetamodel.findRelationshipTypeByName(typename);
-        if (debug) console.log('839 reltype', reltype, myMetis);
-        if (reltype) {
-            metamodel.addRelationshipType(reltype);
-            metamodel.addRelationshipTypeView(reltype.typeview);
-        }
-    }
-
-    // Prepare dispatch of the metamodel
-    if (debug) console.log('831 Target metamodel', metamodel);
-=======
     if (!debug) console.log('891 relshipviews completed', myMetis);
     // Prepare dispatch of the metamodel and the current model
->>>>>>> release/NOV20REL2
     const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
     modifiedMetamodels.push(gqlMetamodel);
     if (debug) console.log('888 Target metamodel', metamodel, gqlMetamodel);

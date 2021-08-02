@@ -27,7 +27,7 @@ import * as uim from '../../akmm/ui_modal';
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');
 
-const systemtypes = ['Element', 'Entity', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
+const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Unittype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,

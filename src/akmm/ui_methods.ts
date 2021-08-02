@@ -198,7 +198,7 @@ export function traverse(object: akm.cxObject, context: any, args: any) {
     }
 }
 
-export function generateOSDUid(object: akm.cxObject, context: any) {
+export function generateosduId(object: akm.cxObject, context: any) {
     const myDiagram = context.myDiagram;
     const myModel = context.myModel;
     const reltype   = context.reltype;

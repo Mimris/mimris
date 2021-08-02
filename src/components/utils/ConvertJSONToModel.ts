@@ -1,41 +1,51 @@
 // @ts-nocheck
 
-const debut = false
+const debug = false
 import * as utils from '../../akmm/utilities';
+import ObjectTable from '../table/ObjectTable';
 
 // read and convert OSDU Json format
-        const informationTypeId = ['6bab35bb-f339-4ca0-f458-6c0cb7d0d302', 'Information']
-        const propertyTypeId = ['6ca3e143-bb47-4533-4ed0-0e9e0f8bb0c4','Property']
-        const hasPartTypeId = ['0c2653b4-f201-48bb-d738-75d97de01d36','hasPart']
-        const hasMemberTypeId = ['6d6aa1f9-4f2b-44f4-c009-65b52490bf22', 'hasMember']
 
-        let objecttypeRef = informationTypeId[0] // default partof relship in JSON structure
-        let reltypeRef = hasPartTypeId // default partof relship in JSON structure
 
 export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()
 
+    const JsonObjectTypeId = ['379e9cf8-4481-4b1c-cd09-04924edb97d6', 'JsonObject']
+    const JsonArrayTypeId = ['ca4b9d54-a585-4415-aa1b-e259c375c74f', 'JsonArray']
+    const informationTypeId = ['31a18ce8-66cf-4b95-79e4-673746867ac3', 'Entity']
+    const propertyTypeId = ['7e9386c9-75bc-4239-c040-d328f1c91e1b','Property']
+    const hasPartTypeId = ['4cc73b50-cae6-403d-3492-7dc4e7dbcaba','hasPart']
+    const hasMemberTypeId = ['c60f97ef-f888-41f6-ab66-b6edf08d7a00', 'hasMember']
+
+    const curModel = props.phData.metis.models.find(m => m.id === props.phFocus.focusModel.id)
+    const curMetamodel = props.phData.metis.metamodels.find(mm => mm.id === curModel.metamodelRef)
+    const curObjTypes = curMetamodel.objecttypes
+
+    let objecttypeRef = JsonObjectTypeId // default partof relship in JSON structure
+    let reltypeRef = hasPartTypeId // default partof relship in JSON structure
+
     // reader.fileName = file.name
     reader.onload = async (e) =>  { 
         const text = (e.target.result)
         const osduMod = JSON.parse(text) // importert JSON file
-        // console.log('19', osduMod,  osduMod["$id"], osduMod["x-osdu-schema-source"] );
+        if (debug) console.log('32', osduMod,  osduMod["$id"], osduMod["x-osdu-schema-source"] );
         // if (osduMod["$id"]) console.log('20',  osduMod["$id"].split('/').slice(-1)[0]  );
         
         const topName = (osduMod["$id"]) ? osduMod["$id"].split('/').slice(-1)[0] : osduMod["x-osdu-schema-source"] 
         const topModel ={[topName]: osduMod} // top object is given topName as key 
 
-                // console.log('39  :',
-                deepEntries(topModel)
-                // ) 
+        let parentId = "" //topModel.id || osduMod["$id"]
+        let oldParentKey = ""
+        let prevId = ""
+        let tmpArray = ""
 
         // deepEntries take all object-keys and concatinate them in curKey with a path showing all above levels
-        // the curKey is put in a array with curKey as first and the obect as second. 
-        function deepEntries( obj ){
+        // the curKey is put in a array "allKeys" with curKey as first and the obect as second. 
+        function deepEntries( obj ) {
             'use-strict';
-            var allkeys, curKey = '', len = 0, i = -1, entryK;
-        
+            var allkeys, curKey = '', nextKey= '',len = 0, i = -1, entryK;
+            if (debug) console.log('deepEntries', obj);
             function formatKeys( entries ){
                entryK = entries.length;
                len += entries.length;
@@ -43,113 +53,153 @@ export const ReadConvertJSONFromFile = async (props, dispatch, e) => {
                  entries[entryK][0] = curKey+JSON.stringify(entries[entryK][0])+'|'; // concatinate curKey with | as divider
                return entries;
             }
-            allkeys = formatKeys( Object.entries(obj || {}) );
-        
+            allkeys = formatKeys( Object.entries(obj || {}) )
+            allkeys = allkeys.sort((firstItem, secondItem) => firstItem.key < secondItem.key);
+            
+            if (debug) console.log( '59 allkeys : ', allkeys);
+            
             while (++i !== len)
                 if (typeof allkeys[i][1] === 'object' && allkeys[i][1] !== null){
                     curKey = allkeys[i][0]+ '';
+                    nextKey = (allkeys[i+1]) ? allkeys[i+1][0]+ '' : '';
+                    const jsonType = (Array.isArray(allkeys[i][1])) ? 'isArray' : 'isObject';
                     // curKey = allkeys[i][0] + '[';
                     Array.prototype.push.apply(
                         allkeys,
                         formatKeys( Object.entries(allkeys[i][1]) )
                     );
                     // console.log('35 :', i, entryK, len, curKey.slice(0, -1), allkeys[i][1]);
-                    const cleanPath = curKey.slice(0, -1).replace(/"/g, '') // clean key path ; remove "" from curkey to get a clean key string with the path as key
+                    const cleanPath = curKey.slice(0, -1).replace(/"/g, '') // clean key path ; remove "" from curkey to get a clean key string with the path as curKey
+                    const cleanNextPath = nextKey.slice(0, -1).replace(/"/g, '') // clean key path ; remove "" from curkey to get a clean key string with the path as curKey
                     
-                    let idPath =  cleanPath
-                    let newIdPath
-                    let newIdArray = idPath.split('|')
-                    if  (idPath.includes("|definitions")) {
+                    let osduId =  cleanPath
+                    let newosduId
+                    let newIdArray = osduId.split('|')
+                    if  (osduId.includes("|definitions")) {
                         const [, ...rest] = newIdArray
-                        newIdPath = rest.join('|')
+                        newosduId = rest.join('|')
                     } else {
-                        newIdPath = idPath
+                        newosduId = osduId
                     } // split and slice it, pick last element 
-                    // if  (idPath.includes("|definitions|")) idPath = idPath.split('|').slice(-1)[0] // split and slice it, pick last element 
-                    // console.log('60 :', newIdPath);
+                    // if  (osduId.includes("|definitions|")) osduId = osduId.split('|').slice(-1)[0] // split and slice it, pick last element 
+                    // console.log('60 :', newosduId);
                     
-                    let oKey = newIdPath
-
-                    // if parent = definitions remove whats before definitions in path
-                    // if  (cleanPath.split('|').slice(-2)[0] === 'definitions') oKey = 'definitions|'+cleanPath.split('|').slice(-1)[0] // split and slice it, pick last element 
-  
-
-                    // console.log('48 :', 
-                    //     '\n curKey : ', curKey,
-                    //     '\n allkeys : ', allkeys[i][1],
-                    //     '\n cleanPath : ', cleanPath,
-                    //     '\n idPath : ', idPath,
-                    //     '\n next last element : ', idPath.split('|').slice(-2)[0], 
-                    //     '\n oKey : ', oKey
-                    // );
+                    let oKey = newosduId
 
                     const oName = oKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
-                    // const parentKey = oKey.split('|').slice(0, -1).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
                     const parentKey = oKey.split('|').slice(0, -1).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
                     const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
                     // console.log('53', parentKey.split('|'), parentKey.split('|').slice(0, -1));
                     
                     const oVal =  allkeys[i][1] // the object
-                    // console.log('57 :', '\n cleanPath: ', cleanPath, '\n oKey: ', oKey, '\n parentKey: ', parentKey, '\n parentName: ', parentName, '\n oName : ', oName, '\n oVal: ', oVal);
+                    // console.log('57 :', '\n cleanPath: ', cleanPath, '\n oKey: ', oKey, '\n parentKey: ', parentKey, '\n parentName: ', parentName, '\n oName : ', oName, '\n oVal: ', oVal, '\n parentId: ', parentId);
+ 
+                    let cNewVal = filterObject(oVal)// remove objects as attributes
 
-                    const cNewVal = filterObject(oVal) // remove objects as attributes
-                    // console.log('93 : oKey', oKey, '\n oVal : ', oVal,'\n cNewVal : ', cNewVal);
+                    if (oName === 'required')  {
+                        const attributes  = Object.assign(...Object.entries(obj).map(([k, v]) => (k !== (!isNaN(k))))); 
+                        cNewVal = {...attributes, 'propNames': Object.values(oVal).toString()}
+                    }
+                    console.log('93 : oKey', oKey, oName, '\n oVal : ', oVal,'\n cNewVal : ', cNewVal);
 
-                    objecttypeRef = (parentName === "properties") ? propertyTypeId : informationTypeId // if parent is property use property typeRef
+                    const objTypeName = (parentName === 'properties') 
+                        ? 'Property'
+                        : (oName === 'allOf' || oName === 'anyOf' || oName === 'oneOf' || oName === 'required') 
+                            ? 'JsonArray'
+                            : 'JsonObject'
 
-                    let compositeName  = oName // temporary puttin title etc into objname for readability - later replace with a JSON - objecttype for the object
-                    // if (!isNaN(oName)) compositeName = (oVal.title) ? oName + ' ' + oVal.title :  oName + ' ' +  oVal.$ref 
-                    // if (oName === 'properties') compositeName = (oKey.split(':').slice(-2)[0] !== '0') ? oName + ' ' +  oKey.split(':').slice(-2)[0] : oName 
-                    // if (oName === 'items') compositeName =  (oVal.type) ? oName + ' ' + oVal.type : oName+ ' ' + oVal.title
-                    // if (parentName === 'x-osdu-relationship') compositeName =  (oVal.EntityType) ? oName + ' ' + oVal.EntityType : oName+ ' ' + oVal
-                    // if (parentName === 'oneOf') compositeName =  (oVal.title) ? oName + ' ' + oVal.title : oName+ ' ' + oVal.$ref
-                    //     ? oName + ' ' + oKey.split(':').slice(-2)[0] 
-                    //     : (cNewVal.EntityType) ? oName + ' ' + cNewVal.EntityType : oName
-                    //    compositeName =  (cNewVal.jsontype?.enum[0]) ? cNewVal.jsontype?.enum[0] : oName + ' ' + oKey.split('|').slice(-2)[0]
-                    //    compositeName =  (cNewVal.jsontype?.enum[0]) ? cNewVal.jsontype?.enum[0] : oName + ' ' + oKey.split('|').slice(-2)[0]
-                    reltypeRef = (parentName === 'allOf' || parentName === 'onOf')  ? hasMemberTypeId : hasPartTypeId // temporary set array to hasMember relship
-                    // console.log('110', parentName, reltypeRef[1]);
+                    objecttypeRef = curObjTypes.find(ot => ot.name === objTypeName)?.id // find objecttypeRef for the objecttypeName
+
+                    if (debug) console.log('109 : ', objTypeName, ' - ', objecttypeRef);
                     
 
+                    // objecttypeRef = (parentName === "properties") ? propertyTypeId : (oName !== "allOf") ? JsonObjectTypeId : JsonArrayTypeId // if parent is property use property typeRef
+                    // console.log('102 : ', parentName, oName, objecttypeRef);
+                    
+                    let compositeName  = oName // temporary puttin title etc into objname for readability - later replace with a JSON - objecttype for the object
+
+                    reltypeRef = (parentName === 'allOf' || parentName === 'anyOf' || parentName === 'onOf')  ? hasMemberTypeId : hasPartTypeId // temporary set array to hasMember relship
+                    // console.log('110', parentName, reltypeRef[1]);
+                    
+                    // check if the object is already in the phData
+                    // console.log('102 : ', props);
+
+                    // if ((oldParentKey !== "") && (oldParentKey.length < parentKey.length)) parentId = oId // oldId
+                    
+
+                    const existObj = curModel.objects.find( (o) => o.osduId === oKey )
+                    // console.log('106 : ', existObj, oKey, existObj?.id);
+                    
+                    const oId = (existObj) ? existObj.id : utils.createGuid()
+
+                    tmpArray = [...tmpArray, [oKey, oId] ]
+                    if (debug) console.log( '115 : ', oKey, oId, tmpArray);
+                     
+
                     const importedObject = {
-                        id: oKey,
+                        id: oId,
                         name: compositeName,
                         // typeName: type,
-                        typeRef: objecttypeRef[0],
+                        typeRef: objecttypeRef,
                         abstract: false,
                         markedAsDeleted: false,
                         modified: true,
-                        JSONKey: oName,
+                        osduId: oKey,
+                        jsonType: jsonType,
+                        jsonKey: oName,
                         ...cNewVal // want only attributes 
                     }
-                    // console.log('58 :', importedObject);
-                    dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject } );  
-                    
+                    if (debug) console.log('58 :', importedObject);
 
-                    const importedRel = {
-                        cardinality: "",
-                        cardinalityFrom: undefined,
-                        cardinalityTo: undefined,
-                        description: "",
-                        fromobjectRef: parentKey,
-                        generatedTypeId: "",
-                        id: parentKey+oKey,
-                        // id: utils.createGuid(),
-                        markedAsDeleted: false,
-                        modified: true,
-                        name: reltypeRef[1],
-                        relshipkind: "",
-                        relshipviews: undefined,
-                        title: "",
-                        toobjectRef: oKey,
-                        typeRef: reltypeRef[0],
-                    }
-                    // console.log('146 :', importedRel);
+                    dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject } );  
+
+
+                    if (debug) console.log('129 ',
+                        '\n oldParKey :', oldParentKey,  
+                        '\n parKey : ', parentKey, 
+                        '\n parName : ', parentName, 
+                        '\n parId : ', parentId, 
+                        '\n prevId : ', prevId,
+                        '\n curId : ', oId,
+                        '\n curName : ', oName);
+
+                    const parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
+                    const parentId = (parentIdArray) && parentIdArray[1]
+
+                    if (debug) console.log('165 : tmpArray ', tmpArray, 'parentId', parentId, '\n pArr : ',parentIdArray);
+                    
+                    const importedRel = (parentId !== "") 
+                        ?   {
+                                cardinality: "",
+                                cardinalityFrom: undefined,
+                                cardinalityTo: undefined,
+                                description: "",
+                                fromobjectRef: parentId,
+                                generatedTypeId: "",
+                                // id: parentKey+oKey,
+                                id: utils.createGuid(),
+                                markedAsDeleted: false,
+                                modified: true,
+                                name: reltypeRef[1],
+                                relshipkind: "",
+                                relshipviews: undefined,
+                                title: "",
+                                toobjectRef: oId,
+                                typeRef: reltypeRef[0],
+                            }  
+                        :   {}
+
+                    if (debug) console.log('154 :', importedRel);
                     dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
+  
+
+                   prevId = oId     
+                   oldParentKey = parentKey // remember for next object
                 }
             return allkeys;
         }
 
+        deepEntries(topModel)
 
         function stringifyEntries(allkeys){
             return allkeys.reduce(function(acc, x){
@@ -191,6 +241,17 @@ function process(key,value) { //called with every property and its value
 
 
 
+
+
+
+                   // console.log('48 :', 
+                    //     '\n curKey : ', curKey,
+                    //     '\n allkeys : ', allkeys[i][1],
+                    //     '\n cleanPath : ', cleanPath,
+                    //     '\n osduId : ', osduId,
+                    //     '\n next last element : ', osduId.split('|').slice(-2)[0], 
+                    //     '\n oKey : ', oKey
+                    // );
 
 
 
@@ -272,7 +333,7 @@ function process(key,value) { //called with every property and its value
 
 //         const initNewObj = (objectName, ancestryPath, typeRef) => { // set up new object with some initial attributes
 //             const ancestryPathStr = ancestryPath.toString()
-//             // const osduIdPath = (ancestryPath) 
+//             // const osduosduId = (ancestryPath) 
 //             //     ? (parentName) ? ancestryPath+'::'+parentName+'::'+objectName : ancestryPath+'::'+objectName 
 //             //     : objectName
   
@@ -280,7 +341,7 @@ function process(key,value) { //called with every property and its value
 
 //             return  {
 //                 // id: utils.createGuid(),
-//                 // id: (parentName === 'properties') ? objectName : osduIdPath, // in Osdu objectname is unique
+//                 // id: (parentName === 'properties') ? objectName : osduosduId, // in Osdu objectname is unique
 //                 id: ancestryPathStr+'::'+objectName, // in Osdu objectname is unique
 //                 name: objectName,
 //                 typeRef: typeRef,

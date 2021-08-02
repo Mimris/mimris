@@ -1051,7 +1051,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
             return true;
             }),
-          makeButton("Generate OSDU ids",
+          makeButton("Generate osduIds",
             function (e: any, obj: any) { 
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
@@ -1066,8 +1066,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "myDiagram":  myDiagram,
                   "reltype":    reltype,
                   "objtype":    null,
-                  "propname":   "OsduId",
-                  "preaction":  ui_mtd.generateOSDUid,
+                  "propname":   "osduId",
+                  "preaction":  ui_mtd.generateosduId,
                   "postaction": null
                 }
                 const args = {
@@ -1084,7 +1084,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const object = node.object;
                 let type = object.type;
                 type = myMetis.findObjectType(type.id);
-                const propname = "OsduId";
+                const propname = "osduId";
                 if (debug) console.log('1070 type', type);
                 if (type.findPropertyByName2(propname, true)) {
                   if (debug) console.log('1074 type, propname', type, propname);

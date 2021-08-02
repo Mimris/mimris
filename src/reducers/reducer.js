@@ -1674,7 +1674,7 @@ function reducer(state = InitialStateStr, action) {
         indexddot = curmmddot?.methods?.findIndex(ot => ot.id === curddot?.id)
         if (indexddot < 0) {indexddot = lengthotdd} 
         if (debug) console.log('1634 reducer', lengthotdd, indexddot);   
-        let UPDATE_METHOD_PROPERTIES = {
+        let retval_UPDATE_METHOD_PROPERTIES = {
           ...state,
           phData: {
             ...state.phData,
@@ -1704,8 +1704,8 @@ function reducer(state = InitialStateStr, action) {
             },
           },
         }
-        if (debug) console.log('1670 retval', retval_UPDATE_DATATYPE_PROPERTIES);
-        return retval_UPDATE_DATATYPE_PROPERTIES;
+        if (debug) console.log('1670 retval', retval_UPDATE_METHOD_PROPERTIES);
+        return retval_UPDATE_METHOD_PROPERTIES;
   
   
     // case UPDATE_METHOD_PROPERTIES:

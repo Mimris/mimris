@@ -736,19 +736,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (!relview)
         break;
       const reltypeview = relview.typeview;
-      if (debug) console.log('731 relview, reltypeview', selRelview, relview, reltypeview);
+      if (!debug) console.log('739 relview, reltypeview', selRelview, relview, reltypeview);
       const link = myDiagram.findLinkForKey(selRelview.key);
       const data = link.data;
       for (let prop in  reltypeview?.data) {
         relview[prop] = selRelview[prop];
       }
-      const gqlRelview = new gql.gqlRelshipView(relview);
-      if (debug) console.log('738 data, gqlRelview', link, data, gqlRelview);
-      modifiedRelviews.push(gqlRelview);
-      modifiedRelviews.map(mn => {
-        let data = mn;
-        props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-      })
+      if (!debug) console.log('745 relview', relview);
       for (let prop in reltypeview?.data) {
         if (prop === 'strokecolor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
@@ -765,6 +759,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (prop === 'toArrowColor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
       }
+      const gqlRelview = new gql.gqlRelshipView(relview);
+      if (!debug) console.log('762 data, gqlRelview', link, data, gqlRelview);
+      modifiedRelviews.push(gqlRelview);
+      modifiedRelviews.map(mn => {
+        let data = mn;
+        props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+      })
       break;
     }
     case "editTypeview": {   

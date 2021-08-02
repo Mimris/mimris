@@ -179,6 +179,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         const objtype: akm.cxObjectType = objecttypes[i];  
         if (debug) console.log('179 objtype', objtype); 
         if (objtype && !objtype.markedAsDeleted && !objtype.abstract) {
+          if (objtype.nameId === 'Entity0') 
+            continue;
           const id = utils.createGuid();
           const name = objtype.name;
           const obj = new akm.cxObject(id, name, objtype, "");

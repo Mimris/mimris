@@ -360,12 +360,14 @@ function askForModel(context: any) {
 
 function deleteModel1(context: any) {
     const model = context.args.model;
-    if (!confirm("Do you really want to delete '" + model.name + "'?"))
-        return;
-    const myMetis = context.myMetis;
-    const myDiagram = context.myDiagram;
-    if (debug) console.log('367 model, myMetis', model, myMetis);
-    deleteModel2(model, myMetis, myDiagram);
+    if (model) {
+        if (!confirm("Do you really want to delete '" + model.name + "'?"))
+            return;
+        const myMetis = context.myMetis;
+        const myDiagram = context.myDiagram;
+        if (debug) console.log('367 model, myMetis', model, myMetis);
+        deleteModel2(model, myMetis, myDiagram);
+    }
 }
 
 function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) {

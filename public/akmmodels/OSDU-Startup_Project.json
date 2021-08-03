@@ -2373,15 +2373,15 @@
               "id": "40bd8511-8daf-452c-2e01-3bb3f4f0277c",
               "name": "hasMember",
               "description": "",
-              "typeviewRef": "120de1c4-ad22-4cdd-546f-258a8d92d597",
+              "typeviewRef": "",
               "properties": [],
-              "relshipkind": "Association",
+              "relshipkind": "Aggregation",
               "viewkind": "",
               "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
               "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "cardinality": "",
-              "cardinalityFrom": "",
-              "cardinalityTo": "",
+              "cardinality": "n-n",
+              "cardinalityFrom": "n",
+              "cardinalityTo": "n",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
@@ -4662,8 +4662,8 @@
       "name": "View"
     },
     "focusRelshiptype": {
-      "id": "b1706580-fc46-41b2-2339-7fea9eba9634",
-      "name": "isOf"
+      "id": "40bd8511-8daf-452c-2e01-3bb3f4f0277c",
+      "name": "hasMember"
     },
     "focusObjecttypeview": {
       "id": null,

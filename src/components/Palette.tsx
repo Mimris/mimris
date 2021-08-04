@@ -79,6 +79,8 @@ const Palette = (props) => {
     if (debug) console.log('48 Palette', gojstypes);
     if (debug) console.log('49 Palette', gojstypes.nodeDataArray);
     if (debug) console.log('50 Palette', gojstypes.linkDataArray);
+
+    const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
     
     // const gojsapp = (gojstypes?.nodeDataArray && gojstypes?.nodeDataArray[0]?.typename) &&
     const gojsapp = (gojstypes?.nodeDataArray) && 
@@ -108,17 +110,18 @@ const Palette = (props) => {
             {/* <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0"> */}
                 {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
-                  < GoJSPaletteApp
-                    nodeDataArray={gojstypes.nodeDataArray}
-                    linkDataArray={[]}
-                    // linkDataArray={gojstypes.linkDataArray}
-                    metis={props.metis}
-                    myMetis={props.myMetis}
-                    myGoModel={props.myGoModel}
-                    phFocus={props.phFocus}
-                    dispatch={props.dispatch}
-                  />
-                </div>
+                <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mmnamediv}</div>
+              < GoJSPaletteApp
+                nodeDataArray={gojstypes.nodeDataArray}
+                linkDataArray={[]}
+                // linkDataArray={gojstypes.linkDataArray}
+                metis={props.metis}
+                myMetis={props.myMetis}
+                myGoModel={props.myGoModel}
+                phFocus={props.phFocus}
+                dispatch={props.dispatch}
+            />
+          </div>
               {/* </Col>
             </Row> */}
           {/* </div> */}
@@ -147,7 +150,7 @@ const Palette = (props) => {
       </TabContent>
     </>
     
-    const mmnamediv = (mmodel) ? <span className="w-100">{mmodel?.name}</span> : <span>No metamodel</span> 
+
 
    const palette =
       <> 
@@ -158,9 +161,13 @@ const Palette = (props) => {
         <div>
         {/* <div style={{ minWidth: "140px" }}> */}
           {visiblePalette 
-            ?  (refresh) 
-                  ? <><div className="mmname bg-light w-100 text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px", maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</> 
-                  : <><div className="mmname bg-light w-100 text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px",maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</>
+            ? <><div className="btn-horizontal bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "166px", maxWidth: "160px"}}></div>{ gojsapp }</> 
+            // ?  
+            // (refresh) 
+            //       : <>{ gojsapp }</>
+                  
+                  // <><div className="mmname bg-light mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mmnamediv}</div>{ gojsapp }</> 
+                  // : <><div className="mmname bg-light w-100 text-secondary mx-4 px-4 mb-1" style={{fontSize: "8px", minWidth: "120px",maxWidth: "120px"}}>{mmnamediv}</div>{ gojsapp }</>
               // ? <div> {gojsapp} <div style={{ minWidth: "140px" }}></div></div>
             : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e </span> </div>
           }

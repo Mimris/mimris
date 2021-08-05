@@ -4501,14 +4501,19 @@ export class cxProperty extends cxMetaObject {
 }
 
 export class cxMethod extends cxMetaObject {
+    methodType:     string;
     expression:     string;
     script:         string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.category   = constants.gojs.C_METHOD;
+        this.methodType = "";
         this.script   = "";
         this.expression = "";
     }
+    /* Method types:
+        
+    */
     evaluateExpression(expr: string): any {
         const pi = 3.14159265;
         if (expr.length>0) {

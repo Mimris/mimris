@@ -667,9 +667,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 object = myMetis.findObject(object.id);
-                let prop = object.type.findPropertyByName('Area');
-                prop = myMetis.findProperty(prop.id); 
-                let result = ui_mtd.expandPropScript(object, prop, myMetis);
+                const context = {
+                  "myMetis":    myMetis,
+                  "reltype":    "hasPart",
+                  "reldir":     "out",
+                  "objtype":    null,
+                  "propname":   "Cost"
+                }
+                let result = ui_mtd.calculatePropertyValue(object, context);
                 alert(result);
               }
             },

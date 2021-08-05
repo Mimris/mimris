@@ -213,7 +213,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 val = ui_mtd.expandPropScript(inst, prop, myMetis);
                 if (debug) console.log('209 inst, prop, val', inst, prop, val);
                 if (viewFormat)
-                  val = printf(viewFormat, val);
+
+                  val = printf(viewFormat, Number(val));
               }
             }
             if (debug) console.log('199 prop, dtype, fieldType: ', prop, fieldType);

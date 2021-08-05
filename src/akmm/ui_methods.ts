@@ -240,12 +240,56 @@ export function generateosduId(object: akm.cxObject, context: any) {
     });
 }
 
+function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
+    const objects: akm.cxObject[] = [];
+    const myMetis   = context.myMetis;
+    const reltype   = context.reltype;
+    const reldir    = context.reldir;
+    const objtype   = context.objtype;    
+    const useinp    = (reldir === 'in');
+    const rels  = useinp ? object.inputrels : object.outputrels;
+    for (let i=0; i<rels?.length; i++) {
+        const rel = rels[i];
+        let child;
+        if (rel?.type.name !== reltype)
+            continue;
+        if (useinp) 
+            child = rel.fromObject as akm.cxObject;
+        else
+            child = rel.toObject as akm.cxObject;            
+        if (child)
+            objects.push(child);    
+    }
+    return objects;
+}
+
 export function calculatePropertyValue(object: akm.cxObject, context: any) {
-    const myDiagram = context.myDiagram;
-    const myModel   = context.myModel;
+    const myMetis   = context.myMetis;
+    let objtype     = context.objtype;    
     const propname  = context.propname;
-    const current   = object;
-    const value     = object[propname];
+    let propval     = 0;
+    let children    = getChildren(object, context);
+    if (children.length > 0) {
+        for (let i=0; i<children?.length; i++) {
+            const child = children[i];    
+            let prop;
+            if (objtype) {
+                prop = objtype.findPropertyByName(propname);
+            } else {
+                objtype = child.type;
+                prop = objtype.findPropertyByName(propname);
+            }
+            const val = expandPropScript(child, prop, myMetis);
+            if (utils.isNumeric(val))
+                propval += Number(val); 
+        }
+    } else {
+        const prop = object.type.findPropertyByName(propname);
+        let val = expandPropScript(object, prop, myMetis);
+        if (utils.isNumeric(val))
+            propval = Number(val);
+    }
+    return propval;
 }
 
 export function expandPropScript(object: akm.cxObject, prop: akm.cxProperty, myMetis: akm.cxMetis): string {
@@ -266,7 +310,9 @@ export function expandPropScript(object: akm.cxObject, prop: akm.cxProperty, myM
             }
             retval = "";
         }
-    }  
+    } else {
+        retval = object[prop.name];
+    }
     return retval;
 }
 

@@ -185,9 +185,9 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         let proptype = proptypes[i];
         let prop = objtype.findPropertyByName(proptype.name);
         if (debug) console.log('187 proptype, prop', proptype, prop);
-        if (!prop) {
-            prop = myTargetMetamodel.findPropertyByName(proptype.name);
-            if (debug) console.log('190 prop', prop);
+        // if (!prop) {
+        //     prop = myTargetMetamodel.findPropertyByName(proptype.name);
+        //     if (debug) console.log('190 prop', prop);
             if (!prop) {
                 // New property - create it
                 prop = new akm.cxProperty(utils.createGuid(), proptype.name, proptype.description);
@@ -200,7 +200,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             } else {
                 objtype.addProperty(prop);
             }
-        }
+        // }
         if (debug) console.log('204 objtype, prop, targetMetamodel', objtype, prop, myTargetMetamodel);
         if (prop) {
             const p = myMetis.findProperty(prop.id);
@@ -526,7 +526,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 }
             }  
             // Find allowed values if any
-            if (debug) console.log('546 rels', rels);
+            if (!debug) console.log('546 rels', rels);
             for (let i=0; i < rels.length; i++) {
                 let rel = rels[i];
                 if (rel.name === constants.types.AKM_HAS_ALLOWED_VALUE) {
@@ -613,6 +613,7 @@ export function generateMethod(obj: akm.cxObject, context: any) {
         if (debug) console.log('649 method:', method);
     }
     if (method) {
+        method.methodType = obj["methodType"];
         method.expression = obj["expression"];
         method.script = obj["script"];
         myTargetMetamodel.addMethod(method);

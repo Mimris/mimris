@@ -642,6 +642,7 @@ export class gqlMethod {
     id:                 string;
     name:               string;
     description:        string;
+    methodType:         string;
     expression:         string;
     script:             string;
     markedAsDeleted:    boolean;
@@ -649,6 +650,7 @@ export class gqlMethod {
     constructor(mtd: akm.cxMethod) {
         this.id              = mtd.id;
         this.name            = mtd.name;
+        this.methodType      = mtd.methodType;
         this.expression      = mtd.expression;
         this.script          = mtd.script;
         this.description     = (mtd.description) ? mtd.description : "";

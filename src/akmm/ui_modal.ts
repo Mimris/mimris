@@ -220,7 +220,7 @@ export function handleSelectDropdownChange(selected, context) {
     break;
 
     case "New Model": {
-      console.log('222', selected);
+      if (debug) console.log('222', selected);
       const refMetamodelName = (selectedOption) && selectedOption;
       const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
       

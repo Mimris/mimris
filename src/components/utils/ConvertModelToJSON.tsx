@@ -12,11 +12,12 @@ export const WriteConvertModelToJSONFile = async (model, name, type) => {
     const convertedModel = ConvertObjectsToJsonStructure(objectsToConvert);
     // console.log('14', 'ConvertedObjects: ', convertedModel);
     // const jsonObjWithArray = convertedModel.map(obj => (obj.allOf) ? Object.keys(obj).map(k => obj[k]) : obj)
-    // console.log('18', 'jsonObjWithArray: ', jsonObjWithArray);
+    console.log('18', model.objects[0]);
     
     const today = new Date().toISOString().slice(0, 19)
     // const fileName = type+"_"+name+'_'+today;
-    const fileName = today+"_"+name+'_Osdu-JSON-Import';
+    // const fileName = today+"_"+name+'_Osdu-JSON-Import';
+    const fileName = name+'_Osdu-JSON-Import';
 
     const json = convertedModel //JSON.stringify(convertedModel);
     // const json = JSON.safeStringify(convertedModel);
@@ -37,7 +38,7 @@ export const WriteConvertModelToJSONFile = async (model, name, type) => {
 export const ConvertObjectsToJsonStructure = (objects) => {
 
     // const objectlist = objects.map(o => [o.osduId, o])
-    // console.log('36', objects[0]);
+    console.log('36', objects[0] );
     objects.sort((a,b) => (a.osduId > b.osduId) ? 1 : ((b.osduId > a.osduId) ? -1 : 0))
 
     let objAll = '{'
@@ -72,6 +73,7 @@ export const ConvertObjectsToJsonStructure = (objects) => {
             } else {
                 filteredObj = JSON.stringify(filterObject(o)) // keep only attributes (remove objects)
             }
+            // console.log('55', o, filteredObj);
             const removedLastChar = (filteredObj !== 'false') ? filteredObj.slice(0, -1) : '' // remove the last }
             const removedFirstAndLastChar = (filteredObj !== 'false') ? removedLastChar.substring(1) : '' // remove first {
 
@@ -142,9 +144,12 @@ export const ConvertObjectsToJsonStructure = (objects) => {
                     const i = (curLength - prevLength) + (curLength - nextLength)
                     restChar = makeRestChar(i)+','
                     if (debug) console.log('133', prevLength, curLength, nextLength, i, restChar)
+                } else if (curLength > prevLength && curLength < nextLength) {
+                    restChar = ','
+                    if (!debug) console.log('137', prevLength, curLength, nextLength, restChar, o)
                 } else {
                     restChar = ''
-                    if (debug) console.log('137', prevLength, curLength, nextLength, restChar)
+                    if (!debug) console.log('139', prevLength, curLength, nextLength, restChar)
                 }
             } else  if (curLength === prevLength) {
                 if (curLength < nextLength) {
@@ -189,7 +194,7 @@ export const ConvertObjectsToJsonStructure = (objects) => {
         // console.log('99 objects',  objects)
 
         // remove uneccessary , in beginning objects and arrays
-        const JSONObject = objAll.replace(/,}/g, '}').replace(/,]/g, ']')//.replace(/\",}/g, '"}').replace(/,}/g, '}}').replace(/{,/g, '{')
+        const JSONObject = objAll.replace(/,}/g, '}').replace(/,]/g, ']').replace(/{,/g, '{').replace(/\[,/g, '[') //.replace(/\",}/g, '"}').replace(/,}/g, '}}').replace(/{,/g, '{')
         // console.log('167 ', JSONObject)  
        
         return JSONObject
@@ -227,7 +232,7 @@ function filterObject(obj) {
         if (i === 'osduId') continue;
 
         const tmpkey = i
-        if (i === 'jsonType') tmpkey = 'type' // type is a akmm attribute probably not the same as osdu attribute
+        if (i === 'osduType') tmpkey = 'type' // type is a akmm attribute probably not the same as osdu attribute
 
         newobj = {
                     ...newobj,

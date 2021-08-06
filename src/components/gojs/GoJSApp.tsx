@@ -112,10 +112,11 @@ class GoJSApp extends React.Component<{}, AppState> {
     let typename = modalContext.selected?.value;
     if (!typename) typename = modalContext.typename;
     if (debug) console.log('113 typename: ', typename);
-    const myDiagram = modalContext.context.myDiagram;
+    const myDiagram = modalContext.context?.myDiagram;
     const data = modalContext.data;
     if (e === 'x') {
-      myDiagram.model.removeLinkData(data);
+      if (myDiagram)
+        myDiagram.model.removeLinkData(data);
       this.setState({ showModal: false, selectedData: null, modalContext: null });
       return;
     }

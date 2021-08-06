@@ -267,7 +267,7 @@ export function calculatePropertyValue(object: akm.cxObject, context: any) {
     const myMetis   = context.myMetis;
     let objtype     = context.objtype;    
     const propname  = context.propname;
-    let propval     = 0;
+    let propval: number|string = 0;
     let children    = getChildren(object, context);
     if (children.length > 0) {
         for (let i=0; i<children?.length; i++) {
@@ -288,6 +288,8 @@ export function calculatePropertyValue(object: akm.cxObject, context: any) {
         let val = expandPropScript(object, prop, myMetis);
         if (utils.isNumeric(val))
             propval = Number(val);
+        else
+            propval = val;
     }
     return propval;
 }
@@ -323,8 +325,8 @@ function substitutePropnamesInExpression(expression: string, type: akm.cxObjectT
         const prop = props[i];
         if (expression.indexOf(prop.name) == -1)
             continue;
-        const propname = 'object["' + prop.name + '"]';
         const len = prop.name.length;
+        const propname = 'object["' + prop.name + '"]';
         if (debug) console.log('274 propname', propname);
         let pos = [];
         let p = 0;
@@ -341,7 +343,8 @@ function substitutePropnamesInExpression(expression: string, type: akm.cxObjectT
             else
                 p += px+1;
             diff += px+1;
-            pos.push(p);
+            // if (p>0)
+                pos.push(p);
             indx = p+1;
         }
         if (debug) console.log('284 pos', pos);

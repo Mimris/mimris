@@ -500,7 +500,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const properties = type?.properties;
       for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];
-        const dtypeRef = prop.datatypeRef;
+        const dtypeRef = prop?.datatypeRef;
         const dtype = myMetis.findDatatype(dtypeRef);
         if (dtype) {
           const pattern = dtype.inputPattern;

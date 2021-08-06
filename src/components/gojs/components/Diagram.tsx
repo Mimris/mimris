@@ -679,7 +679,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              return false;               
+              return true;               
             }),
           makeButton("Cut",
             function (e: any, obj: any) { 

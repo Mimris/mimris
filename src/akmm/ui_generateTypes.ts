@@ -175,11 +175,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     if (!objtype)
         return null;
-    if (debug) console.log('178 objtype, myMetis', objtype, myMetis);
+    if (!debug) console.log('178 objtype, myMetis', objtype, myMetis);
     // Handle properties
     const proptypes = new Array();
     getAllPropertytypes(object, proptypes, myModel);
-    if (debug) console.log('182 proptypes, myMetis', proptypes, myMetis);
+    if (!debug) console.log('182 proptypes, myMetis', proptypes, myMetis);
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -188,18 +188,18 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         // if (!prop) {
         //     prop = myTargetMetamodel.findPropertyByName(proptype.name);
         //     if (debug) console.log('190 prop', prop);
-            if (!prop) {
-                // New property - create it
-                prop = new akm.cxProperty(utils.createGuid(), proptype.name, proptype.description);
-                let datatype = myMetis.findDatatypeByName("string");
-                prop.setDatatype(datatype);
-                objtype.addProperty(prop);
-                myTargetMetamodel.addProperty(prop);
-                myMetis.addProperty(prop);
-                if (debug) console.log('199 prop', prop);
-            } else {
-                objtype.addProperty(prop);
-            }
+        if (!prop) {
+            // New property - create it
+            prop = new akm.cxProperty(utils.createGuid(), proptype.name, proptype.description);
+            let datatype = myMetis.findDatatypeByName("string");
+            prop.setDatatype(datatype);
+            objtype.addProperty(prop);
+            myTargetMetamodel.addProperty(prop);
+            myMetis.addProperty(prop);
+            if (debug) console.log('199 prop', prop);
+        } else {
+            objtype.addProperty(prop);
+        }
         // }
         if (debug) console.log('204 objtype, prop, targetMetamodel', objtype, prop, myTargetMetamodel);
         if (prop) {

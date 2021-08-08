@@ -175,11 +175,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     if (!objtype)
         return null;
-    if (!debug) console.log('178 objtype, myMetis', objtype, myMetis);
+    if (debug) console.log('178 objtype, myMetis', objtype, myMetis);
     // Handle properties
     const proptypes = new Array();
     getAllPropertytypes(object, proptypes, myModel);
-    if (!debug) console.log('182 proptypes, myMetis', proptypes, myMetis);
+    if (debug) console.log('182 proptypes, myMetis', proptypes, myMetis);
     for (let i=0; i < proptypes.length; i++) {
         // Check if property already exists
         let proptype = proptypes[i];
@@ -526,7 +526,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 }
             }  
             // Find allowed values if any
-            if (!debug) console.log('546 rels', rels);
+            if (debug) console.log('546 rels', rels);
             for (let i=0; i < rels.length; i++) {
                 let rel = rels[i];
                 if (rel.name === constants.types.AKM_HAS_ALLOWED_VALUE) {

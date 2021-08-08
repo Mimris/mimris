@@ -45,9 +45,7 @@ export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
 }
 
 export function deleteMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
-    const modifiedMetamodels = new Array();
     // Select metamodel among all metamodels (except the current)
-
     const args = {
         "metamodel":          "", 
     }

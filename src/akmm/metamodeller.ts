@@ -461,8 +461,11 @@ export class cxMetis {
         let objecttypes: any[] = item.objecttypes;
         if (objecttypes && objecttypes.length) {
             objecttypes.forEach(objtype => {
-                if (objtype)
+                if (objtype) {
                     this.importObjectType(objtype, metamodel);
+                    const otype = this.findObjectType(objtype.id);
+                    otype.removeDuplicateProperties();
+                }
             });
         }
         if (debug) console.log('351 this', this);
@@ -498,6 +501,7 @@ export class cxMetis {
                             rtype.toObjtype = reltype.toObjtype;
                             rtype.toobjtypeRef = reltype.toobjtypeRef;
                             rtype.relshipkind = reltype.relshipkind;
+                            rtype.removeDuplicateProperties();
                             if (debug) console.log('379 rtype', rtype);
                         }
                     })
@@ -3827,6 +3831,7 @@ export class cxType extends cxMetaObject {
                     }
                 }
             }
+            this.removeDuplicateProperties();
         }
         if (debug) console.log('3505 properties', this.properties);
         return this.properties;
@@ -3874,6 +3879,25 @@ export class cxType extends cxMetaObject {
     }
     getDefaultValueset(): any {
         return this.defaultValueset;
+    }
+    removeDuplicateProperties() {
+        const props = [];
+        const props1 = this.properties;
+        const props2 = this.properties;
+        for (let i=0; i<props1?.length; i++) {
+            const p1 = props1[i];
+            for (let j=0; j<props2.length; j++) {
+                const p2 = props2[j];
+                if (p1.name === p2.name) {
+                    if (p1.id !== p2.id)
+                        break;
+                    props.push(p1);
+                    break;
+                }
+            }
+        }
+        if (debug) console.log('3893 this.properties, props', this.properties, props);
+        this.properties = props;
     }
 }
 

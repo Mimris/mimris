@@ -86,8 +86,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     // if (!type) type = selObj.objecttype;
     if (typeof(type) !== 'object')
       return;
+    if (debug) console.log('90 type', type);
     const properties = type?.getProperties(true);
-    if (debug) console.log('88 props, props2', properties, properties2);
+    if (debug) console.log('92 props', properties);
     for (let i=0; i<properties?.length; i++) {
       const prop = properties[i];
       if (!prop) 

@@ -1000,7 +1000,6 @@ export class cxMetis {
     }
     addFieldType(typ: cxFieldType) {
         if (typ.category === constants.gojs.C_FIELDTYPE) {
-            //dtype.setMetis(this);
             if (this.fieldTypes == null)
                 this.fieldTypes = new Array();
             if (!this.findFieldType(typ.id))
@@ -5783,23 +5782,11 @@ export class cxInstance extends cxMetaObject {
 
 export class cxObject extends cxInstance {
     objectviews: cxObjectView[] | null;
-    viewFormat: string;
-    fieldType: string;
-    inputPattern: string;
-    inputExample: string;
-    allowedValues: string[];
-    defaultValue: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_OBJECTS;    // Firestore collection
         this.category = constants.gojs.C_OBJECT;
         this.objectviews = null;
-        this.viewFormat = "";
-        this.fieldType = "";
-        this.inputPattern = "";
-        this.inputExample = "";
-        this.allowedValues = [];
-        this.defaultValue = "";
 
         // Handle properties
         const props = this.type?.properties;
@@ -5848,36 +5835,6 @@ export class cxObject extends cxInstance {
     }
     getObjectType(): cxObjectType | null {
         return this.type;
-    }
-    setViewFormat(fmt: string) {
-        this.viewFormat = fmt;
-    }
-    getViewFormat(): string {
-        return this.viewFormat;
-    }
-    setFieldType(type: string) {
-        this.fieldType = type;
-    }
-    getFieldType(): string {
-        return this.fieldType;
-    }
-    setInputPattern(pattern: string) {
-        this.inputPattern = pattern;
-    }
-    getInputPattern(): string {
-        return this.inputPattern;
-    }
-    setDefaultValue(val: string) {
-        this.defaultValue = val;
-    }
-    getDefaultValue(): string {
-        return this.defaultValue;
-    }
-    setAllowedValues(values: string[]) {
-        this.allowedValues = values;
-    }
-    getAllowedValues(): string[] {
-        return this.allowedValues;
     }
 }
 

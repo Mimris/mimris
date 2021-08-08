@@ -825,13 +825,13 @@ export class gqlObject {
     viewkind:        string;
     typeRef:         string;
     typeName:        string;
-    viewFormat:      string;
-    inputPattern:    string;
-    inputExample:    string;
-    fieldType:       string;
+    // viewFormat:      string;
+    // inputPattern:    string;
+    // inputExample:    string;
+    // fieldType:       string;
     propertyValues:  any[];
-    allowedValues:   string[];
-    defaultValue:    string;
+    // allowedValues:   string[];
+    // defaultValue:    string;
     markedAsDeleted: boolean;
     generatedTypeId: string;
     modified:        boolean;
@@ -844,15 +844,15 @@ export class gqlObject {
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.propertyValues  = [];
-        this.viewFormat      = object.viewFormat;
-        this.inputPattern    = object.inputPattern;
-        this.inputExample    = object.inputExample;
-        this.fieldType       = object.fieldType;
+        // this.viewFormat      = object.viewFormat;
+        // this.inputPattern    = object.inputPattern;
+        // this.inputExample    = object.inputExample;
+        // this.fieldType       = object.fieldType;
         this.markedAsDeleted = object.markedAsDeleted;
         this.generatedTypeId = object.generatedTypeId;
         this.modified        = object.modified;
-        this.allowedValues   = object.allowedValues;
-        this.defaultValue    = object.defaultValue;
+        // this.allowedValues   = object.allowedValues;
+        // this.defaultValue    = object.defaultValue;
 
         // Code
         if (debug) console.log('740 this', this);

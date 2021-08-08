@@ -3888,11 +3888,13 @@ export class cxType extends cxMetaObject {
             const p1 = props1[i];
             for (let j=0; j<props2.length; j++) {
                 const p2 = props2[j];
-                if (p1.name === p2.name) {
-                    if (p1.id !== p2.id)
+                if (p1 && p2) {
+                    if (p1.name === p2.name) {
+                        if (p1.id !== p2.id)
+                            break;
+                        props.push(p1);
                         break;
-                    props.push(p1);
-                    break;
+                    }
                 }
             }
         }

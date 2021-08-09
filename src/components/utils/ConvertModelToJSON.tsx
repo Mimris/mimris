@@ -230,7 +230,7 @@ function filterObject(obj) {
         if (i === 'jsonKey') continue;
         if (i === 'jsonType') continue;
         if (i === 'osduId') continue;
-        if (obj[i] === '') continue;
+        if (obj[i] === '') continue; // if empty, we don't want it
         const tmpkey = i
         if (i === 'osduType') tmpkey = 'type' // type is a akmm attribute probably not the same as osdu attribute
 

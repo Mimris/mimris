@@ -8,7 +8,7 @@ export const WriteConvertModelToJSONFile = async (model, name, type) => {
     const objectsToConvert = model.objects  // ToDo:  this must be only objects from  current modelview
     // Filter only objects from current modelview
 
-    // console.log('12', 'objectsToConvert: ', objectsToConvert);
+    // console.log('12', 'objectsToConvert: ', objectsToConvert);˜þ
     const convertedModel = ConvertObjectsToJsonStructure(objectsToConvert);
     // console.log('14', 'ConvertedObjects: ', convertedModel);
     // const jsonObjWithArray = convertedModel.map(obj => (obj.allOf) ? Object.keys(obj).map(k => obj[k]) : obj)
@@ -230,7 +230,7 @@ function filterObject(obj) {
         if (i === 'jsonKey') continue;
         if (i === 'jsonType') continue;
         if (i === 'osduId') continue;
-
+        if (obj[i] === '') continue;
         const tmpkey = i
         if (i === 'osduType') tmpkey = 'type' // type is a akmm attribute probably not the same as osdu attribute
 

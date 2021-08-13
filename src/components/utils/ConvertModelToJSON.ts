@@ -2,8 +2,8 @@
 
 const debug = false
 
-// export const WriteConvertModelToJSONFile = async (model, name, type) => {
-export const WriteConvertModelToJSONFile = async (model, name, type) => {
+// export const WriteConvertModelToJSONFile = async (model, mname, type) => {
+export const WriteConvertModelToJSONFile = async (model, mname, type) => {
 
     const objectsToConvert = model.objects  // ToDo:  this must be only objects from  current modelview
     // Filter only objects from current modelview
@@ -15,9 +15,9 @@ export const WriteConvertModelToJSONFile = async (model, name, type) => {
     console.log('18', model.objects[0]);
     
     const today = new Date().toISOString().slice(0, 19)
-    // const fileName = type+"_"+name+'_'+today;
-    // const fileName = today+"_"+name+'_Osdu-JSON-Import';
-    const fileName = name+'_Osdu-JSON-Import';
+    // const fileName = type+"_"+mname+'_'+today;
+    // const fileName = today+"_"+mname+'_Osdu-JSON-Import';
+    const fileName = mname+'_Osdu-JSON-Import';
 
     const json = convertedModel //JSON.stringify(convertedModel);
     // const json = JSON.safeStringify(convertedModel);
@@ -73,7 +73,7 @@ export const ConvertObjectsToJsonStructure = (objects) => {
             } else {
                 filteredObj = JSON.stringify(filterObject(o)) // keep only attributes (remove objects)
             }
-            // console.log('55', o, filteredObj);
+            console.log('55', o.name, filteredObj);
             const removedLastChar = (filteredObj !== 'false') ? filteredObj.slice(0, -1) : '' // remove the last }
             const removedFirstAndLastChar = (filteredObj !== 'false') ? removedLastChar.substring(1) : '' // remove first {
 

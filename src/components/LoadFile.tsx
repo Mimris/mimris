@@ -87,7 +87,8 @@ const LoadFile = (props: any) => {
   function handleSaveJSONToFile() {
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-    WriteConvertModelToJSONFile(model, model.name, 'Json')
+    const modelview = model.modelviews?.find(mv=> mv && (mv.id === props.ph?.phFocus?.focusModelview?.id))
+    WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
     // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }

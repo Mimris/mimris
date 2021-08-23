@@ -2,34 +2,51 @@
 
 const debug = false
 
-// export const WriteConvertModelToJSONFile = async (model, name, type) => {
-export const WriteConvertModelToJSONFile = async (model, name, type) => {
+// export const WriteConvertModelToJSONFile = async (model, mname, type) => {
+export const WriteConvertModelToJSONFile = async (model, curmodelview, mname, type) => {
 
-    const objectsToConvert = model.objects  // ToDo:  this must be only objects from  current modelview
+
+    // console.log('WriteConvertModelToJSONFile', model, mname, type);
+    
+    console.log('11',  model, curmodelview);
+    // get all objects  with objectviews in current modelview 
+    const filteredObjects = model.objects.filter(obj => obj && (curmodelview?.objectviews.find(ov => obj.id === ov.objectRef))) 
+    console.log('11',  filteredObjects);
+    
+
+    const objectsToConvert = filteredObjects  // ToDo:  this must be only objects from  current modelview
     // Filter only objects from current modelview
 
-    // console.log('12', 'objectsToConvert: ', objectsToConvert);
-    const convertedModel = ConvertObjectsToJsonStructure(objectsToConvert);
+    // console.log('12', 'objectsToConvert: ', objectsToConvert);˜þ
+    const convertedModelJson = ConvertObjectsToJsonStructure(objectsToConvert);
     // console.log('14', 'ConvertedObjects: ', convertedModel);
     // const jsonObjWithArray = convertedModel.map(obj => (obj.allOf) ? Object.keys(obj).map(k => obj[k]) : obj)
-    console.log('18', model.objects[0]);
+    // console.log('18', model.objects[0]);
     
-    const today = new Date().toISOString().slice(0, 19)
-    // const fileName = type+"_"+name+'_'+today;
-    // const fileName = today+"_"+name+'_Osdu-JSON-Import';
-    const fileName = name+'_Osdu-JSON-Import';
+    // const today = new Date().toISOString().slice(0, 19)
+    // const fileName = type+"_"+mname+'_'+today;
+    // const fileName = today+"_"+mname+'_Osdu-JSON-Import';
+    // const fileName = mname+'_Osdu-JSON-Import';
 
-    const json = convertedModel //JSON.stringify(convertedModel);
-    // const json = JSON.safeStringify(convertedModel);
-    // const blob = new Blob([json], {type:'application/json'});
+    // Todo: put the key of the top object as filename and not the whole model
+    const objModel = (JSON.parse(convertedModelJson)) ? JSON.parse(convertedModelJson) : null;
+    console.log('33 ',objModel);
+    const convertedModel1 = (objModel) ? objModel : convertedModelJson;
+    console.log('37 ', convertedModel1);
+    // get the key of the top object
+    const key = Object.keys(convertedModel1)[0];
+    console.log('38',  key);
+    const convertedModel = objModel[key];
+    const fileName = key
+    
+    const json = JSON.stringify(convertedModel);
     const blob = new Blob([json], {type:'application/txt'});  // downlaod as txt file
     const href = URL.createObjectURL(blob);
-    // const href = await URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = href;
     if (debug) console.log('25', convertedModel, json, '\n blob : ', blob, href, link, link.href );
     
-    link.download = fileName + ".json";
+    link.download = fileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -73,7 +90,7 @@ export const ConvertObjectsToJsonStructure = (objects) => {
             } else {
                 filteredObj = JSON.stringify(filterObject(o)) // keep only attributes (remove objects)
             }
-            // console.log('55', o, filteredObj);
+            console.log('55', o.name, filteredObj);
             const removedLastChar = (filteredObj !== 'false') ? filteredObj.slice(0, -1) : '' // remove the last }
             const removedFirstAndLastChar = (filteredObj !== 'false') ? removedLastChar.substring(1) : '' // remove first {
 
@@ -199,7 +216,7 @@ export const ConvertObjectsToJsonStructure = (objects) => {
        
         return JSONObject
         
-    };
+    }; 
 
     const generatedJSON =  genJsonObj(objects);
     console.log('132 : ', generatedJSON);
@@ -230,7 +247,7 @@ function filterObject(obj) {
         if (i === 'jsonKey') continue;
         if (i === 'jsonType') continue;
         if (i === 'osduId') continue;
-
+        if (obj[i] === '') continue; // if empty, we don't want it
         const tmpkey = i
         if (i === 'osduType') tmpkey = 'type' // type is a akmm attribute probably not the same as osdu attribute
 

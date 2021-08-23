@@ -1,8 +1,4 @@
 {
     "json.maxItemsComputed": 10000,
-<<<<<<< HEAD
     "workbench.preferredLightColorTheme": "Default Dark+"
-=======
-    "workbench.colorTheme": "Default Dark+"
->>>>>>> 094717985ab3d2b6663f38da3be55c5d826dfaac
 }

@@ -1978,33 +1978,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
           }),
-
-          // makeButton("Set Target Metamodel",
-          // function (e: any, obj: any) {
-          //   const context = {
-          //     "myMetis":            myMetis,
-          //     "myMetamodel":        myMetis.currentMetamodel, 
-          //     "myModel":            myMetis.currentModel,
-          //     "myModelview":        myMetis.currentModelview,
-          //     "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-          //     "myDiagram":          e.diagram
-          //   }
-          //   const modalContext = {
-          //     what: "selectDropdown",
-          //     title: "Select Target Metamodel",
-          //     case: "Set Target Metamodel",
-          //     myDiagram: myDiagram
-          //   } 
-          //   const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-          //   if (debug) console.log('2511', mmNameIds, modalContext, context);
-          //   myDiagram.handleOpenModal(mmNameIds, modalContext);
-          // },
-          // function (o: any) { 
-          //   if (myMetis.modelType === 'Metamodelling')
-          //     return false;
-          //   return true; 
-          // }),
-
           makeButton("Generate Metamodel",
           function (e: any, obj: any) { 
             if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
@@ -2016,6 +1989,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
           }),
+          makeButton("Replace Current Metamodel",
+            function (e: any, obj: any) {
+              uid.replaceCurrentMetamodel(myMetis, myDiagram);
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("Delete Metamodel",
             function (e: any, obj: any) {
               uid.deleteMetamodel(myMetis, myDiagram);

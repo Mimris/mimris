@@ -710,6 +710,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         myMetis.currentModel.targetMetamodelRef = metamodel.id;
         modalContext.context.postOperation(context);        
       } 
+      else if (modalContext.case === 'Replace Metamodel') {
+        const selectedValue = modalContext.selected?.value;
+        const metamodel = myMetis.findMetamodelByName(selectedValue); 
+        if (debug) console.log('718 metamodel, modalContext: ', metamodel, modalContext);
+        const context = modalContext.context;
+        context.args.metamodel = metamodel;
+        modalContext.context.postOperation(context);        
+        break;
+      }
       else if (modalContext.case === 'Delete Metamodel') {
         const selectedValue = modalContext.selected?.value;
         const metamodel = myMetis.findMetamodelByName(selectedValue); 

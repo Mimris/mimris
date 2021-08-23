@@ -44,6 +44,25 @@ export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     }
 }
 
+export function replaceCurrentMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
+    // Select metamodel among all metamodels (except the current)
+    const args = {
+        "metamodel":          "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentMetamodel": myMetis.currentMetamodel,
+        "myCurrentModel":     myMetis.currentModel,
+        "myDiagram":          myDiagram,
+        "case":               "Replace Metamodel",
+        "title":              "Select Metamodel to Use",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      replaceCurrentMetamodel2,
+        "args":               args
+    }
+    askForMetamodel(context);
+}
+
 export function deleteMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     // Select metamodel among all metamodels (except the current)
     const args = {
@@ -260,6 +279,49 @@ function askForMetamodel(context: any) {
       const mmNameIds = metaModels.map(mm => mm && mm.nameId);
       if (debug) console.log('238', mmNameIds, modalContext, context);
       myDiagram.handleOpenModal(mmNameIds, modalContext);
+}
+
+function replaceCurrentMetamodel2(context: any) {
+    const metamodel = context.args.metamodel;
+    const myMetis = context.myMetis;
+    const myModel = context.myCurrentModel;
+    const myDiagram = context.myDiagram;
+    const otypeDefault = myMetis.findObjectTypeByName('Generic');
+    const rtypeDefault = myMetis.findRelationshipTypeByName('isRelatedTo');
+    if (debug) console.log('287 metamodel, myMetis', metamodel, myMetis);
+    myModel.metamodel = metamodel;
+    const objects = myModel.objects;
+    for (let i=0; i<objects.length; i++) {
+        const object = objects[i];
+        if (!object) continue;
+        const otypeName = object.type?.name;
+        const objtype = metamodel.findObjectTypeByName(otypeName);
+        if (objtype) 
+            object.type = objtype;
+        else
+            object.type = otypeDefault;
+    }
+    const relships = myModel.relships;
+    for (let i=0; i<relships.length; i++) {
+        const relship = relships[i];
+        if (!relship) continue;
+        const toObjName = relship.toObject?.type?.name;
+        const fromObjName = relship.fromObject?.type?.name;
+        const rtypeName = relship.type?.name;
+        const reltype = metamodel.findRelationshipTypeByNames(rtypeName, toObjName, fromObjName);
+        if (reltype) 
+            relship.type = reltype;
+        else
+            relship.type = rtypeDefault;
+    }
+    const modifiedModels = []
+    const gqlModel = new gql.gqlModel(myModel, true);
+    if (debug) console.log('376 gqlModel', gqlModel);
+    modifiedModels.push(gqlModel);
+    modifiedModels.map(mn => {
+        let data = mn;
+        myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+    });
 }
 
 function deleteMetamodel2(context: any) {

@@ -122,15 +122,17 @@ const Modeller = (props: any) => {
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel?.id)
     if (model) {
-      if (debug) console.log('111 model', model);
-      const modelview = model?.modelviews[0]
-      if (activeTab === 0) {
-        const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
-        dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-        function refres() {
-          setRefresh(!refresh)
+      const modelviews = model.modelviews;
+      if (modelviews) {
+        if (debug) console.log('111 model', model);
+        if (activeTab === 0) {
+          const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
+          dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+          function refres() {
+            setRefresh(!refresh)
+          }
+          setTimeout(refres, 10);
         }
-        setTimeout(refres, 10);
       }
     }
   }, [activeTab])

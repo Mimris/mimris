@@ -162,38 +162,94 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
     }
 }
 
+function executeMethod(object: akm.cxObject, context: any) {
+    if (debug) console.log("166: Calling executeMethod '" + context.action + "': on " + object.name);
+    const myDiagram = context.myDiagram;
+    const myMetis = context.myMetis;
+    if (debug) console.log('169 myMetis', myMetis);
+    const gojsModel = myMetis.gojsModel;
+    const node = gojsModel.findNodeByObjectId(object.id);
+    if (debug) console.log('172 node', node);
+    const gjsNode = myDiagram.findNodeForKey(node?.key);
+    gjsNode.isHighlighted = true;
+}
+
+function conditionIsFulfilled(object, context): boolean {
+    let retval = true;
+    const myMetamodel    = context.myMetamodel;
+    const typecondition  = context.typecondition;  
+    const valuecondition = context.valuecondition; 
+    const objtype = typecondition ? myMetamodel.findObjectTypeByName(typecondition) : null;
+    const otype = object?.type;
+    if (objtype && otype) {
+        if (otype.id !== objtype.id) 
+            retval = false;
+    }
+    if (retval && valuecondition) {
+        const expression = substitutePropnamesInExpression(valuecondition, otype);        
+        try {
+            retval = eval(expression);
+        } catch(e) {
+            if (e instanceof SyntaxError) {
+                alert(e.message);
+            }
+            retval = false;
+        }
+    }
+    return retval;
+}
+
 export function traverse(object: akm.cxObject, context: any, args: any) {
-    const myMetis       = context.myMetis;
-    const reltype       = context.reltype;
-    const reldir        = context.reldir;   // Either 'in' or 'out'
-    const objtype       = context.objtype;  // Type or supertype
-    const preaction     = context.preaction;
-    const postaction    = context.postaction;
-    // Start the traversal
+    const myMetis        = context.myMetis;
+    const myMetamodel    = context.myMetamodel;
+    const reldir         = context.reldir;   // Either 'in' or 'out'
+    const reltypename    = context.reltype;
+    let preaction        = context.preaction;
+    let postaction       = context.postaction;
+
+    let reltype;
+    try {
+        reltype = myMetamodel.findRelationshipTypeByName(reltypename);
+    } catch {
+        reltype = myMetis.findRelationshipTypeByName(reltypename);
+    }
     const useinp = (reldir === 'in');
     let rels  = useinp ? object.inputrels : object.outputrels;
     if (rels) {
         for (let i=0; i<rels.length; i++) {
             const rel = rels[i];
-            if (rel?.type.id !== reltype.id)
+            if (rel?.type.id !== reltype?.id)
                 continue;
             let toObj;
             if (useinp) 
                 toObj = rel.fromObject as akm.cxObject;
             else
                 toObj = rel.toObject as akm.cxObject;
-            if (debug) console.log('184 toObj', toObj);
+            if (debug) console.log('202 toObj', toObj);
             toObj = myMetis.findObject(toObj.id);
-            const otype = toObj?.type;
-            if (objtype) {
-                if (otype?.id !== objtype.id)
-                    continue;
+            if (conditionIsFulfilled(toObj, context)) {
+                if (preaction) {
+                    if (typeof(preaction === 'string')) {
+                        context.mode = "preaction";
+                        context.action = preaction;
+                        executeMethod(toObj, context);
+                    } else 
+                        preaction(toObj, context);
+                }
             }
-            if (preaction)
-                preaction(toObj, context);
+            
             traverse(toObj, context, args);
-            if (postaction)
-                postaction(toObj, context);
+
+            if (conditionIsFulfilled(toObj, context)) {
+                if (preaction) {
+                    if (typeof(preaction === 'string')) {
+                        context.mode = "postaction";
+                        context.action = preaction;
+                        executeMethod(toObj, context);
+                    } else 
+                        postaction(toObj, context);
+                }
+            }
         }
     }
 }
@@ -240,18 +296,32 @@ export function generateosduId(object: akm.cxObject, context: any) {
     });
 }
 
-function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
-    const objects: akm.cxObject[] = [];
-    const myMetis   = context.myMetis;
+function hasChildren(object: akm.cxObject, context: any): boolean {
+    let retval = false;
     const reltype   = context.reltype;
     const reldir    = context.reldir;
-    const objtype   = context.objtype;    
+    const useinp    = (reldir === 'in');
+    const rels  = useinp ? object.inputrels : object.outputrels;
+    for (let i=0; i<rels?.length; i++) {
+        const rel = rels[i];
+        if (rel?.type.id == reltype.id) {
+            retval = true;
+            break;
+        }
+    }
+    return retval;
+}
+
+function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
+    const objects: akm.cxObject[] = [];
+    const reltype   = context.reltype;
+    const reldir    = context.reldir;
     const useinp    = (reldir === 'in');
     const rels  = useinp ? object.inputrels : object.outputrels;
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
         let child;
-        if (rel?.type.name !== reltype)
+        if (rel?.type?.id !== reltype?.id)
             continue;
         if (useinp) 
             child = rel.fromObject as akm.cxObject;
@@ -263,44 +333,44 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
     return objects;
 }
 
-export function calculatePropertyValue(object: akm.cxObject, context: any) {
-    const myMetis   = context.myMetis;
-    let objtype     = context.objtype;    
-    const propname  = context.propname;
-    let propval: number|string = 0;
-    let children    = getChildren(object, context);
-    if (children.length > 0) {
-        for (let i=0; i<children?.length; i++) {
-            const child = children[i];    
-            let prop;
-            if (objtype) {
-                prop = objtype.findPropertyByName(propname);
-            } else {
-                objtype = child.type;
-                prop = objtype.findPropertyByName(propname);
-            }
-            const val = expandPropScript(child, prop, myMetis);
-            if (utils.isNumeric(val))
-                propval += Number(val); 
-        }
-    } else {
-        const prop = object.type.findPropertyByName(propname);
-        let val = expandPropScript(object, prop, myMetis);
-        if (utils.isNumeric(val))
-            propval = Number(val);
+export function calculateValue(object: akm.cxObject, context: any) {
+    const myMetis    = context.myMetis;
+    const prop       = context.prop;
+    let propval;
+    let val = expandPropScript(object, prop, myMetis);
+    if (utils.isNumeric(val))
+        propval = Number(val);
+    else
+        propval = val;
+    return propval;
+}
+
+export function aggregateValue(object: akm.cxObject, context: any) {
+    const myMetis    = context.myMetis;
+    const prop       = context.prop;
+    let propval = 0;
+    const children = getChildren(object, context);
+    for (let i=0; i<children?.length; i++) {
+        const child = children[i];
+        let val;
+        if (hasChildren(child, context))
+            val = aggregateValue(child, context);
         else
-            propval = val;
+            val = calculateValue(child, context);
+        propval += Number(val);
     }
     return propval;
 }
 
-export function expandPropScript(object: akm.cxObject, prop: akm.cxProperty, myMetis: akm.cxMetis): string {
+export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, myMetis: akm.cxMetis): string {
     let retval = "";
+    if (!prop)
+        return retval;
     const pi = 3.14159265
     let mtd = prop.method;
     if (!mtd) mtd = myMetis.findMethod(prop.methodRef);
     let expression = mtd?.expression;
-    if (expression) {
+    if (expression) { 
         const type = object.type;
         expression = substitutePropnamesInExpression(expression, type);
         if (debug) console.log('280 expression', expression);

@@ -401,8 +401,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!includeDeleted && !includeNoObject && !includeNoType)
           relcolor = relview.strokecolor;
         if (includeRelview) {
-          relview.setFromArrow2(rel.relshipkind);
-          relview.setToArrow2(rel.relshipkind);
+          relview.setFromArrow2(rel?.relshipkind);
+          relview.setToArrow2(rel?.relshipkind);
           if (debug) console.log('410 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
@@ -415,8 +415,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {
-            link.cardinalityFrom = rel.getCardinalityFrom(); 
-            link.cardinalityTo = rel.getCardinalityTo();
+            link.cardinalityFrom = rel?.getCardinalityFrom(); 
+            link.cardinalityTo = rel?.getCardinalityTo();
           } else {
             link.cardinalityFrom = "";
             link.cardinalityTo = "";

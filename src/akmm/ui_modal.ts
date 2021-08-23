@@ -495,12 +495,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let obj = selObj.object;
       obj = myMetis.findObject(obj?.id);
       if (debug) console.log('497 selObj', selObj, obj);
+      const properties = obj.setAndGetAllProperties(myMetis);
+      const gqlObject = new gql.gqlObject(obj);
+      if (debug) console.log('500 obj, gqlObject', obj, gqlObject);
       const type = obj?.type;
-      // Check if any of the values are NOT VALID
-      const properties = type?.properties;
       for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];
-        const dtypeRef = prop?.datatypeRef;
+        if (!prop)
+          continue;
+        const dtypeRef = prop.datatypeRef;
         const dtype = myMetis.findDatatype(dtypeRef);
         if (dtype) {
           const pattern = dtype.inputPattern;
@@ -516,15 +519,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             }
           }
         }
-        let mtd = prop.method;
-        if (!mtd && prop.methodRef) 
-          mtd = myMetis.findMethod(prop.methodRef);
-          if (mtd && mtd.expression) {
-            const expr = ui_mtd.expandPropScript(obj, prop, myMetis);
-            obj[prop.name] = expr;
-          }
+        const expr = obj.getPropertyValue(prop, myMetis);
+        obj[prop.name] = expr;
+        gqlObject[prop.name] = expr;
       }
-      if (debug) console.log('527 node', node);
+      if (debug) console.log('527 obj, gqlObject, node', obj, gqlObject, node);
       node = myDiagram.findNodeForKey(node.key)
       const data = node.data;
       if (debug) console.log('530 node', node);
@@ -542,7 +541,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const myNode = myGoModel.findNode(node.key);
       myNode.name = data.name;
       if (debug) console.log('544 myNode, myMetis', myNode, myMetis);
-      const gqlObject = new gql.gqlObject(obj);
       if (debug) console.log('546 gqlObject', gqlObject);
       modifiedObjects.push(gqlObject);
       // Do the dispatches
@@ -730,6 +728,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         modalContext.context.postOperation(context);        
         break;
       }
+      else if (modalContext.case === 'Generate Method') {
+        const myMetamodel = modalContext.context.myMetamodel;
+        const selectedValue = modalContext.selected?.value;
+        const mtype = myMetamodel.findMethodTypeByName(selectedValue); 
+        if (debug) console.log('737 methodType, modalContext: ', mtype, modalContext);
+        const context = modalContext.context;
+        context.methodType = mtype;
+        modalContext.context.postOperation(context);        
+        break;
+      }
     }
     case "editRelshipview": {
       let selRelview = selectedData;
@@ -737,13 +745,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (!relview)
         break;
       const reltypeview = relview.typeview;
-      if (!debug) console.log('740 relview, reltypeview', selRelview, relview, reltypeview);
+      if (debug) console.log('740 relview, reltypeview', selRelview, relview, reltypeview);
       const link = myDiagram.findLinkForKey(selRelview.key);
       const data = link.data;
       for (let prop in  reltypeview?.data) {
         relview[prop] = selRelview[prop];
       }
-      if (!debug) console.log('746 relview', relview);
+      if (debug) console.log('746 relview', relview);
       for (let prop in reltypeview?.data) {
         if (prop === 'strokecolor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
@@ -761,7 +769,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
       }
       const gqlRelview = new gql.gqlRelshipView(relview);
-      if (!debug) console.log('764 data, gqlRelview', link, data, gqlRelview);
+      if (debug) console.log('764 data, gqlRelview', link, data, gqlRelview);
       modifiedRelviews.push(gqlRelview);
       modifiedRelviews.map(mn => {
         let data = mn;

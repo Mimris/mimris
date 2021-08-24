@@ -171,7 +171,16 @@ function executeMethod(object: akm.cxObject, context: any) {
     const node = gojsModel.findNodeByObjectId(object.id);
     if (debug) console.log('172 node', node);
     const gjsNode = myDiagram.findNodeForKey(node?.key);
-    gjsNode.isHighlighted = true;
+    switch(context.action) {
+        case 'Highlight':
+            gjsNode.isHighlighted = true;
+            break;
+        case 'Select':
+            gjsNode.isSelected = true;
+            break;
+    }
+
+   
 }
 
 function conditionIsFulfilled(object, context): boolean {

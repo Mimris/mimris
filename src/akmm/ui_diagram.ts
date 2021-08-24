@@ -296,10 +296,20 @@ function replaceCurrentMetamodel2(context: any) {
         if (!object) continue;
         const otypeName = object.type?.name;
         const objtype = metamodel.findObjectTypeByName(otypeName);
-        if (objtype) 
+        if (objtype) {
             object.type = objtype;
-        else
+            object.typeRef = objtype.id;
+        } else {
             object.type = otypeDefault;
+            object.typeRef = otypeDefault.id;
+        }
+        let typeview = objtype.typeview;
+        const objviews = object.objectviews;
+        for (let j=0; j<objviews?.length; j++) {
+            const oview = objviews[j];
+            oview.typeview = typeview;
+            oview.typeviewRef = typeview.id;
+        }    
     }
     const relships = myModel.relships;
     for (let i=0; i<relships.length; i++) {
@@ -308,11 +318,21 @@ function replaceCurrentMetamodel2(context: any) {
         const toObjName = relship.toObject?.type?.name;
         const fromObjName = relship.fromObject?.type?.name;
         const rtypeName = relship.type?.name;
-        const reltype = metamodel.findRelationshipTypeByNames(rtypeName, toObjName, fromObjName);
-        if (reltype) 
+        let reltype = metamodel.findRelationshipTypeByNames(rtypeName, toObjName, fromObjName);
+        if (reltype) {
             relship.type = reltype;
-        else
-            relship.type = rtypeDefault;
+            relship.typeRef = reltype.id;
+        } else {
+            reltype = rtypeDefault;
+            relship.type = reltype;
+            relship.typeRef = reltype.id;
+        }
+        let typeview = reltype.typeview;
+        const relviews = relship.relshipviews;
+        for (let j=0; j<relviews?.length; j++) {
+            const rview = relviews[j];
+            rview.typeview = typeview;
+        }    
     }
     const modifiedModels = []
     const gqlModel = new gql.gqlModel(myModel, true);

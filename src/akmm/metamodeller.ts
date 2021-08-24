@@ -4397,15 +4397,17 @@ export class cxObjectType extends cxType {
                 const rtype = rtypes[i];
                 if (rtype?.relshipkind === constants.relkinds.GEN) {
                     const stype = rtype.toObjtype;
-                    if (stype) supertypes.push(stype);
-                    if (debug) console.log('3805 this, supertype', this, supertypes);
-                    const stypes = stype.findSupertypes();
-                    if (stypes) {
-                        for (let j=0; j<stypes.length; j++) {
-                            const stype = stypes[j];
-                            supertypes.push(stype);
+                    if (stype) {
+                        supertypes.push(stype);
+                        if (debug) console.log('3805 this, supertype', this, supertypes);
+                        const stypes = stype.findSupertypes();
+                        if (stypes) {
+                            for (let j=0; j<stypes.length; j++) {
+                                const stype = stypes[j];
+                                supertypes.push(stype);
+                            }
+                            if (debug) console.log('3809 this, supertype', this, supertypes);
                         }
-                        if (debug) console.log('3809 this, supertype', this, supertypes);
                     }
                 }
             }

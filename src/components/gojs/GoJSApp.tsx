@@ -184,7 +184,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   private isSystemType(type) {
     for (let i=0; i<systemtypes.length; i++) {
       const systype = systemtypes[i];
-      if (type.name === systype.name)
+      if (type.name === systype)
         return true;
     }
     return false;

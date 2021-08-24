@@ -482,21 +482,24 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     const toObj = rel.getToObject();
                     if (toObj.type.name === constants.types.AKM_INPUTPATTERN) {
                         let valueObj = toObj;
-                        datatype.setInputPattern(valueObj.inputPattern);
+                        if (valueObj.inputPattern)
+                            datatype.setInputPattern(valueObj.inputPattern);
                     }
                 }
                 if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
                     const toObj = rel.getToObject();
                     if (toObj.type.name === constants.types.AKM_VIEWFORMAT) {
                         let valueObj = toObj;
-                        datatype.setViewFormat(valueObj.viewFormat);
+                        if (valueObj.viewFormat)
+                            datatype.setViewFormat(valueObj.viewFormat);
                     }
                 }
                 if (rel.getName() === constants.types.AKM_HAS_FIELDTYPE) {
                     const toObj = rel.getToObject();
                     if (toObj.type.name === constants.types.AKM_FIELDTYPE) {
                         let valueObj = toObj;
-                        datatype.setFieldType(valueObj.fieldType);
+                        if (valueObj.fieldType)
+                            datatype.setFieldType(valueObj.fieldType);
                     }
                 }
             }
@@ -776,15 +779,25 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
     if (debug) console.log('735 myMetis', myMetis);
     // Add system datatypes
-    const dtypes = ['cardinality', 'viewkind', 'relshipkind', 'fieldtype', 
+    let systemdtypes = ['cardinality', 'viewkind', 'relshipkind', 'fieldtype', 
                     'layout', 'routing', 'linkcurve',
                     'integer', 'string', 'number', 'boolean', 'date'];
-    for (let i=0; i<dtypes.length; i++) {
-        const dtype = dtypes[i];
-        const datatype = myMetis.findDatatypeByName(dtype);
-        if (datatype)
-            metamodel.addDatatype(datatype);
+    let dtypes;
+    if (model.includeSystemtypes) {
+        dtypes = myMetamodel.datatypes;
+    } else {
+        dtypes = [];
+        for (let i=0; i<systemdtypes.length; i++) {
+            const dtypename = systemdtypes[i];
+            const dtype = myMetamodel.findDatatypeByName(dtypename);
+            dtypes.push(dtype);
+        }
+    }   
+    for (let j=0; j<dtypes.length; j++) {
+        const dtype = dtypes[j];
+        if (dtype) metamodel.addDatatype(dtype);
     }
+
     // Add system types 
     // First object types
     const systemtypes = ['Element', 'Entity', 'Generic', 'Container'];

@@ -25,7 +25,7 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-const glb = require('../../../akmm/akm_globals');
+// const glb = require('../../../akmm/akm_globals');
 const printf = require('printf');
 const RegexParser = require("regex-parser");
 
@@ -184,6 +184,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public handleCloseModal(e) {
+    if (e === 'x') {
+      if (debug) console.log('188 x:', e);
+      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      return;
+    }
     const props = this.props;
     const modalContext = this.state.modalContext;
     if (debug) console.log('382 state', this.state);
@@ -667,9 +672,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 object = myMetis.findObject(object.id);
-                let prop = object.type.findPropertyByName('Area');
-                prop = myMetis.findProperty(prop.id); 
-                let result = ui_mtd.expandPropScript(object, prop, myMetis);
+                const context = {
+                  "myMetis":    myMetis,
+                  "reltype":    "hasPart",
+                  "reldir":     "out",
+                  "objtype":    null,
+                  "propname":   "Cost"
+                }
+                let result = eval('context.reldir === "out"');
                 alert(result);
               }
             },
@@ -1094,35 +1104,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             }),
 
-          makeButton("TEST",
+          makeButton("Execute Method",
             function (e: any, obj: any) { 
               const node = obj.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 if (!object) return;
                 object = myMetis.findObject(object.id);
-                const context = {
-                  "myMetis":    myMetis,
-                  "myModel":    myMetis.currentModel,
-                  "myDiagram":  myDiagram,
-                  "reltype":    "hasPart",
-                  "objtype":    null,
-                  "propname":   "cost",
-                  "function":   "current[propname] = sum(child[propname])",
-                  "preaction":  null,
-                  "postaction": ui_mtd.calculatePropertyValue
+                const methods = object.type.methods;
+                if (methods?.length >0) {
+                  const myMetamodel = myMetis.currentMetamodel;
+                  const method = methods[0];
+                  const reltype = myMetamodel.findRelationshipTypeByName(method["reltype"]);
+                  const context = {
+                    "myMetis":        myMetis,
+                    "myMetamodel":    myMetamodel,
+                    "myModel":        myMetis.currentModel,
+                    "myDiagram":      myDiagram,
+                    "reltype":        method["reltype"],
+                    "reldir":         method["reldir"],
+                    "typecondition":  method["typecondition"],
+                    "valuecondition": method["valuecondition"],
+                    "preaction":      method["preaction"],
+                    "postaction":     method["postaction"],
+                  }
+                  ui_mtd.traverse(object, context, []);
                 }
-                const args = {
-                  "parent":     null
-                }
-                ui_mtd.traverse(object, context, args);
-                context.postaction(object, context);
               }
             },
-            function (o: any) { 
-              if (debug)
-                return true; 
-              return false;
+            function (o: any) {               
+              return true;
             }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },
@@ -1967,33 +1978,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
           }),
-
-          // makeButton("Set Target Metamodel",
-          // function (e: any, obj: any) {
-          //   const context = {
-          //     "myMetis":            myMetis,
-          //     "myMetamodel":        myMetis.currentMetamodel, 
-          //     "myModel":            myMetis.currentModel,
-          //     "myModelview":        myMetis.currentModelview,
-          //     "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-          //     "myDiagram":          e.diagram
-          //   }
-          //   const modalContext = {
-          //     what: "selectDropdown",
-          //     title: "Select Target Metamodel",
-          //     case: "Set Target Metamodel",
-          //     myDiagram: myDiagram
-          //   } 
-          //   const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId)
-          //   if (debug) console.log('2511', mmNameIds, modalContext, context);
-          //   myDiagram.handleOpenModal(mmNameIds, modalContext);
-          // },
-          // function (o: any) { 
-          //   if (myMetis.modelType === 'Metamodelling')
-          //     return false;
-          //   return true; 
-          // }),
-
           makeButton("Generate Metamodel",
           function (e: any, obj: any) { 
             if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
@@ -2005,6 +1989,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return false;
             return true; 
           }),
+          makeButton("Replace Current Metamodel",
+            function (e: any, obj: any) {
+              uid.replaceCurrentMetamodel(myMetis, myDiagram);
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true;
+            }),
           makeButton("Delete Metamodel",
             function (e: any, obj: any) {
               uid.deleteMetamodel(myMetis, myDiagram);
@@ -3155,8 +3148,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
-                  onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
-                  {/* onClick={() => { this.handleCloseModal('x') }} ><span>x</span> */}
+                  // onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
+                  onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
                 </Button>
                 <ModalHeader className="modal-header" >
                 <span className="text-secondary">{header} </span> 

@@ -21,7 +21,7 @@ JSON.safeStringify = (obj, indent = 2) => {
 
 export const SaveModelToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
-    const fileName = type+"_"+name+'_'+today;
+    const fileName = name+"_"+type //+'_'+today;
   
     const json = JSON.safeStringify(model);
     const blob = new Blob([json], {type:'application/json'});
@@ -51,7 +51,7 @@ export const SaveAllToFile = (model, name, type) => {
 }
 export const SaveAllToFileDate = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
-    const fileName = type+"_"+name+'_'+today;
+    const fileName = name+"_"+type //+'_'+today;
     if (debug) console.log('22 LoadLocal', model, fileName);
   
     const json = JSON.safeStringify(model);

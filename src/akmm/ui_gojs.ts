@@ -89,6 +89,21 @@ export class goModel {
         }
         return retval;
     }
+    findNodeByObjectId(objId: string): goObjectNode | null {
+        const retval: goObjectNode | null = null;
+        if (!utils.isArrayEmpty(this.nodes)) {
+            let i = 0;
+            while (i < this.nodes?.length) {
+                const node = this.nodes[i];
+                const n = node as goObjectNode;
+                if (n.object && n.object.getId() === objId) {
+                    return (n);
+                }
+                i++;
+            }
+        }
+        return retval;
+    }
     findNode(key: string): goObjectNode | null {
         const retval: goObjectNode | null = null;
         if (!utils.isArrayEmpty(this.nodes)) {

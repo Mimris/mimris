@@ -27,7 +27,9 @@ import * as uim from '../../akmm/ui_modal';
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');
 
-const systemtypes = ['Element', 'Entity', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
+const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Unittype', 
+                     'Value', 'FieldType', 'InputPattern', 'ViewFormat', 
+                     'Generic', 'Container'];
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -110,10 +112,11 @@ class GoJSApp extends React.Component<{}, AppState> {
     let typename = modalContext.selected?.value;
     if (!typename) typename = modalContext.typename;
     if (debug) console.log('113 typename: ', typename);
-    const myDiagram = modalContext.context.myDiagram;
+    const myDiagram = modalContext.context?.myDiagram;
     const data = modalContext.data;
     if (e === 'x') {
-      myDiagram.model.removeLinkData(data);
+      if (myDiagram)
+        myDiagram.model.removeLinkData(data);
       this.setState({ showModal: false, selectedData: null, modalContext: null });
       return;
     }
@@ -181,7 +184,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   private isSystemType(type) {
     for (let i=0; i<systemtypes.length; i++) {
       const systype = systemtypes[i];
-      if (type.name === systype.name)
+      if (type.name === systype)
         return true;
     }
     return false;

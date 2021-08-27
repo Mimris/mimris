@@ -179,6 +179,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         const objtype: akm.cxObjectType = objecttypes[i];  
         if (debug) console.log('179 objtype', objtype); 
         if (objtype && !objtype.markedAsDeleted && !objtype.abstract) {
+          if (objtype.nameId === 'Entity0') 
+            continue;
           const id = utils.createGuid();
           const name = objtype.name;
           const obj = new akm.cxObject(id, name, objtype, "");
@@ -399,8 +401,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!includeDeleted && !includeNoObject && !includeNoType)
           relcolor = relview.strokecolor;
         if (includeRelview) {
-          relview.setFromArrow2(rel.relshipkind);
-          relview.setToArrow2(rel.relshipkind);
+          relview.setFromArrow2(rel?.relshipkind);
+          relview.setToArrow2(rel?.relshipkind);
           if (debug) console.log('410 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
@@ -413,8 +415,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {
-            link.cardinalityFrom = rel.getCardinalityFrom(); 
-            link.cardinalityTo = rel.getCardinalityTo();
+            link.cardinalityFrom = rel?.getCardinalityFrom(); 
+            link.cardinalityTo = rel?.getCardinalityTo();
           } else {
             link.cardinalityFrom = "";
             link.cardinalityTo = "";

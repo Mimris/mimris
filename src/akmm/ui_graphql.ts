@@ -1,8 +1,8 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false; 
 
 const utils = require('./utilities');
-const glb = require('./akm_globals');
+// const glb = require('./akm_globals');
 import * as akm from './metamodeller';
 import { goRelshipTypeLink } from './ui_gojs';
 //import * as gojs  from './components/akmm/ui_gojs';
@@ -115,6 +115,7 @@ export class gqlMetaModel {
     relshiptypes:       gqlRelationshipType[];
     properties:         gqlProperty[];
     methods:            gqlMethod[];
+    methodtypes:        gqlMethodType[];
     datatypes:          gqlDatatype[];
     units:              gqlUnit[];
     objecttypeviews:    gqlObjectTypeView[];
@@ -134,6 +135,7 @@ export class gqlMetaModel {
         this.relshiptypes = [];
         this.properties = [];
         this.datatypes = [];
+        this.methodtypes = [];
         this.methods = [];
         this.units = [];
         this.objecttypeviews = [];
@@ -176,6 +178,14 @@ export class gqlMetaModel {
             for (let i = 0; i < cnt; i++) {
                 const prop = properties[i];
                 this.addProperty(prop);
+            }
+        }
+        const methodtypes = metamodel.getMethodTypes();
+        if (methodtypes) {
+            const cnt = methodtypes.length;
+            for (let i = 0; i < cnt; i++) {
+                const mtd = methodtypes[i];
+                this.addMethodType(mtd);
             }
         }
         const methods = metamodel.getMethods();
@@ -265,6 +275,13 @@ export class gqlMetaModel {
             this.properties.push(gProp);
         }
     }
+    addMethodType(mtd: akm.cxMethodType) {
+        if (mtd && !mtd.isDeleted()
+        ) {
+            const gMtd = new gqlMethodType(mtd);
+            this.methodtypes.push(gMtd);
+        }
+    }
     addMethod(mtd: akm.cxMethod) {
         if (utils.objExists(mtd) &&
             !mtd.isDeleted()
@@ -329,7 +346,38 @@ export class gqlMetaModel {
         }
         return null;
     }
-    //
+    findMethod(id: string): gqlMethod {
+        const methods = this.methods;
+        for (let i=0; i<methods?.length; i++) {
+            const method = methods[i];
+            if (method.id === id) {
+                return method;
+            }
+        }
+        return null;
+    }
+    updateMethods(metamodel: akm.cxMetaModel) {
+        const methods = metamodel.methods;
+        let mtdprops = null;
+        for (let i=0; i<methods?.length; i++) {
+            const mtd = methods[i];
+            if (mtd) {
+                const gqlMtd = this.findMethod(mtd.id);
+                const mtdtype = mtd["methodtype"];
+                if (mtdtype) {
+                    const mtype = metamodel.findMethodTypeByName(mtdtype); 
+                    if (mtype) {
+                        mtdprops = mtype.properties;
+                        if (debug) console.log('359 this', mtdprops);
+                        for (let j=0; j<mtdprops?.length; j++) {
+                            const prop = mtdprops[j];
+                            gqlMtd[prop.name] = mtd[prop.name];
+                        }
+                    }
+                }
+            }
+        }        
+    }
 }
 export class gqlObjectType {
     id:             string;
@@ -340,6 +388,7 @@ export class gqlObjectType {
     typename:       string;
     typeviewRef:    string;
     properties:     gqlProperty[];
+    methods:        gqlMethod[];
     markedAsDeleted: boolean;
     modified:       boolean;
     constructor(objtype: akm.cxObjectType, includeViews: boolean) {
@@ -351,14 +400,22 @@ export class gqlObjectType {
         this.typeviewRef    = objtype.typeview ? objtype.typeview.id : "";
         this.description    = (objtype.description) ? objtype.description : "";
         this.properties     = [];
+        this.methods        = [];
         this.markedAsDeleted = objtype.markedAsDeleted;
         this.modified       = objtype.modified;
         // Code
         const props = objtype.getProperties(false);
-        const cnt = props?.length;
+        let cnt = props?.length;
         for (let i = 0; i < cnt; i++) {
             const prop = props[i];
             this.addProperty(prop);
+        }
+        if (debug) console.log('345 objtype, props, this', objtype, props, this);
+        const mtds = objtype.getMethods();
+        cnt = mtds?.length;
+        for (let i = 0; i < cnt; i++) {
+            const mtd = mtds[i];
+            this.addMethod(mtd);
         }
         if (debug) console.log('345 objtype, props, this', objtype, props, this);
         //this.loc  = (includeViews) ? objtype.loc : "";
@@ -369,6 +426,13 @@ export class gqlObjectType {
             const gProperty = new gqlProperty(prop);
             if (debug) console.log('352 prop, gProperty', prop, gProperty);
             this.properties.push(gProperty);
+        }
+    }
+    addMethod(mtd: akm.cxMethod) {
+        if (mtd) {
+            const gMethod = new gqlMethod(mtd);
+            if (debug) console.log('352 mtd, gProperty', mtd, gMethod);
+            this.methods.push(gMethod);
         }
     }
 }
@@ -394,8 +458,8 @@ export class gqlRelationshipType {
         this.name           = reltype.name;
         this.relshipkind    = reltype.relshipkind;
         this.viewkind       = reltype.viewkind;
-        this.fromobjtypeRef = reltype.fromobjtypeRef;
-        this.toobjtypeRef   = reltype.toobjtypeRef;
+        this.fromobjtypeRef = reltype.fromobjtypeRef ? reltype.fromobjtypeRef : reltype.fromObjtype?.id;
+        this.toobjtypeRef   = reltype.toobjtypeRef ? reltype.toobjtypeRef : reltype.toObjtype?.id;
         this.typeviewRef    = "";
         this.description    = (reltype.description) ? reltype.description : "";
         this.properties     = [];
@@ -638,25 +702,40 @@ export class gqlProperty {
         if (debug) console.log('612 this', this);
     }
 }
+export class gqlMethodType {
+    id:                 string;
+    name:               string;
+    description:        string;
+    properties:         gqlProperty[];
+    markedAsDeleted:    boolean;
+    modified:           boolean;
+    constructor(mtd: akm.cxMethodType) {
+        this.id              = mtd.id;
+        this.name            = mtd.name;
+        this.description     = (mtd.description) ? mtd.description : "";
+        this.properties      = mtd.properties;
+        this.markedAsDeleted = mtd.markedAsDeleted;
+        this.modified        = mtd.modified;
+    }
+}
 export class gqlMethod {
     id:                 string;
     name:               string;
     description:        string;
+    methodtype:         string;
     expression:         string;
-    script:             string;
     markedAsDeleted:    boolean;
     modified:           boolean;
     constructor(mtd: akm.cxMethod) {
         this.id              = mtd.id;
         this.name            = mtd.name;
+        this.methodtype      = (mtd.methodtype) ? mtd.methodtype : "";
         this.expression      = mtd.expression;
-        this.script          = mtd.script;
         this.description     = (mtd.description) ? mtd.description : "";
         this.markedAsDeleted = mtd.markedAsDeleted;
         this.modified        = mtd.modified;
     }
 }
-
 export class gqlModel {
     id:                     string;
     name:                   string;
@@ -823,13 +902,7 @@ export class gqlObject {
     viewkind:        string;
     typeRef:         string;
     typeName:        string;
-    viewFormat:      string;
-    inputPattern:    string;
-    inputExample:    string;
-    fieldType:       string;
     propertyValues:  any[];
-    allowedValues:   string[];
-    defaultValue:    string;
     markedAsDeleted: boolean;
     generatedTypeId: string;
     modified:        boolean;
@@ -842,29 +915,24 @@ export class gqlObject {
         this.typeRef         = object.type ? object.type.id : "";
         this.typeName        = object.type ? object.type.name : "";
         this.propertyValues  = [];
-        this.viewFormat      = object.viewFormat;
-        this.inputPattern    = object.inputPattern;
-        this.inputExample    = object.inputExample;
-        this.fieldType       = object.fieldType;
         this.markedAsDeleted = object.markedAsDeleted;
         this.generatedTypeId = object.generatedTypeId;
         this.modified        = object.modified;
-        this.allowedValues   = object.allowedValues;
-        this.defaultValue    = object.defaultValue;
 
         // Code
-        if (debug) console.log('740 this', this);
+        if (debug) console.log('876 this', this);
         const objtype = object.type;
-        const props = objtype?.properties;
-        for (let i=0; i<props?.length; i++) {
-          const prop = props[i];
+        const properties = object.allProperties;
+        if (debug) console.log('879 properties', properties);
+        for (let i=0; i<properties?.length; i++) {
+          const prop = properties[i];
           if (!prop) continue;
           const propname = prop.name;
           const value = object.getStringValue2(propname);
-          if (debug) console.log('747 propname, value', propname, value);
+          if (debug) console.log('885 propname, value', propname, value);
           this[propname] = value;                      
         }
-        if (debug) console.log('750 this', this);
+        if (debug) console.log('888 this', this);
     }
     // addPropertyValue(val: akm.cxPropertyValue) {
     //     if (!val)
@@ -1471,6 +1539,21 @@ export class gqlImportMetis {
         if (property) metamodel.addProperty(property);
         // type.addProperty(property);
     }
+    importMethodType(item: any, metamodel: akm.cxMetaModel) {
+        let mtype = metamodel.findMethodType(item.id);
+        if (!mtype) {
+            mtype = new akm.cxMethodType(item.id, item.name, item.description);
+        }
+        for (const prop in item) {
+            if (utils.objExists(item[prop])) {
+                let p = (mtype as any)
+                p[prop] = item[prop];
+            }
+        }
+        // Eventually add method type
+        glb.metis.addMethodType(mtype);
+        if (mtype) metamodel.addMethodType(mtype);
+    }
     importMethod(item: any, metamodel: akm.cxMetaModel) {
         let method = metamodel.findMethod(item.id);
         if (!method) {
@@ -1482,7 +1565,7 @@ export class gqlImportMetis {
                 p[prop] = item[prop];
             }
         }
-        // Eventually add datatype and unit
+        // Eventually add mëthod
         glb.metis.addMethod(method);
         if (method) metamodel.addMethod(method);
     }

@@ -44,10 +44,27 @@ export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     }
 }
 
-export function deleteMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
-    const modifiedMetamodels = new Array();
+export function replaceCurrentMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     // Select metamodel among all metamodels (except the current)
+    const args = {
+        "metamodel":          "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentMetamodel": myMetis.currentMetamodel,
+        "myCurrentModel":     myMetis.currentModel,
+        "myDiagram":          myDiagram,
+        "case":               "Replace Metamodel",
+        "title":              "Select Metamodel to Use",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      replaceCurrentMetamodel2,
+        "args":               args
+    }
+    askForMetamodel(context);
+}
 
+export function deleteMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
+    // Select metamodel among all metamodels (except the current)
     const args = {
         "metamodel":          "", 
     }
@@ -264,6 +281,69 @@ function askForMetamodel(context: any) {
       myDiagram.handleOpenModal(mmNameIds, modalContext);
 }
 
+function replaceCurrentMetamodel2(context: any) {
+    const metamodel = context.args.metamodel;
+    const myMetis = context.myMetis;
+    const myModel = context.myCurrentModel;
+    const myDiagram = context.myDiagram;
+    const otypeDefault = myMetis.findObjectTypeByName('Generic');
+    const rtypeDefault = myMetis.findRelationshipTypeByName('isRelatedTo');
+    if (debug) console.log('287 metamodel, myMetis', metamodel, myMetis);
+    myModel.metamodel = metamodel;
+    const objects = myModel.objects;
+    for (let i=0; i<objects.length; i++) {
+        const object = objects[i];
+        if (!object) continue;
+        const otypeName = object.type?.name;
+        const objtype = metamodel.findObjectTypeByName(otypeName);
+        if (objtype) {
+            object.type = objtype;
+            object.typeRef = objtype.id;
+        } else {
+            object.type = otypeDefault;
+            object.typeRef = otypeDefault.id;
+        }
+        let typeview = objtype.typeview;
+        const objviews = object.objectviews;
+        for (let j=0; j<objviews?.length; j++) {
+            const oview = objviews[j];
+            oview.typeview = typeview;
+            oview.typeviewRef = typeview.id;
+        }    
+    }
+    const relships = myModel.relships;
+    for (let i=0; i<relships.length; i++) {
+        const relship = relships[i];
+        if (!relship) continue;
+        const toObjName = relship.toObject?.type?.name;
+        const fromObjName = relship.fromObject?.type?.name;
+        const rtypeName = relship.type?.name;
+        let reltype = metamodel.findRelationshipTypeByNames(rtypeName, toObjName, fromObjName);
+        if (reltype) {
+            relship.type = reltype;
+            relship.typeRef = reltype.id;
+        } else {
+            reltype = rtypeDefault;
+            relship.type = reltype;
+            relship.typeRef = reltype.id;
+        }
+        let typeview = reltype.typeview;
+        const relviews = relship.relshipviews;
+        for (let j=0; j<relviews?.length; j++) {
+            const rview = relviews[j];
+            rview.typeview = typeview;
+        }    
+    }
+    const modifiedModels = []
+    const gqlModel = new gql.gqlModel(myModel, true);
+    if (debug) console.log('376 gqlModel', gqlModel);
+    modifiedModels.push(gqlModel);
+    modifiedModels.map(mn => {
+        let data = mn;
+        myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+    });
+}
+
 function deleteMetamodel2(context: any) {
     const metamodel = context.args.metamodel;
     const myMetis = context.myMetis;
@@ -360,12 +440,14 @@ function askForModel(context: any) {
 
 function deleteModel1(context: any) {
     const model = context.args.model;
-    if (!confirm("Do you really want to delete '" + model.name + "'?"))
-        return;
-    const myMetis = context.myMetis;
-    const myDiagram = context.myDiagram;
-    if (debug) console.log('367 model, myMetis', model, myMetis);
-    deleteModel2(model, myMetis, myDiagram);
+    if (model) {
+        if (!confirm("Do you really want to delete '" + model.name + "'?"))
+            return;
+        const myMetis = context.myMetis;
+        const myDiagram = context.myDiagram;
+        if (debug) console.log('367 model, myMetis', model, myMetis);
+        deleteModel2(model, myMetis, myDiagram);
+    }
 }
 
 function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) {

@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // Utility functions
 
 export let isArrayEmpty = (array: any) => {
@@ -84,6 +84,10 @@ export function compare(a: any, b: any) {
     return 0;
   }
 
+export function isNumeric(str: string) {
+    return typeof(str) === 'number';
+}
+
 // -----------  TEMPLATES -----------------
 
 // ---------  Read key value arrays -------
@@ -100,6 +104,4 @@ export let readKeyValueArrays = (myArray: any[]) => {
         });
     });
 }
-
-
 

@@ -66,7 +66,7 @@ const TargetMeta = (props) => {
 
   return (
     <>
-      {palette}
+      {/* {palette} */}
       {/* <style jsx>{`
         .diagram-component {
           height: 101%;

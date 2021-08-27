@@ -5,6 +5,7 @@ import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
+import * as gen from './ui_generateTypes';
 import { FaBullseye, FaLessThan, FaNode } from 'react-icons/fa';
 import { setMyMetisParameter } from '../actions/actions';
 //import { ButtonGroupProps } from 'reactstrap';
@@ -23,6 +24,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         let objview: akm.cxObjectView;
         const myMetis = context.myMetis;
         const myModel = context.myModel;
+        const myMetamodel = context.myMetamodel;
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
@@ -1861,7 +1863,54 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     return retVal;
 }
 
+function propIsUsedInTypes(metis: akm.cxMetis, prop): boolean {
+    const metamodels = metis.metamodels;
+    for (let i=0; i<metamodels.length; i++) {
+        const mmodel = metamodels[i] as akm.cxMetaModel;
+        const otypes = mmodel.objecttypes;
+        for (let j=0; j<otypes.length; j++) {
+            const otype = otypes[j];
+            const props = otype.properties;
+            for (let k=0; k<props.length; k++) {
+                const p = props[k];
+                if (p.id === prop.id)
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
+export function purgeUnusedProperties(metis: akm.cxMetis) {
+    const properties = new Array();
+    const props = metis.properties;
+    for (let k=0; k<props.length; k++) {
+        const prop = props[k];
+        if (!propIsUsedInTypes(metis, prop))
+            continue;
+        properties.push(prop);
+    }
+    metis.properties = properties;
+    // Handle properties in metamodels
+    const metamodels =metis.metamodels;
+    for (let k=0; k<metamodels.length; k++) {
+        const mmodel = metamodels[k];
+        const properties = new Array();
+        const props = mmodel.properties;
+        for (let k=0; k<props.length; k++) {
+            const prop = props[k];
+            if (!propIsUsedInTypes(metis, prop))
+                continue;
+            properties.push(prop);
+        }
+        mmodel.properties = properties;    
+    }
+}
+
 export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
+    // Handle properties
+    purgeUnusedProperties(metis);
+    
     // handle modelview contentss
     const models = metis.models;
     for (let k=0; k<models.length; k++) {

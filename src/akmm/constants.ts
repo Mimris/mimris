@@ -114,6 +114,7 @@ export let types = {
          AKM_SYSTEM            : "System",
          AKM_PROPERTY          : "Property",
          AKM_METHOD            : "Method",
+         AKM_METHODTYPE        : "MethodType",
          AKM_DATATYPE          : "Datatype",
          AKM_VALUE             : "Value",
          AKM_INPUTPATTERN      : "InputPattern",

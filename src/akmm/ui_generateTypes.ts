@@ -82,8 +82,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     let objtype: akm.cxObjectType;
     if (typid) { // The object type exists - has been generated before
         objtype = myMetis.findObjectType(typid);
-        oldName = objtype?.getName();
-        objtype?.setName(newName);
+        if (objtype) {
+            oldName = objtype.getName();
+            objtype.setName(newName);
+            myTargetMetamodel?.addObjectType(objtype);
+        }
     } else {
         // Check if the types has not been generated, but exists anyway
         objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
@@ -92,7 +95,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (debug) console.log('92 newName', newName);
     if (!objtype) { // This is a new object type
         let metaObject;
-        const metaObjects = ['Entity'];
+        const metaObjects = ['Entity', 'EntityType'];
         for (let i=0; i<metaObjects.length; i++) {
             const mObject = metaObjects[i];
             const mType = myMetamodel.findObjectTypeByName(mObject);
@@ -692,12 +695,6 @@ export function generateTargetMetamodel2(context: any) {
         return false;
     const myMetis = context.myMetis;
     let currentNode = context.myCurrentNode;
-    // const currentMetamodel = myMetis.currentMetamodel;
-    // const currentModel = myMetis.currentModel;
-    // myMetis.targetMetamodelRef = targetmetamodel?.id;
-    // currentModel.targetMetamodelRef = targetmetamodel?.id;
-    // const modelview = sourcemodelview;
-    // const model = sourcemodelview.model;  // Concept model
     if (debug) console.log('688 myMetis', myMetis);
     let objectviews = sourcemodelview.objectviews;
     let relshipviews = sourcemodelview.relshipviews;
@@ -710,13 +707,7 @@ export function generateTargetMetamodel2(context: any) {
     if (debug) console.log('697 objviews, relviews', objectviews, relshipviews, context);
     generateMetamodel(objectviews, relshipviews, context);
     if (debug) console.log('699 myMetis', myMetis);
-    // Look up the relationships between Roles and Tasks
-        // For each relship, get relship type and add to metamodel
-    // Look up the relationships between Tasks and Informations
-        // For each relship, get relship type and add to metamodel
-
     alert("Target metamodel has been successfully generated!");
-    // context.myMetamodel = currentMetamodel;
     return true;
 }
 
@@ -777,11 +768,12 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
     }
-    if (debug) console.log('735 myMetis', myMetis);
+    if (debug) console.log('768 myMetis', myMetis);
     // Add system datatypes
     let systemdtypes = ['cardinality', 'viewkind', 'relshipkind', 'fieldtype', 
                     'layout', 'routing', 'linkcurve',
-                    'integer', 'string', 'number', 'boolean', 'date'];
+                    'integer', 'string', 'number', 'boolean', 'date',
+                    'reldir', 'actiontype'];
     let dtypes;
     if (model.includeSystemtypes) {
         dtypes = myMetamodel.datatypes;
@@ -800,7 +792,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
-    const systemtypes = ['Element', 'Entity', 'Generic', 'Container'];
+    const systemtypes = ['Element', 'Entity', 'EntityType', 'Generic', 'Container', 'Method'];
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;
@@ -813,7 +805,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         }
     }
     for (let i=0; i<objtypes.length; i++) {
-        const typename = objtypes[i].name;
+        // if (!objtypes[i]) continue; 
+        const typename = objtypes[i]?.name;
         const objtype = myMetamodel.findObjectTypeByName(typename);
         if (debug) console.log('846 objtype', objtype, myMetis);
         if (objtype) {
@@ -828,7 +821,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
     if (debug) console.log('857 system object types completed', myMetis);
     // Then system relationship types
-    const rsystemtypes = ['isRelatedTo', 'Is', 'hasPart', 'hasMember'];
+    const rsystemtypes = ['isRelatedTo', 'Is', 'has', 'hasPart', 'hasMember'];
     let reltypes;
     if (model.includeSystemtypes) {
         reltypes = myMetamodel.relshiptypes;
@@ -845,8 +838,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 const totype   = rtype.toObjtype;
                 if (!fromtype || !totype) continue;
                 for (let k=0; k<objtypes.length; k++) {
+                    if (!objtypes[k]) continue; 
                     if (fromtype.id === objtypes[k].id) {
                         for (let l=0; l<objtypes.length; l++) {
+                            if (!objtypes[l]) continue; 
                             if (totype.id === objtypes[l].id) {
                                 reltypes.push(rtype);
                             }
@@ -867,7 +862,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // Add or generate objecttypes
     // const metaObject = 'Information';
     let metaObject;
-    const metaObjects = ['Entity'];
+    const metaObjects = ['Entity', 'EntityType'];
     for (let i=0; i<metaObjects.length; i++) {
         const mObject = metaObjects[i];
         const mType = myMetamodel.findObjectTypeByName(mObject);

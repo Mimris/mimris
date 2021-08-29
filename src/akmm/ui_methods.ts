@@ -162,8 +162,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
     }
 }
 
-function executeMethod(object: akm.cxObject, context: any) {
-    if (debug) console.log("166: Calling executeMethod '" + context.action + "': on " + object.name);
+function execMethod(object: akm.cxObject, context: any) {
+    if (debug) console.log("166: Calling execMethod '" + context.action + "': on " + object.name);
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     if (debug) console.log('169 myMetis', myMetis);
@@ -185,17 +185,21 @@ function executeMethod(object: akm.cxObject, context: any) {
 
 function conditionIsFulfilled(object, context): boolean {
     let retval = true;
+    const myMetis = context.myMetis;
     const myMetamodel    = context.myMetamodel;
-    const typecondition  = context.typecondition;  
-    const valuecondition = context.valuecondition; 
+    const method = context.args.method;
+    const typecondition  = method["typecondition"];  
+    const valuecondition = method["valuecondition"]; 
     const objtype = typecondition ? myMetamodel.findObjectTypeByName(typecondition) : null;
     const otype = object?.type;
+    // Check if objtype is specified
     if (objtype && otype) {
         if (otype.id !== objtype.id) 
             retval = false;
     }
+    // Check if value condition is specified
     if (retval && valuecondition) {
-        const expression = substitutePropnamesInExpression(valuecondition, otype);        
+        const expression = substitutePropnamesInExpression(object, valuecondition, myMetis);        
         try {
             retval = eval(expression);
         } catch(e) {
@@ -208,26 +212,30 @@ function conditionIsFulfilled(object, context): boolean {
     return retval;
 }
 
-export function traverse(object: akm.cxObject, context: any, args: any) {
+export function traverse(object: akm.cxObject, context: any/*, args: any*/) {
     const myMetis        = context.myMetis;
     const myMetamodel    = context.myMetamodel;
-    const reldir         = context.reldir;   // Either 'in' or 'out'
-    const reltypename    = context.reltype;
-    let preaction        = context.preaction;
-    let postaction       = context.postaction;
+    const method         = context.args.method;
+    const reldir         = method["reldir"];   // Either 'in' or 'out'
+    const reltypename    = method["reltype"];
+    let preaction        = method["preaction"];
+    let postaction       = method["postaction"];
 
     let reltype;
-    try {
-        reltype = myMetamodel.findRelationshipTypeByName(reltypename);
-    } catch {
-        reltype = myMetis.findRelationshipTypeByName(reltypename);
+    if (reltypename) { // Check if reltype is specified
+        try {
+            reltype = myMetamodel.findRelationshipTypeByName(reltypename);
+        } catch {
+            reltype = myMetis.findRelationshipTypeByName(reltypename);
+        }
     }
     const useinp = (reldir === 'in');
     let rels  = useinp ? object.inputrels : object.outputrels;
     if (rels) {
         for (let i=0; i<rels.length; i++) {
             const rel = rels[i];
-            if (rel?.type.id !== reltype?.id)
+            // Check if reltype is specified
+            if (reltype && (rel?.type.id !== reltype?.id))
                 continue;
             let toObj;
             if (useinp) 
@@ -241,20 +249,19 @@ export function traverse(object: akm.cxObject, context: any, args: any) {
                     if (typeof(preaction === 'string')) {
                         context.mode = "preaction";
                         context.action = preaction;
-                        executeMethod(toObj, context);
+                        execMethod(toObj, context);
                     } else 
                         preaction(toObj, context);
                 }
-            }
-            
-            traverse(toObj, context, args);
-
+            }    
+            // Recursive traverse        
+            traverse(toObj, context);
             if (conditionIsFulfilled(toObj, context)) {
                 if (preaction) {
                     if (typeof(preaction === 'string')) {
                         context.mode = "postaction";
                         context.action = preaction;
-                        executeMethod(toObj, context);
+                        execMethod(toObj, context);
                     } else 
                         postaction(toObj, context);
                 }
@@ -313,6 +320,10 @@ function hasChildren(object: akm.cxObject, context: any): boolean {
     const rels  = useinp ? object.inputrels : object.outputrels;
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
+        if (!reltype) {
+            retval = true;
+            break;
+        }
         if (rel?.type.id == reltype.id) {
             retval = true;
             break;
@@ -325,13 +336,15 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
     const objects: akm.cxObject[] = [];
     const reltype   = context.reltype;
     const reldir    = context.reldir;
-    const useinp    = (reldir === 'in');
+    const useinp    = reldir ? (reldir === 'in') : false;
     const rels  = useinp ? object.inputrels : object.outputrels;
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
         let child;
-        if (rel?.type?.id !== reltype?.id)
-            continue;
+        if (reltype) {
+            if (rel?.type?.id !== reltype?.id)
+                continue;
+        }
         if (useinp) 
             child = rel.fromObject as akm.cxObject;
         else
@@ -381,7 +394,7 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
     let expression = mtd?.expression;
     if (expression) { 
         const type = object.type;
-        expression = substitutePropnamesInExpression(expression, type);
+        expression = substitutePropnamesInExpression(object, expression, myMetis);
         if (debug) console.log('280 expression', expression);
         try {
             retval = eval(expression);
@@ -397,16 +410,18 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
     return retval;
 }
 
-function substitutePropnamesInExpression(expression: string, type: akm.cxObjectType): string {
+function substitutePropnamesInExpression(object: akm.cxInstance, expression: string, metis: akm.cxMetis): string {
     let retval = "";
+    const type = object.type;
     const props = type.properties;
     for (let i=0; i<props.length; i++) {
         const prop = props[i];
         if (expression.indexOf(prop.name) == -1)
             continue;
         const len = prop.name.length;
-        const propname = 'object["' + prop.name + '"]';
-        if (debug) console.log('274 propname', propname);
+        const propval = object.getPropertyValue(prop, metis);
+        // const propname = 'object["' + prop.name + '"]';
+        // if (debug) console.log('274 propname', propname);
         let pos = [];
         let p = 0;
         let px = 0;
@@ -433,10 +448,40 @@ function substitutePropnamesInExpression(expression: string, type: akm.cxObjectT
         for (let j=siz-1; j>0; j--) {
             let px = pos[j]+len;
             let endstr = expression.substr(px);
-            let newExpr = expression.substring(0, pos[j]) + propname + endstr;
+            let newExpr = expression.substring(0, pos[j]) + propval + endstr;
             expression = newExpr;
         }
     }
     if (debug) console.log('297 expression', expression);
     return expression;
+}
+
+export function askForMethod(context: any) {
+    if (debug) console.log('445 context', context);
+    const currentType = context.myObject.type;
+    const myDiagram = context.myDiagram;
+    const modalContext = {
+        what:           "selectDropdown",
+        title:          context.title,
+        case:           context.case,
+        myDiagram:      myDiagram,
+        context:        context,
+      } 
+
+      const methods = new Array();
+      const allMethods = currentType.methods;
+      for (let i=0; i<allMethods?.length; i++) {
+        const method = allMethods[i];
+        if (method.markedAsDeleted)
+            continue;
+        methods.push(method);
+      }
+      const mmNameIds = methods.map(mm => mm && mm.nameId);
+      if (debug) console.log('372', mmNameIds, modalContext, context);
+      myDiagram.handleOpenModal(mmNameIds, modalContext);
+}
+
+export function executeMethod(context: any) {
+    const object = context.myObject;
+    traverse(object, context);                  
 }

@@ -346,6 +346,7 @@ export function handleSelectDropdownChange(selected, context) {
       }
     }
     break;
+
     case "Create Relationship": {
       if (debug) console.log('349 context', context);
       const myMetamodel = context.myMetamodel;
@@ -741,9 +742,19 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const myMetamodel = modalContext.context.myMetamodel;
         const selectedValue = modalContext.selected?.value;
         const mtype = myMetamodel.findMethodTypeByName(selectedValue); 
-        if (debug) console.log('737 methodType, modalContext: ', mtype, modalContext);
+        if (debug) console.log('744 methodType, modalContext: ', mtype, modalContext);
         const context = modalContext.context;
         context.methodType = mtype;
+        modalContext.context.postOperation(context);        
+        break;
+      }
+      else if (modalContext.case === 'Execute Method') {
+        const myMetamodel = modalContext.context.myMetamodel;
+        const selectedValue = modalContext.selected?.value;
+        const mtd = myMetamodel.findMethodByName(selectedValue); 
+        if (debug) console.log('754 method, modalContext: ', mtd, modalContext);
+        const context = modalContext.context;
+        context.args.method = mtd;
         modalContext.context.postOperation(context);        
         break;
       }

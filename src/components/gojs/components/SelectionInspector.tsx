@@ -57,7 +57,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (!inst) inst = instview?.relship;
       inst = myMetis.findRelationship(inst?.id);
       // type = inst.type;
-      type = inst.type;
+      type = inst?.type;
       if (!type) type = selObj.relshiptype;
       typeview = instview?.typeview;
     } else if (category === constants.gojs.C_OBJECTTYPE) {
@@ -219,7 +219,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               const mtdRef = prop.methodRef;
               if (mtdRef) {
                 disabled = true;
-                val = inst.getPropertyValue(prop, myMetis);
+                try {
+                  val = inst.getPropertyValue(prop, myMetis);
+                } catch {
+                  // Do nothing
+                }
                 if (debug) console.log('215 inst, prop, val', inst, prop, val);
               }
             }

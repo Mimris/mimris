@@ -1868,7 +1868,7 @@ function propIsUsedInTypes(metis: akm.cxMetis, prop): boolean {
     for (let i=0; i<metamodels.length; i++) {
         const mmodel = metamodels[i] as akm.cxMetaModel;
         const otypes = mmodel.objecttypes;
-        for (let j=0; j<otypes.length; j++) {
+        for (let j=0; j<otypes?.length; j++) {
             const otype = otypes[j];
             const props = otype.properties;
             for (let k=0; k<props.length; k++) {
@@ -1897,7 +1897,7 @@ export function purgeUnusedProperties(metis: akm.cxMetis) {
         const mmodel = metamodels[k];
         const properties = new Array();
         const props = mmodel.properties;
-        for (let k=0; k<props.length; k++) {
+        for (let k=0; k<props?.length; k++) {
             const prop = props[k];
             if (!propIsUsedInTypes(metis, prop))
                 continue;

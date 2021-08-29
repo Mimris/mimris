@@ -36,6 +36,7 @@ import { FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
 // import svgs from '../../utils/Svgs'
 import { setMyGoModel, setMyMetisParameter } from '../../../actions/actions';
 import { iconList } from '../../forms/selectIcons';
+import { METHODS } from 'http';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
@@ -1084,7 +1085,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   "parent":     null
                 }
                 context.preaction(object, context);
-                ui_mtd.traverse(object, context, args);
+                ui_mtd.traverse(object, context/*, args*/);
               }
             },
             function (obj: any) { 
@@ -1111,29 +1112,33 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let object = node.object;
                 if (!object) return;
                 object = myMetis.findObject(object.id);
-                const methods = object.type.methods;
-                if (methods?.length >0) {
-                  const myMetamodel = myMetis.currentMetamodel;
-                  const method = methods[0];
-                  const reltype = myMetamodel.findRelationshipTypeByName(method["reltype"]);
-                  const context = {
-                    "myMetis":        myMetis,
-                    "myMetamodel":    myMetamodel,
-                    "myModel":        myMetis.currentModel,
-                    "myDiagram":      myDiagram,
-                    "reltype":        method["reltype"],
-                    "reldir":         method["reldir"],
-                    "typecondition":  method["typecondition"],
-                    "valuecondition": method["valuecondition"],
-                    "preaction":      method["preaction"],
-                    "postaction":     method["postaction"],
-                  }
-                  ui_mtd.traverse(object, context, []);
+                const args = {
+                  "method":             ""
                 }
+                const context = {
+                    "myMetis":            myMetis,
+                    "myMetamodel":        myMetis.currentMetamodel,
+                    "myObject":           object,
+                    "myDiagram":          myDiagram,
+                    "case":               "Execute Method",
+                    "title":              "Select Method",
+                    "dispatch":           myDiagram.dispatch,
+                    "postOperation":      ui_mtd.executeMethod,
+                    "args":               args
+                }
+                 ui_mtd.askForMethod(context);
               }
             },
-            function (o: any) {               
-              return true;
+            function (obj: any) {               
+              const node = obj.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                let object = node.object;
+                const methods = object?.type?.methods;
+                if (methods?.length>0) {
+                  return true;
+                }
+              }
+              return false;
             }),
           makeButton("Undo",
             function (e: any, obj: any) { e.diagram.commandHandler.undo(); },

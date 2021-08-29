@@ -5941,6 +5941,7 @@ export class cxInstance extends cxMetaObject {
         const inst: any = this;
         const mtdRef = prop.methodRef;
         const method = metis.findMethod(mtdRef);
+        const propname = prop.name;
         if (method) {
             const mtdtype = method.methodtype;
             let context;
@@ -5967,10 +5968,10 @@ export class cxInstance extends cxMetaObject {
                         "prop":      prop,
                     }
                     value = ui_mtd.calculateValue(inst, context);
+                    inst[propname] = value;
                     break;
             }            
         } else {
-            const propname = prop.name;
             value = inst[propname];
         }
         return value;

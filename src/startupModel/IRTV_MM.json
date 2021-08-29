@@ -45,7 +45,7 @@
     },
     {
       "id": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "name": "Entity",
+      "name": "EntityType",
       "description": "",
       "abstract": false,
       "viewkind": "Object",

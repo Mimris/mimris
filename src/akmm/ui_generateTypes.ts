@@ -730,6 +730,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         return;
         
     model.targetMetamodelRef = metamodel.id;
+    metamodel.generatedFromModelRef = model.id;
 
     let objects = model?.getObjectsByTypename('Datatype', false);
     // For each Datatype object call generateDatatype
@@ -951,7 +952,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
     gqlMetamodel.updateMethods(metamodel);
     modifiedMetamodels.push(gqlMetamodel);
-    if (debug) console.log('894 Target metamodel', metamodel, gqlMetamodel);
+    if (!debug) console.log('894 Target metamodel', metamodel, gqlMetamodel);
 
     if (true) { // Do the dispatches
         modifiedMetamodels.map(mn => {

@@ -54,7 +54,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                     const toObjtypeview = toObjtype.typeview;
                     const toTypeviewData = toObjtypeview.data;
                     const toObjviews = toObj.objectviews;
-                    if (debug) console.log('58 toObjtypeview, toObjviews', toObjtypeview, toObjviews);
+                    if (debug) console.log('57 toObjtypeview, toObjviews', toObjtypeview, toObjviews);
                     // Find toObj in modelview
                     const objviews = modelview.findObjectViewsByObj(toObj);
                     let toObjview;
@@ -160,27 +160,6 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
             addConnectedObjects(modelview, oview, null, goModel, myMetis, noLevels);
         }
     }
-}
-
-function execMethod(object: akm.cxObject, context: any) {
-    if (debug) console.log("166: Calling execMethod '" + context.action + "': on " + object.name);
-    const myDiagram = context.myDiagram;
-    const myMetis = context.myMetis;
-    if (debug) console.log('169 myMetis', myMetis);
-    const gojsModel = myMetis.gojsModel;
-    const node = gojsModel.findNodeByObjectId(object.id);
-    if (debug) console.log('172 node', node);
-    const gjsNode = myDiagram.findNodeForKey(node?.key);
-    switch(context.action) {
-        case 'Highlight':
-            gjsNode.isHighlighted = true;
-            break;
-        case 'Select':
-            gjsNode.isSelected = true;
-            break;
-    }
-
-   
 }
 
 function conditionIsFulfilled(object, context): boolean {
@@ -293,14 +272,12 @@ export function generateosduId(object: akm.cxObject, context: any) {
     let parentUid = "";
     if (parent)
         parentUid = parent.getStringValue2(context.propname);
-    if (debug) console.log('223 parentUid: ', parentUid);
+    if (debug) console.log('275 parentUid: ', parentUid);
         let osduId = object.name;
     if (parentUid && parentUid.length > 0)
         osduId = parentUid + '|' + object.name;
-    // object.id = uid;
-    // if (debug) console.log('241 uid: ', uid);
     object.setStringValue2(context.propname, osduId);
-    if (debug) console.log('230 osduId: ', osduId);
+    if (debug) console.log('280 osduId: ', osduId);
 
     // UPDATE_OBJECT_PROPERTIES
     const gqlObject = new gql.gqlObject(object);
@@ -368,8 +345,6 @@ export function calculateValue(object: akm.cxObject, context: any) {
 }
 
 export function aggregateValue(object: akm.cxObject, context: any) {
-    const myMetis    = context.myMetis;
-    const prop       = context.prop;
     let propval = 0;
     const children = getChildren(object, context);
     for (let i=0; i<children?.length; i++) {
@@ -395,7 +370,7 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
     if (expression) { 
         const type = object.type;
         expression = substitutePropnamesInExpression(object, expression, myMetis);
-        if (debug) console.log('280 expression', expression);
+        if (debug) console.log('373 expression', expression);
         try {
             retval = eval(expression);
         } catch(e) {
@@ -420,8 +395,6 @@ function substitutePropnamesInExpression(object: akm.cxInstance, expression: str
             continue;
         const len = prop.name.length;
         const propval = object.getPropertyValue(prop, metis);
-        // const propname = 'object["' + prop.name + '"]';
-        // if (debug) console.log('274 propname', propname);
         let pos = [];
         let p = 0;
         let px = 0;
@@ -441,10 +414,10 @@ function substitutePropnamesInExpression(object: akm.cxInstance, expression: str
                 pos.push(p);
             indx = p+1;
         }
-        if (debug) console.log('284 pos', pos);
+        if (debug) console.log('417 pos', pos);
         // Substitute all prop.names starting with the last one
         let siz = pos.length;
-        if (debug) console.log('288 siz', siz);
+        if (debug) console.log('420 siz', siz);
         for (let j=siz-1; j>0; j--) {
             let px = pos[j]+len;
             let endstr = expression.substr(px);
@@ -452,12 +425,12 @@ function substitutePropnamesInExpression(object: akm.cxInstance, expression: str
             expression = newExpr;
         }
     }
-    if (debug) console.log('297 expression', expression);
+    if (debug) console.log('428 expression', expression);
     return expression;
 }
 
 export function askForMethod(context: any) {
-    if (debug) console.log('445 context', context);
+    if (debug) console.log('433 context', context);
     const currentType = context.myObject.type;
     const myDiagram = context.myDiagram;
     const modalContext = {
@@ -467,7 +440,6 @@ export function askForMethod(context: any) {
         myDiagram:      myDiagram,
         context:        context,
       } 
-
       const methods = new Array();
       const allMethods = currentType.methods;
       for (let i=0; i<allMethods?.length; i++) {
@@ -477,7 +449,7 @@ export function askForMethod(context: any) {
         methods.push(method);
       }
       const mmNameIds = methods.map(mm => mm && mm.nameId);
-      if (debug) console.log('372', mmNameIds, modalContext, context);
+      if (debug) console.log('452', mmNameIds, modalContext, context);
       myDiagram.handleOpenModal(mmNameIds, modalContext);
 }
 
@@ -485,3 +457,23 @@ export function executeMethod(context: any) {
     const object = context.myObject;
     traverse(object, context);                  
 }
+
+function execMethod(object: akm.cxObject, context: any) {
+    if (debug) console.log("462: Calling execMethod '" + context.action + "': on " + object.name);
+    const myDiagram = context.myDiagram;
+    const myMetis = context.myMetis;
+    if (debug) console.log('465 myMetis', myMetis);
+    const gojsModel = myMetis.gojsModel;
+    const node = gojsModel.findNodeByObjectId(object.id);
+    if (debug) console.log('468 node', node);
+    const gjsNode = myDiagram.findNodeForKey(node?.key);
+    switch(context.action) {
+        case 'Highlight':
+            gjsNode.isHighlighted = true;
+            break;
+        case 'Select':
+            gjsNode.isSelected = true;
+            break;
+    }
+}
+

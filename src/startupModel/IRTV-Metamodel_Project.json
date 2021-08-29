@@ -51,7 +51,7 @@
             },
             {
               "id": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "name": "Entity",
+              "name": "EntityType",
               "description": "",
               "abstract": false,
               "viewkind": "Object",
@@ -5675,7 +5675,7 @@
               "abstract": false,
               "viewkind": "",
               "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "typeName": "Entity",
+              "typeName": "EntityType",
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "a527c196-7358-4a06-ddfc-4b654ad0ecb1",
@@ -5688,7 +5688,7 @@
               "abstract": false,
               "viewkind": "",
               "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "typeName": "Entity",
+              "typeName": "EntityType",
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "f3bc5298-8838-4582-0ee3-21eb727ffaf5",
@@ -5701,7 +5701,7 @@
               "abstract": false,
               "viewkind": "",
               "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "typeName": "Entity",
+              "typeName": "EntityType",
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "c493c71b-1550-4934-a22e-8eee010749e1",
@@ -5714,7 +5714,7 @@
               "abstract": false,
               "viewkind": "",
               "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "typeName": "Entity",
+              "typeName": "EntityType",
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "0fa93033-9fe6-4f9d-aa8f-b7054be592da",
@@ -6248,7 +6248,7 @@
     },
     "focusObjectview": {
       "id": "5c80c91c-8703-4e1e-573f-01b25641f97a",
-      "name": "Entity"
+      "name": "EntityType"
     },
     "focusRelship": {
       "id": null,

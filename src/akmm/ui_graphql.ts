@@ -121,6 +121,7 @@ export class gqlMetaModel {
     objecttypeviews:    gqlObjectTypeView[];
     objtypegeos:        gqlObjectTypegeo[];
     relshiptypeviews:   gqlRelshipTypeView[];
+    generatedFromModelRef: string;
     layout:             string;
     routing:            string;
     linkcurve:          string;
@@ -140,7 +141,8 @@ export class gqlMetaModel {
         this.units = [];
         this.objecttypeviews = [];
         this.objtypegeos = [];
-        this.relshiptypeviews = [];
+        this.relshiptypeviews = []; 
+        this.generatedFromModelRef = metamodel.generatedFromModelRef;
         this.layout           = metamodel.layout;
         this.routing          = metamodel.routing;
         this.linkcurve        = metamodel.linkcurve;

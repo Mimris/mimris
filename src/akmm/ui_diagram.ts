@@ -524,4 +524,13 @@ if (show) {
 }
 grp.isHighlighted = false;
 }
+
+export function setDashed(d: string) { 
+    const dotted = [3, 3];
+    const dashed = [5, 5];
+    return d === "Dotted Line" ? dotted :
+          (d === "Dashed Line" ? dashed : 
+          null);
+}
+
   

@@ -175,44 +175,61 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     }
     if (debug) console.log('176 objecttypes', objecttypes);
     if (objecttypes) {
+      let includesSystemtypes = false;
+      const otypes = new Array();
       for (let i = 0; i < objecttypes.length; i++) {
         const objtype: akm.cxObjectType = objecttypes[i];  
         if (debug) console.log('179 objtype', objtype); 
-        if (objtype && !objtype.markedAsDeleted && !objtype.abstract) {
-          if (objtype.nameId === 'Entity0') 
+        if (!objtype) continue;
+        if (objtype.markedAsDeleted) continue;
+        if (objtype.abstract) continue;
+        if (objtype.nameId === 'Entity0') continue;
+        if (objtype.name === 'Datatype') includesSystemtypes = true;
+        otypes.push(objtype);
+      }
+      const noTypes = otypes.length;
+      for (let i = 0; i < noTypes; i++) {
+        const objtype: akm.cxObjectType = otypes[i];  
+        // Hack
+        if (!includesSystemtypes) {    // Systemtypes are not included
+          const typename = objtype.name;
+          if (typename === 'Entity' || 
+              typename === 'EntityType' ||
+              typename === 'Method')
             continue;
-          const id = utils.createGuid();
-          const name = objtype.name;
-          const obj = new akm.cxObject(id, name, objtype, "");
-          if (obj.id === "") obj.id = id;
-          if (obj.name === "") obj.name = name;
-          if (!obj.type) {
-            const otype = metamodel.findObjectType(obj.type.id);
-            obj.type = otype;
-          }    
-          if (obj.isDeleted()) 
-              continue;
-          if (debug) console.log('193 obj, objtype', obj, objtype);
-          const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
-          let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
-          // Hack
-          if (!typeview) {
-              const otype = metis.findObjectTypeByName(objtype.name);
-              if (otype) {
-                typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
-              } else
-                typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
-          }
-          // End hack
-          objview.setTypeView(typeview);
-          const node = new gjs.goObjectNode(utils.createGuid(), objview);
-          node.loadNodeContent(myGoPaletteModel);
-          if (debug) console.log('208 node', objtype, objview, node);          
-          node.isGroup = objtype.isContainer();
-          if (node.isGroup)
-              node.category = constants.gojs.C_PALETTEGROUP_OBJ;
-          myGoPaletteModel.addNode(node);
         }
+        // End Hack
+        const id = utils.createGuid();
+        const name = objtype.name;
+        const obj = new akm.cxObject(id, name, objtype, "");
+        if (obj.id === "") obj.id = id;
+        if (obj.name === "") obj.name = name;
+        if (!obj.type) {
+          const otype = metamodel.findObjectType(obj.type.id);
+          obj.type = otype;
+        }    
+        if (obj.isDeleted()) 
+            continue;
+        if (debug) console.log('193 obj, objtype', obj, objtype);
+        const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+        let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
+        // Hack
+        if (!typeview) {
+            const otype = metis.findObjectTypeByName(objtype.name);
+            if (otype) {
+              typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
+            } else
+              typeview = objtype.newDefaultTypeView('Object') as akm.cxObjectTypeView;
+        }
+        // End hack
+        objview.setTypeView(typeview);
+        const node = new gjs.goObjectNode(utils.createGuid(), objview);
+        node.loadNodeContent(myGoPaletteModel);
+        if (debug) console.log('208 node', objtype, objview, node);          
+        node.isGroup = objtype.isContainer();
+        if (node.isGroup)
+            node.category = constants.gojs.C_PALETTEGROUP_OBJ;
+        myGoPaletteModel.addNode(node);        
       }
     }
     if (debug) console.log('216 Objecttype palette', myGoPaletteModel);

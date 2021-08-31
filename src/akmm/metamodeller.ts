@@ -201,6 +201,7 @@ export class cxMetis {
                     metamodel.layout = item.layout;
                     metamodel.routing = item.routing;
                     metamodel.linkcurve = item.linkcurve;
+                    metamodel.generatedFromModelRef = item.generatedFromModelRef;
                     if (!metamodel) continue;
                     this.addMetamodel(metamodel);
                     if (debug) console.log('198 item, metamodel', item, metamodel);
@@ -2707,6 +2708,7 @@ export class cxMetaModel extends cxMetaObject {
     fieldTypes: cxFieldType[] | null;
     inputpatterns: cxInputPattern[] | null;
     categories: cxUnitCategory[] | null;
+    generatedFromModelRef: string;
     layout: string;
     routing: string;
     linkcurve: string;
@@ -2729,6 +2731,7 @@ export class cxMetaModel extends cxMetaObject {
         this.units = null;
         this.datatypes = null;
         this.categories = null;
+        this.generatedFromModelRef = "";
         this.isEKA = false;
         this.layout = "ForceDirected";
         this.routing = "Normal";
@@ -5941,6 +5944,7 @@ export class cxInstance extends cxMetaObject {
         const inst: any = this;
         const mtdRef = prop.methodRef;
         const method = metis.findMethod(mtdRef);
+        const propname = prop.name;
         if (method) {
             const mtdtype = method.methodtype;
             let context;
@@ -5967,10 +5971,10 @@ export class cxInstance extends cxMetaObject {
                         "prop":      prop,
                     }
                     value = ui_mtd.calculateValue(inst, context);
+                    inst[propname] = value;
                     break;
             }            
         } else {
-            const propname = prop.name;
             value = inst[propname];
         }
         return value;

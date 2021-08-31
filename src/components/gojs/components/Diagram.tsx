@@ -399,14 +399,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       const format1 = "%s\n";
       const format2 = "%-10s: %s\n";
 
-      let msg = "Object Type props:\n";
-      msg += "-------------------\n";
-      msg += printf(format2, "-Type", d.object.type.name);
-      msg += printf(format2, "-Title", d.object.type.title);
-      msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
-      // msg += printf(format2, "-Descr", d.object.type.description);
-      msg += "\n";
-      msg += "Instance props:\n";
+      let msg = "";
+      // let msg = "Object Type props:\n";
+      // msg += "-------------------\n";
+      // msg += printf(format2, "-Type", d.object.type.name);
+      // msg += printf(format2, "-Title", d.object.type.title);
+      // msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
+      // // msg += printf(format2, "-Descr", d.object.type.description);
+      // msg += "\n";
+      msg += "Attributter :\n";
       msg += "---------------------\n";
       msg += printf(format2, "-Name", d.name);
       msg += printf(format2, "-Title", d.object.title);

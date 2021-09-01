@@ -103,7 +103,41 @@ export default Page(connect(state => state)(page));
 //   )
 // }
 
-// Contexts.getInitialProps = async (ctx: NextPageContext) => {
-//   const json = await myGet('/api/person/1/contexts', ctx);
-//   return { contexts: json };
-// }
+// // Contexts.getInitialProps = async (ctx: NextPageContext) => {
+// //   const json = await myGet('/api/person/1/contexts', ctx);
+// //   return { contexts: json };
+// // }
+
+// export default Page(connect(state => state)(page));
+
+
+export default {}
+
+
+// // import { NextPageContext } from "next";
+// // import { myGet } from "../defs/myGet";
+// // import Layout from '../components/Layout';
+// // import Link from 'next/link';
+
+// // // import { loadData } from '../actions/actions'
+
+// // export default function Contexts({ contexts }: any) {
+// //   const curContext = contexts.phFocus;
+
+// //   return (
+// //     <>
+// //       <Layout>
+// //         <Link href="/settings">
+// //           <a>Back</a>
+// //         </Link>
+// //         <h3>Contexts list:</h3>
+// //         <div> {JSON.stringify(curContext)}</div>
+// //       </Layout>
+// //     </>
+// //   )
+// // }
+
+// // Contexts.getInitialProps = async (ctx: NextPageContext) => {
+// //   const json = await myGet('/api/person/1/contexts', ctx);
+// //   return { contexts: json };
+// // }

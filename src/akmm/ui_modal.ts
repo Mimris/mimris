@@ -8,6 +8,7 @@ import * as akm from '../akmm/metamodeller';
 import * as gql from './ui_graphql';
 import * as uic from './ui_common';
 import * as ui_mtd from './ui_methods';
+const utils = require('./utilities');
 import * as constants from './constants';
 const RegexParser = require("regex-parser");
 
@@ -386,6 +387,21 @@ export function handleSelectDropdownChange(selected, context) {
           myDiagram.model.removeLinkData(data);
           return;
       }
+
+      if (reltype) {
+        if (debug) console.log('912 reltype', reltype);
+        const reltypeview = reltype.typeview;
+        if (reltypeview) {
+          const modifiedLinkTypeViews = new Array();
+          const gqlTypeView = new gql.gqlRelshipTypeView(reltypeview);
+          modifiedLinkTypeViews.push(gqlTypeView);
+          if (debug) console.log('920 gqlTypeView', gqlTypeView);
+          modifiedLinkTypeViews?.map(mn => {
+            let data = (mn) && mn
+            myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+          })
+        }
+      }
       if (debug) console.log('387 data, reltype', data, reltype);
       data.relshiptype = reltype;
     }
@@ -760,11 +776,20 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
     }
     case "editRelshipview": {
-      let selRelview = selectedData;
+      const selRelview = selectedData;
       const relview = selRelview.relshipview;
       if (!relview)
         break;
-      const reltypeview = relview.typeview;
+      const reltype = selRelview.relshiptype;
+      let reltypeview = reltype.typeview;
+      if (reltypeview) {
+        reltypeview = myMetis.findRelationshipTypeView(reltypeview.id);
+      }
+      if (!reltypeview) {
+        const id = utils.createGuid();
+        reltypeview = new akm.cxRelationshipTypeView(id, id, reltype, "");
+        reltypeview.typeview = reltypeview;
+      }
       if (debug) console.log('740 relview, reltypeview', selRelview, relview, reltypeview);
       const link = myDiagram.findLinkForKey(selRelview.key);
       const data = link.data;
@@ -794,6 +819,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedRelviews.map(mn => {
         let data = mn;
         props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+      })
+      const gqlReltypeview = new gql.gqlRelshipTypeView(reltypeview);
+      if (debug) console.log('764 data, gqlReltypeview', link, data, gqlReltypeview);
+      modifiedRelTypeviews.push(gqlReltypeview);
+      modifiedRelTypeviews.map(mn => {
+        let data = mn;
+        props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
       })
       break;
     }

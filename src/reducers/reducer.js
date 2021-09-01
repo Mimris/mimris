@@ -87,7 +87,7 @@ import StartInitStateJson from '../startupModel/INIT-Startup_Project.json'
 
 const InitStateJson = /*(StartmodelJson) ? StartmodelJson :*/ StartInitStateJson
 
-console.log('86', InitStateJson); 
+if (debug) console.log('86', InitStateJson); 
 const InitState =  JSON.parse(JSON.stringify(InitStateJson)) 
 
 // import { IntitalProjectJson } from 'git/akmmodels/AKMM-Project_IDEF.json'

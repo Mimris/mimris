@@ -656,10 +656,16 @@ export class cxMetis {
                     reltype.setToObjtype(toobjType);
                     toobjType.addInputreltype(reltype);
                 }
-                if (item.typeviewRef) {
+                if (reltype && item.typeviewRef) {
                     const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
-                    if (reltype && reltypeview)
+                    if (reltypeview)
                         reltype.setDefaultTypeView(reltypeview);
+                    else {
+                        const id = item.typeviewRef;
+                        const reltypeview = new cxRelationshipTypeView(id, id, reltype, "");
+                        this.addRelationshipTypeView(reltypeview);
+                        reltype.typeview = reltypeview;    
+                    }
                 }
                 if (debug) console.log('472 reltype', reltype);
                 if (debug) console.log("Importing relshiptype: " + item.id + ", " + item.name);
@@ -924,6 +930,17 @@ export class cxMetis {
                     relview.points = item.points;
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
+                        if (reltypeview) {
+                            relview.setTypeView(reltypeview);
+                            const viewdata = reltypeview.getData();
+                            for (let prop in viewdata) {
+                                if (item[prop] && item[prop] !== "") {
+                                    relview[prop] = item[prop];
+                                }
+                            }
+                        }
+                    } else {
+                        const reltypeview = relview.relship?.type?.typeview as cxRelationshipTypeView;
                         if (reltypeview) {
                             relview.setTypeView(reltypeview);
                             const viewdata = reltypeview.getData();

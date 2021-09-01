@@ -2620,9 +2620,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("strokeWidth", "strokewidth"),
-            new go.Binding("strokeDashArray", "dash",
-            function(d) { return d === "Dotted Line" ? dotted :
-                                (d === "Dashed Line" ? dashed : null); }),
+            new go.Binding("strokeDashArray", "dash", 
+              function(d) { return uid.setDashed(d); }),
             ),
           // the "from" arrowhead
           $(go.Shape, { fromArrow: "", stroke: "black" },

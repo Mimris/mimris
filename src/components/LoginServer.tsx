@@ -60,7 +60,7 @@ function LoginServer(props: any) {
   // if (!selmodellist) 
   return (
     <>
-      <span><button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button> </span>
+      <span><button className="btn-context btn-light float-right mb-0 pr-2" color="red" onClick={toggle}>{buttonLabel}</button> </span>
       <Modal isOpen={modal} toggle={toggle} className={className}>
         <ModalHeader toggle={() => { toggle(); toggleRefresh(); } }>Model Server login: </ModalHeader>
         <ModalBody className="pt-0">

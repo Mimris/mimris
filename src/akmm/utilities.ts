@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 // Utility functions
 
 export let isArrayEmpty = (array: any) => {

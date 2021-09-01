@@ -24,4 +24,4 @@
 //   const json = await myGet('/api/vehicles', ctx);
 //   return {vehicles: json };
 // }
-export {}
+export default {}

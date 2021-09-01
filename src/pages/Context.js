@@ -77,7 +77,7 @@
 // export default Page(connect(state => state)(page));
 
 
-export {}
+export default {}
 
 
 // // import { NextPageContext } from "next";

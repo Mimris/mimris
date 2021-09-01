@@ -403,7 +403,7 @@ const page = (props:any) => {
           <span className="btn-link btn-sm float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
           <div className="buttonrow m-0 d-inline-flex float-right" style={{ minWidth: "830px",transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
             {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-              <span className="pt-1 pr-2 bg-secondary" > Edit:  </span>
+              <span className="pt-1 pr-2 bg-secondary" > Edit selected :  </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>

@@ -11,7 +11,11 @@
     "dev": "tsc --downlevelIteration & node --trace-warnings & next -p 3000",
     "dev1": "tsc --downlevelIteration & node --trace-warnings ./database-test.js & next -p 3000",
     "dev3": "tsc --watch --noEmit --project ./tsconfig.json --downlevelIteration & node --trace-warnings & next -p 3000",
+<<<<<<< HEAD
     "startlocal": "tsc --downlevelIteration & node ./database-test.js & next build & next start  -p 3000",
+=======
+    "startlocal": "tsc --downlevelIteration & node ./database-test.js & next build & next start -p 3000",
+>>>>>>> release/NOV20REL2
     "start1": "next -p ${PORT}",
     "start0": "next build & next -p ${PORT}",
     "start": "tsc --downlevelIteration & node ./database-test.js & next build & next start -p ${PORT}",

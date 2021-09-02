@@ -303,7 +303,12 @@ function replaceCurrentMetamodel2(context: any) {
             object.type = otypeDefault;
             object.typeRef = otypeDefault.id;
         }
-        let typeview = objtype.typeview;
+        let typeview;
+        if (objtype) {
+            typeview = objtype.typeview;
+        } else {
+            typeview = object.type.typeview;
+        }
         const objviews = object.objectviews;
         for (let j=0; j<objviews?.length; j++) {
             const oview = objviews[j];

@@ -18,10 +18,6 @@ export function askForMetamodel(context: any, create: boolean, hideEKA: boolean)
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
         const mm = metamodels[i];
-        // if (mm.name === 'EKA Metamodel') {
-        //     i--;
-        //     continue;
-        // }
         if (i == 0) {
             mmlist = "'" + mm.name + "'";
         } else 
@@ -273,6 +269,8 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     let typid = relship.generatedTypeId;
     if (debug) console.log('253 typid', typid, typid.length);
     if (debug) console.log('254 myTargetMetamodel', myTargetMetamodel);
+    const modifiedTypeLinks = new Array();
+    const modifiedTypeViews = new Array();
     const modifiedRelships = new Array();
     // relship is the relationship defining the relationship type to be generated
     const currentRel  = myMetis.findRelationship(relship.id);
@@ -323,17 +321,12 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
             reltype.cardinality = relship.cardinality;
             const reltypeview = reltype.typeview;
             if (reltypeview) {
+                reltypeview.applyRelationshipViewParameters(relview);
                 reltypeview.setRelshipKind(reltype.relshipkind);
                 if (debug) console.log('306 reltypeview', reltypeview);
                 const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
                 if (debug) console.log('308 Generate Relationship Type', gqlRelTypeview);
-                const modifiedTypeViews = new Array();
                 modifiedTypeViews.push(gqlRelTypeview);
-                modifiedTypeViews?.map(mn => {
-                    let data = (mn) && mn;
-                    data = JSON.parse(JSON.stringify(data));
-                    myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
-                });
             }
         }
     }
@@ -345,9 +338,9 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         reltype.cardinality = relship.cardinality;
         myTargetMetamodel.addRelationshipType(reltype);
         myMetis.addRelationshipType(reltype);
-        currentRel.generatedTypeId = reltype.getId();
+        currentRel.generatedTypeId = reltype.id;
         if (debug) console.log('328 currentRel, reltype', currentRel, reltype);
-        const gqlRelship = new gql.gqlRelationship(relship);
+        const gqlRelship = new gql.gqlRelationship(currentRel);
         modifiedRelships.push(gqlRelship);        
         if (debug) console.log('331 currentRel, gqlRelship: ', currentRel, gqlRelship);
         // Create relationship typeview
@@ -361,43 +354,38 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         if (debug) console.log('340 reltypeview', reltypeview);
         const gqlRelshipType = new gql.gqlRelationshipType(reltype, true);
         if (debug) console.log('342 Generate Relationship Type', reltype, gqlRelshipType);
-        const modifiedTypeLinks = new Array();
         modifiedTypeLinks.push(gqlRelshipType);
-        modifiedTypeLinks.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-        });
         const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
         if (debug) console.log('351 Generate Relationship Type', gqlRelTypeview);
-        const modifiedTypeViews = new Array();
         modifiedTypeViews.push(gqlRelTypeview);
-        modifiedTypeViews?.map(mn => {
-            let data = (mn) && mn;
-            data = JSON.parse(JSON.stringify(data));
-            myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
-        });
-        currentRel.generatedTypeId = reltype.id;
     } else {
-        // This is a RENAME of a reltype
+        // This is a RENAME of a reltype OR modifying reltypeview
         if (debug) console.log('362 rename relship type to: ', newName);
         const reltype = myMetis.findRelationshipType(relship.generatedTypeId);
         if (!reltype) 
             return;     // An error - do nothing
         // Rename the type
         reltype.name = newName;
-        // const gqlRelshipType = new gql.gqlRelationshipType(reltype);
-        // if (debug) console.log('502 Generate Relationship Type', reltype, gqlRelshipType);
-        // const modifiedTypeLinks = new Array();
-        // modifiedTypeLinks.push(gqlRelshipType);
-        // modifiedTypeLinks.map(mn => {
-        //     let data = (mn) && mn;
-        //     data = JSON.parse(JSON.stringify(data));
-        //     myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-        // });
-        
-        // Find rels of this type 
+        const gqlRelshipType = new gql.gqlRelationshipType(reltype, true);
+        if (debug) console.log('502 Generate Relationship Type', reltype, gqlRelshipType);
+        modifiedTypeLinks.push(gqlRelshipType);
+        const reltypeview = reltype.typeview;
+        // Apply relview parameters to reltypeview
+        reltypeview.applyRelationshipViewParameters(relview);
+        const gqlRelTypeview = new gql.gqlRelshipTypeView(reltypeview);
+        if (debug) console.log('351 Generate Relationship Type', gqlRelTypeview);
+        modifiedTypeViews.push(gqlRelTypeview);
     }
+    modifiedTypeLinks.map(mn => {
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
+    });
+    modifiedTypeViews?.map(mn => {
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
+    });
     modifiedRelships?.map(mn => {
         let data = (mn) && mn 
         if (debug) console.log('573 data', data);
@@ -952,7 +940,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const gqlMetamodel = new gql.gqlMetaModel(metamodel, true);
     gqlMetamodel.updateMethods(metamodel);
     modifiedMetamodels.push(gqlMetamodel);
-    if (!debug) console.log('894 Target metamodel', metamodel, gqlMetamodel);
+    if (debug) console.log('894 Target metamodel', metamodel, gqlMetamodel);
 
     if (true) { // Do the dispatches
         modifiedMetamodels.map(mn => {

@@ -5064,7 +5064,7 @@ export class cxReltypeviewData {
         this.relshipkind    = constants.relkinds.REL;
         this.strokecolor    = "black";
         this.strokewidth    = "1";
-        this.dash           = "[0]";
+        this.dash           = "None";
         this.fromArrow      = "";
         this.toArrow        = "OpenTriangle";
         this.fromArrowColor = "";
@@ -5105,15 +5105,15 @@ export class cxRelationshipTypeView extends cxMetaObject {
                     data[prop] = tvdata[prop];
                 }
                 for (prop in tvdata) {
-                    if (prop === 'strokecolor' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'strokewidth' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'dash' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'fromArrow' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'toArrow' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'fromArrowColor' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'toArrowColor' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'strokecolor' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'strokewidth' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'dash' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'fromArrow' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'toArrow' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'fromArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'toArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
                 }
-                }
+            }
         }
     }
     setType(type: cxRelationshipType) {

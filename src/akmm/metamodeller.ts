@@ -5064,7 +5064,7 @@ export class cxReltypeviewData {
         this.relshipkind    = constants.relkinds.REL;
         this.strokecolor    = "black";
         this.strokewidth    = "1";
-        this.dash           = "[0]";
+        this.dash           = "None";
         this.fromArrow      = "";
         this.toArrow        = "OpenTriangle";
         this.fromArrowColor = "";
@@ -5105,15 +5105,15 @@ export class cxRelationshipTypeView extends cxMetaObject {
                     data[prop] = tvdata[prop];
                 }
                 for (prop in tvdata) {
-                    if (prop === 'strokecolor' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'strokewidth' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'dash' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'fromArrow' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'toArrow' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'fromArrowColor' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'toArrowColor' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'strokecolor' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'strokewidth' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'dash' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'fromArrow' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'toArrow' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'fromArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'toArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
                 }
-                }
+            }
         }
     }
     setType(type: cxRelationshipType) {
@@ -5202,36 +5202,28 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.toArrow = toArrow;
     }
     setFromArrow2(relshipkind: string) {
-        let arrow = '';
-        let color = '';
         switch (relshipkind) {
             case 'Composition':
-                arrow = 'StretchedDiamond';
-                color = "black";
+                this.setFromArrow('StretchedDiamond');
+                this.setFromArrowColor('black');
                 break;
             case 'Aggregation':
-                arrow = 'StretchedDiamond';
-                color = 'white';
+                this.setFromArrow('StretchedDiamond');
+                this.setFromArrowColor('white');
                 break;
             default:
                 break;
         }
-        this.setFromArrow(arrow);
-        this.setFromArrowColor(color);
     }
     setToArrow2(relshipkind: string) {
-        let arrow = 'OpenTriangle';
-        let color = '';
         switch (relshipkind) {
             case 'Generalization':
-                arrow = 'Triangle';
-                color = "white";
+                this.setFromArrow('Triangle');
+                this.setFromArrowColor('white');
                 break;
             default:
                 break;
         }
-        this.setToArrow(arrow);
-        this.setToArrowColor(color);
     }
     getToArrow(): string {
         if (this.data.toArrow)
@@ -6839,22 +6831,18 @@ export class cxRelationshipView extends cxMetaObject {
         this.fromArrowColor = color;
     }
     setFromArrow2(relshipkind: string) {
-        let arrow = '';
-        let color = '';
         switch (relshipkind) {
             case 'Composition':
-                arrow = 'StretchedDiamond';
-                color = "black";
+                this.setFromArrow('StretchedDiamond');
+                this.setFromArrowColor('black');
                 break;
             case 'Aggregation':
-                arrow = 'StretchedDiamond';
-                color = 'white';
+                this.setFromArrow('StretchedDiamond');
+                this.setFromArrowColor('white');
                 break;
             default:
                 break;
         }
-        this.setFromArrow(arrow);
-        this.setFromArrowColor(color);
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
     }
     setToArrow(toArrow: string) {
@@ -6864,18 +6852,14 @@ export class cxRelationshipView extends cxMetaObject {
         this.toArrowColor = color;
     }
     setToArrow2(relshipkind: string) {
-        let arrow = 'OpenTriangle';
-        let color = '';
         switch (relshipkind) {
             case 'Generalization':
-                arrow = 'Triangle';
-                color = "white";
+                this.setFromArrow('Triangle');
+                this.setFromArrowColor('white');
                 break;
             default:
                 break;
         }
-        this.setToArrow(arrow);
-        this.setToArrowColor(color);
     }
 }
 

@@ -726,6 +726,8 @@ export class goRelshipLink extends goLink {
                     for (let prop in viewdata) {
                         if (relview[prop] && relview[prop] !== "") {
                             this[prop] = relview[prop];
+                        } else {
+                            this[prop] = typeview[prop];
                         }
                     }        
                 }

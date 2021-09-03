@@ -603,15 +603,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       });
       let relview = link.data.relshipview;
       relview = myMetis.findRelationshipView(relview.id);
-      if (relship.relshipkind) {
+      if (relship.relshipkind !== constants.relkinds.REL) {
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);
         myDiagram.model.setDataProperty(data, 'fromArrow', relview.fromArrow);
         myDiagram.model.setDataProperty(data, 'toArrow', relview.toArrow);
         myDiagram.model.setDataProperty(data, 'fromArrowColor', relview.fromArrowColor);
         myDiagram.model.setDataProperty(data, 'toArrowColor', relview.toArrowColor);
-        if (debug) console.log('598 relship, relview', relship, relview);
       }
+      if (debug) console.log('598 relship, relview', relship, relview);
       if (myModelview.showCardinality) {
         myDiagram.model.setDataProperty(data, 'cardinalityFrom', relship.getCardinalityFrom());
         myDiagram.model.setDataProperty(data, 'cardinalityTo', relship.getCardinalityTo());
@@ -777,9 +777,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     case "editRelshipview": {
       const selRelview = selectedData;
-      const relview = selRelview.relshipview;
+      let relview = selRelview.relshipview;
       if (!relview)
         break;
+      relview = myMetis.findRelationshipView(relview.id);
       const reltype = selRelview.relshiptype;
       let reltypeview = reltype.typeview;
       if (reltypeview) {

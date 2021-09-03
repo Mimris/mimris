@@ -1076,9 +1076,9 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
         relship.addRelationshipView(relshipview);
-        // for (let prop in  reltypeview?.data) {
-        //     relshipview[prop] = reltypeview[prop];
-        // }        
+        for (let prop in  reltypeview?.data) {
+            relshipview[prop] = reltypeview[prop];
+        }        
         updateLink(data, relshipview.typeview, myDiagram, myGoModel);
         if (debug) console.log('1123 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());

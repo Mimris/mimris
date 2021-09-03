@@ -661,7 +661,7 @@
               "description": "",
               "typeviewRef": "1bc9dc41-7b84-42a2-aac1-3f4cf41ad671",
               "properties": [],
-              "relshipkind": "Association",
+              "relshipkind": "Aggregation",
               "viewkind": "",
               "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
               "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",

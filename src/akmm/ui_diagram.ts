@@ -1,6 +1,6 @@
 // @ts- nocheck
 const debug = false; 
-// import * as go from 'gojs';
+import * as go from 'gojs';
 import * as utils from './utilities';
 import * as uic from './ui_common';
 import * as ui_mtd from './ui_methods';
@@ -602,7 +602,7 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     //   console.log('1001 prop, value', prop, value);
     //   msg += printf(format2, prop.name, value);
     // }
-    if (debug) console.log('1005 nodeInfo', obj, msg);
+    if (debug) console.log('605 nodeInfo', msg);
     return msg;
 }
 

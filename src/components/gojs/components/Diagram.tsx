@@ -21,6 +21,7 @@ import * as gql from '../../../akmm/ui_graphql';
 import * as uic from '../../../akmm/ui_common';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uim from '../../../akmm/ui_modal';
+// import * as ui_mnu from '../../../akmm/ui_menus';
 import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
@@ -2288,7 +2289,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
-            makeButton("Verify and Repair Model",
+          makeButton("Verify and Repair Model",
             function (e: any, obj: any) {
               if (debug) console.log('2340 myMetis', myMetis);
               const myModel = myMetis.currentModel;

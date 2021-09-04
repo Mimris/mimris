@@ -684,6 +684,24 @@
       "nameTo": "",
       "markedAsDeleted": false,
       "modified": true
+    },
+    {
+      "id": "c441a883-b9df-4f08-e447-20a1ff13cbab",
+      "name": "hasProperties",
+      "description": "",
+      "typeviewRef": "2bdf7577-0256-4998-dd35-44e3aee359e0",
+      "properties": [],
+      "relshipkind": "Association",
+      "viewkind": "",
+      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
+      "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
+      "cardinality": "",
+      "cardinalityFrom": "",
+      "cardinalityTo": "",
+      "nameFrom": "",
+      "nameTo": "",
+      "markedAsDeleted": false,
+      "modified": true
     }
   ],
   "properties": [
@@ -1739,7 +1757,7 @@
       "description": "",
       "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
       "metamodelRef": "82e6ec62-e66e-4dc7-9780-32f4b1aa69b3",
-      "loc": "-1020 -380",
+      "loc": "-1380 -20",
       "size": "",
       "markedAsDeleted": false,
       "modified": false

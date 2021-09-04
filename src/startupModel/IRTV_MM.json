@@ -955,8 +955,26 @@
       "nameTo": "",
       "markedAsDeleted": false,
       "modified": true
+    },
+    {
+      "id": "c441a883-b9df-4f08-e447-20a1ff13cbab",
+      "name": "hasProperties",
+      "description": "",
+      "typeviewRef": "2bdf7577-0256-4998-dd35-44e3aee359e0",
+      "properties": [],
+      "relshipkind": "Association",
+      "viewkind": "",
+      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
+      "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
+      "cardinality": "",
+      "cardinalityFrom": "",
+      "cardinalityTo": "",
+      "nameFrom": "",
+      "nameTo": "",
+      "markedAsDeleted": false,
+      "modified": true
     }
-  ],
+],
   "properties": [
     {
       "id": "a06a1f9f-2227-4f92-74d6-032f055b6240",
@@ -1173,7 +1191,7 @@
       "value": "",
       "inputPattern": "",
       "viewFormat": "%s",
-      "fieldType": "radio",
+      "fieldType": "select",
       "markedAsDeleted": false,
       "modified": false
     },

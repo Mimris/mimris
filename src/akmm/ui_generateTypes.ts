@@ -1017,7 +1017,33 @@ function getAllPropertytypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxM
             if (debug) console.log('950 proptype', proptype);
             proptypes.push(proptype);
         }
+        if (rel?.type?.name === constants.types.AKM_HAS_PROPERTIES) {
+            if (toObj.type?.name === constants.types.AKM_CONTAINER) {
+                const oviews = toObj.objectviews;
+                for (let j=0; j<oviews.length; j++) {
+                    const oview = oviews[j];
+                    const grpId = oview.id;
+                    getPropertiesInGroup(grpId, proptypes, myModel);
+                }
+            }
+        }
     }    
+}
+
+function getPropertiesInGroup(groupId: string, proptypes: any, myModel: akm.cxModel) {
+    const objects = myModel.getObjects();
+    for (let i=0; i<objects?.length; i++) {
+        const obj = objects[i];
+        if (obj?.type?.name !== constants.types.AKM_PROPERTY)
+            continue;
+        const objviews = obj?.objectviews;
+        for (let j=0; j<objviews?.length; j++) {
+            const objview = objviews[j];
+            if (objview && objview.group === groupId) {
+                proptypes.push(obj);
+            }
+        }
+    }
 }
 
 function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, context: any) {

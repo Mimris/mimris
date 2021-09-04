@@ -1585,7 +1585,7 @@
       "value": "",
       "inputPattern": "",
       "viewFormat": "%s",
-      "fieldType": "radio",
+      "fieldType": "select",
       "markedAsDeleted": false,
       "modified": false
     },

@@ -380,7 +380,7 @@ export function handleSelectDropdownChange(selected, context) {
           toType.allRelationshiptypes = myMetamodel.relshiptypes;
       }
       const reltype = context.myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
-      if (debug) console.log('380 reltype', reltype);
+      if (debug) console.log('380 reltype', reltype, fromType, toType);
 
       if (!reltype) {
           alert("Relationship type given does not exist!")

@@ -92,6 +92,7 @@ export function handleSelectDropdownChange(selected, context) {
   const myMetis = context.myMetis;
   const myMetamodel = context.myMetamodel;
   const myGoModel = context.myGoModel;
+  const myModel = context.myModel;
   const myModelview = context.myModelview;
   const modalContext = context.modalContext;
   modalContext.selected = selected;
@@ -262,6 +263,8 @@ export function handleSelectDropdownChange(selected, context) {
     case "Change Relationship type": { 
       const typename = (selectedOption) && selectedOption;
       const link = myMetis.currentLink;
+      let relship = link.relship;
+      relship = myModel.findRelationship(relship.id);
       let fromNode = myGoModel?.findNode(link.from);
       let toNode   = myGoModel?.findNode(link.to);
       if (debug) console.log('265 myGoModel, link, from and toNode: ', myGoModel, link, fromNode, toNode);
@@ -271,12 +274,28 @@ export function handleSelectDropdownChange(selected, context) {
       toType   = myMetis.findObjectType(toType?.id);
       if (debug) console.log('270 link', fromType, toType);
       const reltype = myMetis.findRelationshipTypeByName2(typename, fromType, toType);
-      if (debug) console.log('272 reltype', reltype, fromType, toType);
-      const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
-      if (debug) console.log('274 relview', relview);
-      myMetis.myDiagram.requestUpdate();
-    }
-    break;
+      const relshipkind = reltype.relshipkind;
+      relship.setRelshipKind(relshipkind);
+      switch(relshipkind) {
+        case 'Composition':
+        case 'Aggregation':
+          relship.cardinalityFrom = reltype.cardinalityFrom;
+          relship.cardinalityTo = reltype.cardinalityTo;
+      }
+      const modifiedRelships = new Array();
+      const gqlRelship = new gql.gqlRelationship(relship);
+      if (debug) console.log('280 gqlRelship', gqlRelship);
+      modifiedRelships.push(gqlRelship);
+      modifiedRelships.map(mn => {
+        let data = mn;
+        myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+      });
+      if (debug) console.log('287 reltype', reltype, fromType, toType);
+        const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
+        if (debug) console.log('274 relview', relview);
+        myMetis.myDiagram.requestUpdate();
+      }
+      break;
 
     case "Edit Attribute": {
       const propname = selected.value;

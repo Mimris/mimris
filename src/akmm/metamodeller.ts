@@ -77,6 +77,7 @@ export class cxMetis {
         this.id = utils.createGuid();
         this.name = "";
         this.description = "";
+
         this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
@@ -2314,6 +2315,7 @@ export class cxMetaObject {
     nameId:             string;
     category:           string;
     description:        string;
+    sourceUri:          string;
     markedAsDeleted:    boolean;
     modified:           boolean;
     fs_collection:      string;
@@ -2324,6 +2326,7 @@ export class cxMetaObject {
         this.name = name;
         this.nameId = name;
         this.category = "";
+        this.sourceUri = "";
         this.markedAsDeleted = false;
         this.modified = false;
         if (name == null) this.name = id;

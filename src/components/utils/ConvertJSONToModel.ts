@@ -7,7 +7,7 @@ import ObjectTable from '../table/ObjectTable';
 // read and convert OSDU Json format
 
 
-export const ReadConvertJSONFromFile = async (modelType, props, dispatch, e) => {
+export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()
 
@@ -20,6 +20,8 @@ export const ReadConvertJSONFromFile = async (modelType, props, dispatch, e) => 
     const hasTypeId = ['22f50fa8-90be-4738-8f71-670a19668fe0', 'has']
 
     const curModel = props.phData.metis.models.find(m => m.id === props.phFocus.focusModel.id)
+    console.log('23 ', props.phFocus.focusModel, curModel, props.phData.metis.models);
+    
     const curMetamodel = props.phData.metis.metamodels.find(mm => mm.id === curModel.metamodelRef)
     const curObjTypes = curMetamodel.objecttypes
 
@@ -30,7 +32,7 @@ export const ReadConvertJSONFromFile = async (modelType, props, dispatch, e) => 
     reader.onload = async (e) =>  { 
         const text = (e.target.result)
         const osduMod = JSON.parse(text) // importert JSON file
-        if (!debug) console.log('32', osduMod,  osduMod["$id"], osduMod["x-osdu-schema-source"] );
+        if (debug) console.log('32', osduMod,  osduMod["$id"], osduMod["x-osdu-schema-source"] );
         // if (osduMod["$id"]) console.log('20',  osduMod["$id"].split('/').slice(-1)[0]  );
         
         const topName = (osduMod["$id"]) ? osduMod["$id"].split('/').slice(-1)[0] : osduMod["x-osdu-schema-source"] 
@@ -129,29 +131,29 @@ export const ReadConvertJSONFromFile = async (modelType, props, dispatch, e) => 
                     if (debug) console.log('110', parentName, reltypeRef[1]);
                     
                     // check if the object is already in the phData
-                    // console.log('102 : ', props);
-                    // if ((oldParentKey !== "") && (oldParentKey.length < parentKey.length)) parentId = oId // oldId    
-
-                    const existObj = curModel.objects.find( (o) => o.osduId === oKey )
-                    // console.log('106 : ', existObj, oKey, existObj?.id);
+                    console.log('102 : props', props, 'curModel ', curModel);
+                    const existObj = curModel.objects.find(o => (o.osduId === oKey) && o )
+                    console.log('106 : ', existObj, oKey, existObj?.id);
                     
                     const oId = (existObj) ? existObj.id : utils.createGuid()
-
                     tmpArray = [...tmpArray, [oKey, oId] ]
-                    console.log('139 ', tmpArray);           
-                    
+                    // console.log('139 ', tmpArray);           
+
+                    // ---------------------------------------------------------------------------------------------------------------------------------------
                     let importedObject, topLevelObjectId, entityName
                     
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
                         
                         if (i === 0 || oName === 'items')  {
 
-                            objecttypeRef = entityTypeId[0]
-                            const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick 3 last element 
+                            objecttypeRef = entityTypeId[0] 
+
+                            const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
+                            parentId = oId
                             // console.log('163', i, parentName,);
-                            entityName = (i === 0) ? cNewVal.title : parentName
+                            entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName
                             entityId = oId
-                            parentId =  (i === 0) ? null : parentId
+                
                             // console.log('142 i', i, entityName, entityId);
                             reltypeRef = hasTypeId 
 
@@ -167,23 +169,25 @@ export const ReadConvertJSONFromFile = async (modelType, props, dispatch, e) => 
                                 ...cNewVal // want only attributes 
                             }
 
-                        } else if (parentName === 'properties') {
+                        } else if (parentName === 'properties' && inclProps) { // if include properties
 
                             if (debug) console.log( '158 : ', compositeName, oId, parentId, entityId, parentName, tmpArray);
                             reltypeRef = hasTypeId             
                             parentId = entityId
                             compositeName = (entityName) ? entityName : oName
-
-                            importedObject = {
-                                id: oId,
-                                name: compositeName,
-                                // typeName: type,
-                                typeRef: objecttypeRef,
-                                abstract: false,
-                                markedAsDeleted: false,
-                                modified: true,
-                                ...cNewVal // want only attributes 
-                            }
+                
+                                importedObject = {
+                                    id: oId,
+                                    name: compositeName,
+                                    // typeName: type,
+                                    typeRef: objecttypeRef,
+                                    abstract: false,
+                                    markedAsDeleted: false,
+                                    modified: true,
+                                    osduId: oKey,
+                                    ...cNewVal // want only attributes 
+                                }
+            
                         } else {
                             
                             continue;
@@ -210,11 +214,18 @@ export const ReadConvertJSONFromFile = async (modelType, props, dispatch, e) => 
                     dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject } );  
 
                     const parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
-                    parentId = (parentId === oId) ? null : (!parentId) ? null : (entityId) ? entityId : parentIdArray[1] 
+                    parentId = (parentId === oId) 
+                        ? null
+                        : (!parentId) 
+                            ? null 
+                            : (entityId) 
+                                ? entityId 
+                                : parentIdArray[1] 
+
                     // parentId = (entityId) ? entityId : (parentId) ? parentIdArray[1] : null  
                     parentName = (entityName) ? entityName : parentName 
                     
-                    if (!debug) console.log('201 : name', compositeName, 'oId ',oId, 'parentId ', parentId, 'entityId ', entityId, 'reltRef ', reltypeRef[0]);
+                    if (debug) console.log('201 : name', compositeName, 'oId ',oId, 'parentId ', parentId, 'entityId ', entityId, 'reltRef ', reltypeRef[0]);
                     
                     importedRel = (parentId) 
                         ?   {
@@ -239,7 +250,7 @@ export const ReadConvertJSONFromFile = async (modelType, props, dispatch, e) => 
                             }  
                         :   {}
 
-                    console.log('234 ', importedRel );
+                    if (debug) console.log('234 ', importedRel );
                     
                     (parentId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
 

@@ -104,6 +104,7 @@ export let types = {
          _EKA_PART         : "_part",
     
     // AKM types
+         AKM_CONTAINER         : "Container",
          AKM_INFORMATION       : "Information",
          AKM_ROLE              : "Role",
          AKM_TASK              : "Task",
@@ -124,6 +125,7 @@ export let types = {
          AKM_HAS_MEMBER        : "hasMember",
          AKM_HAS_PART          : "hasPart",
          AKM_HAS_PROPERTY      : "has",
+         AKM_HAS_PROPERTIES    : "hasProperties",
          AKM_IS_OF_DATATYPE    : "isOf",
          AKM_IS_DEFAULTVALUE   : "isDefault",
          AKM_HAS_METHOD        : "has",

@@ -271,7 +271,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case 'cardinalityTo':
             dtype = myMetamodel.findDatatypeByName('cardinality');
             if (dtype) {
-              fieldType   = dtype.fieldType;
+              fieldType   = 'select' // dtype.fieldType;
               viewFormat  = dtype.viewFormat
               pattern     = dtype.inputPattern;
               defValue    = dtype.defaultValue;

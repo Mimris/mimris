@@ -931,8 +931,8 @@
       "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "cardinality": "",
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
+      "cardinalityFrom": "n",
+      "cardinalityTo": "n",
       "nameFrom": "",
       "nameTo": "",
       "markedAsDeleted": false,
@@ -954,9 +954,31 @@
       "nameFrom": "",
       "nameTo": "",
       "markedAsDeleted": false,
+<<<<<<< HEAD
       "modified": false
+=======
+      "modified": true
+    },
+    {
+      "id": "c441a883-b9df-4f08-e447-20a1ff13cbab",
+      "name": "hasProperties",
+      "description": "",
+      "typeviewRef": "2bdf7577-0256-4998-dd35-44e3aee359e0",
+      "properties": [],
+      "relshipkind": "Association",
+      "viewkind": "",
+      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
+      "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
+      "cardinality": "",
+      "cardinalityFrom": "",
+      "cardinalityTo": "",
+      "nameFrom": "",
+      "nameTo": "",
+      "markedAsDeleted": false,
+      "modified": true
+>>>>>>> b085903b4ac61879c731de50707591931a181552
     }
-  ],
+],
   "properties": [
     {
       "id": "a06a1f9f-2227-4f92-74d6-032f055b6240",
@@ -990,8 +1012,33 @@
   "methods": [],
   "methodtypes": [
     {
+<<<<<<< HEAD
       "id": "3625c808-3d5c-498a-87cb-5a245a7a9dea",
       "name": "AggregateValue",
+=======
+      "id": "abc274e1-f4e9-4d9c-7f98-b0ffe26499c9",
+      "name": "cardinality",
+      "description": "",
+      "datatypeRef": "",
+      "allowedValues": [
+        "0-1",
+        "1",
+        "0-n",
+        "1-n",
+        "n"
+      ],
+      "defaultValue": "",
+      "value": "",
+      "inputPattern": "",
+      "viewFormat": "%s",
+      "fieldType": "select",
+      "markedAsDeleted": false,
+      "modified": false
+    },
+    {
+      "id": "ae89dc9b-91ee-47a9-15a8-32ab3a593d03",
+      "name": "viewkind",
+>>>>>>> b085903b4ac61879c731de50707591931a181552
       "description": "",
       "properties": [
         {

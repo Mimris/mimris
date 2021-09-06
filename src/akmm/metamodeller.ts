@@ -5211,6 +5211,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
                 this.setFromArrow('StretchedDiamond');
                 this.setFromArrowColor('white');
                 break;
+            case 'Generalization':
+                this.setFromArrow(' ');
+                this.setFromArrowColor(' ');
+                break;
             default:
                 break;
         }
@@ -5218,8 +5222,8 @@ export class cxRelationshipTypeView extends cxMetaObject {
     setToArrow2(relshipkind: string) {
         switch (relshipkind) {
             case 'Generalization':
-                this.setFromArrow('Triangle');
-                this.setFromArrowColor('white');
+                this.setToArrow('Triangle');
+                this.setToArrowColor('white');
                 break;
             default:
                 break;
@@ -6840,6 +6844,10 @@ export class cxRelationshipView extends cxMetaObject {
                 this.setFromArrow('StretchedDiamond');
                 this.setFromArrowColor('white');
                 break;
+            case 'Generalization':
+                this.setFromArrow(' ');
+                this.setFromArrowColor(' ');
+                break;
             default:
                 break;
         }
@@ -6854,8 +6862,8 @@ export class cxRelationshipView extends cxMetaObject {
     setToArrow2(relshipkind: string) {
         switch (relshipkind) {
             case 'Generalization':
-                this.setFromArrow('Triangle');
-                this.setFromArrowColor('white');
+                this.setToArrow('Triangle');
+                this.setToArrowColor('white');
                 break;
             default:
                 break;

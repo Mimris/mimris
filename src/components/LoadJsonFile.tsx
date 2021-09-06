@@ -15,11 +15,12 @@ import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
 
 const LoadJsonFile = (props: any) => {
     
-     const debug = false
+      const debug = false
       const dispatch = useDispatch()  
       const refresh = props.refresh
       const setRefresh = props.setRefresh
       function toggleRefresh() { setRefresh(!refresh); }
+
     
       const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
       const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
@@ -98,6 +99,12 @@ const LoadJsonFile = (props: any) => {
       const toggle = () => setModal(!modal);
     
       // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+
+      const [inclProps, setInclProps ] = useState(false)
+
+      const handleInclPropChange = () => {
+        setInclProps(!inclProps);
+      };
     
  
       const buttonSaveJSONToFileDiv = 
@@ -106,19 +113,7 @@ const LoadJsonFile = (props: any) => {
           title="Click here to download current model as JSON to file&#013;(in Downloads folder)"
           onClick={handleSaveJSONToFile}>Save Current Model to File 
         </button >
-      
-    
-      // const projectname = props.ph.phData.metis.name
-      // const today = new Date().toISOString().slice(0, 19)
-      // const emailAddress = 'snorres@gmail.com'
-      // const subject = `Project_${projectname}_${today} (AKM Models)`
-      // const body = JSON.stringify(data)
-      // const hrefGmail = 'https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=' + emailAddress+'&subject=' + subject + '&body=' + body
-      // const hrefEmail = 'mailto:' + emailAddress+'?subject=' + subject + '&body=' + body
-      // const emailDivGmail = <a href={hrefGmail} target="_blank">Gmail: Send Context (using your Gmail)</a>
-      // const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
-      
-    
+   
       if (debug) console.log('172', buttonLabel);
       
       return (
@@ -133,18 +128,21 @@ const LoadJsonFile = (props: any) => {
               <div className="source bg-light p-2 ">
                 <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
        
-                <div className="loadsave--JsonToFile select bg-primary mb-1 p-2  border border-dark">
+                <form className="loadsave--JsonToFile select bg-primary mb-1 p-2  border border-dark">
                     {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                     <h5>AKM objecttypes</h5>
                     <div className="selectbox3 mb-2 border">
                       <h6>Import OSDU JSON-file as AKM model types</h6>
                       <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
-                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("AKM", props.ph, dispatch, e)} />
+                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("AKM", inclProps, props.ph, dispatch, e)} />
+                      <label className="pt-3" htmlFor="inclProps ">Include Properties 
+                        <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
+                      </label>
                       {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                     </div>
 
 
-                </div>
+                </form>
                 <div className="loadsave--JsonToFile select bg-success mb-1 p-2  border border-dark">
                     <h5>OSDU JSON filestructure</h5>
                     <div className="selectbox3 mb-2 border">

@@ -17,6 +17,7 @@ import LoadServer from '../components/LoadServer'
 import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
 import LoadFile from '../components/LoadFile'
+import LoadJsonFile from '../components/LoadJsonFile'
 import ImpExpJSONFile from '../components/ImpExpJSONFile'
 import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
@@ -386,7 +387,8 @@ const page = (props:any) => {
   const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-  const loadfile =  (process.browser) && <LoadFile  buttonLabel='File'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  const loadfile =  (process.browser) && <LoadFile  buttonLabel='Model file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  const loadjsonfile =  (process.browser) && <LoadJsonFile  buttonLabel='OSDU json file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
   const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -410,6 +412,7 @@ const page = (props:any) => {
  
               <span className="pt-1 pr-2" > </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" > {loadfile} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
               {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}

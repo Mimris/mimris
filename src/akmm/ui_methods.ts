@@ -73,7 +73,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             if (relviews.length == 0) i++;
                         } else {
                             relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
-                            if (relviews.length == 0) i++;
+                            if (relviews?.length == 0) i++;
                         }
                         if (debug) console.log('1637 rel, relview', rel, relviews);                    
                         // if (relviews.length > 0)

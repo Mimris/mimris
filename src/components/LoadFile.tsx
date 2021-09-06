@@ -199,25 +199,6 @@ const LoadFile = (props: any) => {
                 </div>
               </div>
             </div>
-            <div className="loadsave--JsonToFile select bg-success mb-1 p-2  border border-dark">
-                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                  <h5>OSDU JSON-file</h5>
-                <div className="selectbox mb-2 border">
-                  <h6>Import model from OSDU JSON-file </h6>
-                  <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile(props.ph, dispatch, e)} />
-                  {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
-             
-                </div>
-                <div className="selectbox mb-2 border">
-                  <h6>Export to JSON file </h6>
-                  {buttonSaveJSONToFileDiv}
-                </div>
-                  {/* <h6>Send Project by mail </h6>
-                  <div className="selectbox bg-white mb-2 border">
-                    <div className="ml-2">{emailDivGmail}</div>
-                    <div className="ml-2">{emailDivMailto}</div>
-                  </div> */}
-              </div>
           </div>
 
         </ModalBody>

@@ -148,7 +148,7 @@ const LoadJsonFile = (props: any) => {
                     <div className="selectbox3 mb-2 border">
                       <h6>Import OSDU Json file as a Json model </h6>
                       <h6>(This will import the OSDU Json structure)</h6>
-                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", props.ph, dispatch, e)} />
+                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("JSON", inclProps, props.ph, dispatch, e)} />
                       {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                  
                     </div>

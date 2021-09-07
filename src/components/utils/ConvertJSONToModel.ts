@@ -11,22 +11,36 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
     e.preventDefault()
     const reader = new FileReader()
 
-    const JsonObjectTypeId = ['379e9cf8-4481-4b1c-cd09-04924edb97d6', 'JsonObject']
-    const JsonArrayTypeId = ['ca4b9d54-a585-4415-aa1b-e259c375c74f', 'JsonArray']
-    const entityTypeId = ['31a18ce8-66cf-4b95-79e4-673746867ac3', 'Entity']
-    const propertyTypeId = ['7e9386c9-75bc-4239-c040-d328f1c91e1b','Property']
-    const hasPartTypeId = ['1507e682-1a4f-49cb-efe7-b2efcb3eb50c','hasPart']
-    const hasMemberTypeId = ['40bd8511-8daf-452c-2e01-3bb3f4f0277c', 'hasMember']
-    const hasTypeId = ['22f50fa8-90be-4738-8f71-670a19668fe0', 'has']
+    // const JsonObjectTypeId = ['379e9cf8-4481-4b1c-cd09-04924edb97d6', 'JsonObject']
+    // const JsonArrayTypeId = ['ca4b9d54-a585-4415-aa1b-e259c375c74f', 'JsonArray']
+    // const entityTypeId = ['31a18ce8-66cf-4b95-79e4-673746867ac3', 'EntityType']
+    // const propertyTypeId = ['7e9386c9-75bc-4239-c040-d328f1c91e1b','Property']
+    // const hasPartTypeId = ['1507e682-1a4f-49cb-efe7-b2efcb3eb50c','hasPart']
+    // const hasMemberTypeId = ['40bd8511-8daf-452c-2e01-3bb3f4f0277c', 'hasMember']
+    // const hasTypeId = ['22f50fa8-90be-4738-8f71-670a19668fe0', 'has']
+
+
 
     const curModel = props.phData.metis.models.find(m => m.id === props.phFocus.focusModel.id)
     console.log('23 ', props.phFocus.focusModel, curModel, props.phData.metis.models);
     
     const curMetamodel = props.phData.metis.metamodels.find(mm => mm.id === curModel.metamodelRef)
     const curObjTypes = curMetamodel.objecttypes
+    const curRelTypes = curMetamodel.relshiptypes
 
-    let objecttypeRef = JsonObjectTypeId // default partof relship in JSON structure
-    let reltypeRef = hasPartTypeId // default partof relship in JSON structure
+    const JsonObjectType = curObjTypes.find(co => (co.name === 'JsonObject') && co)
+    
+    const JsonArrayType = curObjTypes.find(co => (co.name === 'JsonArray') && co)
+    const entityType = curObjTypes.find(co => (co.name === 'EntityType') && co)
+    const propertyType = curObjTypes.find(co => (co.name === 'Property') && co)
+    const hasPartType = curRelTypes.find(co => (co.name === 'hasPart') && co)
+    const hasMemberType = curRelTypes.find(co => (co.name === 'hasMember') && co)
+    const hasType = curRelTypes.find(co => (co.name === 'has') && co)
+    console.log('38', hasPartType);
+    
+    console.log('32 ', JsonObjectType.id, hasPartType.id, hasMemberType.id, hasType.id);
+    let objecttypeRef = JsonObjectType?.id // default partof relship in JSON structure
+    let reltypeRef = hasPartType?.id // default partof relship in JSON structure
 
     // reader.fileName = file.name
     reader.onload = async (e) =>  { 
@@ -122,31 +136,31 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
                     if (debug) console.log('115 : ', objTypeName, ' - ', objecttypeRef);
                     
-                    // objecttypeRef = (parentName === "properties") ? propertyTypeId : (oName !== "allOf") ? JsonObjectTypeId : JsonArrayTypeId // if parent is property use property typeRef
+                    // objecttypeRef = (parentName === "properties") ? propertyType.id : (oName !== "allOf") ? JsonObjectTypeId : JsonArrayTypeId // if parent is property use property typeRef
                     // console.log('102 : ', parentName, oName, objecttypeRef);
                     
                     let compositeName  = oName // temporary puttin title etc into objname for readability - later replace with a JSON - objecttype for the object
 
-                    reltypeRef = (parentName === 'allOf' || parentName === 'anyOf' || parentName === 'onOf')  ? hasMemberTypeId : hasPartTypeId // temporary set array to hasMember relship
-                    if (debug) console.log('110', parentName, reltypeRef[1]);
+                    reltypeRef = (parentName === 'allOf' || parentName === 'anyOf' || parentName === 'onOf')  ? hasMemberType?.id : hasPartType?.id // temporary set array to hasMember relship
+                    if (debug) console.log('110', parentName, reltypeRef.id);
                     
                     // check if the object is already in the phData
                     console.log('102 : props', props, 'curModel ', curModel);
-                    const existObj = curModel.objects.find(o => (o.osduId === oKey) && o )
+                    const existObj = curModel.objects.find( (o) => o.osduId === oKey )
                     console.log('106 : ', existObj, oKey, existObj?.id);
                     
                     const oId = (existObj) ? existObj.id : utils.createGuid()
                     tmpArray = [...tmpArray, [oKey, oId] ]
                     // console.log('139 ', tmpArray);           
-
+                    
                     // ---------------------------------------------------------------------------------------------------------------------------------------
                     let importedObject, topLevelObjectId, entityName
                     
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
                         
                         if (i === 0 || oName === 'items')  {
-
-                            objecttypeRef = entityTypeId[0] 
+                        
+                            objecttypeRef = entityType.id 
 
                             const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
                             parentId = oId
@@ -155,7 +169,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             entityId = oId
                 
                             // console.log('142 i', i, entityName, entityId);
-                            reltypeRef = hasTypeId 
+                            reltypeRef = hasType.id 
 
                             importedObject = {
                                 id: oId,
@@ -166,13 +180,14 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                 abstract: false,
                                 markedAsDeleted: false,
                                 modified: true,
+                                osduId: oKey,
                                 ...cNewVal // want only attributes 
                             }
 
                         } else if (parentName === 'properties' && inclProps) { // if include properties
 
                             if (debug) console.log( '158 : ', compositeName, oId, parentId, entityId, parentName, tmpArray);
-                            reltypeRef = hasTypeId             
+                            reltypeRef = hasType.id             
                             parentId = entityId
                             compositeName = (entityName) ? entityName : oName
                 
@@ -194,7 +209,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         }
 
                     } else {   // create the json objects 
-                                
+                        parentId = oId
                         importedObject = {
                             id: oId,
                             name: compositeName,
@@ -225,12 +240,12 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // parentId = (entityId) ? entityId : (parentId) ? parentIdArray[1] : null  
                     parentName = (entityName) ? entityName : parentName 
                     
-                    if (debug) console.log('201 : name', compositeName, 'oId ',oId, 'parentId ', parentId, 'entityId ', entityId, 'reltRef ', reltypeRef[0]);
+                    if (debug) console.log('201 : name', compositeName, 'oId ',oId, 'parentId ', parentId, 'entityId ', entityId, 'reltRef ', reltypeRef);
                     
                     importedRel = (parentId) 
                         ?   {
                                 id: utils.createGuid(),
-                                name: reltypeRef[1],
+                                name: reltypeRef.name,
                                 title: "",
                                 cardinality: "",
                                 cardinalityFrom: undefined,
@@ -246,7 +261,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                 relshipviews: undefined,
                                 toobjectRef: oId,
                                 nameTo: oName,
-                                typeRef: reltypeRef[0],
+                                typeRef: reltypeRef.id,
                             }  
                         :   {}
 

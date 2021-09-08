@@ -969,20 +969,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('895 data', data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
-        break;
-        let plist = link.data.points;
-        let points = "[";
-        let it = plist.iterator;
-        let firsttime = true;
-        while (it.next()) {
-          if (!firsttime) points += ",";
-          points += it.value.x;
-          points += "," + it.value.y
-          firsttime = false;
-        }
-        points += "]";
         if (relview) {
-          relview.points = points;
+          relview.points = link.data.points;;
           const gqlRelview = new gql.gqlRelshipView(relview);
           if (debug) console.log('912 relview, gqlRelview', relview, gqlRelview);
           modifiedLinks.push(gqlRelview);

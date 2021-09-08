@@ -2526,7 +2526,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }
           ),
-          new go.Binding("points", "points").makeTwoWay(),
+          new go.Binding("points").makeTwoWay(),
+          // new go.Binding("points", "points").makeTwoWay(),
           // context menu
           { contextMenu: linkContextMenu },
           // link shape

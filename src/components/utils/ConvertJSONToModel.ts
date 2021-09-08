@@ -38,9 +38,10 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
     const hasType = curRelTypes.find(co => (co.name === 'has') && co)
     console.log('38', hasPartType);
     
-    console.log('32 ', JsonObjectType.id, hasPartType.id, hasMemberType.id, hasType.id);
+    // console.log('32 ', JsonObjectType.id, hasPartType.id, hasMemberType.id, hasType.id);
     let objecttypeRef = JsonObjectType?.id // default partof relship in JSON structure
     let reltypeRef = hasPartType?.id // default partof relship in JSON structure
+    let reltypeName = hasPartType?.name // default partof relship in JSON structure
 
     // reader.fileName = file.name
     reader.onload = async (e) =>  { 
@@ -55,8 +56,9 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
         let parentId = null //topModel.id || osduMod["$id"]
         let oldParentKey = ""
         let prevId = ""
-        let tmpArray = ""
+        let tmpArray = []
         let entityId = ""
+        let parentIdArray = []
 
         // deepEntries take all object-keys and concatinate them in curKey with a path showing all above levels
         // the curKey is put in a array "allKeys" with curKey as first and the obect as second. 
@@ -170,6 +172,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                 
                             // console.log('142 i', i, entityName, entityId);
                             reltypeRef = hasType.id 
+                            reltypeName = hasType.name
 
                             importedObject = {
                                 id: oId,
@@ -187,7 +190,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         } else if (parentName === 'properties' && inclProps) { // if include properties
 
                             if (debug) console.log( '158 : ', compositeName, oId, parentId, entityId, parentName, tmpArray);
-                            reltypeRef = hasType.id             
+                            reltypeRef = hasType.id
+                            reltypeName = hasType.name             
                             parentId = entityId
                             compositeName = (entityName) ? entityName : oName
                 
@@ -207,9 +211,17 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             
                             continue;
                         }
+                        parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
+                        parentId = (parentId === oId) 
+                            ? null
+                            : (!parentId) 
+                                ? null 
+                                : (entityId) 
+                                    ? entityId 
+                                    : parentIdArray[1] 
 
                     } else {   // create the json objects 
-                        parentId = oId
+                        // parentId = oId
                         importedObject = {
                             id: oId,
                             name: compositeName,
@@ -223,29 +235,24 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             jsonKey: oName,
                             ...cNewVal // want only attributes 
                         }
+                        parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
+                        parentId = (parentIdArray) && parentIdArray[1]
                     }
-                    if (debug) console.log('58 :', importedObject);
+                    if (!debug) console.log('58 :', importedObject, parentId);
 
                     dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject } );  
 
-                    const parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
-                    parentId = (parentId === oId) 
-                        ? null
-                        : (!parentId) 
-                            ? null 
-                            : (entityId) 
-                                ? entityId 
-                                : parentIdArray[1] 
+
 
                     // parentId = (entityId) ? entityId : (parentId) ? parentIdArray[1] : null  
                     parentName = (entityName) ? entityName : parentName 
                     
-                    if (debug) console.log('201 : name', compositeName, 'oId ',oId, 'parentId ', parentId, 'entityId ', entityId, 'reltRef ', reltypeRef);
+                    if (!debug) console.log('243 : name', compositeName, 'oId ',oId, 'parentId ', parentId, 'entityId ', entityId, 'reltRef ', reltypeRef);
                     
                     importedRel = (parentId) 
                         ?   {
                                 id: utils.createGuid(),
-                                name: reltypeRef.name,
+                                name: reltypeName,
                                 title: "",
                                 cardinality: "",
                                 cardinalityFrom: undefined,
@@ -261,7 +268,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                 relshipviews: undefined,
                                 toobjectRef: oId,
                                 nameTo: oName,
-                                typeRef: reltypeRef.id,
+                                typeRef: reltypeRef,
                             }  
                         :   {}
 

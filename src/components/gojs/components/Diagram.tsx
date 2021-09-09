@@ -300,7 +300,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // 'draggingTool.centerGuidelineColor': 'green',
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
-
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
@@ -310,9 +309,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "name": "",
               "description": "",
               "relshipkind": constants.relkinds.REL,
-            },
-              
-                
+            },                
             // "clickCreatingTool.archetypeNodeData": {
             //   "key": utils.createGuid(),
             //   "category": "Object",
@@ -355,7 +352,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
-  // when the user clicks on the background of the Diagram, remove all highlighting
+    // when the user clicks on the background of the Diagram, remove all highlighting
     myDiagram.click = function(e) {
       e.diagram.commit(function(d) { d.clearHighlighteds(); }, "no highlighteds");
     };
@@ -1604,6 +1601,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true;
             }),
+          makeButton("Clear Breakpoints",
+            function(e, obj) { 
+              const link = obj.part.data;
+              link.points = null;
+              const relview = link.relshipview;
+              relview.points = null;
+              const gqlRelView = new gql.gqlRelshipView(relview);
+              const modifiedRelshipViews = new Array();
+              modifiedRelshipViews.push(gqlRelView);
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              })  
+    },
+            function(obj) { 
+              const link = obj.part.data;
+              if (link.points)
+                return true; 
+              else 
+                return false;
+            }),
           makeButton("Undo",
             function(e, obj) { e.diagram.commandHandler.undo(); 
             },
@@ -2490,7 +2508,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Link,
           new go.Binding("deletable"),
           { selectable: true },
-          { toShortLength: 3, relinkableFrom: true, relinkableTo: true, reshapable: true },
+          { 
+            toShortLength: 3, 
+            relinkableFrom: true, 
+            relinkableTo: true, 
+            reshapable: true,
+            resegmentable: true  
+          },
           // { relinkableFrom: true, relinkableTo: true, toShortLength: 4 },
           // new go.Binding('relinkableFrom', 'canRelink').ofModel(),
           // new go.Binding('relinkableTo', 'canRelink').ofModel(),

@@ -100,7 +100,7 @@ const LoadJsonFile = (props: any) => {
     
       // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
-      const [inclProps, setInclProps ] = useState(false)
+      const [inclProps, setInclProps ] = useState(true)
 
       const handleInclPropChange = () => {
         setInclProps(!inclProps);

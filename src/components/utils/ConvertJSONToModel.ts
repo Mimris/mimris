@@ -59,6 +59,9 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
         let tmpArray = []
         let entityId = ""
         let parentIdArray = []
+        let importedObject, topLevelObjectId, entityName
+        let reltRef, importedRel, relDescription, relTitle
+        let fromobjectId, fromobjectName, toobjectId, toobjectName
 
         // deepEntries take all object-keys and concatinate them in curKey with a path showing all above levels
         // the curKey is put in a array "allKeys" with curKey as first and the obect as second. 
@@ -77,25 +80,31 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
             allkeys = allkeys.sort((firstItem, secondItem) => firstItem.key < secondItem.key);
             
             if (!debug) console.log( '59 allkeys : ', allkeys);
-            
+
+            // iterate over all objects allKeys is an array with [key, value] where key is the Json-object-path and value is the object
+            // the key is the path to the object in the JSON-file and the value is the object itself 
             while (++i !== len)
-                if (typeof allkeys[i][1] === 'object' && allkeys[i][1] !== null){
+                if (typeof allkeys[i][1] === 'object' && allkeys[i][1] !== null){ // It is an Json structure key as with an object 
                     curKey = allkeys[i][0]+ '';
                     nextKey = (allkeys[i+1]) ? allkeys[i+1][0]+ '' : '';
                     const jsonType = (Array.isArray(allkeys[i][1])) ? 'isArray' : 'isObject';
-                    // curKey = allkeys[i][0] + '[';
+   
                     Array.prototype.push.apply(
                         allkeys,
                         formatKeys( Object.entries(allkeys[i][1]) )
                     );
                     // console.log('35 :', i, entryK, len, curKey.slice(0, -1), allkeys[i][1]);
+
+                    // make a unique osduId for each object in the JSON-file by concatinating the path to the object with the name its keys
+                    // clean up the key path by removing the " in "key" first
                     const cleanPath = curKey.slice(0, -1).replace(/"/g, '') // clean key path ; remove "" from curkey to get a clean key string with the path as curKey
                     const cleanNextPath = nextKey.slice(0, -1).replace(/"/g, '') // clean key path ; remove "" from curkey to get a clean key string with the path as curKey
-                    
+
                     let osduId =  cleanPath
                     let newosduId
-                    let newIdArray = osduId.split('|')
-                    if  (osduId.includes("|definitions")) {
+                    let newIdArray = osduId.split('|') // make an array of all keys in the path
+
+                    if  (osduId.includes("|definitions")) { // this is within osdu Json structure if definitions key is found
                         const [, ...rest] = newIdArray
                         newosduId = rest.join('|')
                     } else {
@@ -104,7 +113,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // if  (osduId.includes("|definitions|")) osduId = osduId.split('|').slice(-1)[0] // split and slice it, pick last element 
                     // console.log('60 :', newosduId);
                     
-                    let oKey = newosduId
+                    let oKey = newosduId // newosduId is the key for the object in the JSON-file if it has definitions key
 
                     const oName = oKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
                     const parentKey = oKey.split('|').slice(0, -1).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
@@ -114,23 +123,24 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     const oVal =  allkeys[i][1] // the object
                     // console.log('57 :', '\n cleanPath: ', cleanPath, '\n oKey: ', oKey, '\n parentKey: ', parentKey, '\n parentName: ', parentName, '\n oName : ', oName, '\n oVal: ', oVal, '\n parentId: ', parentId);
  
-                    let cNewVal = filterObject(oVal)// remove objects as attributes
+                    let cNewVal = filterObject(oVal)// we only want attributes (objects are handled in the next iteration)
 
-                    if (oName === 'required')  {
+                    if (oName === 'required')  { // special case for required. a list of properties that is required
                         const attributes  = Object.assign(...Object.entries(obj).map(([k, v]) => (k !== (!isNaN(k))))); 
                         cNewVal = {...attributes, 'propNames': Object.values(oVal).toString()}
                     }
                     if (debug) console.log('93 : oKey', oKey, oName, '\n oVal : ', oVal,'\n cNewVal : ', cNewVal);
 
+                    // this shoul be replaced by a list of types that create EtityTypes etc.
                     const objTypeName = (parentName === 'properties') 
                         ? 'Property'
                         : (oName === 'allOf' || oName === 'anyOf' || oName === 'oneOf' || oName === 'required') 
                             ? 'JsonArray'
                             : (modelType === 'AKM')
                                 ? (i === 0) 
-                                    ? 'Entity'
+                                    ? 'EntityType'
                                     : (oName === 'items') 
-                                        ? 'Entity' 
+                                        ? 'EntityType' 
                                         : 'JsonObject'
                                 : 'JsonObject'
 
@@ -156,28 +166,49 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // console.log('139 ', tmpArray);           
                     
                     // ---------------------------------------------------------------------------------------------------------------------------------------
-                    let importedObject, topLevelObjectId, entityName
+                    
                     
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
                         
                         if (i === 0 || oName === 'items')  {
-                        
-                            objecttypeRef = entityType.id 
 
                             const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
-                            parentId = oId
+                            parentId = (i !== 0) && oId // set parentId to be used in the next iteration of  objectet.
                             // console.log('163', i, parentName,);
-                            entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName
-                            entityId = oId
+                            entityName = (i === 0) ? cNewVal.title : oName // if topobject use title as name
+                            // entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName // if topobject use title as name
                 
                             // console.log('142 i', i, entityName, entityId);
                             reltypeRef = hasType.id 
                             reltypeName = hasType.name
 
+                            importedObject = createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal)
+
+                            // importedObject = { //the imported object to be created as AKM object
+                            //     id: oId,
+                            //     name: entityName,
+                            //     // typeName: type,
+                            //     typeRef: objecttypeRef,
+                            //     abstract: false,
+                            //     markedAsDeleted: false,
+                            //     modified: true,
+                            //     osduId: oKey,
+                            //     ...cNewVal // want only attributes 
+                            // }
+
+                        } else if (oName === 'properties') {
+                            
+                            reltypeRef = hasPartType.id
+                            reltypeName = hasPartType.name             
+                            
+                            entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName
+                            parentId = entityId
+                            entityId = oId
+                            compositeName = (entityName) ? entityName : oName
+
                             importedObject = {
                                 id: oId,
                                 name: entityName,
-                                // name: compositeName,
                                 // typeName: type,
                                 typeRef: objecttypeRef,
                                 abstract: false,
@@ -248,30 +279,34 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     parentName = (entityName) ? entityName : parentName 
                     
                     if (!debug) console.log('243 : name', compositeName, 'oId ',oId, 'parentId ', parentId, 'entityId ', entityId, 'reltRef ', reltypeRef);
-                    
-                    importedRel = (parentId) 
-                        ?   {
-                                id: utils.createGuid(),
-                                name: reltypeName,
-                                title: "",
-                                cardinality: "",
-                                cardinalityFrom: undefined,
-                                cardinalityTo: undefined,
-                                description: "",
-                                fromobjectRef: parentId,
-                                nameFrom: parentName,
-                                generatedTypeId: "",
-                                // id: parentKey+oKey,
-                                markedAsDeleted: false,
-                                modified: true,
-                                relshipkind: "",
-                                relshipviews: undefined,
-                                toobjectRef: oId,
-                                nameTo: oName,
-                                typeRef: reltypeRef,
-                            }  
-                        :   {}
+                    const relId = utils.createGuid(),
+                    importedRel  = createRel(relId, reltypeName, relDescription="", relTitle="", reltypeRef, entityId, fromobjectName, toobjectId, toobjectName)
 
+                    // importedRel = (parentId) 
+                    //     ?   {
+                    //             id: utils.createGuid(),
+                    //             name: reltypeName,
+                    //             title: "",
+                    //             cardinality: "",
+                    //             cardinalityFrom: undefined,
+                    //             cardinalityTo: undefined,
+                    //             description: "",
+                    //             fromobjectRef: entityId,
+                    //             nameFrom: parentName,
+                    //             generatedTypeId: "",
+                    //             // id: parentKey+oKey,
+                    //             markedAsDeleted: false,
+                    //             modified: true,
+                    //             relshipkind: "",
+                    //             relshipviews: undefined,
+                    //             toobjectRef: oId,
+                    //             nameTo: oName,
+                    //             typeRef: reltypeRef,
+                    //         }  
+                    //     :   {}
+
+                        entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
+ 
                     if (debug) console.log('234 ', importedRel );
                     
                     (parentId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
@@ -285,10 +320,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         '\n curId : ', oId,
                         '\n curName : ', oName);
 
-
-                    let reltRef, importedRel
-
-
+                  
 
                    prevId = oId     
                    oldParentKey = parentKey // remember for next object
@@ -296,7 +328,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
             return allkeys;
         }
 
-        deepEntries(topModel)
+        deepEntries(topModel) // find all the objects in the topModel and down the tree
 
         function stringifyEntries(allkeys){
             return allkeys.reduce(function(acc, x){
@@ -308,6 +340,51 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
     reader.readAsText(e.target.files[0])
   }
+
+     const createObject = (oId, oName, otypeRef, oKey, jsonType, cNewVal) => {
+
+        return {
+            id: oId,
+            name: oName,
+            // typeName: type,
+            typeRef: otypeRef,
+            abstract: false,
+            markedAsDeleted: false,
+            modified: true,
+            osduId: oKey,
+            jsonType: jsonType,
+            jsonKey: oName,
+            ...cNewVal // want only attributes 
+        }
+
+    }
+
+    const createRel = (relId, typeName, description, title, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName) => {
+                            
+        importedRel = (parentId) 
+        ?   {
+                id: relId,
+                name: typeName,
+                title: title,
+                cardinality: "",
+                cardinalityFrom: undefined,
+                cardinalityTo: undefined,
+                description: description,
+                fromobjectRef: fromobjectId,
+                nameFrom: fromobjectName,
+                generatedTypeId: "",
+                // id: parentKey+oKey,
+                markedAsDeleted: false,
+                modified: true,
+                relshipkind: "",
+                relshipviews: undefined,
+                toobjectRef: toobjectId,
+                nameTo: oName,
+                typeRef: reltypeRef,
+            }  
+        :   {}
+
+    }
 
   // filter to get only attributes (objects removed)
   function filterObject(obj) {

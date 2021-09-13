@@ -6330,7 +6330,7 @@ export class cxModelView extends cxMetaObject {
         this.layout = "Tree";
         this.routing = "Normal";
         this.linkcurve = "None";
-        this.showCardinality = true;
+        this.showCardinality = false;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;

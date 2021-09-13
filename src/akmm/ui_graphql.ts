@@ -1206,6 +1206,7 @@ export class gqlObjectView {
     objectRef:       string;
     typeviewRef:     string;
     group:           string;
+    viewkind:        string;
     isGroup:         boolean;
     loc:             string;
     size:            string;
@@ -1223,6 +1224,7 @@ export class gqlObjectView {
         this.objectRef       = objview?.object?.id;
         this.typeviewRef     = objview?.typeview?.id;
         this.group           = objview?.group;
+        this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
         this.loc             = objview?.loc;
         this.figure          = objview?.figure;

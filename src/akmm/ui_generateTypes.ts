@@ -81,11 +81,13 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         if (objtype) {
             oldName = objtype.getName();
             objtype.setName(newName);
+            objtype.setViewKind(obj.getViewKind());
             myTargetMetamodel?.addObjectType(objtype);
         }
     } else {
         // Check if the types has not been generated, but exists anyway
         objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
+        if (objtype) objtype.viewkind = obj.viewkind;
         if (debug) console.log('90 obj, objtype', obj, objtype);
     }
     if (debug) console.log('92 newName', newName);

@@ -579,10 +579,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       const myGoModel = myMetis.gojsModel;
       const myNode = myGoModel.findNode(node.key);
-      myNode.name = data.name;
-      if (debug) console.log('544 myNode, myMetis', myNode, myMetis);
-      if (debug) console.log('546 gqlObject', gqlObject);
-      modifiedObjects.push(gqlObject);
+      if (myNode) {
+        myNode.name = data.name;
+        if (debug) console.log('544 myNode, myMetis', myNode, myMetis);
+        if (debug) console.log('546 gqlObject', gqlObject);
+        modifiedObjects.push(gqlObject);
+      }
       // Do the dispatches
       modifiedObjects.map(mn => {
         let data = mn;
@@ -666,6 +668,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('628 node', node, selObjview);
       const data = node.data;
       for (let prop in  objtypeview?.data) {
+        console.log('671 prop, objview', prop, objview, selObjview);
         objview[prop] = selObjview[prop];
       }
       const gqlObjview = new gql.gqlObjectView(objview);

@@ -29,7 +29,11 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     if (debug) console.log('27 node', node);
     inst = node.objecttype;
     myItem = inst;
-    myItem[propname] = value;
+    try {
+      myItem[propname] = value;
+    } catch {
+      // Do nothing
+    }
     if (debug) console.log('31 myItem', myItem);
   }
   // Handle objects

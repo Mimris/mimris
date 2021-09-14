@@ -4185,7 +4185,6 @@ export class cxObjectType extends cxType {
         this.viewkind = constants.viewkinds.OBJ;
         this.relshipkind = "";
         this.typeview = null;              // Default type view
-        // this.typeviewRef = "";             // Default type view
         this.fromObjtype = null;
         this.toObjtype = null;
         this.objtypegeos = null;
@@ -4195,8 +4194,6 @@ export class cxObjectType extends cxType {
         this.allRelationshiptypes = null;
         this.markedAsDeleted = false;
         if (debug) console.log('3268 this', this);
-
-        // const stypes = new Array();
     }
 
     // Methods
@@ -6079,6 +6076,7 @@ export class cxObject extends cxInstance {
         const props = this.type?.properties;
         for (let i=0; i<props?.length; i++) {
           const prop = props[i];
+          if (prop.name === 'id') continue;
           if (prop) this[prop.name] = "";
         } 
         if (debug) console.log('4600 obj', this);   

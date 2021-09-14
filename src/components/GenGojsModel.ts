@@ -415,23 +415,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!relview.markedAsDeleted && relview.relship) { 
           includeRelview = true;
         }
-        // if (!includeDeleted && !includeNoObject && !includeNoType) {
-        //   relcolor = relview.strokecolor;
-        //   if (!relcolor || relcolor === "")
-        //     relcolor = relview.typeview.strokecolor;
-        // }
         if (includeRelview) {
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
           if (debug) console.log('410 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
-          // link.strokecolor = relcolor;
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
-          // link.fromArrow = relview.fromArrow;
-          // link.toArrow = relview.toArrow;
-          // link.fromArrowColor = relview.fromArrowColor;
-          // link.toArrowColor = relview.toArrowColor;
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {
@@ -443,10 +433,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
           if (debug) console.log('414 modelview:', modelview, link);
           if (debug) console.log('415 GenGojsModel: props', props);
-          // const data = myMetis.myDiagram.model.findLinkDataForKey(link.key);
-          // if (debug console.log('417 buildGoModel: data:', data);
-
-          // }
           myGoModel.addLink(link);
           if (debug) console.log('421 buildGoModel - link', link, myGoModel);
         }

@@ -97,7 +97,7 @@ const EditProperties = (props) => {
     }).filter(Boolean)
 
   const fieldsDiv = fields?.map(f => (f) && fieldDiv(f, edititem))
-  console.log('100 EditProperties',  props.item, edititem, fields1, fields,  fieldsDiv);
+  if (debug) console.log('100 EditProperties',  props.item, edititem, fields1, fields,  fieldsDiv);
 
   function fieldDiv(p, curitem) {
     switch (p) {

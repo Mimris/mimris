@@ -577,7 +577,7 @@ export class gqlObjectTypeView {
     viewkind:        string;
     isGroup:         boolean;
     group:           string;
-    figure:          string;
+    template:        string;
     fillcolor:       string;
     strokecolor:     string;
     strokecolor1:    string;
@@ -593,7 +593,7 @@ export class gqlObjectTypeView {
         this.isGroup         = objtypeview.getIsGroup();
         this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
-        this.figure          = objtypeview.getFigure();
+        this.template        = objtypeview.getTemplate();
         this.fillcolor       = objtypeview.getFillcolor();
         this.strokecolor     = objtypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor;
@@ -1212,7 +1212,7 @@ export class gqlObjectView {
     size:            string;
     markedAsDeleted: boolean;
     modified:        boolean;
-    figure:          string;
+    template:        string;
     fillcolor:       string;
     strokecolor:     string;
     strokewidth:     string;
@@ -1227,7 +1227,7 @@ export class gqlObjectView {
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
         this.loc             = objview?.loc;
-        this.figure          = objview?.figure;
+        this.template        = objview?.template;
         this.fillcolor       = objview?.fillcolor;
         this.strokecolor     = objview?.strokecolor;
         this.strokewidth     = objview?.strokewidth;
@@ -1486,7 +1486,7 @@ export class gqlImportMetis {
         const objtypeview = new akm.cxObjectTypeView(item.id, item.name, type, item.description);
         if (utils.objExists(type))
             objtypeview.setType(type);
-        objtypeview.setFigure(item.figure);
+        objtypeview.setTemplate(item.template);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setStrokecolor(item.strokecolor);
         objtypeview.setStrokewidth(item.strokewidth);

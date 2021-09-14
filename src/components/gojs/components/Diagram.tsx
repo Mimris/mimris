@@ -2299,6 +2299,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true; 
               return false;
             }),
+          makeButton("Make Diagram",
+            function (e: any, obj: any) { 
+              myDiagram.makeImage({
+                scale: 1,
+                background: "AntiqueWhite",
+                type: "image/jpeg"
+              });
+            },
+            function (o: any) { 
+              return false; 
+            }),
           makeButton("----------",
             function (e: any, obj: any) {
             },
@@ -2428,7 +2439,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               //     new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
               //     new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
               //     // new go.Binding("fill", "color"),
-              //     new go.Binding("figure")),
+              //     new go.Binding("template")),
 
               //     $(go.Picture,  // the image -------------------------------------
               //       // { contextMenu: partContextMenu },

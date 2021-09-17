@@ -746,8 +746,8 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                 }
                 if (debug) console.log('702 nodes', nodes);
             }
-            if (!debug) console.log('750 objview', objview);
-            if (!debug) console.log('751 node', node);
+            if (debug) console.log('750 objview', objview.group);
+            if (debug) console.log('751 node', node);
         }
         return node;
     }

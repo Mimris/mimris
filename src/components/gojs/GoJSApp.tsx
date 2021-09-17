@@ -441,7 +441,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = data.key;
             if (debug) console.log('442 data', data);
             let node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
-            if (!debug) console.log('444 node, data', node, data);
+            if (debug) console.log('444 node, data', node, data);
             node = myDiagram.findNodeForKey(data.key);
             for (let lit = node?.findLinksConnected(); lit?.next(); ) {
               let link = lit?.value;  
@@ -457,13 +457,14 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
               }
             }               
-            if (!debug) console.log('459 node, modifiedNodes: ', node, modifiedNodes);
-            if (node) e.diagram.model.setDataProperty(data, "group", node.group);
+            if (debug) console.log('459 node, modifiedNodes: ', node, modifiedNodes);
+            if (node) e.diagram.model.setDataProperty(data, "group", node.data.group);
             //const myNode = this.getNode(myGoModel, key);
             if (debug) console.log('462 myGoModel', myGoModel);
             if (debug) console.log('463 SelectionMoved', modifiedNodes);
           }
           const nodes = myGoModel?.nodes;
+          if (debug) console.log('467 nodes', nodes);
           for (let i=0; i<nodes?.length; i++) {
               const node = nodes[i];
               if (node.key === data.key) {

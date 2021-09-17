@@ -14,6 +14,7 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
 
+const nodeTemplates = ['', 'textOnly', 'textAndIcon'];
 const debug = false;
 interface SelectionInspectorProps {
   myMetis: any;
@@ -308,6 +309,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             values = ['None', 'Dashed', 'Dotted'];
             defValue = 'None';
             fieldType = 'radio';
+            break;
+          case 'template':
+            if (!item.isGroup) {
+              values = nodeTemplates;
+              defValue = '';
+              fieldType = 'radio';
+            }
             break;
         }
 

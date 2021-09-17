@@ -1217,6 +1217,7 @@ export class gqlObjectView {
     strokecolor:     string;
     strokewidth:     string;
     icon:            string;
+    viewkind:        string;
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
         this.name            = objview?.name;
@@ -1233,6 +1234,7 @@ export class gqlObjectView {
         this.strokewidth     = objview?.strokewidth;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
+        this.viewkind        = objview?.viewkind;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
     }
@@ -1252,7 +1254,7 @@ export class gqlRelshipView {
     toArrow:         string;
     fromArrowColor:  string;
     toArrowColor:    string;
-    points:          string;
+    points:          any;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(relview: akm.cxRelationshipView) {

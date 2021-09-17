@@ -674,7 +674,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         } catch {}
       }
       const gqlObjview = new gql.gqlObjectView(objview);
-      if (!debug) console.log('634 gqlObjview', data, gqlObjview);
+      if (debug) console.log('634 gqlObjview', data, gqlObjview);
       modifiedObjviews.push(gqlObjview);
       modifiedObjviews.map(mn => {
         let data = mn;

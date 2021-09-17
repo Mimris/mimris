@@ -77,7 +77,7 @@ export class cxMetis {
         this.id = utils.createGuid();
         this.name = "";
         this.description = "";
-
+        this.viewstyles = [];
         this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
@@ -487,6 +487,13 @@ export class cxMetis {
                     this.importMethod(mtd, metamodel);
             });
         }
+        let vstyles: any[] = item.viewstyles;
+        if (vstyles && vstyles.length) {
+            vstyles.forEach(vs => {
+                if (vs)
+                    this.importViewStyle(vs, metamodel);
+            });
+        }
         if (debug) console.log('343 this', this);
         let objecttypes: any[] = item.objecttypes;
         if (objecttypes && objecttypes.length) {
@@ -686,6 +693,7 @@ export class cxMetis {
         const objtypeview = this.findObjectTypeView(item.id);
         const typeref = item.typeRef;
         const type = this.findObjectType(typeref);
+        if (!item.template) item.template = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(item.strokewidth);
@@ -982,8 +990,8 @@ export class cxMetis {
                 this.addMethod(item);
                 break;
             case 'cxObjectTypeView':
-            this.addObjectTypeView(item);
-            break;
+                this.addObjectTypeView(item);
+                break;
             case 'cxRelationshipTypeView':
                 this.addRelationshipTypeView(item);
                 break;
@@ -1586,6 +1594,20 @@ export class cxMetis {
                     return vstyle;
                 i++;
             }
+        }
+        return null;
+    }
+    findViewStyleByName(name: string): cxViewStyle | null {
+        let vstyles = this.viewstyles;
+        if (!vstyles) return null;
+        let i = 0;
+        let vstyle = null;
+        while (i < vstyles.length) {
+            vstyle = vstyles[i];
+            let name = vstyle.getName();
+            if (name.toLowerCase() === name.toLowerCase())
+                return vstyle;
+            i++;
         }
         return null;
     }
@@ -2711,6 +2733,7 @@ export class cxMethodType extends cxMetaObject {
 export class cxMetaModel extends cxMetaObject {
     isEKA: boolean;
     metamodels: cxMetaModel[] | null;
+    viewstyle: cxViewStyle | null;
     viewstyles: cxViewStyle[] | null;
     containers: cxMetaContainer[] | null;
     objecttypes: cxObjectType[] | null;
@@ -2737,7 +2760,8 @@ export class cxMetaModel extends cxMetaObject {
         this.fs_collection = constants.fs.FS_C_METAMODELS;  // Firestore collection
         this.category = constants.gojs.C_METAMODEL;
         this.metamodels = null;
-        this.viewstyles = null;
+        this.viewstyle  = null; // Current viewstyle
+        this.viewstyles = [];
         this.containers = null;
         this.objecttypes = null;
         this.objtypegeos = null;
@@ -3051,9 +3075,11 @@ export class cxMetaModel extends cxMetaObject {
     }
     addViewStyle(vs: cxViewStyle) {
         if (vs.category === constants.gojs.C_VIEWSTYLE) {
+            if (!this.viewstyle)
+                this.viewstyle = vs;
             if (this.viewstyles == null)
                 this.viewstyles = new Array();
-            if (!this.findViewFormat(vs.id))
+            if (!this.findViewStyle(vs.id))
                 this.viewstyles.push(vs);
         }
     }
@@ -3791,6 +3817,33 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
+    findViewStyle(id: string): cxViewStyle | null {
+        let vstyles = this.getViewStyles();
+        if (!vstyles) return null;
+        let i = 0;
+        let vstyle = null;
+        for (i = 0; i < vstyles.length; i++) {
+            vstyle = vstyles[i];
+            if (vstyle.isDeleted()) continue;
+            if (vstyle.id === id)
+                return vstyle;
+        }
+        return null;
+    }
+    findViewStyleByName(name: string): cxViewStyle | null {
+        let vstyles = this.getViewStyles();
+        if (!vstyles) return null;
+        let i = 0;
+        let vstyle = null;
+        while (i < vstyles.length) {
+            vstyle = vstyles[i];
+            let name = vstyle.getName();
+            if (name.toLowerCase() === name.toLowerCase())
+                return vstyle;
+            i++;
+        }
+        return null;
+    }
     setIsEKA(flag: boolean) {
         this.isEKA = flag;
     }
@@ -3839,7 +3892,7 @@ export class cxType extends cxMetaObject {
         this.supertypes = [];
         this.fs_collection = "types"; // Firestore collection
         this.properties = [];
-        this.typeview = null;
+        this.typeview = null; // Default typeview
         this.viewkind = "";
         this.relshipkind = "";
         this.defaultValueset = null;    // Meant to store default property values
@@ -4168,8 +4221,6 @@ export class cxType extends cxMetaObject {
 
 export class cxObjectType extends cxType {
     typeid: string;
-    typeview: cxObjectTypeView | cxRelationshipTypeView | null;
-    // typeviewRef: string;
     fromObjtype: cxObjectType | null;
     toObjtype: cxObjectType | null;
     objtypegeos: cxObjtypeGeo[] | null;
@@ -4184,7 +4235,6 @@ export class cxObjectType extends cxType {
         this.typeid = constants.types.OBJECTTYPE_ID;
         this.viewkind = constants.viewkinds.OBJ;
         this.relshipkind = "";
-        this.typeview = null;              // Default type view
         this.fromObjtype = null;
         this.toObjtype = null;
         this.objtypegeos = null;
@@ -4815,7 +4865,7 @@ export class cxViewStyle extends cxMetaObject {
     relshiptypeviews:   cxRelationshipTypeView[] | null = null;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
-        this.category = constants.gojs.C_VEWSTYLE;
+        this.category = constants.gojs.C_VIEWSTYLE;
         this.objecttypeviews  = null;
         this.relshiptypeviews = null;
     }
@@ -6298,14 +6348,11 @@ export class cxInputPattern extends cxMetaObject {
 export class cxModelView extends cxMetaObject {
     model: cxModel | null;
     viewstyle: cxViewStyle | null;
+    viewstyles: cxViewStyle[] | null;
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypeviews: cxRelationshipTypeView[] | null;
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
-    objecttypeviewRefs: string[] | null;
-    relshiptypeviewRefs: string[] | null;
-    objectviewRefs: string[] | null;
-    relshipviewRefs: string[] | null;
     layout: string;
     routing: string;
     linkcurve: string;
@@ -6318,15 +6365,12 @@ export class cxModelView extends cxMetaObject {
         this.category = constants.gojs.C_MODELVIEW;
         this.fs_collection = constants.fs.FS_C_MODELVIEWS;  // Firestore collection
         this.model = model;
-        this.viewstyle = null;
+        this.viewstyle = null; // Default viewstyle
+        this.viewstyles = null;
         this.objecttypeviews = null;
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
-        this.objecttypeviewRefs = null;
-        this.relshiptypeviewRefs = null;
-        this.objectviewRefs = null;
-        this.relshipviewRefs = null;
         this.layout = "Tree";
         this.routing = "Normal";
         this.linkcurve = "None";
@@ -6347,6 +6391,12 @@ export class cxModelView extends cxMetaObject {
     }
     getViewStyle(): cxViewStyle {
         return this.viewstyle;
+    }
+    setViewStyles(vstyles: cxViewStyle[]) {
+        this.viewstyles = vstyles;
+    }
+    getViewStyles(): cxViewStyle[] {
+        return this.viewstyles;
     }
     setLayout(layout: string) {
         this.layout = layout;
@@ -6771,7 +6821,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrow:        string;
     fromArrowColor: string;
     toArrowColor:   string;
-    points:         string;
+    points:         any;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection
@@ -6787,7 +6837,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.toArrow = "";
         this.fromArrowColor = "";
         this.toArrowColor = "";
-        this.points = "";
+        this.points = null;
         }
     // Methods
     getRelationship(): cxRelationship | null {

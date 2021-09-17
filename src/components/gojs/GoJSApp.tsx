@@ -23,6 +23,7 @@ import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
 import * as uim from '../../akmm/ui_modal';
+import * as uit from '../../akmm/ui_templates';
 
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');
@@ -208,12 +209,12 @@ class GoJSApp extends React.Component<{}, AppState> {
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
-    if (debug) console.log('145 handleDiagramEvent', myGoMetamodel);
+    if (debug) console.log('212 handleDiagramEvent', myGoMetamodel);
     const gojsModel = {
       nodeDataArray: myGoModel?.nodes,
       linkDataArray: myGoModel?.links
     }
-    if (debug) console.log('156 gojsModel', gojsModel);
+    if (debug) console.log('217 gojsModel', gojsModel);
     const nodes = new Array();
     const nods = myGoMetamodel?.nodes;
     for (let i=0; i<nods?.length; i++) {
@@ -224,13 +225,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodes.push(node);
     }
     if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
-    if (debug) console.log('159 gojsMetamodel', myGoMetamodel);
+    if (debug) console.log('228 gojsMetamodel', myGoMetamodel);
 
     const gojsMetamodel = {
       nodeDataArray: myGoMetamodel?.nodes,
       linkDataArray: myGoMetamodel?.links
     }
-    if (debug) console.log('165 gojsMetamodel', gojsMetamodel);
+    if (debug) console.log('234 gojsMetamodel', gojsMetamodel);
     let modifiedNodes         = new Array();
     let modifiedLinks         = new Array();
     let modifiedTypeNodes     = new Array();
@@ -261,10 +262,10 @@ class GoJSApp extends React.Component<{}, AppState> {
       "pasted":           pasted,
       "done":             done
     }
-    if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
-    if (debug) console.log('157 handleEvent', myMetis);
-    if (debug) console.log('158 this', this);
-    if (debug) console.log('189 event name', name);
+    if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
+    if (debug) console.log('266 handleEvent', myMetis);
+    if (debug) console.log('267 this', this);
+    if (debug) console.log('268 event name', name);
 
     switch (name) {
       case 'TextEdited': {
@@ -416,13 +417,13 @@ class GoJSApp extends React.Component<{}, AppState> {
           const sel = it.value;
           const data = sel.data;
           const typename = data.type;
-          if (debug) console.log('333 typename', typename, data.objecttype);
+          if (debug) console.log('420 typename', typename, data.objecttype);
           if (typename === "Object type") {
               const objtype = myMetis.findObjectType(data.objecttype.id);
-              if (debug) console.log('321 objtype', objtype);
+              if (debug) console.log('423 objtype', objtype);
               if (objtype) {
                   let objtypeGeo = context.myMetamodel.findObjtypeGeoByType(objtype);
-                  if (debug) console.log('324 objtypegeo', objtypeGeo);
+                  if (debug) console.log('426 objtypegeo', objtypeGeo);
                   if (!objtypeGeo) {
                       objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, objtype, "", "");
                   }
@@ -430,7 +431,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objtypeGeo.setSize(data.size);
                   objtypeGeo.setModified();
                   const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
-                  if (debug) console.log('332 gqlObjtypeGeo', gqlObjtypeGeo);
+                  if (debug) console.log('434 gqlObjtypeGeo', gqlObjtypeGeo);
                   modifiedTypeGeos.push(gqlObjtypeGeo);
               }
           }
@@ -438,13 +439,29 @@ class GoJSApp extends React.Component<{}, AppState> {
           {
             // Object moved
             const key = data.key;
-            if (debug) console.log('355 data', data);
-            const node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
-            if (debug) console.log('361 node, modifiedNodes: ', node, modifiedNodes);
+            if (debug) console.log('442 data', data);
+            let node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
+            if (!debug) console.log('444 node, data', node, data);
+            node = myDiagram.findNodeForKey(data.key);
+            for (let lit = node?.findLinksConnected(); lit?.next(); ) {
+              let link = lit?.value;  
+              if (debug) console.log('447 link', link);
+              if (link) {
+                if(debug) console.log('449 link', link);
+                //handle relview points
+                const relview = link.data.relshipview;
+                if (relview) {
+                  relview.points = link.points;
+                  const gqlRelview = new gql.gqlRelshipView(relview);
+                  modifiedLinks.push(gqlRelview);
+                }
+              }
+            }               
+            if (!debug) console.log('459 node, modifiedNodes: ', node, modifiedNodes);
             if (node) e.diagram.model.setDataProperty(data, "group", node.group);
             //const myNode = this.getNode(myGoModel, key);
-            if (debug) console.log('364 myGoModel', myGoModel);
-            if (debug) console.log('301 SelectionMoved', modifiedNodes);
+            if (debug) console.log('462 myGoModel', myGoModel);
+            if (debug) console.log('463 SelectionMoved', modifiedNodes);
           }
           const nodes = myGoModel?.nodes;
           for (let i=0; i<nodes?.length; i++) {
@@ -696,6 +713,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 otype = myMetis.findObjectType(objview.object.typeRef);
                 objview.object.type = otype;
               }
+              objview.viewkind = part.viewkind;
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
               if (debug) console.log('698 New object', gqlObjview, modifiedNodes);
@@ -717,7 +735,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('699 data', data.objecttype.viewkind, sel);
         if (true) {
           // Test open modal
-          const icon = findImage(data.icon);
+          const icon = uit.findImage(data.icon);
           const modalContext = {
             what:       "Test",
           }
@@ -1073,34 +1091,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = (mn) && { id: mn.id, name: mn.name }
         this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
       })
-    }
-    // Function to identify images related to an image id
-    function findImage(image: string) {
-      if (!image) return "";
-      // if (image.substring(0,4) === 'http') { // its an URL
-      if (image.includes('//')) { // its an URL   
-        // if (debug) console.log('1269 Diagram', image);
-        return image
-      } else if (image.includes('/')) { // its a local image
-        if (debug) console.log('1270 Diagram', image);   
-        return image
-      } else if (image.includes('<svg ')) { // its a local image
-        if (debug) console.log('1270 Diagram', image);   
-        return image
-      } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
-        const firstcharacter = image.substring(0, 1)
-        const secondcharacter = image.substring(1, 2)
-        if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
-        // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
-        //   const letter = image.substring(0, image.length - 4)
-        //   // const lettersvg = letter
-        //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
-        //   return svgs[letter].svg //svgs[`'${letter}'`]
-      } else { 
-        if (debug) console.log('1283 Diagram', image);
-        return "./../images/" + image //its an image in public/images
-      }
-      return "";
     }
   }
 

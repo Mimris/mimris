@@ -64,6 +64,7 @@ import {
   UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES,
   UPDATE_TARGETDATATYPE_PROPERTIES,
   UPDATE_TARGETVALUE_PROPERTIES,
+  UPDATE_VIEWSTYLE_PROPERTIES,
   UPDATE_OBJECTTYPEVIEW_PROPERTIES,
   UPDATE_OBJECTTYPEGEOS_PROPERTIES,
   UPDATE_DATATYPE_PROPERTIES,
@@ -1305,6 +1306,42 @@ function reducer(state = InitialStateStr, action) {
               ]
             },
          },
+      }
+    case UPDATE_VIEWSTYLE_PROPERTIES:
+      if (debug) console.log('501 UPDATE_VIEWSTYLE_PROPERTIES', action);
+      const curmodvs     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id)
+      const curmmvs    = state.phData?.metis?.metamodels?.find(m => m.id === curmodvs.metamodelRef)
+      const curmmindexvs = state.phData?.metis?.metamodels?.findIndex(m => m.id === curmodvs.metamodelRef) 
+      const curvs = curmmvs?.viewstyles?.find(vs => vs.id === action?.data?.id)
+      const lengthvs = curmmvs?.viewstyles.length
+      let indexvs = curmmvs?.viewstyles?.findIndex(vs => vs.id === curvs?.id)
+      if (indexvs < 0) {indexvs = lengthvs} 
+      if (debug) console.log('411 indexvs', indexvs, lengthvs);
+      // const curo = curm?.objects?.find(o => o.id === curov?.objectRef)
+      // const curoindex = curm?.objects?.findIndex(o => o.id === curov?.objectRef)
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+            metis: {
+              ...state.phData.metis,
+              metamodels: [
+                ...state.phData.metis.metamodels.slice(0, curmmindexvs),
+                {
+                  ...state.phData.metis.metamodels[curmmindexvs],
+                  viewstyles: [
+                    ...curmmvs?.viewstyles.slice(0, indexvs),
+                    {
+                      ...curmmvs?.viewstyles[indexvs],  
+                      ...action.data, 
+                    },
+                    ...curmmvs?.viewstyles.slice(indexvs + 1, curmmvs?.viewstyles.length)
+                  ]
+                },
+                ...state.phData.metis.metamodels.slice(curmmindexvs + 1, state.phData.metis.metamodels.length),
+              ]
+            },
+          },
       }
     case UPDATE_OBJECTTYPEGEOS_PROPERTIES:
       if (debug) console.log('501 UPDATE_OBJECTTYPEGEOS_PROPERTIES', action);

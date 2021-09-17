@@ -155,7 +155,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (selObj.category === 'Relationship')
           item = inst.type.typeview;
         else 
-          item = inst.typeview;
+          item = selObj.typeview;
         hideNameAndDescr = true;
         if (debug) console.log('150 inst, item', inst, item);
         break;  
@@ -208,7 +208,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'name' || k === 'description' || k === 'title') continue; 
         }
         if (debug) console.log('202 k, val', k, item[k], selObj[k]);
-        val = (item.id === inst.id) ? item[k] : selObj[k];
+        val = (item.id === inst.id) ? item[k] : selObj[k] ? selObj[k] : item[k];
         if (properties?.length > 0) {
           if (debug) console.log('191 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
@@ -361,7 +361,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case "id":
             disabled = true;
             break;
-          default:
+          default: 
             // name = utils.capitalizeFirstLetter(k);
             break;
         }

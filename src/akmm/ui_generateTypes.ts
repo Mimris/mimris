@@ -725,6 +725,15 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         
     model.targetMetamodelRef = metamodel.id;
     metamodel.generatedFromModelRef = model.id;
+    const mmname = metamodel.name;
+    const vsname = mmname + '_Viewstyle';
+    let vstyle = metamodel.viewstyle;
+    if (!vstyle) {
+        vstyle = new akm.cxViewStyle(utils.createGuid(), vsname, "");
+        metamodel.viewstyle = vstyle;
+        metamodel.addViewStyle(vstyle);
+        myMetis.addViewStyle(vstyle);
+    }
 
     let objects = model?.getObjectsByTypename('Datatype', false);
     // For each Datatype object call generateDatatype
@@ -896,8 +905,12 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             if (debug) console.log('842 objtype', objtype);   
                             if (objtype) metamodel.addObjectType(objtype);
                             const typeview = objtype?.typeview;
-                            if (typeview) metamodel.addObjectTypeView(typeview); 
-                            if (debug) console.log('846 typeview, metamodel', typeview, metamodel);
+                            if (typeview) {
+                                metamodel.addObjectTypeView(typeview); 
+                                vstyle.addObjectTypeView(typeview);
+                                metamodel.addViewStyle(vstyle); 
+                            }
+                            if (debug) console.log('846 typeview, vstyle, metamodel', typeview, vstyle, metamodel);
                         }
                     }
                 }

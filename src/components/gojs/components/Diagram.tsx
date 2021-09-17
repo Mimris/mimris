@@ -21,6 +21,7 @@ import * as gql from '../../../akmm/ui_graphql';
 import * as uic from '../../../akmm/ui_common';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uim from '../../../akmm/ui_modal';
+import * as uit from '../../../akmm/ui_templates';
 // import * as ui_mnu from '../../../akmm/ui_menus';
 import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
@@ -342,9 +343,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5 }),
               $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
             ),
-
             model: $(go.GraphLinksModel,
               {
+                nodeCategoryProperty: "template",
                 // Uncomment the next line to turn ON linkToLink
                 linkLabelKeysProperty: "labelKeys", 
                 linkKeyProperty: 'key'
@@ -374,7 +375,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         ),
         // use a converter to display information about the diagram model
       );
-    //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+    myDiagram.grid.visible = true;
+    myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
+    myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;    //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
     myMetis.myDiagram = myDiagram;
     
     // Tooltip functions
@@ -752,7 +755,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object Type",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              const icon = findImage(node.icon);
+              const icon = uit.findImage(node.icon);
               const modalContext = {
                 what:       "editObjectType",
                 title:      "Edit Object Type",
@@ -814,16 +817,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Typeview",
           function (e: any, obj: any) { 
             const node = obj.part.data;
-            if (debug) console.log('1477 node', node);
-            const modalContext = {
-              what: "editTypeview",
-              title: "Edit Typeview",
-              icon: findImage(node.icon),
-              myDiagram: myDiagram
-            }
-            myMetis.currentNode = node;
-            myMetis.myDiagram = myDiagram;
-            myDiagram.handleOpenModal(node, modalContext);
+            uid.editTypeview(node, myMetis, myDiagram); 
           }, 
           function (o: any) {
             if (false)
@@ -1604,17 +1598,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Clear Breakpoints",
             function(e, obj) { 
               const link = obj.part.data;
-              link.points = null;
+              link.points = [];
               const relview = link.relshipview;
-              relview.points = null;
+              relview.points = [];
               const gqlRelView = new gql.gqlRelshipView(relview);
               const modifiedRelshipViews = new Array();
               modifiedRelshipViews.push(gqlRelView);
               modifiedRelshipViews.map(mn => {
                 let data = mn;
                 e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-              })  
-    },
+              }); 
+            },
             function(obj) { 
               const link = obj.part.data;
               if (link.points)
@@ -2360,421 +2354,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     layer.visible = false;
   
     // Define a Node template
-    let nodeTemplate;
-    if (true) {
-      nodeTemplate =
-        $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-          new go.Binding("layerName", "layer"),
-          // { locationSpot: go.Spot.Center},
-          new go.Binding("deletable"),
-          new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-          {
-            toolTip:
-              $(go.Adornment, "Auto",
-                $(go.Shape, { fill: "lightyellow" }),
-                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                  new go.Binding("text", "", nodeInfo))
-              )
-          },
-
-          $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
-            {
-              cursor: "alias",        // cursor: "pointer",
-              name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
-              margin: new go.Margin(1, 1, 1, 1),
-              shadowVisible: true,
-
-              desiredSize: new go.Size(158, 68), // outer Shape without icon  // comment out the Icon part
-              // desiredSize: new go.Size(198, 68), // outer Shape size with icon
-
-              // set the port properties
-              portId: "",
-              fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-              toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
-              // Shape bindings
-              new go.Binding('fill', 'fillcolor'),
-              new go.Binding('stroke', 'strokecolor'), 
-              new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
-              .ofObject(),
-              // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-            { contextMenu: partContextMenu },    
-          ),
-          $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
-            {
-              cursor: "move",    
-              fill: "transparent",
-              stroke: "transparent",
-              strokeWidth: 10,
-              margin: new go.Margin(1, 1, 1, 1),
-              shadowVisible: false,
-              desiredSize: new go.Size(136, 48),  
-              
-            }
-     
-          ),
-      
-          $(go.Panel, "Table", // Panel for text and icon ------------------------
-            { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-            $(go.RowColumnDefinition, { column: 1, width: 4 }),
-            $(go.Panel, "Horizontal",
-              // { margin: new go.Margin(10, 10, 10, 10) },
-              {
-                defaultAlignment: go.Spot.Center
-              },
-
-
-
-              // comment out icon start
-              // $(go.Panel, "Vertical", // Panel for Icon  ------------------------
-              //   { contextMenu: partContextMenu , cursor: "move" },
-              //   $(go.Panel, "Spot", // icon area
-              //     { contextMenu: partContextMenu , cursor: "move" },
-
-              //     $(go.Shape, {  // this is the square around the image ---------
-              //       fill: "white", stroke: "#ddd", opacity: 0.4,
-              //       desiredSize: new go.Size(56, 56), 
-              //       margin: new go.Margin(0, 2, 0, 8),
-              //       // shadowVisible: true,
-              //     },
-              //     new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
-              //     new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
-              //     // new go.Binding("fill", "color"),
-              //     new go.Binding("template")),
-
-              //     $(go.Picture,  // the image -------------------------------------
-              //       // { contextMenu: partContextMenu },
-              //       {
-              //         name: "Picture",
-              //         desiredSize: new go.Size(48, 48),
-              //         // imageStretch: go.GraphObject.Fill,
-              //         // margin: new go.Margin(2, 2, 2, 4),
-              //         // margin: new go.Margin(4, 4, 4, 4),
-              //       },
-              //       new go.Binding("source", "icon", findImage)
-              //     ),
-              //   ),
-              // ),
-              // comment out icon stop
-
-
-
-
-              // define the panel where the text will appear
-              $(go.Panel, "Table", // separator ---------------------------------
-                { contextMenu: partContextMenu , cursor: "move" },
-                {
-                  defaultRowSeparatorStroke: "black",
-                  desiredSize: new go.Size(136, 60),
-                  maxSize: new go.Size(140, 66), 
-                  // margin: new go.Margin(2),
-                  defaultAlignment: go.Spot.Center,
-                },
-                // $(go.RowColumnDefinition, { column: 2, width: 4 }),
-                // content
-                $(go.TextBlock, textStyle(),  // the name -----------------------
-                  {
-                    isMultiline: false,  // don't allow newlines in text
-                    editable: true,  // allow in-place editing by user
-                    row: 0, column: 0, columnSpan: 6,
-                    font: "bold 10pt Segoe UI,sans-serif",
-                    // background: "lightgray",
-                    minSize: new go.Size(120, 36), 
-                    // text: "textAlign: 'center'",
-                    textAlign: "center",
-                    // alignment: go.Spot.Center,
-                    height: 46,
-                    // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
-                    verticalAlignment: go.Spot.Center,
-                    // stretch: go.GraphObject.Fill, // added to not resize object
-                    // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                    margin: new go.Margin(0,2,0,0),
-                    name: "name"
-                  },        
-                  new go.Binding("text", "name").makeTwoWay()
-                ),
-                new go.Binding("choices"),
-                $(go.TextBlock, textStyle(), // the typename  --------------------
-                  {
-                    row: 1, column: 1, columnSpan: 6,
-                    editable: false, isMultiline: false,
-                    // minSize: new go.Size(10, 4),
-                    margin: new go.Margin(2, 0, 1, 0),  
-                    alignment: go.Spot.Center,                  
-                  },
-                  new go.Binding("text", "typename")
-                  //new go.Binding("text", "choices")
-                ),
-              ),
-            ),
-          ),
-        );
-    }
-    // Define a link template
-    let linkTemplate;
-    if (true) {
-        const dotted = [3, 3];
-        const dashed = [5, 5];
-
-        linkTemplate =
-        $(go.Link,
-          new go.Binding("deletable"),
-          { selectable: true },
-          { 
-            toShortLength: 3, 
-            relinkableFrom: true, 
-            relinkableTo: true, 
-            reshapable: true,
-            resegmentable: true  
-          },
-          // { relinkableFrom: true, relinkableTo: true, toShortLength: 4 },
-          // new go.Binding('relinkableFrom', 'canRelink').ofModel(),
-          // new go.Binding('relinkableTo', 'canRelink').ofModel(),
-          // { selectable: true, selectionAdornmentTemplate: linkSelectionAdornmentTemplate },
-
-          // link route 
-          { routing: go.Link.Normal,  corner: 10},  // link route should avoid nodes
-          new go.Binding("routing", "routing",
-            function(r) {
-              switch(r) {
-                case 'Normal':
-                  return go.Link.Normal;
-                case 'Orthogonal':
-                  return go.Link.Orthogonal;
-                case 'AvoidsNodes':
-                  return go.Link.AvoidsNodes;
-               default:
-                  return go.Link.Normal;
-              }
-            }
-          ),
-          new go.Binding("curve", "curve",
-            function (c) {
-              switch(c) {
-                case 'Bezier':
-                  return go.Link.Bezier;
-                case 'JumpOver':
-                  return go.Link.JumpOver;
-                case 'JumpGap': 
-                  return go.Link.JumpGap;
-                default:
-                  return "";
-              }
-            }
-          ),
-          new go.Binding("points").makeTwoWay(),
-          // new go.Binding("points", "points").makeTwoWay(),
-          // context menu
-          { contextMenu: linkContextMenu },
-          // link shape
-          $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
-            new go.Binding("stroke", "strokecolor"),
-            new go.Binding("strokeWidth", "strokewidth"),
-            new go.Binding("strokeDashArray", "dash", 
-              function(d) { return uid.setDashed(d); }),
-            ),
-          // the "from" arrowhead
-          $(go.Shape, { fromArrow: "", stroke: "black" },
-            new go.Binding("fromArrow", "fromArrow"),
-            new go.Binding("fill", "fromArrowColor"),
-            { scale: 1.3, fill: "" }
-          ),
-          // the "to" arrowhead
-          $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" },  
-            new go.Binding("toArrow", "toArrow"),
-            new go.Binding("fill", "toArrowColor"),
-            { scale: 1.3, fill: "white" }
-          ),
-          // cardinality from
-          $(go.TextBlock, "",
-              { segmentIndex: NaN, segmentFraction: 0.15},
-              { segmentOffset: new go.Point(0, 10) },
-              new go.Binding("text", "cardinalityFrom"),
-          ),
-          // cardinality to
-          $(go.TextBlock, "",
-            { segmentIndex: NaN, segmentFraction: 0.85},
-            { segmentOffset: new go.Point(0, -10) },
-            new go.Binding("text", "cardinalityTo"),
-          ),
-          // link label
-          $(go.TextBlock,  "",
-            {
-              isMultiline: false,  // don't allow newlines in text
-              editable: true,  // allow in-place editing by user
-            },
-            { segmentOffset: new go.Point(0, 10) },
-            new go.Binding("text", "name").makeTwoWay(),
-          ),
-          {
-            toolTip:
-              $(go.Adornment, "Auto",
-                { background: "transparent" },  // avoid hiding tooltip when mouse moves
-                $(go.Shape, { fill: "#FFFFCC" }),
-                $(go.TextBlock, { margin: 4,  },  // the tooltip shows the result of calling linkInfo(data)
-                  new go.Binding("text", "", linkInfo))
-              )
-          },
-        );
-    }
-    // Define the group template with fixed size containers
-    if (true) {
-      var groupTemplate =
-      $(go.Group, "Auto",
-        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-        new go.Binding("visible"),
-        { contextMenu: partContextMenu },
-        {
-          selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
-          locationObjectName: "SHAPE",
-          resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-          subGraphExpandedChanged: function (grp) {
-            var shp = grp.resizeObject;
-            if (grp.diagram.undoManager.isUndoingRedoing) return;
-            if (grp.isSubGraphExpanded) {
-              // shp.height = grp._savedBreadth;
-              shp.fill = "white"
-            } else {
-              // grp._savedBreadth = shp.height;
-              // shp.height = NaN;
-              shp.fill = "transparent"
-            }
-          },
-        },
-
-        {
-          background: "transparent",
-          ungroupable: true,
-          // highlight when dragging into the Group
-          mouseDragEnter: function (e, grp, prev) { highlightGroup(e, grp, true); },
-          mouseDragLeave: function (e, grp, next) { highlightGroup(e, grp, false); },
-          computesBoundsAfterDrag: true,
-          // when the selection is dropped into a Group, add the selected Parts into that Group;
-          // if it fails, cancel the tool, rolling back any changes
-          // mouseDrop: finishDrop,
-          handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
-          // Groups containing Nodes lay out their members vertically
-          //layout: $(go.TreeLayout)
-        },
-        //new go.Binding("layout", "groupLayout"),
-        new go.Binding("background", "isHighlighted",
-          function (h) {
-            return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is te background of all
-            }
-        ).ofObject(),
-        {
-          toolTip:
-            $(go.Adornment, "Auto",
-              $(go.Shape, { fill: "lightyellow" }),
-              $(go.TextBlock, { margin: 4 },  // the tooltip shows the result of calling nodeInfo(data)
-                new go.Binding("text", "", nodeInfo))
-            )
-        },
-        $(go.Shape, "RoundedRectangle", // surrounds everything
-          // {
-          //   stroke: "gray", strokeWidth: "1",
-          // },
-          // new go.Binding("stroke", "strokecolor"),
-          // new go.Binding("strokeWidth", "strokewidth"),
-          {
-            cursor: "alias",
-            fill: "transparent", 
-            // stroke: "black", 
-            shadowVisible: true,
-            // strokeWidth: 1,
-            minSize: new go.Size(20, 30),
-            portId: "", 
-            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-          },
-          new go.Binding("fill", "fillcolor"),
-          new go.Binding("stroke", "strokecolor"),
-          // new go.Binding("strokeWidth", "strokewidth"),
-        ),
-        $(go.Panel,  // the header
-          // $(go.TextBlock,     // group title in the background
-          //   {
-          //     alignment: new go.Spot(0,0),
-          //     // defaultAlignment: go.Spot.Top,
-          //     font: "Bold 24pt Sans-Serif",
-          //     // margin: new go.Margin(0, 0, 0, 0),
-          //     editable: true, isMultiline: true,
-          //     name: "name"
-          //   },
-          //   new go.Binding("text", "name").makeTwoWay()
-          // ),
-          $(go.Picture, //"actualBounds",                  // the image
-            {
-              name: "Picture",
-              stretch:  go.GraphObject.Fill,
-              imageStretch:  go.GraphObject.Fill,
-              // minSize: new go.Size(120, 80),
-              // desiredSize: new go.Size(600, 400),
-              // minSize: new go.Binding("minSize", "size"),
-              // margin: new go.Margin(0, 0, 0, 0),
-            },
-            // new go.Binding("minSize", "size"),
-            // new go.Binding("desiredSize", "size"),
-            new go.Binding("source", "icon", findImage)
-          ),
-        ), 
-        $(go.Panel, "Vertical",  // position header above the subgraph
-          {
-            name: "HEADER",
-            defaultAlignment: go.Spot.TopLeft
-          },
-          $(go.Panel, "Horizontal",  // the header
-            { defaultAlignment: go.Spot.Top },
-            $("SubGraphExpanderButton",
-            {margin: new go.Margin(1, 2, 1, 4),
-            scale: 1.5},
-            // {margin: new go.Margin(4, 0, 0, 4)},
-            ),  // this Panel acts as a Button
-            
-            $(go.TextBlock,     // group title near top, next to button
-              {
-                font: "Bold 16pt Sans-Serif",
-                margin: new go.Margin(4, 0, 0, 2),
-                editable: true, isMultiline: false,
-                name: "name"
-              },
-              new go.Binding("text", "name").makeTwoWay()
-            ),
-            $(go.TextBlock, textStyle(), // the typename
-            {
-              row: 1, column: 1, columnSpan: 6, textAlign: "end",
-              editable: false, isMultiline: false,
-              minSize: new go.Size(10, 4),
-              margin: new go.Margin(2, 0, 0, 2)
-            },
-            // new go.Binding("text", "typename")
-            //new go.Binding("text", "choices")
-          ),
-          ), // End Horizontal Panel
-          $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
-            {
-              // name: "SHAPE", //fill: "rgba(228,228,228,0.53)",
-              // name: "SHAPE", fill: "transparent",
-              name: "SHAPE", fill: "white",
-              opacity: 0.95,
-              minSize: new go.Size(180, 120), 
-              desiredSize: new go.Size(300, 200),
-              margin: new go.Margin(0, 1, 1, 4),
-              cursor: "move",
-            },
-            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-            new go.Binding("isSubGraphExpanded").makeTwoWay(),
-            
-          ),
-        ),
-
-      )      
-    }
-
+    let nodeTemplate1 = uit.getNodeTemplate("textAndIcon", partContextMenu);
+    let nodeTemplate2 = uit.getNodeTemplate("textOnly", partContextMenu);
+    let nodeTemplate3 = uit.getNodeTemplate("Comment", partContextMenu);
+    // Define a Link template
+    let linkTemplate = uit.getLinkTemplate("", linkContextMenu, myMetis);
+    // Define a Group template with fixed size containers
+    let groupTemplate = uit.getGroupTemplate("", partContextMenu);
     // define template maps
+
     if (true) {
       // Define node template map
       let nodeTemplateMap = new go.Map<string, go.Part>();
-      nodeTemplateMap.add("", nodeTemplate);
+      nodeTemplateMap.add("", nodeTemplate2);
+      nodeTemplateMap.add("textAndIcon", nodeTemplate1);
+      nodeTemplateMap.add("textOnly", nodeTemplate2);
       nodeTemplateMap.add("LinkLabel",
       $("Node",
         {
@@ -2810,6 +2404,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myDiagram.linkTemplateMap = linkTemplateMap;
       myDiagram.groupTemplateMap = groupTemplateMap;
     }
+    
+    
 
     // Whenever a new Link is drawn by the LinkingTool, it also adds a node data object
     // that acts as the label node for the link, to allow links to be drawn to/from the link.
@@ -2847,7 +2443,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               $(go.RowColumnDefinition, { column: 2, width: 4 }
               ),
               // content
-              $(go.TextBlock, textStyle(),  // the name
+              $(go.TextBlock, uit.textStyle(),  // the name
                 {
                   row: 0, column: 0, columnSpan: 6,
                   font: "12pt Segoe UI,sans-serif",
@@ -2882,64 +2478,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     return myDiagram;
 
-    // Function to identify images related to an image id
-    function findImage(image: string) {
-      if (!image)
-        return "";
-      // if (image.substring(0,4) === 'http') { // its an URL
-      if (image.includes('//')) { // its an URL   
-        // if (debug) console.log('1269 Diagram', image);
-        return image
-      } else if (image.includes('/')) { // its a local image
-        if (debug) console.log('1270 Diagram', image);   
-        return image
-      } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
-        const firstcharacter = image.substring(0, 1)
-        const secondcharacter = image.substring(1, 2)
-        if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
-        // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
-        //   const letter = image.substring(0, image.length - 4)
-        //   // const lettersvg = letter
-        //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
-        //   return svgs[letter].svg //svgs[`'${letter}'`]
-        // } else if (image.includes('fakepath')) { // its a local image
-        //   console.log('3025', image);
-        //   console.log("3027 ./../images/" + image.replace(/C:\\fakepath\\/,'')) //its an image in public/images
-        //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
-      } else if (image.includes('<svg')) { // its an icon font
-        const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
-        console.log('3585', img);
-        return img
-
-      } else { 
-        if (debug) console.log('1283 Diagram', image);
-        return "./../images/" + image //its an image in public/images
-      }
-      return "";
-    }
-
-    // Function to specify default text style
-    function textStyle() {
-      return { font: "9pt  Segoe UI,sans-serif", stroke: "black" };
-    }
-
-    // Function to highlight group
-    function highlightGroup(e: any, grp: any, show: boolean) {
-      if (!grp) return;
-      e.handled = true;
-      if (show) {
-        // cannot depend on the grp.diagram.selection in the case of external drag-and-drops;
-        // instead depend on the DraggingTool.draggedParts or .copiedParts
-        var tool = grp.diagram.toolManager.draggingTool;
-        var map = tool.draggedParts || tool.copiedParts;  // this is a Map
-        // now we can check to see if the Group will accept membership of the dragged Parts
-        if (grp.canAddMembers(map.toKeySet())) {
-          grp.isHighlighted = true;
-          return;
-        }
-      }
-      grp.isHighlighted = false;
-    }
   }
 
   public render() {
@@ -3041,10 +2579,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         category = this.state.selectedData.category;
         typename = (modalContext.typename) ? '('+modalContext.typename+')' : '('+this.state.selectedData.object?.typeName+')'
         // typename = '('+this.state.selectedData.object?.typeName+')'
-        if (debug) console.log('3343 Diagram ', icon, typename, modalContext, this.state.selectedData);
+        if (debug) console.log('2591 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('3346 Diagram ', this.state.selectedData, this.myMetis);
+          if (debug) console.log('2594 Diagram ', this.state.selectedData, modalContext);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -3062,10 +2600,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editTypeview': {
         header = modalContext.title + ':';
         category = this.state.selectedData.category;
-        if (debug) console.log('3108 category ', category);
+        if (debug) console.log('2612 category ', category);
+        typename = (modalContext.typename) ? '('+modalContext.typename+')' : '('+this.state.selectedData.object?.typeName+')'
       
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('3111 Diagram ', this.state, this.myMetis);
+          if (debug) console.log('2615 Diagram ', this.state.selectedData, this.state.modalContext, modalContext);
           modalContent = 
             <div className="modal-prop" >
               <SelectionInspector 
@@ -3081,7 +2620,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       default:
         break;
     }
-    if (debug) console.log('3127 last in Diagram ', this.props);
+    if (debug) console.log('2631 last in Diagram ', this.props);
     
     return (
       <div>

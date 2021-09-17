@@ -684,9 +684,10 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
     }
 }
 
-export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, myDiagram: any, nodes: any[]) {
+export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, myDiagram: any, nodes: any[]): gjs.goObjectNode {
     if (debug) console.log('613 sel', sel);
     if (sel.category === 'Object') {
+        const modelView = goModel?.modelView;
         let node = goModel?.findNode(sel.key);
         if (node) {
             node.loc = sel.loc;
@@ -705,9 +706,19 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     objview.group = "";
                     node.group = "";
                 }
-                if (debug) console.log('677 Moved node', node, objview)
-                const modNode = new gql.gqlObjectView(objview);
-                nodes.push(modNode);
+                if (debug) console.log('677 Moved node', node, objview);
+                let found = false;
+                for (let i=0; i<nodes?.length; i++) {
+                    const n = nodes[i];
+                    if (n.id === objview.id) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    const modNode = new gql.gqlObjectView(objview);
+                    nodes.push(modNode);
+                }
             }
             // Trying to handle container 'grabbing' objects
             if (objview.isGroup) {   // node / objview is a group
@@ -735,8 +746,9 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                 }
                 if (debug) console.log('702 nodes', nodes);
             }
+            if (!debug) console.log('750 objview', objview);
+            if (!debug) console.log('751 node', node);
         }
-        if (debug) console.log('702 goModel :', goModel);
         return node;
     }
 }

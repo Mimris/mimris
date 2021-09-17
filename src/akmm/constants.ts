@@ -25,12 +25,14 @@ export let relkinds = {
 // Define GOJS constants
 
 export let gojs = {
-     C_UNITCATEGORY        : "Unit category",
      C_CONTAINER           : "Container",
      C_DATATYPE            : "Datatype",
      C_ENUMERATION         : "Enumeration",
+     C_FIELDTYPE           : "Field type",
+     C_INPUTPATTERN        : "Input pattern",
      C_METAMODEL           : "Metamodel",
      C_METACONTAINER       : "Metacontainer",
+     C_METHOD              : "Method",
      C_METIS               : "Metis",
      C_MODEL               : "Model",
      C_MODELVIEW           : "Model view",
@@ -42,18 +44,16 @@ export let gojs = {
      C_OBJECTVIEW          : "Object view",
      C_PALETTEGROUP_OBJ    : "typeitem",
      C_PROPERTY            : "Property",
-     C_METHOD              : "Method",
+     C_PROPVALUE           : "Property value",
      C_RELATIONSHIP        : "Relationship",
      C_RELSHIPTYPE         : "Relationship type",
      C_RELSHIPTYPEVIEW     : "Relationship type view",
      C_RELSHIPVIEW         : "Relationship view",
-     C_VIEWSTYLE           : "Viewstyle",
      C_UNIT                : "Unit",
-     C_PROPVALUE           : "Property value",
+     C_UNITCATEGORY        : "Unit category",
      C_VALUE               : "Value",
      C_VIEWFORMAT          : "View format",
-     C_FIELDTYPE           : "Field type",
-     C_INPUTPATTERN        : "Input pattern"
+     C_VIEWSTYLE           : "Viewstyle"
 };
 
 // Define Firestore constants

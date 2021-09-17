@@ -348,7 +348,7 @@ export class goObjectNode extends goNode {
     objecttype: akm.cxObjectType | null;
     typename: string;
     typeview: akm.cxObjectTypeView | null;
-    figure: string;
+    template: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -364,8 +364,7 @@ export class goObjectNode extends goNode {
         this.object         = null;
         this.objecttype     = null;
         this.typename       = "";
-        this.typeview       = null;
-        this.figure         = objview.figure;
+        this.template       = objview.template;
         this.fillcolor      = objview.fillcolor;
         this.strokecolor    = objview.strokecolor;
         this.strokewidth    = objview.strokewidth;
@@ -392,6 +391,7 @@ export class goObjectNode extends goNode {
 
             }
             this.typeview = objview.getTypeView();
+            this.template = this.typeview.template;
         }
     }
     // Methods
@@ -608,6 +608,7 @@ export class goRelshipLink extends goLink {
     relshiptype:        akm.cxObjectType | akm.cxRelationshipType | null;
     typename:           string;
     typeview:           akm.cxRelationshipTypeView | null;
+    template:           string;
     fromNode:           goNode | null;
     toNode:             goNode | null;
     from:               string;
@@ -619,7 +620,7 @@ export class goRelshipLink extends goLink {
     toArrowColor:       string;
     routing:            string;
     curve:              string;
-    points:             string;
+    points:             any;
     cardinality:        string;
     cardinalityFrom:    string;
     cardinalityTo:      string;
@@ -637,6 +638,7 @@ export class goRelshipLink extends goLink {
         this.toNode          = null;
         this.from            = "";
         this.to              = "";
+        this.template        = "";
         this.strokecolor     = "";
         this.fromArrow       = "";
         this.toArrow         = "";
@@ -644,7 +646,7 @@ export class goRelshipLink extends goLink {
         this.toArrowColor    = "";
         this.routing         = "";
         this.curve           = "";
-        this.points          = "";
+        this.points          = null;
         this.cardinality     = "";
         this.cardinalityFrom = "";
         this.cardinalityTo   = "";
@@ -773,6 +775,7 @@ export class goRelshipTypeLink extends goRelshipLink {
     cardinalityTo: string;
     nameFrom:   string;
     nameTo:     string;
+    points:     any;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
         this.category   = constants.gojs.C_RELSHIPTYPE;
@@ -787,6 +790,7 @@ export class goRelshipTypeLink extends goRelshipLink {
         this.cardinalityTo = "";
         this.nameFrom = "";
         this.nameTo = "";
+        this.points = null;
 
         if (reltype) {
             this.setName(reltype.getName());
@@ -874,7 +878,7 @@ export class paletteNode {
     name: string;
     description: string;
     isGroup: boolean;
-    figure: string;
+    template: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -888,7 +892,7 @@ export class paletteNode {
         this.name = name;
         this.description = description;
         this.isGroup = false;
-        this.figure = "RoundedRectangle";
+        this.template = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";

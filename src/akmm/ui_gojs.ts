@@ -312,6 +312,7 @@ export class goMetaObject {
 
 export class goNode extends goMetaObject {
     parentModel: goModel | null;
+    text:            string;
     loc:             string;
     size:            string;
     strokecolor:     string;
@@ -320,6 +321,7 @@ export class goNode extends goMetaObject {
     constructor(key: string, model: goModel | null) {
         super(key);
         this.parentModel = model;  // goModel
+        this.text = "";
         this.loc = "";
         this.size = "";
         this.strokecolor = "";

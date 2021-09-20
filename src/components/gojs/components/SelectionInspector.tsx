@@ -11,10 +11,10 @@ const printf = require('printf');
 // import './Inspector.css';
 import * as uic from '../../../akmm/ui_common';
 import * as ui_mtd from '../../../akmm/ui_methods';
+import * as uit from '../../../akmm/ui_templates';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
 
-const nodeTemplates = ['', 'textOnly', 'textAndIcon'];
 const debug = false;
 interface SelectionInspectorProps {
   myMetis: any;
@@ -110,6 +110,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let hideNameAndDescr = false;
     let useColor = false;
     let useItem = false;
+    let isLabel = false;
     const what = modalContext?.what;
     switch (what) {
       case "toBeDefined":
@@ -132,6 +133,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editObject":
         item = inst;
+        if (type.name === 'Label')
+          isLabel = true;
         break;
       case "editRelationshipType":
         item = inst.reltype;
@@ -312,9 +315,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
           case 'template':
             if (!item.isGroup) {
-              values = nodeTemplates;
+              values = uit.getNodeTemplateNames();
               defValue = '';
-              fieldType = 'radio';
+              fieldType = 'select';
             }
             break;
         }
@@ -373,10 +376,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             // name = utils.capitalizeFirstLetter(k);
             break;
         }
-
         if (debug) console.log('337 selObj, item:', selObj, item);
         if (debug) console.log('338 id, value, disabled:', k, val, disabled);
         if (debug) console.log('339 k, fieldType', k, fieldType, defValue, values);
+        if (isLabel) {
+          if (k === 'viewkind')
+            continue;
+          switch(k) {
+            case 'text':
+              disabled = false;
+              break;
+            default:
+              disabled = true;
+              break;
+          }
+        }
         row  = <InspectorRow
           key={k}
           id={k}

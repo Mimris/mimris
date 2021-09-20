@@ -27,7 +27,6 @@ import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
-// const glb = require('../../../akmm/akm_globals');
 const printf = require('printf');
 const RegexParser = require("regex-parser");
 
@@ -42,6 +41,7 @@ import { METHODS } from 'http';
 // import { stringify } from 'querystring';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
+import "../BalloonLink.js";
 
 const AllowTopLevel = true;
 
@@ -2353,10 +2353,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const layer = myDiagram.findLayer('AdminLayer');
     layer.visible = false;
   
-    // Define a Node template
-    let nodeTemplate1 = uit.getNodeTemplate("textAndIcon", partContextMenu);
-    let nodeTemplate2 = uit.getNodeTemplate("textOnly", partContextMenu);
-    let nodeTemplate3 = uit.getNodeTemplate("Comment", partContextMenu);
     // Define a Link template
     let linkTemplate = uit.getLinkTemplate("", linkContextMenu, myMetis);
     // Define a Group template with fixed size containers
@@ -2366,9 +2362,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (true) {
       // Define node template map
       let nodeTemplateMap = new go.Map<string, go.Part>();
-      nodeTemplateMap.add("", nodeTemplate2);
-      nodeTemplateMap.add("textAndIcon", nodeTemplate1);
-      nodeTemplateMap.add("textOnly", nodeTemplate2);
+      uit.addNodeTemplates(nodeTemplateMap, partContextMenu, myMetis);
       nodeTemplateMap.add("LinkLabel",
       $("Node",
         {
@@ -2385,7 +2379,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       // Define link template map
       let linkTemplateMap = new go.Map<string, go.Link>();
       linkTemplateMap.add("", linkTemplate);
-
       // This template shows links connecting with label nodes as green and arrow-less.
       if (linkToLink) {
         myDiagram.linkTemplateMap.add("linkToLink",
@@ -2404,8 +2397,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       myDiagram.linkTemplateMap = linkTemplateMap;
       myDiagram.groupTemplateMap = groupTemplateMap;
     }
-    
-    
 
     // Whenever a new Link is drawn by the LinkingTool, it also adds a node data object
     // that acts as the label node for the link, to allow links to be drawn to/from the link.

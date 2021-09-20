@@ -2,6 +2,7 @@
 // @ts- nocheck
 const debug = false; 
 import * as go from 'gojs';
+// import * as figures from 'gojs/extensions/Figures';
 import * as utils from './utilities';
 import * as uic from './ui_common';
 import * as uid from './ui_diagram';
@@ -13,6 +14,8 @@ const constants = require('./constants');
 const printf = require('printf');
 
 const $ = go.GraphObject.make;
+
+require('gojs/extensions/Figures.js');
 
 export function getRouting(r: string): any {
     switch(r) {
@@ -54,13 +57,354 @@ function nodeStyle() {
     ];
   }
 
+let nodeTemplateNames = []; 
 
-export function getNodeTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {
-    const nodeTemplate1 =  // Text and Icon
+export function getNodeTemplateNames() {
+    return nodeTemplateNames;
+}
+
+function addNodeTemplateName(name: string) {
+    if (nodeTemplateNames.length == 0) {
+        nodeTemplateNames.push(name);
+        return;        
+    }
+    let names = [...new Set(nodeTemplateNames)];
+    for (let i=0; i<names?.length; i++) {
+        const n = names[i];
+        if (n == name)
+            continue;
+        else {
+            names.push(name);
+            break;
+        }
+    }
+    const names1 = [...new Set(names)];
+    nodeTemplateNames = names1;
+}
+
+// export function getNodeTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {
+//     const nodeTemplate1 =  // Text and Icon
+export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis: akm.cxMetis) {
+    let nodeTemplate1 =      
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+            new go.Binding("layerName", "layer"),
+            new go.Binding("deletable"),
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            {
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
+            },
+            $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
+                {
+                cursor: "alias",        // cursor: "pointer",
+                name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
+                margin: new go.Margin(1, 1, 1, 1),
+                shadowVisible: true,
+                desiredSize: new go.Size(158, 68), // outer Shape without icon  // comment out the Icon part
+                // set the port properties
+                portId: "", 
+                fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
+                // Shape bindings
+                new go.Binding('fill', 'fillcolor'),
+                new go.Binding('stroke', 'strokecolor'), 
+                new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
+                .ofObject(),
+                // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+                { contextMenu: contextMenu },    
+            ),
+            $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
+                {
+                    cursor: "move",    
+                    fill: "transparent",
+                    stroke: "transparent",
+                    strokeWidth: 10,
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: false,
+                    desiredSize: new go.Size(136, 48),              
+                }    
+            ),        
+            $(go.Panel, "Table", // Panel for text 
+                { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
+                $(go.RowColumnDefinition, { column: 1, width: 4 }),
+                $(go.Panel, "Horizontal",
+                // { margin: new go.Margin(10, 10, 10, 10) },
+                {
+                    defaultAlignment: go.Spot.Center
+                },
+                // define the panel where the text will appear
+                $(go.Panel, "Table", // separator ---------------------------------
+                    { contextMenu: contextMenu , cursor: "move" },
+                    {
+                    defaultRowSeparatorStroke: "black",
+                    desiredSize: new go.Size(136, 60),
+                    maxSize: new go.Size(140, 66), 
+                    // margin: new go.Margin(2),
+                    defaultAlignment: go.Spot.Center,
+                    },
+                    // $(go.RowColumnDefinition, { column: 2, width: 4 }),
+                    // content
+                    $(go.TextBlock, textStyle(),  // the name -----------------------
+                    {
+                        isMultiline: false,  // don't allow newlines in text
+                        editable: true,  // allow in-place editing by user
+                        row: 0, column: 0, columnSpan: 6,
+                        font: "bold 10pt Segoe UI,sans-serif",
+                        // background: "lightgray",
+                        minSize: new go.Size(120, 36), 
+                        // text: "textAlign: 'center'",
+                        textAlign: "center",
+                        // alignment: go.Spot.Center,
+                        height: 46,
+                        // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
+                        verticalAlignment: go.Spot.Center,
+                        // stretch: go.GraphObject.Fill, // added to not resize object
+                        // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
+                        margin: new go.Margin(0,2,0,0),
+                        name: "name"
+                    },        
+                    new go.Binding("text", "name").makeTwoWay()
+                    ),
+                    $(go.TextBlock, textStyle(), // the typename  --------------------
+                    {
+                        row: 1, column: 1, columnSpan: 6,
+                        editable: false, isMultiline: false,
+                        // minSize: new go.Size(10, 4),
+                        margin: new go.Margin(2, 0, 1, 0),  
+                        alignment: go.Spot.Center,                  
+                    },
+                    new go.Binding("text", "typename")
+                    ),
+                ),
+                ),
+            ),
+        );
+    nodeTemplateMap.add("", nodeTemplate1);
+    nodeTemplateMap.add("textOnly", nodeTemplate1);
+    addNodeTemplateName('textOnly');
+    nodeTemplateMap.add("textAndIcon", 
+        $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+            new go.Binding("layerName", "layer"),
+            new go.Binding("deletable"),
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            {
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                    new go.Binding("text", "", uid.nodeInfo))
+                )
+            },
+
+            $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
+                {
+                cursor: "alias",        // cursor: "pointer",
+                name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
+                margin: new go.Margin(1, 1, 1, 1),
+                shadowVisible: true,
+                desiredSize: new go.Size(198, 68), // outer Shape size with icon
+                // set the port properties
+                portId: "", 
+                fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
+                // Shape bindings
+                new go.Binding('fill', 'fillcolor'),
+                new go.Binding('stroke', 'strokecolor'), 
+                new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
+                .ofObject(),
+                // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+                { contextMenu: contextMenu },    
+            ),
+            $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
+                {
+                    cursor: "move",    
+                    fill: "transparent",
+                    stroke: "transparent",
+                    strokeWidth: 10,
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: false,
+                    desiredSize: new go.Size(136, 48),              
+                }    
+            ),
+
+            $(go.Panel, "Table", // Panel for text and icon ------------------------
+                { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
+                $(go.RowColumnDefinition, { column: 1, width: 4 }),
+                $(go.Panel, "Horizontal",
+                // { margin: new go.Margin(10, 10, 10, 10) },
+                {
+                    defaultAlignment: go.Spot.Center
+                },
+                // comment out icon start
+                $(go.Panel, "Vertical", // Panel for Icon  ------------------------
+                    { contextMenu: contextMenu , cursor: "move" },
+                    $(go.Panel, "Spot", // icon area
+                    { contextMenu: contextMenu , cursor: "move" },
+
+                    $(go.Shape, {  // this is the square around the image ---------
+                        fill: "white", stroke: "#ddd", opacity: 0.4,
+                        desiredSize: new go.Size(56, 56), 
+                        margin: new go.Margin(0, 2, 0, 8),
+                        // shadowVisible: true,
+                    },
+                    new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
+                    new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
+                    // new go.Binding("fill", "color"),
+                    new go.Binding("template")),
+
+                    $(go.Picture,  // the image -------------------------------------
+                        // { contextMenu: partContextMenu },
+                        {
+                        name: "Picture",
+                        desiredSize: new go.Size(48, 48),
+                        // imageStretch: go.GraphObject.Fill,
+                        // margin: new go.Margin(2, 2, 2, 4),
+                        // margin: new go.Margin(4, 4, 4, 4),
+                        },
+                        new go.Binding("source", "icon", findImage)
+                    ),
+                    ),
+                ),
+                // comment out icon stop
+                // define the panel where the text will appear
+                $(go.Panel, "Table", // separator ---------------------------------
+                    { contextMenu: contextMenu , cursor: "move" },
+                    {
+                    defaultRowSeparatorStroke: "black",
+                    desiredSize: new go.Size(136, 60),
+                    maxSize: new go.Size(140, 66), 
+                    // margin: new go.Margin(2),
+                    defaultAlignment: go.Spot.Center,
+                    },
+                    // $(go.RowColumnDefinition, { column: 2, width: 4 }),
+                    // content
+                    $(go.TextBlock, textStyle(),  // the name -----------------------
+                    {
+                        isMultiline: false,  // don't allow newlines in text
+                        editable: true,  // allow in-place editing by user
+                        row: 0, column: 0, columnSpan: 6,
+                        font: "bold 10pt Segoe UI,sans-serif",
+                        // background: "lightgray",
+                        minSize: new go.Size(120, 36), 
+                        // text: "textAlign: 'center'",
+                        textAlign: "center",
+                        // alignment: go.Spot.Center,
+                        height: 46,
+                        // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
+                        verticalAlignment: go.Spot.Center,
+                        // stretch: go.GraphObject.Fill, // added to not resize object
+                        // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
+                        margin: new go.Margin(0,2,0,0),
+                        name: "name"
+                    },        
+                    new go.Binding("text", "name").makeTwoWay()
+                    ),
+                    $(go.TextBlock, textStyle(), // the typename  --------------------
+                    {
+                        row: 1, column: 1, columnSpan: 6,
+                        editable: false, isMultiline: false,
+                        // minSize: new go.Size(10, 4),
+                        margin: new go.Margin(2, 0, 1, 0),  
+                        alignment: go.Spot.Center,                  
+                    },
+                    new go.Binding("text", "typename")
+                    ),
+                ),
+                ),
+            ),
+        )
+    );
+    addNodeTemplateName('textAndIcon');
+
+    nodeTemplateMap.add("label", 
+        $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+            new go.Binding("layerName", "layer"),
+            new go.Binding("deletable"),
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            {
+                selectionObjectName: "SHAPE",
+                resizable: true, resizeObjectName: "SHAPE"
+            },
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),       
+    
+            $(go.Shape,  
+                { 
+                    name: "SHAPE", strokeWidth: 2,
+                    geometryString: "F M0 0 L80 0 B-90 90 80 20 20 20 L100 100 20 100 B90 90 20 80 20 20z",
+                    cursor: "alias",        // cursor: "pointer",
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: true,
+                    desiredSize: new go.Size(168, 68), // outer Shape size 
+                    // set the port properties
+                    portId: "", 
+                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                },
+                // Shape bindings
+                new go.Binding('fill', 'fillcolor'),
+                new go.Binding('stroke', 'strokecolor'), 
+                new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
+                .ofObject(),
+                { contextMenu: contextMenu },    
+            ),
+            $(go.Panel, "Table", // Panel for text  -----------------------
+                { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
+                $(go.RowColumnDefinition, { column: 1, width: 4 }),
+                $(go.Panel, "Horizontal",
+                    // { margin: new go.Margin(10, 10, 10, 10) },
+                    {
+                        defaultAlignment: go.Spot.Left
+                    },
+                    // define the panel where the text will appear
+                    $(go.Panel, "Table", // separator ---------------------------------
+                        { contextMenu: contextMenu , cursor: "move" },
+                        {
+                            defaultRowSeparatorStroke: "black",
+                            defaultAlignment: go.Spot.Left,
+                        },
+                        // content
+                        $(go.TextBlock, textStyle(),  // the text -----------------------
+                            {
+                                isMultiline: true,  // allow newlines in text
+                                editable: false,     // allow in-place editing by user
+                                row: 0, column: 0, columnSpan: 6,
+                                font: "bold 10pt Segoe UI,sans-serif",
+                                desiredSize: new go.Size(120, 36), 
+                                textAlign: "left",
+                                wrap: go.TextBlock.WrapFit, 
+                                verticalAlignment: go.Spot.Left,
+                                // overflow: go.TextBlock.OverflowClip,
+                                margin: 2,
+                                width: 400,
+                                text: "label"
+                            },        
+                            new go.Binding("text", "text").makeTwoWay()
+                        ),
+                    ),
+                ),
+            ),
+        )
+    );
+    addNodeTemplateName('label');
+
+    nodeTemplateMap.add('TEST',
+        $(go.Node, "Spot",  // Vertical
+        {
+            selectionObjectName: "SHAPE",
+            resizable: true, resizeObjectName: "SHAPE"
+        },
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
-        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),       
         {
             toolTip:
             $(go.Adornment, "Auto",
@@ -69,263 +413,85 @@ export function getNodeTemplate(templateName: string, contextMenu: any, myMetis:
                 new go.Binding("text", "", uid.nodeInfo))
             )
         },
-
-        $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
-            {
-            cursor: "alias",        // cursor: "pointer",
-            name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
-            margin: new go.Margin(1, 1, 1, 1),
-            shadowVisible: true,
-            desiredSize: new go.Size(198, 68), // outer Shape size with icon
-            // set the port properties
-            portId: "", 
-            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
-            // Shape bindings
+        $(go.Shape,
+            { 
+                name: "SHAPE",
+                geometryString: "F M0 0 L80 0 B-90 90 80 20 20 20 L100 100 20 100 B90 90 20 80 20 20z"
+            },
+            { 
+                minSize: new go.Size(160, 60),
+                desiredSize: new go.Size(200, 100) 
+            },
             new go.Binding('fill', 'fillcolor'),
             new go.Binding('stroke', 'strokecolor'), 
+            new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
+        ),
+        $(go.TextBlock, textStyle(),  // the text -----------------------
+            new go.Binding("text", "text").makeTwoWay(),
+            {
+                isMultiline: true,  // allow newlines in text
+                editable: true,  // allow in-place editing by user
+                row: 0, column: 0, columnSpan: 6,
+                font: "bold 12pt Segoe UI,sans-serif",
+                // background: "lightgray",
+                // minSize: new go.Size(120, 36), 
+                // desiredSize: new go.Size(150, 200), 
+                overflow: go.TextBlock.OverflowClip /* the default value */,
+                // text: "textAlign: 'center'",
+                textAlign: "center",
+                // alignment: go.Spot.Center,
+                // height: 46,
+                // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
+                verticalAlignment: go.Spot.Center,
+                // stretch: go.GraphObject.Fill, // added to not resize object
+                // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
+                margin: new go.Margin(0,2,0,0)
+                // name: "name"
+            }
+        ),        
+            // $("Button",
+            //     { alignment: go.Spot.TopRight },
+            //     $(go.Shape, "XLine", { width: 8, height: 8 }),
+            //     { click: changeTemplate }
+            // ),
             new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
             .ofObject(),
             // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
             { contextMenu: contextMenu },    
-        ),
-        $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
-            {
-                cursor: "move",    
-                fill: "transparent",
-                stroke: "transparent",
-                strokeWidth: 10,
-                margin: new go.Margin(1, 1, 1, 1),
-                shadowVisible: false,
-                desiredSize: new go.Size(136, 48),              
-            }    
-        ),
-    
-        $(go.Panel, "Table", // Panel for text and icon ------------------------
-            { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-            $(go.RowColumnDefinition, { column: 1, width: 4 }),
-            $(go.Panel, "Horizontal",
-            // { margin: new go.Margin(10, 10, 10, 10) },
-            {
-                defaultAlignment: go.Spot.Center
-            },
+        )
+    )
+    // addNodeTemplateName('TEST');
 
-            // comment out icon start
-            $(go.Panel, "Vertical", // Panel for Icon  ------------------------
-              { contextMenu: contextMenu , cursor: "move" },
-              $(go.Panel, "Spot", // icon area
-                { contextMenu: contextMenu , cursor: "move" },
-
-                $(go.Shape, {  // this is the square around the image ---------
-                  fill: "white", stroke: "#ddd", opacity: 0.4,
-                  desiredSize: new go.Size(56, 56), 
-                  margin: new go.Margin(0, 2, 0, 8),
-                  // shadowVisible: true,
-                },
-                new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
-                new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
-                // new go.Binding("fill", "color"),
-                new go.Binding("template")),
-
-                $(go.Picture,  // the image -------------------------------------
-                  // { contextMenu: partContextMenu },
-                  {
-                    name: "Picture",
-                    desiredSize: new go.Size(48, 48),
-                    // imageStretch: go.GraphObject.Fill,
-                    // margin: new go.Margin(2, 2, 2, 4),
-                    // margin: new go.Margin(4, 4, 4, 4),
-                  },
-                  new go.Binding("source", "icon", findImage)
-                ),
-              ),
+    nodeTemplateMap.add('simple',
+        $(go.Node, "Spot",
+            $(go.Panel, "Auto",
+                $(go.Shape, "Ellipse", { width: 150, height: 30 },
+                new go.Binding("fill", "fillcolor")),
+                $(go.TextBlock,
+                new go.Binding("text", "text").makeTwoWay())
             ),
-            // comment out icon stop
-
-            // define the panel where the text will appear
-            $(go.Panel, "Table", // separator ---------------------------------
-                { contextMenu: contextMenu , cursor: "move" },
-                {
-                defaultRowSeparatorStroke: "black",
-                desiredSize: new go.Size(136, 60),
-                maxSize: new go.Size(140, 66), 
-                // margin: new go.Margin(2),
-                defaultAlignment: go.Spot.Center,
-                },
-                // $(go.RowColumnDefinition, { column: 2, width: 4 }),
-                // content
-                $(go.TextBlock, textStyle(),  // the name -----------------------
-                {
-                    isMultiline: false,  // don't allow newlines in text
-                    editable: true,  // allow in-place editing by user
-                    row: 0, column: 0, columnSpan: 6,
-                    font: "bold 10pt Segoe UI,sans-serif",
-                    // background: "lightgray",
-                    minSize: new go.Size(120, 36), 
-                    // text: "textAlign: 'center'",
-                    textAlign: "center",
-                    // alignment: go.Spot.Center,
-                    height: 46,
-                    // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
-                    verticalAlignment: go.Spot.Center,
-                    // stretch: go.GraphObject.Fill, // added to not resize object
-                    // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                    margin: new go.Margin(0,2,0,0),
-                    name: "name"
-                },        
-                new go.Binding("text", "name").makeTwoWay()
-                ),
-                $(go.TextBlock, textStyle(), // the typename  --------------------
-                {
-                    row: 1, column: 1, columnSpan: 6,
-                    editable: false, isMultiline: false,
-                    // minSize: new go.Size(10, 4),
-                    margin: new go.Margin(2, 0, 1, 0),  
-                    alignment: go.Spot.Center,                  
-                },
-                new go.Binding("text", "typename")
-                ),
+            $("Button",
+                { alignment: go.Spot.TopRight },
+                $(go.Shape, "XLine", { width: 8, height: 8 }),
+                { click: changeTemplate }
             ),
-            ),
-        ),
-    );
-
-    const nodeTemplate2 =   // Text only
-        $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("layerName", "layer"),
-        new go.Binding("deletable"),
-        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        {
-            toolTip:
-            $(go.Adornment, "Auto",
-                $(go.Shape, { fill: "lightyellow" }),
-                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                    new go.Binding("text", "", 
-                        function (d) { 
-                            return uid.nodeInfo(d, myMetis);                
-                        }
-                    )
-                )
-            )
-        },
-
-        $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
-            {
-            cursor: "alias",        // cursor: "pointer",
-            name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
-            margin: new go.Margin(1, 1, 1, 1),
-            shadowVisible: true,
-            desiredSize: new go.Size(158, 68), // outer Shape without icon  // comment out the Icon part
-            // set the port properties
-            portId: "", 
-            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
-            // Shape bindings
-            new go.Binding('fill', 'fillcolor'),
-            new go.Binding('stroke', 'strokecolor'), 
-            new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
-            .ofObject(),
-            // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
             { contextMenu: contextMenu },    
-        ),
-        $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
-            {
-                cursor: "move",    
-                fill: "transparent",
-                stroke: "transparent",
-                strokeWidth: 10,
-                margin: new go.Margin(1, 1, 1, 1),
-                shadowVisible: false,
-                desiredSize: new go.Size(136, 48),              
-            }    
-        ),
-    
-        $(go.Panel, "Table", // Panel for text 
-            { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-            $(go.RowColumnDefinition, { column: 1, width: 4 }),
-            $(go.Panel, "Horizontal",
-            // { margin: new go.Margin(10, 10, 10, 10) },
-            {
-                defaultAlignment: go.Spot.Center
-            },
-            // define the panel where the text will appear
-            $(go.Panel, "Table", // separator ---------------------------------
-                { contextMenu: contextMenu , cursor: "move" },
-                {
-                defaultRowSeparatorStroke: "black",
-                desiredSize: new go.Size(136, 60),
-                maxSize: new go.Size(140, 66), 
-                // margin: new go.Margin(2),
-                defaultAlignment: go.Spot.Center,
-                },
-                // $(go.RowColumnDefinition, { column: 2, width: 4 }),
-                // content
-                $(go.TextBlock, textStyle(),  // the name -----------------------
-                {
-                    isMultiline: false,  // don't allow newlines in text
-                    editable: true,  // allow in-place editing by user
-                    row: 0, column: 0, columnSpan: 6,
-                    font: "bold 10pt Segoe UI,sans-serif",
-                    // background: "lightgray",
-                    minSize: new go.Size(120, 36), 
-                    // text: "textAlign: 'center'",
-                    textAlign: "center",
-                    // alignment: go.Spot.Center,
-                    height: 46,
-                    // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
-                    verticalAlignment: go.Spot.Center,
-                    // stretch: go.GraphObject.Fill, // added to not resize object
-                    // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                    margin: new go.Margin(0,2,0,0),
-                    name: "name"
-                },        
-                new go.Binding("text", "name").makeTwoWay()
-                ),
-                $(go.TextBlock, textStyle(), // the typename  --------------------
-                {
-                    row: 1, column: 1, columnSpan: 6,
-                    editable: false, isMultiline: false,
-                    // minSize: new go.Size(10, 4),
-                    margin: new go.Margin(2, 0, 1, 0),  
-                    alignment: go.Spot.Center,                  
-                },
-                new go.Binding("text", "typename")
-                ),
-            ),
-            ),
-        ),
+        )
     );
+}
 
-    const nodeTemplate3 =    // Comment
-    $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
-        {
-        cursor: "alias",        // cursor: "pointer",
-        name: 'SHAPE', fill: 'red', stroke: "#fff",  strokeWidth: 2, 
-        margin: new go.Margin(1, 1, 1, 1),
-        shadowVisible: true,
-        desiredSize: new go.Size(158, 68), // outer Shape without icon  // comment out the Icon part
-        // set the port properties
-        portId: "", 
-        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
-        // Shape bindings
-        new go.Binding('fill', 'fillcolor'),
-        new go.Binding('stroke', 'strokecolor'), 
-        new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
-        .ofObject(),
-        // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
-        { contextMenu: contextMenu },    
-    );
-
-    switch(templateName) {
-        case 'textAndIcon':
-            return nodeTemplate1;
-        case 'textOnly':
-            return nodeTemplate2;
-        case 'Comment':
-            return nodeTemplate3;
-        default:
-            return nodeTemplate1;
+function changeTemplate(e: any, obj: any) {
+    const node = obj.part;
+    if (node) {
+      const diagram = node.diagram;
+      diagram.startTransaction("changeTemplate");
+      var cat = diagram.model.getCategoryForNodeData(node.data);
+      if (cat === "simple")
+        cat = "TEST";
+      else
+        cat = "simple";
+      diagram.model.setCategoryForNodeData(node.data, cat);
+      diagram.commitTransaction("changeTemplate");
     }
 }
 

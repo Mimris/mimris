@@ -4859,7 +4859,7 @@ export class cxMethod extends cxMetaObject {
     }
 }
 
-// ---------  View Template Defintions  -----------------------------
+// ---------  View Template Definitions  -----------------------------
 export class cxViewStyle extends cxMetaObject {
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypeviews:   cxRelationshipTypeView[] | null = null;
@@ -5809,7 +5809,10 @@ export class cxInstance extends cxMetaObject {
               }
             }
         }
-        const properties = typeprops.concat(mtdprops);  
+        let properties = typeprops.concat(mtdprops);  
+        properties = properties.filter(function (el) {
+            return el != null;
+        });
         this.allProperties = properties;      
         if (debug) console.log('5739 properties', properties);
         return properties;

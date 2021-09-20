@@ -668,11 +668,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('628 node', node, selObjview);
       const data = node.data;
       for (let prop in  objtypeview?.data) {
-        console.log('671 prop, objview', prop, objview, selObjview);
-        objview[prop] = selObjview[prop];
+        if (debug) console.log('671 prop, objview', prop, objview, selObjview);
+        try {
+          objview[prop] = selObjview[prop];
+        } catch {}
       }
       const gqlObjview = new gql.gqlObjectView(objview);
-      if (debug) console.log('634 gqlObjview', data, gqlObjview);
+      if (!debug) console.log('634 gqlObjview', data, gqlObjview);
       modifiedObjviews.push(gqlObjview);
       modifiedObjviews.map(mn => {
         let data = mn;
@@ -681,7 +683,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       })
       if (debug) console.log('641 data', data);
       for (let prop in objtypeview?.data) {
-        if (prop === 'figure' && objview[prop] !== "") 
+        if (prop === 'template' && objview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
         if (prop === 'fillcolor' && objview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
@@ -935,7 +937,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (data) {
         if (debug) console.log('849 data', data);
         for (let prop in typeview) {
-          if (prop === 'figure' && typeview[prop] !== "") 
+          if (prop === 'template' && typeview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, typeview[prop]);
           if (prop === 'fillcolor' && typeview[prop] !== "") {
             if (debug) console.log('854 fillcolor', typeview[prop]);

@@ -690,7 +690,7 @@ export class cxMetis {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setType(type);
-            objtypeview.setFigure(item.figure);
+            objtypeview.setTemplate(item.template);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokewidth(item.strokewidth);
@@ -4866,7 +4866,7 @@ export class cxObjtypeviewData {
     isGroup: boolean;               // Container behaviour
     group: string;                  // Parent group
     viewkind: string;
-    figure: string;
+    template: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -4876,7 +4876,7 @@ export class cxObjtypeviewData {
         this.isGroup = false;              // Container behaviour
         this.group = "";                // Parent group
         this.viewkind = constants.viewkinds.OBJ;
-        this.figure = "RoundedRectangle";
+        this.template = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";
@@ -4888,7 +4888,7 @@ export class cxObjectTypeView extends cxMetaObject {
     type: cxObjectType | null;
     typeRef: string;
     data: cxObjtypeviewData;
-    figure: string;
+    template: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -4899,7 +4899,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.category    = constants.gojs.C_OBJECTTYPEVIEW;
         this.type        = type;
         this.typeRef     = type?.id;
-        this.figure      = "RoundedRectangle";
+        this.template    = "";
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "2";
@@ -4926,7 +4926,7 @@ export class cxObjectTypeView extends cxMetaObject {
             }
             if (debug) console.log('3740 data, objview', data, objview, this);
             for (prop in otypeview.data) {
-                if (prop === 'figure' && objview[prop] !== "") data[prop] = objview[prop];
+                if (prop === 'template' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'fillcolor' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'strokecolor' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'strokewidth' && objview[prop] !== "") data[prop] = objview[prop];
@@ -4991,15 +4991,15 @@ export class cxObjectTypeView extends cxMetaObject {
     getGroup(): string {
         return this.data.group;
     }
-    setFigure(figure: string) {
-        this.data.figure = figure;
-        this.figure = figure;
+    setTemplate(template: string) {
+        this.data.template = template;
+        this.template = template;
     }
-    getFigure(): string {
-        if (this.data.figure)
-            return this.data.figure;
-        else if (this.figure)
-            return this.figure;
+    getTemplate(): string {
+        if (this.data.template)
+            return this.data.template;
+        else if (this.template)
+            return this.template;
         return "";
     }
     setFillcolor(fillcolor: string) {
@@ -6594,7 +6594,7 @@ export class cxObjectView extends cxMetaObject {
     loc: string;
     size: string;
     viewkind: string;
-    figure: string;
+    template: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -6616,7 +6616,7 @@ export class cxObjectView extends cxMetaObject {
         this.viewkind = "";
         this.loc = "";
         this.size = "";
-        this.figure = "";
+        this.template = "";
         this.fillcolor = "";
         this.strokecolor = "";
         this.strokewidth = "";

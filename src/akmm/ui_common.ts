@@ -117,7 +117,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 if (objtypeView) {
                     objview.setTypeView(objtypeView);
                     const otdata = objtypeView.data;
-                    if (data['figure'] !== otdata['figure']) objview['figure'] = data['figure'];
+                    if (data['template'] !== otdata['template']) objview['template'] = data['template'];
                     if (data['fillcolor'] !== otdata['fillcolor']) objview['fillcolor'] = data['fillcolor'];
                     if (data['strokecolor'] !== otdata['strokecolor']) objview['strokecolor'] = data['strokecolor'];
                     if (data['strokewidth'] !== otdata['strokewidth']) objview['strokewidth'] = data['strokewidth'];
@@ -385,7 +385,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 data.typename = objtype.name;
                 data.typeview = objtypeview;
                 // Clear local overrides
-                currentObjectView['figure'] = "";
+                currentObjectView['template'] = "";
                 currentObjectView['fillcolor'] = "";
                 currentObjectView['strokecolor'] = "";
                 currentObjectView['strokewidth'] = "";

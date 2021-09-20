@@ -65,6 +65,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
         let reltRef, relDescription, relTitle
         let fromobjectId, fromobjectName, toobjectId, toobjectName
         let topId, topTitle, topDescription, topType, topTypeId 
+        let propertyId, propertyName
 
         // deepEntries take all object-keys and concatinate them in curKey with a path showing all above levels
         // the curKey is put in a array "allKeys" with curKey as first and the obect as second. 
@@ -189,7 +190,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     
                     // ---------------------------------------------------------------------------------------------------------------------------------------
                               
-              
+         
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
                         if (i === 0 || oName === 'items')  {
                             if (i === 0) {
@@ -199,9 +200,9 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             // const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
                             if (debug) console.log('199 parentKey', parentKey, 'tmpArray ',tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o));
                             parentId = (i === 0) ? null : (parentKey) ? tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] : oId // set parentId to be used in the next iteration of  objectet.
+                            entityId = oId
                             entityName = (i === 0) ? cNewVal.title : parentName+' '+oName // if topobject use title as name
                             // entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName // if topobject use title as name
-                            entityId = oId
                             // console.log('142 i', i, entityName, entityId);
                             reltypeRef = hasMemberType.id 
                             reltypeName = hasMemberType.name
@@ -212,16 +213,18 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             
                             reltypeRef = hasType.id
                             reltypeName = hasType.name             
-                            entityName = oName
-                            // entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName
+                          
                             cNewVal = {...cNewVal, viewkind: 'Container'}
-
-                            createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal)
-
+                            
+                            createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
+                            
                             parentId = (ggparentName === 'items') ? tmpArray.find((o) => (o[0] === ggparentKey) && o)[1] : entityId
                             if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+                            parentName = (ggparentName === 'items') ? tmpArray.find((o) => (o[0] === ggparentKey) && o)[0] : entityName
+                            
+                            propertyId = oId
+                            propertyName = oName
 
-                            entityId = oId
                             if (debug) console.log('222 parentId', parentId, ggparentName, gggparentKey) // entityName, objecttypeRef, oKey, jsonType, cNewVal);
                             
                             // compositeName = (entityName) ? entityName : oName
@@ -231,25 +234,21 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             if (debug) console.log( '230 : ', compositeName, oId, parentId, entityId, parentName, tmpArray);
                             reltypeRef = hasMemberType.id
                             reltypeName = hasMemberType.name             
-                            parentId = entityId
+                            // parentId = propertyId
+                            // parentName = propertyName
                             // compositeName = (entityName) ? entityName : oName
-                            entityName = oName
-                            createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal)
+                            // entityName = oName
+                            createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
             
                         } else {                           
                             continue;
                         }
-                        parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
 
-                        parentId = (parentId === oId) 
-                            ? null
-                            : (!parentId) 
-                                ? null 
-                                : (entityId) 
-                                    ? parentId 
-                                    : parentIdArray[1] 
 
                     } else {   // create the json objects 
+
+                        reltypeRef = hasPartType.id
+                        reltypeName = hasPartType.name     
                        
                         createObject(oId, compositeName, objecttypeRef, oKey, jsonType, cNewVal)
                         parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
@@ -259,53 +258,21 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     if (debug) console.log('259 ' ,
                         parentName === 'properties', oName.slice(-2) === 'ID', oName.slice(0, -2), parentName, oName
                     );
-                  
-                    let relId = utils.createGuid()
 
-                    // if parentName = properties and last 2 chars of oName are equal to ID then find the EntetyType with name chars before ID and createRel with that
-                    if (oName.slice(-2) === 'ID') {
-                    // if (parentName === 'properties' && oName.slice(-2) === 'ID') {
-                        const entTypeName = oName.slice(0, -2)
-                        const entType = curModel.objects.find( (o) => o.name === entTypeName)
-                        if (entType) console.log('270 ', entTypeName, entType.id, entType.name, topId, topTitle);
-                        
-                        fromobjectId = (entType) && entType.id
-                        fromobjectName = (entType) && entType.name
-                        toobjectId = topId
-                        toobjectName = topTitle
-                        reltypeRef = hasMemberType.id 
-                        reltypeName = hasMemberType.name
-
-                        console.log('279 ', relId, reltypeName, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
-                        // (fromobjectId !== toobjectId) && createRel(relId, reltypeName, relDescription="", relTitle="", reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName)
-                        
-                        //     // parentId = (entityId) ? entityId : (parentId) ? parentIdArray[1] : null  
-                        //     reltypeRef = hasMemberType.id 
-                        //     reltypeName = hasMemberType.name
-                        //     parentName = (entityName) ? entityName : parentName 
-                        //     // fromobjectId = (entityId) ? entityId : (parentId) ? parentId : null
-                        //     toobjectId = oId
-                        //     toobjectName = oName
-                        //     fromobjectId = parentId
-                        //     fromobjectName = parentName
-                        //     if (!debug) console.log('291 ', relId, reltypeName, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
-
-                    } else {
-                        // parentId = (entityId) ? entityId : (parentId) ? parentIdArray[1] : null  
-                        parentName = (entityName) ? entityName : parentName 
-                        fromobjectId = (parentId) ? parentId : null
-                        // fromobjectId = (entityId) ? entityId : (parentId) ? parentId : null
+                        let relId = utils.createGuid()
+                        // parentId = (oName === 'properties') ? propertyId : (entityId) ? entityId : (parentId) ? parentIdArray[1] : null  
+                        // parentName = (propertyId) ? propertyName: (entityName) ? entityName : parentName 
+                        // fromobjectId = (parentId) ? parentId : null
+                        fromobjectId = (parentName === 'properties') ? propertyId : parentId
+                        fromobjectName = (parentName === 'properties') ? propertyName : parentName
+                        console.log('301 propId',propertyId, 'propName', propertyName, 'parentId ',  parentId, 'parName', parentName, 'entId ', entityId, 'entName', entityName);
                         toobjectId = oId
-                        fromobjectName = parentName
                         toobjectName = oName
                         if (debug) console.log('301 : name', reltypeName, 'reltypeRef', reltypeRef, 'fromobjectId', fromobjectId, fromobjectName, toobjectId, toobjectName);
-                        console.log('304 parentId', parentId, 'oId ', oId, 'fromobjectId', fromobjectId, 'toobjectId', toobjectId);
-                    }
                     
                     // (parentName === 'properties' && oName.) ?
-                    console.log('308 ', relId, reltypeName, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
-                    
-                    
+                    console.log('308 relId', relId, 'reltypeName ', reltypeName, 'relRef ', reltypeRef, 'fromId ', fromobjectId, 'fromName ', fromobjectName, 'toId ', toobjectId, 'toName ', toobjectName);
+                                
                     (fromobjectId !== toobjectId) && createRel(relId, reltypeName, relDescription="", relTitle="", reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName)
 
                     if (debug) console.log('311 ',
@@ -382,7 +349,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
             // entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
  
-            if (debug) console.log('234 ', importedRel );
+            if (!debug) console.log('234 ', fromobjectId, importedRel );
 
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
 
@@ -417,38 +384,3 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
 }
 
-                            // importedObject = { //the imported object to be created as AKM object
-                            //     id: oId,
-                            //     name: entityName,
-                            //     // typeName: type,
-                            //     typeRef: objecttypeRef,
-                            //     abstract: false,
-                            //     markedAsDeleted: false,
-                            //     modified: true,
-                            //     osduId: oKey,
-                            //     ...cNewVal // want only attributes 
-                            // }
-
-
-                    // importedRel = (parentId) 
-                    //     ?   {
-                    //             id: utils.createGuid(),
-                    //             name: reltypeName,
-                    //             title: "",
-                    //             cardinality: "",
-                    //             cardinalityFrom: undefined,
-                    //             cardinalityTo: undefined,
-                    //             description: "",
-                    //             fromobjectRef: entityId,
-                    //             nameFrom: parentName,
-                    //             generatedTypeId: "",
-                    //             // id: parentKey+oKey,
-                    //             markedAsDeleted: false,
-                    //             modified: true,
-                    //             relshipkind: "",
-                    //             relshipviews: undefined,
-                    //             toobjectRef: oId,
-                    //             nameTo: oName,
-                    //             typeRef: reltypeRef,
-                    //         }  
-                    //     :   {}

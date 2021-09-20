@@ -11,6 +11,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
+import { ConnectImportedTopEntityTypes } from './utils/ConnectImportedTopEntityTypes';
 import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
 
 const LoadJsonFile = (props: any) => {
@@ -128,7 +129,7 @@ const LoadJsonFile = (props: any) => {
               <div className="source bg-light p-2 ">
                 <hr style={{ borderTop: "1px solid #8c8b8", backgroundColor: "#9cf", padding: "2px", margin: "1px", marginBottom: "1px" }} />
        
-                <form className="loadsave--JsonToFile select bg-primary mb-1 p-2  border border-dark">
+                <div className="loadsave--JsonToFile select bg-primary mb-1 p-2  border border-dark">
                     {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                     <h5>AKM objecttypes</h5>
                     <div className="selectbox3 mb-2 border">
@@ -141,8 +142,14 @@ const LoadJsonFile = (props: any) => {
                       {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                     </div>
 
-
-                </form>
+                    <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
+                    <h6>Connect imported EntityTypes</h6> 
+                    <div className="selectbox3 mb-2 border">
+                      <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                        title="Click here when done!" onClick={() => { ConnectImportedTopEntityTypes("JSON", inclProps, props.ph, dispatch) }}>Generate Relationships between EntityTypes 
+                      </Button>
+                    </div>
+                </div>
                 <div className="loadsave--JsonToFile select bg-success mb-1 p-2  border border-dark">
                     <h5>OSDU JSON filestructure</h5>
                     <div className="selectbox3 mb-2 border">
@@ -170,7 +177,8 @@ const LoadJsonFile = (props: any) => {
             {/* <div className="ml-2">{emailDivMailto}</div> */}
             <ModalFooter>
               <Button className="modal--footer m-0 py-1 px-2" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done</Button>
+                title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+              </Button>
             </ModalFooter>
           </Modal>
           <style jsx>{`

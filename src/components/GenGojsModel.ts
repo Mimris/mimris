@@ -371,7 +371,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         const node = nodes[i] as gjs.goObjectNode;
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
-          node.text = objview.object.text;
+          node.text = objview.text ? objview.text : objview.object.text;
           node.isGroup = isGroup;
       }
       if (debug) console.log('346 nodes', nodes);
@@ -497,6 +497,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                 objtype.typeview = objtype.newDefaultTypeView('Object');
               const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
               node.loadNodeContent(metamodel);
+              node.text = objtype.text;
+              if (node.name === "") node.name = node.text;
               node.strokecolor = strokecolor;
               // node.fillcolor = fillcolor;
               if (debug) console.log('492 node', node);

@@ -537,6 +537,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('497 selObj', selObj, obj);
       const properties = obj.setAndGetAllProperties(myMetis);
       const gqlObject = new gql.gqlObject(obj);
+      gqlObject["text"] = obj.text;
       if (debug) console.log('500 obj, gqlObject', obj, gqlObject);
       const type = obj?.type;
       for (let i=0; i<properties?.length; i++) {

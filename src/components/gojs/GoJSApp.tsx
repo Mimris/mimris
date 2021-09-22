@@ -22,6 +22,7 @@ import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
+import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
 import * as uit from '../../akmm/ui_templates';
 
@@ -271,14 +272,15 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'TextEdited': {
         const sel = e.subject.part;
         const data = sel.data;
+        const textvalue = data.text;
         let field = e.subject.name;
-        if (debug) console.log('200 data', data, field, sel);
+        if (debug) console.log('275 data', data, field, sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
             let text  = data.name;
             const category = data.category;
-            if (debug) console.log('206 data', data);
+            if (debug) console.log('281 data', data);
             // Object type
             if (category === constants.gojs.C_OBJECTTYPE) {
               if (text === 'Edit name') {
@@ -304,30 +306,45 @@ class GoJSApp extends React.Component<{}, AppState> {
                 data.name = text;
               }
               const myNode = this.getNode(myGoModel, key);
-              if (debug) console.log('232 node', myNode);
+              myNode.text = textvalue;
+              if (debug) console.log('307 text, node', textvalue, myNode);
               if (myNode) {
-                myNode.name = text;
-                const obj = uic.updateObject(myNode, field, text, context);
+                // const objtype = myNode.objecttype;
+                // if (objtype.name === 'Label') {
+                //   myNode.text = data.text;
+                // } else {
+                  myNode.name = text;
+                // }
+                if (debug) console.log('315 node, field, text', field, text, myNode);
+                let obj = uic.updateObject(myNode, field, text, context);
+                if (debug) console.log('317 node', data, myNode);
+                if (!obj) 
+                  obj = myNode.object;
                 if (obj) {
+                  obj.text = textvalue;
+                  myNode.object = obj;
                   const objviews = obj.objectviews;
                   for (let i=0; i<objviews.length; i++) {
                     const objview = objviews[i];
                     objview.name = myNode.name;
+                    objview.text = textvalue;
+                    // objview.text = myNode.text;
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
-                      if (debug) console.log('243 node', node);
+                      if (debug) console.log('326 node', node);
                       node = myDiagram.findNodeForKey(node.key)
                       myDiagram.model?.setDataProperty(node.data, "name", myNode.name);
                       const gqlObjview = new gql.gqlObjectView(objview);
+                      gqlObjview.text = textvalue;
                       modifiedNodes.push(gqlObjview);
+                      if (debug) console.log('331 gqlObjview', gqlObjview);
                     } 
                   }
                 }
-                data.name = myNode.name;
-                if (debug) console.log('265 node', data, myNode, objview);
-                const gqlObj = new gql.gqlObject(myNode.objectview.object);
+                const gqlObj = new gql.gqlObject(obj);
+                gqlObj.text = textvalue;
                 modifiedObjects.push(gqlObj);
-                if (debug) console.log('268 node', gqlObj);
+                if (debug) console.log('337 obj, gqlObj', obj, gqlObj);
               }
             }
             const nodes = myGoModel?.nodes;
@@ -662,11 +679,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         e.subject.each(function(n) {
           const node = myDiagram.findNodeForKey(n.data.key);
           let part = node.data;
-          if (debug) console.log('455 found node', node);
-          if (debug) console.log('456 myMetis', myMetis);
-          if (debug) console.log('457 myGoModel', myGoModel, myGoMetamodel);
-
-          if (debug) console.log('459 part, node, n', part, node, n);
+          const isLabel = (part.typename === 'Label');
+          if (debug) console.log('683 found node', node);
+          if (debug) console.log('684 myMetis', myMetis);
+          if (debug) console.log('685 myGoModel', myGoModel, myGoMetamodel);
+          if (debug) console.log('686 part, node, n', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('462 myMetis', myMetis);
@@ -692,57 +709,50 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else // object
           {
             part.category = 'Object';
-            if (debug) console.log('674 part', part);
+            if (debug) console.log('712 part', part);
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
-              console.log('581 obj', obj);
+              console.log('715 obj', obj);
             }
             if (part.objecttype?.viewkind === 'Container') {
               part.isGroup = true;
               part.viewkind = 'Container';
             }
-            if (debug) console.log('683 part', part);
+            if (isLabel) part.text = 'label';
+            if (debug) console.log('722 part', part);
             if (part.parentModel == null)
               myMetis.pasteViewsOnly = true;
-            if (debug) console.log('686 myMetis', myMetis);
+            if (debug) console.log('725 myMetis', myMetis);
             const objview = uic.createObject(part, context);
-            if (debug) console.log('688 myMetis', myMetis);
-            if (debug) console.log('689 New object', part, objview);
+            if (debug) console.log('727 myMetis', myMetis);
+            if (debug) console.log('728 New object', part, objview);
             if (objview) {
-              let otype = objview.object.type;
+              const object = objview.object;
+              let otype = object.type;
               if (!otype) {
                 otype = myMetis.findObjectType(objview.object.typeRef);
-                objview.object.type = otype;
+                object.type = otype;
               }
               objview.viewkind = part.viewkind;
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
-              if (debug) console.log('698 New object', gqlObjview, modifiedNodes);
+              if (debug) console.log('739 New object', gqlObjview, modifiedNodes);
               const gqlObj = new gql.gqlObject(objview.object);
               modifiedObjects.push(gqlObj);
-              if (debug) console.log('700 New object', gqlObj);
+              if (debug) console.log('742 New object', gqlObj);
             }
           }
-          if (debug) console.log('704 myGoModel', myGoModel, myMetis);
-          // myDiagram.model?.setDataProperty(node, "isGroup", part.isGroup);
+          if (debug) console.log('745 myGoModel', myGoModel, myMetis);
+          node.updateTargetBindings();
         })
-        myDiagram.requestUpdate();
       }
       break;
       case "ObjectDoubleClicked": {
         let sel = e.subject.part;
-        let data = sel.data;
         this.state.selectedData = sel.data;
-        if (debug) console.log('699 data', data.objecttype.viewkind, sel);
-        if (true) {
-          // Test open modal
-          const icon = uit.findImage(data.icon);
-          const modalContext = {
-            what:       "Test",
-          }
-          this.handleOpenModal(data, modalContext);
-          // End test
-        }
+        const node = sel.data;
+        if (debug) console.log('566 node', node);
+        uid.editObject(node, myMetis, myDiagram); 
       }
       break;
       case "ObjectSingleClicked": {

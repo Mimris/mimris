@@ -899,6 +899,7 @@ export class cxMetis {
                     // objview.isGroup = true;
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
+                    objview.text = item.text;
                     objview.modified = true;
                     if (debug) console.log('660 objview', objview);
                     if (item.typeviewRef) {
@@ -6644,6 +6645,7 @@ export class cxObjectView extends cxMetaObject {
     parent: string;
     isCollapsed: boolean;
     visible: boolean;
+    text: string;
     loc: string;
     size: string;
     viewkind: string;
@@ -6665,6 +6667,7 @@ export class cxObjectView extends cxMetaObject {
         this.groupLayout = "";
         this.parent = "";
         this.isCollapsed = false;
+        this.text = "";
         this.visible = true;
         this.viewkind = "";
         this.loc = "";

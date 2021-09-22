@@ -358,7 +358,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             ),
             $(go.Panel, "Table", // Panel for text  -----------------------
                 { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-                $(go.RowColumnDefinition, { column: 1, width: 4 }),
+                $(go.RowColumnDefinition, { column: 1, width: 10 }),
                 $(go.Panel, "Horizontal",
                     // { margin: new go.Margin(10, 10, 10, 10) },
                     {
@@ -375,14 +375,14 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         $(go.TextBlock, textStyle(),  // the text -----------------------
                             {
                                 isMultiline: true,  // allow newlines in text
-                                editable: false,     // allow in-place editing by user
+                                editable: true,     // allow in-place editing by user
                                 row: 0, column: 0, columnSpan: 6,
                                 font: "bold 10pt Segoe UI,sans-serif",
                                 desiredSize: new go.Size(120, 36), 
                                 textAlign: "left",
                                 wrap: go.TextBlock.WrapFit, 
                                 verticalAlignment: go.Spot.Left,
-                                // overflow: go.TextBlock.OverflowClip,
+                                overflow: go.TextBlock.OverflowClip,
                                 margin: 2,
                                 width: 400,
                                 text: "label"

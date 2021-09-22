@@ -180,6 +180,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (!(category === constants.gojs.C_RELATIONSHIP || category === constants.gojs.C_RELSHIPTYPE))
           continue;
       }
+      if (k === 'text') {
+        if (!isLabel)
+          continue;
+      }
       let row;
       if (k) {
         let fieldType = 'text';
@@ -383,9 +387,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (k === 'viewkind')
             continue;
           switch(k) {
-            case 'text':
-              disabled = false;
-              break;
             default:
               disabled = true;
               break;

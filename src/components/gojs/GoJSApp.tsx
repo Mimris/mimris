@@ -696,6 +696,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 otype = myMetis.findObjectType(objview.object.typeRef);
                 objview.object.type = otype;
               }
+              objview.viewkind = part.viewkind;
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
               if (debug) console.log('698 New object', gqlObjview, modifiedNodes);

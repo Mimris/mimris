@@ -73,7 +73,7 @@ const page = (props:any) => {
     useEffect(() => {
       genGojsModel(props, dispatch);
       //focusModel = props.phFocus?.focusModel
-      if (debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
+      if (!debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
       function refres() {
         setRefresh(!refresh)
       }
@@ -81,7 +81,7 @@ const page = (props:any) => {
     }, [curmod])
 
     useEffect(() => {
-      if (debug) console.log('76 Modelling useEffect 2', props); 
+      if (!debug) console.log('76 Modelling useEffect 2', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -90,7 +90,7 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id])
 
     useEffect(() => {
-      if (debug) console.log('85 Modelling useEffect 3', props); 
+      if (!debug) console.log('85 Modelling useEffect 3', props); 
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
@@ -108,13 +108,13 @@ const page = (props:any) => {
     // }, [props.metis])
 
     useEffect(() => {
-      if (debug) console.log('103 Modelling useEffect 5', props); 
+      if (!debug) console.log('103 Modelling useEffect 5', props); 
       genGojsModel(props, dispatch)
       setRefresh(!refresh)
     }, [props.phSource])
 
     useEffect(() => {
-      if (debug) console.log('103 Modelling useEffect 5', props); 
+      if (!debug) console.log('103 Modelling useEffect 5', props); 
       genGojsModel(props, dispatch)
       function refres() {
         setRefresh(!refresh)
@@ -124,7 +124,7 @@ const page = (props:any) => {
 
   
   function toggleRefresh() {
-    if (debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);
+    if (!debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,
@@ -132,7 +132,7 @@ const page = (props:any) => {
       phSource: 'localStore'
     };
     // setTimeout(refres, 1);
-    if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
+    if (!debug) console.log('123 Modelling', props.phUser.focusUser, data);
     setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
     function refres() {

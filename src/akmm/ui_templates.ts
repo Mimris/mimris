@@ -57,11 +57,19 @@ function nodeStyle() {
     ];
   }
 
+  function selectionIncludesPorts(n, myDiagram) {
+    return n.containingGroup !== null && !myDiagram.selection.has(n.containingGroup);
+  }
+
+
 let nodeTemplateNames = []; 
 
 export function getNodeTemplateNames() {
     return nodeTemplateNames;
 }
+
+const UnselectedBrush = "lightgray";  // item appearance, if not "selected"
+const SelectedBrush   = "dodgerblue";   // item appearance, if "selected"
 
 function addNodeTemplateName(name: string) {
     if (nodeTemplateNames.length == 0) {
@@ -85,6 +93,7 @@ function addNodeTemplateName(name: string) {
 // export function getNodeTemplate(templateName: string, contextMenu: any, myMetis: akm.cxMetis): any {
 //     const nodeTemplate1 =  // Text and Icon
 export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis: akm.cxMetis) {
+    const myDiagram = myMetis.myDiagram;
     let nodeTemplate1 =      
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
             new go.Binding("layerName", "layer"),
@@ -334,7 +343,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 selectionObjectName: "SHAPE",
                 resizable: true, resizeObjectName: "SHAPE"
             },
-            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),       
     
             $(go.Shape,  
                 { 
@@ -462,22 +470,65 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     )
     // addNodeTemplateName('TEST');
 
-    nodeTemplateMap.add('simple',
+    nodeTemplateMap.add('Icom',
         $(go.Node, "Spot",
-            $(go.Panel, "Auto",
-                $(go.Shape, "Ellipse", { width: 150, height: 30 },
-                new go.Binding("fill", "fillcolor")),
-                $(go.TextBlock,
-                new go.Binding("text", "text").makeTwoWay())
-            ),
-            $("Button",
-                { alignment: go.Spot.TopRight },
-                $(go.Shape, "XLine", { width: 8, height: 8 }),
-                { click: changeTemplate }
+            { resizable: true, },
+        $(go.Panel, "Auto",
+            $(go.Shape,  
+            { 
+                name: "SHAPE", strokeWidth: 1, stroke: "gray",
+                geometryString: "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z",
+                spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
+                spot2: new go.Spot(1, 1, -5, 0),
+                cursor: "alias",        // cursor: "pointer",
+                scale: 3
+            },
+            new go.Binding("fill", "fillcolor")),
+            $(go.TextBlock,
+            new go.Binding("text", "name").makeTwoWay()),
             ),
             { contextMenu: contextMenu },    
         )
     );
+    addNodeTemplateName('Icom');
+
+    // nodeTemplateMap.add('ICOM'),
+    // $(go.Node, "Auto",
+    //   { selectionAdorned: false },
+    //   {
+    //     mouseDrop: function(e, n: any) {
+    //       // when the selection is entirely ports and is dropped onto a Group, transfer membership
+    //       if (n.containingGroup !== null && myDiagram.selection.all(selectionIncludesPorts)) {
+    //         myDiagram.selection.each(function(p) { p.containingGroup = n.containingGroup; });
+    //       } else {
+    //         myDiagram.currentTool.doCancel();
+    //       }
+    //     }
+    //   },
+    //   $(go.Shape,
+    //     {
+    //       name: "SHAPE",
+        //   fill: UnselectedBrush, stroke: "gray",
+        //   geometryString: "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z",
+        //   spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
+        //   spot2: new go.Spot(1, 1, -5, 0),
+        //   // some port-related properties
+        //   portId: "",
+        //   toSpot: go.Spot.Left,
+        //   toLinkable: false,
+        //   fromSpot: go.Spot.Right,
+        //   fromLinkable: false,
+        //   cursor: "pointer"
+        // },
+        // new go.Binding("fill", "isSelected", function(s) { return s ? SelectedBrush : UnselectedBrush; }).ofObject(),
+        // new go.Binding("toLinkable", "_in"),
+        // new go.Binding("fromLinkable", "_in", function(b) { return !b; }
+    //     )),
+    //   $(go.TextBlock,
+    //     new go.Binding("text", "name")
+    // );
+    // addNodeTemplateName('ICOM');
+
 }
 
 function changeTemplate(e: any, obj: any) {

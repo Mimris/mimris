@@ -308,7 +308,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
-        const obj = objview.object;
+        const obj = objview?.object;
+        const objtype = obj?.type;
         if (obj && obj?.markedAsDeleted == undefined)
           obj.markedAsDeleted = false;
         if (obj?.markedAsDeleted)
@@ -346,6 +347,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         // if (!objview.visible) includeObjview = false;
         if (includeObjview) {
+          if (objtype?.name === 'Container') {
+            objview.viewkind = 'Container';
+          }
           if (debug) console.log('305 includeNoObject, objview:', includeNoObject, objview);
           if (!includeDeleted && objview.markedAsDeleted)
             continue;
@@ -476,10 +480,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('466 objtypes', objtypes);
         for (let i = 0; i < objtypes.length; i++) {
           let includeObjtype = false;
-          let strokecolor = "black";
           let fillcolor = "white";
           const objtype = objtypes[i];
           if (objtype) {
+            let strokecolor = objtype.typeview?.strokecolor;
+            if (!strokecolor) strokecolor = "black";
             if (!objtype.markedAsDeleted) 
               includeObjtype = true;
             else {
@@ -513,12 +518,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (relshiptypes) {
         for (let i = 0; i < relshiptypes.length; i++) {
           let includeReltype = false;
-          let strokecolor = "black";
           let reltype = relshiptypes[i];
           if (reltype.cardinality.length > 0) {
             reltype.cardinalityFrom = reltype.getCardinalityFrom(); 
             reltype.cardinalityTo = reltype.getCardinalityTo();
           }
+          let strokecolor = reltype.typeview?.strokecolor;
+          if (!strokecolor) strokecolor = "black";
           if (reltype.markedAsDeleted === undefined)
             reltype.markedAsDeleted = false;
           if (reltype && !reltype.markedAsDeleted)

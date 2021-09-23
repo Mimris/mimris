@@ -309,10 +309,6 @@ class GoJSApp extends React.Component<{}, AppState> {
               myNode.text = textvalue;
               if (debug) console.log('307 text, node', textvalue, myNode);
               if (myNode) {
-                // const objtype = myNode.objecttype;
-                // if (objtype.name === 'Label') {
-                //   myNode.text = data.text;
-                // } else {
                   myNode.name = text;
                 // }
                 if (debug) console.log('315 node, field, text', field, text, myNode);

@@ -21,6 +21,7 @@ import * as gql from '../../../akmm/ui_graphql';
 import * as uic from '../../../akmm/ui_common';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uim from '../../../akmm/ui_modal';
+// import * as ui_mnu from '../../../akmm/ui_menus';
 import * as ui_mtd from '../../../akmm/ui_methods';
 import * as gen from '../../../akmm/ui_generateTypes';
 import * as utils from '../../../akmm/utilities';
@@ -299,7 +300,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             // 'draggingTool.centerGuidelineColor': 'green',
             // 'draggingTool.guidelineWidth': 1,
             // "draggingTool.dragsLink": true,
-
             "draggingTool.isGridSnapEnabled": true,
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
@@ -309,9 +309,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               "name": "",
               "description": "",
               "relshipkind": constants.relkinds.REL,
-            },
-              
-                
+            },                
             // "clickCreatingTool.archetypeNodeData": {
             //   "key": utils.createGuid(),
             //   "category": "Object",
@@ -354,7 +352,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           }
         );
     }
-  // when the user clicks on the background of the Diagram, remove all highlighting
+    // when the user clicks on the background of the Diagram, remove all highlighting
     myDiagram.click = function(e) {
       e.diagram.commit(function(d) { d.clearHighlighteds(); }, "no highlighteds");
     };
@@ -378,106 +376,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       );
     //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
     myMetis.myDiagram = myDiagram;
-    // break long string in lines
-    const breakString = (str, limit) => {
-      let brokenString = '';
-      for(let i = 0, count = 0; i < str.length; i++){
-         if(count >= limit && str[i] === ' '){
-            count = 0;
-            brokenString += '\n';
-         }else{
-            count++;
-            brokenString += str[i];
-         }
-      }
-      return brokenString;
-   }
+    
     // Tooltip functions
-    function nodeInfo(d) {  // Tooltip info for a node data object
-      if (debug) console.log('987 nodeInfo', d, d.object);
-  
-      const format1 = "%s\n";
-      const format2 = "%-10s: %s\n";
-
-      let msg = "";
-      // let msg = "Object Type props:\n";
-      // msg += "-------------------\n";
-      // msg += printf(format2, "-Type", d.object.type.name);
-      // msg += printf(format2, "-Title", d.object.type.title);
-      // msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
-      // // msg += printf(format2, "-Descr", d.object.type.description);
-      // msg += "\n";
-      msg += "Attributter :\n";
-      msg += "---------------------\n";
-      msg += printf(format2, "-Name", d.name);
-      msg += printf(format2, "-Title", d.object.title);
-      msg += printf(format2, "-Description", breakString(d.object.description, 64));
-      msg += printf(format2, "-ViewFormat", d.object.viewFormat);
-      msg += printf(format2, "-FieldType", d.object.fieldType);
-      msg += printf(format2, "-Inputpattern", d.object.inputPattern);
-      msg += printf(format2, "-InputExample", d.object.inputExample);
-      msg += printf(format2, "-Value", d.object.value);
-      if (d.group) {
-        const group = myMetis.gojsModel.findNode(d.group);
-        msg += printf(format2, "member of", group.name);
-      }
-      if (debug) console.log('991 msg', msg);
-      // let str = "Attributes:"; 
-      // msg += printf(format1, str);      
-      // const obj = d.object;
-      // const props = obj.type.properties;
-      // if (debug) console.log('996 obj, props', obj, props, msg);   
-      // for (let i=0; i<props.length; i++) {
-      //   const prop = props[i];
-      //   if (debug) console.log('999 prop', prop);
-      //   const value = obj[prop.name]; 
-      //   console.log('1001 prop, value', prop, value);
-      //   msg += printf(format2, prop.name, value);
-      // }
-      if (debug) console.log('1005 nodeInfo', obj, msg);
-      return msg;
+    function nodeInfo(d: any) {  // Tooltip info for a node data object
+      return uid.nodeInfo(d, myMetis);
     }
 
     function linkInfo(d: any) {  // Tooltip info for a link data object
-      const typename = d.relshiptype?.name;
-      const reltype = myMetis.findRelationshipTypeByName(typename);
-      const fromNode = d.fromNode;
-      const fromObj = fromNode?.object;
-      const fromObjtype = reltype.getFromObjType();
-      const toNode = d.toNode;
-      const toObj = toNode?.object;
-      const toObjtype = reltype.getToObjType();
-      if (debug) console.log('425 linkInfo', d);
-      const format1 = "%s\n";
-      const format2 = " %-10s: %s\n";
-      const format3 = "%-8s: %s\n";
-  
-      let msg = "Relationship:\n";
-      msg += "Type props:\n"; 
-      msg += "-------------------\n";
-      msg += printf(format2, "-Type", d.relship.type.name);
-      msg += printf(format2, "-Title", d.relship.type.title);
-      msg += printf(format2, "-Descr", breakString(d.relship.type.description, 64))
-      msg += "\n";
-      msg += "Instance props:\n";
-      msg += "---------------------\n";
-      msg += printf(format2, "-Name", d.name);
-      msg += printf(format2, "-Title", d.relship.title);
-      msg += printf(format2, "-Description", breakString(d.relship.description, 64));
-      msg += printf(format3, "-from", fromObj?.name);
-      msg += printf(format2, "-to   ", toObj?.name);
-      // str += "from: " + fromObj?.name + "\n";
-      // str += "to: " + toObj?.name;
-      // return str;
-      return msg;
+      return uid.linkInfo(d, myMetis);
     }
 
     function diagramInfo(model: any) {  // Tooltip info for the diagram's model
-      if (debug) console.log('451 diagramInfo', model);
-      let str = "Model:\n";
-      str += model.nodeDataArray.length + " nodes, ";
-      str += model.linkDataArray.length + " links";
-      return str;
+      return uid.diagramInfo(model);
     }
 
     // A CONTEXT is an Adornment with a bunch of buttons in them
@@ -1691,6 +1601,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true;
             }),
+          makeButton("Clear Breakpoints",
+            function(e, obj) { 
+              const link = obj.part.data;
+              link.points = null;
+              const relview = link.relshipview;
+              relview.points = null;
+              const gqlRelView = new gql.gqlRelshipView(relview);
+              const modifiedRelshipViews = new Array();
+              modifiedRelshipViews.push(gqlRelView);
+              modifiedRelshipViews.map(mn => {
+                let data = mn;
+                e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+              })  
+    },
+            function(obj) { 
+              const link = obj.part.data;
+              if (link.points)
+                return true; 
+              else 
+                return false;
+            }),
           makeButton("Undo",
             function(e, obj) { e.diagram.commandHandler.undo(); 
             },
@@ -2368,6 +2299,17 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true; 
               return false;
             }),
+          makeButton("Make Diagram",
+            function (e: any, obj: any) { 
+              myDiagram.makeImage({
+                scale: 1,
+                background: "AntiqueWhite",
+                type: "image/jpeg"
+              });
+            },
+            function (o: any) { 
+              return false; 
+            }),
           makeButton("----------",
             function (e: any, obj: any) {
             },
@@ -2376,7 +2318,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
-            makeButton("Verify and Repair Model",
+          makeButton("Verify and Repair Model",
             function (e: any, obj: any) {
               if (debug) console.log('2340 myMetis', myMetis);
               const myModel = myMetis.currentModel;
@@ -2497,7 +2439,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               //     new go.Binding("fill", "isHighlighted", function(h) { return h ? "lightblue" : "white"; }).ofObject(),
               //     new go.Binding("stroke", "isHighlighted", function(h) { return h ? "black" : "white"; }).ofObject(),
               //     // new go.Binding("fill", "color"),
-              //     new go.Binding("figure")),
+              //     new go.Binding("template")),
 
               //     $(go.Picture,  // the image -------------------------------------
               //       // { contextMenu: partContextMenu },
@@ -2577,7 +2519,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Link,
           new go.Binding("deletable"),
           { selectable: true },
-          { toShortLength: 3, relinkableFrom: true, relinkableTo: true, reshapable: true },
+          { 
+            toShortLength: 3, 
+            relinkableFrom: true, 
+            relinkableTo: true, 
+            reshapable: true,
+            resegmentable: true  
+          },
           // { relinkableFrom: true, relinkableTo: true, toShortLength: 4 },
           // new go.Binding('relinkableFrom', 'canRelink').ofModel(),
           // new go.Binding('relinkableTo', 'canRelink').ofModel(),
@@ -2613,7 +2561,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }
           ),
-          new go.Binding("points", "points").makeTwoWay(),
+          new go.Binding("points").makeTwoWay(),
+          // new go.Binding("points", "points").makeTwoWay(),
           // context menu
           { contextMenu: linkContextMenu },
           // link shape

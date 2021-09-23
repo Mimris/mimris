@@ -28,6 +28,9 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         const nx = parseInt(nodeLoc[0]);
         const ny = parseInt(nodeLoc[1]);
         const object = objview.object;
+        if (object.type.isContainer()) {
+            objview.viewkind = constants.viewkinds.CONT;
+        }
         for (let useinp = 0; useinp < 2; useinp++) {
             let rels  = useinp ? object.inputrels : object.outputrels;
             if (rels) {
@@ -62,9 +65,10 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         for (let j=0; j<objviews.length; j++) {   
                             const oview = objviews[j];
                             if (oview.markedAsDeleted)
-                            continue; 
+                                continue; 
+                            if (toObjtype.isContainer())
+                                oview.viewkind = constants.viewkinds.CONT;
                             if (debug) console.log('1625 Create relship views to objviews', object, objviews);
-                            toObjview = oview;
                         }
                         // Create relship views and links to the found objviews if they do not exist
                         let relviews;
@@ -73,7 +77,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                             if (relviews.length == 0) i++;
                         } else {
                             relviews = modelview.findRelationshipViewsByRel2(rel, objview, toObjview);
-                            if (relviews.length == 0) i++;
+                            if (relviews?.length == 0) i++;
                         }
                         if (debug) console.log('1637 rel, relview', rel, relviews);                    
                         // if (relviews.length > 0)

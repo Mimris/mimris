@@ -364,10 +364,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       }
       const nodes = myGoModel.nodes;
       for (let i = 0; i < nodes.length; i++) {
-          const node = nodes[i] as gjs.goObjectNode;
-          const objview = node.objectview;
+        const objview = nodes[i].objectview;
+        const isGroup = (objview.viewkind === 'Container');
+        const node = nodes[i] as gjs.goObjectNode;
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
+          node.isGroup = isGroup;
       }
       if (debug) console.log('346 nodes', nodes);
     }
@@ -415,8 +417,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!relview.markedAsDeleted && relview.relship) { 
           includeRelview = true;
         }
-        if (!includeDeleted && !includeNoObject && !includeNoType)
-          relcolor = relview.strokecolor;
         if (includeRelview) {
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
@@ -424,11 +424,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
-          link.strokecolor = relcolor;
-          link.fromArrow = relview.fromArrow;
-          link.toArrow = relview.toArrow;
-          link.fromArrowColor = relview.fromArrowColor;
-          link.toArrowColor = relview.toArrowColor;
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {
@@ -440,10 +435,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
           if (debug) console.log('414 modelview:', modelview, link);
           if (debug) console.log('415 GenGojsModel: props', props);
-          // const data = myMetis.myDiagram.model.findLinkDataForKey(link.key);
-          // if (debug console.log('417 buildGoModel: data:', data);
-
-          // }
           myGoModel.addLink(link);
           if (debug) console.log('421 buildGoModel - link', link, myGoModel);
         }

@@ -117,7 +117,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 if (objtypeView) {
                     objview.setTypeView(objtypeView);
                     const otdata = objtypeView.data;
-                    if (data['figure'] !== otdata['figure']) objview['figure'] = data['figure'];
+                    if (data['template'] !== otdata['template']) objview['template'] = data['template'];
                     if (data['fillcolor'] !== otdata['fillcolor']) objview['fillcolor'] = data['fillcolor'];
                     if (data['strokecolor'] !== otdata['strokecolor']) objview['strokecolor'] = data['strokecolor'];
                     if (data['strokewidth'] !== otdata['strokewidth']) objview['strokewidth'] = data['strokewidth'];
@@ -385,7 +385,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 data.typename = objtype.name;
                 data.typeview = objtypeview;
                 // Clear local overrides
-                currentObjectView['figure'] = "";
+                currentObjectView['template'] = "";
                 currentObjectView['fillcolor'] = "";
                 currentObjectView['strokecolor'] = "";
                 currentObjectView['strokewidth'] = "";
@@ -1081,7 +1081,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         }        
         updateLink(data, relshipview.typeview, myDiagram, myGoModel);
         if (debug) console.log('1123 data', data);
-        myDiagram.model.setDataProperty(data, "name", new String(typename));
+        myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
         myDiagram.requestUpdate();
 
         if (debug) console.log('1127 relshipview', relshipview);
@@ -1826,6 +1826,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'parent') retVal = false;
     if (k === 'parentModel') retVal = false;
     if (k === 'pasteViewsOnly') retVal = false;
+    if (k === 'points') retVal = false;
     if (k === 'propertyValues') retVal = false;
     if (k === 'relship') retVal = false;
     if (k === 'relshipRef') retVal = false;
@@ -2490,10 +2491,10 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 if (debug) console.log('2604 updateLink', prop, viewdata[prop], relview[prop]);
             } else {
                 if (viewdata[prop] != null)
-                    diagram.model.setDataProperty(data, prop, new String(viewdata[prop]));
+                    diagram.model.setDataProperty(data, prop, new String(viewdata[prop]).valueOf());
                 if (relview) {
                     if (relview[prop] && relview[prop] !== "") {
-                        diagram.model.setDataProperty(data, prop, new String(relview[prop]));
+                        diagram.model.setDataProperty(data, prop, new String(relview[prop]).valueOf());
                     }
                     if (debug) console.log('2604 updateLink', prop, viewdata[prop], relview[prop]);
                 }

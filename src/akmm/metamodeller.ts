@@ -77,6 +77,7 @@ export class cxMetis {
         this.id = utils.createGuid();
         this.name = "";
         this.description = "";
+
         this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
@@ -689,7 +690,7 @@ export class cxMetis {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setType(type);
-            objtypeview.setFigure(item.figure);
+            objtypeview.setTemplate(item.template);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokewidth(item.strokewidth);
@@ -2314,6 +2315,7 @@ export class cxMetaObject {
     nameId:             string;
     category:           string;
     description:        string;
+    sourceUri:          string;
     markedAsDeleted:    boolean;
     modified:           boolean;
     fs_collection:      string;
@@ -2324,6 +2326,7 @@ export class cxMetaObject {
         this.name = name;
         this.nameId = name;
         this.category = "";
+        this.sourceUri = "";
         this.markedAsDeleted = false;
         this.modified = false;
         if (name == null) this.name = id;
@@ -4182,7 +4185,6 @@ export class cxObjectType extends cxType {
         this.viewkind = constants.viewkinds.OBJ;
         this.relshipkind = "";
         this.typeview = null;              // Default type view
-        // this.typeviewRef = "";             // Default type view
         this.fromObjtype = null;
         this.toObjtype = null;
         this.objtypegeos = null;
@@ -4192,8 +4194,6 @@ export class cxObjectType extends cxType {
         this.allRelationshiptypes = null;
         this.markedAsDeleted = false;
         if (debug) console.log('3268 this', this);
-
-        // const stypes = new Array();
     }
 
     // Methods
@@ -4866,7 +4866,7 @@ export class cxObjtypeviewData {
     isGroup: boolean;               // Container behaviour
     group: string;                  // Parent group
     viewkind: string;
-    figure: string;
+    template: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -4876,7 +4876,7 @@ export class cxObjtypeviewData {
         this.isGroup = false;              // Container behaviour
         this.group = "";                // Parent group
         this.viewkind = constants.viewkinds.OBJ;
-        this.figure = "RoundedRectangle";
+        this.template = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";
@@ -4888,7 +4888,7 @@ export class cxObjectTypeView extends cxMetaObject {
     type: cxObjectType | null;
     typeRef: string;
     data: cxObjtypeviewData;
-    figure: string;
+    template: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -4899,7 +4899,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.category    = constants.gojs.C_OBJECTTYPEVIEW;
         this.type        = type;
         this.typeRef     = type?.id;
-        this.figure      = "RoundedRectangle";
+        this.template    = "";
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "2";
@@ -4926,7 +4926,7 @@ export class cxObjectTypeView extends cxMetaObject {
             }
             if (debug) console.log('3740 data, objview', data, objview, this);
             for (prop in otypeview.data) {
-                if (prop === 'figure' && objview[prop] !== "") data[prop] = objview[prop];
+                if (prop === 'template' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'fillcolor' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'strokecolor' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'strokewidth' && objview[prop] !== "") data[prop] = objview[prop];
@@ -4991,15 +4991,15 @@ export class cxObjectTypeView extends cxMetaObject {
     getGroup(): string {
         return this.data.group;
     }
-    setFigure(figure: string) {
-        this.data.figure = figure;
-        this.figure = figure;
+    setTemplate(template: string) {
+        this.data.template = template;
+        this.template = template;
     }
-    getFigure(): string {
-        if (this.data.figure)
-            return this.data.figure;
-        else if (this.figure)
-            return this.figure;
+    getTemplate(): string {
+        if (this.data.template)
+            return this.data.template;
+        else if (this.template)
+            return this.template;
         return "";
     }
     setFillcolor(fillcolor: string) {
@@ -5064,7 +5064,7 @@ export class cxReltypeviewData {
         this.relshipkind    = constants.relkinds.REL;
         this.strokecolor    = "black";
         this.strokewidth    = "1";
-        this.dash           = "[0]";
+        this.dash           = "None";
         this.fromArrow      = "";
         this.toArrow        = "OpenTriangle";
         this.fromArrowColor = "";
@@ -5105,15 +5105,15 @@ export class cxRelationshipTypeView extends cxMetaObject {
                     data[prop] = tvdata[prop];
                 }
                 for (prop in tvdata) {
-                    if (prop === 'strokecolor' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'strokewidth' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'dash' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'fromArrow' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'toArrow' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'fromArrowColor' && rview[prop] !== "") data[prop] = rview[prop];
-                    if (prop === 'toArrowColor' && rview[prop] !== "") data[prop] = rview[prop];
+                    if (prop === 'strokecolor' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'strokewidth' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'dash' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'fromArrow' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'toArrow' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'fromArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'toArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
                 }
-                }
+            }
         }
     }
     setType(type: cxRelationshipType) {
@@ -5202,36 +5202,32 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.toArrow = toArrow;
     }
     setFromArrow2(relshipkind: string) {
-        let arrow = '';
-        let color = '';
         switch (relshipkind) {
             case 'Composition':
-                arrow = 'StretchedDiamond';
-                color = "black";
+                this.setFromArrow('StretchedDiamond');
+                this.setFromArrowColor('black');
                 break;
             case 'Aggregation':
-                arrow = 'StretchedDiamond';
-                color = 'white';
+                this.setFromArrow('StretchedDiamond');
+                this.setFromArrowColor('white');
+                break;
+            case 'Generalization':
+                this.setFromArrow(' ');
+                this.setFromArrowColor(' ');
                 break;
             default:
                 break;
         }
-        this.setFromArrow(arrow);
-        this.setFromArrowColor(color);
     }
     setToArrow2(relshipkind: string) {
-        let arrow = 'OpenTriangle';
-        let color = '';
         switch (relshipkind) {
             case 'Generalization':
-                arrow = 'Triangle';
-                color = "white";
+                this.setToArrow('Triangle');
+                this.setToArrowColor('white');
                 break;
             default:
                 break;
         }
-        this.setToArrow(arrow);
-        this.setToArrowColor(color);
     }
     getToArrow(): string {
         if (this.data.toArrow)
@@ -6080,6 +6076,7 @@ export class cxObject extends cxInstance {
         const props = this.type?.properties;
         for (let i=0; i<props?.length; i++) {
           const prop = props[i];
+          if (prop.name === 'id') continue;
           if (prop) this[prop.name] = "";
         } 
         if (debug) console.log('4600 obj', this);   
@@ -6333,7 +6330,7 @@ export class cxModelView extends cxMetaObject {
         this.layout = "Tree";
         this.routing = "Normal";
         this.linkcurve = "None";
-        this.showCardinality = true;
+        this.showCardinality = false;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;
@@ -6597,7 +6594,7 @@ export class cxObjectView extends cxMetaObject {
     loc: string;
     size: string;
     viewkind: string;
-    figure: string;
+    template: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -6619,7 +6616,7 @@ export class cxObjectView extends cxMetaObject {
         this.viewkind = "";
         this.loc = "";
         this.size = "";
-        this.figure = "";
+        this.template = "";
         this.fillcolor = "";
         this.strokecolor = "";
         this.strokewidth = "";
@@ -6839,22 +6836,22 @@ export class cxRelationshipView extends cxMetaObject {
         this.fromArrowColor = color;
     }
     setFromArrow2(relshipkind: string) {
-        let arrow = '';
-        let color = '';
         switch (relshipkind) {
             case 'Composition':
-                arrow = 'StretchedDiamond';
-                color = "black";
+                this.setFromArrow('StretchedDiamond');
+                this.setFromArrowColor('black');
                 break;
             case 'Aggregation':
-                arrow = 'StretchedDiamond';
-                color = 'white';
+                this.setFromArrow('StretchedDiamond');
+                this.setFromArrowColor('white');
+                break;
+            case 'Generalization':
+                this.setFromArrow(' ');
+                this.setFromArrowColor(' ');
                 break;
             default:
                 break;
         }
-        this.setFromArrow(arrow);
-        this.setFromArrowColor(color);
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
     }
     setToArrow(toArrow: string) {
@@ -6864,18 +6861,14 @@ export class cxRelationshipView extends cxMetaObject {
         this.toArrowColor = color;
     }
     setToArrow2(relshipkind: string) {
-        let arrow = 'OpenTriangle';
-        let color = '';
         switch (relshipkind) {
             case 'Generalization':
-                arrow = 'Triangle';
-                color = "white";
+                this.setToArrow('Triangle');
+                this.setToArrowColor('white');
                 break;
             default:
                 break;
         }
-        this.setToArrow(arrow);
-        this.setToArrowColor(color);
     }
 }
 

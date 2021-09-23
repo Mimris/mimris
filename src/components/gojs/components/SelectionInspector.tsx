@@ -188,8 +188,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let defValue = "";
         let values   = [];
         let val      = item[k]; 
-        if (typeof(val) === 'object') continue;
+        if (k === 'dash') {
+          if (typeof(val) === 'object') {
+            val = val.valueOf();
+            if (typeof(val) !== 'string')
+              continue;
+          }
+        }
+        if (typeof(val) === 'object') continue;        
         if (typeof(val) === 'function') continue;
+        
         if (k !== 'markedAsDeleted') {
           if (!uic.isPropIncluded(k, type)) 
             continue;
@@ -263,7 +271,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case 'cardinalityTo':
             dtype = myMetamodel.findDatatypeByName('cardinality');
             if (dtype) {
-              fieldType   = dtype.fieldType;
+              fieldType   = 'select' // dtype.fieldType;
               viewFormat  = dtype.viewFormat
               pattern     = dtype.inputPattern;
               defValue    = dtype.defaultValue;
@@ -295,6 +303,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               values = methodTypes.map(mm => mm && mm.name);
               fieldType = 'radio';
             }
+            break;
+          case 'dash':
+            values = ['None', 'Dashed', 'Dotted'];
+            defValue = 'None';
+            fieldType = 'radio';
             break;
         }
 

@@ -212,6 +212,13 @@ export const ConvertObjectsToJsonStructure = (objects) => {
 
         // remove uneccessary , in beginning objects and arrays
         const JSONObject = objAll.replace(/,}/g, '}').replace(/,]/g, ']').replace(/{,/g, '{').replace(/\[,/g, '[') //.replace(/\",}/g, '"}').replace(/,}/g, '}}').replace(/{,/g, '{')
+        // find 3 first chars of the json string
+        const first3Chars = JSONObject.substring(0, 3)
+        if (first3Chars === '{{"') { // remove the first 1 char of the json string
+            JSONObject = JSONObject.substring(1)
+            // and remover last char of the json string
+            JSONObject = JSONObject.substring(0, JSONObject.length-1)
+        }
         // console.log('167 ', JSONObject)  
        
         return JSONObject

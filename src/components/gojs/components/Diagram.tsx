@@ -980,23 +980,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let object = node.object;
                 if (!object) return;
                 object = myMetis.findObject(object.id);
-                let reltype = myMetis.findRelationshipTypeByName('hasPart');
-                let objtype = myMetis.findObjectTypeByName('Information');
+                const method = new akm.cxMethod(utils.createGuid(), 'generateosduId', "");
+                method["reldir"] = 'out';
+                method["reltype"] = 'hasPart';
+                method["typecondition"] = null;
+                method["valuecondition"] = null;
+                method["preaction"] = "generateosduId";
+                method["propname"] = "osduId";
+                const args = {
+                  "method":     method     
+                }
                 const context = {
                   "myMetis":    myMetis,
                   "myModel":    myMetis.currentModel,
                   "myDiagram":  myDiagram,
-                  "reltype":    reltype,
-                  "objtype":    null,
-                  "propname":   "osduId",
-                  "preaction":  ui_mtd.generateosduId,
-                  "postaction": null
+                  "myObject":   object,
+                  "args":       args
                 }
-                const args = {
-                  "parent":     null
-                }
-                context.preaction(object, context);
-                ui_mtd.traverse(object, context/*, args*/);
+                ui_mtd.executeMethod(context);
               }
             },
             function (obj: any) { 

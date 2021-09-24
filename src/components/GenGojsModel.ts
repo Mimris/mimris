@@ -347,7 +347,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         // if (!objview.visible) includeObjview = false;
         if (includeObjview) {
-          if (objtype?.name === 'Container') {
+          if (objtype?.viewkind === 'Container') {
             objview.viewkind = 'Container';
           }
           if (debug) console.log('305 includeNoObject, objview:', includeNoObject, objview);

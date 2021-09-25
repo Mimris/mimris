@@ -304,11 +304,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
-      if (debug) console.log('281 modelview, objviews:', modelview.name, objviews);
+      if (debug) console.log('281 modelview, objviews:', modelview, objviews);
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
-        const obj = objview.object;
+        const obj = objview?.object;
         const objtype = obj?.type;
         if (obj && obj?.markedAsDeleted == undefined)
           obj.markedAsDeleted = false;
@@ -358,6 +358,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (!includeNoType && !objview.object?.type)
             continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
+          if (node.template === "")
+            node.template = 'textOnly';
           myGoModel.addNode(node);
           node.name = objview.name;
           if (node.fillcolor === "") {
@@ -373,6 +375,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         const node = nodes[i] as gjs.goObjectNode;
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
+          node.text = objview.text ? objview.text : objview.object.text;
           node.isGroup = isGroup;
       }
       if (debug) console.log('346 nodes', nodes);
@@ -428,6 +431,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
+          link.fromArrow = relview.fromArrow;
+          link.toArrow = relview.toArrow;
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {

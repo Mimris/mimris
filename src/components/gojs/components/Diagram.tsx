@@ -2229,11 +2229,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
-          makeButton("Toggle Cardinality On/Off",
+            makeButton("Toggle Cardinality On/Off",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               if (modelview.showCardinality == undefined)
-                modelview.showCardinality = false;
+                modelview.showCardinality = true;
               modelview.showCardinality = !modelview.showCardinality;
               if (!modelview.showCardinality) {
                 alert("Cardinality on relationships will NOT be shown!");

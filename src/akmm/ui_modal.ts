@@ -834,13 +834,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
         if (prop === 'dash' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
-        if (prop === 'fromArrow' && relview[prop] !== "") 
-          myDiagram.model.setDataProperty(data, prop, relview[prop]);
+        if (prop === 'fromArrow') {
+          if (reltypeview[prop] !== relview[prop])
+          myDiagram.model.setDataProperty(data, prop, relview[prop]);           
+        }          
         if (prop === 'fromArrowColor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
-        if (prop === 'toArrow' && relview[prop] !== "") 
-          myDiagram.model.setDataProperty(data, prop, relview[prop]);
-        if (prop === 'toArrowColor' && relview[prop] !== "") 
+          if (prop === 'toArrow') {
+            if (reltypeview[prop] !== relview[prop])
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);           
+          }          
+          if (prop === 'toArrowColor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
       }
       const gqlRelview = new gql.gqlRelshipView(relview);

@@ -2227,7 +2227,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               if (modelview.showCardinality == undefined)
-                modelview.showCardinality = false;
+                modelview.showCardinality = true;
               modelview.showCardinality = !modelview.showCardinality;
               if (!modelview.showCardinality) {
                 alert("Cardinality on relationships will NOT be shown!");

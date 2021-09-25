@@ -980,23 +980,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let object = node.object;
                 if (!object) return;
                 object = myMetis.findObject(object.id);
-                let reltype = myMetis.findRelationshipTypeByName('hasPart');
-                let objtype = myMetis.findObjectTypeByName('Information');
+                const method = new akm.cxMethod(utils.createGuid(), 'generateosduId', "");
+                method["reldir"] = 'out';
+                method["reltype"] = 'hasPart';
+                method["typecondition"] = null;
+                method["valuecondition"] = null;
+                method["preaction"] = "generateosduId";
+                method["propname"] = "osduId";
+                const args = {
+                  "method":     method     
+                }
                 const context = {
                   "myMetis":    myMetis,
                   "myModel":    myMetis.currentModel,
                   "myDiagram":  myDiagram,
-                  "reltype":    reltype,
-                  "objtype":    null,
-                  "propname":   "osduId",
-                  "preaction":  ui_mtd.generateosduId,
-                  "postaction": null
+                  "myObject":   object,
+                  "args":       args
                 }
-                const args = {
-                  "parent":     null
-                }
-                context.preaction(object, context);
-                ui_mtd.traverse(object, context/*, args*/);
+                ui_mtd.executeMethod(context);
               }
             },
             function (obj: any) { 
@@ -2228,11 +2229,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
-          makeButton("Toggle Cardinality On/Off",
+            makeButton("Toggle Cardinality On/Off",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               if (modelview.showCardinality == undefined)
-                modelview.showCardinality = false;
+                modelview.showCardinality = true;
               modelview.showCardinality = !modelview.showCardinality;
               if (!modelview.showCardinality) {
                 alert("Cardinality on relationships will NOT be shown!");

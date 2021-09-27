@@ -494,14 +494,21 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     name: "SHAPE", strokeWidth: 1, stroke: "gray",
                     // geometryString: "F M0 0 L80 0 B-90 90 80 20 20 20 L100 100 20 100 B90 90 20 80 20 20z",
                     // geometryString: "F1 m 0,0 l 5,0 1,4 -1,4 -5,0 1,-4 -1,-4 z",
-                    geometryString: "M210 210L190 240L280 240L310 210L280 180L190 180L210 210Z",
+                    geometryString: "M145 260L360 260L400 200L360 148L145 148L145 260Z",
+                    // geometryString: "M143.59 259.39L355.48 259.39L403.77 203.22L355.48 147.04L143.59 147.04L143.59 259.39Z",
                     // geometryString: "F M0 0 L80 0 B-90 90 80 20 20 20 L100 100 20 100 B90 90 20 80 20 20z"
+                    // geometryString: "M210 210L190 240L280 240L310 210L280 180L190 180L210 210Z",
                     fill: "white",
                     spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
                     spot2: new go.Spot(1, 1, -5, 0),
                     cursor: "alias",        // cursor: "pointer",
-                    scale: 3
-                },
+                    scale: 3,
+                    portId: "",
+                    toSpot: go.Spot.Left,
+                    toLinkable: true,
+                    fromSpot: go.Spot.Right,
+                    fromLinkable: true,
+                      },
                 new go.Binding("fill", "fillcolor")
             ),
             $(go.TextBlock,
@@ -517,36 +524,40 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
 
     nodeTemplateMap.add('Control',
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("layerName", "layer"),
-        new go.Binding("deletable"),
-        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        {
-            toolTip:
-            $(go.Adornment, "Auto",
-                $(go.Shape, { fill: "lightyellow" }),
-                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                    new go.Binding("text", "", 
-                        function (d) { 
-                            return uid.nodeInfo(d, myMetis);                
-                        }
+            new go.Binding("layerName", "layer"),
+            new go.Binding("deletable"),
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            {
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
                     )
                 )
-            )
-        },
-        $(go.Panel, "Auto",
-            $(go.Shape,  
-            { 
-                name: "SHAPE", strokeWidth: 1, stroke: "gray",
-                geometryString: "M400 166.67L440 150L440 225L400 250L360 225L360 150L400 166.67Z",
-                fill: "white",
-                // spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
-                // spot2: new go.Spot(1, 1, -5, 0),
-                cursor: "alias",        // cursor: "pointer",
-                scale: 3
             },
-            new go.Binding("fill", "fillcolor")),
-            $(go.TextBlock,
-            new go.Binding("text", "name").makeTwoWay()),
+            $(go.Panel, "Auto",
+                $(go.Shape,  
+                { 
+                    name: "SHAPE", strokeWidth: 1, stroke: "gray",
+                    // geometryString: "M400 166.67L440 150L440 225L400 250L360 225L360 150L400 166.67Z",
+                    geometryString: "M150 250L200 300L250 250L250 100L150 100L150 250Z",
+                    fill: "white",
+                    cursor: "alias",        // cursor: "pointer",
+                    scale: 3,
+                    portId: "",
+                    toSpot: go.Spot.Top,
+                    toLinkable: true,
+                    fromSpot: go.Spot.Bottom,
+                    fromLinkable: true,
+                },
+                new go.Binding("fill", "fillcolor")),
+                $(go.TextBlock,
+                    new go.Binding("text", "name").makeTwoWay()),
             ),
             { contextMenu: contextMenu },    
         )
@@ -555,42 +566,47 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
 
     nodeTemplateMap.add('Mechanism',
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-        new go.Binding("layerName", "layer"),
-        new go.Binding("deletable"),
-        new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-        {
-            toolTip:
-            $(go.Adornment, "Auto",
-                $(go.Shape, { fill: "lightyellow" }),
-                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                    new go.Binding("text", "", 
-                        function (d) { 
-                            return uid.nodeInfo(d, myMetis);                
-                        }
+            new go.Binding("layerName", "layer"),
+            new go.Binding("deletable"),
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            {
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
                     )
                 )
-            )
-        },
-        $(go.Panel, "Auto",
-            $(go.Shape,  
-            { 
-                name: "SHAPE", strokeWidth: 1, stroke: "gray",
-                geometryString: "M400 373.33L440 390L440 315L400 290L360 315L360 390L400 373.33Z",
-                fill: "white",
-                // spot1: new go.Spot(0, 0, 5, 1),  // keep the text inside the shape
-                // spot2: new go.Spot(1, 1, -5, 0),
-                cursor: "alias",        // cursor: "pointer",
-                scale: 3
             },
-            new go.Binding("fill", "fillcolor")),
-            $(go.TextBlock,
-            new go.Binding("text", "name").makeTwoWay()),
+            $(go.Panel, "Auto",
+                $(go.Shape,  
+                { 
+                    name: "SHAPE", strokeWidth: 1, stroke: "gray",
+                    // geometryString: "M400 166.67L440 150L440 225L400 250L360 225L360 150L400 166.67Z",
+                    geometryString: "M150 150L200 100L250 150L250 300L150 300L150 150Z",
+                    fill: "white",
+                    cursor: "alias",        // cursor: "pointer",
+                    scale: 3,
+                    portId: "",
+                    toSpot: go.Spot.Bottom,
+                    toLinkable: true,
+                    fromSpot: go.Spot.Top,
+                    fromLinkable: true,
+                },
+                new go.Binding("fill", "fillcolor")),
+                $(go.TextBlock,
+                    new go.Binding("text", "name").makeTwoWay()),
             ),
             { contextMenu: contextMenu },    
         )
     );
     addNodeTemplateName('Mechanism');
 
+    // geometryString: "M150 150L200 100L250 150L250 300L150 300L150 150Z",
 
     // nodeTemplateMap.add('ICOM'),
     // $(go.Node, "Auto",

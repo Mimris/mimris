@@ -1391,8 +1391,8 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                 currentRelshipView['strokecolor'] = "";
                 currentRelshipView['strokewidth'] = "";
                 currentRelshipView['dash']        = "";
-                currentRelshipView['fromArrow']   = "";
-                currentRelshipView['toArrow']     = "";
+                currentRelshipView['fromArrow']   = "None";
+                currentRelshipView['toArrow']     = "None";
                 updateLink(data, reltypeview, myDiagram, myGoMetamodel);
 
                 const gqlRelView = new gql.gqlRelshipView(currentRelshipView);

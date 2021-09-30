@@ -684,9 +684,10 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
     }
 }
 
-export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, myDiagram: any, nodes: any[]) {
+export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, myDiagram: any, nodes: any[]): gjs.goObjectNode {
     if (debug) console.log('613 sel', sel);
     if (sel.category === 'Object') {
+        const modelView = goModel?.modelView;
         let node = goModel?.findNode(sel.key);
         if (node) {
             node.loc = sel.loc;
@@ -705,9 +706,19 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     objview.group = "";
                     node.group = "";
                 }
-                if (debug) console.log('677 Moved node', node, objview)
-                const modNode = new gql.gqlObjectView(objview);
-                nodes.push(modNode);
+                if (debug) console.log('677 Moved node', node, objview);
+                let found = false;
+                for (let i=0; i<nodes?.length; i++) {
+                    const n = nodes[i];
+                    if (n.id === objview.id) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    const modNode = new gql.gqlObjectView(objview);
+                    nodes.push(modNode);
+                }
             }
             // Trying to handle container 'grabbing' objects
             if (objview.isGroup) {   // node / objview is a group
@@ -735,8 +746,9 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                 }
                 if (debug) console.log('702 nodes', nodes);
             }
+            if (debug) console.log('750 objview', objview.group);
+            if (debug) console.log('751 node', node);
         }
-        if (debug) console.log('702 goModel :', goModel);
         return node;
     }
 }
@@ -1379,8 +1391,8 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                 currentRelshipView['strokecolor'] = "";
                 currentRelshipView['strokewidth'] = "";
                 currentRelshipView['dash']        = "";
-                currentRelshipView['fromArrow']   = "";
-                currentRelshipView['toArrow']     = "";
+                currentRelshipView['fromArrow']   = "None";
+                currentRelshipView['toArrow']     = "None";
                 updateLink(data, reltypeview, myDiagram, myGoMetamodel);
 
                 const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
@@ -1470,13 +1482,11 @@ export function createLink(data: any, context: any): any {
                         relshipview.setTypeView(typeview);
                         relshipview.setFromObjectView(fromObjView);
                         relshipview.setToObjectView(toObjView);
-                        relshipview.fromArrow = typeview.data.fromArrow;
-                        relshipview.toArrow = typeview.data.toArrow;
                         myModelview.addRelationshipView(relshipview);
                         myMetis.addRelationshipView(relshipview);
                         let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
                     }
-                    if (debug) console.log('1454 relshipview', relshipview);
+                    if (debug) console.log('1454 typeview, relshipview', typeview, relshipview);
                 }
             }
         }

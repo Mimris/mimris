@@ -431,8 +431,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
-          link.fromArrow = relview.fromArrow;
-          link.toArrow = relview.toArrow;
+          // link.fromArrow = relview.fromArrow;
+          // if (link.fromArrow === 'None')
+          //   link.fromArrow = "";
+          // link.toArrow = relview.toArrow;
+          // if (link.toArrow === 'None')
+          //   link.toArrow = "";
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {

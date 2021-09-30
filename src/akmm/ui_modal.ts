@@ -74,14 +74,14 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   if (obj.category === constants.gojs.C_RELATIONSHIP) {
       const link = obj;
       inst = link.relship;
-      myInst = myMetis.findRelationship(inst.id);
+      myInst = myMetis.findRelationship(inst?.id);
       instview = link.relshipview;
-      myInstview = myMetis.findRelationshipView(instview.id);    
+      myInstview = myMetis.findRelationshipView(instview?.id);    
       if (debug) console.log('74 myInst', myInst, myInstview);
       if (context?.what === "editRelshipview") 
           myItem = myInstview;
       else if (context?.what === "editTypeview") 
-          myItem = myInst.type?.typeview.data;
+          myItem = myInst.type?.typeview?.data;
       else
           myItem = myInst;
       myItem[propname] = value;
@@ -537,6 +537,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('497 selObj', selObj, obj);
       const properties = obj.setAndGetAllProperties(myMetis);
       const gqlObject = new gql.gqlObject(obj);
+      gqlObject["text"] = obj.text;
       if (debug) console.log('500 obj, gqlObject', obj, gqlObject);
       const type = obj?.type;
       for (let i=0; i<properties?.length; i++) {
@@ -631,8 +632,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (relship.relshipkind !== constants.relkinds.REL) {
         relview.setFromArrow2(relship.relshipkind);
         relview.setToArrow2(relship.relshipkind);
-        myDiagram.model.setDataProperty(data, 'fromArrow', relview.fromArrow);
-        myDiagram.model.setDataProperty(data, 'toArrow', relview.toArrow);
+        let fromArrow = relview.fromArrow;
+        if (fromArrow = 'None') fromArrow = "";
+        let toArrow = relview.toArrow;
+        if (toArrow = 'None') toArrow = "";
+        myDiagram.model.setDataProperty(data, 'fromArrow', fromArrow);
+        myDiagram.model.setDataProperty(data, 'toArrow', toArrow);
         myDiagram.model.setDataProperty(data, 'fromArrowColor', relview.fromArrowColor);
         myDiagram.model.setDataProperty(data, 'toArrowColor', relview.toArrowColor);
       }
@@ -674,7 +679,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         } catch {}
       }
       const gqlObjview = new gql.gqlObjectView(objview);
-      if (!debug) console.log('634 gqlObjview', data, gqlObjview);
+      if (debug) console.log('634 gqlObjview', data, gqlObjview);
       modifiedObjviews.push(gqlObjview);
       modifiedObjviews.map(mn => {
         let data = mn;
@@ -833,15 +838,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
         if (prop === 'dash' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
-        if (prop === 'fromArrow') {
-          if (reltypeview[prop] !== relview[prop])
-          myDiagram.model.setDataProperty(data, prop, relview[prop]);           
-        }          
-        if (prop === 'fromArrowColor' && relview[prop] !== "") 
+          if (prop === 'fromArrow') {
+            let fromArrow = relview[prop];
+            if (relview[prop] === 'None') fromArrow = "";
+            myDiagram.model.setDataProperty(data, prop, fromArrow);           
+          }          
+          if (prop === 'fromArrowColor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'toArrow') {
-            if (reltypeview[prop] !== relview[prop])
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);           
+            let toArrow = relview[prop];
+            if (relview[prop] === 'None') toArrow = "";
+            myDiagram.model.setDataProperty(data, prop, toArrow);           
           }          
           if (prop === 'toArrowColor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
@@ -955,10 +962,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             myDiagram.model.setDataProperty(data, prop, typeview[prop]);
           if (prop === 'dash' && typeview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'fromArrow' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'toArrow' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+          if (prop === 'fromArrow') {
+            let fromArrow = data[prop];
+            if (fromArrow === 'None') fromArrow = "";
+            myDiagram.model.setDataProperty(data, prop, fromArrow);           
+          }
+          if (prop === 'toArrow') {
+            let toArrow = data[prop];
+            if (toArrow === 'None') toArrow = "";
+            myDiagram.model.setDataProperty(data, prop, toArrow);              
+          }  
           if (prop === 'fromArrowColor' && typeview[prop] !== "") 
             myDiagram.model.setDataProperty(data, prop, typeview[prop]);
           if (prop === 'toArrowColor' && typeview[prop] !== "") 

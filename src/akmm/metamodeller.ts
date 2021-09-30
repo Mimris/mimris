@@ -6591,6 +6591,7 @@ export class cxObjectView extends cxMetaObject {
     parent: string;
     isCollapsed: boolean;
     visible: boolean;
+    text: string;
     loc: string;
     size: string;
     viewkind: string;
@@ -6612,6 +6613,7 @@ export class cxObjectView extends cxMetaObject {
         this.groupLayout = "";
         this.parent = "";
         this.isCollapsed = false;
+        this.text = "";
         this.visible = true;
         this.viewkind = "";
         this.loc = "";
@@ -6771,7 +6773,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrow:        string;
     fromArrowColor: string;
     toArrowColor:   string;
-    points:         string;
+    points:         any;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection

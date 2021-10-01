@@ -31,6 +31,14 @@ const arrowheads = ['None',
                     'LineFork', 'BackwardLineFork', 
                     'Circle', 'Block'];
 
+const colornames = ['black', 'white', 
+                    'red', 'pink', 
+                    'green', 'lightgreen', 'darkgreen',
+                    'blue', 'lightblue', 'darkblue', 
+                    'grey', 'lightgrey', 'darkgrey',
+                    'yellow', 'orange', 'brown', 'purple', 'violet'
+                   ];
+
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
    * Render the object data, passing down property keys and values.
@@ -355,6 +363,26 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             fieldType = 'select';
           }
           break;
+          case 'fillcolor':
+            if (!useColor) {
+              values = colornames;
+              defValue = 'white';
+              fieldType = 'select';
+            }
+            break;
+          case 'strokecolor':
+            if (!useColor) {
+              values = colornames;
+              defValue = 'black';
+              fieldType = 'select';
+            }
+            break;
+          case 'fromArrowColor':
+          case 'toArrowColor':
+              values = colornames;
+              defValue = 'black';
+              fieldType = 'select';            
+            break;
         }
 
         if (fieldType === 'checkbox') {

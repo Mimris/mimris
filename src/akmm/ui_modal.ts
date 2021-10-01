@@ -947,35 +947,37 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       if (data) {
         if (debug) console.log('849 data', data);
-        for (let prop in typeview) {
-          if (prop === 'template' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'fillcolor' && typeview[prop] !== "") {
-            if (debug) console.log('854 fillcolor', typeview[prop]);
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+        if (selObj.category === constants.gojs.C_OBJECTTYPE) {
+          for (let prop in typeview) {
+            if (prop === 'template' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'fillcolor' && typeview[prop] !== "") {
+              if (debug) console.log('854 fillcolor', typeview[prop]);
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            }
+            if (prop === 'strokecolor' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'strokewidth' && typeview[prop] !== "")
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'icon'/* && typeview[prop] !== "" */) 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'dash' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'fromArrow') {
+              let fromArrow = data[prop];
+              if (fromArrow === 'None') fromArrow = "";
+              myDiagram.model.setDataProperty(data, prop, fromArrow);           
+            }
+            if (prop === 'toArrow') {
+              let toArrow = data[prop];
+              if (toArrow === 'None') toArrow = "";
+              myDiagram.model.setDataProperty(data, prop, toArrow);              
+            }  
+            if (prop === 'fromArrowColor' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
+            if (prop === 'toArrowColor' && typeview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, typeview[prop]);
           }
-          if (prop === 'strokecolor' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'strokewidth' && typeview[prop] !== "")
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'icon'/* && typeview[prop] !== "" */) 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'dash' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'fromArrow') {
-            let fromArrow = data[prop];
-            if (fromArrow === 'None') fromArrow = "";
-            myDiagram.model.setDataProperty(data, prop, fromArrow);           
-          }
-          if (prop === 'toArrow') {
-            let toArrow = data[prop];
-            if (toArrow === 'None') toArrow = "";
-            myDiagram.model.setDataProperty(data, prop, toArrow);              
-          }  
-          if (prop === 'fromArrowColor' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
-          if (prop === 'toArrowColor' && typeview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, typeview[prop]);
         }
       }
       break;

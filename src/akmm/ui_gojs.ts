@@ -643,8 +643,8 @@ export class goRelshipLink extends goLink {
         this.template        = "";
         this.strokecolor     = "";
         this.fromArrow       = "";
-        this.toArrow         = "";
         this.fromArrowColor  = "";
+        this.toArrow         = "";
         this.toArrowColor    = "";
         this.routing         = "";
         this.curve           = "";

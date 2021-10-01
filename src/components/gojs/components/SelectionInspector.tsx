@@ -11,6 +11,7 @@ const printf = require('printf');
 // import './Inspector.css';
 import * as uic from '../../../akmm/ui_common';
 import * as ui_mtd from '../../../akmm/ui_methods';
+import * as uit from '../../../akmm/ui_templates';
 import * as utils from '../../../akmm/utilities';
 import * as constants from '../../../akmm/constants';
 
@@ -32,10 +33,12 @@ const arrowheads = ['None',
 
 const colornames = ['black', 'white', 
                     'red', 'pink', 
-                    'green', 'lightgreen', 'darkgreen',
-                    'blue', 'lightblue', 'darkblue', 
+                    'green', 'lightgreen', 'darkgreen', 'seagreen',
+                    'blue', 'lightblue', 'darkblue', 'skyblue', 
                     'grey', 'lightgrey', 'darkgrey',
-                    'yellow', 'orange', 'brown', 'purple', 'violet'
+                    'yellow', 'yellowgreen', 'orange', 
+                    'brown', 'purple', 
+                    'violet', 'turquoise'
                    ];
                    
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
@@ -348,21 +351,41 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             defValue = 'None';
             fieldType = 'radio';
             break;
-            case 'template':
-              if (!item.isGroup) {
-                values = uit.getNodeTemplateNames();
-                defValue = '';
-                fieldType = 'select';
-              }
-              break;
-            case 'fromArrow':
-            case 'toArrow': {
+          case 'template':
+            if (!item.isGroup) {
+              values = ['textOnly'];
+              defValue = '';
+              fieldType = 'select';
+            }
+            break;
+          case 'fromArrow':
+          case 'toArrow': {
               values = arrowheads;
               defValue = 'None';
               fieldType = 'select';
             }
             break;
-          }
+          case 'fillcolor':
+            if (!useColor) {
+              values = colornames;
+              defValue = 'white';
+              fieldType = 'select';
+            }
+            break;
+          case 'strokecolor':
+            if (!useColor) {
+              values = colornames;
+              defValue = 'black';
+              fieldType = 'select';
+            }
+            break;
+          case 'fromArrowColor':
+          case 'toArrowColor':
+              values = colornames;
+              defValue = 'black';
+              fieldType = 'select';            
+            break;
+        }
 
         if (fieldType === 'checkbox') {
           if (debug) console.log('344 val', val);

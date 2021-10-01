@@ -33,10 +33,12 @@ const arrowheads = ['None',
 
 const colornames = ['black', 'white', 
                     'red', 'pink', 
-                    'green', 'lightgreen', 'darkgreen',
-                    'blue', 'lightblue', 'darkblue', 
+                    'green', 'lightgreen', 'darkgreen', 'seagreen',
+                    'blue', 'lightblue', 'darkblue', 'skyblue', 
                     'grey', 'lightgrey', 'darkgrey',
-                    'yellow', 'orange', 'brown', 'purple', 'violet'
+                    'yellow', 'yellowgreen', 'orange', 
+                    'brown', 'purple', 
+                    'violet', 'turquoise'
                    ];
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {

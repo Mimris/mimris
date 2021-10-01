@@ -947,7 +947,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       if (data) {
         if (debug) console.log('849 data', data);
-        if (selObj.category === constants.gojs.C_OBJECTTYPE) {
+        if (selObj.category === constants.gojs.C_RELSHIPTYPE || 
+          selObj.category === constants.gojs.C_OBJECTTYPE) {
           for (let prop in typeview) {
             if (prop === 'template' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);

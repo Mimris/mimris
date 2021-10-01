@@ -3371,7 +3371,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
               "objectviews": [],
               "relshipviews": [],

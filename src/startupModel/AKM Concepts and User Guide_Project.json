@@ -6970,7 +6970,7 @@
               "layout": "Tree",
               "routing": "Orthogonal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
               "objectviews": [
                 {
@@ -7618,7 +7618,7 @@
               "layout": "Manual",
               "routing": "Orthogonal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
               "objectviews": [
                 {
@@ -7878,7 +7878,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
               "objectviews": [
                 {
@@ -8097,7 +8097,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
               "objectviews": [
                 {
@@ -8170,7 +8170,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
               "objectviews": [
                 {
@@ -8408,7 +8408,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
               "objectviews": [
                 {
@@ -8924,7 +8924,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
               "objectviews": [
                 {
@@ -9794,7 +9794,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "55c373da-45d1-44d2-e750-38585a869494",
               "objectviews": [
                 {

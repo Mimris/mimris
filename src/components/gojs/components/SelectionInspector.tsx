@@ -22,7 +22,14 @@ interface SelectionInspectorProps {
   context: any;
   onInputChange: (props: any, value: string, isBlur: boolean) => void;
 }
-const arrowheads = ['None', 'OpenTriangle', 'Triangle', 'StretchedDiamond'];
+const arrowheads = ['None', 
+                    'Standard', 'Backward', 
+                    'OpenTriangle', 'Triangle', 
+                    'BackwardOpenTriangle', 'BackwardTriangle',
+                    'Diamond', 'StretchedDiamond', 
+                    'Fork', 'BackwardFork', 
+                    'LineFork', 'BackwardLineFork', 
+                    'Circle', 'Block'];
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**

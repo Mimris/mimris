@@ -861,6 +861,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
             const nodeLoc = loc.split(" ");
             const grpLoc = node.loc?.split(" ");
             const grpSize = node.size?.split(" ");
+            if (!grpLoc) return;
             const nx = parseInt(nodeLoc[0]);
             const ny = parseInt(nodeLoc[1]);
             const gx = parseInt(grpLoc[0]);

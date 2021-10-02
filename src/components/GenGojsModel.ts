@@ -432,11 +432,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
           if (relview.fromArrow === '') 
-            link.fromArrow = relview.typeview.fromArrow;
+            link.fromArrow = relview.typeview?.fromArrow;
           if (link.fromArrow === 'None') 
             link.fromArrow = '';
           if (relview.toArrow === '') 
-            link.toArrow = relview.typeview.toArrow;
+            link.toArrow = relview.typeview?.toArrow;
           if (link.toArrow === 'None') 
             link.toArrow = '';
           link.routing = modelview.routing;

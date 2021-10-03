@@ -5110,8 +5110,14 @@ export class cxRelationshipTypeView extends cxMetaObject {
                     if (prop === 'strokecolor' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'strokewidth' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'dash' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'fromArrow' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'toArrow' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'fromArrow' && relview[prop] !== "") {
+                        if (relview[prop] == 'None')
+                        data[prop] = "";
+                    }
+                    if (prop === 'toArrow' && relview[prop] !== "") {
+                        if (relview[prop] == 'None')
+                        data[prop] = "";
+                    }
                     if (prop === 'fromArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'toArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
                 }

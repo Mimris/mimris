@@ -22,6 +22,7 @@ import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
+import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
 
 const constants = require('../../akmm/constants');
@@ -713,18 +714,10 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "ObjectDoubleClicked": {
         let sel = e.subject.part;
-        let data = sel.data;
         this.state.selectedData = sel.data;
-        if (debug) console.log('699 data', data.objecttype.viewkind, sel);
-        if (true) {
-          // Test open modal
-          const icon = findImage(data.icon);
-          const modalContext = {
-            what:       "Test",
-          }
-          this.handleOpenModal(data, modalContext);
-          // End test
-        }
+        const node = sel.data;
+        if (debug) console.log('566 node', node);
+        uid.editObject(node, myMetis, myDiagram); 
       }
       break;
       case "ObjectSingleClicked": {

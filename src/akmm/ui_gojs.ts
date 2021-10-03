@@ -738,8 +738,8 @@ export class goRelshipLink extends goLink {
             }
         } else if (relview) {
             const relship: akm.cxRelationship | null = relview.relship;
-            if (relship && (relship.category === constants.gojs.C_OBJECT)) {
-                if (relship.viewkind === vkc.VIEWKINDS.REL) {
+            if (relship && (relship.category === constants.gojs.C_RELATIONSHIP)) {
+                if (relship.viewkind === constants.viewkinds.REL) {
                     const reltype = relship.type;
                     if (reltype) {
                         if (reltype.typeview) {

@@ -854,7 +854,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
       }
       const gqlRelview = new gql.gqlRelshipView(relview);
-      if (debug) console.log('764 data, gqlRelview', link, data, gqlRelview);
+      if (debug) console.log('764 data, gqlRelview', link, data, relview, gqlRelview);
       modifiedRelviews.push(gqlRelview);
       modifiedRelviews.map(mn => {
         let data = mn;

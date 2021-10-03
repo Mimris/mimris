@@ -2505,11 +2505,22 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 }
                 if (debug) console.log('2604 updateLink', prop, viewdata[prop], relview[prop]);
             } else {
-                if (viewdata[prop] != null)
+                if (viewdata[prop] != null) {
+                    if (prop === 'fromArrow' || prop === 'toArrow') {
+                        if (viewdata[prop] === 'None')
+                            viewdata[prop] = "";
+                    }
                     diagram.model.setDataProperty(data, prop, new String(viewdata[prop]).valueOf());
+                }
                 if (relview) {
-                    if (relview[prop] && relview[prop] !== "") {
-                        diagram.model.setDataProperty(data, prop, new String(relview[prop]).valueOf());
+                    let value = relview[prop];
+                    if (value && value !== "") {
+                        if (prop === 'fromArrow' || prop === 'toArrow') {
+                            if (value === 'None')
+                                value = "";
+                        }
+    
+                        diagram.model.setDataProperty(data, prop, new String(value).valueOf());
                     }
                     if (debug) console.log('2604 updateLink', prop, viewdata[prop], relview[prop]);
                 }

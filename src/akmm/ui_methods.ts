@@ -240,7 +240,7 @@ export function traverse(object: akm.cxObject, context: any/*, args: any*/) {
             // Recursive traverse        
             traverse(toObj, context);
             if (conditionIsFulfilled(toObj, context)) {
-                if (preaction) {
+                if (postaction) {
                     if (typeof(preaction === 'string')) {
                         context.mode = "postaction";
                         context.action = postaction;
@@ -260,7 +260,7 @@ export function generateosduId(context: any) {
     const method = context.args.method;
     const reltypename = method.reltype;
     const myMetamodel = myModel.metamodel;
-    const reltype = myMetamodel.findRelationshipTypeByName(reltypename);
+    const reltypes = myMetamodel.findRelationshipTypesByName(reltypename);
     const reldir  = method.reldir;   // Either 'in' or 'out'
     const useinp  = (reldir === 'in');
     let parent: akm.cxObject;
@@ -268,13 +268,17 @@ export function generateosduId(context: any) {
     if (rels) {
         for (let i=0; i<rels.length; i++) {
             const rel = rels[i];
-            if (rel?.type.id !== reltype.id)
-                continue;
-            if (useinp) 
-                parent = rel.toObject as akm.cxObject;
-            else
-                parent = rel.fromObject as akm.cxObject;
-            if (debug) console.log('215 parent', parent);
+            for (let j=0; j<reltypes.length; j++) {
+                const reltype = reltypes[j];
+                if (rel?.type.name === reltype?.name) {
+                    if (useinp) 
+                        parent = rel.toObject as akm.cxObject;
+                    else
+                        parent = rel.fromObject as akm.cxObject;
+                    if (debug) console.log('215 parent', parent);
+                    break;
+                }
+            }
         }
     }
     let parentUid = "";

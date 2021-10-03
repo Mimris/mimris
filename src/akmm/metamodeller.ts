@@ -927,7 +927,7 @@ export class cxMetis {
     }
     importRelshipView(item: any, modelview: cxModelView) {
         if (modelview) {
-            if (debug) console.log('730 relshipview', item);
+            if (debug) console.log('921 relshipview', item);
             const relview = this.findRelationshipView(item.id);
             if (relview) {
                 const relship = this.findRelationship(item.relshipRef);
@@ -937,6 +937,8 @@ export class cxMetis {
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
+                    relview.fromArrow = item.fromArrow;
+                    relview.toArrow = item.toArrow;
                     relview.points = item.points;
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
@@ -964,8 +966,8 @@ export class cxMetis {
                     relview.markedAsDeleted = item.markedAsDeleted;
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
-                    if (debug) console.log("729 item, relview: ", item.markedAsDeleted, relview.markedAsDeleted);
-                    if (debug) console.log("730 item, relview: ", item, relview);
+                    if (debug) console.log("960 item, relview: ", item.markedAsDeleted, relview.markedAsDeleted);
+                    if (debug) console.log("961 item, relview: ", item, relview);
                 }
             }
         }

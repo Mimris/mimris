@@ -386,9 +386,6 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         try {
             retval = eval(expression);
         } catch(e) {
-            if (e instanceof SyntaxError) {
-                alert(e.message);
-            }
             retval = "";
         }
     } else {

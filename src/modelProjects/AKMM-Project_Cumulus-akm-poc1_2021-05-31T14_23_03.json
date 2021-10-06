@@ -23423,7 +23423,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "f5166d7f-b08e-4a1c-a644-b7d3cfe50d9f",
               "objectviews": [
                 {

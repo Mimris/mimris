@@ -4367,7 +4367,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "JumpGap",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "695f32de-4cf8-4179-77e0-9439251e7774",
               "objectviews": [
                 {

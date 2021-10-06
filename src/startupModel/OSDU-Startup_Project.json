@@ -2913,7 +2913,7 @@
               "layout": "Tree",
               "routing": "Normal",
               "linkcurve": "None",
-              "showCardinality": true,
+              "showCardinality": false,
               "modelRef": "0e80e030-0e8d-4565-3524-4cfa9ecd24ad",
               "objectviews": [],
               "relshipviews": [],

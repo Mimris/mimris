@@ -204,6 +204,16 @@ export function traverse(object: akm.cxObject, context: any/*, args: any*/) {
     let preaction        = method["preaction"];
     let postaction       = method["postaction"];
 
+    if (conditionIsFulfilled(object, context)) {
+        if (preaction) {
+            if (typeof(preaction === 'string')) {
+                context.mode = "preaction";
+                context.action = preaction;
+                execMethod(object, context);
+            } else 
+                preaction(object, context);
+        }
+    }    
     let reltype;
     if (reltypename) { // Check if reltype is specified
         try {
@@ -227,60 +237,58 @@ export function traverse(object: akm.cxObject, context: any/*, args: any*/) {
                 toObj = rel.toObject as akm.cxObject;
             if (debug) console.log('202 toObj', toObj);
             toObj = myMetis.findObject(toObj.id);
-            if (conditionIsFulfilled(toObj, context)) {
-                if (preaction) {
-                    if (typeof(preaction === 'string')) {
-                        context.mode = "preaction";
-                        context.action = preaction;
-                        execMethod(toObj, context);
-                    } else 
-                        preaction(toObj, context);
-                }
-            }    
             // Recursive traverse        
             traverse(toObj, context);
             if (conditionIsFulfilled(toObj, context)) {
-                if (preaction) {
+                if (postaction) {
                     if (typeof(preaction === 'string')) {
                         context.mode = "postaction";
-                        context.action = preaction;
+                        context.action = postaction;
                         execMethod(toObj, context);
                     } else 
                         postaction(toObj, context);
                 }
             }
         }
-    }
+    } 
 }
 
-export function generateosduId(object: akm.cxObject, context: any) {
+export function generateosduId(context: any) {
+    const object = context.myObject;
     const myDiagram = context.myDiagram;
     const myModel = context.myModel;
-    const reltype   = context.reltype;
-    const reldir    = context.reldir;   // Either 'in' or 'out'
-    const useinp = (reldir === 'in');
+    const method = context.args.method;
+    const reltypename = method.reltype;
+    const myMetamodel = myModel.metamodel;
+    const reltypes = myMetamodel.findRelationshipTypesByName(reltypename);
+    const reldir  = method.reldir;   // Either 'in' or 'out'
+    const useinp  = (reldir === 'in');
     let parent: akm.cxObject;
     let rels  = useinp ? object.outputrels : object.inputrels;
     if (rels) {
         for (let i=0; i<rels.length; i++) {
             const rel = rels[i];
-            if (rel?.type.id !== reltype.id)
-                continue;
-            if (useinp) 
-                parent = rel.toObject as akm.cxObject;
-            else
-                parent = rel.fromObject as akm.cxObject;
-            if (debug) console.log('215 parent', parent);
+            for (let j=0; j<reltypes.length; j++) {
+                const reltype = reltypes[j];
+                if (rel?.type.name === reltype?.name) {
+                    if (useinp) 
+                        parent = rel.toObject as akm.cxObject;
+                    else
+                        parent = rel.fromObject as akm.cxObject;
+                    if (debug) console.log('215 parent', parent);
+                    break;
+                }
+            }
         }
     }
     let parentUid = "";
     if (parent)
-        parentUid = parent.getStringValue2(context.propname);
+        parentUid = parent.getStringValue2(method["propname"]);
     if (debug) console.log('275 parentUid: ', parentUid);
         let osduId = object.name;
     if (parentUid && parentUid.length > 0)
         osduId = parentUid + '|' + object.name;
-    object.setStringValue2(context.propname, osduId);
+    object.setStringValue2(method["propname"], osduId);
     if (debug) console.log('280 osduId: ', osduId);
 
     // UPDATE_OBJECT_PROPERTIES
@@ -378,9 +386,6 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         try {
             retval = eval(expression);
         } catch(e) {
-            if (e instanceof SyntaxError) {
-                alert(e.message);
-            }
             retval = "";
         }
     } else {
@@ -477,6 +482,10 @@ function execMethod(object: akm.cxObject, context: any) {
             break;
         case 'Select':
             gjsNode.isSelected = true;
+            break;
+        case 'generateosduId':
+            context.myObject = object;
+            generateosduId(context);
             break;
     }
 }

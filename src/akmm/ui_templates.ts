@@ -124,7 +124,7 @@ export function getNodeTemplate(templateName: string, contextMenu: any): any {
                         },        
                         new go.Binding("text", "name").makeTwoWay()
                         ),
-                        new go.Binding("choices"),
+                        // new go.Binding("choices"),
                         $(go.TextBlock, textStyle(), // the typename  --------------------
                         {
                             row: 1, column: 1, columnSpan: 6,
@@ -307,7 +307,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any) : any {
                 ),
                 new go.Binding("curve", "curve", function(c) { return getCurve(c); }
                 ),
-                new go.Binding("points").makeTwoWay(),
+                // new go.Binding("points").makeTwoWay(),
                 // context menu
                 { contextMenu: contextMenu },
                 // link shape

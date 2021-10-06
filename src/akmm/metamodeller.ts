@@ -918,7 +918,7 @@ export class cxMetis {
     }
     importRelshipView(item: any, modelview: cxModelView) {
         if (modelview) {
-            if (debug) console.log('730 relshipview', item);
+            if (debug) console.log('921 relshipview', item);
             const relview = this.findRelationshipView(item.id);
             if (relview) {
                 const relship = this.findRelationship(item.relshipRef);
@@ -928,6 +928,8 @@ export class cxMetis {
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
+                    relview.fromArrow = item.fromArrow;
+                    relview.toArrow = item.toArrow;
                     relview.points = item.points;
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
@@ -955,8 +957,8 @@ export class cxMetis {
                     relview.markedAsDeleted = item.markedAsDeleted;
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
-                    if (debug) console.log("729 item, relview: ", item.markedAsDeleted, relview.markedAsDeleted);
-                    if (debug) console.log("730 item, relview: ", item, relview);
+                    if (debug) console.log("960 item, relview: ", item.markedAsDeleted, relview.markedAsDeleted);
+                    if (debug) console.log("961 item, relview: ", item, relview);
                 }
             }
         }
@@ -5108,8 +5110,14 @@ export class cxRelationshipTypeView extends cxMetaObject {
                     if (prop === 'strokecolor' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'strokewidth' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'dash' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'fromArrow' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'toArrow' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'fromArrow' && relview[prop] !== "") {
+                        if (relview[prop] == 'None')
+                        data[prop] = "";
+                    }
+                    if (prop === 'toArrow' && relview[prop] !== "") {
+                        if (relview[prop] == 'None')
+                        data[prop] = "";
+                    }
                     if (prop === 'fromArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'toArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
                 }
@@ -6591,6 +6599,7 @@ export class cxObjectView extends cxMetaObject {
     parent: string;
     isCollapsed: boolean;
     visible: boolean;
+    text: string;
     loc: string;
     size: string;
     viewkind: string;
@@ -6612,6 +6621,7 @@ export class cxObjectView extends cxMetaObject {
         this.groupLayout = "";
         this.parent = "";
         this.isCollapsed = false;
+        this.text = "";
         this.visible = true;
         this.viewkind = "";
         this.loc = "";
@@ -6771,7 +6781,7 @@ export class cxRelationshipView extends cxMetaObject {
     toArrow:        string;
     fromArrowColor: string;
     toArrowColor:   string;
-    points:         string;
+    points:         any;
     constructor(id: string, name: string, relship: cxRelationship | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPVIEWS;  // Firestore collection

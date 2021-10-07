@@ -2354,13 +2354,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const layer = myDiagram.findLayer('AdminLayer');
     layer.visible = false;
   
-    // Define a Link template
-    let linkTemplate = uit.getLinkTemplate("", linkContextMenu, myMetis);
-    // Define a Group template with fixed size containers
-    let groupTemplate = uit.getGroupTemplate("", partContextMenu);
-    // define template maps
-
+    // Define template maps
     if (true) {
+      // Define link template map
+      let linkTemplateMap = new go.Map<string, go.Link>();
+      let linkTemplate = uit.getLinkTemplate("", linkContextMenu, myMetis);
+      linkTemplateMap.add("", linkTemplate);
+
+      // This template shows links connecting with label nodes as green and arrow-less.
+      if (linkToLink) {
+        myDiagram.linkTemplateMap.add("linkToLink",
+          $("Link",
+            { relinkableFrom: false, relinkableTo: false },
+            $("Shape", { stroke: "#2D9945", strokeWidth: 2 })
+          ));
+      }
+
+      // Define group template map
+      let groupTemplateMap = new go.Map<string, go.Part>();
+      uit.addGroupTemplates(groupTemplateMap, partContextMenu, myMetis);
+
       // Define node template map
       let nodeTemplateMap = new go.Map<string, go.Part>();
       uit.addNodeTemplates(nodeTemplateMap, partContextMenu, myMetis);
@@ -2376,22 +2389,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             portId: "", fromLinkable: true, toLinkable: false, cursor: "pointer"
           })
       ));
-
-      // Define link template map
-      let linkTemplateMap = new go.Map<string, go.Link>();
-      linkTemplateMap.add("", linkTemplate);
-      // This template shows links connecting with label nodes as green and arrow-less.
-      if (linkToLink) {
-        myDiagram.linkTemplateMap.add("linkToLink",
-          $("Link",
-            { relinkableFrom: false, relinkableTo: false },
-            $("Shape", { stroke: "#2D9945", strokeWidth: 2 })
-          ));
-      }
-
-      // Define group template map
-      let groupTemplateMap = new go.Map<string, go.Group>();
-      groupTemplateMap.add("", groupTemplate);
 
       // Set the diagram template maps
       myDiagram.nodeTemplateMap = nodeTemplateMap;

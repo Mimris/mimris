@@ -1489,7 +1489,7 @@ export function createLink(data: any, context: any): any {
                         myMetis.addRelationshipView(relshipview);
                         let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
                     }
-                    if (!debug) console.log('1454 typeview, relshipview', typeview, relshipview);
+                    if (debug) console.log('1454 typeview, relshipview', typeview, relshipview);
                 }
             }
         }

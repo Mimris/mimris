@@ -351,6 +351,7 @@ export class goObjectNode extends goNode {
     typename: string;
     typeview: akm.cxObjectTypeView | null;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -367,6 +368,7 @@ export class goObjectNode extends goNode {
         this.objecttype     = null;
         this.typename       = "";
         this.template       = objview.template;
+        this.geometry       = objview.geometry;
         this.fillcolor      = objview.fillcolor;
         this.strokecolor    = objview.strokecolor;
         this.strokewidth    = objview.strokewidth;
@@ -394,6 +396,7 @@ export class goObjectNode extends goNode {
             }
             this.typeview = objview.getTypeView();
             this.template = this.typeview.template;
+            this.geometry = this.typeview.geometry;
         }
     }
     // Methods
@@ -610,7 +613,6 @@ export class goRelshipLink extends goLink {
     relshiptype:        akm.cxObjectType | akm.cxRelationshipType | null;
     typename:           string;
     typeview:           akm.cxRelationshipTypeView | null;
-    template:           string;
     fromNode:           goNode | null;
     toNode:             goNode | null;
     from:               string;
@@ -640,7 +642,6 @@ export class goRelshipLink extends goLink {
         this.toNode          = null;
         this.from            = "";
         this.to              = "";
-        this.template        = "";
         this.strokecolor     = "";
         this.fromArrow       = "";
         this.toArrow         = "";
@@ -881,6 +882,7 @@ export class paletteNode {
     description: string;
     isGroup: boolean;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -895,6 +897,7 @@ export class paletteNode {
         this.description = description;
         this.isGroup = false;
         this.template = "";
+        this.geometry = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";

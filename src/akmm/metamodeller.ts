@@ -694,11 +694,13 @@ export class cxMetis {
         const typeref = item.typeRef;
         const type = this.findObjectType(typeref);
         if (!item.template) item.template = "";
+        if (!item.geometry) item.geometry = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setType(type);
             objtypeview.setTemplate(item.template);
+            objtypeview.setGeometry(item.geometry);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokewidth(item.strokewidth);
@@ -4920,6 +4922,7 @@ export class cxObjtypeviewData {
     group: string;                  // Parent group
     viewkind: string;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -4930,6 +4933,7 @@ export class cxObjtypeviewData {
         this.group = "";                // Parent group
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "";
+        this.geometry = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";
@@ -4942,6 +4946,7 @@ export class cxObjectTypeView extends cxMetaObject {
     typeRef: string;
     data: cxObjtypeviewData;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -4953,6 +4958,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.type        = type;
         this.typeRef     = type?.id;
         this.template    = "";
+        this.geometry    = "";
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "2";
@@ -4980,6 +4986,7 @@ export class cxObjectTypeView extends cxMetaObject {
             if (debug) console.log('3740 data, objview', data, objview, this);
             for (prop in otypeview.data) {
                 if (prop === 'template' && objview[prop] !== "") data[prop] = objview[prop];
+                if (prop === 'geometry' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'fillcolor' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'strokecolor' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'strokewidth' && objview[prop] !== "") data[prop] = objview[prop];
@@ -5053,6 +5060,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.template;
         else if (this.template)
             return this.template;
+        return "";
+    }
+    setGeometry(geometry: string) {
+        this.data.geometry = geometry;
+        this.geometry = geometry;
+    }
+    getGeometry(): string {
+        if (this.data.geometry)
+            return this.data.geometry;
+        else if (this.geometry)
+            return this.geometry;
         return "";
     }
     setFillcolor(fillcolor: string) {
@@ -6652,6 +6670,7 @@ export class cxObjectView extends cxMetaObject {
     size: string;
     viewkind: string;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -6675,6 +6694,7 @@ export class cxObjectView extends cxMetaObject {
         this.loc = "";
         this.size = "";
         this.template = "";
+        this.geometry = "";
         this.fillcolor = "";
         this.strokecolor = "";
         this.strokewidth = "";

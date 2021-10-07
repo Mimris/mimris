@@ -178,7 +178,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         else 
           item = selObj.typeview;
         hideNameAndDescr = true;
-        if (!debug) console.log('150 inst, item', inst, item);
+        if (debug) console.log('150 inst, item', inst, item);
         break;  
       default:
         item = inst;
@@ -307,6 +307,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let dtype;
         switch(k) {
           case 'description':
+          case 'geometry':
             fieldType = 'textarea';
             break;
           case 'cardinalityFrom':
@@ -354,6 +355,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case 'template':
             if (!item.isGroup) {
               values = uit.getNodeTemplateNames();
+              defValue = '';
+              fieldType = 'select';
+            } else {
+              values = uit.getGroupTemplateNames();
               defValue = '';
               fieldType = 'select';
             }

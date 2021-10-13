@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false; 
 
 const utils = require('./utilities');
@@ -106,11 +106,29 @@ export class gqlViewStyle {
             this.description = vstyle.description;
     }
 }
+export class gqlGeometry {
+    id:              string;
+    name:            string;
+    description:     string;
+    markedAsDeleted: boolean;
+    modified:        boolean;
+    constructor(geo: akm.cxGeometry) {
+        this.id              = geo.id;
+        this.name            = geo.name;
+        this.description     = "";
+        this.markedAsDeleted = geo.markedAsDeleted;
+        this.modified        = geo.modified;
+        // Code
+        if (geo.description)
+            this.description = geo.description;
+    }
+}
 export class gqlMetaModel {
     id:                 string;
     name:               string;
     description:        string;
     viewstyles:         gqlViewStyle[] | null;
+    geometries:         gqlGeometry[] | null;
     objecttypes:        gqlObjectType[];
     relshiptypes:       gqlRelationshipType[];
     properties:         gqlProperty[];
@@ -132,6 +150,7 @@ export class gqlMetaModel {
         this.name = metamodel.name;
         this.description = (metamodel.description) ? metamodel.description : "";
         this.viewstyles = [];
+        this.geometries = [];
         this.objecttypes = [];
         this.relshiptypes = [];
         this.properties = [];
@@ -214,6 +233,14 @@ export class gqlMetaModel {
                 for (let i = 0; i < cnt; i++) {
                     const viewstyle = viewstyles[i];
                     this.addViewStyle(viewstyle);
+                }
+            }
+            const geometries = metamodel.getGeometries();
+            if (geometries) {
+                const cnt = geometries.length;
+                for (let i = 0; i < cnt; i++) {
+                    const geo = geometries[i];
+                    this.addGeometry(geo);
                 }
             }
             const objtypeviews = metamodel.getObjectTypeViews();
@@ -302,6 +329,12 @@ export class gqlMetaModel {
         if (vstyle && !vstyle.isDeleted()) {
             const gViewStyle = new gqlViewStyle(vstyle);
             this.viewstyles.push(gViewStyle);
+        }
+    }
+    addGeometry(geo: akm.cxGeometry) {
+        if (geo && !geo.isDeleted()) {
+            const gGeometry = new gqlGeometry(geo);
+            this.geometries.push(gGeometry);
         }
     }
     addObjectTypeView(objtypeview: akm.cxObjectTypeView) {

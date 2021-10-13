@@ -32,6 +32,7 @@ export class cxMetis {
     projects:           cxProject[] | null;
     metamodels:         cxMetaModel[] | null = null;
     viewstyles:         cxViewStyle[] | null;
+    geometries:         cxGeometry[] | null;
     models:             cxModel[] | null = null;
     modelviews:         cxModelView[] | null = null;
     datatypes:          cxDatatype[] | null = null;
@@ -78,6 +79,7 @@ export class cxMetis {
         this.name = "";
         this.description = "";
         this.viewstyles = [];
+        this.geometries = [];
         this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
@@ -117,6 +119,16 @@ export class cxMetis {
             viewstyles.forEach(vstyle => {
                 if (vstyle && !vstyle.markedAsDeleted) {
                     this.importViewStyle(vstyle, null);
+                }
+            })
+        }
+
+        // Handle geometries
+        const geometries: any[] = (importedData) && importedData.geometries;
+        if (geometries && geometries.length) {
+            geometries.forEach(geo => {
+                if (geo && !geo.markedAsDeleted) {
+                    this.importGeometry(geo, null);
                 }
             })
         }
@@ -329,6 +341,18 @@ export class cxMetis {
                             }
                         }
                     }
+                    items = item.geometries;
+                    if (items && items.length) {
+                        for (let i = 0; i < items.length; i++) {
+                            const item = items[i];
+                            if (includeDeleted || !item.markedAsDeleted) { 
+                                const geo = new cxGeometry(item.id, item.name, item.description);
+                                if (!geo) continue;
+                                metamodel.addGeometry(geo);
+                                this.addGeometry(geo);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -462,6 +486,15 @@ export class cxMetis {
         if (parent) parent.addViewStyle(vstyle);
         if (debug) console.log('412 viewstyle', vstyle);
     }
+    importGeometry(item: any, parent: cxMetaModel) {
+        const geo = this.findGeometry(item.id);
+        if (debug) console.log('491 item', item);
+        if (!geo) 
+            return;
+        this.addGeometry(geo);
+        if (parent) parent.addGeometry(geo);
+        if (debug) console.log('496 geometry', geo);
+    }
     importMetamodel(item: any) {
         const metamodel = this.findMetamodel(item.id);
         if (!metamodel) 
@@ -492,6 +525,13 @@ export class cxMetis {
             vstyles.forEach(vs => {
                 if (vs)
                     this.importViewStyle(vs, metamodel);
+            });
+        }
+        let geos: any[] = item.geometries;
+        if (geos && geos.length) {
+            geos.forEach(geo => {
+                if (geo)
+                    this.importGeometry(geo, metamodel);
             });
         }
         if (debug) console.log('343 this', this);
@@ -1075,6 +1115,14 @@ export class cxMetis {
                 this.viewstyles.push(vs);
         }
     }
+    addGeometry(geo: cxGeometry) {
+        if (geo.category === constants.gojs.C_GEOMETRY) {
+            if (this.geometries == null)
+                this.geometries = new Array();
+            if (!this.findGeometry(geo.id))
+                this.geometries.push(geo);
+        }
+    }
     addViewFormat(fmt: cxViewFormat) {
         if (fmt.category === constants.gojs.C_VIEWFORMAT) {
             //dtype.setMetis(this);
@@ -1612,6 +1660,35 @@ export class cxMetis {
             let name = vstyle.getName();
             if (name.toLowerCase() === name.toLowerCase())
                 return vstyle;
+            i++;
+        }
+        return null;
+    }
+    findGeometry(id: string): cxGeometry | null {
+        let geos = this.geometries;
+        if (!geos)
+            return null;
+        else {
+            let i = 0;
+            while (i < geos.length) {
+                let geo = geos[i];
+                if (geo && geo.id === id)
+                    return geo;
+                i++;
+            }
+        }
+        return null;
+    }
+    findGeometryByName(name: string): cxGeometry | null {
+        let geos = this.geometries;
+        if (!geos) return null;
+        let i = 0;
+        let geo = null;
+        while (i < geos.length) {
+            geo = geos[i];
+            let name = geo.getName();
+            if (name.toLowerCase() === name.toLowerCase())
+                return geo;
             i++;
         }
         return null;
@@ -2736,30 +2813,31 @@ export class cxMethodType extends cxMetaObject {
 // -------------------------------------------------------------
 
 export class cxMetaModel extends cxMetaObject {
-    isEKA: boolean;
-    metamodels: cxMetaModel[] | null;
-    viewstyle: cxViewStyle | null;
-    viewstyles: cxViewStyle[] | null;
-    containers: cxMetaContainer[] | null;
+    isEKA:       boolean;
+    metamodels:  cxMetaModel[] | null;
+    viewstyle:   cxViewStyle | null;
+    viewstyles:  cxViewStyle[] | null;
+    geometries:  cxGeometry[] | null;
+    containers:  cxMetaContainer[] | null;
     objecttypes: cxObjectType[] | null;
     objtypegeos: cxObjtypeGeo[] | null;
-    objecttypeviews: cxObjectTypeView[] | null;
-    relshiptypes: cxRelationshipType[] | null;
+    objecttypeviews:  cxObjectTypeView[] | null;
+    relshiptypes:     cxRelationshipType[] | null;
     relshiptypeviews: cxRelationshipTypeView[] | null;
-    properties: cxProperty[] | null;
-    methods: cxMethod[] | null;
-    methodtypes: cxMethodType[] | null;
-    enumerations: cxEnumeration[] | null;
-    units: cxUnit[] | null;
-    datatypes: cxDatatype[] | null;
-    viewformats: cxViewFormat[] | null;
-    fieldTypes: cxFieldType[] | null;
+    properties:    cxProperty[] | null;
+    methods:       cxMethod[] | null;
+    methodtypes:   cxMethodType[] | null;
+    enumerations:  cxEnumeration[] | null;
+    units:         cxUnit[] | null;
+    datatypes:     cxDatatype[] | null;
+    viewformats:   cxViewFormat[] | null;
+    fieldTypes:    cxFieldType[] | null;
     inputpatterns: cxInputPattern[] | null;
-    categories: cxUnitCategory[] | null;
+    categories:    cxUnitCategory[] | null;
     generatedFromModelRef: string;
-    layout: string;
-    routing: string;
-    linkcurve: string;
+    layout:     string;
+    routing:    string;
+    linkcurve:  string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_METAMODELS;  // Firestore collection
@@ -2767,6 +2845,7 @@ export class cxMetaModel extends cxMetaObject {
         this.metamodels = null;
         this.viewstyle  = null; // Current viewstyle
         this.viewstyles = [];
+        this.geometries = [];
         this.containers = null;
         this.objecttypes = null;
         this.objtypegeos = null;
@@ -2887,6 +2966,9 @@ export class cxMetaModel extends cxMetaObject {
         }
         return geo;
     }
+    setGeometries(geos: cxGeometry[]) {
+        this.geometries = geos;
+    }
     close() {
         this.metamodels = null;
         this.objecttypes = null;
@@ -2929,6 +3011,9 @@ export class cxMetaModel extends cxMetaObject {
     }
     getViewStyles(): cxViewStyle[] | null {
         return this.viewstyles;
+    }
+    getGeometries(): cxGeometry[] | null {
+        return this.geometries;
     }
     getViewFormats(): cxViewFormat[] | null {
         return this.viewformats;
@@ -3086,6 +3171,14 @@ export class cxMetaModel extends cxMetaObject {
                 this.viewstyles = new Array();
             if (!this.findViewStyle(vs.id))
                 this.viewstyles.push(vs);
+        }
+    }
+    addGeometry(geo: cxGeometry) {
+        if (geo.category === constants.gojs.C_GEOMETRY) {
+            if (this.geometries == null)
+                this.geometries = new Array();
+            if (!this.findGeometry(geo.id))
+                this.geometries.push(geo);
         }
     }
     addViewFormat(fmt: cxViewFormat) {
@@ -3845,6 +3938,33 @@ export class cxMetaModel extends cxMetaObject {
             let name = vstyle.getName();
             if (name.toLowerCase() === name.toLowerCase())
                 return vstyle;
+            i++;
+        }
+        return null;
+    }
+    findGeometry(id: string): cxGeometry | null {
+        let geos = this.getGeometries();
+        if (!geos) return null;
+        let i = 0;
+        let geo = null;
+        for (i = 0; i < geos.length; i++) {
+            geo = geos[i];
+            if (geo.isDeleted()) continue;
+            if (geo.id === id)
+                return geo;
+        }
+        return null;
+    }
+    findGeometryByName(name: string): cxViewStyle | null {
+        let geos = this.getGeometries();
+        if (!geos) return null;
+        let i = 0;
+        let geo = null;
+        while (i < geos.length) {
+            geo = geos[i];
+            let name = geo.getName();
+            if (name.toLowerCase() === name.toLowerCase())
+                return geo;
             i++;
         }
         return null;
@@ -6947,6 +7067,24 @@ export class cxRelationshipView extends cxMetaObject {
             default:
                 break;
         }
+    }
+}
+
+export class cxGeometry extends cxMetaObject {
+    geometry: string;
+    stroke:   string;
+    fill:     string;
+    constructor(id: string, name: string, description: string) {
+        super(id, name, description);
+        this.geometry = "";
+        this.stroke   = "";
+        this.fill     = "";
+    }
+    // Methods
+    setGeometry(geo: string, stroke: string, fill: string) {
+        this.geometry = geo;
+        this.stroke   = stroke;
+        this.fill     = fill;
     }
 }
 

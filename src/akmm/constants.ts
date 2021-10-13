@@ -29,6 +29,7 @@ export let gojs = {
      C_DATATYPE            : "Datatype",
      C_ENUMERATION         : "Enumeration",
      C_FIELDTYPE           : "Field type",
+     C_GEOMETRY            : "Geometry",
      C_INPUTPATTERN        : "Input pattern",
      C_METAMODEL           : "Metamodel",
      C_METACONTAINER       : "Metacontainer",

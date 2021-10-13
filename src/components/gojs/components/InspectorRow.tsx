@@ -33,15 +33,15 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       e.target.checked = true;
     }
     if (fieldType === 'checkbox') value = e.target.checked;
-    if (debug) console.log('33 e.target', e.target, e.type, this.props);
+    if (debug) console.log('36 e.target', e.target, e.type, this.props);
     const checked = e.target.checked;
     this.props.onInputChange(this.props, value, e.type === 'blur');
     if (e.type === 'blur') {
-      if (debug) console.log('33 InspectorRow: value, checked', value, checked, this.props);
+      if (debug) console.log('40 InspectorRow: value, checked', value, checked, this.props);
       const pattern = this.props.pattern;
       if ((pattern?.length > 0) && (value?.length > 0)) {
         const regex = new RegexParser(pattern);
-        if (debug) console.log('30 regex:', regex);
+        if (debug) console.log('44 regex:', regex);
         if (!regex.test(value)) {
           alert("Value: '" + value + "' IS NOT valid");
         }
@@ -67,8 +67,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );
     }
-    if (debug) console.log('71 type', this.props.type);
     if (this.props.type === 'textarea') {
+      if (debug) console.log('71 type', this.props.type);
       return (  
         <tr>
           <td className="pr-2" >{this.props.id}</td> 
@@ -110,7 +110,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
      );
     }    
     else{
-      if (debug) console.log('71 type', this.props.type);
+      if (debug) console.log('113 type', this.props.type);
       return (  
         <tr>
           <td className="pr-2" >{this.props.id}</td> 

@@ -342,76 +342,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         );
     addNodeTemplateName('textAndIcon');
                         
-    nodeTemplateMap.add("label", 
-        $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("layerName", "layer"),
-            new go.Binding("deletable"),
-            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
-            {
-                selectionObjectName: "SHAPE",
-                resizable: true, resizeObjectName: "SHAPE"
-            },
-    
-            $(go.Shape,  
-                { 
-                    name: "SHAPE", strokeWidth: 2,
-                    geometryString: "F M0 0 L80 0 B-90 90 80 20 20 20 L100 100 20 100 B90 90 20 80 20 20z",
-                    cursor: "alias",        // cursor: "pointer",
-                    margin: new go.Margin(1, 1, 1, 1),
-                    shadowVisible: true,
-                    desiredSize: new go.Size(168, 68), // outer Shape size 
-                    // set the port properties
-                    portId: "", 
-                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
-                },
-                // Shape bindings
-                new go.Binding('fill', 'fillcolor'),
-                new go.Binding('stroke', 'strokecolor'), 
-                new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
-                .ofObject(),
-                { contextMenu: contextMenu },    
-            ),
-            $(go.Panel, "Table", // Panel for text  -----------------------
-                { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-                $(go.RowColumnDefinition, { column: 1, width: 10 }),
-                $(go.Panel, "Horizontal",
-                    // { margin: new go.Margin(10, 10, 10, 10) },
-                    {
-                        defaultAlignment: go.Spot.Left
-                    },
-                    // define the panel where the text will appear
-                    $(go.Panel, "Table", // separator ---------------------------------
-                        { contextMenu: contextMenu , cursor: "move" },
-                        {
-                            defaultRowSeparatorStroke: "black",
-                            defaultAlignment: go.Spot.Left,
-                        },
-                        // content
-                        $(go.TextBlock, textStyle(),  // the text -----------------------
-                            {
-                                isMultiline: true,  // allow newlines in text
-                                editable: true,     // allow in-place editing by user
-                                row: 0, column: 0, columnSpan: 6,
-                                font: "bold 10pt Segoe UI,sans-serif",
-                                desiredSize: new go.Size(120, 36), 
-                                textAlign: "left",
-                                wrap: go.TextBlock.WrapFit, 
-                                verticalAlignment: go.Spot.Left,
-                                overflow: go.TextBlock.OverflowClip,
-                                margin: 2,
-                                width: 400,
-                                text: "label"
-                            },        
-                            new go.Binding("text", "text").makeTwoWay()
-                        ),
-                    ),
-                ),
-            ),
-        )
-    );
-    addNodeTemplateName('label');
-
     nodeTemplateMap.add("textAndGeo", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
             new go.Binding("stroke", "strokecolor"),
@@ -534,6 +464,76 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         )
     );
     addNodeTemplateName('textAndGeo');
+    nodeTemplateMap.add("label", 
+        $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+            new go.Binding("layerName", "layer"),
+            new go.Binding("deletable"),
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            {
+                selectionObjectName: "SHAPE",
+                resizable: true, resizeObjectName: "SHAPE"
+            },
+    
+            $(go.Shape,  
+                { 
+                    name: "SHAPE", strokeWidth: 2,
+                    geometryString: "F M0 0 L80 0 B-90 90 80 20 20 20 L100 100 20 100 B90 90 20 80 20 20z",
+                    cursor: "alias",        // cursor: "pointer",
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: true,
+                    desiredSize: new go.Size(168, 68), // outer Shape size 
+                    // set the port properties
+                    portId: "", 
+                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                },
+                // Shape bindings
+                new go.Binding('fill', 'fillcolor'),
+                new go.Binding('stroke', 'strokecolor'), 
+                new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
+                .ofObject(),
+                { contextMenu: contextMenu },    
+            ),
+            $(go.Panel, "Table", // Panel for text  -----------------------
+                { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
+                $(go.RowColumnDefinition, { column: 1, width: 10 }),
+                $(go.Panel, "Horizontal",
+                    // { margin: new go.Margin(10, 10, 10, 10) },
+                    {
+                        defaultAlignment: go.Spot.Left
+                    },
+                    // define the panel where the text will appear
+                    $(go.Panel, "Table", // separator ---------------------------------
+                        { contextMenu: contextMenu , cursor: "move" },
+                        {
+                            defaultRowSeparatorStroke: "black",
+                            defaultAlignment: go.Spot.Left,
+                        },
+                        // content
+                        $(go.TextBlock, textStyle(),  // the text -----------------------
+                            {
+                                isMultiline: true,  // allow newlines in text
+                                editable: true,     // allow in-place editing by user
+                                row: 0, column: 0, columnSpan: 6,
+                                font: "bold 10pt Segoe UI,sans-serif",
+                                desiredSize: new go.Size(120, 36), 
+                                textAlign: "left",
+                                wrap: go.TextBlock.WrapFit, 
+                                verticalAlignment: go.Spot.Left,
+                                overflow: go.TextBlock.OverflowClip,
+                                margin: 2,
+                                width: 400,
+                                text: "label"
+                            },        
+                            new go.Binding("text", "text").makeTwoWay()
+                        ),
+                    ),
+                ),
+            ),
+        )
+    );
+    // addNodeTemplateName('label');
+
                         
     let nodeInput =               
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock

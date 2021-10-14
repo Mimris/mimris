@@ -1849,6 +1849,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'relshipviews') retVal = false;
     if (k === 'size') retVal = false;
     if (k === 'sourceModelRef') retVal = false;
+    if (k === 'sourceUri') retVal = false;
     if (k === 'targetMetamodelRef') retVal = false;
     if (k === 'targetModelRef') retVal = false;
     if (k === 'to') retVal = false;

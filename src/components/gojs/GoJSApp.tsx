@@ -650,7 +650,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === constants.gojs.C_RELATIONSHIP) {
             const myLink = this.getLink(context.myGoModel, key);
             if (debug) console.log('427 SelectionDeleted', myLink);
-            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedLinkTypeViews, context);
+            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, modifiedLinkTypeViews, context);
             const relview = data.relshipview;
             if (relview && relview.category === constants.gojs.C_RELATIONSHIP) {
               relview.markedAsDeleted = deletedFlag;

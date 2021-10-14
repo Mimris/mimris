@@ -82,6 +82,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             oldName = objtype.getName();
             objtype.setName(newName);
             objtype.setViewKind(obj.getViewKind());
+            objtype.markedAsDeleted = object.markedAsDeleted;
             myTargetMetamodel?.addObjectType(objtype);
         }
     } else {
@@ -308,6 +309,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
                     reltype = null;
             } else
                 reltype = null;
+            reltype.markedAsDeleted = relship.markedAsDeleted;
         }
         oldName = reltype?.getName();
         reltype?.setName(newName);
@@ -825,7 +827,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
     if (debug) console.log('857 system object types completed', myMetis);
     // Then system relationship types
-    const rsystemtypes = ['isRelatedTo', 'Is', 'has', 'hasPart', 'hasMember'];
+    const rsystemtypes = ['isRelatedTo', 'Is', 'has'];
     let reltypes;
     if (model.includeSystemtypes) {
         reltypes = myMetamodel.relshiptypes;
@@ -879,10 +881,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     if (objectviews) {
         for (let i=0; i<objectviews.length; i++) {
             const objview = objectviews[i];
-            if (!objview || objview.markedAsDeleted) 
+            if (!objview /*|| objview.markedAsDeleted*/) 
                 continue;
             let obj = objview.object;
-            if (!obj || obj.markedAsDeleted) 
+            if (!obj /*|| obj.markedAsDeleted*/) 
                 continue;
             const  types = []; 
             if (obj.name === obj.type.name)

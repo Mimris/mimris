@@ -185,11 +185,20 @@ const page = (props) => {
                     <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
                     <CardText >
                         &bull; Workplace templates for reflective workplace modelling! <br />
-                        &bull; Popup select menu for new relships!<br />
                         &bull; Strokewidth for synbol border and relship line!<br />
                         &bull; GraphQL shema reporting from Solution models!<br />
                         &bull; Instruction videos for modelling Best Practices! <br />
                         &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.10.08</CardTitle>
+                    <CardText >
+                          &bull; New Method objects that can be connected to Property objects in the metamodel.<br />
+                          &bull; Improvements on the pop-up menues.<br />
+                          &bull; Replace metamodel on background menu<br />
+                          &bull; Import OSDU Jsonfiles to AKM-Etity types with properties<br />
+                          &bull; Bugfixes!<br /><br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >

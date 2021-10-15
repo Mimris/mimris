@@ -69,9 +69,11 @@ export const SaveAllToFileDate = (model, name, type) => {
 export const ReadModelFromFile = async (props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()
+    reader.fileName = (e.target.files[0].name)
     reader.onload = async (e) => { 
         const text = (e.target.result)
         const modelff = JSON.parse(text)
+        const filename = e.target.fileName 
 
         //   alert(text)
         if (debug) console.log('46 SaveModelToFile', props.phFocus.focusModel.id);
@@ -100,7 +102,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,
                 phUser:   modelff.phUser,
-                phSource: 'fromFile'
+                phSource: filename,
               }
         } else if (modelff.modelview) {
             data = {

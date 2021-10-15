@@ -3347,7 +3347,7 @@
               "value": "",
               "inputPattern": "",
               "viewFormat": "",
-              "fieldType": "text",
+              "fieldType": "textarea",
               "markedAsDeleted": false,
               "modified": false
             },

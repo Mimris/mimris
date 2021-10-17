@@ -189,7 +189,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         margin: new go.Margin(0,2,0,0),
                         name: "name"
                     },        
-                    new go.Binding("text", "name").makeTwoWay()
+                    new go.Binding("text", "name").makeTwoWay(),
+                    new go.Binding("stroke", "textcolor").makeTwoWay()
                     ),
                     $(go.TextBlock, textStyle(), // the typename  --------------------
                     {
@@ -446,8 +447,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                                 margin: new go.Margin(0,2,0,0),
                                 name: "name"
                             },        
-                            new go.Binding("text", "name").makeTwoWay()
-                        ),
+                            new go.Binding("text", "name").makeTwoWay(),
+                            new go.Binding("stroke", "textcolor").makeTwoWay()
+                            ),
                         $(go.TextBlock, textStyle(), // the typename  --------------------
                             {
                                 row: 1, column: 1, columnSpan: 6,
@@ -646,6 +648,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     new go.Binding("fill", "fillcolor")),
                     $(go.TextBlock,
                         new go.Binding("text", "name").makeTwoWay()),
+                        new go.Binding("stroke", "textcolor").makeTwoWay()
                 ),
                 { contextMenu: contextMenu },    
             )
@@ -688,6 +691,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     new go.Binding("fill", "fillcolor")),
                     $(go.TextBlock,
                         new go.Binding("text", "name").makeTwoWay()),
+                        new go.Binding("stroke", "textcolor").makeTwoWay()
                 ),
                 { contextMenu: contextMenu },    
             )
@@ -727,8 +731,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     new go.Binding("fromLinkable", "_in", function(b) { return !b; })
                 ),
                 $(go.TextBlock,
-                    new go.Binding("text", "name")
-                )
+                    new go.Binding("text", "name"),
+                    new go.Binding("stroke", "textcolor").makeTwoWay()
+                    )
             )
         );
         //addNodeTemplateName('InOut');
@@ -803,6 +808,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             },
             { segmentOffset: new go.Point(0, 10) },
             new go.Binding("text", "name").makeTwoWay(),
+            new go.Binding("stroke", "textcolor").makeTwoWay()
             ),
             {
             toolTip:
@@ -947,7 +953,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                             editable: true, isMultiline: false,
                             name: "name"
                         },
-                        new go.Binding("text", "name").makeTwoWay()
+                        new go.Binding("text", "name").makeTwoWay(),
+                        new go.Binding("stroke", "textcolor").makeTwoWay()
                     ),
                     $(go.TextBlock,     // the typename
                         {
@@ -957,7 +964,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                             margin: new go.Margin(2, 0, 0, 2)
                         },
                         // new go.Binding("text", "typename")
-                        //new go.Binding("text", "choices")
                     ),
                 ), // End Horizontal Panel
                 $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
@@ -1051,8 +1057,9 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                   editable: true, isMultiline: false,
                 },
                 new go.Binding("fill", "fillcolor"),
-                new go.Binding("text", "name").makeTwoWay()
-              ),
+                new go.Binding("text", "name").makeTwoWay(),
+                new go.Binding("stroke", "textcolor").makeTwoWay()
+                ),
             ), // End Horizontal Panel
             
             $(go.Shape,  // using a Shape instead of a Placeholder

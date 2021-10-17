@@ -537,13 +537,15 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
               }
               // Check if reltype comes from or goes to a systemtype
-              // If so, do not delete
+              // If so, ask if you really wants to delete
               const fromObjtype = reltype.fromObjtype;
               const toObjtype   = reltype.toObjtype;
               if (debug) console.log('509 fromObjtype, toObjtype', fromObjtype, toObjtype);
               if (!this.isSystemType(fromObjtype)) {
                 if (!this.isSystemType(toObjtype)) {
-                  continue;
+                  if (!confirm("This is a relationship type between system types. Do you really want to delete?")) {
+                    continue;
+                  }
                 }
               }
               if (debug) console.log('514 reltype', reltype);

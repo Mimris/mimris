@@ -355,6 +355,7 @@ export class goObjectNode extends goNode {
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
+    textcolor: string;
     icon: string;
     isGroup: boolean | "";
     groupLayout: string;
@@ -372,6 +373,7 @@ export class goObjectNode extends goNode {
         this.fillcolor      = objview.fillcolor;
         this.strokecolor    = objview.strokecolor;
         this.strokewidth    = objview.strokewidth;
+        this.textcolor      = objview.textcolor;
         this.icon           = objview.icon;
         this.isGroup        = objview.isGroup;
         this.groupLayout    = "Tree";
@@ -618,6 +620,7 @@ export class goRelshipLink extends goLink {
     from:               string;
     to:                 string;
     strokecolor:        string;
+    textcolor:          string;
     fromArrow:          string;
     toArrow:            string;
     fromArrowColor:     string;
@@ -643,6 +646,7 @@ export class goRelshipLink extends goLink {
         this.from            = "";
         this.to              = "";
         this.strokecolor     = "";
+        this.textcolor       = "";
         this.fromArrow       = "";
         this.toArrow         = "";
         this.fromArrowColor  = "";

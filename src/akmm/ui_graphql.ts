@@ -616,6 +616,7 @@ export class gqlObjectTypeView {
     strokecolor:     string;
     strokecolor1:    string;
     strokewidth:     string;
+    textcolor:       string;
     icon:            string;
     markedAsDeleted: boolean;
     modified:        boolean;
@@ -633,6 +634,7 @@ export class gqlObjectTypeView {
         this.strokecolor     = objtypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor;
         this.strokewidth     = objtypeview.getStrokewidth();
+        this.textcolor       = objtypeview.getTextcolor();
         this.icon            = objtypeview.getIcon();
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
@@ -670,6 +672,7 @@ export class gqlRelshipTypeView {
     strokecolor:     string;
     strokecolor1:    string;
     strokewidth:     string;
+    textcolor:       string;
     dash:            string;
     fromArrow:       string;
     toArrow:         string;
@@ -685,6 +688,7 @@ export class gqlRelshipTypeView {
         this.strokecolor     = reltypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor1;
         this.strokewidth     = reltypeview.getStrokewidth();
+        this.textcolor       = reltypeview.getTextcolor();
         this.dash            = reltypeview.getDash();
         this.fromArrow       = reltypeview.getFromArrow();
         this.toArrow         = reltypeview.getToArrow();
@@ -1252,6 +1256,7 @@ export class gqlObjectView {
     fillcolor:       string;
     strokecolor:     string;
     strokewidth:     string;
+    textcolor:       string;
     icon:            string;
     viewkind:        string;
     constructor(objview: akm.cxObjectView) {
@@ -1269,6 +1274,7 @@ export class gqlObjectView {
         this.fillcolor       = objview?.fillcolor;
         this.strokecolor     = objview?.strokecolor;
         this.strokewidth     = objview?.strokewidth;
+        this.textcolor       = objview?.textcolor;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
         this.viewkind        = objview?.viewkind;
@@ -1286,6 +1292,7 @@ export class gqlRelshipView {
     toobjviewRef:    string;
     strokecolor:     string;
     strokewidth:     string;
+    textcolor:       string;
     dash:            string;
     fromArrow:       string;
     toArrow:         string;
@@ -1302,6 +1309,7 @@ export class gqlRelshipView {
         this.typeviewRef     = "";
         this.strokecolor     = relview.strokecolor;
         this.strokewidth     = relview.strokewidth;
+        this.textcolor       = relview?.textcolor;
         this.dash            = relview.dash;
         this.fromArrow       = relview.fromArrow;
         this.toArrow         = relview.toArrow;

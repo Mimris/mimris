@@ -721,6 +721,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
         if (prop === 'strokewidth' && objview[prop] !== "")
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
+        if (prop === 'textcolor' && objview[prop] !== "") 
+          myDiagram.model.setDataProperty(data, prop, objview[prop]);
         if (prop === 'icon' && objview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
       }
@@ -861,6 +863,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
         if (prop === 'strokewidth' && relview[prop] !== "")
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
+        if (prop === 'textcolor' && relview[prop] !== "") 
+          myDiagram.model.setDataProperty(data, prop, relview[prop]);
         if (prop === 'dash' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
         if (prop === 'fromArrow') {
@@ -970,19 +974,21 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const link = myDiagram.findLinkForKey(selObj.key);
         data = link.data;
         typeview = data.relshipview.typeview;
-        typeview = myMetis.findRelationshipTypeView(typeview.id);
-        for (let prop in typeview.data) {
-          typeview.data[prop] = selObj[prop];
-          data[prop] = selObj[prop];
+        typeview = myMetis.findRelationshipTypeView(typeview?.id);
+        if (typeview) {
+          for (let prop in typeview.data) {
+            typeview.data[prop] = selObj[prop];
+            data[prop] = selObj[prop];
+          }
+          if (debug) console.log('839 reltypeview, link', typeview, link);
+          const gqlReltypeview = new gql.gqlRelshipTypeView(typeview);
+          if (debug) console.log('841 gqlReltypeview', gqlReltypeview);
+          modifiedRelTypeviews.push(gqlReltypeview);
+          modifiedRelTypeviews.map(mn => {
+            let data = mn;
+            props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+          })
         }
-        if (debug) console.log('839 reltypeview, link', typeview, link);
-        const gqlReltypeview = new gql.gqlRelshipTypeView(typeview);
-        if (debug) console.log('841 gqlReltypeview', gqlReltypeview);
-        modifiedRelTypeviews.push(gqlReltypeview);
-        modifiedRelTypeviews.map(mn => {
-          let data = mn;
-          props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-        })
       }
       if (data) {
         if (selObj.category === constants.gojs.C_RELSHIPTYPE || 

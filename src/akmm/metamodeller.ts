@@ -742,6 +742,7 @@ export class cxMetis {
             objtypeview.setTemplate(item.template);
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFillcolor(item.fillcolor);
+            objtypeview.setTextcolor(item.textcolor);
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
@@ -774,6 +775,7 @@ export class cxMetis {
             reltypeview.setMarkedAsDeleted(item.markedAsDeleted);
             reltypeview.setType(type);
             reltypeview.setStrokecolor(item.strokecolor);
+            reltypeview.setTextcolor(item.textcolor);
             reltypeview.setStrokewidth(item.strokewidth);
             reltypeview.setDash(item.dash);
             reltypeview.setFromArrow(item.fromArrow);
@@ -5046,6 +5048,7 @@ export class cxObjtypeviewData {
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
+    textcolor: string;
     icon: string;
     constructor() {
         this.abstract = false;
@@ -5057,6 +5060,7 @@ export class cxObjtypeviewData {
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";
+        this.textcolor = "black";
         this.icon = "";
     }
 }
@@ -5070,6 +5074,7 @@ export class cxObjectTypeView extends cxMetaObject {
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
+    textcolor: string;
     icon: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
@@ -5082,6 +5087,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "2";
+        this.textcolor   = "black";
         this.icon        = "";
         this.data        = new cxObjtypeviewData();
         if (type) {
@@ -5204,6 +5210,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.fillcolor;
         return "white";
     }
+    setTextcolor(color: string) {
+        this.data.textcolor = color;
+        this.textcolor = color;
+    }
+    getTextcolor(): string {
+        if (this.data.textcolor)
+            return this.data.textcolor;
+        else if (this.textcolor)
+            return this.textcolor;
+        return "black";
+    }
     setStrokecolor(strokecolor: string) {
         this.data.strokecolor = strokecolor;
         this.strokecolor = strokecolor;
@@ -5245,6 +5262,7 @@ export class cxReltypeviewData {
     relshipkind:    string;
     strokecolor:    string;
     strokewidth:    string;
+    textcolor:      string;
     dash:           string;
     fromArrow:      string;
     toArrow:        string;
@@ -5269,6 +5287,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     data:           cxReltypeviewData;
     strokecolor:    string;
     strokewidth:    string;
+    textcolor:      string;
     dash:           string;
     fromArrow:      string;
     toArrow:        string;
@@ -5298,6 +5317,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
                 for (prop in tvdata) {
                     if (prop === 'strokecolor' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'strokewidth' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'textcolor' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'dash' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'fromArrow' && relview[prop] !== "") data[prop] = relview[prop];
                     if (prop === 'toArrow' && relview[prop] !== "") data[prop] = relview[prop];
@@ -5351,6 +5371,18 @@ export class cxRelationshipTypeView extends cxMetaObject {
             return this.data.strokecolor;
         else if (this.strokecolor)
             return this.strokecolor;
+        else
+            return "black";
+    }
+    setTextcolor(color: string) {
+        this.data.textcolor = color;
+        this.textcolor = color;
+    }
+    getTextcolor(): string {
+        if (this.data.textcolor)
+            return this.data.textcolor;
+        else if (this.textcolor)
+            return this.textcolor;
         else
             return "black";
     }
@@ -6794,6 +6826,7 @@ export class cxObjectView extends cxMetaObject {
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
+    textcolor: string;
     icon: string;
     constructor(id: string, name: string, object: cxObject | null, description: string) {
         super(id, name, description);
@@ -6817,7 +6850,8 @@ export class cxObjectView extends cxMetaObject {
         this.geometry = "";
         this.fillcolor = "";
         this.strokecolor = "";
-        this.strokewidth = "";
+        this.strokewidth = "1";
+        this.textcolor = "";
         this.icon = "";
     }
     // Methods
@@ -6964,6 +6998,7 @@ export class cxRelationshipView extends cxMetaObject {
     toObjview: cxObjectView | null;
     strokecolor:    string;
     strokewidth:    string;
+    textcolor:      string;
     dash:           string;
     fromArrow:      string;
     toArrow:        string;
@@ -6980,6 +7015,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.toObjview = null;
         this.strokecolor = "";
         this.strokewidth = "";
+        this.textcolor = "";
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";

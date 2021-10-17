@@ -394,11 +394,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'select';
             }
             break;
-          case 'strokewidth':
-              values = strokewidths;
-              defValue = '1';
-              fieldType = 'select';
-              break;
+          case 'textcolor':
           case 'fromArrowColor':
           case 'toArrowColor':
               values = colornames;

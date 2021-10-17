@@ -9,6 +9,7 @@ export default function PostPage({
   slug,
   content,
 }) {
+  console.log('12 slug', slug)
   return (
     <>
       <Link href='/'>
@@ -27,14 +28,14 @@ export default function PostPage({
 }
 
 export async function getStaticPaths() {
-  const files = fs.readdirSync(path.join('posts'))
+  const files = fs.readdirSync(path.join('src/posts'))
 
   const paths = files.map((filename) => ({
     params: {
       slug: filename.replace('.md', ''),
     },
   }))
-
+  console.log('38 paths', paths)
   return {
     paths,
     fallback: false,
@@ -43,17 +44,19 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params: { slug } }) {
   const markdownWithMeta = fs.readFileSync(
-    path.join('posts', slug + '.md'),
+    path.join('src/posts', slug + '.md'),
     'utf-8'
   )
-
+  console.log('49' ,markdownWithMeta)
   const { data: frontmatter, content } = matter(markdownWithMeta)
 
-  return {
+  const result = {
     props: {
       frontmatter,
       slug,
       content,
     },
   }
+  console.log('60', result)
+  return result
 }

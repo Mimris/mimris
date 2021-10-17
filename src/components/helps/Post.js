@@ -1,10 +1,7 @@
 import Link from 'next/link'
-import { connect, useSelector, useDispatch } from 'react-redux';
-import Page from '../page';
 
-const page = (props) => {
-// export default function Post({ post }) {
-  console.log('4', post)
+export default function Post({ post }) {
+  console.log('4 Post', post)
   return (
     <div className='card'>
       <img src={post.frontmatter.cover_image} alt='' />
@@ -15,11 +12,9 @@ const page = (props) => {
 
       <p>{post.frontmatter.excerpt}</p>
 
-      <Link href={`api/helpblog/${post.slug}`}>
+      <Link href={`/api/helpblog/${post.slug}`}>
         <a className='btn'>Read More</a>
       </Link>
     </div>
   )
 }
-
-export default Page(connect(state => state)(page));

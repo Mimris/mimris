@@ -8,7 +8,7 @@ import Header from "../components/Header"
 import Footer from "../components/Footer"
 import SetContext from '../defs/SetContext'
 import Link from 'next/link';
-import Help from '../components/Help'
+// import Help from '../components/Help'
 
 const page = (props: any) => {
 

@@ -17,7 +17,7 @@ JSON.safeStringify = (obj, indent = 2) => {
     );
     cache = null;
     return retVal;
-  };
+};
 
 export const SaveModelToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)

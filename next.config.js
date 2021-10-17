@@ -35,7 +35,14 @@
 // }
 
 module.exports = {
-    webpack: (config) => {
+    // webpack: (config) => {
+
+    //   return config
+    // }
+    webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+      config.node = {
+        fs: 'empty'
+      }
       return config
     }
   }

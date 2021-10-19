@@ -16,7 +16,6 @@ export default function PostPage({
   return (
     <>
     <Layout>
-
       <div className="container">
         <Link href='/helpblog/'>
           <a className='btn btn-back'>Go Back</a>

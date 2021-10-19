@@ -25,6 +25,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
     const propertyType = curObjTypes.find(co => (co.name === 'Property') && co)
     const hasPartType = curRelTypes.find(co => (co.name === 'hasPart') && co)
     const hasMemberType = curRelTypes.find(co => (co.name === 'hasMember') && co)
+    const containsType = curRelTypes.find(co => (co.name === 'contains') && co)
     const hasType = curRelTypes.find(co => (co.name === 'has') && co)
     // console.log('38', hasPartType);
     
@@ -34,7 +35,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
     let reltypeName = hasPartType?.name // default partof relship in JSON structure
 
     let relshipKind = 'Association' 
-
+    
     // reader.fileName = file.name
     reader.onload = async (e) =>  { 
         const text = (e.target.result)
@@ -154,11 +155,10 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                     : (oName === 'items')
                                         ? 'EntityType' 
                                         : (oName === 'properties') ? 'Properties' : 'JsonObject'
-                                : 'JsonObject'
+                                : (oName === 'properties') ? 'Properties' : 'JsonObject'
 
                     objecttypeRef = curObjTypes.find(ot => ot.name === objTypeName)?.id // find objecttypeRef for the objecttypeName
-
-                    if (debug) console.log('161 : ', objTypeName, ' - ', objecttypeRef);
+                    if (debug) console.log('161 : ', i, modelType, oName, objTypeName, ' - ', objecttypeRef);
                     
                     // objecttypeRef = (parentName === "properties") ? propertyType.id : (oName !== "allOf") ? JsonObjectTypeId : JsonArrayTypeId // if parent is property use property typeRef
                     // console.log('102 : ', parentName, oName, objecttypeRef);
@@ -187,7 +187,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                 topTitle = cNewVal.title
                             }
                             // const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
-                            if (debug) console.log('190 parentKey', parentKey, 'tmpArray ',tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o));
+                            if (!debug) console.log('190 parentKey', parentKey, 'tmpArray ',tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o));
                             parentId = (i === 0) ? null : (parentKey) ? tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] : oId // set parentId to be used in the next iteration of  objectet.
                             entityId = oId
                             entityName = (i === 0) ? cNewVal.title : parentName+' '+oName // if topobject use title as name
@@ -201,8 +201,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
                         } else if (oName === 'properties') {
                             
-                            reltypeRef = hasType.id
-                            reltypeName = hasType.name 
+                            reltypeRef = hasPartType.id
+                            reltypeName = hasPartType.name 
                             relshipKind = 'Association'            
                           
                             cNewVal = {...cNewVal, viewkind: 'Container'}
@@ -210,21 +210,21 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
                             
                             parentId = (ggparentName === 'items') ? tmpArray.find((o) => (o[0] === ggparentKey) && o)[1] : entityId
-                            if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+                            if (!debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
                             parentName = (ggparentName === 'items') ? tmpArray.find((o) => (o[0] === ggparentKey) && o)[0] : entityName
                             
                             propertyId = oId
                             propertyName = oName
 
-                            if (debug) console.log('222 parentId', parentId, ggparentName, gggparentKey) // entityName, objecttypeRef, oKey, jsonType, cNewVal);
+                            if (!debug) console.log('222 parentId', parentId, ggparentName, gggparentKey) // entityName, objecttypeRef, oKey, jsonType, cNewVal);
                             
                             // compositeName = (entityName) ? entityName : oName
 
-                        } else if (parentName === 'properties' && inclProps) { // if include properties
+                        } else if (parentName === 'properties' && inclProps) { // if the import includes properties
 
-                            if (debug) console.log( '230 : ', compositeName, oId, parentId, entityId, parentName, tmpArray);
-                            reltypeRef = hasMemberType.id
-                            reltypeName = hasMemberType.name      
+                            console.log( '230 : ', containsType.name, oName, parentName, parentId, oId);
+                            reltypeRef = containsType.id
+                            reltypeName = containsType.name      
                             relshipKind = 'Aggregation'       
                             // parentId = propertyId
                             // parentName = propertyName
@@ -247,7 +247,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         createObject(oId, compositeName, objecttypeRef, oKey, jsonType, cNewVal)
                         parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
                         parentId = (parentIdArray) && parentIdArray[1]
-                        console.log('249 ', parentIdArray, parentId);
+                        if (!debug) console.log('249 ', parentIdArray, parentId);
                         
                     }
 
@@ -257,13 +257,13 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // fromobjectId = (parentId) ? parentId : null
                     fromobjectId = parentId
                     fromobjectName = parentName
-                    console.log('259 propId',propertyId, 'propName', propertyName, 'parentId ',  parentId, 'parName', parentName, 'entId ', entityId, 'entName', entityName);
+                    if (debug) console.log('259 propId',propertyId, 'propName', propertyName, 'parentId ',  parentId, 'parName', parentName, 'entId ', entityId, 'entName', entityName);
                     toobjectId = oId
                     toobjectName = oName
                     if (debug) console.log('301 : name', reltypeName, 'reltypeRef', reltypeRef, 'fromobjectId', fromobjectId, fromobjectName, toobjectId, toobjectName);
                     
                     // (parentName === 'properties' && oName.) ?
-                    console.log('265 relId', relId, 'reltypeName ', reltypeName, 'relRef ', reltypeRef, 'fromId ', fromobjectId, 'fromName ', fromobjectName, 'toId ', toobjectId, 'toName ', toobjectName);
+                    if (debug) onsole.log('265 relId', relId, 'reltypeName ', reltypeName, 'relRef ', reltypeRef, 'fromId ', fromobjectId, 'fromName ', fromobjectName, 'toId ', toobjectId, 'toName ', toobjectName);
                                 
                     (fromobjectId !== toobjectId) && createRel(relId, reltypeName, relDescription="", relTitle="", reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)
 

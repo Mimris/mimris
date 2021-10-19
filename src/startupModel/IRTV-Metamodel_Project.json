@@ -654,42 +654,6 @@
               "nameTo": "",
               "markedAsDeleted": false,
               "modified": true
-            },
-            {
-              "id": "9c055c90-17d2-4b3a-c307-3c9be57dae2c",
-              "name": "hasMember",
-              "description": "",
-              "typeviewRef": "1bc9dc41-7b84-42a2-aac1-3f4cf41ad671",
-              "properties": [],
-              "relshipkind": "Aggregation",
-              "viewkind": "",
-              "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "cardinality": "",
-              "cardinalityFrom": "n",
-              "cardinalityTo": "n",
-              "nameFrom": "",
-              "nameTo": "",
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "4580d147-25e8-41d1-cc65-232f9e05b4cd",
-              "name": "hasPart",
-              "description": "",
-              "typeviewRef": "008c705a-dc3c-4d9f-db4d-bb0d8e6d0748",
-              "properties": [],
-              "relshipkind": "Composition",
-              "viewkind": "",
-              "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "cardinality": "",
-              "cardinalityFrom": "0-1",
-              "cardinalityTo": "n",
-              "nameFrom": "",
-              "nameTo": "",
-              "markedAsDeleted": false,
-              "modified": true
             }
           ],
           "properties": [

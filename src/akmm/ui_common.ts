@@ -614,7 +614,7 @@ export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boo
     }
 }
 
-export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[], deletedTypeviews: any[], context: any) {
+export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[], deletedRelships: any[], deletedTypeviews: any[], context: any) {
     const myMetamodel = context.myMetamodel;
     const myMetis     = context.myMetis;
     const myGoModel   = context.myGoModel;
@@ -655,12 +655,15 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
                         rview.markedAsDeleted = deletedFlag;
                         const gqlRelview = new gql.gqlRelshipView(rview);
                         deletedLinks.push(gqlRelview);
-                        if (debug) console.log('557 deleteLink', rview);
+                        if (debug) console.log('658 deleteLink', rview);
                         // Handle relshiptypeview
                         deleteRelshipTypeView(rview, deletedFlag, deletedTypeviews);
                     }
                 }
            }
+           const gqlRelship = new gql.gqlRelationship(relship);
+           if (debug) console.log('665 gqlRelship', gqlRelship);
+           deletedRelships.push(gqlRelship);
         }      
     }
 }

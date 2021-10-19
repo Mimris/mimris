@@ -5315,14 +5315,14 @@ export class cxRelationshipTypeView extends cxMetaObject {
                     data[prop] = tvdata[prop];
                 }
                 for (prop in tvdata) {
-                    if (prop === 'strokecolor' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'strokewidth' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'textcolor' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'dash' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'fromArrow' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'toArrow' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'fromArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'toArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'strokecolor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'strokewidth' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'textcolor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'dash' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'fromArrow' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'toArrow' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'fromArrowColor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'toArrowColor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
                 }
             }
         }

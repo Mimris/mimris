@@ -777,15 +777,17 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                 function(d) { return setDashed(d); }),
             ),
             // the "from" arrowhead
-            $(go.Shape, { fromArrow: "", stroke: "black" },
+            $(go.Shape, { fromArrow: ""},
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
+            new go.Binding("stroke", "strokecolor"),
             { scale: 1.3, fill: "" }
             ),
             // the "to" arrowhead
-            $(go.Shape, { toArrow: "OpenTriangle", stroke: "black" },  
+            $(go.Shape, { toArrow: ""},  
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
+            new go.Binding("stroke", "strokecolor"),
             { scale: 1.3, fill: "white" }
             ),
             // cardinality from

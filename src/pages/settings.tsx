@@ -11,7 +11,7 @@ import Layout from '../components/Layout';
 // import Index from '../components/Index';
 import { loadData } from '../actions/actions'
 import SetContext from '../defs/SetContext'
-// import Help from '../components/Help'
+import Help from '../components/Help'
 
 const page = (props: any) => {
   // console.log(props)

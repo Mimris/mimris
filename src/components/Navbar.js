@@ -63,10 +63,10 @@ const Navbar = (props) => (
 						<Link href="/videos"><a className="nav-link">Videos</a></Link>
 					</li>
 					<li className="nav-item">
-						<Link href="/helpblog"><a className="nav-link">Help</a></Link>
+						<Link href="/helpblog"><a className="nav-link">Help</a></Link> 
 					</li>
 					<li className="nav-item">
-						<Link href="/about"><a className="nav-link">About</a></Link>
+						<Link href="/about" ><a className="nav-link" >About</a></Link>
 					</li>
 				</ul>
 			</div>

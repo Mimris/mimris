@@ -1,29 +1,157 @@
 import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
+
+import Layout from '../components/Layout'
 import Head from 'next/head'
 import Header from '../components/Header'
 import Post from '../components/helps/Post'
-import { sortByDate } from '../components/utils'
+import { sortByTitle } from '../components/utils/sortbytitle'
 
 
-export default function Home({ posts }) {
-  console.log('12 ', posts);
+export default function Home( { posts }) {
+  // console.log('12 ', posts);
   
   return (
-    <div>
-      <main className="container">
-        <div>
-          <h1>Help Blog</h1>
-        </div>
-        <Header />
-        <div className='posts'>
-          {posts.map((post, index) => (
-            (post) && <Post key={index} post={post} />
-          ))}
-        </div>
-      </main>
-    </div>
+    <>
+      <div>
+      <Layout  >
+        <main className="container">
+          <div>
+            <h1>AKM Modeller Help & Documentation</h1>
+          </div>
+          {/* <Header /> */}
+          <div className='posts'>
+            {posts.map((post, index) => (
+              (post) && <Post key={index} post={post} />
+            ))}
+          </div>
+        </main>
+        </Layout>
+      </div>
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap');
+    
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+        
+        body {
+          font-family: 'Poppins', sans-serif;
+        }
+        
+        p {
+          margin: 15px 0;
+          line-height: 1.8;
+        }
+        
+        a {
+          text-decoration: none;
+          color: #333;
+        }
+        
+        img {
+          width: 100%;
+          border-radius: 10px;
+        }
+        
+        header {
+          background: steelblue;
+          color: #fff;
+          padding: 5px;
+          margin-bottom: 40px;
+        }
+        
+        header a {
+          color: #fff;
+        }
+        
+        .container {
+          max-width: 768px;
+          margin: auto;
+          overflow: auto;
+          padding: 0 10px;
+        }
+        
+        .btn {
+          display: inline-block;
+          background: steelblue;
+          color: #fff;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 5px;
+          cursor: pointer;
+          text-decoration: none;
+          font-size: 15px;
+          font-family: inherit;
+        }
+        
+        .btn:focus {
+          outline: none;
+        }
+        
+        .btn:hover {
+          transform: scale(0.98);
+        }
+        
+        .btn-back {
+          background: #f4f4f4;
+          color: #000;
+          margin-bottom: 20px;
+        }
+        
+        .posts {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 30px;
+          margin-top: 30px;
+        }
+        
+        .card {
+          // padding: 15px;
+          border-radius: 10px;
+          box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        }
+        
+        .card-page {
+          padding: 15px 30px;
+        }
+        
+        .post-title {
+          margin: 10px 0;
+        }
+        
+        .post-date {
+          font-size: 70%;
+          background: #f4f4f4;
+          margin-bottom: 20px;
+          padding: 3px 10px;
+        }
+        
+        .post-body ul,
+        ol {
+          font-size: 110%;
+          line-height: 2.3;
+          font-weight: bold;
+          margin: 10px 0;
+        }
+        
+        .post-body pre {
+          background: #f4f4f4;
+          padding: 20px;
+          margin: 20px 0;
+          line-height: 2.3;
+        }
+        
+        @media (max-width: 500px) {
+          .posts {
+            grid-template-columns: 1fr;
+          }
+        }
+      `}</style>
+    </>
   )
 }
 
@@ -43,16 +171,16 @@ export async function getStaticProps() {
     )
 
     const { data: frontmatter } = matter(markdownWithMeta)
-    const resultat = {
+    const result = {
       slug,
       frontmatter,
     }
-    return resultat
+    return result
   })
 
   return {
     props: {
-      posts: posts.sort(sortByDate),
+      posts: posts.sort(sortByTitle),
     },
   }
 }

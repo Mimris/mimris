@@ -1,24 +1,37 @@
+import fs from 'fs'
+import path from 'path'
+import matter from 'gray-matter'
+import marked from 'marked'
 import Link from 'next/link'
 
+import Layout from '../../components/Layout'
 
-export default function Post({ post }) {
-  // console.log('4 Post', post)
+
+export default function PostPage({
+  frontmatter: { title, date, cover_image },
+  slug,
+  content,
+}) {
+  // console.log('12 slug', slug, content)
   return (
     <>
-    <div className='card'>
-      <img src={post.frontmatter.cover_image} alt='' />
+    <Layout>
 
-      <div className='post-date'>Posted on {post.frontmatter.date}</div>
-
-      <h3>{post.frontmatter.title}</h3>
-
-      <p>{post.frontmatter.excerpt}</p>
-
-      <Link href={`/helpblog/${post.slug}`} >
-        <a className='btn'>Read More</a>
-      </Link>
-    </div>
-    <style jsx>{`
+      <div className="container">
+        <Link href='/helpblog/'>
+          <a className='btn btn-back'>Go Back</a>
+        </Link>
+        <div className='card card-page'>
+          <h1 className='post-title'>{title}</h1>
+          <img src={cover_image} alt='' width="50%"/>
+          <div className='post-body'>
+            <div dangerouslySetInnerHTML={{ __html: marked(content) }}></div>
+          </div>
+          <div className='post-date'>Posted on {date}</div>
+        </div>
+      </div>
+      </Layout>
+      <style jsx>{`
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap');
 
     * {
@@ -28,7 +41,7 @@ export default function Post({ post }) {
     }
     
     body {
-      background-color: #fff;
+      background: #fff;
       font-family: 'Poppins', sans-serif;
     }
     
@@ -43,6 +56,7 @@ export default function Post({ post }) {
     }
     
     img {
+      max-width: 300px;
       width: 90%;
       border-radius: 10px;
     }
@@ -59,7 +73,7 @@ export default function Post({ post }) {
     }
     
     .container {
-      max-width: 768px;
+      // max-width: 768px;
       margin: auto;
       overflow: auto;
       padding: 10 10px;
@@ -87,9 +101,11 @@ export default function Post({ post }) {
     }
     
     .btn-back {
-      background: #f4f4f4;
+      // background: #f4f4f4;
+      background: #c4c4c4;
       color: #000;
-      margin-bottom: 20px;
+      margin-top: 10px;
+      margin-bottom: 10px;
     }
     
     .posts {
@@ -142,6 +158,40 @@ export default function Post({ post }) {
     }
     `}</style>
 
-  </>
+    </>
   )
+}
+
+export async function getStaticPaths() {
+  const files = fs.readdirSync(path.join('src/posts'))
+
+  const paths = files.map((filename) => ({
+    params: {
+      slug: filename.replace('.md', ''),
+    },
+  }))
+  // console.log('38 paths', paths)
+  return {
+    paths,
+    fallback: false,
+  }
+}
+
+export async function getStaticProps({ params: { slug } }) {
+  const markdownWithMeta = fs.readFileSync(
+    path.join('src/posts', slug + '.md'),
+    'utf-8'
+  )
+  // console.log('49' ,markdownWithMeta)
+  const { data: frontmatter, content } = matter(markdownWithMeta)
+
+  const result = {
+    props: {
+      frontmatter,
+      slug,
+      content,
+    },
+  }
+  // console.log('60', result)
+  return result
 }

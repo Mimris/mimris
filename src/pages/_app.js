@@ -10,7 +10,7 @@ import "../styles/styles-grid.css"
 // import "../styles/styles-dm.scss"
 import "../styles/gojs.css"
 // import 'reactjs-popup/dist/index.css';
-import '../styles/globals.css'
+// import '../styles/globals.css'
 
 
 class MyApp extends App {

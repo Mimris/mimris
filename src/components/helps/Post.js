@@ -6,7 +6,9 @@ export default function Post({ post }) {
   return (
     <>
     <div className='card'>
-      <img src={post.frontmatter.cover_image} alt='' />
+      <Link href={`/helpblog/${post.slug}`} >
+        <img src={post.frontmatter.cover_image} alt='' />
+      </Link>
 
       <div className='post-date'>Posted on {post.frontmatter.date}</div>
 
@@ -33,6 +35,7 @@ export default function Post({ post }) {
     }
     
     p {
+      font-size: 90%;
       margin: 15px 0;
       line-height: 1.8;
     }

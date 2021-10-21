@@ -201,8 +201,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
                         } else if (oName === 'properties') {
                             
-                            reltypeRef = hasPartType.id
-                            reltypeName = hasPartType.name 
+                            reltypeRef = hasPartType?.id
+                            reltypeName = hasPartType?.name 
                             relshipKind = 'Association'            
                           
                             cNewVal = {...cNewVal, viewkind: 'Container'}
@@ -239,9 +239,9 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         parentName = (parentName === 'properties') ? propertyName : parentName
 
                     } else {   // create the json objects 
-
-                        reltypeRef = hasPartType.id
-                        reltypeName = hasPartType.name     
+                      
+                        reltypeRef = hasPartType?.id
+                        reltypeName = hasPartType?.name     
                         relshipKind = 'Association'
                        
                         createObject(oId, compositeName, objecttypeRef, oKey, jsonType, cNewVal)

@@ -1,8 +1,8 @@
 ---
-title: 'Get Started'
+title: 'Overview'
 date: 'Oct 18, 2021'
-excerpt: 'The AKM Modeller (AKMM) is a generic platform for developing and utilizing knowledge models. It can be customized to support any subject area, if the area can be described by entities of different types and by relationships between those types. Both entities and relationships may be described by relevant properties and associated methods.'
-cover_image: 'images/posts/overview/image002.png'
+excerpt: 'The AKM Modeller (AKMM) is a generic platform for developing and utilizing knowledge models. It can be customized to support any subject area, if the area can be described by entities of different types and by relationships between those types.'
+cover_image: 'images/posts/overview/image001.png'
 ---
 
 ## Introduction

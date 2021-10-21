@@ -2,9 +2,11 @@ import fs from 'fs'
 import path from 'path'
 import matter from 'gray-matter'
 import marked from 'marked'
+
 import Link from 'next/link'
 
 import Layout from '../../components/Layout'
+
 
 
 export default function PostPage({
@@ -13,23 +15,27 @@ export default function PostPage({
   content,
 }) {
   // console.log('12 slug', slug, content)
+
   return (
     <>
-    <Layout>
+    {/* <Layout> */}
       <div className="container">
         <Link href='/helpblog/'>
           <a className='btn btn-back'>Go Back</a>
         </Link>
-        <div className='card card-page'>
+        <div className='card card-page' >
           <h1 className='post-title'>{title}</h1>
-          <img src={cover_image} alt='' width="50%"/>
+          <img src={cover_image} alt='' max-width="200px"/>
           <div className='post-body'>
             <div dangerouslySetInnerHTML={{ __html: marked(content) }}></div>
           </div>
           <div className='post-date'>Posted on {date}</div>
+          <Link href='/helpblog/'>
+            <a className='btn btn-back'>Go Back</a>
+          </Link>
         </div>
       </div>
-      </Layout>
+      {/* </Layout> */}
       <style jsx>{`
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400&display=swap');
 
@@ -121,7 +127,9 @@ export default function PostPage({
     }
     
     .card-page {
+      max-width: 850px;
       padding: 15px 30px;
+      // background: red;
     }
     
     .post-title {

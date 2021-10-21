@@ -6350,8 +6350,8 @@
       "models": [
         {
           "id": "fd8a7ae5-74ef-433b-88cf-3193236fd505",
-          "name": "IRTV-INIT_Model",
-          "description": "",
+          "name": "IRTV-INIT_Model_CM",
+          "description": "Concept model using IRTV Metamodel",
           "metamodelRef": "d8b5ebcd-ba88-4519-42e1-6c2c54495f65",
           "sourceMetamodelRef": "",
           "targetMetamodelRef": "",
@@ -6433,7 +6433,7 @@
     "focusTargetModelview": null,
     "focusModel": {
       "id": "fd8a7ae5-74ef-433b-88cf-3193236fd505",
-      "name": "IRTV-INIT_Model"
+      "name": "IRTV-INIT_Model_CM"
     },
     "focusModelview": {
       "id": "efaed728-a94d-4cbc-b984-7bd01ea62a2e",

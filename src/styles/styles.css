@@ -18,7 +18,7 @@
 .wrapper {
   margin-top: 0px;
   /* height: 100vh; */
-  background-color: #eee;
+  background-color: #fff;
 }
 
 .header {
@@ -28,7 +28,7 @@
   /* box-shadow: 4px 2px #888888; */
 }
 .workplace {
-  background-color: #e6e9e9;
+  /* background-color: #e6e9e9; */
   height: 100vh;
   /* margin-top: 2px; */
   padding: 0px;

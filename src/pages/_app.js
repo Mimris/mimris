@@ -10,6 +10,7 @@ import "../styles/styles-grid.css"
 // import "../styles/styles-dm.scss"
 import "../styles/gojs.css"
 // import 'reactjs-popup/dist/index.css';
+// import '../styles/globals.css'
 
 
 class MyApp extends App {
@@ -17,12 +18,14 @@ class MyApp extends App {
     let pageProps = {}
     if (Component.getInitialProps) {
       pageProps = await Component.getInitialProps({ ctx })
-    }
+    } else if (Component.getStaticProps) {
+      pageProps = await Component.getStaticProps({ ctx })
     return { pageProps }
+
+    }
   }
 
   render () {
-    // console.log('23 _app.js', this.props);  
     const { Component, pageProps, store } = this.props
     return (
       <Provider store={store}>

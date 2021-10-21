@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 // Utility functions
 
 const debug = false;

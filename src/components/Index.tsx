@@ -177,7 +177,7 @@ const page = (props) => {
                   // margin: "0 auto",
                   // padding: "2px"
                 }}
-                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"} }} 
+                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
                   <CardHeader className="card-header " >AKMM release blog ... </CardHeader>
@@ -199,6 +199,7 @@ const page = (props) => {
                           &bull; Bugfixes!<br /><br />
                     </CardText>
                   </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2021.10.08</CardTitle>
                     <CardText >
                           &bull; New Method objects that can be connected to Property objects in the metamodel.<br />

@@ -192,6 +192,13 @@ const page = (props) => {
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.10.21</CardTitle>
+                    <CardText >
+                          &bull; Added Help in top-menu. Here you will find help and user-guides.<br />
+                          &bull; Adde filter buttons in ObjectType Palette.<br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
                     <CardTitle className="card-title-bold" >Release 2021.10.08</CardTitle>
                     <CardText >
                           &bull; New Method objects that can be connected to Property objects in the metamodel.<br />

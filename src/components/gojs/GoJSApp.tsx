@@ -440,10 +440,13 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Object moved
             const key = data.key;
             if (debug) console.log('355 data', data);
-            const node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
+            let node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
+            const group = node.group;
+            if (debug) console.log('444 node, data', node, data);
+            node = myDiagram.findNodeForKey(data.key);
+            node.group = group;
             if (debug) console.log('361 node, modifiedNodes: ', node, modifiedNodes);
-            if (node) e.diagram.model.setDataProperty(data, "group", node.group);
-            //const myNode = this.getNode(myGoModel, key);
+            if (node) myDiagram.model.setDataProperty(data, "group", node.group);
             if (debug) console.log('364 myGoModel', myGoModel);
             if (debug) console.log('301 SelectionMoved', modifiedNodes);
           }

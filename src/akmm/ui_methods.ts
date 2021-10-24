@@ -386,7 +386,7 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
         try {
             retval = eval(expression);
         } catch(e) {
-            retval = "";
+            retval = expression;
         }
     } else {
         retval = object[prop.name];

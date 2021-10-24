@@ -1156,7 +1156,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               console.log('1157 link', link);
               let data = link.data;
               console.log('1159 data', data);
-              myDiagram.model.setDataProperty(data, "points", "[-469,-214,-459,-214,-325,-214,-325,-104,-289,-104,-279,-104]");            },
+            },
             function (o: any) { 
               if (debug)
                 return true; 

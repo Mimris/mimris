@@ -767,7 +767,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                     return getCurve(c);
                 }
             ),
-            new go.Binding("points").makeTwoWay(),
+            // new go.Binding("points").makeTwoWay(),
             { contextMenu: contextMenu },
             // link shape
             $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
@@ -988,6 +988,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
     groupTemplateMap.add("Container1", groupTemplate1);
     addGroupTemplateName('Container1');
 
+    if (false) {
     const groupTemplate2 =
         $(go.Group, "Auto",
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -1075,7 +1076,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
     groupTemplateMap.add("Container2", groupTemplate2);
     addGroupTemplateName('Container2');
 
-    if (false) {
     const groupTemplate3 =
         $(go.Group, "Auto",
           {

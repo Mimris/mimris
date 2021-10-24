@@ -1,7 +1,7 @@
-// // @ts-nocheck
+// @ts-nocheck
 // import { NextPageContext } from "next";
 // import { useSelector } from 'react-redux';
-// import { myGet } from "../defs/myGet";
+// // import { myGet } from "../defs/myGet";
 // import Layout from '../components/Layout';
 // import Link from 'next/link';
 
@@ -14,7 +14,7 @@
 //                     <a>Back </a>
 //                 </Link>
 //                 <h3 > Vehicles list: </h3>
-//                 <div > {JSON.stringify(vehicles)} </div>
+//                 {/* <div > {JSON.stringify(vehicles)} </div> */}
 //             </Layout>
 //         </>
 //     )

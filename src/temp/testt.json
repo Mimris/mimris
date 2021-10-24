@@ -1,0 +1,98 @@
+{
+    "Wellbore.1.0.0.json": {
+        "$id": "https://schema.osdu.opengroup.org/json/master-data/Wellbore.1.0.0.json",
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Wellbore",
+        "description": "A hole in the ground extending from a point at the earth's surface to the maximum point of penetration.",
+        "type": "object",
+        "allOf": [
+            {
+                "$ref": "../abstract/AbstractMaster.1.0.0.json"
+            },
+            {
+                "$ref": "../abstract/AbstractFacility.1.0.0.json"
+            },
+            {
+                "type": "object",
+                "properties": {
+                    "DefaultVerticalMeasurementID": {
+                        "description": "The default datum reference point, or zero depth point, used to determine other points vertically in a wellbore.  References an entry in the Vertical Measurements array of this wellbore.",
+                        "type": "string"
+                    },
+                    "DefinitiveTrajectoryID": {
+                        "description": "SRN of Wellbore Trajectory which is considered the authoritative or preferred version.",
+                        "type": "string",
+                        "pattern": "^[\\w\\-\\.]+:work-product-component\\-\\-WellboreTrajectory:[\\w\\-\\.\\:\\%]+:[0-9]*$"
+                    },
+                    "DrillingReasons": {
+                        "description": "The history of drilling reasons of the wellbore.",
+                        "type": "array",
+                        "items": {
+                            "$ref": "../abstract/AbstractWellboreDrillingReason.1.0.0.json"
+                        }
+                    },
+                    "GeographicBottomHoleLocation": {
+                        "description": "The bottom hole location of the wellbore denoted by a specified geographic horizontal coordinate reference system (Horizontal CRS), such as WGS84, NAD27, or ED50. If both GeographicBottomHoleLocation and ProjectedBottomHoleLocation properties are populated on this wellbore, they must identify the same point, just in different CRSs.",
+                        "$ref": "../abstract/AbstractSpatialLocation.1.0.0.json"
+                    },
+                    "KickOffWellbore": {
+                        "description": "This is a pointer to the parent wellbore. The wellbore that starts from top has no parent.",
+                        "type": "string",
+                        "pattern": "^[\\w\\-\\.]+:master-data\\-\\-Wellbore:[\\w\\-\\.\\:\\%]+:[0-9]*$"
+                    },
+                    "PrimaryMaterialID": {
+                        "description": "The primary material injected/produced from the wellbore.",
+                        "type": "string",
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-MaterialType:[\\w\\-\\.\\:\\%]+:[0-9]*$"
+                    },
+                    "ProjectedBottomHoleLocation": {
+                        "description": "The bottom hole location of the wellbore denoted by a projected horizontal coordinate reference system (Horizontal CRS), such a UTM zone. 'Projected' in this property does not mean 'planned' or 'projected-to-bit'. If both GeographicBottomHoleLocation and ProjectedBottomHoleLocation properties are populated on this wellbore, they must identify the same point, just in different CRSs.",
+                        "$ref": "../abstract/AbstractSpatialLocation.1.0.0.json"
+                    },
+                    "SequenceNumber": {
+                        "description": "A number that indicates the order in which wellbores were drilled.",
+                        "type": "integer"
+                    },
+                    {},
+                    "TargetFormation": {
+                        "description": "The Formation of interest for which the Wellbore is drilled to interact with. The Wellbore may terminate in a lower formation if the requirement is to drill through the entirety of the target formation, therefore this is not necessarily the Formation at TD.",
+                        "type": "string",
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-GeologicalFormation:[\\w\\-\\.\\:\\%]+:[0-9]*$"
+                    },
+                    "TrajectoryTypeID": {
+                        "description": "Describes the predominant shapes the wellbore path can follow if deviated from vertical. Sample Values: Horizontal, Vertical, Directional.",
+                        "type": "string",
+                        "pattern": "^[\\w\\-\\.]+:reference-data\\-\\-WellboreTrajectoryType:[\\w\\-\\.\\:\\%]+:[0-9]*$"
+                    },
+                    "VerticalMeasurements": {
+                        "description": "List of all depths and elevations pertaining to the wellbore, like, plug back measured depth, total measured depth, KB elevation",
+                        "type": "array",
+                        "items": {
+                            "allOf": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "VerticalMeasurementID": {
+                                            "description": "The ID for a distinct vertical measurement within the Wellbore VerticalMeasurements array so that it may be referenced by other vertical measurements if necessary.",
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                {
+                                    "$ref": "../abstract/AbstractFacilityVerticalMeasurement.1.0.0.json"
+                                }
+                            ]
+                        },
+                        "x-osdu-indexing": {
+                            "type": "nested"
+                        }
+                    }
+                },
+                "WellID": {
+                    "type": "string",
+                    "pattern": "^[\\w\\-\\.]+:master-data\\-\\-Well:[\\w\\-\\.\\:\\%]+:[0-9]*$"
+                }
+            }
+        ]
+    }
+}

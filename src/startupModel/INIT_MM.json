@@ -194,7 +194,7 @@
       "id": "e0708fcb-4dab-44fb-312d-7685ea332985",
       "name": "MethodType",
       "description": "",
-      "abstract": false,
+      "abstract": true,
       "viewkind": "Object",
       "typename": "Object type",
       "typeviewRef": "b5f05f73-b85b-4fb9-2cab-f67084239e8b",

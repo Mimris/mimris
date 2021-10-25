@@ -104,7 +104,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
       if (context?.what === "editRelshipview") 
           myItem = myInstview;
       else if (context?.what === "editTypeview") 
-          myItem = myInst.type?.typeview?.data;
+          myItem = myInst?.type?.typeview?.data;
       else
           myItem = myInst;
       myItem[propname] = value;
@@ -865,12 +865,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
         if (prop === 'textcolor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'fromArrow') {
-            let fromArrow = relview[prop];
-            if (relview[prop] === 'None') fromArrow = "";
-            myDiagram.model.setDataProperty(data, prop, fromArrow);           
-          }          
-          if (prop === 'fromArrowColor' && relview[prop] !== "") 
+        if (prop === 'dash' && relview[prop] !== "") 
+          myDiagram.model.setDataProperty(data, prop, relview[prop]);
+        if (prop === 'fromArrow') {
+          let fromArrow = relview[prop];
+          if (relview[prop] === 'None') fromArrow = "";
+          myDiagram.model.setDataProperty(data, prop, fromArrow);           
+      }          
+        if (prop === 'fromArrowColor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'toArrow') {
             let toArrow = relview[prop];
@@ -989,9 +991,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
       }
       if (data) {
-        if (debug) console.log('849 data', data);
         if (selObj.category === constants.gojs.C_RELSHIPTYPE || 
-          selObj.category === constants.gojs.C_OBJECTTYPE) {
+            selObj.category === constants.gojs.C_OBJECTTYPE) {
+          if (debug) console.log('849 data', data);
           for (let prop in typeview) {
             if (prop === 'template' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);

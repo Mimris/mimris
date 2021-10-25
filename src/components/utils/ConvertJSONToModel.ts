@@ -209,9 +209,18 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             
                             createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
                             
-                            parentId = (ggparentName === 'items') ? tmpArray.find((o) => (o[0] === ggparentKey) && o)[1] : entityId
-                            if (!debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
-                            parentName = (ggparentName === 'items') ? tmpArray.find((o) => (o[0] === ggparentKey) && o)[0] : entityName
+                            if (parentName === 'Property') {
+                                parentId = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] // set parentId to be used in the next iteration of  objectet.
+                                parentName = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[0] // set parentName to be used in the next iteration of  objectet.
+
+                            } else if (ggparentName === 'items') {
+                                parentId = tmpArray.find((o) => (o[0] === ggparentKey) && o)[1] 
+                                if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+                                parentName = tmpArray.find((o) => (o[0] === ggparentKey) && o)[0] 
+                            } else{
+                                parentId = entityId
+                                parentName = entityName
+                            }
                             
                             propertyId = oId
                             propertyName = oName

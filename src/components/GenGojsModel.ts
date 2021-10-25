@@ -431,12 +431,14 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
-          // link.fromArrow = relview.fromArrow;
-          // if (link.fromArrow === 'None')
-          //   link.fromArrow = "";
-          // link.toArrow = relview.toArrow;
-          // if (link.toArrow === 'None')
-          //   link.toArrow = "";
+          if (relview.fromArrow === '') 
+            link.fromArrow = relview.typeview?.fromArrow;
+          if (link.fromArrow === 'None') 
+            link.fromArrow = '';
+          if (relview.toArrow === '') 
+            link.toArrow = relview.typeview?.toArrow;
+          if (link.toArrow === 'None') 
+            link.toArrow = '';
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {
@@ -486,10 +488,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('466 objtypes', objtypes);
         for (let i = 0; i < objtypes.length; i++) {
           let includeObjtype = false;
-          let strokecolor = "black";
           let fillcolor = "white";
           const objtype = objtypes[i];
           if (objtype) {
+            let strokecolor = objtype.typeview?.strokecolor;
+            if (!strokecolor) strokecolor = "black";
             if (!objtype.markedAsDeleted) 
               includeObjtype = true;
             else {
@@ -507,6 +510,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                 objtype.typeview = objtype.newDefaultTypeView('Object');
               const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
               node.loadNodeContent(metamodel);
+              node.text = objtype.text;
+              if (node.name === "") node.name = node.text;
               node.strokecolor = strokecolor;
               // node.fillcolor = fillcolor;
               if (debug) console.log('492 node', node);
@@ -521,12 +526,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (relshiptypes) {
         for (let i = 0; i < relshiptypes.length; i++) {
           let includeReltype = false;
-          let strokecolor = "black";
           let reltype = relshiptypes[i];
           if (reltype.cardinality.length > 0) {
             reltype.cardinalityFrom = reltype.getCardinalityFrom(); 
             reltype.cardinalityTo = reltype.getCardinalityTo();
           }
+          let strokecolor = reltype.typeview?.strokecolor;
+          if (!strokecolor) strokecolor = "black";
           if (reltype.markedAsDeleted === undefined)
             reltype.markedAsDeleted = false;
           if (reltype && !reltype.markedAsDeleted)

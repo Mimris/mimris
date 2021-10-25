@@ -627,7 +627,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
     }
     myGoModel.links = links;
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
-    if (debug) console.log('531 deleteLink', link);
+    if (debug) console.log('630 deleteLink', link);
     if (link) {
         const relview = link.relshipview;
         const relship = relview.relship;
@@ -864,6 +864,7 @@ export function getGroupByLocation(model: gjs.goModel, loc: string): gjs.goObjec
             const nodeLoc = loc.split(" ");
             const grpLoc = node.loc?.split(" ");
             const grpSize = node.size?.split(" ");
+            if (!grpLoc) return;
             const nx = parseInt(nodeLoc[0]);
             const ny = parseInt(nodeLoc[1]);
             const gx = parseInt(grpLoc[0]);
@@ -1485,6 +1486,8 @@ export function createLink(data: any, context: any): any {
                         relshipview.setTypeView(typeview);
                         relshipview.setFromObjectView(fromObjView);
                         relshipview.setToObjectView(toObjView);
+                        relshipview.fromArrow = typeview.data.fromArrow;
+                        relshipview.toArrow = typeview.data.toArrow;
                         myModelview.addRelationshipView(relshipview);
                         myMetis.addRelationshipView(relshipview);
                         let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
@@ -1849,6 +1852,7 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'relshipviews') retVal = false;
     if (k === 'size') retVal = false;
     if (k === 'sourceModelRef') retVal = false;
+    if (k === 'sourceUri') retVal = false;
     if (k === 'targetMetamodelRef') retVal = false;
     if (k === 'targetModelRef') retVal = false;
     if (k === 'to') retVal = false;

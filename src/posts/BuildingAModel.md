@@ -9,7 +9,6 @@ cover_image: 'images/posts/modelling/image_model001.png'
 
 When AKMM is started the user meets a modelling window that looks like the following:
 
-
 The project is called “INIT-Start Project” which is ok if you want to play with the tool. But if your intention is to build models for a specific purpose, you should start by giving the project a name and description that is meaningful to you. This is done by right clicking the background and select “Edit Project”. 
 It is also recommended to change the model name (“Edit Model”) to a more meaningful name.
 

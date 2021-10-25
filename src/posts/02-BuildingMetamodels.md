@@ -1,6 +1,6 @@
 ---
-title: 'Building a Metamodel'
-date: 'October 18, 2021'
+title: 'Metamodels'
+date: 'October 25, 2021'
 excerpt: 'Metamodels are modeled by using EntityType to represent object types and a relationship of type isRelatedTo to represent relationship types. 
 Both are named or renamed to the actual type names the user wants.'
 cover_image: 'images/posts/overview/image006.png'
@@ -8,7 +8,7 @@ cover_image: 'images/posts/overview/image006.png'
 
 ## Metamodels
 
-Metamodels are modeled by using EntityType to represent object types and a relationship of type isRelatedTo to represent relationship types. 
+Metamodels are modeled by using *EntityType* to represent object types and a relationship of type *isRelatedTo* to represent relationship types. 
 Both are named or renamed to the actual type names the user wants.
  
 ### Defining Object types
@@ -18,27 +18,31 @@ The next step would be to add Properties to the type definition, as shown below.
 
 ![alt text](/images/posts/overview/image006.png)
  
-In this case the object type “My Type” is specified to have two properties, “Prop A” and “Prop B”. With no further specification the two properties will be of datatype “string”.
+In this case the object type *“My Type”* is specified to have two properties, *“Prop A”* and *“Prop B”*. With no further specification the two properties will be of datatype *“string”*.
 
 ### Defining Relationship types
 
-Relationship types are defined by drawing a relationship of type “isRelatedTo” between object types as shown below. 
+Relationship types are defined by drawing a relationship of type *“isRelatedTo”* between object types as shown below. 
 
 ![alt text](/images/posts/overview/image007.png)
 
-Then edit the name of relationship to give it the name of the relationship type you want. 
+Then change the relationship name so it contains the relationship type name. 
 
 ![alt text](/images/posts/overview/image008.png)
  
 ### Property modelling
 
-AKMM offers property modelling to a much more detailed level than just saying that the property is a “string” property. 
-This is shown in the next figure. In this figure properties have been modeled inside a container without drawing a relationship. This possibility has been added to simplify the modelling in case of many properties.
+AKMM offers property modelling to a much more detailed level than just saying that the
+property is a *“string”* property. See below.
+In this diagram properties have been modeled inside a container. Instead of drawing
+relationships to each property, a relationship *“hasProperties”* has been drawn from the type
+to the container. This implies that all properties inside the container are regarded as
+properties in *“My Type”*. This possibility has been added to simplify property modelling in
+case of many properties.
 
  ![alt text](/images/posts/overview/image009.png)
 
 The figure shows “My Type” with the two properties as defined in an example above. But in addition the type has now 4 other properties, “P1”, “P2”, “P3” and “Pn”. Unlike the first two properties, these 4 properties have been specified to a greater detail. 
-
 
         “P1” is a date property.
         “P2” is a number property with a pattern specified 
@@ -46,7 +50,6 @@ The figure shows “My Type” with the two properties as defined in an example 
         “P3” has the same definition as “P2”
         “Pn” is an Enum with 3 allowed values, 
              “V1”, “V2”, “V3”, where “V2” is the default value. 
-
 
 ### Property and type methods
 
@@ -64,8 +67,7 @@ Methods are of a type – a method type. Currently there are three method types 
         -	aggregateValue
         -	traverse
 
-The first two are valid for property methods, while the last is valid for type methods. Documentation of these method types and examples of use are found in a later chapter in this document. 
-
+The first two are valid for property methods, while the last is valid for type methods. See below for more details.
  
 ### Visualization of objects and relationships
 
@@ -77,9 +79,8 @@ The figure below shows the dialog used to specify a given object typeview.
 
  ![alt text](/images/posts/overview/image011.png)
 
-
-The fields fillcolor, strokecolor and strokewidth has to do with the shape that surrounds the object. In the examples in this document that shape is a rectangle. But in principle it can be any shape. 
-The shape is defined by the node template, i.e. the template field in the dialog. 
+The fields *fillcolor*, *strokecolor* and *strokewidth* has to do with the shape that surrounds the object. In the examples in this document that shape is a rectangle. But in principle it can be any shape. 
+The shape is defined by the node template, i.e. the *template* field in the dialog. 
 
 At the time this is written, 3 templates are supported, which are:
 
@@ -91,10 +92,13 @@ The templates are illustrated in the following figure:
 
 ![alt text](/images/posts/overview/image012.png)
 
-   
-
 *textAndIcon* uses the value of the *icon* field in the typeview dialog to identify the icon. This is a reference to a file that contains the icon, such as a *bmp* file, a *png* file or *svg* file. 
-The *geometry* used in *textAndGeo* is stored in the geometry field, in a format like what svg uses. 
+The *geometry* used in *textAndGeo* is stored in the geometry field, in a format like what svg uses
+(i.e. a string of the form *d="M 164.54082 0 L 219.38774999999998 109.69388 L 164.54082 219.38776 L 54.84693 219.38776 L 0 109.69388 L 54.84693 0 z"*).
+
+You can use svg-editor to create the icon files.
+https://vectr.com/
+
 
 ### About Relationship typeviews
 

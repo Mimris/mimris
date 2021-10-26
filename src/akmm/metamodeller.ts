@@ -32,6 +32,7 @@ export class cxMetis {
     projects:           cxProject[] | null;
     metamodels:         cxMetaModel[] | null = null;
     viewstyles:         cxViewStyle[] | null;
+    geometries:         cxGeometry[] | null;
     models:             cxModel[] | null = null;
     modelviews:         cxModelView[] | null = null;
     datatypes:          cxDatatype[] | null = null;
@@ -77,7 +78,8 @@ export class cxMetis {
         this.id = utils.createGuid();
         this.name = "";
         this.description = "";
-
+        this.viewstyles = [];
+        this.geometries = [];
         this.category = 'Metis';
     }
     importData(importedData: any, includeDeleted: boolean) {
@@ -117,6 +119,16 @@ export class cxMetis {
             viewstyles.forEach(vstyle => {
                 if (vstyle && !vstyle.markedAsDeleted) {
                     this.importViewStyle(vstyle, null);
+                }
+            })
+        }
+
+        // Handle geometries
+        const geometries: any[] = (importedData) && importedData.geometries;
+        if (geometries && geometries.length) {
+            geometries.forEach(geo => {
+                if (geo && !geo.markedAsDeleted) {
+                    this.importGeometry(geo, null);
                 }
             })
         }
@@ -329,6 +341,18 @@ export class cxMetis {
                             }
                         }
                     }
+                    items = item.geometries;
+                    if (items && items.length) {
+                        for (let i = 0; i < items.length; i++) {
+                            const item = items[i];
+                            if (includeDeleted || !item.markedAsDeleted) { 
+                                const geo = new cxGeometry(item.id, item.name, item.description);
+                                if (!geo) continue;
+                                metamodel.addGeometry(geo);
+                                this.addGeometry(geo);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -462,6 +486,15 @@ export class cxMetis {
         if (parent) parent.addViewStyle(vstyle);
         if (debug) console.log('412 viewstyle', vstyle);
     }
+    importGeometry(item: any, parent: cxMetaModel) {
+        const geo = this.findGeometry(item.id);
+        if (debug) console.log('491 item', item);
+        if (!geo) 
+            return;
+        this.addGeometry(geo);
+        if (parent) parent.addGeometry(geo);
+        if (debug) console.log('496 geometry', geo);
+    }
     importMetamodel(item: any) {
         const metamodel = this.findMetamodel(item.id);
         if (!metamodel) 
@@ -485,6 +518,20 @@ export class cxMetis {
             methods.forEach(mtd => {
                 if (mtd)
                     this.importMethod(mtd, metamodel);
+            });
+        }
+        let vstyles: any[] = item.viewstyles;
+        if (vstyles && vstyles.length) {
+            vstyles.forEach(vs => {
+                if (vs)
+                    this.importViewStyle(vs, metamodel);
+            });
+        }
+        let geos: any[] = item.geometries;
+        if (geos && geos.length) {
+            geos.forEach(geo => {
+                if (geo)
+                    this.importGeometry(geo, metamodel);
             });
         }
         if (debug) console.log('343 this', this);
@@ -686,12 +733,16 @@ export class cxMetis {
         const objtypeview = this.findObjectTypeView(item.id);
         const typeref = item.typeRef;
         const type = this.findObjectType(typeref);
+        if (!item.template) item.template = "";
+        if (!item.geometry) item.geometry = "";
         if (objtypeview && type) {
             objtypeview.setMarkedAsDeleted(item.markedAsDeleted);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setType(type);
             objtypeview.setTemplate(item.template);
+            objtypeview.setGeometry(item.geometry);
             objtypeview.setFillcolor(item.fillcolor);
+            objtypeview.setTextcolor(item.textcolor);
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
@@ -724,6 +775,7 @@ export class cxMetis {
             reltypeview.setMarkedAsDeleted(item.markedAsDeleted);
             reltypeview.setType(type);
             reltypeview.setStrokecolor(item.strokecolor);
+            reltypeview.setTextcolor(item.textcolor);
             reltypeview.setStrokewidth(item.strokewidth);
             reltypeview.setDash(item.dash);
             reltypeview.setFromArrow(item.fromArrow);
@@ -891,6 +943,7 @@ export class cxMetis {
                     // objview.isGroup = true;
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
+                    objview.text = item.text;
                     objview.modified = true;
                     if (debug) console.log('660 objview', objview);
                     if (item.typeviewRef) {
@@ -984,8 +1037,8 @@ export class cxMetis {
                 this.addMethod(item);
                 break;
             case 'cxObjectTypeView':
-            this.addObjectTypeView(item);
-            break;
+                this.addObjectTypeView(item);
+                break;
             case 'cxRelationshipTypeView':
                 this.addRelationshipTypeView(item);
                 break;
@@ -1062,6 +1115,14 @@ export class cxMetis {
                 this.viewstyles = new Array();
             if (!this.findViewStyle(vs.id))
                 this.viewstyles.push(vs);
+        }
+    }
+    addGeometry(geo: cxGeometry) {
+        if (geo.category === constants.gojs.C_GEOMETRY) {
+            if (this.geometries == null)
+                this.geometries = new Array();
+            if (!this.findGeometry(geo.id))
+                this.geometries.push(geo);
         }
     }
     addViewFormat(fmt: cxViewFormat) {
@@ -1588,6 +1649,49 @@ export class cxMetis {
                     return vstyle;
                 i++;
             }
+        }
+        return null;
+    }
+    findViewStyleByName(name: string): cxViewStyle | null {
+        let vstyles = this.viewstyles;
+        if (!vstyles) return null;
+        let i = 0;
+        let vstyle = null;
+        while (i < vstyles.length) {
+            vstyle = vstyles[i];
+            let name = vstyle.getName();
+            if (name.toLowerCase() === name.toLowerCase())
+                return vstyle;
+            i++;
+        }
+        return null;
+    }
+    findGeometry(id: string): cxGeometry | null {
+        let geos = this.geometries;
+        if (!geos)
+            return null;
+        else {
+            let i = 0;
+            while (i < geos.length) {
+                let geo = geos[i];
+                if (geo && geo.id === id)
+                    return geo;
+                i++;
+            }
+        }
+        return null;
+    }
+    findGeometryByName(name: string): cxGeometry | null {
+        let geos = this.geometries;
+        if (!geos) return null;
+        let i = 0;
+        let geo = null;
+        while (i < geos.length) {
+            geo = geos[i];
+            let name = geo.getName();
+            if (name.toLowerCase() === name.toLowerCase())
+                return geo;
+            i++;
         }
         return null;
     }
@@ -2711,35 +2815,39 @@ export class cxMethodType extends cxMetaObject {
 // -------------------------------------------------------------
 
 export class cxMetaModel extends cxMetaObject {
-    isEKA: boolean;
-    metamodels: cxMetaModel[] | null;
-    viewstyles: cxViewStyle[] | null;
-    containers: cxMetaContainer[] | null;
+    isEKA:       boolean;
+    metamodels:  cxMetaModel[] | null;
+    viewstyle:   cxViewStyle | null;
+    viewstyles:  cxViewStyle[] | null;
+    geometries:  cxGeometry[] | null;
+    containers:  cxMetaContainer[] | null;
     objecttypes: cxObjectType[] | null;
     objtypegeos: cxObjtypeGeo[] | null;
-    objecttypeviews: cxObjectTypeView[] | null;
-    relshiptypes: cxRelationshipType[] | null;
+    objecttypeviews:  cxObjectTypeView[] | null;
+    relshiptypes:     cxRelationshipType[] | null;
     relshiptypeviews: cxRelationshipTypeView[] | null;
-    properties: cxProperty[] | null;
-    methods: cxMethod[] | null;
-    methodtypes: cxMethodType[] | null;
-    enumerations: cxEnumeration[] | null;
-    units: cxUnit[] | null;
-    datatypes: cxDatatype[] | null;
-    viewformats: cxViewFormat[] | null;
-    fieldTypes: cxFieldType[] | null;
+    properties:    cxProperty[] | null;
+    methods:       cxMethod[] | null;
+    methodtypes:   cxMethodType[] | null;
+    enumerations:  cxEnumeration[] | null;
+    units:         cxUnit[] | null;
+    datatypes:     cxDatatype[] | null;
+    viewformats:   cxViewFormat[] | null;
+    fieldTypes:    cxFieldType[] | null;
     inputpatterns: cxInputPattern[] | null;
-    categories: cxUnitCategory[] | null;
+    categories:    cxUnitCategory[] | null;
     generatedFromModelRef: string;
-    layout: string;
-    routing: string;
-    linkcurve: string;
+    layout:     string;
+    routing:    string;
+    linkcurve:  string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_METAMODELS;  // Firestore collection
         this.category = constants.gojs.C_METAMODEL;
         this.metamodels = null;
-        this.viewstyles = null;
+        this.viewstyle  = null; // Current viewstyle
+        this.viewstyles = [];
+        this.geometries = [];
         this.containers = null;
         this.objecttypes = null;
         this.objtypegeos = null;
@@ -2860,6 +2968,9 @@ export class cxMetaModel extends cxMetaObject {
         }
         return geo;
     }
+    setGeometries(geos: cxGeometry[]) {
+        this.geometries = geos;
+    }
     close() {
         this.metamodels = null;
         this.objecttypes = null;
@@ -2902,6 +3013,9 @@ export class cxMetaModel extends cxMetaObject {
     }
     getViewStyles(): cxViewStyle[] | null {
         return this.viewstyles;
+    }
+    getGeometries(): cxGeometry[] | null {
+        return this.geometries;
     }
     getViewFormats(): cxViewFormat[] | null {
         return this.viewformats;
@@ -3053,10 +3167,20 @@ export class cxMetaModel extends cxMetaObject {
     }
     addViewStyle(vs: cxViewStyle) {
         if (vs.category === constants.gojs.C_VIEWSTYLE) {
+            if (!this.viewstyle)
+                this.viewstyle = vs;
             if (this.viewstyles == null)
                 this.viewstyles = new Array();
-            if (!this.findViewFormat(vs.id))
+            if (!this.findViewStyle(vs.id))
                 this.viewstyles.push(vs);
+        }
+    }
+    addGeometry(geo: cxGeometry) {
+        if (geo.category === constants.gojs.C_GEOMETRY) {
+            if (this.geometries == null)
+                this.geometries = new Array();
+            if (!this.findGeometry(geo.id))
+                this.geometries.push(geo);
         }
     }
     addViewFormat(fmt: cxViewFormat) {
@@ -3793,6 +3917,60 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
+    findViewStyle(id: string): cxViewStyle | null {
+        let vstyles = this.getViewStyles();
+        if (!vstyles) return null;
+        let i = 0;
+        let vstyle = null;
+        for (i = 0; i < vstyles.length; i++) {
+            vstyle = vstyles[i];
+            if (vstyle.isDeleted()) continue;
+            if (vstyle.id === id)
+                return vstyle;
+        }
+        return null;
+    }
+    findViewStyleByName(name: string): cxViewStyle | null {
+        let vstyles = this.getViewStyles();
+        if (!vstyles) return null;
+        let i = 0;
+        let vstyle = null;
+        while (i < vstyles.length) {
+            vstyle = vstyles[i];
+            let name = vstyle.getName();
+            if (name.toLowerCase() === name.toLowerCase())
+                return vstyle;
+            i++;
+        }
+        return null;
+    }
+    findGeometry(id: string): cxGeometry | null {
+        let geos = this.getGeometries();
+        if (!geos) return null;
+        let i = 0;
+        let geo = null;
+        for (i = 0; i < geos.length; i++) {
+            geo = geos[i];
+            if (geo.isDeleted()) continue;
+            if (geo.id === id)
+                return geo;
+        }
+        return null;
+    }
+    findGeometryByName(name: string): cxViewStyle | null {
+        let geos = this.getGeometries();
+        if (!geos) return null;
+        let i = 0;
+        let geo = null;
+        while (i < geos.length) {
+            geo = geos[i];
+            let name = geo.getName();
+            if (name.toLowerCase() === name.toLowerCase())
+                return geo;
+            i++;
+        }
+        return null;
+    }
     setIsEKA(flag: boolean) {
         this.isEKA = flag;
     }
@@ -3841,7 +4019,7 @@ export class cxType extends cxMetaObject {
         this.supertypes = [];
         this.fs_collection = "types"; // Firestore collection
         this.properties = [];
-        this.typeview = null;
+        this.typeview = null; // Default typeview
         this.viewkind = "";
         this.relshipkind = "";
         this.defaultValueset = null;    // Meant to store default property values
@@ -4170,8 +4348,6 @@ export class cxType extends cxMetaObject {
 
 export class cxObjectType extends cxType {
     typeid: string;
-    typeview: cxObjectTypeView | cxRelationshipTypeView | null;
-    // typeviewRef: string;
     fromObjtype: cxObjectType | null;
     toObjtype: cxObjectType | null;
     objtypegeos: cxObjtypeGeo[] | null;
@@ -4186,7 +4362,6 @@ export class cxObjectType extends cxType {
         this.typeid = constants.types.OBJECTTYPE_ID;
         this.viewkind = constants.viewkinds.OBJ;
         this.relshipkind = "";
-        this.typeview = null;              // Default type view
         this.fromObjtype = null;
         this.toObjtype = null;
         this.objtypegeos = null;
@@ -4811,13 +4986,13 @@ export class cxMethod extends cxMetaObject {
     }
 }
 
-// ---------  View Template Defintions  -----------------------------
+// ---------  View Template Definitions  -----------------------------
 export class cxViewStyle extends cxMetaObject {
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypeviews:   cxRelationshipTypeView[] | null = null;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
-        this.category = constants.gojs.C_VEWSTYLE;
+        this.category = constants.gojs.C_VIEWSTYLE;
         this.objecttypeviews  = null;
         this.relshiptypeviews = null;
     }
@@ -4869,9 +5044,11 @@ export class cxObjtypeviewData {
     group: string;                  // Parent group
     viewkind: string;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
+    textcolor: string;
     icon: string;
     constructor() {
         this.abstract = false;
@@ -4879,9 +5056,11 @@ export class cxObjtypeviewData {
         this.group = "";                // Parent group
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "";
+        this.geometry = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";
+        this.textcolor = "black";
         this.icon = "";
     }
 }
@@ -4891,9 +5070,11 @@ export class cxObjectTypeView extends cxMetaObject {
     typeRef: string;
     data: cxObjtypeviewData;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
+    textcolor: string;
     icon: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
@@ -4902,9 +5083,11 @@ export class cxObjectTypeView extends cxMetaObject {
         this.type        = type;
         this.typeRef     = type?.id;
         this.template    = "";
+        this.geometry    = "";
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "2";
+        this.textcolor   = "black";
         this.icon        = "";
         this.data        = new cxObjtypeviewData();
         if (type) {
@@ -4929,6 +5112,7 @@ export class cxObjectTypeView extends cxMetaObject {
             if (debug) console.log('3740 data, objview', data, objview, this);
             for (prop in otypeview.data) {
                 if (prop === 'template' && objview[prop] !== "") data[prop] = objview[prop];
+                if (prop === 'geometry' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'fillcolor' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'strokecolor' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'strokewidth' && objview[prop] !== "") data[prop] = objview[prop];
@@ -5004,6 +5188,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.template;
         return "";
     }
+    setGeometry(geometry: string) {
+        this.data.geometry = geometry;
+        this.geometry = geometry;
+    }
+    getGeometry(): string {
+        if (this.data.geometry)
+            return this.data.geometry;
+        else if (this.geometry)
+            return this.geometry;
+        return "";
+    }
     setFillcolor(fillcolor: string) {
         this.data.fillcolor = fillcolor;
         this.fillcolor = fillcolor;
@@ -5014,6 +5209,17 @@ export class cxObjectTypeView extends cxMetaObject {
         else if (this.fillcolor)
             return this.fillcolor;
         return "white";
+    }
+    setTextcolor(color: string) {
+        this.data.textcolor = color;
+        this.textcolor = color;
+    }
+    getTextcolor(): string {
+        if (this.data.textcolor)
+            return this.data.textcolor;
+        else if (this.textcolor)
+            return this.textcolor;
+        return "black";
     }
     setStrokecolor(strokecolor: string) {
         this.data.strokecolor = strokecolor;
@@ -5056,6 +5262,7 @@ export class cxReltypeviewData {
     relshipkind:    string;
     strokecolor:    string;
     strokewidth:    string;
+    textcolor:      string;
     dash:           string;
     fromArrow:      string;
     toArrow:        string;
@@ -5080,6 +5287,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     data:           cxReltypeviewData;
     strokecolor:    string;
     strokewidth:    string;
+    textcolor:      string;
     dash:           string;
     fromArrow:      string;
     toArrow:        string;
@@ -5107,19 +5315,14 @@ export class cxRelationshipTypeView extends cxMetaObject {
                     data[prop] = tvdata[prop];
                 }
                 for (prop in tvdata) {
-                    if (prop === 'strokecolor' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'strokewidth' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'dash' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'fromArrow' && relview[prop] !== "") {
-                        if (relview[prop] == 'None')
-                        data[prop] = "";
-                    }
-                    if (prop === 'toArrow' && relview[prop] !== "") {
-                        if (relview[prop] == 'None')
-                        data[prop] = "";
-                    }
-                    if (prop === 'fromArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
-                    if (prop === 'toArrowColor' && relview[prop] !== "") data[prop] = relview[prop];
+                    if (prop === 'strokecolor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'strokewidth' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'textcolor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'dash' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'fromArrow' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'toArrow' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'fromArrowColor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (prop === 'toArrowColor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
                 }
             }
         }
@@ -5168,6 +5371,18 @@ export class cxRelationshipTypeView extends cxMetaObject {
             return this.data.strokecolor;
         else if (this.strokecolor)
             return this.strokecolor;
+        else
+            return "black";
+    }
+    setTextcolor(color: string) {
+        this.data.textcolor = color;
+        this.textcolor = color;
+    }
+    getTextcolor(): string {
+        if (this.data.textcolor)
+            return this.data.textcolor;
+        else if (this.textcolor)
+            return this.textcolor;
         else
             return "black";
     }
@@ -5767,7 +5982,10 @@ export class cxInstance extends cxMetaObject {
               }
             }
         }
-        const properties = typeprops.concat(mtdprops);  
+        let properties = typeprops.concat(mtdprops);  
+        properties = properties.filter(function (el) {
+            return el != null;
+        });
         this.allProperties = properties;      
         if (debug) console.log('5739 properties', properties);
         return properties;
@@ -6306,14 +6524,11 @@ export class cxInputPattern extends cxMetaObject {
 export class cxModelView extends cxMetaObject {
     model: cxModel | null;
     viewstyle: cxViewStyle | null;
+    viewstyles: cxViewStyle[] | null;
     objecttypeviews: cxObjectTypeView[] | null;
     relshiptypeviews: cxRelationshipTypeView[] | null;
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
-    objecttypeviewRefs: string[] | null;
-    relshiptypeviewRefs: string[] | null;
-    objectviewRefs: string[] | null;
-    relshipviewRefs: string[] | null;
     layout: string;
     routing: string;
     linkcurve: string;
@@ -6326,15 +6541,12 @@ export class cxModelView extends cxMetaObject {
         this.category = constants.gojs.C_MODELVIEW;
         this.fs_collection = constants.fs.FS_C_MODELVIEWS;  // Firestore collection
         this.model = model;
-        this.viewstyle = null;
+        this.viewstyle = null; // Default viewstyle
+        this.viewstyles = null;
         this.objecttypeviews = null;
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
-        this.objecttypeviewRefs = null;
-        this.relshiptypeviewRefs = null;
-        this.objectviewRefs = null;
-        this.relshipviewRefs = null;
         this.layout = "Tree";
         this.routing = "Normal";
         this.linkcurve = "None";
@@ -6355,6 +6567,12 @@ export class cxModelView extends cxMetaObject {
     }
     getViewStyle(): cxViewStyle {
         return this.viewstyle;
+    }
+    setViewStyles(vstyles: cxViewStyle[]) {
+        this.viewstyles = vstyles;
+    }
+    getViewStyles(): cxViewStyle[] {
+        return this.viewstyles;
     }
     setLayout(layout: string) {
         this.layout = layout;
@@ -6604,9 +6822,11 @@ export class cxObjectView extends cxMetaObject {
     size: string;
     viewkind: string;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
+    textcolor: string;
     icon: string;
     constructor(id: string, name: string, object: cxObject | null, description: string) {
         super(id, name, description);
@@ -6627,9 +6847,11 @@ export class cxObjectView extends cxMetaObject {
         this.loc = "";
         this.size = "";
         this.template = "";
+        this.geometry = "";
         this.fillcolor = "";
         this.strokecolor = "";
-        this.strokewidth = "";
+        this.strokewidth = "1";
+        this.textcolor = "";
         this.icon = "";
     }
     // Methods
@@ -6776,6 +6998,7 @@ export class cxRelationshipView extends cxMetaObject {
     toObjview: cxObjectView | null;
     strokecolor:    string;
     strokewidth:    string;
+    textcolor:      string;
     dash:           string;
     fromArrow:      string;
     toArrow:        string;
@@ -6792,12 +7015,13 @@ export class cxRelationshipView extends cxMetaObject {
         this.toObjview = null;
         this.strokecolor = "";
         this.strokewidth = "";
+        this.textcolor = "";
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";
         this.fromArrowColor = "";
         this.toArrowColor = "";
-        this.points = "";
+        this.points = null;
         }
     // Methods
     getRelationship(): cxRelationship | null {
@@ -6879,6 +7103,24 @@ export class cxRelationshipView extends cxMetaObject {
             default:
                 break;
         }
+    }
+}
+
+export class cxGeometry extends cxMetaObject {
+    geometry: string;
+    stroke:   string;
+    fill:     string;
+    constructor(id: string, name: string, description: string) {
+        super(id, name, description);
+        this.geometry = "";
+        this.stroke   = "";
+        this.fill     = "";
+    }
+    // Methods
+    setGeometry(geo: string, stroke: string, fill: string) {
+        this.geometry = geo;
+        this.stroke   = stroke;
+        this.fill     = fill;
     }
 }
 

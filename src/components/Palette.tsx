@@ -82,8 +82,11 @@ const Palette = (props) => {
     || i?.typename === 'Property'
     || i?.typename === 'Datatype'
     || i?.typename === 'Value'
+    || i?.typename === 'FieldType'
     || i?.typename === 'InputPattern'
+    || i?.typename === 'ViewFormat'
     || i?.typename === 'Method'
+    || i?.typename === 'Label'
     
     && i
   )
@@ -93,7 +96,9 @@ const Palette = (props) => {
     || i?.typename === 'Property'
     || i?.typename === 'Datatype'
     || i?.typename === 'Value'
+    || i?.typename === 'FieldType'
     || i?.typename === 'InputPattern'
+    || i?.typename === 'ViewFormat'
     || i?.typename === 'Method'
     || i?.typename === 'Properties'
     || i?.typename === 'JsonArray'

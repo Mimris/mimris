@@ -40,7 +40,8 @@ const colornames = ['black', 'white',
                     'brown', 'purple', 
                     'violet', 'turquoise'
                    ];
-                   
+
+const strokewidths = ['1', '2', '3', '4', '5'];
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
    * Render the object data, passing down property keys and values.
@@ -173,10 +174,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       case "editTypeview":
         // if (instview) 
         //   item = instview.typeview?.data;
-        if (selObj.category === 'Relationship')
+        if (selObj.category === constants.gojs.C_RELATIONSHIP) {
           item = inst.type.typeview;
-        else 
-        item = selObj.typeview;
+        } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
+          item = inst.typeview;
+          // for (const prop in item.data) {
+          //   item[prop] = item.data[prop];
+          // }
+        } else if (selObj.category === constants.gojs.C_OBJECT) {
+          item = inst.type.typeview;
+        } else if (selObj.category === constants.gojs.C_OBJECTTYPE) {
+          item = inst.typeview;
+        }
+
         hideNameAndDescr = true;
         if (debug) console.log('150 inst, item', inst, item);
         break;  
@@ -307,6 +317,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let dtype;
         switch(k) {
           case 'description':
+          case 'geometry':
             fieldType = 'textarea';
             break;
           case 'cardinalityFrom':
@@ -353,18 +364,22 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
           case 'template':
             if (!item.isGroup) {
-              values = ['textOnly'];
+              values = uit.getNodeTemplateNames();
+              defValue = '';
+              fieldType = 'select';
+            } else {
+              values = uit.getGroupTemplateNames();
               defValue = '';
               fieldType = 'select';
             }
             break;
           case 'fromArrow':
           case 'toArrow': {
-              values = arrowheads;
-              defValue = 'None';
-              fieldType = 'select';
-            }
-            break;
+            values = arrowheads;
+            defValue = 'None';
+            fieldType = 'select';
+          }
+          break;
           case 'fillcolor':
             if (!useColor) {
               values = colornames;
@@ -379,6 +394,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'select';
             }
             break;
+          case 'textcolor':
           case 'fromArrowColor':
           case 'toArrowColor':
               values = colornames;
@@ -434,10 +450,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             disabled = true;
             break;
           case "loc":
-          case "id":
             disabled = true;
             break;
-          default:
+          case "id":
+            disabled = true;
+            val = item[k];
+            break;
+          default: 
             // name = utils.capitalizeFirstLetter(k);
             break;
         }

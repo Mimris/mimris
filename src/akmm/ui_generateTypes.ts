@@ -82,6 +82,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             oldName = objtype.getName();
             objtype.setName(newName);
             objtype.setViewKind(obj.getViewKind());
+            objtype.markedAsDeleted = object.markedAsDeleted;
             myTargetMetamodel?.addObjectType(objtype);
         }
     } else {
@@ -308,6 +309,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
                     reltype = null;
             } else
                 reltype = null;
+            reltype.markedAsDeleted = relship.markedAsDeleted;
         }
         oldName = reltype?.getName();
         reltype?.setName(newName);
@@ -348,11 +350,11 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         // Create relationship typeview
         const guid = utils.createGuid();
         let reltypeview = new akm.cxRelationshipTypeView(guid, guid, reltype, "");
-        if (debug) console.log('349 relview, reltypeview', relview, reltypeview);
+        if (!debug) console.log('349 relview, reltypeview', relview, reltypeview);
         reltypeview.applyRelationshipViewParameters(relview);
         reltypeview.setRelshipKind(reltype.relshipkind);
         reltype.typeview = reltypeview;
-        if (debug) console.log('353 relview, reltypeview', relview, reltypeview);
+        if (!debug) console.log('353 relview, reltypeview', relview, reltypeview);
         myTargetMetamodel.addRelationshipTypeView(reltypeview);
         myMetis.addRelationshipTypeView(reltypeview);
         if (debug) console.log('340 reltypeview', reltypeview);
@@ -725,6 +727,15 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         
     model.targetMetamodelRef = metamodel.id;
     metamodel.generatedFromModelRef = model.id;
+    const mmname = metamodel.name;
+    const vsname = mmname + '_Viewstyle';
+    let vstyle = metamodel.viewstyle;
+    if (!vstyle) {
+        vstyle = new akm.cxViewStyle(utils.createGuid(), vsname, "");
+        metamodel.viewstyle = vstyle;
+        metamodel.addViewStyle(vstyle);
+        myMetis.addViewStyle(vstyle);
+    }
 
     let objects = model?.getObjectsByTypename('Datatype', false);
     // For each Datatype object call generateDatatype
@@ -816,7 +827,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
     if (debug) console.log('857 system object types completed', myMetis);
     // Then system relationship types
-    const rsystemtypes = ['isRelatedTo', 'Is', 'has', 'hasPart', 'hasMember'];
+    const rsystemtypes = ['isRelatedTo', 'Is', 'has'];
     let reltypes;
     if (model.includeSystemtypes) {
         reltypes = myMetamodel.relshiptypes;
@@ -870,10 +881,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     if (objectviews) {
         for (let i=0; i<objectviews.length; i++) {
             const objview = objectviews[i];
-            if (!objview || objview.markedAsDeleted) 
+            if (!objview /*|| objview.markedAsDeleted*/) 
                 continue;
             let obj = objview.object;
-            if (!obj || obj.markedAsDeleted) 
+            if (!obj /*|| obj.markedAsDeleted*/) 
                 continue;
             const  types = []; 
             if (obj.name === obj.type.name)
@@ -896,8 +907,12 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             if (debug) console.log('842 objtype', objtype);   
                             if (objtype) metamodel.addObjectType(objtype);
                             const typeview = objtype?.typeview;
-                            if (typeview) metamodel.addObjectTypeView(typeview); 
-                            if (debug) console.log('846 typeview, metamodel', typeview, metamodel);
+                            if (typeview) {
+                                metamodel.addObjectTypeView(typeview); 
+                                vstyle.addObjectTypeView(typeview);
+                                metamodel.addViewStyle(vstyle); 
+                            }
+                            if (debug) console.log('846 typeview, vstyle, metamodel', typeview, vstyle, metamodel);
                         }
                     }
                 }

@@ -351,9 +351,11 @@ export class goObjectNode extends goNode {
     typename: string;
     typeview: akm.cxObjectTypeView | null;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
+    textcolor: string;
     icon: string;
     isGroup: boolean | "";
     groupLayout: string;
@@ -367,9 +369,11 @@ export class goObjectNode extends goNode {
         this.objecttype     = null;
         this.typename       = "";
         this.template       = objview.template;
+        this.geometry       = objview.geometry;
         this.fillcolor      = objview.fillcolor;
         this.strokecolor    = objview.strokecolor;
         this.strokewidth    = objview.strokewidth;
+        this.textcolor      = objview.textcolor;
         this.icon           = objview.icon;
         this.isGroup        = objview.isGroup;
         this.groupLayout    = "Tree";
@@ -394,6 +398,7 @@ export class goObjectNode extends goNode {
             }
             this.typeview = objview.getTypeView();
             this.template = this.typeview.template;
+            this.geometry = this.typeview.geometry;
         }
     }
     // Methods
@@ -616,6 +621,7 @@ export class goRelshipLink extends goLink {
     from:               string;
     to:                 string;
     strokecolor:        string;
+    textcolor:          string;
     fromArrow:          string;
     toArrow:            string;
     fromArrowColor:     string;
@@ -642,6 +648,7 @@ export class goRelshipLink extends goLink {
         this.to              = "";
         this.template        = "";
         this.strokecolor     = "";
+        this.textcolor       = "";
         this.fromArrow       = "";
         this.fromArrowColor  = "";
         this.toArrow         = "";
@@ -887,6 +894,7 @@ export class paletteNode {
     description: string;
     isGroup: boolean;
     template: string;
+    geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
@@ -901,6 +909,7 @@ export class paletteNode {
         this.description = description;
         this.isGroup = false;
         this.template = "";
+        this.geometry = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "1";

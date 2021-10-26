@@ -28,20 +28,28 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     const node = obj;
     if (debug) console.log('27 node', node);
     inst = node.objecttype;
-    myItem = inst;
+    typeview = node.typeview;
+
+    if (context?.what === "editType") {
+      myItem = inst;
+    } else if (context?.what === "editTypeview") {
+        myItem = typeview; 
+        if (debug) console.log('37 editTypeview', myItem);
+    } 
+    
     try {
-      myItem[propname] = value;
-    } catch {
-      // Do nothing
+        myItem[propname] = value;
+      } catch {
+        // Do nothing
     }
-    if (debug) console.log('31 myItem', myItem);
+    if (debug) console.log('45 myItem', myItem);
   }
   // Handle objects
   if (obj.category === constants.gojs.C_OBJECT) {
     const node = obj;
     inst = node.object;
-    myInst = myMetis.findObject(inst.id);
     instview = node.objectview;
+    myInst = myMetis.findObject(inst.id);
     myInstview = myMetis.findObjectView(instview?.id);
     typeview = inst?.type?.typeview;
     if (myInstview) {
@@ -53,22 +61,37 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     if (context?.what === "editObjectview") {
         myItem = myInstview;
     } else if (context?.what === "editTypeview") {
-        myItem = myInst.type?.typeview.data;
-        if (debug) console.log('51 editTypeview', myItem);
+        myItem = myInst.type?.typeview; 
+        if (debug) console.log('51 editTypeview', typeview, myItem);
     } else {
         myItem = myInst;
     }
-    myItem[propname] = value;
+    try {
+      myItem[propname] = value;
+    } catch {
+      // Do nothing
+    }
   }
   if (debug) console.log('57 myItem', myItem);
+
   // Handle relationship types
   if (obj.category === constants.gojs.C_RELSHIPTYPE) {
     const link = obj;
     if (debug) console.log('61 link', link);
     inst = link.reltype;
-    myItem = inst;
-    myItem[propname] = value;
-    if (debug) console.log('65 myItem', myItem);
+    typeview = link.reltype;
+
+    if (context?.what === "editType") {
+      myItem = inst;
+    } else if (context?.what === "editTypeview") {
+        myItem = typeview; 
+        if (debug) console.log('51 editTypeview', typeview);
+    } 
+    try {
+      myItem[propname] = value;
+    } catch {
+      // Do nothing
+    }
   }
   // Handle relationships
   if (obj.category === constants.gojs.C_RELATIONSHIP) {
@@ -81,7 +104,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
       if (context?.what === "editRelshipview") 
           myItem = myInstview;
       else if (context?.what === "editTypeview") 
-          myItem = myInst.type?.typeview?.data;
+          myItem = myInst?.type?.typeview?.data;
       else
           myItem = myInst;
       myItem[propname] = value;
@@ -690,11 +713,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       for (let prop in objtypeview?.data) {
         if (prop === 'template' && objview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
+        if (prop === 'geometry' && objview[prop] !== "") 
+          myDiagram.model.setDataProperty(data, prop, objview[prop]);
         if (prop === 'fillcolor' && objview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
         if (prop === 'strokecolor' && objview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
         if (prop === 'strokewidth' && objview[prop] !== "")
+          myDiagram.model.setDataProperty(data, prop, objview[prop]);
+        if (prop === 'textcolor' && objview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
         if (prop === 'icon' && objview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, objview[prop]);
@@ -836,14 +863,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
         if (prop === 'strokewidth' && relview[prop] !== "")
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
+        if (prop === 'textcolor' && relview[prop] !== "") 
+          myDiagram.model.setDataProperty(data, prop, relview[prop]);
         if (prop === 'dash' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'fromArrow') {
-            let fromArrow = relview[prop];
-            if (relview[prop] === 'None') fromArrow = "";
-            myDiagram.model.setDataProperty(data, prop, fromArrow);           
-          }          
-          if (prop === 'fromArrowColor' && relview[prop] !== "") 
+        if (prop === 'fromArrow') {
+          let fromArrow = relview[prop];
+          if (relview[prop] === 'None') fromArrow = "";
+          myDiagram.model.setDataProperty(data, prop, fromArrow);           
+      }          
+        if (prop === 'fromArrowColor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
           if (prop === 'toArrow') {
             let toArrow = relview[prop];
@@ -880,11 +909,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('780 node, data', node, data);
         typeview = data.typeview;
         typeview = myMetis.findObjectTypeView(typeview?.id);
-        let objtype = node.objecttype;
-        if (!typeview) typeview = objtype.newDefaultTypeView('Object');
+        // let objtype = node.objecttype;
+        // if (!typeview) typeview = objtype.newDefaultTypeView('Object');
         for (let prop in typeview?.data) {
+          if (prop === 'abstract') continue;
+          if (prop === 'class') continue;
           typeview.data[prop] = selObj[prop];
-          typeview[prop] = selObj[prop];
+          if (data) data[prop] = selObj[prop];
         }
         if (debug) console.log('789 typeview', typeview, data);
          const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
@@ -900,8 +931,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         data = node.data;
         if (debug) console.log('801 objtypeview, data', data);
         typeview = data.objectview?.typeview;
-        typeview = data.typeview;
-        typeview = myMetis.findObjectTypeView(typeview.id);
+        // if (!typeview) typeview = data.typeview;
+        // if (!typeview) 
+        typeview = myMetis.findObjectTypeView(typeview?.id);
+        for (let prop in typeview.data) {
+          typeview.data[prop] = selObj[prop];
+          // data[prop] = selObj[prop];
+        }
         const gqlObjtypeview = new gql.gqlObjectTypeView(typeview);
         if (debug) console.log('806 gqlObjtypeview', gqlObjtypeview);
         modifiedObjTypeviews.push(gqlObjtypeview);
@@ -913,12 +949,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
         const link = myDiagram.findLinkForKey(selObj.key);
         data = link.data;
-        if (debug) console.log('816 data', data);
+        if (debug) console.log('810 data, link', data, link);
         typeview = data.typeview;
         typeview = myMetis.findRelationshipTypeView(typeview.id);
         for (let prop in typeview.data) {
+          if (prop === 'abstract') continue;
+          if (prop === 'class') continue;
+          if (prop === 'relshipkind') continue;
           typeview.data[prop] = selObj[prop];
-          data[prop] = selObj[prop];
+          if (data) data[prop] = selObj[prop];
         }
         typeview.setFromArrow2(selObj.relshipkind);
         typeview.setToArrow2(selObj.relshipkind);
@@ -935,20 +974,26 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const link = myDiagram.findLinkForKey(selObj.key);
         data = link.data;
         typeview = data.relshipview.typeview;
-        typeview = myMetis.findRelationshipTypeView(typeview.id);
-        if (debug) console.log('839 reltypeview, link', typeview, link);
-        const gqlReltypeview = new gql.gqlRelshipTypeView(typeview);
-        if (debug) console.log('841 gqlReltypeview', gqlReltypeview);
-        modifiedRelTypeviews.push(gqlReltypeview);
-        modifiedRelTypeviews.map(mn => {
-          let data = mn;
-          props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-        })
+        typeview = myMetis.findRelationshipTypeView(typeview?.id);
+        if (typeview) {
+          for (let prop in typeview.data) {
+            typeview.data[prop] = selObj[prop];
+            data[prop] = selObj[prop];
+          }
+          if (debug) console.log('839 reltypeview, link', typeview, link);
+          const gqlReltypeview = new gql.gqlRelshipTypeView(typeview);
+          if (debug) console.log('841 gqlReltypeview', gqlReltypeview);
+          modifiedRelTypeviews.push(gqlReltypeview);
+          modifiedRelTypeviews.map(mn => {
+            let data = mn;
+            props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+          })
+        }
       }
       if (data) {
-        if (debug) console.log('849 data', data);
         if (selObj.category === constants.gojs.C_RELSHIPTYPE || 
-          selObj.category === constants.gojs.C_OBJECTTYPE) {
+            selObj.category === constants.gojs.C_OBJECTTYPE) {
+          if (debug) console.log('849 data', data);
           for (let prop in typeview) {
             if (prop === 'template' && typeview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, typeview[prop]);

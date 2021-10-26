@@ -181,7 +181,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                               
          
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
-                        if (i === 0 || oName === 'items')  {
+                        if (i === 0 || oName === 'items')  { // its a new EntityType level object
                             if (i === 0) {
                                 topId = oId 
                                 topTitle = cNewVal.title
@@ -209,38 +209,40 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             
                             createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
                             
+                            if (!debug) console.log('211 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+                            
                             if (parentName === 'Property') {
                                 parentId = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] // set parentId to be used in the next iteration of  objectet.
                                 parentName = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[0] // set parentName to be used in the next iteration of  objectet.
+                                if (!debug) console.log('217 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
 
                             } else if (ggparentName === 'items') {
                                 parentId = tmpArray.find((o) => (o[0] === ggparentKey) && o)[1] 
-                                if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+                                if (!debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
                                 parentName = tmpArray.find((o) => (o[0] === ggparentKey) && o)[0] 
+                            } else if (ggparentName === 'properties') {
+                                parentId = tmpArray.find((o) => (o[0] === parentKey) && o)[1] 
+                                if (!debug) console.log('225 ', tmpArray.find( (o) => (o[0] === parentKey) && o[1]));
+                                parentName = tmpArray.find((o) => (o[0] === parentKey) && o)[0] 
                             } else{
                                 parentId = entityId
                                 parentName = entityName
+                                if (!debug) console.log('226 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
                             }
                             
                             propertyId = oId
                             propertyName = oName
 
-                            if (!debug) console.log('222 parentId', parentId, ggparentName, gggparentKey) // entityName, objecttypeRef, oKey, jsonType, cNewVal);
+                            if (!debug) console.log('236 parentId', parentId, ggparentName, gggparentKey) // entityName, objecttypeRef, oKey, jsonType, cNewVal);
                             
                             // compositeName = (entityName) ? entityName : oName
 
                         } else if (parentName === 'properties' && inclProps) { // if the import includes properties
-
-                            console.log( '230 : ', containsType.name, oName, parentName, parentId, oId);
+                            console.log( '241 : ', containsType.name, oName, parentName, parentId, oId);
                             reltypeRef = containsType.id
                             reltypeName = containsType.name      
                             relshipKind = 'Aggregation'       
-                            // parentId = propertyId
-                            // parentName = propertyName
-                            // compositeName = (entityName) ? entityName : oName
-                            // entityName = oName
                             createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
-            
                         } else {                           
                             continue;
                         }

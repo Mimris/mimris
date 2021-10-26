@@ -3,13 +3,15 @@ const debug = false;
 import * as go from 'gojs';
 import * as utils from './utilities';
 import * as uic from './ui_common';
+import * as uit from './ui_templates';
 import * as ui_mtd from './ui_methods';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as gql from './ui_graphql';
-//import { ButtonGroupProps } from 'reactstrap';
 const constants = require('./constants');
 const printf = require('printf');
+
+const $ = go.GraphObject.make;
 
 export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     const mmname = prompt("Enter Metamodel name");
@@ -211,7 +213,7 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 }
 
 export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    const icon = findImage(node.icon);
+    const icon = uit.findImage(node.icon);
     const modalContext = {
       what:       "editObject",
       title:      "Edit Object",
@@ -224,10 +226,23 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
 }
 
 export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    const icon = findImage(node.icon);
+    const icon = uit.findImage(node.icon);
     const modalContext = {
       what:       "editObjectview",
       title:      "Edit Object View",
+      icon:       icon,
+      myDiagram:  myDiagram
+    }
+    myMetis.currentNode = node;
+    myMetis.myDiagram = myDiagram;
+    myDiagram.handleOpenModal(node, modalContext);
+}    
+
+export function editTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const icon = uit.findImage(node.icon);
+    const modalContext = {
+      what:       "editTypeview",
+      title:      "Edit Typeview",
       icon:       icon,
       myDiagram:  myDiagram
     }
@@ -405,6 +420,8 @@ function createModel(context: any) {
         } else {
             // const curmodel = myMetis.currentModel;
             const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model, "");
+            if (metamodel?.viewstyle) 
+            modelView.viewstyle = metamodel.viewstyle;
             model.addModelView(modelView);
             myMetis.addModelView(modelView);
             const data = new gql.gqlModel(model, true);
@@ -471,82 +488,6 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
 }
 
 
-// Function to identify images related to an image id
-function findImage(image: string) {
-    if (!image)
-        return "";
-    // if (image.substring(0,4) === 'http') { // its an URL
-    if (image.includes('//')) { // its an URL   
-        // if (debug) console.log('1269 Diagram', image);
-        return image
-    } else if (image.includes('/')) { // its a local image
-        if (debug) console.log('1270 Diagram', image);   
-        return image
-    } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
-        const firstcharacter = image.substring(0, 1)
-        const secondcharacter = image.substring(1, 2)
-        if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
-        // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
-        //   const letter = image.substring(0, image.length - 4)
-        //   // const lettersvg = letter
-        //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
-        //   return svgs[letter].svg //svgs[`'${letter}'`]
-        // } else if (image.includes('fakepath')) { // its a local image
-        //   console.log('3025', image);
-        //   console.log("3027 ./../images/" + image.replace(/C:\\fakepath\\/,'')) //its an image in public/images
-        //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
-    } else if (image.includes('<svg')) { // its an icon font
-        const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
-        console.log('3585', img);
-        return img
-
-    } else { 
-        if (debug) console.log('1283 Diagram', image);
-        return "./../images/" + image //its an image in public/images
-    }
-    return "";
-    }
-
-// Function to specify default text style
-function textStyle() {
-return { font: "9pt  Segoe UI,sans-serif", stroke: "black" };
-}
-
-// Function to highlight group
-function highlightGroup(e: any, grp: any, show: boolean) {
-if (!grp) return;
-e.handled = true;
-if (show) {
-    // cannot depend on the grp.diagram.selection in the case of external drag-and-drops;
-    // instead depend on the DraggingTool.draggedParts or .copiedParts
-    var tool = grp.diagram.toolManager.draggingTool;
-    var map = tool.draggedParts || tool.copiedParts;  // this is a Map
-    // now we can check to see if the Group will accept membership of the dragged Parts
-    if (grp.canAddMembers(map.toKeySet())) {
-    grp.isHighlighted = true;
-    return;
-    }
-}
-grp.isHighlighted = false;
-}
-
-export function setDashed(d: string) { 
-    const dotted = [3, 3];
-    const dashed = [5, 5];
-    switch (d) {
-        case "dotted":
-        case "Dotted":
-        case "Dotted Line":
-            return dotted;
-        case "dashed":
-        case "Dashed":
-        case "Dashed Line":
-            return dashed;
-        default:
-            return null;
-    }
-}
-
 const breakString = (str, limit) => {
     let brokenString = '';
     for(let i = 0, count = 0; i < str.length; i++){
@@ -562,7 +503,7 @@ const breakString = (str, limit) => {
 }
 
 export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a node data object
-    if (debug) console.log('987 nodeInfo', d, d.object);
+    if (debug) console.log('506 nodeInfo', d, d.object);
 
     const format1 = "%s\n";
     const format2 = "%-10s: %s\n";
@@ -607,6 +548,7 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
 }
 
 export function linkInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a link data object
+    if (debug) console.log('551 linkInfo', d, d.relshiptype);
     const typename = d.relshiptype?.name;
     const reltype = myMetis.findRelationshipTypeByName(typename);
     const fromNode = d.fromNode;
@@ -615,7 +557,7 @@ export function linkInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     const toNode = d.toNode;
     const toObj = toNode?.object;
     const toObjtype = reltype.getToObjType();
-    if (debug) console.log('425 linkInfo', d);
+    if (debug) console.log('560 linkInfo', d);
     const format1 = "%s\n";
     const format2 = " %-10s: %s\n";
     const format3 = "%-8s: %s\n";
@@ -647,9 +589,3 @@ export function diagramInfo(model: any) {  // Tooltip info for the diagram's mod
     str += model.linkDataArray.length + " links";
     return str;
 }
-
-
-
-
-
-  

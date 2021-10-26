@@ -1,11 +1,11 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false; 
 
 const utils = require('./utilities');
-// const glb = require('./akm_globals');
 import * as akm from './metamodeller';
-import { goRelshipTypeLink } from './ui_gojs';
-//import * as gojs  from './components/akmm/ui_gojs';
+// import { goRelshipTypeLink } from './ui_gojs';
+
+let gqlMetis = null;
 
 export class gqlExportMetis {
     name:                   string;
@@ -36,6 +36,7 @@ export class gqlExportMetis {
         this.currentTemplateModelRef = "";
         // Code
         if (metis) {
+            gqlMetis = metis;
             const metamodels = metis.getMetamodels();
             if (metamodels) {
                 const cnt = metamodels.length;
@@ -106,11 +107,29 @@ export class gqlViewStyle {
             this.description = vstyle.description;
     }
 }
+export class gqlGeometry {
+    id:              string;
+    name:            string;
+    description:     string;
+    markedAsDeleted: boolean;
+    modified:        boolean;
+    constructor(geo: akm.cxGeometry) {
+        this.id              = geo.id;
+        this.name            = geo.name;
+        this.description     = "";
+        this.markedAsDeleted = geo.markedAsDeleted;
+        this.modified        = geo.modified;
+        // Code
+        if (geo.description)
+            this.description = geo.description;
+    }
+}
 export class gqlMetaModel {
     id:                 string;
     name:               string;
     description:        string;
     viewstyles:         gqlViewStyle[] | null;
+    geometries:         gqlGeometry[] | null;
     objecttypes:        gqlObjectType[];
     relshiptypes:       gqlRelationshipType[];
     properties:         gqlProperty[];
@@ -132,6 +151,7 @@ export class gqlMetaModel {
         this.name = metamodel.name;
         this.description = (metamodel.description) ? metamodel.description : "";
         this.viewstyles = [];
+        this.geometries = [];
         this.objecttypes = [];
         this.relshiptypes = [];
         this.properties = [];
@@ -214,6 +234,14 @@ export class gqlMetaModel {
                 for (let i = 0; i < cnt; i++) {
                     const viewstyle = viewstyles[i];
                     this.addViewStyle(viewstyle);
+                }
+            }
+            const geometries = metamodel.getGeometries();
+            if (geometries) {
+                const cnt = geometries.length;
+                for (let i = 0; i < cnt; i++) {
+                    const geo = geometries[i];
+                    this.addGeometry(geo);
                 }
             }
             const objtypeviews = metamodel.getObjectTypeViews();
@@ -302,6 +330,12 @@ export class gqlMetaModel {
         if (vstyle && !vstyle.isDeleted()) {
             const gViewStyle = new gqlViewStyle(vstyle);
             this.viewstyles.push(gViewStyle);
+        }
+    }
+    addGeometry(geo: akm.cxGeometry) {
+        if (geo && !geo.isDeleted()) {
+            const gGeometry = new gqlGeometry(geo);
+            this.geometries.push(gGeometry);
         }
     }
     addObjectTypeView(objtypeview: akm.cxObjectTypeView) {
@@ -578,10 +612,12 @@ export class gqlObjectTypeView {
     isGroup:         boolean;
     group:           string;
     template:        string;
+    geometry:        string;
     fillcolor:       string;
     strokecolor:     string;
     strokecolor1:    string;
     strokewidth:     string;
+    textcolor:       string;
     icon:            string;
     markedAsDeleted: boolean;
     modified:        boolean;
@@ -594,10 +630,12 @@ export class gqlObjectTypeView {
         this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
+        this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
         this.strokecolor     = objtypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor;
         this.strokewidth     = objtypeview.getStrokewidth();
+        this.textcolor       = objtypeview.getTextcolor();
         this.icon            = objtypeview.getIcon();
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
@@ -635,6 +673,7 @@ export class gqlRelshipTypeView {
     strokecolor:     string;
     strokecolor1:    string;
     strokewidth:     string;
+    textcolor:       string;
     dash:            string;
     fromArrow:       string;
     toArrow:         string;
@@ -650,6 +689,7 @@ export class gqlRelshipTypeView {
         this.strokecolor     = reltypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor1;
         this.strokewidth     = reltypeview.getStrokewidth();
+        this.textcolor       = reltypeview.getTextcolor();
         this.dash            = reltypeview.getDash();
         this.fromArrow       = reltypeview.getFromArrow();
         this.toArrow         = reltypeview.getToArrow();
@@ -1027,7 +1067,7 @@ export class gqlPropertyDefinition {
                 if (rel.getName() === "isOfDatatype") {
                     const proptype = rel.getToObject();
                     this.datatype = proptype.getName();
-                    const dtype = glb.metis.findDatatypeByName(this.datatype);
+                    const dtype = gqlMetis.findDatatypeByName(this.datatype);
                     if (utils.objExists(dtype))
                         this.datatypeRef = dtype.id;
                 }
@@ -1213,9 +1253,11 @@ export class gqlObjectView {
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
+    geometry:        string;
     fillcolor:       string;
     strokecolor:     string;
     strokewidth:     string;
+    textcolor:       string;
     icon:            string;
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
@@ -1228,11 +1270,14 @@ export class gqlObjectView {
         this.isGroup         = objview?.isGroup;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
+        this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
         this.strokecolor     = objview?.strokecolor;
         this.strokewidth     = objview?.strokewidth;
+        this.textcolor       = objview?.textcolor;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
+        this.viewkind        = objview?.viewkind;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
     }
@@ -1247,12 +1292,13 @@ export class gqlRelshipView {
     toobjviewRef:    string;
     strokecolor:     string;
     strokewidth:     string;
+    textcolor:       string;
     dash:            string;
     fromArrow:       string;
     toArrow:         string;
     fromArrowColor:  string;
     toArrowColor:    string;
-    points:          string;
+    points:          any;
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(relview: akm.cxRelationshipView) {
@@ -1263,6 +1309,7 @@ export class gqlRelshipView {
         this.typeviewRef     = "";
         this.strokecolor     = relview.strokecolor;
         this.strokewidth     = relview.strokewidth;
+        this.textcolor       = relview?.textcolor;
         this.dash            = relview.dash;
         this.fromArrow       = relview.fromArrow;
         this.toArrow         = relview.toArrow;
@@ -1306,6 +1353,9 @@ export class gqlImportMetis {
         this.currentModelRef        = importedData.currentModelRef;
         this.currentModelviewRef    = importedData.currentModelviewRef;
         this.currentTemplateModelRef = importedData.currentTemplateModelRef;
+
+        gqlMetis = metis;
+
         // Handle metamodels
         const metamodels = importedData.metamodels;
         if (metamodels && (metamodels.length > 0)) {
@@ -1323,11 +1373,11 @@ export class gqlImportMetis {
         }
     }
     importMetamodel(item: akm.cxMetaModel) {
-        if (debug) console.log('1001 importMetis - glb.metis', glb.metis);
-        let metamodel = glb.metis.findMetamodel(item.id);
+        if (debug) console.log('1001 importMetis - gqlMetis', gqlMetis);
+        let metamodel = gqlMetis.findMetamodel(item.id);
         if (!metamodel) {
             metamodel = new akm.cxMetaModel(item.id, item.name, item.description);
-            glb.metis.addMetamodel(metamodel);
+            gqlMetis.addMetamodel(metamodel);
         }
         if (debug) console.log("851 Imported metamodel: " + item.id + ", " + item.name);
         let datatypes = item.datatypes;
@@ -1425,7 +1475,7 @@ export class gqlImportMetis {
 
     }
     importObjectType(item: any, metamodel: akm.cxMetaModel) {
-        if (debug) console.log('1096 importObjectType - glb.metis', glb.metis);
+        if (debug) console.log('1096 importObjectType - gqlMetis', gqlMetis);
         let objtype = metamodel.findObjectType(item.id);
         if (!utils.objExists(objtype)) {
             objtype = new akm.cxObjectType(item.id, item.name, item.description);
@@ -1438,11 +1488,11 @@ export class gqlImportMetis {
             }
         }
         if (utils.objExists(item.typeviewRef)) {
-            const objtypeview = glb.metis.findObjectTypeView(item.typeviewRef);
+            const objtypeview = gqlMetis.findObjectTypeView(item.typeviewRef);
             if (objtype && objtypeview)
                 objtype.setDefaultTypeView(objtypeview);
         }
-        glb.metis.addObjectType(objtype);
+        gqlMetis.addObjectType(objtype);
         if (objtype) metamodel.addObjectType(objtype);
         if (debug) console.log("Importing objecttype: " + item.id + ", " + item.name);
     }
@@ -1460,17 +1510,17 @@ export class gqlImportMetis {
             }
         }
         if (utils.objExists(item.fromobjtypeRef) && utils.objExists(item.toobjtypeRef)) {
-            const fromobjType = glb.metis.findObjectType(item.fromobjtypeRef);
-            const toobjType = glb.metis.findObjectType(item.toobjtypeRef);
+            const fromobjType = gqlMetis.findObjectType(item.fromobjtypeRef);
+            const toobjType = gqlMetis.findObjectType(item.toobjtypeRef);
             if (reltype) reltype.setFromObjtype(fromobjType);
             if (reltype) reltype.setToObjtype(toobjType);
         }
         if (utils.objExists(item.typeviewRef)) {
-            const reltypeview = glb.metis.findRelationshipTypeView(item.typeviewRef);
+            const reltypeview = gqlMetis.findRelationshipTypeView(item.typeviewRef);
             if (reltype && reltypeview)
                 reltype.setDefaultTypeView(reltypeview);
         }
-        glb.metis.addRelationshipType(reltype);
+        gqlMetis.addRelationshipType(reltype);
         if (reltype) metamodel.addRelationshipType(reltype);
         if (debug) console.log("Importing relshiptype: " + item.id + ", " + item.name);
         const properties = item.properties;
@@ -1482,22 +1532,23 @@ export class gqlImportMetis {
     }
     importObjectTypeView(item: any, metamodel: akm.cxMetaModel) {
         const typeref = item.typeRef;
-        const type = glb.metis.findObjectType(typeref);
+        const type = gqlMetis.findObjectType(typeref);
         const objtypeview = new akm.cxObjectTypeView(item.id, item.name, type, item.description);
         if (utils.objExists(type))
             objtypeview.setType(type);
         objtypeview.setTemplate(item.template);
+        objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setStrokecolor(item.strokecolor);
         objtypeview.setStrokewidth(item.strokewidth);
         objtypeview.setIcon(item.icon);
-        glb.metis.addObjectTypeView(objtypeview);
+        gqlMetis.addObjectTypeView(objtypeview);
         metamodel.addObjectTypeView(objtypeview);
         if (debug) console.log("Importing objtypeview: " + item.id + ", " + item.name);
     }
     importObjectTypegeo(item: any, metamodel: akm.cxMetaModel) {
         let typeref = item.typeRef;
-        let type = glb.metis.findObjectType(typeref);
+        let type = gqlMetis.findObjectType(typeref);
         let objtypegeo = metamodel.findObjtypeGeo(item.id);
         if (!objtypegeo) {
             objtypegeo = new akm.cxObjtypeGeo(item.id, metamodel, type, "", "");
@@ -1508,13 +1559,13 @@ export class gqlImportMetis {
                 objtypegeo.setType(type);
             objtypegeo.setLoc(item.loc);
             objtypegeo.setSize(item.size);
-            glb.metis.addObjtypeGeo(objtypegeo);
+            gqlMetis.addObjtypeGeo(objtypegeo);
             metamodel.addObjtypeGeo(objtypegeo);
         }
     }
     importRelshipTypeView(item: any, metamodel: akm.cxMetaModel) {
         const typeref = item.typeRef;
-        const type = glb.metis.findRelationshipType(typeref);
+        const type = gqlMetis.findRelationshipType(typeref);
         const reltypeview = new akm.cxRelationshipTypeView(item.id, item.name, type, item.description);
         if (utils.objExists(type))
             reltypeview.setType(type);
@@ -1523,7 +1574,7 @@ export class gqlImportMetis {
         reltypeview.setDash(item.dash);
         reltypeview.setFromArrow(item.fromarrow);
         reltypeview.setToArrow(item.toarrow);
-        glb.metis.addRelationshipTypeView(reltypeview);
+        gqlMetis.addRelationshipTypeView(reltypeview);
         metamodel.addRelationshipTypeView(reltypeview);
         if (debug) console.log("Importing reltypeview: " + item.id + ", " + item.name);
     }
@@ -1539,7 +1590,7 @@ export class gqlImportMetis {
             }
         }
         // Eventually add datatype and unit
-        glb.metis.addProperty(property);
+        gqlMetis.addProperty(property);
         if (property) metamodel.addProperty(property);
         // type.addProperty(property);
     }
@@ -1555,7 +1606,7 @@ export class gqlImportMetis {
             }
         }
         // Eventually add method type
-        glb.metis.addMethodType(mtype);
+        gqlMetis.addMethodType(mtype);
         if (mtype) metamodel.addMethodType(mtype);
     }
     importMethod(item: any, metamodel: akm.cxMetaModel) {
@@ -1570,24 +1621,24 @@ export class gqlImportMetis {
             }
         }
         // Eventually add mëthod
-        glb.metis.addMethod(method);
+        gqlMetis.addMethod(method);
         if (method) metamodel.addMethod(method);
     }
     importDatatype(item: any, metamodel: akm.cxMetaModel) {
         if (debug) console.log('1317 importDatatype item:', item);
-        let dtype = glb.metis.findDatatype(item.id);
+        let dtype = gqlMetis.findDatatype(item.id);
         if (!utils.objExists(dtype)) {
             dtype = new akm.cxDatatype(item.id, item.name, item.description);
         }
         // Eventually add datatype and unit
-        glb.metis.addDatatype(dtype);
+        gqlMetis.addDatatype(dtype);
         metamodel.addDatatype(dtype);
     }
     importModel(item: any) {
-        const metamodel = glb.metis.findMetamodel(item.metamodelRef);
+        const metamodel = gqlMetis.findMetamodel(item.metamodelRef);
         const model = new akm.cxModel(item.id, item.name, metamodel, item.description);
         model.setMetamodel(metamodel);
-        glb.metis.addModel(model);
+        gqlMetis.addModel(model);
         if (debug) console.log("Importing model: " + item.id + ", " + item.name);
         const objects = item.objects;
         if (objects && (objects.length > 0)) {
@@ -1610,7 +1661,7 @@ export class gqlImportMetis {
     }
     importObject(item: any, model: akm.cxModel) {
         if (item.typeRef) {
-            let objtype = glb.metis.findObjectType(item.typeRef);
+            let objtype = gqlMetis.findObjectType(item.typeRef);
             const metamodel = model.metamodel;
             if (!objtype) {
                 objtype = metamodel.findObjectTypeByName(item.name);
@@ -1621,7 +1672,7 @@ export class gqlImportMetis {
             if (objtype) {
                 let obj = new akm.cxObject(item.id, item.name, objtype, item.description);
                 obj.setType(objtype);
-                glb.metis.addObject(obj);
+                gqlMetis.addObject(obj);
                 model.addObject(obj);
                 if (debug) console.log("Importing object: " + item.id + ", " + item.name);
             }
@@ -1629,7 +1680,7 @@ export class gqlImportMetis {
     }
     importRelship(item: any, model: akm.cxModel) {
         if (item.typeRef) {
-            let reltype = glb.metis.findRelationshipType(item.typeRef);
+            let reltype = gqlMetis.findRelationshipType(item.typeRef);
             const metamodel = model.metamodel;
             if (!reltype) {
                 reltype = metamodel.findRelationshipTypeByName(item.name);
@@ -1637,12 +1688,12 @@ export class gqlImportMetis {
                     reltype = metamodel.findRelationshipTypeByName('isRelatedTo');
                 }
             }
-            const fromObj = glb.metis.findObject(item.fromObjectRef);
-            const toObj = glb.metis.findObject(item.toObjectRef);
+            const fromObj = gqlMetis.findObject(item.fromObjectRef);
+            const toObj = gqlMetis.findObject(item.toObjectRef);
             if (reltype && fromObj && toObj) {
                 const rel = new akm.cxRelationship(item.id, item.name, reltype, fromObj, toObj, item.description);
                 rel.setType(reltype);
-                glb.metis.addRelationship(rel);
+                gqlMetis.addRelationship(rel);
                 model.addRelationship(rel);
                 if (debug) console.log("Importing relship: " + item.id + ", " + item.name);
             }
@@ -1650,7 +1701,7 @@ export class gqlImportMetis {
     }
     importModelView(item: akm.cxModelView, model: akm.cxModel) {
         const modelview = new akm.cxModelView(item.id, item.name, model, item.description);
-        glb.metis.addModelView(modelview);
+        gqlMetis.addModelView(modelview);
         model.addModelView(modelview);
         if (debug) console.log("Importing modelview: " + item.id + ", " + item.name);
         const objectviews = item.objectviews;
@@ -1664,14 +1715,14 @@ export class gqlImportMetis {
     }
     importObjectView(item: akm.cxObjectView, modelview: akm.cxModelView) {
         if (item.objectRef) {
-            const object = glb.metis.findObject(item.objectRef);
+            const object = gqlMetis.findObject(item.objectRef);
             if (object) {
                 const objview = new akm.cxObjectView(item.id, item.name, object, item.description);
                 objview.group = item.group;
                 objview.isGroup = item.isGroup;
                 objview.setObject(object);
                 if (item.typeviewRef) {
-                    const objtypeview = glb.metis.findObjectTypeView(item.typeviewRef);
+                    const objtypeview = gqlMetis.findObjectTypeView(item.typeviewRef);
                     if (objtypeview)
                         objview.setTypeView(objtypeview);
                 }
@@ -1684,7 +1735,7 @@ export class gqlImportMetis {
     }
     importRelshipView(item: akm.cxRelationshipView, modelview: akm.cxModelView) {
         if (item) {
-            const relship = glb.metis.findRelationship(item.relship.id);
+            const relship = gqlMetis.findRelationship(item.relship.id);
             if (relship) {
                 const relview = new akm.cxRelationshipView(item.id, item.name, relship, item.description);
                 relview.setRelationship(relship);
@@ -1694,7 +1745,7 @@ export class gqlImportMetis {
                 relview.setToObjectView(toobjview);
                 // relview.setData(item.data);
                 if (item.typeview.id) {
-                    const reltypeview = glb.metis.findRelationshipTypeView(item.typeview.id);
+                    const reltypeview = gqlMetis.findRelationshipTypeView(item.typeview.id);
                     if (reltypeview)
                         relview.setTypeView(reltypeview);
                 }
@@ -1730,11 +1781,11 @@ export class gqlImportTypeDefinition {
             }
         }
         if (utils.objExists(item.typeviewRef)) {
-            const objtypeview = glb.metis.findObjectTypeView(item.typeviewRef);
+            const objtypeview = gqlMetis.findObjectTypeView(item.typeviewRef);
             if (objtype && objtypeview)
                 objtype.setDefaultTypeView(objtypeview);
         }
-        glb.metis.addObjectType(objtype);
+        gqlMetis.addObjectType(objtype);
         if (objtype) metamodel.addObjectType(objtype);
         if (debug) console.log("Importing objecttype: " + item.id + ", " + item.name);
 

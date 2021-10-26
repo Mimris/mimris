@@ -66,7 +66,7 @@ const Palette = (props) => {
     // gojstypes = (ndarr) ? {nodeDataArray: ndarr, linkDataArray: ldarr} : unsorted
   }
   // select some nodeDataArray elements to be the irtv
-  console.log('55 Palette', ndarr);
+  if (debug) console.log('55 Palette', ndarr);
   const irtvNodeDataArray = ndarr?.filter(i => 
       i?.typename === 'Container'
     || i?.typename === 'Information'
@@ -132,7 +132,7 @@ const Palette = (props) => {
 
   gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
 
-  if (!debug) console.log('37 Palette', gojstypes);
+  if (debug) console.log('37 Palette', gojstypes);
 
   const nodeArray_all = props.gojsModelObjects?.nodeDataArray 
   if (debug) console.log('27 Palette', nodeArray_all);

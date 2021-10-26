@@ -193,8 +193,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             entityName = (i === 0) ? cNewVal.title : parentName+' '+oName // if topobject use title as name
                             // entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName // if topobject use title as name
                             // console.log('142 i', i, entityName, entityId);
-                            reltypeRef = hasMemberType.id 
-                            reltypeName = hasMemberType.name
+                            reltypeRef = hasMemberType?.id 
+                            reltypeName = hasMemberType?.name
                             relshipKind = 'Association'
 
                             createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal)
@@ -220,7 +220,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                 parentId = tmpArray.find((o) => (o[0] === ggparentKey) && o)[1] 
                                 if (!debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
                                 parentName = tmpArray.find((o) => (o[0] === ggparentKey) && o)[0] 
-                            } else if (ggparentName === 'properties') {
+                            } else if (gparentName === 'properties') {
                                 parentId = tmpArray.find((o) => (o[0] === parentKey) && o)[1] 
                                 if (!debug) console.log('225 ', tmpArray.find( (o) => (o[0] === parentKey) && o[1]));
                                 parentName = tmpArray.find((o) => (o[0] === parentKey) && o)[0] 

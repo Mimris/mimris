@@ -3726,20 +3726,17 @@ export class cxMetaModel extends cxMetaObject {
         if (!types) {
             return null;
         } else {
-            let i = 0;
-            let reltype: cxRelationshipType | null = null;
-            while (i < types.length) {
-                reltype = types[i];
+            for (let i = 0; i<types.length; i++) {
+                let reltype = types[i] as cxRelationshipType;
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
-                    if (debug) console.log('2568 reltype', reltype, fromObjType, toObjType);
+                    if (debug) console.log('3736 reltype', reltype, fromObjType, toObjType);
                     if (reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes)) {
                         if (reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes)) {
                             return reltype;
                         }
                     }
                 }
-                i++;
             }
         }
         return null;

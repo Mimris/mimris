@@ -350,11 +350,11 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
         // Create relationship typeview
         const guid = utils.createGuid();
         let reltypeview = new akm.cxRelationshipTypeView(guid, guid, reltype, "");
-        if (!debug) console.log('349 relview, reltypeview', relview, reltypeview);
+        if (debug) console.log('349 relview, reltypeview', relview, reltypeview);
         reltypeview.applyRelationshipViewParameters(relview);
         reltypeview.setRelshipKind(reltype.relshipkind);
         reltype.typeview = reltypeview;
-        if (!debug) console.log('353 relview, reltypeview', relview, reltypeview);
+        if (debug) console.log('353 relview, reltypeview', relview, reltypeview);
         myTargetMetamodel.addRelationshipTypeView(reltypeview);
         myMetis.addRelationshipTypeView(reltypeview);
         if (debug) console.log('340 reltypeview', reltypeview);

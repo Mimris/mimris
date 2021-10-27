@@ -7,25 +7,26 @@ cover_image: 'images/posts/overview/image00.png'
 
 ## The Metamodel
 
-In this chapter the focus is on the technicalities associated with developing models of metamodels, generating metamodels, creating models based on the generated metamodel and then start over again by making changes in the metamodel design.
+In this chapter the focus is on the technicalities associated with developing type definition models, generating metamodels, creating models based on the generated metamodel and then start over again by making changes to the type definition model.
 
 When you start AKM Modeller, an initial model using a initial metamodel is opened.
 
 ![alt text](/images/posts/modelling/image_model022.png)
 
-The left pane above contains the object types in the initial metamodel, which  user can be used to build a model. 
-A model can have different purposes, for example, a model can be used to generate a new metamodel. This is often called a concept model.
+The left pane above contains the object types in the initial metamodel, which the user can use to build a model. 
+A model can have different purposes, for example, a model can be used to generate a new metamodel. This model we call a type definition model.
 
 
 ## Making a new metamodel
 
-Building a metamodel is a process of creating a model of the metamodel. This is often called a concept model i.e. a model of the concepts or object types. 
+Building a new metamodel is a process of creating a type definition model and then generate the metamodel. 
 
-When building a concept model we use an “EntityType” to represent the ObjectType and a "relationType" to represent the relationships between EtityTypes.
-(this can also be referred as a graph model, with the nodes (vertices) representing the object types and the edges representing the relationships between the object types)
+When building a type definition model we use an “EntityType” to represent the ObjectType and an "isRelatedTo" relationship to represent a RelationshipType between EntityTypes.
 
 You drag “EntityType” into the modelling area and drop it to create an object representing your new type. 
-You give the object a name, which will be the new ObjectType name and a description.
-Relationship are created by dragging a link between two EntityTypesof type “isRelatedTo” between “EntityTypes”
-in the model and renamed to the typename you decide.
+You give the object a name, which will be the new ObjectType name, and you give it a description.
+
+Relationship types are created by dragging a link between two EntityTypes of type "isRelatedTo" and then rename it to the typename you decide.
+
+When you regard your model of the type definition model to be complete, you do a "Generate Metamodel" to create your new metamodel. This should be followed by a "New Model" based on your new metamodel, in which you can verify that your new metamodel behaves as expected.
 

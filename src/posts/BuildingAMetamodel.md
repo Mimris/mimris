@@ -7,9 +7,13 @@ cover_image: 'images/posts/overview/image00.png'
 
 ## The Metamodel
 
+First a few words about terminology. 
+
+There are in principle two kinds of models – models whose focus is on type definitions, i.e. we define types that compose a modelling language (a metamodel), and models that are based upon the generated metamodel (the modelling language).  
+
 In this chapter the focus is on the technicalities associated with developing type definition models, generating metamodels, creating models based on the generated metamodel and then start over again by making changes to the type definition model.
 
-When you start AKM Modeller, an initial model using a initial metamodel is opened.
+When you start AKM Modeller, an initial model using an initial metamodel is opened.
 
 ![alt text](/images/posts/modelling/image_model022.png)
 

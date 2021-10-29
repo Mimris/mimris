@@ -1,11 +1,12 @@
 ---
 title: 'Overview'
 date: 'Oct 18, 2021'
-excerpt: 'The AKM Modeller (AKMM) is a generic platform for developing and utilizing knowledge models. It can be customized to support any subject area, if the area can be described by entities of different types and by relationships between those types.'
+excerpt: 'AKM Modeller is a free, open-source, cross-platform modeling tool. It is based on the AKM Modeller Core, which includes model and metamodel definitions, and a graphical user interface. It is available for Windows, macOS and Linux.'
 cover_image: 'images/posts/overview/image001.png'
 ---
 
 ## Introduction
+
 
 The AKM Modeller (AKMM) is a generic platform for developing and utilizing knowledge models. 
 It can be customized to support any subject area, if the area can be described by entities of different types and by relationships between those types. Both entities and relationships may be described by relevant properties and associated methods.

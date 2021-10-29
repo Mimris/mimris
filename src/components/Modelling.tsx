@@ -54,7 +54,7 @@ const page = (props:any) => {
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
 
-  if (debug) console.log('49 Modelling: gojsmodel', gojsmodel, gojsmodelobjects, props);
+  if (!debug) console.log('49 Modelling: gojsmodel', gojsmodel, gojsmodelobjects, props);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis

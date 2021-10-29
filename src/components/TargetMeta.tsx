@@ -66,13 +66,13 @@ const TargetMeta = (props) => {
 
   return (
     <>
-      {/* {palette} */}
-      {/* <style jsx>{`
+      {palette}
+      <style jsx>{`
         .diagram-component {
           height: 101%;
           width: 98%;
         }
-       `}</style> */}
+       `}</style>
     </>
   )
 }

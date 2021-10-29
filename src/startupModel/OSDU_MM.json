@@ -623,7 +623,7 @@
       "cardinalityTo": "",
       "nameFrom": "",
       "nameTo": "",
-      "markedAsDeleted": false,
+      "markedAsDeleted": true,
       "modified": true
     },
     {
@@ -3776,6 +3776,24 @@
       "icon": "",
       "markedAsDeleted": false,
       "modified": false
+    },
+    {
+      "id": "b042b151-0296-440f-467b-5501979df1bb",
+      "name": "b042b151-0296-440f-467b-5501979df1bb",
+      "description": "",
+      "typeRef": "a98a3ca0-b8d5-42df-f042-00dcdda0a0dc",
+      "strokecolor": "black",
+      "strokewidth": "1",
+      "textcolor": "black",
+      "dash": "None",
+      "fromArrow": "",
+      "toArrow": "OpenTriangle",
+      "fromArrowColor": "",
+      "toArrowColor": "white",
+      "markedAsDeleted": false,
+      "modified": false,
+      "template": "",
+      "geometry": ""
     }
   ],
   "objtypegeos": [

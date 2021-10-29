@@ -2379,7 +2379,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "1f906da8-da00-4068-06ed-6f670e17ef0f",
@@ -2395,7 +2396,8 @@
               "strokewidth": "1",
               "icon": "https://img.icons8.com/color/2x/data-.png",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "6aad4796-8648-4c1b-b31e-7501afdcb19d",
@@ -2411,7 +2413,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "2970b95c-f760-42c4-2c70-40723a79d921",
@@ -2427,7 +2430,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "a4ae2be6-3d6b-4b73-b6d0-a1f7ccd74738",
@@ -2443,7 +2447,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "b42be04d-f9e5-4906-0459-80f43aada183",
@@ -2459,7 +2464,8 @@
               "strokewidth": "1",
               "icon": "./../images/default.png",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "a92b5a8f-569e-4d2e-39e4-e5adf08c3357",
@@ -2475,7 +2481,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "6c825361-c99d-4441-3e00-325e78ea969c",
@@ -2491,7 +2498,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
@@ -2507,7 +2515,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "e05d9ee2-7592-4313-4b53-865f7964294a",
@@ -2523,7 +2532,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "91842eba-afb5-4c1f-7c98-986d5b1e606e",
@@ -2539,7 +2549,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "65e0ee77-cf7d-4370-281f-68bee8c570f1",
@@ -2555,7 +2566,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "7587ab7b-6f12-4149-c7eb-cfcfb4060374",
@@ -2571,7 +2583,8 @@
               "strokewidth": "1",
               "icon": "https://img.icons8.com/color/2x/type.png",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "0dd90a4c-048b-48fc-5bab-4b02e108fd6d",
@@ -2587,7 +2600,8 @@
               "strokewidth": "1",
               "icon": "https://img.icons8.com/color/2x/variable.png",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "e0a7c09f-2a24-41e3-eeb9-4af47708e9cf",
@@ -2603,7 +2617,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "549919d8-afec-43b0-8e43-11b9864940cd",
@@ -2619,7 +2634,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "f4d8e2f2-04d8-4d1d-3b66-e7cab728f4c0",
@@ -2635,7 +2651,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "c33db7c2-a494-43ea-e76f-b7889d7bd71c",
@@ -2651,7 +2668,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "f339c2dd-7de1-49d4-4c1a-ba12cb9b5ecb",
@@ -2667,7 +2685,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "b5f05f73-b85b-4fb9-2cab-f67084239e8b",
@@ -2683,7 +2702,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             }
           ],
           "objtypegeos": [
@@ -7359,7 +7379,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "1f906da8-da00-4068-06ed-6f670e17ef0f",
@@ -7375,7 +7396,8 @@
               "strokewidth": "1",
               "icon": "https://img.icons8.com/color/2x/data-.png",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "6aad4796-8648-4c1b-b31e-7501afdcb19d",
@@ -7391,7 +7413,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "2970b95c-f760-42c4-2c70-40723a79d921",
@@ -7407,7 +7430,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "a4ae2be6-3d6b-4b73-b6d0-a1f7ccd74738",
@@ -7423,7 +7447,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "b42be04d-f9e5-4906-0459-80f43aada183",
@@ -7439,7 +7464,8 @@
               "strokewidth": "1",
               "icon": "./../images/default.png",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "6c825361-c99d-4441-3e00-325e78ea969c",
@@ -7455,7 +7481,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
@@ -7471,7 +7498,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "e05d9ee2-7592-4313-4b53-865f7964294a",
@@ -7487,7 +7515,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "7587ab7b-6f12-4149-c7eb-cfcfb4060374",
@@ -7503,7 +7532,8 @@
               "strokewidth": "1",
               "icon": "https://img.icons8.com/color/2x/type.png",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "0dd90a4c-048b-48fc-5bab-4b02e108fd6d",
@@ -7519,7 +7549,8 @@
               "strokewidth": "1",
               "icon": "https://img.icons8.com/color/2x/variable.png",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "549919d8-afec-43b0-8e43-11b9864940cd",
@@ -7535,7 +7566,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "a92b5a8f-569e-4d2e-39e4-e5adf08c3357",
@@ -7551,7 +7583,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "91842eba-afb5-4c1f-7c98-986d5b1e606e",
@@ -7567,7 +7600,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "65e0ee77-cf7d-4370-281f-68bee8c570f1",
@@ -7583,7 +7617,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "e0a7c09f-2a24-41e3-eeb9-4af47708e9cf",
@@ -7599,7 +7634,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             },
             {
               "id": "b5f05f73-b85b-4fb9-2cab-f67084239e8b",
@@ -7615,7 +7651,8 @@
               "strokewidth": "1",
               "icon": "",
               "markedAsDeleted": false,
-              "modified": false
+              "modified": false,
+              "geometry": ""
             }
           ],
           "objtypegeos": [
@@ -8276,8 +8313,8 @@
       "models": [
         {
           "id": "b2fe4ca0-a11f-484d-649e-9678b8d562ea",
-          "name": "OSDU-Startmodel_CM",
-          "description": "",
+          "name": "OSDU-Startmodel_TM",
+          "description": "OSDU Type Definition Model",
           "metamodelRef": "a63bc9c0-ba9d-4802-dfb9-b28ab5698eb8",
           "sourceMetamodelRef": "",
           "targetMetamodelRef": "",

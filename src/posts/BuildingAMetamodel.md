@@ -18,7 +18,8 @@ When you start AKM Modeller, an initial model using an initial metamodel is open
 ![alt text](/images/posts/modelling/image_model022.png)
 
 The left pane above contains the object types in the initial metamodel, which the user can use to build a model. 
-A model can have different purposes, for example, a model can be used to generate a new metamodel. This model we call a type definition model.
+A model can have different purposes, for exThis model we call a type definition model.
+We use the term type definition model to refer to the model that is used to define the types in the metamodel. We use the naming _TD.json to refer to a Type Definition Model. 
 
 
 ## Making a new metamodel

@@ -454,29 +454,31 @@ class GoJSApp extends React.Component<{}, AppState> {
             const key = data.key;
             if (debug) console.log('442 data', data);
             let node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
-            const group = node.group;
-            if (debug) console.log('444 node, data', node, data);
-            node = myDiagram.findNodeForKey(data.key);
-            node.group = group;
-            for (let lit = node?.findLinksConnected(); lit?.next(); ) {
-              let link = lit?.value;  
-              if (debug) console.log('447 link', link);
-              if (link) {
-                if(debug) console.log('449 link', link);
-                //handle relview points
-                const relview = link.data.relshipview;
-                if (relview) {
-                  relview.points = link.points;
-                  const gqlRelview = new gql.gqlRelshipView(relview);
-                  modifiedLinks.push(gqlRelview);
+            if (node) {
+              if (debug) console.log('444 node, data', node, data);
+              const group = node.group;
+              node = myDiagram.findNodeForKey(data.key);
+              node.group = group;
+              for (let lit = node?.findLinksConnected(); lit?.next(); ) {
+                let link = lit?.value;  
+                if (debug) console.log('447 link', link);
+                if (link) {
+                  if(debug) console.log('449 link', link);
+                  //handle relview points
+                  const relview = link.data.relshipview;
+                  if (relview) {
+                    relview.points = link.points;
+                    const gqlRelview = new gql.gqlRelshipView(relview);
+                    modifiedLinks.push(gqlRelview);
+                  }
                 }
-              }
-            }               
-            if (debug) console.log('459 node, modifiedNodes: ', node, modifiedNodes);
-            if (node) myDiagram.model.setDataProperty(data, "group", node.group);
-            //const myNode = this.getNode(myGoModel, key);
-            if (debug) console.log('462 myGoModel', myGoModel);
-            if (debug) console.log('463 SelectionMoved', modifiedNodes);
+              }               
+              if (debug) console.log('459 node, modifiedNodes: ', node, modifiedNodes);
+              if (node) myDiagram.model.setDataProperty(data, "group", node.group);
+              //const myNode = this.getNode(myGoModel, key);
+              if (debug) console.log('462 myGoModel', myGoModel);
+              if (debug) console.log('463 SelectionMoved', modifiedNodes);
+            }
           }
           const nodes = myGoModel?.nodes;
           if (debug) console.log('467 nodes', nodes);

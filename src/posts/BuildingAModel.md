@@ -9,6 +9,8 @@ cover_image: 'images/posts/modelling/image_model001.png'
 
 When AKMM is started the user meets a modelling window that looks like the following:
 
+![alt text](/images/posts/modelling/image_model001.png)
+
 The project is called “INIT-Start Project” which is ok if you want to play with the tool. But if your intention is to build models for a specific purpose, you should start by giving the project a name and description that is meaningful to you. This is done by right clicking the background and select “Edit Project”. 
 It is also recommended to change the model name (“Edit Model”) to a more meaningful name.
 
@@ -16,9 +18,7 @@ When the project and model naming is done, it is recommended to save the model t
 
 The next time you start AKMM you should click on “File” and then choose “Import from file” and select one of the models you previously saved.
 
-![alt text](/images/posts/modelling/image_model001.png)
-
-1. Build a model
+## Build a model
 
 In this chapter we will use an example metamodel as defined below. It has four different object types, Person, House, Apartment and Car, with relationship types owns and rents as shown in the next model diagram.
 
@@ -43,6 +43,8 @@ We choose “owns” in the modal dialog that pops up, clicks on “Done” and 
 We continue modeling objects and relationships and may end up with a model like this:
 
 ![alt text](/images/posts/modelling/image_model006.png)
+
+
 
 ### Modifying object and relationship views
 

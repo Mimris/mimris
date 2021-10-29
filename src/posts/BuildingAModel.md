@@ -58,7 +58,7 @@ We see that we can modify the fillcolor of the object, the “strokecolor”, th
 
 We can do the same with relationships, and modify the color, the arrowheads, and so on, when we want to deviate from the default. 
 
-3. Organizing model content using Modelviews
+#### Organizing model content using Modelviews
 
 As explained in the Concepts chapter, the model content may be organized in several modelviews. The reason for doing so may vary. 
 One reason may be to have views of different levels of detail, such as showing high level concepts in one modelview, and detailed views of the different concepts in separate modelviews. 

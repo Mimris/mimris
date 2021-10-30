@@ -130,7 +130,7 @@ const LoadFile = (props: any) => {
       className="btn-primary btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
-      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (Downloads)
+      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File
     </button >
   const buttonSaveJSONToFileDiv = 
     <button className="btn-success text-white-50 btn-sm mr-2 w-100  " 

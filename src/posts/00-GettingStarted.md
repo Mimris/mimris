@@ -3,7 +3,7 @@ title: 'Getting Started with AKM Modeller'
 date: 'Oct 18, 2021'
 excerpt: 'AKM Modeller is a tool for modeling, creating and managing AKM models and metamodels. 
 This Guide help you getting starte and show  you how to load and save Project with models and metamodels from local Json-files. These files can also be syncronized with a GitHub Repository'
-cover_image: 'images/posts/overview/image01.png'
+cover_image: 'images/posts/overview/image00.png'
 ---
 
 ## Introduction
@@ -20,7 +20,7 @@ table of contents:
  
 ---
 
-# Getting Started
+## Getting Started
 
 When you start AKM Modeller you will see a welcome screen.
 
@@ -74,7 +74,9 @@ To save a project to a local file you can use the following command:
 
 This will save all models and metamodels in the project to a local file.
 
-In the same way you can save a model or a metamodel to a local file with the buttons below.
+In the same way you can save a model or a modelview to a local file with the buttons "Save Current Model to file" and "Save Current Modelview to file".
+
+You can also save the metamodel to a local file with the button "Save Current Metamodel to file".
 
 ---
  - [-back to the top-](#introduction)

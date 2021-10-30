@@ -2,7 +2,7 @@
 title: 'Building a Metamodel'
 date: 'October 25, 2021'
 excerpt: 'Building an example Metamodel'
-cover_image: 'images/posts/overview/image00.png'
+cover_image: 'images/posts/modelling/image_model022.png'
 ---
 
 ## The Metamodel

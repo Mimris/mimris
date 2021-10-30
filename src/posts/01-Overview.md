@@ -5,8 +5,7 @@ excerpt: 'AKM Modeller is a free, open-source, cross-platform modeling tool. It 
 cover_image: 'images/posts/overview/image001.png'
 ---
 
-## Introduction
-
+# Introduction
 
 The AKM Modeller (AKMM) is a generic platform for developing and utilizing knowledge models. 
 It can be customized to support any subject area, if the area can be described by entities of different types and by relationships between those types. Both entities and relationships may be described by relevant properties and associated methods.
@@ -18,11 +17,24 @@ The meta-model defines the object types and relationship types - e.g. may Person
 while owns or rents may be your relevant relationship types between those object types. 
 Based on such a meta-model you may build a model of actual persons and cars and connect the relationships between the persons and their cars.
 
-## Concepts
+table of contents
+
+[The Project](#the-project)
+
+[The Metamodel](#the-metamodel)
+
+[The Model](#the-model)
+
+[The Modelview](#the-modelview)
+
+[About relationships](#about-relationships)
+
+
+# Concepts
 
 The models in AKMM are organized in Projects, as shown in the figure below.
 
-### The Project:
+## The Project:
 
 ![alt text](/images/posts/overview/image001.png)
 
@@ -31,7 +43,11 @@ A Model is based on one Metamodel, but several Models may share the same Metamod
 
 To see the content of a model, Modelviews are used. A Modelview shows visualizations of objects and relationships.
 
-### The Metamodel
+---
+ - [-back to the top-](#introduction)
+---
+
+## The Metamodel
 
 A fundamental concept in AKMM is the Metamodel as illustrated in the figure below.
 
@@ -46,13 +62,22 @@ are visualized.
 
 ![alt text](/images/posts/overview/image002.png)
 
-### The Model
+---
+ - [-back to the top-](#introduction)
+---
+
+
+## The Model
 
 A Model contains objects and relationships. An Object refer to its type – the Object type, while a Relationship refers to its Relationship type, as illustrated below. 
 
 ![alt text](/images/posts/overview/image003.png)
 
-### The Modelview
+---
+ - [-back to the top-](#introduction)
+---
+
+## The Modelview
 
 The model content is visualized in one or more Modelviews. Each Modelview contains Object
 views and Relationship views as illustrated below. Each Object view refers to the Object it
@@ -61,8 +86,12 @@ One Object may have several Object views, even in the same Modelview, while it i
 common to be visualized in different Modelviews. The same goes for Relationship views.
 
 ![alt text](/images/posts/overview/image004.png)
+
+---
+ - [-back to the top-](#introduction)
+---
  
-### About relationships
+## About relationships
 
 Relationship types have some attributes that are specific to relationships.
 These are:
@@ -96,4 +125,7 @@ ends of the relationship type.
 You may also give a *from-name* and a *to-name* to the relationship type.
 
  
+---
+ - [-back to the top-](#introduction)
+---
 

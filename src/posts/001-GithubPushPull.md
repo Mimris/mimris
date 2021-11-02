@@ -1,5 +1,5 @@
 ---
-title: 'Update models Stored in GitHub'
+title: 'Syncronize models with GitHub'
 date: 'Nov 02, 2021'
 excerpt: 'AKM Modeller is a tool for modeling, creating and managing AKM models and metamodels. 
 This Guide help you getting started with syncronizing your models with other people and show how your local model files can also be Pushed/ Pulled to a GitHub Repository'

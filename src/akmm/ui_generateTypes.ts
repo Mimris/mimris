@@ -704,10 +704,12 @@ export function generateTargetMetamodel2(context: any) {
     generateMetamodel(objectviews, relshipviews, context);
     if (debug) console.log('699 myMetis', myMetis);
     alert("Target metamodel has been successfully generated!");
+    // Check if there already exists models based on the generated metamodel
+    // const models = myMetis.getModelsByMetamodel()
     return true;
 }
 
-export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[], context: any) {
+export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[], context: any): akm.cxMetaModel {
     if (debug) console.log('712 objectviews, relshipviews, context', objectviews, relshipviews, context);
     const myMetis     = context.myMetis;
     const myMetamodel = context.myMetamodel;
@@ -723,7 +725,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const modifiedMetamodels   = new Array();
 
     if (!metamodel)
-        return;
+        return null;
         
     model.targetMetamodelRef = metamodel.id;
     metamodel.generatedFromModelRef = model.id;
@@ -836,7 +838,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         reltypes = [];
         for (let i=0; i<rsystemtypes.length; i++) {
             const rtypename = rsystemtypes[i];
-            if (debug) console.log('868 typename', rtypename);
+            if (!debug) console.log('868 typename', rtypename);
             const rtypes = myMetamodel.findRelationshipTypesByName(rtypename);
             for (let j=0; j<rtypes?.length; j++) {
                 const rtype = rtypes[j];
@@ -923,7 +925,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // Add or generate relationship types
     if (relshipviews) {
         if (debug) console.log('850 relshipviews', relshipviews);
-        // return;
         for (let i=0; i<relshipviews.length; i++) {
             const relview = relshipviews[i];
             if (debug) console.log('852 relview', relview);
@@ -1009,6 +1010,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
         })
     }
+    return metamodel;
 }
 
 function getAllPropertytypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxModel) {

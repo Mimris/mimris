@@ -42,6 +42,9 @@ const colornames = ['black', 'white',
                    ];
 
 const strokewidths = ['1', '2', '3', '4', '5'];
+
+const includeRelshipkind = false;
+
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
    * Render the object data, passing down property keys and values.
@@ -204,6 +207,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
       }
       if (k === 'relshipkind') {
+        if (!includeRelshipkind)
+          continue;
         if (!(category === constants.gojs.C_RELATIONSHIP || category === constants.gojs.C_RELSHIPTYPE))
           continue;
       }

@@ -66,32 +66,13 @@ common to be visualized in different Modelviews. The same goes for Relationship 
 Relationship types have some attributes that are specific to relationships.
 These are:
 
-        -	Relationship kind
         -	Cardinality from
         -	Cardinality to
         -	Name from
         -	Name to
 
-The meaning of Relationship kind is derived from UML (Unified Modeling Language), that differentiates between the following kinds of relationships:
+This implies that relationship *cardinality* is supported, i.e. the ability to define e.g. one-to-one, one-to-many, many-to-many relationships, or other combinations. The cardinality is specified on both ends of the relationship type.
 
-        -	Association
-        -	Generalization
-        -	Composition
-        -	Aggregation
-
-In the figure below both isRelatedTo and Association are UML associations, in the sense that there are no constraints on the meaning of the relationships. 
-
- ![alt text](/images/posts/overview/image005.png)
-
-*Generalization*, on the other hand, has a very specific meaning. It means that “D” in the model above inherits from “A”. So, if A has properties, D will have the same properties.
-
-*Composition* describes a “has part” relationship, meaning that if an object of type “A” has several parts of type “B”, and the object of type “A” is deleted, then all the parts of type “B” will also be deleted. 
-
-*Aggregation*, on the other hand, describes a “has member” relationships, meaning that if a parent object is deleted, the members will NOT be deleted. They exist independent of the parent. 
-
-Relationship *cardinality* is also supported, i.e. the ability to define e.g. one-to one, one-to
-many, many-to many relationships, or other combinations. The cardinality is specified on both
-ends of the relationship type.
 You may also give a *from-name* and a *to-name* to the relationship type.
 
  

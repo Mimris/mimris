@@ -1,7 +1,7 @@
 ---
 title: 'Metamodels'
-date: 'October 25, 2021'
-excerpt: 'Metamodels are modeled by using EntityType to represent object types and a relationship of type isRelatedTo to represent relationship types. 
+date: 'November 3, 2021'
+excerpt: 'Metamodels are modeled by using "EntityType" to represent object types and a relationship of type "RelationshipType" to represent relationship types. 
 Both are named or renamed to the actual type names the user wants.'
 cover_image: 'images/posts/overview/image006.png'
 ---
@@ -15,10 +15,11 @@ cover_image: 'images/posts/overview/image006.png'
 **[Property modelling](#Property-modelling)**<br>
 **[Property and type methods](#Property-and-type-methods)**<br>
 **[Visualization of objects and relationships](#Visualization-of-objects-and-relationships)**<br>
+**[About Object typeviews](#About-Object-typeviews)**<br>
 **[About Relationship typeviews](#About-Relationship-typeviews)**<br>
 
 
-Metamodels are modeled by using *EntityType* to represent object types and a relationship of type *isRelatedTo* to represent relationship types. 
+Metamodels are modeled by using *EntityType* to represent object types and a relationship of type *RelationshipType* to represent relationship types. 
 Both are named or renamed to the actual type names the user wants.
  
 ### Defining Object types
@@ -32,7 +33,7 @@ In this case the object type *“My Type”* is specified to have two properties
 
 ### Defining Relationship types
 
-Relationship types are defined by drawing a relationship of type *“isRelatedTo”* between object types as shown below. 
+Relationship types are defined by drawing a relationship of type *RelationshipType* between object types as shown below. 
 
 ![image007](/images/posts/overview/image007.png)
 
@@ -81,7 +82,7 @@ The first two are valid for property methods, while the last is valid for type m
  
 ### Visualization of objects and relationships
 
-About Object typeviews
+#### About Object typeviews
 
 It is the object typeview that specifies what an instance of a given type will look like when it is first created in a model. 
 
@@ -110,7 +111,7 @@ You can use svg-editor to create the icon files.
 https://vectr.com/
 
 
-### About Relationship typeviews
+#### About Relationship typeviews
 
 It is the relationship typeview that specifies what an instance of a relationship type will look like when it is first created in a model. 
 

@@ -465,7 +465,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             ),
         )
     );
-    addNodeTemplateName('textAndGeometry');
+    addNodeTemplateName('textAndGeometry');    
     nodeTemplateMap.add("label", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
             new go.Binding("layerName", "layer"),
@@ -514,18 +514,30 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         // content
                         $(go.TextBlock, textStyle(),  // the text -----------------------
                             {
+
+                                stretch: go.GraphObject.Fill,
+                                alignment: go.Spot.TopLeft,
                                 isMultiline: true,  // allow newlines in text
                                 editable: true,     // allow in-place editing by user
-                                row: 0, column: 0, columnSpan: 6,
                                 font: "bold 10pt Segoe UI,sans-serif",
-                                desiredSize: new go.Size(120, 36), 
                                 textAlign: "left",
-                                wrap: go.TextBlock.WrapFit, 
-                                verticalAlignment: go.Spot.Left,
+                                wrap: go.TextBlock.WrapBreakAll, 
                                 overflow: go.TextBlock.OverflowClip,
-                                margin: 2,
-                                width: 400,
-                                text: "label"
+                                margin: 10,
+                                text: "label",
+                
+                                // isMultiline: true,  // allow newlines in text
+                                // editable: true,     // allow in-place editing by user
+                                // row: 0, column: 0, columnSpan: 6,
+                                // font: "bold 10pt Segoe UI,sans-serif",
+                                // desiredSize: new go.Size(120, 36), 
+                                // textAlign: "left",
+                                // wrap: go.TextBlock.WrapFit, 
+                                // verticalAlignment: go.Spot.Left,
+                                // overflow: go.TextBlock.OverflowClip,
+                                // margin: 2,
+                                // width: 400,
+                                // text: "label"
                             },        
                             new go.Binding("text", "text").makeTwoWay()
                         ),

@@ -721,6 +721,24 @@
       "nameTo": "",
       "markedAsDeleted": false,
       "modified": true
+    },
+    {
+      "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
+      "name": "RelationshipType",
+      "description": "",
+      "typeviewRef": "5f096d6d-051d-4aba-947a-f7363263a4d5",
+      "properties": [],
+      "relshipkind": "Association",
+      "viewkind": "",
+      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
+      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
+      "cardinality": "",
+      "cardinalityFrom": "",
+      "cardinalityTo": "",
+      "nameFrom": "",
+      "nameTo": "",
+      "markedAsDeleted": false,
+      "modified": true
     }
   ],
   "properties": [
@@ -1667,7 +1685,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "2970b95c-f760-42c4-2c70-40723a79d921",
@@ -1683,7 +1702,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "a3112875-e4fe-4100-b290-5634d8b8acfc",
@@ -1699,7 +1719,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "b42be04d-f9e5-4906-0459-80f43aada183",
@@ -1715,7 +1736,8 @@
       "strokewidth": "1",
       "icon": "./../images/default.png",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "e05d9ee2-7592-4313-4b53-865f7964294a",
@@ -1731,7 +1753,8 @@
       "strokewidth": "1",
       "icon": "https://img.icons8.com/color/2x/add-property-1.png",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "0dd90a4c-048b-48fc-5bab-4b02e108fd6d",
@@ -1747,7 +1770,8 @@
       "strokewidth": "1",
       "icon": "https://img.icons8.com/color/2x/variable.png",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "1f906da8-da00-4068-06ed-6f670e17ef0f",
@@ -1763,7 +1787,8 @@
       "strokewidth": "1",
       "icon": "https://img.icons8.com/color/2x/data-.png",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "a4ae2be6-3d6b-4b73-b6d0-a1f7ccd74738",
@@ -1779,7 +1804,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "549919d8-afec-43b0-8e43-11b9864940cd",
@@ -1795,7 +1821,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "6c825361-c99d-4441-3e00-325e78ea969c",
@@ -1811,7 +1838,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "7587ab7b-6f12-4149-c7eb-cfcfb4060374",
@@ -1827,7 +1855,8 @@
       "strokewidth": "1",
       "icon": "https://img.icons8.com/color/2x/type.png",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
@@ -1843,7 +1872,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "b5f05f73-b85b-4fb9-2cab-f67084239e8b",
@@ -1859,7 +1889,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     },
     {
       "id": "4be6622d-82a6-4b8c-a872-df6e9fcc8d3a",
@@ -1875,7 +1906,8 @@
       "strokewidth": "1",
       "icon": "",
       "markedAsDeleted": false,
-      "modified": false
+      "modified": false,
+      "geometry": ""
     }
   ],
   "objtypegeos": [
@@ -3901,6 +3933,22 @@
       "toArrowColor": "white",
       "markedAsDeleted": false,
       "modified": false
+    },
+    {
+      "id": "5f096d6d-051d-4aba-947a-f7363263a4d5",
+      "name": "relationshipType",
+      "description": "",
+      "typeRef": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
+      "strokecolor": "black",
+      "strokewidth": "1",
+      "textcolor": "black",
+      "dash": "None",
+      "fromArrow": "",
+      "toArrow": "OpenTriangle",
+      "fromArrowColor": "",
+      "toArrowColor": "white",
+      "markedAsDeleted": false,
+      "modified": true
     }
   ],
   "routing": "Normal",

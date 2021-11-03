@@ -13,7 +13,16 @@ The AKM model present the complex Json-file structure and relatioship between th
 
 This makes it easy to edit and expand the Metamodel into new product categories. The Object types is enhanced and expanded by adding new properties and relationships. The new enhanced model can then be exported as Json-file for import into the OSDU Data platform.
 
-### Extensions of the IRTV Metamodel
+table of contents:
+
+  - [Extensions of the IRTV-Metamodel](#Extensions-of-the-IRTV-Metamodel)
+  - [Importing the OSDU Metamodel types](#Importing-the-OSDU-Metamodel-types)
+  - [Importing a OSDU Json-file to an AKM Model type](#Importing-a-OSDU-Json-file-to-an-AKM-Model-type)
+  - [Importing the OSDU Json-file as a Json structure model](#Importing-the-OSDU-Json-file-as-a-Json-structure-model)
+
+---
+
+## Extensions of the IRTV Metamodel
 
 The AKM Osdu-Metamodel extensions are built on the AKM IRTV-Metamodel (see separat description in th help documentation). These extensions can extend the capabilities of the IRTV-Metamodel to include specific Json objects and attributes, that represent the structure of Json-file object structure.
 
@@ -67,6 +76,10 @@ Select the MM tab on the left side and you will see the OSDU metmodel with both 
 
 ![image3](/images/posts/osdu/image003.png)
 
+---
+ - [-back to the top-](#introduction)
+---
+
 ## Import (Open) a OSDU Start-up Model (Json-file)
 
 Click on the **Model file** button (blue button) to open the Import dialog and then Click on  the **Choos file** button to select a file to import.
@@ -75,8 +88,11 @@ Click on the **Model file** button (blue button) to open the Import dialog and t
 
 Then click Done button
 
+---
+ - [-back to the top-](#introduction)
+---
 
-### Importing a OSDU Json-file to an AKM Model type.
+## Importing a OSDU Json-file to an AKM Model type
 
 Then click the **OSDU Json file (1)** button to open the Import dialog and then Click on the **Choos file (2)** button in the blue area to select a **OSDU JSON file** to import. Then Click **Done (3)** button.
 
@@ -99,8 +115,10 @@ The imported **EntityType** with properties is added to the modelview.
 If you want to add more objects, you can now add them to the modelview.
 
 ---
+ - [-back to the top-](#introduction)
+---
 
-### Import the OSDU Json-file as a Json structure model.
+## Importing the OSDU Json-file as a Json structure model
 
 Then click the **Choose file** button in the green OSDU Json filestructure to open the Import dialog and then Click on  the **Choos file** button to select a **OSDU JSON file** to import. Then Click Done button. 
 Find and drag the top level object (i.e. Wellbore.1.0.0.json) to the modelview.
@@ -116,3 +134,6 @@ The imported **EntityType** with properties is added to the modelview.
 
 ![alt text](/images/posts/osdu/image009.png)
 
+---
+ - [-back to the top-](#introduction)
+---

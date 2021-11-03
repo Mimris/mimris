@@ -30,7 +30,7 @@ const TargetMeta = (props) => {
   // const gojstypes = props.phFocus.gojsMetamodel
   // console.log('18 Palette', gojstypes, props);
   // console.log('24 TargetMeta', gojstypes);
-  // console.log('24 TargetMeta', gojstypes.nodeDataArray);
+  console.log('33 TargetMeta', props, gojstypes, gojstypes.nodeDataArray);
   // console.log('13 Palette', gojstypes.linkDataArray);
 
   const gojsapp = (gojstypes) &&
@@ -66,13 +66,13 @@ const TargetMeta = (props) => {
 
   return (
     <>
-      {/* {palette} */}
-      {/* <style jsx>{`
+      {palette}
+      <style jsx>{`
         .diagram-component {
           height: 101%;
           width: 98%;
         }
-       `}</style> */}
+       `}</style>
     </>
   )
 }

@@ -201,8 +201,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
                         } else if (oName === 'properties') {
                             
-                            reltypeRef = hasPartType?.id
-                            reltypeName = hasPartType?.name 
+                            reltypeRef = hasType?.id
+                            reltypeName = hasType?.name 
                             relshipKind = 'Association'            
                           
                             cNewVal = {...cNewVal, viewkind: 'Container'}

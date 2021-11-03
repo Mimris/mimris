@@ -516,7 +516,7 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     // msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
     // // msg += printf(format2, "-Descr", d.object.type.description);
     // msg += "\n";
-    msg += "Attributter :\n";
+    msg += "Attributes :\n";
     msg += "---------------------\n";
     msg += printf(format2, "-Name", d.name);
     msg += printf(format2, "-Title", d.object.title);
@@ -563,13 +563,13 @@ export function linkInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     const format3 = "%-8s: %s\n";
 
     let msg = "Relationship:\n";
-    msg += "Type props:\n"; 
-    msg += "-------------------\n";
-    msg += printf(format2, "-Type", d.relship.type.name);
-    msg += printf(format2, "-Title", d.relship.type.title);
-    msg += printf(format2, "-Descr", breakString(d.relship.type.description, 64))
-    msg += "\n";
-    msg += "Instance props:\n";
+    // msg += "Type props:\n"; 
+    // msg += "-------------------\n";
+    // msg += printf(format2, "-Type", d.relship.type.name);
+    // msg += printf(format2, "-Title", d.relship.type.title);
+    // msg += printf(format2, "-Descr", breakString(d.relship.type.description, 64))
+    // msg += "\n";
+    msg += "Attributes:\n";
     msg += "---------------------\n";
     msg += printf(format2, "-Name", d.name);
     msg += printf(format2, "-Title", d.relship.title);

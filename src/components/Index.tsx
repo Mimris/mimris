@@ -192,6 +192,15 @@ const page = (props) => {
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.11.02</CardTitle>
+                    <CardText >
+                          &bull; Added more Help items in help.<br />
+                          - Getting started File open /save <br />
+                          - GitHub sync<br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2021.10.21</CardTitle>
                     <CardText >
                           &bull; Added Help in top-menu. Here you will find help and user-guides.<br />

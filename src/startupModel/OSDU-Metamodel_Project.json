@@ -14777,8 +14777,8 @@
         },
         {
           "id": "6b98c5cd-87f0-4ee0-8f77-a3aa4dc8e1fd",
-          "name": "OSDU-Startmodel_CM",
-          "description": "OSDU Startmodel",
+          "name": "OSDU-Startmodel_TM",
+          "description": "OSDU Type Definition Startmodel",
           "metamodelRef": "a63bc9c0-ba9d-4802-dfb9-b28ab5698eb8",
           "sourceMetamodelRef": "",
           "targetMetamodelRef": "",
@@ -14825,7 +14825,7 @@
     "focusTargetModelview": null,
     "focusModel": {
       "id": "46afaf5e-4d3c-4099-4e10-9883cba13032",
-      "name": "OSDU-Metamodel_CM"
+      "name": "OSDU-Metamodel_TM"
     },
     "focusModelview": {
       "id": "78490eda-0e2d-4852-4ea2-350ac5d0ac17",

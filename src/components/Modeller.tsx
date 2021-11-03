@@ -65,6 +65,12 @@ const Modeller = (props: any) => {
       modelType={props.phFocus.focusTab}
   />
 
+  const handleChange = (projName) => {
+    if (!debug) console.log('69 Modeller: handleChange', projName);
+    dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { projectName: projName } });
+  }
+
+
     const selector = (props.modelType === 'model' || props.modelType === 'modelview' ) 
       ? <>
           {/* <div className="modeller-selection" > */}
@@ -74,7 +80,8 @@ const Modeller = (props: any) => {
           <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
               title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
               style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-              Project: 
+              Project : 
+                {/* <input type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
               <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span> 
           </h5>
         </>
@@ -88,7 +95,7 @@ const Modeller = (props: any) => {
           <h5 className="modeller-heading float-left text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
               title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
               style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-              Project: 
+              Project 
               <span className="projectname ml-2 px-1 bg-secondary w-25"> {props.metis.name || '---- none ----'} </span> 
           </h5>
         </>

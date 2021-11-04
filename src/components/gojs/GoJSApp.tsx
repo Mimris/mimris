@@ -1134,25 +1134,25 @@ class GoJSApp extends React.Component<{}, AppState> {
         )
         options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
         comps = null
-        if (debug) console.log('1138 options', options, this.state);
+        if (!debug) console.log('1138 options', options, this.state);
         const { selectedOption } = this.state;
+        if (!debug) console.log('1139 selectedOption', selectedOption, this.state);
 
         const value = (selectedOption)  ? selectedOption.value : options[0];
+        const label = (selectedOption)  ? selectedOption.label : options[0];
         if (debug) console.log('1142 context', context);
         if (debug) console.log('1143 selectedOption, value ', selectedOption, value);
         header = modalContext.title;
         modalContent = 
           <div className="modal-selection d-flex justify-content-center">
-            <Select className="modal-select"
+            <Select className="modal-select"              
               options={options}
               components={comps}
               onChange={value => this.handleSelectDropdownChange(value, context)}
-              value={value}
-            />
+            /> 
           </div>
           {/* <option value={option.value}>{label: option.label, option.value}</option>
-          */}      
-          
+          */}            
     } else {
         if (selectedData !== null) {
           inspector = 
@@ -1163,7 +1163,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 selectedData={this.state.selectedData}
                 context={this.state.context}
                 onInputChange={this.handleInputChange}
-              />;
+              />
             </div>
         }
     }

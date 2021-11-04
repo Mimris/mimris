@@ -34,7 +34,7 @@ table of contents
 
 The models in AKMM are organized in Projects, as shown in the figure below.
 
-## The Project:
+## The Project
 
 ![alt text](/images/posts/overview/image001.png)
 

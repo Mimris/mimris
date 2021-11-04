@@ -19,6 +19,8 @@ We recommend using the naming convention **_TD.json** to refer to a Type Definit
 
 Building a new metamodel is a process of creating a type definition model and then generate the metamodel. 
 
+[Overview](01-Overview.md)
+
 When building a type definition model we use an “EntityType” object to represent an **object type** and a "RelationshipType" relationship to represent a **relationship type** between object types.
 
 You drag “EntityType” into the modelling area and drop it to create an object representing your new type. 
@@ -52,7 +54,5 @@ The first time you want to generate a metamodel from the type definition model, 
     -   “***Select Target Metamodel***”. 
         In the dropdown list select the metamodel you created above and click "*Done*". You should then get the message: 
         **Target metamodel has been successfully generated!**.
-
-
 
 Now it is time to verify your metamodel, to see if you are able to build the desired model based on the type definitions you just created.

@@ -3932,23 +3932,8 @@
       "fromArrowColor": "",
       "toArrowColor": "white",
       "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-      "id": "5f096d6d-051d-4aba-947a-f7363263a4d5",
-      "name": "relationshipType",
-      "description": "",
-      "typeRef": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
-      "strokecolor": "black",
-      "strokewidth": "1",
-      "textcolor": "black",
-      "dash": "None",
-      "fromArrow": "",
-      "toArrow": "OpenTriangle",
-      "fromArrowColor": "",
-      "toArrowColor": "white",
-      "markedAsDeleted": false,
-      "modified": true
+      "modified": false,
+      "textcolor": "lightgrey"
     }
   ],
   "routing": "Normal",

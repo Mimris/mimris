@@ -2551,7 +2551,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               options={options}
               components={comps}
               onChange={value => this.handleSelectDropdownChange(value)}
-              value={value}
+              // value={value}
             />
           </div>
           {/* <option value={option.value}>{label: option.label, option.value}</option>

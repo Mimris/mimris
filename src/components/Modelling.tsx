@@ -10,8 +10,8 @@ import classnames from 'classnames';
 import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
-import TargetModeller from "./TargetModeller";
-import TargetMeta from "./TargetMeta";
+// import TargetModeller from "./TargetModeller";
+// import TargetMeta from "./TargetMeta";
 import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoginServer from '../components/LoginServer'
@@ -49,7 +49,7 @@ const page = (props:any) => {
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
-  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  // let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
@@ -320,7 +320,7 @@ const page = (props:any) => {
                   />
                 </div>
               </Col>
-              <Col className="col3 m-0 p-0 pr-0" xs="auto">
+              {/* <Col className="col3 m-0 p-0 pr-0" xs="auto">
                 <div className="myTargetMeta pl-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "4px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                   <TargetMeta
                     gojsModel={gojsmodel}
@@ -335,12 +335,12 @@ const page = (props:any) => {
                     modelType='model'
                   />
                 </div>
-              </Col>
+              </Col> */}
             </Row>
           </div>         
         </TabPane>
         {/* Solution Modelling ------------------------------------*/}
-        <TabPane tabId="3">
+        {/* <TabPane tabId="3">
           <div className="workpad p-1 pt-2 bg-white">
             <Row >
               <Col xs="auto m-0 p-0 pr-0">
@@ -361,7 +361,7 @@ const page = (props:any) => {
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
                 <div className="myModeller mb-1 pt-3 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
-                {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
+
                   <TargetModeller
                     gojsModel={gojsmodel}
                     gojsTargetModel={gojstargetmodel}
@@ -378,7 +378,7 @@ const page = (props:any) => {
               </Col>
             </Row>
           </div>         
-        </TabPane>
+        </TabPane> */}
       </TabContent>
     </>
     )      

@@ -481,7 +481,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           key={k}
           id={k}
           type={fieldType}
-          value={val}
+          // value={val}
           values={values}
           default={defValue}
           readonly={readonly}

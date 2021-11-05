@@ -16,6 +16,7 @@ table of contents:
   - [Getting Started](#getting-started)
   - [Loading a model project](#loading-a-model-project)
   - [Saving a model project](#saving-a-model-project)
+  - [Crash Recovery](#crash-recovery)
   - [Using GitHub](#using-github) 
  
 ---
@@ -77,6 +78,18 @@ This will save all models and metamodels in the project to a local file.
 In the same way you can save a model or a modelview to a local file with the buttons "Save Current Model to file" and "Save Current Modelview to file".
 
 You can also save the metamodel to a local file with the button "Save Current Metamodel to file".
+
+---
+ - [-back to the top-](#introduction)
+---
+
+## Crash Recovery
+
+In case of a crash or hang (browser not responding) you can recover the last refreshed version of the current project from the Browser LocalStorage.
+
+- Fist clikc on the Local (white button) at the top of the modelling area.
+- Then Click on the "Recover Project ( last refreshed version" button at the bottom of the dialog vindow.
+- 
 
 ---
  - [-back to the top-](#introduction)

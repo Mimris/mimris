@@ -28,7 +28,7 @@ import Tab from '../components/Tab'
 
 const page = (props:any) => {
 
-  if (!debug) console.log('28 Modelling', props, props.phUser.focusUser.diagram);
+  if (debug) console.log('28 Modelling', props, props.phUser.focusUser.diagram);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
   // const refresh = props.refresh
@@ -54,7 +54,7 @@ const page = (props:any) => {
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
 
-  if (!debug) console.log('57 Modelling: gojsmodel', props.phGojs);
+  if (debug) console.log('57 Modelling: gojsmodel', props.phGojs);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis

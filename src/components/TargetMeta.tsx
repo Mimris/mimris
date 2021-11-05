@@ -32,7 +32,7 @@ const TargetMeta = (props) => {
   // console.log('24 TargetMeta', gojstypes);
   console.log('33 TargetMeta', props, gojstypes, gojstypes.nodeDataArray);
   // console.log('13 Palette', gojstypes.linkDataArray);
-
+ 
   const gojsapp = (gojstypes) &&
     < GoJSPaletteTargetApp
       nodeDataArray={gojstypes.nodeDataArray}

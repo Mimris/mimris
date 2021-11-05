@@ -19,8 +19,6 @@ We recommend using the naming convention **_TD.json** to refer to a Type Definit
 
 Building a new metamodel is a process of creating a type definition model and then generate the metamodel. 
 
-[Overview](01-Overview.md)
-
 When building a type definition model we use an “EntityType” object to represent an **object type** and a "RelationshipType" relationship to represent a **relationship type** between object types.
 
 You drag “EntityType” into the modelling area and drop it to create an object representing your new type. 
@@ -30,10 +28,8 @@ Relationship types are created by dragging a "RelationshipType" link between two
 
 ### The example
 
-In the following we use the same example as described in the “Build a model” chapter. 
-With default typeviews the metamodel looks as shown below.
+There are four “*EntityType*” objects, each representing an object type in the intended new metamodel, "*Person*", "*Car*", "*House*" and "*Apartment*". Their names are the planned object type names.
 
-There are four “*EntityType*” objects, each representing an object type in the intended new metamodel. Their names are the planned object type names.
 There are six “*RelationshipType*” relationships, each representing a relationship type in the new metamodel. Each “*RelationshipType*” relationship is renamed to its planned relationship type names. These are the names you see in the diagram.
 
 ![alt text](/images/posts/modelling/image_model031.png)
@@ -56,3 +52,19 @@ The first time you want to generate a metamodel from the type definition model, 
         **Target metamodel has been successfully generated!**.
 
 Now it is time to verify your metamodel, to see if you are able to build the desired model based on the type definitions you just created.
+
+### Verify the metamodel
+To do the verification create a new model based on your new metamodel and start modelling *persons*, *houses*, *apartments* and *cars*. 
+
+You create the new model by right clicking the background and choose “*New Model*” in the popup menu. You will be asked to select a metamodel – select the one you just generated.
+
+Then you will be asked for a model name and a modelview name. When the model has been created, switch to the model by selecting the model you just created.
+
+That is, ***in the top right corner of the AKMM window*** 
+You do that by clicking on "*Model*" ***in the top right corner of the AKMM window*** and select the model you just created.
+
+The object types in the metamodel you created should now appear as object types in the left pane, and you should be ready to test that the metamodel works as expected. Create objects and relationships and do the verification as shown below. 
+
+If you can create objects of your 4 types, and connect relationships according to your type definitions, you have succeeded. 
+
+![alt text](/images/posts/modelling/image_model037.png)

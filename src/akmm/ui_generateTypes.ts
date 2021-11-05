@@ -838,7 +838,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         reltypes = [];
         for (let i=0; i<rsystemtypes.length; i++) {
             const rtypename = rsystemtypes[i];
-            if (!debug) console.log('868 typename', rtypename);
+            if (debug) console.log('868 typename', rtypename);
             const rtypes = myMetamodel.findRelationshipTypesByName(rtypename);
             for (let j=0; j<rtypes?.length; j++) {
                 const rtype = rtypes[j];

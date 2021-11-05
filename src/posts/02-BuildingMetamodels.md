@@ -3,7 +3,7 @@ title: 'Metamodels'
 date: 'November 3, 2021'
 excerpt: 'Metamodels are modeled by using "EntityType" to represent object types and a relationship of type "RelationshipType" to represent relationship types. 
 Both are named or renamed to the actual type names the user wants.'
-cover_image: 'images/posts/overview/image006.png'
+cover_image: 'images/posts/modelling/image_model002.png'
 ---
 
 ## Building Metamodels
@@ -101,7 +101,6 @@ The *geometry* used in *textAndGeometry* is stored in the geometry field, in a f
  *d="M 164.54082 0 L 219.38774999999998 109.69388 L 164.54082 219.38776 L 54.84693 219.38776 L 0 109.69388 L 54.84693 0 z"*).
 
 You can use an svg-editor to create the icon files: https://vectr.com/
-
 
 #### About Relationship typeviews
 

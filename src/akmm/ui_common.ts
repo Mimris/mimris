@@ -1086,6 +1086,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     let relshipview: akm.cxRelationshipView;
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
+    if (debug) console.log('1115 data, reltypeview', data, reltypeview);
     relshipview = createLink(data, context); 
     if (debug) console.log('1117 data, relshipview', data, relshipview);
     if (relshipview) {
@@ -1440,8 +1441,9 @@ export function createLink(data: any, context: any): any {
             toNode = myGoModel.findNode(data.to);
         const fromType = fromNode?.objecttype;
         const toType   = toNode?.objecttype;
-        if (debug) console.log('1404 createLink', fromType, toType);
+        if (debug) console.log('1404 createLink', data.relshiptype.name, fromType, toType);
         reltype = myMetis.findRelationshipTypeByName2(data.relshiptype.name, fromType, toType);
+        if (debug) console.log('1406 reltype', reltype);
         if (reltype && reltype.isInstantiable()) {
             // Create the relationship
             const myGoModel = context.myGoModel;

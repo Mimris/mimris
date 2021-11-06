@@ -2168,6 +2168,7 @@ export class cxMetis {
     }
     findRelationshipTypeByName2(name: string, fromObjType: cxObjectType, toObjType: cxObjectType): cxRelationshipType | null {
         const types = this.getRelationshipTypes();
+        if (debug) console.log('2171 types', types.length, types);
         if (!types) {
             return null;
         } else {
@@ -2175,13 +2176,14 @@ export class cxMetis {
             let reltype: cxRelationshipType | null = null;
             while (i < types.length) {
                 reltype = types[i];
+                if (debug) console.log('2178 reltype', reltype, fromObjType, toObjType);
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
-                    if (debug) console.log('1502 reltype', reltype, fromObjType, toObjType);
+                    if (debug) console.log('2181 reltype', reltype, fromObjType, toObjType);
                     if (reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes)) {
-                        if (debug) console.log('1504 reltype', reltype.name, fromObjType.name);
+                        if (debug) console.log('2183 reltype', reltype.name, fromObjType.name);
                         if (reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes)) {
-                            if (debug) console.log('1506 reltype', reltype.name, toObjType.name);
+                            if (debug) console.log('2185 reltype', reltype.name, toObjType.name);
                             return reltype; 
                         }
                     }

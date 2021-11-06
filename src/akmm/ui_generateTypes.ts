@@ -930,6 +930,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             if (debug) console.log('852 relview', relview);
             if (!relview) continue;
             const rel = relview.relship;
+            if (rel.name === 'Is') continue;
             const fromObjview = relview.fromObjview;
             if (!fromObjview) continue;
             const fromObj = fromObjview?.object;

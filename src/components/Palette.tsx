@@ -86,7 +86,25 @@ const Palette = (props) => {
     || i?.typename === 'InputPattern'
     || i?.typename === 'ViewFormat'
     || i?.typename === 'Method'
-    || i?.typename === 'Label'
+    || i?.typename === 'Unittype'
+    // || i?.typename === 'Label'
+    
+    && i
+  )
+  const notInitNodeDataArray = ndarr?.filter(i => 
+      i?.typename !== 'EntityType'
+    // && i?.typename !== 'Container'
+    && i?.typename !== 'Property'
+    && i?.typename !== 'Datatype'
+    && i?.typename !== 'Value'
+    && i?.typename !== 'FieldType'
+    && i?.typename !== 'InputPattern'
+    && i?.typename !== 'ViewFormat'
+    && i?.typename !== 'Method'
+    && i?.typename !== 'Label'
+    && i?.typename !== 'Unittype'
+    && i?.typename !== 'MethodType'
+    && i?.typename !== 'Generic'
     
     && i
   )
@@ -126,6 +144,7 @@ const Palette = (props) => {
       { (!hasOsdu) && <button className= "btn bg-light btn-sm " onClick={() => { handleSetFilter('INIT') }}>INIT</button>}
       { (hasIrtv) && <button className= "btn bg-light btn-sm " onClick={() => { handleSetFilter('IRTV') }}>IRTV</button>}
       { (hasOsdu) && <button className= "btn bg-light btn-sm " onClick={() => { handleSetFilter('OSDU') }}>OSDU</button>}
+      <button className= "btn bg-light btn-sm " onClick={() => { handleSetFilter('!INIT') }}>!INIT</button>
       <button className= "btn bg-light btn-sm " onClick={() => { handleSetFilter('All') }}>All</button>
     </div>
   )
@@ -133,6 +152,7 @@ const Palette = (props) => {
   if (filter === 'All') filteredArr = ndarr
   if (filter === 'IRTV') filteredArr = irtvNodeDataArray
   if (filter === 'INIT') filteredArr = initNodeDataArray
+  if (filter === '!INIT') filteredArr = notInitNodeDataArray
   if (filter === 'OSDU') filteredArr = osduNodeDataArray
 
   gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}

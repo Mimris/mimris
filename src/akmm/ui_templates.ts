@@ -779,7 +779,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                     return getCurve(c);
                 }
             ),
-            new go.Binding("points").makeTwoWay(),
+            // new go.Binding("points").makeTwoWay(),
             { contextMenu: contextMenu },
             // link shape
             $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },

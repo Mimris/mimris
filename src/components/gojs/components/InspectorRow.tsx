@@ -20,9 +20,9 @@ interface InspectorRowProps {
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
-    if (debug) console.log('23 InspectorRow: props', this.props);
+    if (!debug) console.log('23 InspectorRow: props', this.props);
     this.handleInputChange = this.handleInputChange.bind(this);
-    if (debug) console.log('24 InspectorRow: this', this, this.props);
+    if (!debug) console.log('24 InspectorRow: this', this, this.props);
   }
 
   private handleInputChange(e: any) {

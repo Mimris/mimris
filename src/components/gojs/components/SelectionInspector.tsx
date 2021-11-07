@@ -64,9 +64,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     } else if (category === constants.gojs.C_OBJECT) {
       inst = selObj.object;
-      if (debug) console.log('43 inst', inst);
+      if (!debug) console.log('43 inst', inst);
       inst = myMetis.findObject(inst?.id);
-      if (debug) console.log('45 inst', inst);
+      if (!debug) console.log('45 inst', inst);
       type = inst?.type;
       if (!type) type = selObj.objecttype;
       instview = selObj;
@@ -465,9 +465,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             // name = utils.capitalizeFirstLetter(k);
             break;
         }
-        if (debug) console.log('397 selObj, item:', selObj, item);
-        if (debug) console.log('398 id, value, disabled:', k, val, disabled);
-        if (debug) console.log('399 k, fieldType', k, fieldType, defValue, values);
+        if (!debug) console.log('397 selObj, item:', selObj, item);
+        if (!debug) console.log('398 k, value, disabled:', k, val, disabled);
+        if (!debug) console.log('399 k, fieldType', k, fieldType, defValue, values);
         if (isLabel) {
           if (k === 'viewkind')
             continue;

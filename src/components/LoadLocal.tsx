@@ -93,7 +93,7 @@ const LoadLocal = (props: any) => {
         <Select className="modal-select"
           options={options}
           onChange={value => handleSelectLocalModelDropdownChange(value)}
-          // value={value}
+          value={value}
         />
       </div>
 

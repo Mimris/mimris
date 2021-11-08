@@ -76,7 +76,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             <textarea
               disabled={this.props.disabled}
               id={this.props.id}
-              // value={val}
+              value={val}
               checked={this.props.checked}
               type={this.props.type}
               onChange={this.handleInputChange}
@@ -118,7 +118,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             <input
               disabled={this.props.disabled}
               id={this.props.id}
-              // value={val}
+              value={val}
               checked={this.props.checked}
               type={this.props.type}
               onChange={this.handleInputChange}

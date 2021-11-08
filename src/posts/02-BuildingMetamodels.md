@@ -1,14 +1,12 @@
 ---
-title: 'Metamodels'
-date: 'November 3, 2021'
-excerpt: 'Metamodels are modeled by using "EntityType" to represent object types and a relationship of type "RelationshipType" to represent relationship types. 
+title: 'Type Definition Models'
+date: 'November 8, 2021'
+excerpt: 'Type definition models are modeled by using "EntityType" to represent object types and a relationship of type "RelationshipType" to represent relationship types. 
 Both are named or renamed to the actual type names the user wants.'
 cover_image: 'images/posts/modelling/image_model002.png'
 ---
 
-## Building Metamodels
-
-Building a new metamodel is a process of creating a type definition model and then generate the metamodel. 
+## Building Type Definition Models
 
 When building a type definition model we use an “EntityType” object to represent an **object type** and a "RelationshipType" relationship to represent a **relationship type** between object types.
  

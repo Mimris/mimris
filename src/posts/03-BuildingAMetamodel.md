@@ -1,7 +1,7 @@
 ---
-title: 'Building a Metamodel'
+title: 'Creating a Metamodel'
 date: 'November 3, 2021'
-excerpt: 'Building an example Metamodel'
+excerpt: 'Creating an example Metamodel'
 cover_image: 'images/posts/modelling/image_model002.png'
 ---
 
@@ -15,9 +15,9 @@ The left pane above contains the object types in the initial metamodel, which th
 A model can have different purposes, for example a model that is used to define a modelling language, consisting of object types and relationship types. This model we call a type definition model.
 We recommend using the naming convention **_TD.json** to refer to a Type Definition Model. 
 
-## Build a new metamodel
+## Create a new metamodel
 
-Building a new metamodel is a process of creating a type definition model and then generate the metamodel. 
+Creating a new metamodel is a process of building a type definition model and then generate the metamodel. 
 
 When building a type definition model we use an “EntityType” object to represent an **object type** and a "RelationshipType" relationship to represent a **relationship type** between object types.
 

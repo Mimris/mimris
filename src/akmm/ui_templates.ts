@@ -406,7 +406,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                             // "F M0 0 L80 0 B-90 90 80 20 20 20 L100 100 20 100 B90 90 20 80 20 20z"
                             // "F M312.37 186.08L371.69 193.48L328.77 229.35L338.9 280L285.84 256.08L232.79 280L242.92 229.35L200 193.48L259.32 186.08L285.84 140L312.37 186.08Z"
                             { 
-                                name: "SHAPE", strokeWidth: 2,
+                                name: "SHAPE", 
+                                strokeWidth: 2,
                                 stroke: "blue",
                                 fill: "lightyellow",
                                 cursor: "alias",        // cursor: "pointer",
@@ -414,6 +415,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                                 shadowVisible: true,
                                 desiredSize: new go.Size(48, 48), // outer Shape size 
                             },
+                            // new go.Binding('strokeWidth', 'strokewidth'),
                         ),
                     ),
                     // define the panel where the text will appear

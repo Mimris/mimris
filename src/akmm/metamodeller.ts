@@ -5310,18 +5310,20 @@ export class cxRelationshipTypeView extends cxMetaObject {
             let rview = relview.typeview;
             if (rview) {
                 let tvdata: any = rview.data;
+                if (debug) console.log('5313 relview, rview, tvdata', relview, rview, tvdata);
                 for (prop in rview.data) {
                     data[prop] = tvdata[prop];
                 }
                 for (prop in tvdata) {
-                    if (prop === 'strokecolor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
-                    if (prop === 'strokewidth' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
-                    if (prop === 'textcolor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
-                    if (prop === 'dash' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
-                    if (prop === 'fromArrow' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
-                    if (prop === 'toArrow' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
-                    if (prop === 'fromArrowColor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
-                    if (prop === 'toArrowColor' /*&& relview[prop] !== ""*/) data[prop] = relview[prop];
+                    if (relview[prop] == undefined || relview[prop] === "") continue;
+                    if (prop === 'strokecolor')    data[prop] = relview[prop];
+                    if (prop === 'strokewidth')    data[prop] = relview[prop];
+                    if (prop === 'textcolor')      data[prop] = relview[prop];
+                    if (prop === 'dash')           data[prop] = relview[prop];
+                    if (prop === 'fromArrow')      data[prop] = relview[prop];
+                    if (prop === 'toArrow')        data[prop] = relview[prop];
+                    if (prop === 'fromArrowColor') data[prop] = relview[prop];
+                    if (prop === 'toArrowColor')   data[prop] = relview[prop];
                 }
             }
         }

@@ -930,13 +930,24 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             if (debug) console.log('852 relview', relview);
             if (!relview) continue;
             const rel = relview.relship;
-            if (rel.name === 'Is') continue;
             const fromObjview = relview.fromObjview;
             if (!fromObjview) continue;
             const fromObj = fromObjview?.object;
             const toObjview = relview.toObjview;
             if (!toObjview) continue;
             const toObj = toObjview?.object;
+            if (rel.name === 'Is') {
+                for (let j=0; j<objtypes.length; j++) {
+                    const otype1 = objtypes[j];
+                    if (fromObj?.id === otype1?.id) {
+                        for (let k=0; k<objtypes.length; k++) {
+                            const otype2 = objtypes[j];
+                            if (toObj?.id === otype2?.id) 
+                                continue;
+                        }
+                    }
+                }
+            }
             if (debug) console.log('863 relview', relview);
             if ((fromObj?.type.name === metaObject) && (toObj?.type.name === metaObject)) {
                 if (debug) console.log('863 rel', rel);
@@ -944,12 +955,14 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 if (debug) console.log('867 reltype', reltype);
                 // Prepare dispatches
                 if (reltype) {
+                    metamodel.addRelationshipType(reltype);
                     const gqlRelshipType = new gql.gqlRelationshipType(reltype, true);
                     if (debug) console.log('871 Generate Relationship Type', reltype, gqlRelshipType);
                     const modifiedTypeLinks = new Array();
                     modifiedTypeLinks.push(gqlRelshipType);
                     const relTypeview = reltype.typeview;
                     if (relTypeview) {
+                        metamodel.addRelationshipTypeView(relTypeview); 
                         const gqlRelTypeview = new gql.gqlRelshipTypeView(relTypeview);
                         if (debug) console.log('877 Generate Reltypeview', gqlRelTypeview);
                         modifiedRelTypeViews.push(gqlRelTypeview);

@@ -96,7 +96,7 @@ function addGroupTemplateName(name: string) {
     }
     const names1 = [...new Set(names)];
     groupTemplateNames = names1;
-}
+} 
 
 export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
@@ -139,17 +139,17 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
                 { contextMenu: contextMenu },    
             ),
-            $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
-                {
-                    cursor: "move",    
-                    fill: "transparent",
-                    stroke: "transparent",
-                    strokeWidth: 10,
-                    margin: new go.Margin(1, 1, 1, 1),
-                    shadowVisible: false,
-                    desiredSize: new go.Size(136, 48),              
-                }    
-            ),        
+            // $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
+            //     {
+            //         cursor: "move",    
+            //         fill: "transparent",
+            //         stroke: "transparent",
+            //         strokeWidth: 10,
+            //         margin: new go.Margin(1, 1, 1, 1),
+            //         shadowVisible: false,
+            //         desiredSize: new go.Size(136, 48),              
+            //     }    
+            // ),        
             $(go.Panel, "Table", // Panel for text 
                 { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
                 $(go.RowColumnDefinition, { column: 1, width: 4 }),
@@ -477,7 +477,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 selectionObjectName: "SHAPE",
                 resizable: true, resizeObjectName: "SHAPE"
             },
-    
             $(go.Shape,  
                 { 
                     name: "SHAPE", strokeWidth: 2,
@@ -485,12 +484,14 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     cursor: "alias",        // cursor: "pointer",
                     margin: new go.Margin(1, 1, 1, 1),
                     shadowVisible: true,
+                    minSize: new go.Size(150, 60), 
                     desiredSize: new go.Size(168, 68), // outer Shape size 
                     // set the port properties
                     portId: "", 
                     fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
                     toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
                 },
+                new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),    
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
                 new go.Binding('stroke', 'strokecolor'), 
@@ -499,26 +500,24 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 { contextMenu: contextMenu },    
             ),
             $(go.Panel, "Table", // Panel for text  -----------------------
-                { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
-                $(go.RowColumnDefinition, { column: 1, width: 10 }),
+                { defaultAlignment: go.Spot.Left, margin: 4, cursor: "move" },
+                $(go.RowColumnDefinition, { column: 1, width: 4 }),
                 $(go.Panel, "Horizontal",
-                    // { margin: new go.Margin(10, 10, 10, 10) },
                     {
-                        defaultAlignment: go.Spot.Left
+                        defaultAlignment: go.Spot.Center
                     },
                     // define the panel where the text will appear
                     $(go.Panel, "Table", // separator ---------------------------------
                         { contextMenu: contextMenu , cursor: "move" },
                         {
                             defaultRowSeparatorStroke: "black",
-                            defaultAlignment: go.Spot.Left,
+                            defaultAlignment: go.Spot.Center,
                         },
                         // content
                         $(go.TextBlock, textStyle(),  // the text -----------------------
                             {
-
                                 stretch: go.GraphObject.Fill,
-                                alignment: go.Spot.TopLeft,
+                                alignment: go.Spot.Center,
                                 isMultiline: true,  // allow newlines in text
                                 editable: true,     // allow in-place editing by user
                                 font: "bold 10pt Segoe UI,sans-serif",
@@ -527,19 +526,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                                 overflow: go.TextBlock.OverflowClip,
                                 margin: 10,
                                 text: "label",
-                
-                                // isMultiline: true,  // allow newlines in text
-                                // editable: true,     // allow in-place editing by user
-                                // row: 0, column: 0, columnSpan: 6,
-                                // font: "bold 10pt Segoe UI,sans-serif",
-                                // desiredSize: new go.Size(120, 36), 
-                                // textAlign: "left",
-                                // wrap: go.TextBlock.WrapFit, 
-                                // verticalAlignment: go.Spot.Left,
-                                // overflow: go.TextBlock.OverflowClip,
-                                // margin: 2,
-                                // width: 400,
-                                // text: "label"
                             },        
                             new go.Binding("text", "text").makeTwoWay()
                         ),

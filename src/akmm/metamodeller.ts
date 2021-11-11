@@ -6075,6 +6075,12 @@ export class cxInstance extends cxMetaObject {
         }
         return retval;
     }
+    setAbstract(val: boolean) {
+        this.abstract = val;
+    }
+    getAbstract(): boolean {
+        return this.abstract;
+    }
     setViewKind(kind: string) {
         this.viewkind = kind;
     }

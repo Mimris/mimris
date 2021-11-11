@@ -68,7 +68,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     if (debug) console.log('72 context', context);
     const typid = object.generatedTypeId;
     if (debug) console.log('74 typid', typid, typid.length);
-    const obj = myMetis.findObject(object.id);
+    const obj = myMetis.findObject(object.id) as akm.cxObject;
     let newName  = object?.name;
     let oldName = "";
     newName = utils.camelize(newName);
@@ -82,14 +82,18 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             oldName = objtype.getName();
             objtype.setName(newName);
             objtype.setViewKind(obj.getViewKind());
+            objtype.setAbstract(obj.getAbstract());
             objtype.markedAsDeleted = object.markedAsDeleted;
             myTargetMetamodel?.addObjectType(objtype);
         }
     } else {
         // Check if the types has not been generated, but exists anyway
         objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
-        if (objtype) objtype.viewkind = obj.viewkind;
-        if (debug) console.log('90 obj, objtype', obj, objtype);
+        if (objtype) {
+            objtype.setViewKind(obj.getViewKind());
+            objtype.setAbstract(obj.getAbstract());
+        }
+    if (debug) console.log('90 obj, objtype', obj, objtype);
     }
     if (debug) console.log('92 newName', newName);
     if (!objtype) { // This is a new object type
@@ -109,6 +113,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 let name = objname;
                 objtype = new akm.cxObjectType(utils.createGuid(), name, obj.description);
                 // Handle special attributes
+                objtype.abstract = obj.abstract;
                 objtype.viewkind = obj.viewkind;
                 // Handle the properties
                 const properties = obj.type?.getProperties(true);
@@ -426,7 +431,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             myMetis.addDatatype(datatype);  
         }      
     }
-    if (debug) console.log('412 datatype', datatype, myTargetMetamodel);
+    if (!debug) console.log('412 datatype', datatype, myTargetMetamodel);
     if (datatype) {
         // Check if it has a parent datatype
         const rels = object.findOutputRelships(myModel, constants.relkinds.REL);
@@ -436,13 +441,13 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
             for (let i=0; i < rels.length; i++) {
                 const rel = rels[i];
                 const parentObj = rel.toObject;
-                if (debug) console.log('531 parentObj', parentObj);
+                if (!debug) console.log('531 parentObj', parentObj);
                 const parentType = parentObj.type;
-                if (debug) console.log('533 parentType', parentType);
+                if (!debug) console.log('533 parentType', parentType);
                 if (parentType.name === constants.types.AKM_DATATYPE) {
                     if (debug) console.log('535 rel', rel);
                     let parentDtype = myMetis.findDatatypeByName(parentObj.name);
-                    if (debug) console.log('537 dtype', parentDtype);
+                    if (!debug) console.log('537 dtype', parentDtype);
                     datatype.setIsOfDatatype(parentDtype);
                     // Copy default values from parentDtype
                     datatype.setInputPattern(parentDtype?.inputPattern);
@@ -481,8 +486,8 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     const toObj = rel.getToObject();
                     if (toObj.type.name === constants.types.AKM_INPUTPATTERN) {
                         let valueObj = toObj;
-                        if (valueObj.inputPattern)
-                            datatype.setInputPattern(valueObj.inputPattern);
+                        if (valueObj.pattern)
+                            datatype.setInputPattern(valueObj.pattern);
                     }
                 }
                 if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
@@ -515,7 +520,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                 myDiagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
             });
 
-            if (debug) console.log('607 generateDatatype', datatype, myMetis);
+            if (!debug) console.log('607 generateDatatype', datatype, myMetis);
             return datatype;
         }
     }
@@ -1055,7 +1060,8 @@ function getAllPropertytypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxM
             proptypes.push(proptype);
         }
         if (rel?.type?.name === constants.types.AKM_HAS_PROPERTIES) {
-            if (toObj.type?.name === constants.types.AKM_CONTAINER) {
+            if ((toObj.type?.name === constants.types.AKM_CONTAINER) ||
+                (toObj.type.viewkind === constants.viewkinds.CONT)) {
                 const oviews = toObj.objectviews;
                 for (let j=0; j<oviews.length; j++) {
                     const oview = oviews[j];

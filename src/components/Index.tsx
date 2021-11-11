@@ -192,6 +192,14 @@ const page = (props) => {
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.11.11</CardTitle>
+                    <CardText >
+                          &bull; Added more Help items in help.<br />
+                          &bull; Edit Project name direct!<br /><br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2021.11.02</CardTitle>
                     <CardText >
                           &bull; Added more Help items in help.<br />

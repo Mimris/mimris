@@ -74,7 +74,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
             allkeys = formatKeys( Object.entries(obj || {}) )
             allkeys = allkeys.sort((firstItem, secondItem) => firstItem.key < secondItem.key);
             
-            if (!debug) console.log( '59 allkeys : ', allkeys);
+            if (debug) console.log( '59 allkeys : ', allkeys);
 
             // iterate over all objects allKeys is an array with [key, value] where key is the Json-object-path and value is the object
             // the key is the path to the object in the JSON-file and the value is the object itself 
@@ -182,72 +182,82 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
          
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
                         if (i === 0 || oName === 'items')  { // its a new EntityType level object
-                            if (i === 0) {
-                                topId = oId 
-                                topTitle = cNewVal.title
-                            }
+                            // if (i === 0) {
+                            //     topId = oId 
+                            //     topTitle = cNewVal.title
+                            // }
                             // const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
-                            if (!debug) console.log('190 parentKey', parentKey, 'tmpArray ',tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o));
+                            if (debug) console.log('190 parentKey', parentKey, 'tmpArray ',tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o), o);
                             parentId = (i === 0) ? null : (parentKey) ? tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] : oId // set parentId to be used in the next iteration of  objectet.
                             entityId = oId
                             entityName = (i === 0) ? cNewVal.title : parentName+' '+oName // if topobject use title as name
                             // entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName // if topobject use title as name
                             // console.log('142 i', i, entityName, entityId);
+
                             reltypeRef = hasMemberType?.id 
                             reltypeName = hasMemberType?.name
                             relshipKind = 'Association'
 
                             createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal)
 
-                        } else if (oName === 'properties') {
+                        // } else if (oName === 'properties') {
                             
-                            reltypeRef = hasType?.id
-                            reltypeName = hasType?.name 
-                            relshipKind = 'Association'            
+                        //     reltypeRef = hasType?.id
+                        //     reltypeName = hasType?.name 
+                        //     relshipKind = 'Association'            
                           
-                            cNewVal = {...cNewVal, viewkind: 'Container'}
+                        //     cNewVal = {...cNewVal, viewkind: 'Container'}
                             
+                        //     createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
+                            
+                        //     if (debug) console.log('211 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+                            
+                        //     if (parentName === 'Property') {
+                        //         parentId = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] // set parentId to be used in the next iteration of  objectet.
+                        //         parentName = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[0] // set parentName to be used in the next iteration of  objectet.
+                        //         if (debug) console.log('217 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+
+                        //     } else if (ggparentName === 'items') {
+                        //         parentId = tmpArray.find((o) => (o[0] === ggparentKey) && o)[1] 
+                        //         if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+                        //         parentName = tmpArray.find((o) => (o[0] === ggparentKey) && o)[0] 
+                        //     } else if (gparentName === 'properties') {
+                        //         parentId = tmpArray.find((o) => (o[0] === parentKey) && o)[1] 
+                        //         if (debug) console.log('225 ', tmpArray.find( (o) => (o[0] === parentKey) && o[1]));
+                        //         parentName = tmpArray.find((o) => (o[0] === parentKey) && o)[0] 
+                        //     } else{
+                        //         parentId = entityId
+                        //         parentName = entityName
+                        //         if (debug) console.log('226 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
+                        //     }
+                            
+                        //     propertyId = oId
+                        //     propertyName = oName
+
+                        //     if (debug) console.log('236 parentId', parentId, ggparentName, gggparentKey) // entityName, objecttypeRef, oKey, jsonType, cNewVal);
+                            
+                        //     // compositeName = (entityName) ? entityName : oName
+
+                        // we jumbp over properties and connect property object directly to the entity object
+                        continue;
+
+                        } else if (parentName === 'properties' && inclProps) { // this is propertyobject and if the import includes properties
+                            console.log( '241 : ', hasType.name, oName, parentName, parentId, oId);
+                            reltypeRef = hasType.id
+                            reltypeName = hasType.name      
+                            relshipKind = 'Association'     
+
                             createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
-                            
-                            if (!debug) console.log('211 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
-                            
-                            if (parentName === 'Property') {
-                                parentId = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] // set parentId to be used in the next iteration of  objectet.
-                                parentName = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[0] // set parentName to be used in the next iteration of  objectet.
-                                if (!debug) console.log('217 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
 
-                            } else if (ggparentName === 'items') {
-                                parentId = tmpArray.find((o) => (o[0] === ggparentKey) && o)[1] 
-                                if (!debug) console.log('220 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
-                                parentName = tmpArray.find((o) => (o[0] === ggparentKey) && o)[0] 
-                            } else if (gparentName === 'properties') {
-                                parentId = tmpArray.find((o) => (o[0] === parentKey) && o)[1] 
-                                if (!debug) console.log('225 ', tmpArray.find( (o) => (o[0] === parentKey) && o[1]));
-                                parentName = tmpArray.find((o) => (o[0] === parentKey) && o)[0] 
-                            } else{
-                                parentId = entityId
-                                parentName = entityName
-                                if (!debug) console.log('226 ', tmpArray.find( (o) => (o[0] === ggparentKey) && o[1]));
-                            }
-                            
-                            propertyId = oId
-                            propertyName = oName
+                            if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === gparentKey) && o[1]));
 
-                            if (!debug) console.log('236 parentId', parentId, ggparentName, gggparentKey) // entityName, objecttypeRef, oKey, jsonType, cNewVal);
-                            
-                            // compositeName = (entityName) ? entityName : oName
-
-                        } else if (parentName === 'properties' && inclProps) { // if the import includes properties
-                            console.log( '241 : ', containsType.name, oName, parentName, parentId, oId);
-                            reltypeRef = containsType.id
-                            reltypeName = containsType.name      
-                            relshipKind = 'Aggregation'       
-                            createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
+                            parentId = tmpArray.find((o) => (o[0] === gparentKey) && o)[1] 
+                            parentName = tmpArray.find((o) => (o[0] === gparentKey) && o)[0] 
                         } else {                           
                             continue;
                         }
-                        parentId = (parentName === 'properties') ? propertyId : parentId
-                        parentName = (parentName === 'properties') ? propertyName : parentName
+                        parentId = (parentName === 'properties') ? tmpArray.find((o) => (o[0] === parentKey) && o)[1]  : parentId
+                        parentName = (parentName === 'properties') ? parentName = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[0] : parentName
 
                     } else {   // create the json objects 
                       
@@ -258,7 +268,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         createObject(oId, compositeName, objecttypeRef, oKey, jsonType, cNewVal)
                         parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
                         parentId = (parentIdArray) && parentIdArray[1]
-                        if (!debug) console.log('249 ', parentIdArray, parentId);
+                        if (debug) console.log('249 ', parentIdArray, parentId);
                         
                     }
 
@@ -268,10 +278,10 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // fromobjectId = (parentId) ? parentId : null
                     fromobjectId = parentId
                     fromobjectName = parentName
-                    if (debug) console.log('259 propId',propertyId, 'propName', propertyName, 'parentId ',  parentId, 'parName', parentName, 'entId ', entityId, 'entName', entityName);
+                    if (!debug) console.log('259 propId',propertyId, 'propName', propertyName, 'parentId ',  parentId, 'parName', parentName, 'entId ', entityId, 'entName', entityName);
                     toobjectId = oId
                     toobjectName = oName
-                    if (debug) console.log('301 : name', reltypeName, 'reltypeRef', reltypeRef, 'fromobjectId', fromobjectId, fromobjectName, toobjectId, toobjectName);
+                    if (!debug) console.log('301 : name', reltypeName, 'reltypeRef', reltypeRef, 'fromobjectId', fromobjectId, fromobjectName, toobjectId, toobjectName);
                     
                     // (parentName === 'properties' && oName.) ?
                     if (debug) onsole.log('265 relId', relId, 'reltypeName ', reltypeName, 'relRef ', reltypeRef, 'fromId ', fromobjectId, 'fromName ', fromobjectName, 'toId ', toobjectId, 'toName ', toobjectName);

@@ -528,7 +528,7 @@ function reducer(state = InitialStateStr, action) {
           }
         }
       case SET_GOJS_TARGETMETAMODEL:
-        if (!debug) console.log('229 SET_GOJS_TARGETMETAMODEL', action);
+        if (debug) console.log('229 SET_GOJS_TARGETMETAMODEL', action);
         return {
           ...state,
           phGojs: {

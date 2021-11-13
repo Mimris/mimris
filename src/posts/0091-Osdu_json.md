@@ -7,13 +7,13 @@ cover_image: 'images/posts/osdu/image001.png'
 
 ## Introduction  
 
-The OSDU (Open Subsurface Data Universe) Data platform, contains a set of standardized data definitions and Object types with properties and relationsips, that is used to when ingesting data into the platform. The core functionality of this module, consists of the ability to import and export Json files according to these definitions. JSON is a lightweight data interchange format, and has become a popular standard format for exchanging data between applications. Even if JSON is human readable, it is not easy to see the relationships between the data (Json-files). This AKM module aims to provide a way to import and export Json files to AKM models.
+The OSDU (Open Subsurface Data Universe) Data platform, contains a set of standardized data definitions and Object types with properties and relationsips, that is used when ingesting data into or extracting data from the platform. The core functionality of this module, consists of the ability to import and export Json files according to these definitions. JSON is a lightweight data interchange format, and has become a popular standard format for exchanging data between applications. Even if JSON is human readable, it is not easy to see and identify the relationships between the data (Json-files). This AKM module provides a way to import and export OSDU Json files from/to AKM models.
 
-The AKM model present the complex Json-file structure and relatioship between the ObjectTypes in a graphical and a more understandable and concise way.
+The AKM model presents the complex Json-file structure and relatioships between the ObjectTypes in a user firendly graphical and a more understandable and concise way.
 
-This makes it easy to edit and expand the Metamodel into new product categories. The Object types is enhanced and expanded by adding new properties and relationships. The new enhanced model can then be exported as Json-file for import into the OSDU Data platform.
+This makes it easy to edit and expand the Metamodels to embrace new product categories. The Object types are enhanced and expanded by adding new properties and relationships. The new enhanced models can then be exported as Json-files for import into the OSDU Data platform.
 
-table of contents:
+Table of contents:
 
   - [Extensions of the IRTV-Metamodel](#extensions-of-the-irtv-metamodel)
   - [Importing the OSDU Metamodel types](#importing-the-osdu-metamodel-types)
@@ -24,7 +24,7 @@ table of contents:
 
 ## Extensions of the IRTV Metamodel
 
-The AKM Osdu-Metamodel extensions are built on the AKM IRTV-Metamodel (see separat description in th help documentation). These extensions can extend the capabilities of the IRTV-Metamodel to include specific Json objects and attributes, that represent the structure of Json-file object structure.
+The AKM extensions of the Osdu-Metamodel are built on the AKM IRTV-Metamodel (see separate description in th Help documentation). These extensions will enable the capabilities of the IRTV-Metamodel to include specific Json objects and attributes, that represent the structure of Json-file object structure.
 
 The EntityType Objecttype is extended to include some osdu and json-file specific properties.
 
@@ -34,7 +34,7 @@ The EntityType Objecttype is extended to include some osdu and json-file specifi
         -osduType
         -jsonKey
 
-In addition the EntityType Property is extended to include osdu and json-file specific properties.
+The EntityType Property is extended to include OSDU and Json-file specific properties.
 
         -title
         -pattern
@@ -43,7 +43,7 @@ In addition the EntityType Property is extended to include osdu and json-file sp
 ![alt text](/images/posts/osdu/image001.png)
 
 
-*This model is a **concept model** that defines the structure and content of the OSDU Json-file.*  
+*This model is a **Type Definition Model** that defines the types, structure and content of the OSDU Json-file.*  
 
 As shown in the figure above, the  -name, -osduId, -title, -pattern and example properties can be of a long text, and therefore defined as Datatype **textarea**
 
@@ -51,23 +51,23 @@ The -jsonType and -osduType are defined as enum Datatypes, and connected to Valu
 
 Two new EntityTypes are added:
 
-**JsonObject** and **JsonArray** is used to represent objects and arrays in a Json-file. The relationships **hasMember** is used to represent members of Json-file arrays. The relationships **hasPart** is used to represent the structure of the Json-file object tree.
+**JsonObject** and **JsonArray** are used to represent objects and arrays in a Json-file. The relationships **hasMember** is used to represent members of Json-file arrays. The relationships **hasPart** is used to represent the structure of the Json-file object tree.
 
 
-To generate a metamodel from this model, right-click the background and choose **Generate Metamodel** command. 
+To generate a metamodel from this model, right-click on the background and choose **Generate Metamodel** command. 
 A dialog-box will appear asking "Do you want to include system types". Click Ok to include system types. 
-A new dialog-box will appear where you can select wich metamodel you want to generate.
+A new dialog-box will appear where you can select which metamodel you want to generate.
 
 
 (Note: A metamodel has to exist before you can generate a metamodel from a concept model.  On the background menu choose **New Metamodel** to create a new metamodel.)
 
 ## Importing the OSDU Metamodel types
 
-Now its ready to use the OSDU Metamodel to create a new OSDU Concept model:
-On the background menu choose **Create New Model** to create a new model.
-You will be asked which Metamodel to use and then enter a name for the model.
+Now the OSDU Metamodel is ready to be used to create a new OSDU Type Definition Model (_TDM).:
+On the background menu select the **Create New Model** to create a new _TDM model.
+You will then be asked which Metamodel to use so select the appropriate Metamodel.
 
-Open the new model. an you will on the left side see the generated metamodel types.
+Open the new model, and on the left side you see the palette with the generated metamodel types.
 
 ![alt text](/images/posts/osdu/image002.png)
 
@@ -80,9 +80,9 @@ Select the MM tab on the left side and you will see the OSDU metmodel with both 
  - [-back to the top-](#introduction)
 ---
 
-## Import (Open) a OSDU Start-up Model (Json-file)
+## Import (Open) an OSDU Start-up Model (Json-file)
 
-Click on the **Model file** button (blue button) to open the Import dialog and then Click on  the **Choos file** button to select a file to import.
+Click on the **Model file** button (blue button) to open the Import dialog and then Click on  the **Choose file** button to select a file to import.
 
 ![alt text](/images/posts/osdu/Screenshot2021-10-20at02.13.36.png)
 
@@ -92,9 +92,9 @@ Then click Done button
  - [-back to the top-](#introduction)
 ---
 
-## Importing a OSDU Json-file to an AKM Model type
+## Importing an OSDU Json-file to an AKM Model type
 
-Then click the **OSDU Json file (1)** button to open the Import dialog and then Click on the **Choos file (2)** button in the blue area to select a **OSDU JSON file** to import. Then Click **Done (3)** button.
+Then click the **OSDU Json file (1)** button to open the Import dialog and then click on the **Choose file (2)** button in the blue area to select an **OSDU JSON file** to import. Then click the **Done (3)** button.
 
 ![alt text](/images/posts/osdu/Screenshot2021-10-20-5.png)
 
@@ -120,8 +120,9 @@ If you want to add more objects, you can now add them to the modelview.
 
 ## Importing the OSDU Json-file as a Json structure model
 
-Then click the **Choose file** button in the green OSDU Json filestructure to open the Import dialog and then Click on  the **Choos file** button to select a **OSDU JSON file** to import. Then Click Done button. 
-Find and drag the top level object (i.e. Wellbore.1.0.0.json) to the modelview.
+Then click the **Choose file** button in the green OSDU Json file structure to open the Import dialog and then Click on the **Choos file** button to select an **OSDU JSON file** to import. Then click the Done button. 
+
+Find and drag the top level object (i.e. Wellbore.1.0.0.json) into the Modelling area.
 
 ![alt text](/images/posts/osdu/image007.png)
 

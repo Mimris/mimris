@@ -112,6 +112,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let props;
     try {
       props = inst.setAndGetAllProperties(myMetis);
+      // if (proptab === undefined) prope = props1;
+      // if (proptab === )
+      //   return;
+    
     } catch {
       props = type?.getProperties(true);
     }
@@ -501,7 +505,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    if (debug) console.log('433 SelectionInspector ', dets);
+    if (!debug) console.log('433 SelectionInspector ', dets);
     return dets;
   }
   

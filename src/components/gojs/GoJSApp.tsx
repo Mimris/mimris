@@ -1118,46 +1118,47 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('1115 modalContext ', modalContext);
     const context = modalContext?.context;
     if (modalContext?.what === 'selectDropdown') {      
-        let options =  '' 
-        let comps = ''
-        const { Option } = components
-        const CustomSelectOption = props => 
-        (
-          <Option {...props}>
-            <img className="option-img mr-2" src={props.data.value} />
+      let options =  '' 
+      let comps = ''
+      const { Option } = components
+      const CustomSelectOption = props => 
+      (
+        <Option {...props}>
+          <img className="option-img mr-2" src={props.data.value} />
+          {props.data.label}
+        </Option>
+      )
+      const CustomSelectValue = props => (
+        <div>
+          {/* <i className={`icon icon-${props.data.icon}`} /> */}
+          <img className="option-img mr-2" src={props.data.value} />
             {props.data.label}
-          </Option>
-        )
-        const CustomSelectValue = props => (
-          <div>
-            {/* <i className={`icon icon-${props.data.icon}`} /> */}
-            <img className="option-img mr-2" src={props.data.value} />
-             {props.data.label}
-          </div>
-        )
-        options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
-        comps = null
-        if (debug) console.log('1138 options', options, this.state);
-        const { selectedOption } = this.state;
-        if (debug) console.log('1139 selectedOption', selectedOption, this.state);
+        </div>
+      )
+      options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
+      comps = null
+      if (debug) console.log('1138 options', options, this.state);
+      const { selectedOption } = this.state;
+      if (debug) console.log('1139 selectedOption', selectedOption, this.state);
 
-        const value = (selectedOption)  ? selectedOption.value : options[0];
-        const label = (selectedOption)  ? selectedOption.label : options[0];
-        if (debug) console.log('1142 context', context);
-        if (debug) console.log('1143 selectedOption, value ', selectedOption, value);
-        header = modalContext.title;
-        modalContent = 
-          <div className="modal-selection d-flex justify-content-center">
-            <Select className="modal-select"              
-              options={options}
-              components={comps}
-              onChange={value => this.handleSelectDropdownChange(value, context)}
-            /> 
-          </div>
-          {/* <option value={option.value}>{label: option.label, option.value}</option>
-          */}            
+      const value = (selectedOption)  ? selectedOption.value : options[0];
+      const label = (selectedOption)  ? selectedOption.label : options[0];
+      if (debug) console.log('1142 context', context);
+      if (debug) console.log('1143 selectedOption, value ', selectedOption, value);
+      header = modalContext.title;
+      modalContent = 
+        <div className="modal-selection d-flex justify-content-center">
+          <Select className="modal-select"              
+            options={options}
+            components={comps}
+            onChange={value => this.handleSelectDropdownChange(value, context)}
+          /> 
+        </div>
+        {/* <option value={option.value}>{label: option.label, option.value}</option>
+        */}            
     } else {
         if (selectedData !== null) {
+          if (debug) console.log('1151 selectedData', selectedData);
           inspector = 
             <div className="p-2" style={{backgroundColor: "#ddd"}}>
               <p>Selected Object Properties:</p>

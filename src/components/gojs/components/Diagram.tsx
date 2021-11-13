@@ -2571,7 +2571,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('2591 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2594 Diagram ', this.state.selectedData, modalContext);
+          if (!debug) console.log('2594 Diagram ', this.state.selectedData, modalContext);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -2609,6 +2609,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       default:
         break;
     }
+
+
+    // const modaltabs = 
+    //                 <div role="tabpanel">          
+    //                     <ul className="nav nav-tabs" role="tablist">
+    //                         <li role="presentation" class="active"><a href="#uploadTab" aria-controls="uploadTab" role="tab" data-toggle="tab">Upload</a>
+    //                         {modalContent}
+    //                         </li>
+    //                         <li role="presentation"><a href="#browseTab" aria-controls="browseTab" role="tab" data-toggle="tab">Browse</a>
+    //                             aaaaaa
+    //                         </li>
+    //                     </ul>
+    //                 </div>
+               
+
     if (debug) console.log('2631 last in Diagram ', this.props);
     
     return (
@@ -2643,6 +2658,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 <div className="modal-body1">
                   {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
                   {modalContent}
+                  {/* {modaltabs} */}
                 </div>
               </ModalBody>
               <ModalFooter className="modal-footer">

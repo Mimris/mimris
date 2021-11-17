@@ -10,7 +10,9 @@ import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
 import Select, { components } from "react-select"
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from 'reactstrap'
+import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
+import classnames from 'classnames';
 // import * as ReactModal from 'react-modal';
 // import Popup from 'reactjs-popup';
 // import 'reactjs-popup/dist/index.css';
@@ -42,6 +44,7 @@ import { METHODS } from 'http';
 // import './Diagram.css';
 // import "../../../styles/styles.css"
 import "../BalloonLink.js";
+import Toggle from '../../utils/Toggle';
 
 const AllowTopLevel = true;
 
@@ -88,7 +91,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showModal: false,
       selectedData: null, 
       modalContext: null,
-      selectedOption: null
+      selectedOption: null,
+      activeTab: null
     };
     // init maps
     this.mapNodeKeyIdx = new Map<go.Key, number>();
@@ -165,9 +169,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       selectedData: node,
       modalContext: modalContext,
       selectedOption: null,
-      showModal: true
+      showModal: true,
+      currentActiveTab: '1'
     });
-    if (debug) console.log('164 this.state', this.state);
+    if (!debug) console.log('173 this.state', this.state);
   } 
 
   public handleSelectDropdownChange = (selected) => {
@@ -2610,19 +2615,52 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         break;
     }
 
+    //----------------------------------------------------------------------------
 
-    // const modaltabs = 
-    //                 <div role="tabpanel">          
-    //                     <ul className="nav nav-tabs" role="tablist">
-    //                         <li role="presentation" class="active"><a href="#uploadTab" aria-controls="uploadTab" role="tab" data-toggle="tab">Upload</a>
-    //                         {modalContent}
-    //                         </li>
-    //                         <li role="presentation"><a href="#browseTab" aria-controls="browseTab" role="tab" data-toggle="tab">Browse</a>
-    //                             aaaaaa
-    //                         </li>
-    //                     </ul>
-    //                 </div>
-               
+    const selpropgroup = [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ] 
+     
+    //toggle active state for Tab
+    const toggle = tab => {
+        if (this.state.currentActiveTab !== tab) this.setState({currentActiveTab:tab});
+    }
+
+    const navitemDiv = (!selpropgroup) ? <></> : selpropgroup.map((pg, index) => {
+      const tabName = pg?.tabName || 'All';
+      console.log('2666', index, tabName, pg)
+      if (pg) { 
+          const strindex = index.toString()
+          const activeTab = (this.state.activeTab === strindex) ? 'active' : ''
+          return (
+            <NavItem key={strindex}>
+              <NavLink 
+                className={classnames({ active: this.state.currentActiveTab === strindex })}
+                onClick={() => { toggle(strindex)}}
+              >
+                {tabName}
+              </NavLink>
+            </NavItem>
+          )
+      }
+    })
+
+    const modaltabsContent = 
+      <>
+        <Nav tabs >
+          {navitemDiv}  
+          <NavItem >
+          <button className="btn-sm bg-warning text-white py-0 ml-3 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title="Select tab to see different group of properties.">?
+          </button>
+          </NavItem>
+        </Nav>
+        <TabContent activeTab={this.state.currentActiveTab} > 
+          <TabPane tabId={this.state.currentActiveTab} >
+            <div className="workpad bg-white mt-0 p-1 pt-2"> 
+             {modalContent}
+            </div>         
+          </TabPane>
+        </TabContent>
+      </>  
 
     if (debug) console.log('2631 last in Diagram ', this.props);
     
@@ -2655,11 +2693,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               </ModalHeader>
               </div>
               <ModalBody >
-                <div className="modal-body1">
+                {/* <div className="modal-body1"> */}
                   {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
-                  {modalContent}
-                  {/* {modaltabs} */}
-                </div>
+                  {/* {modalContent} */}
+                  {modaltabsContent}
+                {/* </div> */}
               </ModalBody>
               <ModalFooter className="modal-footer">
                 <Button className="modal-button bg-link m-0 p-0" color="link" onClick={() => { this.handleCloseModal() }}>Done</Button>

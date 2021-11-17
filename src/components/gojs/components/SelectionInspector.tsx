@@ -111,11 +111,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('90 type', type);
     let props;
     try {
-      props = inst.setAndGetAllProperties(myMetis);
-      // if (proptab === undefined) prope = props1;
-      // if (proptab === )
-      //   return;
-    
+      props = inst.setAndGetAllProperties(myMetis);   
     } catch {
       props = type?.getProperties(true);
     }

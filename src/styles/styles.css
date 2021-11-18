@@ -51,6 +51,7 @@
 .modal {
   /* background-color: red; */
   /* background: linear-gradient(90deg,#FFFF00 6%,#FFA500 25%,#F14444 45%,#D53567 55%,#9A109A 94%); */
+
   background: rgba(255,255,255,0.3);
   display: flex; 
   align-items: center; 
@@ -81,7 +82,7 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  /* width: 100%; */
+  width:min-content;
   /* width: 42vh; */
 }
 .modal-body {

@@ -2665,7 +2665,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('2631 last in Diagram ', this.props);
     
     return (
-      <div>
+      <div className="bg-dark">
         <ReactDiagram 
           ref={this.diagramRef}
           divClassName='diagram-component'
@@ -2678,7 +2678,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
-        <Modal className="" isOpen={this.state.showModal}  >
+        <Modal className="modal" isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5">
             <div className="modal-content"> */}
               <div className="modal-head">

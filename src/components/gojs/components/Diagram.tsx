@@ -2665,7 +2665,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('2631 last in Diagram ', this.props);
     
     return (
-      <div className="bg-dark">
+      <div>
         <ReactDiagram 
           ref={this.diagramRef}
           divClassName='diagram-component'
@@ -2678,21 +2678,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />
-        <Modal className="modal" isOpen={this.state.showModal}  >
+        <Modal isOpen={this.state.showModal}  >
           {/* <div className="modal-dialog w-100 mt-5">
             <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
-                  // onClick={() => { this.setState({showModal: false}) }} ><span>x</span>
                   onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
                 </Button>
+                  <span className="text-secondary float-left">{ header }: </span> 
                 <ModalHeader className="modal-header" >
-                <span className="text-secondary">{header} </span> 
-                <span className="modal-name " >{this.state.selectedData?.name} </span>
-                <span className="modal-objecttype float-right"> {typename} </span> 
-              </ModalHeader>
+                  <span className="modal-name " >{this.state.selectedData?.name} </span>
+                  <span className="modal-objecttype float-right"> {typename} </span> 
+                </ModalHeader>
               </div>
-              <ModalBody >
+              <ModalBody  className="moda-body1">
                 {/* <div className="modal-body1"> */}
                   {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
                   {/* {modalContent} */}

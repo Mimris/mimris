@@ -70,8 +70,8 @@
 }
 .modal-content {
   margin-top: 38%;
-  background-color: yellow;
-  background: rgba(255,255,255,0.8);
+  /* background-color: yellow; */
+  background: rgba(255,255,255,0.6);
   /* border: 10px solid red; */
   /* border-top: white;
   border-left: white; */
@@ -84,51 +84,56 @@
   /* width: 100%; */
   /* width: 42vh; */
 }
-.modal-body1 {
+.modal-body {
   /* background-color: blue; */
   /* background-color: transparent; */
-  background: rgba(225,225,225,0.7);
-  padding: 4%;
+  background: rgba(225,225,225,0.5);
+  padding: 8px;
   /* border-radius: 10px; */
   /* border: 1px solid rgba(255,255,255,1); */
   position: relative;
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  display: block;
+  /* display: block; */
   /* margin: 20 auto; */
   /* padding: 20px; */
   display: flex;
-  flex-direction: row;
-  /* align-ite ms: center; */
-  /* justify-content: center; */
-  /* justify-content: space-evenly; */
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: center;
+  justify-content: space-evenly;
 }
 .modal-head {
   background-color: transparent;
   background: rgba(253, 252, 252, 0.4);
   /* border-radius: 10px 10px 0px 0px; */
+  display: flexbox;
+  align-items: stretch;
+  /* justify-content: center; */
 }
 .modal-header {
-  background-color: transparent;
-  /* background: rgba(255,255,255,0.4); */
+  background: rgba(253, 252, 252, 0.7);
   font-family: Arial;
   color:  #333;
-  font-size: 20px;
-  /* padding: 20px 30px; */
-  /* text-shadow: 2px 2px rgba(0,0,0,0.3); */
-  width: "70%";
-  border-radius: 0px 0px 10px 10px;
-  /* text-transform: uppercase; */
+  margin-top: 3px;
+  padding: 1px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  /* justify-content: space-between; */
 }
+
 .modal-footer {
   background-color: transparent;
   background: rgba(255,255,255,0.3);
   font-family: Arial;
   color:  #333;
-  font-size: 90%;
+  font-size: 80%;
   /* padding: 20px 30px; */
   /* text-shadow: 1px 1px rgba(0,0,0,0.1); */
-  width: "70%";
+  /* width: 70%; */
   border-radius: 0px 0px 10px 10px;
   /* text-transform: uppercase; */
 }
@@ -147,10 +152,18 @@
 }
 
 .modal-name {
-  background-color: transparent;
-  /* background: rgba(255,255,255,0.2); */
+  /* background-color: transparent; */
+  background: rgba(255,255,255,0.2);
 }
-
+.modal-title {
+  width: 70%;
+  /* margin: 2px; */
+}
+.text-secondary {
+  font-size: 70%;
+  padding: 1%;
+  
+}
 .modal-image {
   border: 1px solid rgba(255,255,255,1);
   margin-right: 4px;

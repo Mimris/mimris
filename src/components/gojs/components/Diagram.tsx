@@ -2691,7 +2691,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   <span className="modal-objecttype float-right"> {typename} </span> 
                 </ModalHeader>
               </div>
-              <ModalBody  className="moda-body1">
+              <ModalBody  className="moda-body">
                 {/* <div className="modal-body1"> */}
                   {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
                   {/* {modalContent} */}

@@ -166,6 +166,7 @@ export function handleSelectDropdownChange(selected, context) {
         modifiedModelviews.push(gqlModelview);
         modifiedModelviews.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
         if (debug) console.log('141 gqlModelview', gqlModelview);
@@ -176,6 +177,7 @@ export function handleSelectDropdownChange(selected, context) {
         modifiedMetamodels.push(gqlMetamodel);
         modifiedMetamodels.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
         if (debug) console.log('151 gqlMetamodel', gqlMetamodel);
@@ -198,6 +200,7 @@ export function handleSelectDropdownChange(selected, context) {
         modifiedModelviews.push(gqlModelview);
         modifiedModelviews.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
         if (debug) console.log('173 gqlModelview', gqlModelview);
@@ -208,6 +211,7 @@ export function handleSelectDropdownChange(selected, context) {
         modifiedMetamodels.push(gqlMetamodel);
         modifiedMetamodels.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
         if (debug) console.log('183 gqlMetamodel', gqlMetamodel);
@@ -231,6 +235,7 @@ export function handleSelectDropdownChange(selected, context) {
         modifiedModelviews.push(gqlModelview);
         modifiedModelviews.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
         if (debug) console.log('206 gqlModelview', gqlModelview);
@@ -241,6 +246,7 @@ export function handleSelectDropdownChange(selected, context) {
         modifiedMetamodels.push(gqlMetamodel);
         modifiedMetamodels.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data })
         })
         if (debug) console.log('216 gqlMetamodel', gqlMetamodel);
@@ -257,6 +263,7 @@ export function handleSelectDropdownChange(selected, context) {
       // myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
       if (debug) console.log('228 Diagram', refMetamodel, myMetis);
       // let mmdata = myMetis.currentModel;
+      // mmdata = JSON.parse(JSON.stringify(mmdata));
       // if (debug) console.log('230 Diagram', mmdata);        
       // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
       } 
@@ -268,7 +275,8 @@ export function handleSelectDropdownChange(selected, context) {
       myMetis.currentTargetModel = targetModel
       myMetis.currentModel.targetModelRef = targetModel.id
       if (debug) console.log('240 Diagram', targetModel, myMetis);
-      const mdata = new gql.gqlModel(myMetis.currentModel, true);
+      let mdata = new gql.gqlModel(myMetis.currentModel, true);
+      mdata = JSON.parse(JSON.stringify(mdata));
       if (debug) console.log('242 Diagram', mdata);        
       myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
     }
@@ -281,7 +289,8 @@ export function handleSelectDropdownChange(selected, context) {
       // myMetis.currentTargetMetamodel = targetMetamodel;
       myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
       if (debug) console.log('253 Diagram', targetMetamodel, myMetis);
-      const mmdata = new gql.gqlModel(myMetis.currentModel, true);
+      let mmdata = new gql.gqlModel(myMetis.currentModel, true);
+      mmdata = JSON.parse(JSON.stringify(mmdata));
       if (debug) console.log('255 Diagram', mmdata);        
       myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
     }
@@ -315,6 +324,7 @@ export function handleSelectDropdownChange(selected, context) {
       modifiedRelships.push(gqlRelship);
       modifiedRelships.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       });
       if (debug) console.log('287 reltype', reltype, fromType, toType);
@@ -363,6 +373,7 @@ export function handleSelectDropdownChange(selected, context) {
             modifiedRelships.push(gqlRel);
             modifiedRelships?.map(mn => {
               let data = (mn) && mn
+              data = JSON.parse(JSON.stringify(data));
               myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
             });
             break;
@@ -385,6 +396,7 @@ export function handleSelectDropdownChange(selected, context) {
             modifiedReltypes.push(gqlRelType);
             modifiedReltypes?.map(mn => {
               let data = (mn) && mn
+              data = JSON.parse(JSON.stringify(data));
               myMetis.myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
             });
             break;
@@ -444,6 +456,7 @@ export function handleSelectDropdownChange(selected, context) {
           if (debug) console.log('920 gqlTypeView', gqlTypeView);
           modifiedLinkTypeViews?.map(mn => {
             let data = (mn) && mn
+            data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -500,6 +513,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedObjtypes.push(gqlObjtype);
       modifiedObjtypes.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
       if (debug) console.log('441 selObj', selObj);
@@ -546,6 +560,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedReltypes.push(gqlReltype);
       modifiedReltypes.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
       if (debug) console.log('488 selObj', selObj);
@@ -612,11 +627,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       // Do the dispatches
       modifiedObjects.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        if (!debug) console.log('631 object', data);
         props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       })
       modifiedObjviews.map(mn => {
         let data = mn;
         if (debug) console.log('555 gqlObjview', data);
+        data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
       if (debug) console.log('558 selObj', selObj);
@@ -648,6 +666,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedRelships.push(gqlRelship);
       modifiedRelships.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       });
       let relview = link.data.relshipview;
@@ -680,6 +699,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedRelviews.map(mn => {
         let data = mn;
         if (debug) console.log('614 gqlRelview', data);
+        data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })        
       break;
@@ -707,6 +727,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedObjviews.map(mn => {
         let data = mn;
         if (debug) console.log('638 data', data);
+        data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
       if (debug) console.log('641 data', data);
@@ -744,6 +765,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             modifiedObjviews.map(mn => {
               let data = mn;
               if (debug) console.log('671 data', data);
+              data = JSON.parse(JSON.stringify(data));
               props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             })
             for (let prop in objview?.data) {
@@ -764,6 +786,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           modifiedObjTypeviews.push(gqlObjtypeview);
           modifiedObjTypeviews.map(mn => {
             let data = mn;
+            data = JSON.parse(JSON.stringify(data));
             props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -887,6 +910,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedRelviews.push(gqlRelview);
       modifiedRelviews.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })
       const gqlReltypeview = new gql.gqlRelshipTypeView(reltypeview);
@@ -894,6 +918,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedRelTypeviews.push(gqlReltypeview);
       modifiedRelTypeviews.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
       })
       break;
@@ -923,6 +948,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         modifiedObjTypeviews.push(gqlObjtypeview);
         modifiedObjTypeviews.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
         })
       }
@@ -943,6 +969,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         modifiedObjTypeviews.push(gqlObjtypeview);
         modifiedObjTypeviews.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
         })
       }
@@ -967,6 +994,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         modifiedRelTypeviews.push(gqlReltypeview);
         modifiedRelTypeviews.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
         })
       }
@@ -986,6 +1014,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           modifiedRelTypeviews.push(gqlReltypeview);
           modifiedRelTypeviews.map(mn => {
             let data = mn;
+            data = JSON.parse(JSON.stringify(data));
             props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
           })
         }
@@ -1050,6 +1079,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     // Handle all the dispatches
     modifiedObjTypeviews.map(mn => {
       let data = mn;
+      data = JSON.parse(JSON.stringify(data));
       props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
     })
   }

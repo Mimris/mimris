@@ -27,7 +27,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
         const nodeLoc = objview.loc.split(" ");
         const nx = parseInt(nodeLoc[0]);
         const ny = parseInt(nodeLoc[1]);
-        const object = objview.object;
+        let object = objview.object;
+        object = myMetis.findObject(object.id);
         if (object.type.isContainer()) {
             objview.viewkind = constants.viewkinds.CONT;
         }
@@ -150,10 +151,12 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
     }
     modifiedObjectViews.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
     });
     modifiedRelshipViews.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data });
     });
     if (debug) console.log('156 objectviews', objectviews);
@@ -297,6 +300,7 @@ export function generateosduId(context: any) {
     modifiedObjects.push(gqlObject);
     modifiedObjects?.map(mn => {
         let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
     });
 }

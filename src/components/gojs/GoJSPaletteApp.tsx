@@ -117,6 +117,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
           modifiedObjects.push(gqlObj);
           modifiedObjects.map(mn => {
             let data = mn
+            data = JSON.parse(JSON.stringify(data));
             this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
           })
         }

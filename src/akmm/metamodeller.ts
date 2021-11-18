@@ -2166,6 +2166,25 @@ export class cxMetis {
         }
         return null;
     }
+    findRelationshipTypeByName1(name: string, fromObjType: cxObjectType, toObjType: cxObjectType): cxRelationshipType | null {
+        const types = this.getRelationshipTypes();
+        if (!types) {
+            return null;
+        } else {
+            for (let i = 0; i<types.length; i++) {
+                let reltype = types[i] as cxRelationshipType;
+                if (reltype.isDeleted()) continue;
+                if (reltype.getName() === name) {
+                    if (reltype.fromObjtype?.id === fromObjType?.id) {
+                        if (reltype.toObjtype?.id === toObjType?.id) {
+                            return reltype;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
     findRelationshipTypeByName2(name: string, fromObjType: cxObjectType, toObjType: cxObjectType): cxRelationshipType | null {
         const types = this.getRelationshipTypes();
         if (debug) console.log('2171 types', types.length, types);
@@ -3723,6 +3742,25 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
+    findRelationshipTypeByName1(name: string, fromObjType: cxObjectType, toObjType: cxObjectType): cxRelationshipType | null {
+        const types = this.getRelshipTypes();
+        if (!types) {
+            return null;
+        } else {
+            for (let i = 0; i<types.length; i++) {
+                let reltype = types[i] as cxRelationshipType;
+                if (reltype.isDeleted()) continue;
+                if (reltype.getName() === name) {
+                    if (reltype.fromObjtype?.id === fromObjType?.id) {
+                        if (reltype.toObjtype?.id === toObjType?.id) {
+                            return reltype;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
     findRelationshipTypeByName2(name: string, fromObjType: cxObjectType, toObjType: cxObjectType): cxRelationshipType | null {
         const types = this.getRelshipTypes();
         if (!types) {
@@ -3732,9 +3770,11 @@ export class cxMetaModel extends cxMetaObject {
                 let reltype = types[i] as cxRelationshipType;
                 if (reltype.isDeleted()) continue;
                 if (reltype.getName() === name) {
-                    if (debug) console.log('3736 reltype', reltype, fromObjType, toObjType);
+                    if (debug) console.log('3735 this.objecttypes, this.relshiptypes', this.objecttypes, this.relshiptypes);
                     if (reltype.isAllowedFromType(fromObjType, this.objecttypes, this.relshiptypes)) {
+                        if (debug) console.log('3737 reltype', reltype, fromObjType, toObjType);
                         if (reltype.isAllowedToType(toObjType, this.objecttypes, this.relshiptypes)) {
+                            if (debug) console.log('3739 reltype', reltype, fromObjType, toObjType);
                             return reltype;
                         }
                     }
@@ -4033,6 +4073,11 @@ export class cxType extends cxMetaObject {
         {
             if (!this.supertypes)
                 this.supertypes = new Array();
+            for (let i=0; i<this.supertypes.length; i++) {
+                const stype = this.supertypes[i];
+                if (stype.id === type.id)
+                    return;
+            }
             this.supertypes.push(type);
         }
     }
@@ -6049,6 +6094,10 @@ export class cxInstance extends cxMetaObject {
     }
     getType(): cxObjectType | cxRelationshipType | null {
         return this.type;
+    }
+    getInheritedTypes(): cxType[] | null {
+        const type = this.getType();
+        return type?.getSupertypes();
     }
     setFromObject(obj: cxObject) {
         this.fromObject = obj;

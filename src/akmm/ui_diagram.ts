@@ -40,6 +40,7 @@ export function newMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
             modifiedMetamodels.map(mn => {
                 let data = mn;
                 if (debug) console.log('40 data', data);
+                data = JSON.parse(JSON.stringify(data));
                 myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
             });
         }
@@ -131,7 +132,8 @@ export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
       model.addModelView(modelView);
       myMetis.addModelView(modelView);
       if (debug) console.log('102 myMetis', myMetis);
-      const data = new gql.gqlModel(model, true);
+      let data = new gql.gqlModel(model, true);
+      data = JSON.parse(JSON.stringify(data));
       if (debug) console.log('104 NewModelView', data);
       myDiagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data });
     }
@@ -161,6 +163,7 @@ export function deleteModelview(modelView: akm.cxModelView, myMetis: akm.cxMetis
     modifiedModelviews.push(gqlModelview);
     modifiedModelviews.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data });
     });
     uic.purgeDeletions(myMetis, myDiagram);
@@ -186,6 +189,7 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
         if (debug) console.log('156 modifiedObjects', modifiedObjects);
         modifiedObjects.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data });
         })              
 
@@ -205,6 +209,7 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
         if (debug) console.log('175 modifiedObjviews', objviews, modifiedObjviews);
         modifiedObjviews.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data });
         })              
         if (debug) console.log('180 myMetis', myMetis);
@@ -360,6 +365,7 @@ function replaceCurrentMetamodel2(context: any) {
     modifiedModels.push(gqlModel);
     modifiedModels.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
 }
@@ -394,6 +400,7 @@ function deleteMetamodel2(context: any) {
         modifiedMetamodels.push(gqlMetamodel);
         modifiedMetamodels.map(mn => {
           let data = mn;
+          data = JSON.parse(JSON.stringify(data));
           myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
         });
 
@@ -424,8 +431,9 @@ function createModel(context: any) {
             modelView.viewstyle = metamodel.viewstyle;
             model.addModelView(modelView);
             myMetis.addModelView(modelView);
-            const data = new gql.gqlModel(model, true);
+            let data = new gql.gqlModel(model, true);
             if (debug) console.log('35 gqlModel', data);
+            data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data }); // dispatches model with modelview
         }
     }
@@ -481,6 +489,7 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
     modifiedModels.push(gqlModel);
     modifiedModels.map(mn => {
         let data = mn;
+        data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
     alert("The model '" + model.name + "' has been deleted!");

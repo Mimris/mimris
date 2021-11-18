@@ -420,9 +420,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel;
               myMetis.pasteViewsOnly = true;
-              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
-              const myGoModel = myDiagram.myGoModel;
-              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', myGoModel });
+              let data = myMetis;
+              data = JSON.parse(JSON.stringify(data));
+              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', data });
+              data = myDiagram.myGoModel;
+              data = JSON.parse(JSON.stringify(data));
+              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', data });
               e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
               if (debug) console.log('560 Paste View', myMetis);
             },
@@ -657,6 +660,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 modifiedModels.push(gqlModel);
                 modifiedModels.map(mn => {
                   let data = mn;
+                  data = JSON.parse(JSON.stringify(data));
                   e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
                 if (debug) console.log('603 Delete View', gqlModel, myMetis);
@@ -697,6 +701,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 modifiedModels.push(gqlModel);
                 modifiedModels.map(mn => {
                   let data = mn;
+                  data = JSON.parse(JSON.stringify(data));
                   e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
                 
@@ -707,6 +712,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   modifiedDatatypes.push(gqlDatatype);
                   modifiedDatatypes.map(mn => {
                     let data = mn;
+                    data = JSON.parse(JSON.stringify(data));
                     e.diagram.dispatch({ type: 'UPDATE_DATATYPE_PROPERTIES', data })
                   })
                   if (debug) console.log('467 gqlDatatype', gqlDatatype);
@@ -740,6 +746,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedUnits.push(gqlUnit);
               modifiedUnits.map(mn => {
                 let data = mn;
+                data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_UNIT_PROPERTIES', data })
               })
             },
@@ -1200,6 +1207,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       modifiedTypeViews.push(gqlReltypeView);
                       modifiedTypeViews.map(mn => {
                         let data = mn;
+                        data = JSON.parse(JSON.stringify(data));
                         e.diagram.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
                       })
 
@@ -1209,6 +1217,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       modifiedRelshipViews.push(gqlRelView);
                       modifiedRelshipViews.map(mn => {
                         let data = mn;
+                        data = JSON.parse(JSON.stringify(data));
                         e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                       })  
                   }              
@@ -1361,6 +1370,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   modifiedRelshipViews.push(gqlRelView);
                   modifiedRelshipViews.map(mn => {
                     let data = mn;
+                    data = JSON.parse(JSON.stringify(data));
                     e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                   })
                 }
@@ -1607,6 +1617,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedRelshipViews.push(gqlRelView);
               modifiedRelshipViews.map(mn => {
                 let data = mn;
+                data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
               }); 
             },
@@ -1763,6 +1774,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   myMetis.addModelView(modelView);
                   const data = new gql.gqlModel(model, true);
                   if (debug) console.log('593 Diagram', data);
+                  data = JSON.parse(JSON.stringify(data));
                   e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data });
                 }
               }
@@ -1833,6 +1845,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedProjects.push(project);
               modifiedProjects?.map(mn => {
                 let data = (mn) && mn
+                data = JSON.parse(JSON.stringify(data));
                 e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
               })
             },
@@ -1859,6 +1872,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedModels.push(gqlModel);
               modifiedModels?.map(mn => {
                 let data = (mn) && mn
+                data = JSON.parse(JSON.stringify(data));
                 e.diagram?.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
               })
             },
@@ -1885,6 +1899,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedModelviews.push(gqlModelview);
               modifiedModelviews?.map(mn => {
                 let data = (mn) && mn
+                data = JSON.parse(JSON.stringify(data));
                 e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
               })
             },
@@ -2039,6 +2054,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 modifiedModels.push(gqlModel);
                 modifiedModels.map(mn => {
                   let data = mn;
+                  data = JSON.parse(JSON.stringify(data));
                   e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
               }
@@ -2241,6 +2257,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               modifiedModelviews.push(gqlModelview);
               modifiedModelviews.map(mn => {
                 let data = mn;
+                data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
               })
             },

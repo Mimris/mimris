@@ -730,7 +730,7 @@
             },
             {
               "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
-              "name": "RelationshipType",
+              "name": "relationshipType",
               "description": "",
               "typeviewRef": "5f096d6d-051d-4aba-947a-f7363263a4d5",
               "properties": [],

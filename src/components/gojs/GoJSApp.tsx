@@ -1029,6 +1029,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       if (debug) console.log('923 modifiedNodes', modifiedNodes);
       modifiedNodes.map(mn => {
         let data = mn
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('877 UPDATE_OBJECTVIEW_PROPERTIES', data)
         this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
@@ -1036,6 +1037,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       if (debug) console.log('930 modifiedTypeNodes', modifiedTypeNodes);
       modifiedTypeNodes?.map(mn => {
         let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('900 UPDATE_OBJECTTYPE_PROPERTIES', data)
         this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
@@ -1043,6 +1045,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       if (debug) console.log('937 modifiedTypeViews', modifiedTypeViews);
       modifiedTypeViews?.map(mn => {
         let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
         if (debug) console.log('892 data', data);
       })
@@ -1050,30 +1053,35 @@ class GoJSApp extends React.Component<{}, AppState> {
       if (debug) console.log('944 modifiedTypeGeos', modifiedTypeGeos);
       modifiedTypeGeos?.map(mn => {
         let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
       })
 
       if (debug) console.log('950 modifiedLinks', modifiedLinks);
       modifiedLinks.map(mn => {
         let data = mn
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })
 
       if (debug) console.log('956 modifiedLinkTypes', modifiedLinkTypes);
       modifiedTypeLinks?.map(mn => {
         let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
 
       // if (debug) console.log('929 modifiedLinkTypeViews', modifiedLinkTypeViews);
       modifiedLinkTypeViews?.map(mn => {
         let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
       })
 
       if (debug) console.log('968 modifiedObjects', modifiedObjects);
       modifiedObjects?.map(mn => {
         let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('938 UPDATE_OBJECT_PROPERTIES', data)
         this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       })
@@ -1081,6 +1089,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       if (debug) console.log('975 modifiedRelships', modifiedRelships);
       modifiedRelships?.map(mn => {
         let data = (mn) && mn
+        data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('945 data', data);
         this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       })
@@ -1088,23 +1097,27 @@ class GoJSApp extends React.Component<{}, AppState> {
       if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
       selectedObjectViews?.map(mn => {
         let data = (mn) && { id: mn.id, name: mn.name }
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
       })
 
       if (debug) console.log('988 selectedRelshipViews', selectedRelshipViews);
       selectedRelshipViews?.map(mn => {
         let data = (mn) && { id: mn.id, name: mn.name }
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
       })
 
       if (debug) console.log('994 selectedObjectTypes', selectedObjectTypes);
       selectedObjectTypes?.map(mn => {
         let data = (mn) && { id: mn.id, name: mn.name }
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
       })
       if (debug) console.log('999 selectedRelationshipTypes', selectedRelationshipTypes);
       selectedRelationshipTypes?.map(mn => {
         let data = (mn) && { id: mn.id, name: mn.name }
+        data = JSON.parse(JSON.stringify(data));
         this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
       })
     }

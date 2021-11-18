@@ -177,7 +177,7 @@ const page = (props) => {
                   // margin: "0 auto",
                   // padding: "2px"
                 }}
-                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"} }} 
+                style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
                   <CardHeader className="card-header " >AKMM release blog ... </CardHeader>
@@ -185,11 +185,45 @@ const page = (props) => {
                     <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
                     <CardText >
                         &bull; Workplace templates for reflective workplace modelling! <br />
-                        &bull; Popup select menu for new relships!<br />
                         &bull; Strokewidth for synbol border and relship line!<br />
                         &bull; GraphQL shema reporting from Solution models!<br />
                         &bull; Instruction videos for modelling Best Practices! <br />
                         &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.11.11</CardTitle>
+                    <CardText >
+                          &bull; Added more Help items in help.<br />
+                          &bull; Edit Project name direct!<br /><br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.11.02</CardTitle>
+                    <CardText >
+                          &bull; Added more Help items in help.<br />
+                          - Getting started File open /save <br />
+                          - GitHub sync<br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.10.21</CardTitle>
+                    <CardText >
+                          &bull; Added Help in top-menu. Here you will find help and user-guides.<br />
+                          &bull; Adde filter buttons in ObjectType Palette.<br />
+                          &bull; Bugfixes!<br /><br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.10.08</CardTitle>
+                    <CardText >
+                          &bull; New Method objects that can be connected to Property objects in the metamodel.<br />
+                          &bull; Improvements on the pop-up menues.<br />
+                          &bull; Replace metamodel on background menu<br />
+                          &bull; Import OSDU Jsonfiles to AKM-Etity types with properties<br />
+                          &bull; Bugfixes!<br /><br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >

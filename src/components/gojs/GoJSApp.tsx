@@ -4,7 +4,6 @@
 */
 const debug = false;
 const linkToLink= false;
-const selectRelshipTypesUsingModal = false;
 
 import * as go from 'gojs';
 import { produce } from 'immer';
@@ -23,12 +22,16 @@ import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
 import * as gql from '../../akmm/ui_graphql';
 import * as uic from '../../akmm/ui_common';
+import * as uid from '../../akmm/ui_diagram';
 import * as uim from '../../akmm/ui_modal';
+import * as uit from '../../akmm/ui_templates';
 
 const constants = require('../../akmm/constants');
 const utils     = require('../../akmm/utilities');
 
-const systemtypes = ['Element', 'Object', 'Information', 'Property', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Generic', 'Container'];
+const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Unittype', 
+                     'Value', 'FieldType', 'InputPattern', 'ViewFormat', 
+                     'Generic', 'Container'];
 
 /**
  * Use a linkDataArray since we'll be using a GraphLinksModel,
@@ -88,7 +91,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       selectedOption: null,
       showModal: true
     });
-    if (debug) console.log('86 node', this.state.selectedData);
+    if (debug) console.log('92 node', this.state.selectedData);
   } 
 
   public handleSelectDropdownChange = (selected) => {
@@ -108,18 +111,27 @@ class GoJSApp extends React.Component<{}, AppState> {
   public handleCloseModal(e) {
     const props = this.props;
     const modalContext = this.state.modalContext;
-    const myDiagram = modalContext.context.myDiagram;
-    const myGoModel = modalContext.context.myGoModel;
+    let typename = modalContext.selected?.value;
+    if (!typename) typename = modalContext.typename;
+    if (debug) console.log('113 typename: ', typename);
+    const myDiagram = modalContext.context?.myDiagram;
+    const data = modalContext.data;
+    if (e === 'x') {
+      if (myDiagram)
+        myDiagram.model.removeLinkData(data);
+      this.setState({ showModal: false, selectedData: null, modalContext: null });
+      return;
+    }
     const args = {
       data: modalContext.data,
-      typename: modalContext.selected.value,
+      typename: typename,
       fromType: modalContext.fromType,
       toType: modalContext.toType,
       nodeFrom: modalContext.nodeFrom,
       nodeTo: modalContext.nodeTo,
       context: modalContext.context
     }
-    if (debug) console.log('122 myDiagram, args', myDiagram, args);
+    if (debug) console.log('128 args', args);
     uic.createRelshipCallback(args);
     this.setState({ showModal: false, selectedData: null, modalContext: null });
   }
@@ -174,7 +186,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   private isSystemType(type) {
     for (let i=0; i<systemtypes.length; i++) {
       const systype = systemtypes[i];
-      if (type.name === systype.name)
+      if (type.name === systype)
         return true;
     }
     return false;
@@ -192,19 +204,18 @@ class GoJSApp extends React.Component<{}, AppState> {
     const name = e.name;
     const myDiagram = e.diagram;
     const myMetis = this.state.myMetis;
-    // myMetis.modelType = this.state.modelType;
     if (debug) console.log('139 handleDiagramEvent', myMetis);
     const myModel = myMetis?.findModel(this.state.phFocus?.focusModel.id);
     const myModelview = myMetis?.findModelView(this.state.phFocus?.focusModelview.id);
     const myMetamodel = myModel?.getMetamodel();
     const myGoModel = this.state.myGoModel;
     const myGoMetamodel = this.state.myGoMetamodel;
-    if (debug) console.log('145 handleDiagramEvent', myGoMetamodel);
+    if (debug) console.log('212 handleDiagramEvent', myGoMetamodel);
     const gojsModel = {
       nodeDataArray: myGoModel?.nodes,
       linkDataArray: myGoModel?.links
     }
-    if (debug) console.log('156 gojsModel', gojsModel);
+    if (debug) console.log('217 gojsModel', gojsModel);
     const nodes = new Array();
     const nods = myGoMetamodel?.nodes;
     for (let i=0; i<nods?.length; i++) {
@@ -215,13 +226,13 @@ class GoJSApp extends React.Component<{}, AppState> {
       nodes.push(node);
     }
     if (nodes?.length > 0) myGoMetamodel.nodes = nodes;
-    if (debug) console.log('159 gojsMetamodel', myGoMetamodel);
+    if (debug) console.log('228 gojsMetamodel', myGoMetamodel);
 
     const gojsMetamodel = {
       nodeDataArray: myGoMetamodel?.nodes,
       linkDataArray: myGoMetamodel?.links
     }
-    if (debug) console.log('165 gojsMetamodel', gojsMetamodel);
+    if (debug) console.log('234 gojsMetamodel', gojsMetamodel);
     let modifiedNodes         = new Array();
     let modifiedLinks         = new Array();
     let modifiedTypeNodes     = new Array();
@@ -252,23 +263,24 @@ class GoJSApp extends React.Component<{}, AppState> {
       "pasted":           pasted,
       "done":             done
     }
-    if (debug) console.log('156 handleDiagramEvent - context', name, this.state, context);
-    if (debug) console.log('157 handleEvent', myMetis);
-    if (debug) console.log('158 this', this);
-    if (debug) console.log('189 event name', name);
+    if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
+    if (debug) console.log('266 handleEvent', myMetis);
+    if (debug) console.log('267 this', this);
+    if (debug) console.log('268 event name', name);
 
     switch (name) {
       case 'TextEdited': {
         const sel = e.subject.part;
         const data = sel.data;
+        const textvalue = data.text;
         let field = e.subject.name;
-        if (debug) console.log('200 data', data, field, sel);
+        if (debug) console.log('275 data', data, field, sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
             let text  = data.name;
             const category = data.category;
-            if (debug) console.log('206 data', data);
+            if (debug) console.log('281 data', data);
             // Object type
             if (category === constants.gojs.C_OBJECTTYPE) {
               if (text === 'Edit name') {
@@ -294,30 +306,41 @@ class GoJSApp extends React.Component<{}, AppState> {
                 data.name = text;
               }
               const myNode = this.getNode(myGoModel, key);
-              if (debug) console.log('232 node', myNode);
+              myNode.text = textvalue;
+              if (debug) console.log('307 text, node', textvalue, myNode);
               if (myNode) {
-                myNode.name = text;
-                const obj = uic.updateObject(myNode, field, text, context);
+                  myNode.name = text;
+                // }
+                if (debug) console.log('315 node, field, text', field, text, myNode);
+                let obj = uic.updateObject(myNode, field, text, context);
+                if (debug) console.log('317 node', data, myNode);
+                if (!obj) 
+                  obj = myNode.object;
                 if (obj) {
+                  obj.text = textvalue;
+                  myNode.object = obj;
                   const objviews = obj.objectviews;
                   for (let i=0; i<objviews.length; i++) {
                     const objview = objviews[i];
                     objview.name = myNode.name;
+                    objview.text = textvalue;
+                    // objview.text = myNode.text;
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
-                      if (debug) console.log('243 node', node);
+                      if (debug) console.log('326 node', node);
                       node = myDiagram.findNodeForKey(node.key)
                       myDiagram.model?.setDataProperty(node.data, "name", myNode.name);
                       const gqlObjview = new gql.gqlObjectView(objview);
+                      gqlObjview.text = textvalue;
                       modifiedNodes.push(gqlObjview);
+                      if (debug) console.log('331 gqlObjview', gqlObjview);
                     } 
                   }
                 }
-                data.name = myNode.name;
-                if (debug) console.log('265 node', data, myNode, objview);
-                const gqlObj = new gql.gqlObject(myNode.objectview.object);
+                const gqlObj = new gql.gqlObject(obj);
+                gqlObj.text = textvalue;
                 modifiedObjects.push(gqlObj);
-                if (debug) console.log('268 node', gqlObj);
+                if (debug) console.log('337 obj, gqlObj', obj, gqlObj);
               }
             }
             const nodes = myGoModel?.nodes;
@@ -407,13 +430,13 @@ class GoJSApp extends React.Component<{}, AppState> {
           const sel = it.value;
           const data = sel.data;
           const typename = data.type;
-          if (debug) console.log('333 typename', typename, data.objecttype);
+          if (debug) console.log('420 typename', typename, data.objecttype);
           if (typename === "Object type") {
               const objtype = myMetis.findObjectType(data.objecttype.id);
-              if (debug) console.log('321 objtype', objtype);
+              if (debug) console.log('423 objtype', objtype);
               if (objtype) {
                   let objtypeGeo = context.myMetamodel.findObjtypeGeoByType(objtype);
-                  if (debug) console.log('324 objtypegeo', objtypeGeo);
+                  if (debug) console.log('426 objtypegeo', objtypeGeo);
                   if (!objtypeGeo) {
                       objtypeGeo = new akm.cxObjtypeGeo(utils.createGuid(), context.myMetamodel, objtype, "", "");
                   }
@@ -421,7 +444,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   objtypeGeo.setSize(data.size);
                   objtypeGeo.setModified();
                   const gqlObjtypeGeo = new gql.gqlObjectTypegeo(objtypeGeo);
-                  if (debug) console.log('332 gqlObjtypeGeo', gqlObjtypeGeo);
+                  if (debug) console.log('434 gqlObjtypeGeo', gqlObjtypeGeo);
                   modifiedTypeGeos.push(gqlObjtypeGeo);
               }
           }
@@ -429,15 +452,39 @@ class GoJSApp extends React.Component<{}, AppState> {
           {
             // Object moved
             const key = data.key;
-            if (debug) console.log('355 data', data);
-            const node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
-            if (debug) console.log('361 node, modifiedNodes: ', node, modifiedNodes);
-            if (node) e.diagram.model.setDataProperty(data, "group", node.group);
-            //const myNode = this.getNode(myGoModel, key);
-            if (debug) console.log('364 myGoModel', myGoModel);
-            if (debug) console.log('301 SelectionMoved', modifiedNodes);
+            if (debug) console.log('442 data', data);
+            let node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
+            if (node) {
+              if (debug) console.log('444 node, data', node, data);
+              const group = node.group;
+              const n = myDiagram.findNodeForKey(data.key);
+              if (n) {
+                node = n;
+                node.group = group;
+              }              
+              for (let lit = node?.findLinksConnected(); lit?.next(); ) {
+                let link = lit?.value;  
+                if (debug) console.log('447 link', link);
+                if (link) {
+                  if(debug) console.log('449 link', link);
+                  //handle relview points
+                  const relview = link.data.relshipview;
+                  if (relview) {
+                    relview.points = link.points;
+                    const gqlRelview = new gql.gqlRelshipView(relview);
+                    modifiedLinks.push(gqlRelview);
+                  }
+                }
+              }               
+              if (debug) console.log('459 node, modifiedNodes: ', node, modifiedNodes);
+              if (node) myDiagram.model.setDataProperty(data, "group", node.group);
+              //const myNode = this.getNode(myGoModel, key);
+              if (debug) console.log('462 myGoModel', myGoModel);
+              if (debug) console.log('463 SelectionMoved', modifiedNodes);
+            }
           }
           const nodes = myGoModel?.nodes;
+          if (debug) console.log('467 nodes', nodes);
           for (let i=0; i<nodes?.length; i++) {
               const node = nodes[i];
               if (node.key === data.key) {
@@ -450,33 +497,33 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "SelectionDeleting": {
-        if (debug) console.log('389 myMetis', myMetis); 
+        if (debug) console.log('459 myMetis', myMetis); 
         const deletedFlag = true;
         let renameTypes = false;
         const selection = e.subject;
         const data = selection.first().data;
-        if (debug) console.log('394 data, selection', data, selection);
+        if (debug) console.log('464 data, selection', data, selection);
         if (data.category === constants.gojs.C_OBJECTTYPE || data.category === constants.gojs.C_RELSHIPTYPE) {
           if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
             renameTypes = true;
           }
         }
-        if (debug) console.log('400 selection', selection);
+        if (debug) console.log('470 selection', selection);
         // Handle relationship types
         for (let it = selection?.iterator; it.next();) {
           const sel  = it.value;
           const data = sel.data;
-          if (debug) console.log('404 sel, data', sel, data);
+          if (debug) console.log('475 sel, data', sel, data);
           const key  = data.key;
           const typename = data.type;
           if (data.category === constants.gojs.C_RELSHIPTYPE) {
             const defRelType = myMetis.findRelationshipTypeByName('isRelatedTo');
             const reltype = myMetis.findRelationshipType(data.reltype?.id);
-            if (debug) console.log('410 reltype', reltype);
+            if (debug) console.log('481 reltype', reltype);
             if (reltype) {
               // Check if reltype instances exist
               const rels = myMetis.getRelationshipsByType(reltype);
-              if (debug) console.log('414 reltype, rels, myMetis', reltype, rels, myMetis);
+              if (debug) console.log('485 reltype, rels, myMetis', reltype, rels, myMetis);
               if (rels.length > 0) {
                 if (renameTypes) {
                   for (let i=0; i<rels.length; i++) {
@@ -492,24 +539,28 @@ class GoJSApp extends React.Component<{}, AppState> {
                     rel.markedAsDeleted = deletedFlag;
                     const gqlRel = new gql.gqlRelationship(rel);
                     modifiedRelships.push(gqlRel);
-                    if (debug) console.log('430 gqlRel', gqlRel);
+                    if (debug) console.log('501 gqlRel', gqlRel);
                   }
                 }
               }
               // Check if reltype comes from or goes to a systemtype
-              // If so, do not delete
+              // If so, ask if you really wants to delete
               const fromObjtype = reltype.fromObjtype;
+              const toObjtype   = reltype.toObjtype;
+              if (debug) console.log('509 fromObjtype, toObjtype', fromObjtype, toObjtype);
               if (!this.isSystemType(fromObjtype)) {
-                const toObjtype = reltype.toObjtype;
                 if (!this.isSystemType(toObjtype)) {
-                  continue;
+                  if (!confirm("This is a relationship type between system types. Do you really want to delete?")) {
+                    continue;
+                  }
                 }
               }
+              if (debug) console.log('514 reltype', reltype);
               reltype.markedAsDeleted = deletedFlag;
               uic.deleteRelationshipType(reltype, deletedFlag);
               const gqlReltype = new gql.gqlRelationshipType(reltype, true);
               modifiedTypeLinks.push(gqlReltype);
-              if (debug) console.log('438 modifiedTypeLinks', modifiedTypeLinks);
+              if (debug) console.log('519 modifiedTypeLinks', modifiedTypeLinks);
               let reltypeview = reltype.typeview;
               if (reltypeview) {
                   // reltypeview.markedAsDeleted = deletedFlag;
@@ -608,7 +659,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           if (data.category === constants.gojs.C_RELATIONSHIP) {
             const myLink = this.getLink(context.myGoModel, key);
             if (debug) console.log('427 SelectionDeleted', myLink);
-            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedLinkTypeViews, context);
+            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, modifiedLinkTypeViews, context);
             const relview = data.relshipview;
             if (relview && relview.category === constants.gojs.C_RELATIONSHIP) {
               relview.markedAsDeleted = deletedFlag;
@@ -633,11 +684,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         e.subject.each(function(n) {
           const node = myDiagram.findNodeForKey(n.data.key);
           let part = node.data;
-          if (debug) console.log('455 found node', node);
-          if (debug) console.log('456 myMetis', myMetis);
-          if (debug) console.log('457 myGoModel', myGoModel, myGoMetamodel);
-
-          if (debug) console.log('459 part, node, n', part, node, n);
+          const isLabel = (part.typename === 'Label');
+          if (debug) console.log('683 found node', node);
+          if (debug) console.log('684 myMetis', myMetis);
+          if (debug) console.log('685 myGoModel', myGoModel, myGoMetamodel);
+          if (debug) console.log('686 part, node, n', part, node, n);
           if (part.type === 'objecttype') {
             const otype = uic.createObjectType(part, context);
             if (debug) console.log('462 myMetis', myMetis);
@@ -663,56 +714,50 @@ class GoJSApp extends React.Component<{}, AppState> {
           } else // object
           {
             part.category = 'Object';
-            if (debug) console.log('578 part', part);
+            if (debug) console.log('712 part', part);
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
-              console.log('581 obj', obj);
+              console.log('715 obj', obj);
             }
             if (part.objecttype?.viewkind === 'Container') {
               part.isGroup = true;
               part.viewkind = 'Container';
             }
-            if (debug) console.log('592 part', part);
+            if (isLabel) part.text = 'label';
+            if (debug) console.log('722 part', part);
             if (part.parentModel == null)
               myMetis.pasteViewsOnly = true;
-            if (debug) console.log('595 myMetis', myMetis);
+            if (debug) console.log('725 myMetis', myMetis);
             const objview = uic.createObject(part, context);
-            if (debug) console.log('597 myMetis', myMetis);
-            if (debug) console.log('598 New object', part, objview);
+            if (debug) console.log('727 myMetis', myMetis);
+            if (debug) console.log('728 New object', part, objview);
             if (objview) {
-              let otype = objview.object.type;
+              const object = objview.object;
+              let otype = object.type;
               if (!otype) {
                 otype = myMetis.findObjectType(objview.object.typeRef);
-                objview.object.type = otype;
+                object.type = otype;
               }
+              objview.viewkind = part.viewkind;
               const gqlObjview = new gql.gqlObjectView(objview);
               modifiedNodes.push(gqlObjview);
-              if (debug) console.log('607 New object', gqlObjview, modifiedNodes);
+              if (debug) console.log('739 New object', gqlObjview, modifiedNodes);
               const gqlObj = new gql.gqlObject(objview.object);
               modifiedObjects.push(gqlObj);
-              if (debug) console.log('610 New object', gqlObj);
+              if (debug) console.log('742 New object', gqlObj);
             }
           }
-          if (debug) console.log('613 myGoModel', myGoModel, myMetis);
-          // myDiagram.model?.setDataProperty(node, "isGroup", part.isGroup);
+          if (debug) console.log('745 myGoModel', myGoModel, myMetis);
+          node.updateTargetBindings();
         })
-        myDiagram.requestUpdate();
       }
       break;
       case "ObjectDoubleClicked": {
         let sel = e.subject.part;
-        let data = sel.data;
         this.state.selectedData = sel.data;
-        if (debug) console.log('699 data', data.objecttype.viewkind, sel);
-        if (true) {
-          // Test open modal
-          const icon = findImage(data.icon);
-          const modalContext = {
-            what:       "Test",
-          }
-          this.handleOpenModal(data, modalContext);
-          // End test
-        }
+        const node = sel.data;
+        if (debug) console.log('566 node', node);
+        uid.editObject(node, myMetis, myDiagram); 
       }
       break;
       case "ObjectSingleClicked": {
@@ -958,20 +1003,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('895 data', data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
-        break;
-        let plist = link.data.points;
-        let points = "[";
-        let it = plist.iterator;
-        let firsttime = true;
-        while (it.next()) {
-          if (!firsttime) points += ",";
-          points += it.value.x;
-          points += "," + it.value.y
-          firsttime = false;
-        }
-        points += "]";
         if (relview) {
-          relview.points = points;
+          relview.points = link.data.points;;
           const gqlRelview = new gql.gqlRelshipView(relview);
           if (debug) console.log('912 relview, gqlRelview', relview, gqlRelview);
           modifiedLinks.push(gqlRelview);
@@ -1075,34 +1108,6 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
       })
     }
-    // Function to identify images related to an image id
-    function findImage(image: string) {
-      if (!image) return "";
-      // if (image.substring(0,4) === 'http') { // its an URL
-      if (image.includes('//')) { // its an URL   
-        // if (debug) console.log('1269 Diagram', image);
-        return image
-      } else if (image.includes('/')) { // its a local image
-        if (debug) console.log('1270 Diagram', image);   
-        return image
-      } else if (image.includes('<svg ')) { // its a local image
-        if (debug) console.log('1270 Diagram', image);   
-        return image
-      } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
-        const firstcharacter = image.substring(0, 1)
-        const secondcharacter = image.substring(1, 2)
-        if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
-        // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
-        //   const letter = image.substring(0, image.length - 4)
-        //   // const lettersvg = letter
-        //   if (debug) console.log('1058 Diagram', letter, svgs[letter])
-        //   return svgs[letter].svg //svgs[`'${letter}'`]
-      } else { 
-        if (debug) console.log('1283 Diagram', image);
-        return "./../images/" + image //its an image in public/images
-      }
-      return "";
-    }
   }
 
   public render() {   
@@ -1113,46 +1118,47 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('1115 modalContext ', modalContext);
     const context = modalContext?.context;
     if (modalContext?.what === 'selectDropdown') {      
-        let options =  '' 
-        let comps = ''
-        const { Option } = components
-        const CustomSelectOption = props => 
-        (
-          <Option {...props}>
-            <img className="option-img mr-2" src={props.data.value} />
+      let options =  '' 
+      let comps = ''
+      const { Option } = components
+      const CustomSelectOption = props => 
+      (
+        <Option {...props}>
+          <img className="option-img mr-2" src={props.data.value} />
+          {props.data.label}
+        </Option>
+      )
+      const CustomSelectValue = props => (
+        <div>
+          {/* <i className={`icon icon-${props.data.icon}`} /> */}
+          <img className="option-img mr-2" src={props.data.value} />
             {props.data.label}
-          </Option>
-        )
-        const CustomSelectValue = props => (
-          <div>
-            {/* <i className={`icon icon-${props.data.icon}`} /> */}
-            <img className="option-img mr-2" src={props.data.value} />
-             {props.data.label}
-          </div>
-        )
-        options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
-        comps = null
-        if (debug) console.log('1138 options', options, this.state);
-        const { selectedOption } = this.state;
+        </div>
+      )
+      options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
+      comps = null
+      if (debug) console.log('1138 options', options, this.state);
+      const { selectedOption } = this.state;
+      if (debug) console.log('1139 selectedOption', selectedOption, this.state);
 
-        const value = (selectedOption)  ? selectedOption.value : options[0];
-        if (debug) console.log('1142 context', context);
-        if (debug) console.log('1143 selectedOption, value ', selectedOption, value);
-        header = modalContext.title;
-        modalContent = 
-          <div className="modal-selection d-flex justify-content-center">
-            <Select className="modal-select"
-              options={options}
-              components={comps}
-              onChange={value => this.handleSelectDropdownChange(value, context)}
-              value={value}
-            />
-          </div>
-          {/* <option value={option.value}>{label: option.label, option.value}</option>
-          */}      
-          
+      const value = (selectedOption)  ? selectedOption.value : options[0];
+      const label = (selectedOption)  ? selectedOption.label : options[0];
+      if (debug) console.log('1142 context', context);
+      if (debug) console.log('1143 selectedOption, value ', selectedOption, value);
+      header = modalContext.title;
+      modalContent = 
+        <div className="modal-selection d-flex justify-content-center">
+          <Select className="modal-select"              
+            options={options}
+            components={comps}
+            onChange={value => this.handleSelectDropdownChange(value, context)}
+          /> 
+        </div>
+        {/* <option value={option.value}>{label: option.label, option.value}</option>
+        */}            
     } else {
         if (selectedData !== null) {
+          if (debug) console.log('1151 selectedData', selectedData);
           inspector = 
             <div className="p-2" style={{backgroundColor: "#ddd"}}>
               <p>Selected Object Properties:</p>
@@ -1161,7 +1167,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 selectedData={this.state.selectedData}
                 context={this.state.context}
                 onInputChange={this.handleInputChange}
-              />;
+              />
             </div>
         }
     }
@@ -1190,8 +1196,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             <div className="modal-content"> */}
               <div className="modal-head">
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
-                  onClick={() => { this.setState({ showModal: false, selectedData: null, modalContext: null }) }} ><span>x</span>
-                  {/* onClick={() => { this.handleCloseModal('x') }} ><span>x</span> */}
+                onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
                 </Button>
                 <ModalHeader className="modal-header" >
                 <span className="text-secondary">{header} </span> 

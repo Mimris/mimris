@@ -40,14 +40,16 @@ const LoadFile = (props: any) => {
     const projectname = props.ph.phData.metis.name
     console.log('37 LoadFile', data);
     
-    SaveAllToFile(data, projectname, 'AKMM-Project')
+    SaveAllToFile(data, projectname, 'Project')
+    // SaveAllToFile(data, projectname, 'AKMM-Project')
   } 
   // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
   function handleSaveAllToFileDate() {
     const projectname = props.ph.phData.metis.name
     console.log('37 LoadFile', data);
     
-    SaveAllToFileDate(data, projectname, 'AKMM-Project')
+    SaveAllToFileDate(data, projectname, 'Project')
+    // SaveAllToFileDate(data, projectname, 'AKMM-Project')
   }
   
 
@@ -59,7 +61,8 @@ const LoadFile = (props: any) => {
     const modelview = model.modelviews[focusModelviewIndex]
     console.log('43', focusModelviewIndex, modelview);
     
-    SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
+    SaveModelToFile({modelview: modelview}, modelview.name, 'Modelview')
+    // SaveModelToFile({modelview: modelview}, modelview.name, 'AKMM-Modelview')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
 
@@ -67,7 +70,8 @@ const LoadFile = (props: any) => {
   function handleSaveModelToFile() {
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-    SaveModelToFile(model, model.name, 'AKMM-Model')
+    SaveModelToFile(model, model.name, 'Model')
+    // SaveModelToFile(model, model.name, 'AKMM-Model')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
   
@@ -75,25 +79,25 @@ const LoadFile = (props: any) => {
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) 
-    SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
+    SaveModelToFile(metamodel, metamodel.name, 'Metamodel')
+    // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
   
   // Save current model to a OSDU JSON file with date and time in the name to the downloads folder
   function handleSaveJSONToFile() {
     const projectname = props.ph.phData.metis.name
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
-    WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
+    const modelview = model.modelviews?.find(mv=> mv && (mv.id === props.ph?.phFocus?.focusModelview?.id))
+    WriteConvertModelToJSONFile(model, modelview, model.name, 'Json')
+    // WriteConvertModelToJSONFile(model, model.name, 'AKMM-Model')
     // SaveModelToFile(model, projectname+'.'+model.name, 'AKMM-Model')
   }
- 
-
 
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
-
 
   const buttonSaveAllToFileDiv = 
     <button 
@@ -126,7 +130,7 @@ const LoadFile = (props: any) => {
       className="btn-primary btn-sm mr-2  w-100  " 
       data-toggle="tooltip" data-placement="top" data-bs-html="true" 
       title="Click here to download the current Metamodel to file&#013;(in Downloads folder)&#013;The current Metamoel is the Metamodel of the current Model."     
-      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File (Downloads)
+      onClick={handleSaveMetamodelToFile}>Save Current Metamodel to File
     </button >
   const buttonSaveJSONToFileDiv = 
     <button className="btn-success text-white-50 btn-sm mr-2 w-100  " 
@@ -195,25 +199,6 @@ const LoadFile = (props: any) => {
                 </div>
               </div>
             </div>
-            <div className="loadsave--JsonToFile select bg-success mb-1 p-2  border border-dark">
-                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                  <h5>OSDU JSON-file</h5>
-                <div className="selectbox mb-2 border">
-                  <h6>Import model from OSDU JSON-file </h6>
-                  <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile(props.ph, dispatch, e)} />
-                  {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
-             
-                </div>
-                <div className="selectbox mb-2 border">
-                  <h6>Export to JSON file </h6>
-                  {buttonSaveJSONToFileDiv}
-                </div>
-                  {/* <h6>Send Project by mail </h6>
-                  <div className="selectbox bg-white mb-2 border">
-                    <div className="ml-2">{emailDivGmail}</div>
-                    <div className="ml-2">{emailDivMailto}</div>
-                  </div> */}
-              </div>
           </div>
 
         </ModalBody>

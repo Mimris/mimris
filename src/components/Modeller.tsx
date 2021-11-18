@@ -65,6 +65,12 @@ const Modeller = (props: any) => {
       modelType={props.phFocus.focusTab}
   />
 
+  const handleChange = (e) => {
+    if (debug) console.log('69 Modeller: handleChange', e);
+    dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } });
+  }
+
+
     const selector = (props.modelType === 'model' || props.modelType === 'modelview' ) 
       ? <>
           {/* <div className="modeller-selection" > */}
@@ -74,8 +80,14 @@ const Modeller = (props: any) => {
           <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
               title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
               style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-              Project: 
-              <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span> 
+              <div style={{display: "flex",}}>
+                <label> Project :  
+                  <input type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
+                </label>
+                {/* <label for="projName">Project :</label> 
+                <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
+              </div>
+              {/* <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span>  */}
           </h5>
         </>
       :
@@ -88,8 +100,15 @@ const Modeller = (props: any) => {
           <h5 className="modeller-heading float-left text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
               title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
               style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-              Project: 
-              <span className="projectname ml-2 px-1 bg-secondary w-25"> {props.metis.name || '---- none ----'} </span> 
+                   <div style={{display: "flex",}}>
+                <label> Project :  
+                  <input type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
+                </label>
+                {/* <label for="projName">Project :</label> 
+                <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
+              </div>
+              {/* Project 
+              <span className="projectname ml-2 px-1 bg-secondary w-25"> {props.metis.name || '---- none ----'} </span>  */}
           </h5>
         </>
       </div> 
@@ -122,15 +141,17 @@ const Modeller = (props: any) => {
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel?.id)
     if (model) {
-      if (debug) console.log('111 model', model);
-      const modelview = model?.modelviews[0]
-      if (activeTab === 0) {
-        const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
-        dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-        function refres() {
-          setRefresh(!refresh)
+      const modelviews = model.modelviews;
+      if (modelviews) {
+        if (debug) console.log('111 model', model);
+        if (activeTab === 0) {
+          const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
+          dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
+          function refres() {
+            setRefresh(!refresh)
+          }
+          setTimeout(refres, 10);
         }
-        setTimeout(refres, 10);
       }
     }
   }, [activeTab])

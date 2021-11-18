@@ -25,12 +25,15 @@ export let relkinds = {
 // Define GOJS constants
 
 export let gojs = {
-     C_UNITCATEGORY        : "Unit category",
      C_CONTAINER           : "Container",
      C_DATATYPE            : "Datatype",
      C_ENUMERATION         : "Enumeration",
+     C_FIELDTYPE           : "Field type",
+     C_GEOMETRY            : "Geometry",
+     C_INPUTPATTERN        : "Input pattern",
      C_METAMODEL           : "Metamodel",
      C_METACONTAINER       : "Metacontainer",
+     C_METHOD              : "Method",
      C_METIS               : "Metis",
      C_MODEL               : "Model",
      C_MODELVIEW           : "Model view",
@@ -42,17 +45,16 @@ export let gojs = {
      C_OBJECTVIEW          : "Object view",
      C_PALETTEGROUP_OBJ    : "typeitem",
      C_PROPERTY            : "Property",
+     C_PROPVALUE           : "Property value",
      C_RELATIONSHIP        : "Relationship",
      C_RELSHIPTYPE         : "Relationship type",
      C_RELSHIPTYPEVIEW     : "Relationship type view",
      C_RELSHIPVIEW         : "Relationship view",
-     C_VIEWSTYLE           : "Viewstyle",
      C_UNIT                : "Unit",
-     C_PROPVALUE           : "Property value",
+     C_UNITCATEGORY        : "Unit category",
      C_VALUE               : "Value",
      C_VIEWFORMAT          : "View format",
-     C_FIELDTYPE           : "Field type",
-     C_INPUTPATTERN        : "Input pattern"
+     C_VIEWSTYLE           : "Viewstyle"
 };
 
 // Define Firestore constants
@@ -70,6 +72,7 @@ export const fs = {
     FS_C_OBJTYPEGEOS      : "objtypegeos",
     FS_C_OBJECTVIEWS      : "objectviews",
     FS_C_PROPERTIES       : "properties",
+    FS_C_METHODS          : "methods",
     FS_C_RELATIONSHIPS    : "relationships",
     FS_C_RELSHIPTYPES     : "relationshiptypes",
     FS_C_RELSHIPTYPEVIEWS : "relationshiptypeviews",
@@ -86,6 +89,7 @@ export let types = {
          EKA_SPACE         : "EKA Space",
          EKA_OBJECT        : "EKA Object",
          EKA_PROPERTY      : "EKA Property",
+         EKA_METHOD        : "EKA Method",
          EKA_ROLE          : "EKA Role",
          EKA_ORIGIN        : "Origin",
          EKA_TARGET        : "Target",
@@ -101,6 +105,7 @@ export let types = {
          _EKA_PART         : "_part",
     
     // AKM types
+         AKM_CONTAINER         : "Container",
          AKM_INFORMATION       : "Information",
          AKM_ROLE              : "Role",
          AKM_TASK              : "Task",
@@ -110,6 +115,8 @@ export let types = {
          AKM_PROCESS           : "Process",
          AKM_SYSTEM            : "System",
          AKM_PROPERTY          : "Property",
+         AKM_METHOD            : "Method",
+         AKM_METHODTYPE        : "MethodType",
          AKM_DATATYPE          : "Datatype",
          AKM_VALUE             : "Value",
          AKM_INPUTPATTERN      : "InputPattern",
@@ -119,8 +126,10 @@ export let types = {
          AKM_HAS_MEMBER        : "hasMember",
          AKM_HAS_PART          : "hasPart",
          AKM_HAS_PROPERTY      : "has",
+         AKM_HAS_PROPERTIES    : "hasProperties",
          AKM_IS_OF_DATATYPE    : "isOf",
          AKM_IS_DEFAULTVALUE   : "isDefault",
+         AKM_HAS_METHOD        : "has",
          AKM_HAS_ALLOWED_VALUE : "hasAllowed",
          AKM_HAS_INPUTPATTERN  : "has",
          AKM_HAS_VIEWFORMAT    : "has",

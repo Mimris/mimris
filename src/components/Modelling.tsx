@@ -10,13 +10,14 @@ import classnames from 'classnames';
 import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
-import TargetModeller from "./TargetModeller";
-import TargetMeta from "./TargetMeta";
+// import TargetModeller from "./TargetModeller";
+// import TargetMeta from "./TargetMeta";
 import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
 import LoadFile from '../components/LoadFile'
+import LoadJsonFile from '../components/LoadJsonFile'
 import ImpExpJSONFile from '../components/ImpExpJSONFile'
 import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
@@ -48,12 +49,12 @@ const page = (props:any) => {
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
-  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  // let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
 
-  if (debug) console.log('49 Modelling: gojsmodel', gojsmodel, gojsmodelobjects, props);
+  if (debug) console.log('57 Modelling: gojsmodel', props.phGojs);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -319,7 +320,7 @@ const page = (props:any) => {
                   />
                 </div>
               </Col>
-              <Col className="col3 m-0 p-0 pr-0" xs="auto">
+              {/* <Col className="col3 m-0 p-0 pr-0" xs="auto">
                 <div className="myTargetMeta pl-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "4px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                   <TargetMeta
                     gojsModel={gojsmodel}
@@ -334,12 +335,12 @@ const page = (props:any) => {
                     modelType='model'
                   />
                 </div>
-              </Col>
+              </Col> */}
             </Row>
           </div>         
         </TabPane>
         {/* Solution Modelling ------------------------------------*/}
-        <TabPane tabId="3">
+        {/* <TabPane tabId="3">
           <div className="workpad p-1 pt-2 bg-white">
             <Row >
               <Col xs="auto m-0 p-0 pr-0">
@@ -360,7 +361,7 @@ const page = (props:any) => {
               </Col>
               <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
                 <div className="myModeller mb-1 pt-3 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
-                {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}
+
                   <TargetModeller
                     gojsModel={gojsmodel}
                     gojsTargetModel={gojstargetmodel}
@@ -377,7 +378,7 @@ const page = (props:any) => {
               </Col>
             </Row>
           </div>         
-        </TabPane>
+        </TabPane> */}
       </TabContent>
     </>
     )      
@@ -386,7 +387,8 @@ const page = (props:any) => {
   const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-  const loadfile =  (process.browser) && <LoadFile  buttonLabel='File'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  const loadfile =  (process.browser) && <LoadFile  buttonLabel='Model file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  const loadjsonfile =  (process.browser) && <LoadJsonFile  buttonLabel='OSDU json file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
   const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -403,16 +405,17 @@ const page = (props:any) => {
           <span className="btn-link btn-sm float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
           <div className="buttonrow m-0 d-inline-flex float-right" style={{ minWidth: "830px",transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
             {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-              <span className="pt-1 pr-2 bg-secondary" > Edit:  </span>
+              <span className="pt-1 pr-2 bg-secondary" > Edit selected :  </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
  
               <span className="pt-1 pr-2" > </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" > {loadfile} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span>
+              {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
               <span className="sourceName p-1 ml-4 " style={{ minWidth: "130px", backgroundColor: "#fff", color: "#b00",  fontWeight: "bolder"}}>Current source: {props.phSource} </span> 
             {/* </div>  */}
           </div> 

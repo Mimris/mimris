@@ -17,11 +17,11 @@ JSON.safeStringify = (obj, indent = 2) => {
     );
     cache = null;
     return retVal;
-  };
+};
 
 export const SaveModelToFile = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
-    const fileName = type+"_"+name+'_'+today;
+    const fileName = name+"_"+type //+'_'+today;
   
     const json = JSON.safeStringify(model);
     const blob = new Blob([json], {type:'application/json'});
@@ -51,7 +51,7 @@ export const SaveAllToFile = (model, name, type) => {
 }
 export const SaveAllToFileDate = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
-    const fileName = type+"_"+name+'_'+today;
+    const fileName = name+"_"+type //+'_'+today;
     if (debug) console.log('22 LoadLocal', model, fileName);
   
     const json = JSON.safeStringify(model);
@@ -69,9 +69,11 @@ export const SaveAllToFileDate = (model, name, type) => {
 export const ReadModelFromFile = async (props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()
+    reader.fileName = (e.target.files[0].name)
     reader.onload = async (e) => { 
         const text = (e.target.result)
         const modelff = JSON.parse(text)
+        const filename = e.target.fileName 
 
         //   alert(text)
         if (debug) console.log('46 SaveModelToFile', props.phFocus.focusModel.id);
@@ -100,7 +102,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,
                 phUser:   modelff.phUser,
-                phSource: 'fromFile'
+                phSource: filename,
               }
         } else if (modelff.modelview) {
             data = {

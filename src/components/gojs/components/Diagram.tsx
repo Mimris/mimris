@@ -2617,7 +2617,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     //----------------------------------------------------------------------------
 
-    const selpropgroup = [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ] 
+    const selpropgroup = (this.state.modalContext?.what !== 'selectDropdown') ? [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ] : []
      
     //toggle active state for Tab
     const toggle = tab => {
@@ -2685,10 +2685,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
                   onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
                 </Button>
-                  <span className="text-secondary float-left">{ header }: </span> 
+                  <span className="text-secondary float-left">{ header }:</span> 
                 <ModalHeader className="modal-header" >
-                  <span className="modal-name " >{this.state.selectedData?.name} </span>
-                  <span className="modal-objecttype float-right"> {typename} </span> 
+                  <span className="modal-name ml-2" >{this.state.selectedData?.name} </span>
+                  <span className="modal-objecttype"> {typename} </span> 
                 </ModalHeader>
               </div>
               <ModalBody  className="moda-body">

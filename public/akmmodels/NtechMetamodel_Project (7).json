@@ -730,7 +730,7 @@
             },
             {
               "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
-              "name": "RelationshipType",
+              "name": "relationshipType",
               "description": "",
               "typeviewRef": "5d376eb5-089c-4db5-eb5d-34ddd703e02f",
               "properties": [],
@@ -5182,7 +5182,7 @@
             },
             {
               "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
-              "name": "RelationshipType",
+              "name": "relationshipType",
               "description": "",
               "typeviewRef": "6160d38c-b2f0-421e-08a6-e46d6974577c",
               "properties": [],

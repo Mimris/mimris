@@ -12,7 +12,7 @@ import { PaletteWrapper } from './components/Palette';
 import { SelectionInspector } from './components/SelectionInspector';
 import * as akm from '../../akmm/metamodeller';
 import * as gjs from '../../akmm/ui_gojs';
-import * as gql from '../../akmm/ui_graphql';
+import * as jsn from '../../akmm/ui_json';
 
 // import './GoJSApp.css';
 
@@ -112,11 +112,12 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
         object = obj ? obj : object;
         if (debug) console.log('110 obj', obj);
         if (obj) {
-          const gqlObj = new gql.gqlObject(obj);
+          const jsnObj = new jsn.jsnObject(obj);
           const modifiedObjects = new Array();
-          modifiedObjects.push(gqlObj);
+          modifiedObjects.push(jsnObj);
           modifiedObjects.map(mn => {
             let data = mn
+            data = JSON.parse(JSON.stringify(data));
             this.props?.dispatch({ type: 'SET_FOCUS_OBJECT', data })
           })
         }

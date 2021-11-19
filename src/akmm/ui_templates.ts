@@ -9,7 +9,7 @@ import * as uid from './ui_diagram';
 import * as ui_mtd from './ui_methods';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
-import * as gql from './ui_graphql';
+import * as jsn from './ui_json';
 const constants = require('./constants');
 const printf = require('printf');
 

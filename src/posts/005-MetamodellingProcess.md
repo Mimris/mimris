@@ -22,7 +22,7 @@ The left pane contains the object types in the initial metamodel, that the user 
 ### Model the type definition model
 
 When building a type definition model the primary type used to represent an object type, is “*EntityType*”. You drag “*EntityType*” into the modelling area and drop it to create an object representing your new type. You set the object name to the typename you decide. You do this for as many types you want. 
-Relationship types are modelled as relationships of type “*RelationshipType*” between “*EntityTypes*” in the model and renamed to the typename you decide.
+Relationship types are modelled as relationships of type “*relationshipType*” between “*EntityTypes*” in the model and renamed to the typename you decide.
 
 ### The example
 
@@ -67,6 +67,6 @@ If something is wrong, or you want to change anything, go back to the type defin
 
 If you want to add symbols and colors to your types, go back to your type definition model to add view specifications, and generate the metamodel again.
 
-The view specifications are done by editing “*Object View*” of the “*EntityType*” objects and by editing “*Relationship View*” of the “*isRelatedTo*” relationships. 
+The view specifications are done by editing “*Object View*” of the “*EntityType*” objects and by editing “*Relationship View*” of the “*relationshipType*” relationships. 
 The “*Object View*” and “*Relationship View*” definitions are used to define the corresponding “*Object Typeview*” and “*Relationship Typeview*” definitions in the generated metamodel.
 

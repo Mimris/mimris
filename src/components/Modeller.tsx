@@ -66,7 +66,7 @@ const Modeller = (props: any) => {
   />
 
   const handleChange = (e) => {
-    if (!debug) console.log('69 Modeller: handleChange', e);
+    if (debug) console.log('69 Modeller: handleChange', e);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } });
   }
 

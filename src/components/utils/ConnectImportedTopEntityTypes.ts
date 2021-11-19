@@ -64,7 +64,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
                 }  
             :   {}
  
-        if (!debug) console.log('77 CreatedRel', fromobjectId, toobjectId, rel );
+        if (debug) console.log('77 CreatedRel', fromobjectId, toobjectId, rel );
 
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel });
 

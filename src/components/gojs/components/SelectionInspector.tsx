@@ -20,6 +20,7 @@ interface SelectionInspectorProps {
   myMetis: any;
   selectedData: any;
   context: any;
+  activeTab: "0";
   onInputChange: (props: any, value: string, isBlur: boolean) => void;
 }
 const arrowheads = ['None', 
@@ -45,7 +46,7 @@ const strokewidths = ['1', '2', '3', '4', '5'];
 
 const includeRelshipkind = false;
 
-const useTabs = false;
+const useTabs = true;
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
@@ -53,6 +54,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
    */
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
+    const activeTab = this.props.activeTab;
+    console.log('58 activeTab', activeTab);
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myMetis.currentModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
@@ -67,23 +70,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_OBJECT) {
       inst = selObj.object;
       const inst1 = myModel.findObject(inst?.id);
-      if (debug) console.log('43 inst', inst);
       const inheritedTypes = inst1.getInheritedTypes();
+      const namelist = inst1.getInheritedTypeNames();
+      if (debug) console.log('75 inst, activeTab, inheritedTypes, namelist', inst, activeTab, inheritedTypes, namelist);
       const what = modalContext?.what;
       switch (what) {
         case "editObject": {
-          let namelist = [];      
-          for (let i=0; i<inheritedTypes.length; i++) {
-            const tname = inheritedTypes[i]?.name;
-            if (tname === 'Element') 
-              continue;
-            namelist.push(tname);
-          }
-          if (debug) console.log('80 inst, inheritedTypes: ', inst, inheritedTypes);
-          let typename;
-          if (useTabs && namelist.length > 1)
-            typename = prompt('Enter type name as one of: ' + namelist);
-          if (typename) {
+          let typename = namelist[activeTab];
+          if (useTabs && namelist.length > 1) {
             for (let i=0; i<inheritedTypes.length; i++) {
               const tname = inheritedTypes[i]?.name;
               if (tname === typename) {
@@ -91,8 +85,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 chosenType = type;
               }
             }
-          } else
+          } else {
             type = inst?.type;
+          }          
         }
         break;
       }
@@ -225,7 +220,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (debug) console.log('224 item', item);
+    if (debug) console.log('224 item, myMetis.state', item, myMetis.state);
     for (let k in item) {
       if (k === 'abstract') {
         if (!(category === constants.gojs.C_OBJECT || 

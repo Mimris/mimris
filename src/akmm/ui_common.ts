@@ -4,7 +4,7 @@ const debug = false;
 import * as utils from './utilities';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
-import * as gql from './ui_graphql';
+import * as jsn from './ui_json';
 import * as gen from './ui_generateTypes';
 import { FaBullseye, FaLessThan, FaNode } from 'react-icons/fa';
 import { setMyMetisParameter } from '../actions/actions';
@@ -251,7 +251,7 @@ export function createObjectType(data: any, context: any): any {
             return objtype;
         }
         // if (objtype) {
-        //     const modNode = new gql.gqlObjectType(objtype, true);
+        //     const modNode = new jsn.jsnObjectType(objtype, true);
         //     modifiedTypeNodes.push(modNode);
         // }
     } 
@@ -293,7 +293,7 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObject.addObjectView(currentObjectView);
         //myDiagram.model.setDataProperty(data, "name", value);
 
-        // const modNode = new gql.gqlObjectView(myNode.objectview);
+        // const modNode = new jsn.jsnObjectView(myNode.objectview);
         // modifiedNodes.push(modNode);
         return currentObject;
     }
@@ -393,20 +393,20 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 updateNode(data, objtypeview, myDiagram, myMetis.gojsModel);
                 if (debug) console.log('394 node', data);
                 // Dispatch
-                const gqlObjview = new gql.gqlObjectView(currentObjectView);
-                if (debug) console.log('397 gqlObjview', gqlObjview);
+                const jsnObjview = new jsn.jsnObjectView(currentObjectView);
+                if (debug) console.log('397 jsnObjview', jsnObjview);
                 const modifiedObjectViews = new Array();
-                modifiedObjectViews.push(gqlObjview);
+                modifiedObjectViews.push(jsnObjview);
                 modifiedObjectViews.map(mn => {
                   let data = mn;
                   data = JSON.parse(JSON.stringify(data));
                   myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
                 })
             }
-            const gqlObject = (currentObject) && new gql.gqlObject(currentObject);
-            if (debug) console.log('407 gqlObject', gqlObject);
+            const jsnObject = (currentObject) && new jsn.jsnObject(currentObject);
+            if (debug) console.log('407 jsnObject', jsnObject);
             const modifiedObjects = new Array();
-            modifiedObjects.push(gqlObject);
+            modifiedObjects.push(jsnObject);
             modifiedObjects.map(mn => {
               let data = mn;
               data = JSON.parse(JSON.stringify(data));
@@ -446,8 +446,8 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 if (objtypeview) {
                     objtypeview.markedAsDeleted = deletedFlag;
                 }
-                // Register change in gql
-                const delNode = new gql.gqlObjectType(objtype, false);
+                // Register change in jsn
+                const delNode = new jsn.jsnObjectType(objtype, false);
 
                 // Replace myGoModel.nodes with a new array
                 let nodes = new Array();
@@ -472,8 +472,8 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             const objview = node.objectview;
             objview.markedAsDeleted = deletedFlag;
             const object = objview.object;
-            const gqlObjview = new gql.gqlObjectView(objview);
-            deletedObjviews.push(gqlObjview);
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            deletedObjviews.push(jsnObjview);
             if (debug) console.log('477 delete objview', objview);
             // If group, delete members of group
             if (node.isGroup) {
@@ -494,8 +494,8 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             // First delete object
             if (object) {
                 object.markedAsDeleted = deletedFlag;          
-                const gqlObj = new gql.gqlObject(object);
-                deletedObjects.push(gqlObj);   
+                const jsnObj = new jsn.jsnObject(object);
+                deletedObjects.push(jsnObj);   
                 if (debug) console.log('499 delete object', object);
             }         
             // Then handle all other object views of the deleted object
@@ -509,9 +509,9 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
             //     if (objview) {
             //         if (debug) console.log('510 delete objview', objview);
             //         objview.markedAsDeleted = deletedFlag;
-            //         // Register change in gql
-            //         const gqlObjview = new gql.gqlObjectView(objview);
-            //         deletedObjviews.push(gqlObjview);
+            //         // Register change in jsn
+            //         const jsnObjview = new jsn.jsnObjectView(objview);
+            //         deletedObjviews.push(jsnObjview);
             //         // deleteObjectView(objview, deletedFlag, deletedObjviews, deletedObjects, deletedTypeviews, context);
             //     }
             // }
@@ -535,13 +535,13 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                                 myDiagram.model.removeLinkData(link); 
                             }
                             relview.markedAsDeleted = deletedFlag;
-                            const gqlRelview = new gql.gqlRelshipView(relview);
-                            deletedLinks.push(gqlRelview);
+                            const jsnRelview = new jsn.jsnRelshipView(relview);
+                            deletedLinks.push(jsnRelview);
                             if (debug) console.log('540 delete relview', relview);
                         }
                     }
-                    const gqlRel = new gql.gqlRelationship(rel);
-                    deletedRelships.push(gqlRel);
+                    const jsnRel = new jsn.jsnRelationship(rel);
+                    deletedRelships.push(jsnRel);
                     if (debug) console.log('545 delete rel', rel);
                 }
             }
@@ -559,13 +559,13 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                             const link = myGoModel.findLinkByViewId(relview.id);
                             if (link) link.markedAsDeleted = deletedFlag;
                             relview.markedAsDeleted = deletedFlag;
-                            const gqlRelview = new gql.gqlRelshipView(relview);
-                            deletedLinks.push(gqlRelview);
+                            const jsnRelview = new jsn.jsnRelshipView(relview);
+                            deletedLinks.push(jsnRelview);
                             if (debug) console.log('564 delete relview', relview);
                         }
                     }
-                    const gqlRel = new gql.gqlRelationship(rel);
-                    deletedRelships.push(gqlRel);
+                    const jsnRel = new jsn.jsnRelationship(rel);
+                    deletedRelships.push(jsnRel);
                     if (debug) console.log('569 delete rel', rel);
                 }
             }
@@ -588,9 +588,9 @@ export function deleteObjectView(objview: akm.cxObjectView, deletedFlag: boolean
         //         const oview = oviews[i];
         //         oview.markedAsDeleted = deletedFlag;
         //         if (debug) console.log('489 delete oview', oview);
-        //         // Register change in gql
-        //         const gqlObjview = new gql.gqlObjectView(oview);
-        //         deletedNodes.push(gqlObjview);
+        //         // Register change in jsn
+        //         const jsnObjview = new jsn.jsnObjectView(oview);
+        //         deletedNodes.push(jsnObjview);
         //         // Handle objecttypeview
         //         //deleteObjectTypeView(oview, deletedFlag, deletedTypeviews);
         //     }
@@ -608,9 +608,9 @@ export function deleteObjectTypeView(objview: akm.cxObjectView, deletedFlag: boo
             if (typeview.markedAsDeleted !== deletedFlag) {
                 typeview.markedAsDeleted = deletedFlag;
                 if (debug) console.log('610 delete typeview', typeview);
-                // Register change in gql
-                const gqlTypeview = new gql.gqlObjectTypeView(typeview);
-                deletedTypeviews.push(gqlTypeview);
+                // Register change in jsn
+                const jsnTypeview = new jsn.jsnObjectTypeView(typeview);
+                deletedTypeviews.push(jsnTypeview);
             }
         }
     }
@@ -637,7 +637,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         if (myMetis.deleteViewsOnly) {
             relview.markedAsDeleted = deletedFlag;
             relship?.removeRelationshipView(relview);
-            const delLink = new gql.gqlRelshipView(relview);
+            const delLink = new jsn.jsnRelshipView(relview);
             deletedLinks.push(delLink);
             if (debug) console.log('642 deleteLink', relship, relview);
             return;
@@ -647,25 +647,25 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
         if (relship) {
             relship.markedAsDeleted = deletedFlag;
             relview.markedAsDeleted = deletedFlag;
-            const gqlRelview = new gql.gqlRelshipView(relview);
-            deletedLinks.push(gqlRelview);
+            const jsnRelview = new jsn.jsnRelshipView(relview);
+            deletedLinks.push(jsnRelview);
             const rviews = myMetis?.getRelationshipViewsByRelship(relship.id);
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {
                     const rview = rviews[i];
                     if (!rview.markedAsDeleted) {
                         rview.markedAsDeleted = deletedFlag;
-                        const gqlRelview = new gql.gqlRelshipView(rview);
-                        deletedLinks.push(gqlRelview);
+                        const jsnRelview = new jsn.jsnRelshipView(rview);
+                        deletedLinks.push(jsnRelview);
                         if (debug) console.log('660 deleteLink', rview);
                         // Handle relshiptypeview
                         deleteRelshipTypeView(rview, deletedFlag, deletedTypeviews);
                     }
                 }
            }
-           const gqlRelship = new gql.gqlRelationship(relship);
-           if (debug) console.log('667 gqlRelship', gqlRelship);
-           deletedRelships.push(gqlRelship);
+           const jsnRelship = new jsn.jsnRelationship(relship);
+           if (debug) console.log('667 jsnRelship', jsnRelship);
+           deletedRelships.push(jsnRelship);
         }      
     }
 }
@@ -681,9 +681,9 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
             if (typeview.markedAsDeleted !== deletedFlag) {
                 typeview.markedAsDeleted = deletedFlag;
                 if (debug) console.log('683 delete typeview', typeview);
-                // Register change in gql
-                const gqlTypeview = new gql.gqlRelshipTypeView(typeview);
-                deletedTypeviews.push(gqlTypeview);
+                // Register change in jsn
+                const jsnTypeview = new jsn.jsnRelshipTypeView(typeview);
+                deletedTypeviews.push(jsnTypeview);
             }
         }
     }
@@ -721,7 +721,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     }
                 }
                 if (!found) {
-                    const modNode = new gql.gqlObjectView(objview);
+                    const modNode = new jsn.jsnObjectView(objview);
                     nodes.push(modNode);
                 }
             }
@@ -745,7 +745,7 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                         const n = myDiagram.findNodeForKey(nod.key);
                         if (n?.data)
                             myDiagram.model.setDataProperty(n.data, "group", grp.key);
-                        const modNode = new gql.gqlObjectView(oview);
+                        const modNode = new jsn.jsnObjectView(oview);
                         nodes.push(modNode);
                     }
                 }
@@ -1105,16 +1105,16 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
 
         if (debug) console.log('1106 relshipview', relshipview);
         const modifiedRelviews = new Array();
-        const gqlRelview = new gql.gqlRelshipView(relshipview);
-        modifiedRelviews.push(gqlRelview);
+        const jsnRelview = new jsn.jsnRelshipView(relshipview);
+        modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })              
         const modifiedRelships = new Array();
-        const gqlRelship = new gql.gqlRelationship(relship);
-        modifiedRelships.push(gqlRelship);
+        const jsnRelship = new jsn.jsnRelationship(relship);
+        modifiedRelships.push(jsnRelship);
         modifiedRelships.map(mn => {
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
@@ -1404,8 +1404,8 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                 currentRelshipView['toArrow']     = "None";
                 updateLink(data, reltypeview, myDiagram, myGoMetamodel);
 
-                const gqlRelView = new gql.gqlRelshipView(currentRelshipView);
-                if (debug) console.log('1408 SetReltype', gqlRelView);
+                const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
+                if (debug) console.log('1408 SetReltype', jsnRelView);
                 const modifiedRelshipViews = new Array();
                 modifiedRelshipViews.map(mn => {
                     let data = mn;
@@ -1413,9 +1413,9 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                     myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
                })
             }
-            const gqlRelship = (currentRelship) && new gql.gqlRelationship(currentRelship);
+            const jsnRelship = (currentRelship) && new jsn.jsnRelationship(currentRelship);
             const modifiedRelships = new Array();
-            modifiedRelships.push(gqlRelship);
+            modifiedRelships.push(jsnRelship);
             modifiedRelships.map(mn => {
               let data = mn;
               data = JSON.parse(JSON.stringify(data));
@@ -1545,10 +1545,10 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     toObj2.addInputrel(rel);
                     if (debug) console.log('1546 fromobj2, toObj2', fromObj2, toObj2);   
                     // Do the dispatches          
-                    const gqlRelview = new gql.gqlRelshipView(relview);
-                    context.modifiedLinks.push(gqlRelview);
-                    const gqlRel = new gql.gqlRelationship(rel);
-                    context.modifiedRelships.push(gqlRel);
+                    const jsnRelview = new jsn.jsnRelshipView(relview);
+                    context.modifiedLinks.push(jsnRelview);
+                    const jsnRel = new jsn.jsnRelationship(rel);
+                    context.modifiedRelships.push(jsnRel);
                 }
             }
         }
@@ -1572,9 +1572,9 @@ export function onLinkRelinked(lnk: gjs.goRelshipLink, fromNode: any, toNode: an
                     reltype.toObjtype = toNode.objecttype;
                     reltype.toobjtypeRef = reltype.toObjtype.id;
                 }
-                const gqlReltype = new gql.gqlRelationshipType(reltype, true);
-                context.modifiedTypeLinks.push(gqlReltype);
-                if (debug) console.log('1577 gqlReltype', reltype, gqlReltype);
+                const jsnReltype = new jsn.jsnRelationshipType(reltype, true);
+                context.modifiedTypeLinks.push(jsnReltype);
+                if (debug) console.log('1577 jsnReltype', reltype, jsnReltype);
             }
         }
     }
@@ -1689,8 +1689,8 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             links.push(link);
             if (debug) console.log('1690 relview, link', relview, link);
             // Prepare and do the dispatch
-            const gqlRelview = new gql.gqlRelshipView(relview);
-            modifiedRelshipViews.push(gqlRelview);
+            const jsnRelview = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelview);
         }
       }
     }
@@ -1795,8 +1795,8 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
             myGoModel.addLink(link);
             if (debug) console.log('1796 relview, link', relview, link);
             // Prepare and do the dispatch
-            const gqlRelview = new gql.gqlRelshipView(relview);
-            modifiedRelshipViews.push(gqlRelview);
+            const jsnRelview = new jsn.jsnRelshipView(relview);
+            modifiedRelshipViews.push(jsnRelview);
             myMetis.myDiagram.model.addLinkData(link);
         }        
     }
@@ -2119,8 +2119,8 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     }
 
     // Dispatch metis
-    const gqlMetis = new gql.gqlExportMetis(metis, true);
-    let data = {metis: gqlMetis}
+    const jsnMetis = new jsn.jsnExportMetis(metis, true);
+    let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
     diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     if (debug) console.log('2126 data', data, metis);
@@ -2180,8 +2180,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             objChanged = true;
             msg = "\tObject type changed to: " + objtype.name;
             report += printf(format, msg);
-            const gqlObj = new gql.gqlObject(obj);
-            modifiedObjects.push(gqlObj);
+            const jsnObj = new jsn.jsnObject(obj);
+            modifiedObjects.push(jsnObj);
         }
         if (objtype) {
             const objviews = obj.objectviews;
@@ -2200,8 +2200,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     oview.typeview = objtype.typeview as akm.cxObjectTypeView;
                     msg = "Object typeview of : " + objtype.name + " set to default";
                     report += printf(format, msg);
-                    const gqlObjview = new gql.gqlObjectView(oview);
-                    modifiedObjectviews.push(gqlObjview);
+                    const jsnObjview = new jsn.jsnObjectView(oview);
+                    modifiedObjectviews.push(jsnObjview);
                 }
                 const myNode = myGoModel.findNodeByViewId(oview.id);
                 if (myNode) {
@@ -2232,9 +2232,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 if (debug) console.log('2232 oview, object:', oview, oview.object);
                 if (oview.object?.markedAsDeleted) {
                     oview.object.markedAsDeleted = false;
-                    const gqlObject = new gql.gqlObject(oview.object);
-                    if (debug) console.log('2236 gqlObject', gqlObject);
-                    modifiedObjects.push(gqlObject);
+                    const jsnObject = new jsn.jsnObject(oview.object);
+                    if (debug) console.log('2236 jsnObject', jsnObject);
+                    modifiedObjects.push(jsnObject);
                     msg = "\tVerifying objectview " + oview.name + " ( with object deleted)\n";
                     msg += "\tObject has been undeleted";
                     report += printf(format, msg);
@@ -2242,11 +2242,11 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 if (!oview.object) { // Not deleted but has no object
                     const type = myMetis.findObjectTypeByName(defObjTypename);
                     const obj = new akm.cxObject(utils.createGuid(), oview.name, type, "");
-                    const gqlObject = new gql.gqlObject(obj);
+                    const jsnObject = new jsn.jsnObject(obj);
                     oview.object = obj;
                     oview.objectRef = obj.id;
-                    if (debug) console.log('2248 gqlObject', gqlObject);
-                    modifiedObjects.push(gqlObject);
+                    if (debug) console.log('2248 jsnObject', jsnObject);
+                    modifiedObjects.push(jsnObject);
                 }
             }
             else if (!oview.object) { // Object view is deleted and has no object
@@ -2368,8 +2368,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 const rv = relviews[i];
                 rv.name = rel.name;
             }
-            const gqlRel = new gql.gqlRelationship(rel);
-            modifiedRelships.push(gqlRel);
+            const jsnRel = new jsn.jsnRelationship(rel);
+            modifiedRelships.push(jsnRel);
         }
     }
     // Handle the relationship views in all modelviews
@@ -2403,8 +2403,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                                 continue;
                             const rv = rvs[k];
                             rv.markedAsDeleted = true;
-                            const gqlRelview = new gql.gqlRelshipView(rv);
-                            modifiedRelviews.push(gqlRelview);
+                            const jsnRelview = new jsn.jsnRelshipView(rv);
+                            modifiedRelviews.push(jsnRelview);
                         }
                     }
                 }
@@ -2428,9 +2428,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                             msg = "\tRelationship typeview of " + rel.type?.name + " found"; 
                             report += printf(format, msg);
                         }
-                        const gqlRelview = new gql.gqlRelshipView(rview);
-                        if (debug) console.log('2432 gqlRelview', gqlRelview);
-                        modifiedRelviews.push(gqlRelview);
+                        const jsnRelview = new jsn.jsnRelshipView(rview);
+                        if (debug) console.log('2432 jsnRelview', jsnRelview);
+                        modifiedRelviews.push(jsnRelview);
                         const myLink = myGoModel.findLinkByViewId(rview.id);
                         if (myLink) {
                             myLink.name = rview.name;

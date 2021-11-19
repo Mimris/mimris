@@ -163,10 +163,10 @@ export const ConvertObjectsToJsonStructure = (objects) => {
                     if (debug) console.log('133', prevLength, curLength, nextLength, i, restChar)
                 } else if (curLength > prevLength && curLength < nextLength) {
                     restChar = ','
-                    if (!debug) console.log('137', prevLength, curLength, nextLength, restChar, o)
+                    if (debug) console.log('137', prevLength, curLength, nextLength, restChar, o)
                 } else {
                     restChar = ''
-                    if (!debug) console.log('139', prevLength, curLength, nextLength, restChar)
+                    if (debug) console.log('139', prevLength, curLength, nextLength, restChar)
                 }
             } else  if (curLength === prevLength) {
                 if (curLength < nextLength) {

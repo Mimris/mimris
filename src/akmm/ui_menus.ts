@@ -17,7 +17,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Breadcrumb } from '
 import { SelectionInspector } from '../components/SelectionInspector';
 import * as akm from '../../../akmm/metamodeller';
 import * as gjs from '../../../akmm/ui_gojs';
-import * as gql from '../../../akmm/ui_graphql';
+import * as jsn from '../../../akmm/ui_json';
 import * as uic from '../../../akmm/ui_common';
 import * as uid from '../../../akmm/ui_diagram';
 import * as uim from '../../../akmm/ui_modal';

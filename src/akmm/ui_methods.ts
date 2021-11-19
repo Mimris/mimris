@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -7,7 +7,7 @@ const debug = false;
 // import * as go from 'gojs';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
-import * as gql from '../akmm/ui_graphql';
+import * as jsn from './ui_json';
 import * as uic from '../akmm/ui_common';
 // import * as gen from '../akmm/ui_generateTypes';
 import * as utils from '../akmm/utilities';
@@ -120,8 +120,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         myDiagram.model.addNodeData(goNode);
                         const gjsNode = myDiagram.findNodeForKey(goNode?.key)
                         gjsNode.isSelected = true;
-                        const gqlObjview = new gql.gqlObjectView(toObjview);
-                        modifiedObjectViews.push(gqlObjview);
+                        const jsnObjview = new jsn.jsnObjectView(toObjview);
+                        modifiedObjectViews.push(jsnObjview);
                     }
                     if (toObjview)
                         objectviews.push(toObjview);
@@ -136,8 +136,8 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                         rel.addRelationshipView(relview);
                         modelview.addRelationshipView(relview);
                         myMetis.addRelationshipView(relview);
-                        const gqlRelView = new gql.gqlRelshipView(relview);
-                        modifiedRelshipViews.push(gqlRelView);
+                        const jsnRelView = new jsn.jsnRelshipView(relview);
+                        modifiedRelshipViews.push(jsnRelView);
                         if (debug) console.log('137 relview', relview);
                         const goLink = new gjs.goRelshipLink(utils.createGuid(), goModel, relview);
                         goLink.loadLinkContent(goModel);
@@ -295,9 +295,9 @@ export function generateosduId(context: any) {
     if (debug) console.log('280 osduId: ', osduId);
 
     // UPDATE_OBJECT_PROPERTIES
-    const gqlObject = new gql.gqlObject(object);
+    const jsnObject = new jsn.jsnObject(object);
     const modifiedObjects = new Array();
-    modifiedObjects.push(gqlObject);
+    modifiedObjects.push(jsnObject);
     modifiedObjects?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));

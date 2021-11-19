@@ -105,7 +105,6 @@ This implies that relationship *cardinality* is supported, i.e. the ability to d
 
 You may also give a *from-name* and a *to-name* to the relationship type.
 
- 
 ---
  - [-back to the top-](#introduction)
 ---

@@ -116,7 +116,7 @@ const SelectSource = (props: any) => {
     <Select 
       options={selmodellist} 
       name='Model'
-      value={selectedOption}
+      // value={selectedOption}
       onChange={handleChange}
     /> 
   return (

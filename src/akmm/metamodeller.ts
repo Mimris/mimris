@@ -6096,8 +6096,39 @@ export class cxInstance extends cxMetaObject {
         return this.type;
     }
     getInheritedTypes(): cxType[] | null {
+        const typelist = [];
         const type = this.getType();
-        return type?.getSupertypes();
+        const types = type?.getSupertypes();
+        for (let i=0; i<types.length; i++) {
+            const tname = types[i]?.name;
+            if (tname === 'Element') {
+                typelist.push(types[i]);
+            }
+        }
+        for (let i=0; i<types.length; i++) {
+            const tname = types[i]?.name;
+            if (tname !== 'Element') 
+                typelist.push(types[i]);
+        }
+        if (!debug) console.log('6113 typelist', typelist);
+        return typelist;
+    }
+    getInheritedTypeNames(): string[] {
+        const namelist = [];
+        const type = this.getType();
+        const types = type?.getSupertypes();
+        for (let i=0; i<types.length; i++) {
+            const tname = types[i]?.name;
+            if (tname === 'Element') {
+                namelist.push(tname);
+            }
+        }
+        for (let i=0; i<types.length; i++) {
+            const tname = types[i]?.name;
+            if (tname !== 'Element') 
+                namelist.push(tname);
+        }
+        return namelist;
     }
     setFromObject(obj: cxObject) {
         this.fromObject = obj;

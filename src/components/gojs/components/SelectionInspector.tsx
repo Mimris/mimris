@@ -55,7 +55,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
     const activeTab = this.props.activeTab;
-    console.log('58 activeTab', activeTab);
+    if (debug) console.log('58 activeTab', activeTab);
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myMetis.currentModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
@@ -302,6 +302,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         switch (what) {
           case 'editObjectType':
           case 'editRelationshipType':
+          case 'editObjectview':
+          case 'editRelshipview':
             val = item[k];
             break;
           case 'editTypeview':
@@ -315,13 +317,25 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             } else 
               val = item[k];
             break;
+          case 'editObject':
+          case 'editRelationship':
+            if (selObj[k]) 
+              item[k] = selObj[k];
+            if (item.id === inst.id) {
+              val = item[k];
+            } else {
+              val = selObj[k];
+            }
+            break;
           default:
             val = (item.id === inst.id) ? item[k] : selObj[k] ? selObj[k] : item[k];
             break;
         }
-        if (debug) console.log('323 k, val: ', k, val);
+        if (debug) console.log('334 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
+
+//        if (!debug) console.log('326 k, val: ', k, val);
         if (properties?.length > 0) {
-          if (debug) console.log('325 properties: ', properties);
+          if (debug) console.log('338 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
             const prop = properties[i];
             if (prop && prop.name === k) {
@@ -346,10 +360,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 if (debug) console.log('347 inst, prop, val', inst, prop, val);
               }
             }
-            if (debug) console.log('350 prop, dtype, fieldType: ', prop, fieldType);
+            if (debug) console.log('363 prop, dtype, fieldType: ', prop, fieldType);
           }
         }
-        if (debug) console.log('353 k, val', k, val, item[k], selObj[k]);
+        if (debug) console.log('366 k, val', k, val, item[k], selObj[k]);
         if (useItem) val = item[k];
         if (useColor && (k === 'fillcolor' || k === 'strokecolor')) {
           if (debug) console.log('356 val', val);
@@ -369,7 +383,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }         
           if (debug) console.log('371 color', val);
         }
-        if (debug) console.log('373 k, val', k, val, item[k], selObj[k]);
+        if (debug) console.log('386 k, val', k, val, item[k], selObj[k]);
         let dtype;
         switch(k) {
           case 'description':

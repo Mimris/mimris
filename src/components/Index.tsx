@@ -62,14 +62,12 @@ const page = (props) => {
                   <CardText className="card-text"> 
                     <strong>Select Modelling in the top menu </strong><br />
                     (An initial empty model is loaded)
-                    <br /><br /><strong>Start modelling by Select, drag and drop objecttypes from the left palette to the modelling area to the right. </strong><br /> 
+                    <br /><br /><strong>Start modelling:</strong><br />Select, drag and drop objecttypes from the left palette to the modelling area to the right. <br /> 
                     We recomment to start with a container and then drop objects into the container. You can resize the the container by draging the corners.
-                    <br /><br /><strong>You can save your Project to Local Store by clicking the "Local" button above the modelleing area.</strong> 
-                    <br /> Then click on the "Save the Project to LocalStorage" button.
-                    <br /><br />You can also download the Project to your computer by clicking on the "Download Project to file" button.
-                    <br /><br />Projects can be uploaded from files by clicking on the "Upload Model(s) from file and select file. 
-                    <br /><br /><strong>Upload to Server</strong><br />Projects can also be uploaded to a Cloud Server by clicking on the "Server" button. 
-                  </CardText>
+                    <br /><br /><strong>Saving your model project</strong> <br />You can save your Project to Local file by clicking the green "Model File" button above the modelling area.
+                    <br /> Then click on the blue "Save Project (all) to File" button and the model project is saved to a json modelfile (in the Download folder). 
+                    <br /><br />You can also push the Project jsonfile to a GitHub repository to share with others.
+                    </CardText>
                 </CardBody>
               </Card>
               <Card className="card "

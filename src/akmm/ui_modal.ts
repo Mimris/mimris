@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -20,7 +20,7 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
   const context = props.context;
   const pattern = props.pattern;
   if (debug) console.log('22 obj, context:', obj, context);
-  if (!debug) console.log('23 propname, value:', propname, value);
+  if (debug) console.log('23 propname, value:', propname, value);
   // const myDiagram = context.myDiagram;
   let inst, instview, typeview, myInst, myInstview, myItem;
   // Handle object types
@@ -66,14 +66,14 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
     } else {
         myItem = myInst;
     }
-    if (!debug) console.log('69 myInst, propname, value', myInst, propname, value);
+    if (debug) console.log('69 myInst, propname, value', myInst, propname, value);
     try {
       myItem[propname] = value;
     } catch {
       // Do nothing
     }
   }
-  if (!debug) console.log('76 myItem', myItem);
+  if (debug) console.log('76 myItem', myItem);
 
   // Handle relationship types
   if (obj.category === constants.gojs.C_RELSHIPTYPE) {
@@ -629,7 +629,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       modifiedObjects.map(mn => {
         let data = mn;
         data = JSON.parse(JSON.stringify(data));
-        if (!debug) console.log('631 object', data);
+        if (debug) console.log('631 object', data);
         props.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       })
       modifiedObjviews.map(mn => {

@@ -173,7 +173,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showModal: true,
       currentActiveTab: '0'
     });
-    if (!debug) console.log('173 this.state', this.state);
+    if (debug) console.log('173 this.state', this.state);
   } 
 
   public handleSelectDropdownChange = (selected) => {
@@ -207,7 +207,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   
   //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
   public handleInputChange(props: any, value: string, isBlur: boolean) {
-    if (!debug) console.log('663 props, value', props, value);
+    if (debug) console.log('663 props, value', props, value);
     const propname = props.id;
     const fieldType = props.type;
     const obj = props.obj;
@@ -261,7 +261,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       })
     );
     if (debug) console.log('424 obj, context', obj, context);
-    if (!debug) console.log('425 propname, value, isBlur:', propname, value, isBlur);
+    if (debug) console.log('425 propname, value, isBlur:', propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -2608,7 +2608,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('2599 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (!debug) console.log('2602 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          if (debug) console.log('2602 selectedData, modalContext: ', this.state.selectedData, modalContext);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -2631,7 +2631,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         typename = (modalContext.typename) ? '('+modalContext.typename+')' : '('+this.state.selectedData.object?.typeName+')'
       
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (!debug) console.log('2615 Diagram ', this.state.selectedData, this.state.modalContext, modalContext);
+          if (debug) console.log('2615 Diagram ', this.state.selectedData, this.state.modalContext, modalContext);
           modalContent = 
             <div className="modal-prop" >
               <SelectionInspector 

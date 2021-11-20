@@ -56,18 +56,27 @@ const page = (props) => {
                   padding: "0px"
                 }}
               >
-                <CardHeader className="card-header ">Modelling with AKM Modeller:</CardHeader>
+                <CardHeader className="card-header ">Getting started with AKM Modeller:</CardHeader>
                 <CardBody className="card-body" style={{backgroundColor: "rgba(255,255,195,0.6)"}}>
                   <CardTitle className="card-title-bold">To get started !</CardTitle>
                   <CardText className="card-text"> 
                     <strong>Select Modelling in the top menu </strong><br />
                     (An initial empty model is loaded)
-                    <br /><br /><strong>Start modelling:</strong><br />Select, drag and drop objecttypes from the left palette to the modelling area to the right. <br /> 
+                  </CardText>
+                  <CardTitle className="card-title-bold">Start modelling:</CardTitle>
+                  <CardText className="card-text"> 
+                    Select, drag and drop objecttypes from the left palette to the modelling area to the right. <br /> 
                     We recomment to start with a container and then drop objects into the container. You can resize the the container by draging the corners.
-                    <br /><br /><strong>Saving your model project</strong> <br />You can save your Project to Local file by clicking the green "Model File" button above the modelling area.
+                  </CardText>
+                  <CardTitle className="card-title-bold">Save your model:</CardTitle>
+                  <CardText className="card-text"> 
+                    You can save your Project to Local file by clicking the green "Model File" button above the modelling area.
                     <br /> Then click on the blue "Save Project (all) to File" button and the model project is saved to a json modelfile (in the Download folder). 
-                    <br /><br />You can also push the Project jsonfile to a GitHub repository to share with others.
-                    </CardText>
+                  </CardText>
+                  <CardTitle className="card-title-bold">Share you model on GitHub:</CardTitle>
+                  <CardText className="card-text"> 
+                    You can also push the Project jsonfile to a GitHub repository to share with others.
+                  </CardText>
                 </CardBody>
               </Card>
               <Card className="card "
@@ -185,16 +194,22 @@ const page = (props) => {
                         &bull; Workplace templates for reflective workplace modelling! <br />
                         &bull; Strokewidth for synbol border and relship line!<br />
                         &bull; GraphQL shema reporting from Solution models!<br />
-                        &bull; Instruction videos for modelling Best Practices! <br />
-                        &bull; Enhancement of PWA (Progressive Web App) Cross plattform (PC, Mobile, Tablett) ! <br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2021.11.22</CardTitle>
+                    <CardText >
+                          &bull; Update Getting started on the Homepage.<br />
+                          &bull; Tabs in property-dialog<br />
+                          &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2021.11.11</CardTitle>
                     <CardText >
                           &bull; Added more Help items in help.<br />
-                          &bull; Edit Project name direct!<br /><br />
-                          &bull; Bugfixes!<br /><br />
+                          &bull; Edit Project name direct!<br />
+                          &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
@@ -203,7 +218,7 @@ const page = (props) => {
                           &bull; Added more Help items in help.<br />
                           - Getting started File open /save <br />
                           - GitHub sync<br />
-                          &bull; Bugfixes!<br /><br />
+                          &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
@@ -211,7 +226,7 @@ const page = (props) => {
                     <CardText >
                           &bull; Added Help in top-menu. Here you will find help and user-guides.<br />
                           &bull; Adde filter buttons in ObjectType Palette.<br />
-                          &bull; Bugfixes!<br /><br />
+                          &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >

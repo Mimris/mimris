@@ -2514,7 +2514,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         const proptab = { tabName: name };
         selpropgroup.push(proptab);
       }
-      console.log('2515 selpropgroup, namelist', selpropgroup, namelist);
+      if (debug) console.log('2515 selpropgroup, namelist', selpropgroup, namelist);
       // selpropgroup = [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ];
     }
     switch (modalContext?.what) {      
@@ -2659,7 +2659,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const navitemDiv = (!selpropgroup) ? <></> : selpropgroup.map((pg, index) => {
       const tabName = pg?.tabName || 'All';
-      console.log('2646', index, tabName, pg)
+      if (debug) console.log('2646', index, tabName, pg)
       if (pg) { 
           const strindex = index.toString()
           const activeTab = (this.state.currentActiveTab === strindex) ? 'active' : ''

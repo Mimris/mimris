@@ -6110,7 +6110,7 @@ export class cxInstance extends cxMetaObject {
             if (tname !== 'Element') 
                 typelist.push(types[i]);
         }
-        if (!debug) console.log('6113 typelist', typelist);
+        if (debug) console.log('6113 typelist', typelist);
         return typelist;
     }
     getInheritedTypeNames(): string[] {

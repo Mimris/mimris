@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -11,6 +11,9 @@ const debug = false;
 interface InspectorRowProps {
   id: string;
   value: string;
+  values: any;
+  disabled: boolean;
+  checked: boolean;
   type: string;
   obj: any;
   context: any;
@@ -68,7 +71,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       alert ('Input is not valid: ' + val );
     }
     if (this.props.type === 'textarea') {
-      if (debug) console.log('71 type', this.props.type);
+      if (debug) console.log('71 props', this.props);
       return (  
         <tr>
           <td className="pr-2" >{this.props.id}</td> 
@@ -76,9 +79,9 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             <textarea
               disabled={this.props.disabled}
               id={this.props.id}
-              // value={val}
-              checked={this.props.checked}
-              type={this.props.type}
+              value={val}
+              // checked={this.props.checked}
+              // type={this.props.type}
               onChange={this.handleInputChange}
               onBlur={this.handleInputChange}
               >
@@ -110,7 +113,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
      );
     }    
     else{
-      if (debug) console.log('113 type', this.props.type);
+      if (debug) console.log('113 props', this.props);
       return (  
         <tr>
           <td className="pr-2" >{this.props.id}</td> 

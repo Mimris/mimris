@@ -333,7 +333,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (debug) console.log('334 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
 
-//        if (!debug) console.log('326 k, val: ', k, val);
+        //        if (!debug) console.log('326 k, val: ', k, val);
         if (properties?.length > 0) {
           if (debug) console.log('338 properties: ', properties);
           for (let i=0; i<properties.length; i++) {

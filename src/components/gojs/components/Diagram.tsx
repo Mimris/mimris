@@ -2676,15 +2676,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
     })
 
+    const toolTip = <div className="btn-sm bg-light text-black py-0 mt-2 ml-3"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Select tab to see different group of properties.">?
+    </div>
+
     const modaltabsContent = 
       <>
         <Nav tabs >
           {navitemDiv}  
-          <NavItem >
-          <button className="btn-sm bg-warning text-white py-0 ml-3"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="Select tab to see different group of properties.">?
-          </button>
-          </NavItem>
+          <NavItem > {toolTip} </NavItem>
         </Nav>
         <TabContent activeTab={this.state.currentActiveTab} > 
           <TabPane tabId={this.state.currentActiveTab} >

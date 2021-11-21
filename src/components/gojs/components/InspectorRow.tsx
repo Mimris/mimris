@@ -117,6 +117,11 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             />
             {optionslistDiv}
         </td>
+        <td>
+          <div className="btn-sm bg-light text-green px-0 pr-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title={propDesc}>?
+          </div>
+          </td>
       </tr>
      );
     }    

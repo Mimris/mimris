@@ -34,6 +34,7 @@ export const SaveModelToFile = (model, name, type) => {
     link.click();
     document.body.removeChild(link);
 }
+
 export const SaveAllToFile = (model, name, type) => {
     const fileName = name;
     if (debug) console.log('22 LoadLocal', model, fileName);
@@ -49,6 +50,7 @@ export const SaveAllToFile = (model, name, type) => {
     link.click();
     document.body.removeChild(link);
 }
+
 export const SaveAllToFileDate = (model, name, type) => {
     const today = new Date().toISOString().slice(0, 19)
     const fileName = name+"_"+type //+'_'+today;

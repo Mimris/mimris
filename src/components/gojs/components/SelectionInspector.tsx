@@ -519,7 +519,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             disabled = true;
             break;
         }
-        if (debug) console.log('509 selObj, item:', selObj, item);
+        if (!debug) console.log('509 selObj, item:', selObj, item);
         if (debug) console.log('510 k, value, disabled:', k, val, disabled);
         if (debug) console.log('511 k, fieldType', k, fieldType, defValue, values);
         if (isLabel) {

@@ -2608,7 +2608,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('2599 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2602 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          if (!debug) console.log('2602 selectedData, modalContext: ', this.state.selectedData, modalContext);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -2681,7 +2681,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         <Nav tabs >
           {navitemDiv}  
           <NavItem >
-          <button className="btn-sm bg-warning text-white py-0 ml-3 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          <button className="btn-sm bg-warning text-white py-0 ml-3"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title="Select tab to see different group of properties.">?
           </button>
           </NavItem>

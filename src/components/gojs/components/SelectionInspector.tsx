@@ -125,7 +125,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_MODELVIEW) {
       inst = selObj;
     }
-    if (debug) console.log('129 inst, instview', inst, instview);
+    if (!debug) console.log('129 inst, instview', inst, instview);
     if (inst == undefined)
       return;
     // type = inst.type;
@@ -220,7 +220,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (debug) console.log('224 item, myMetis.state', item, myMetis.state);
+    if (!debug) console.log('224 inst, item, selObj', inst, item, selObj);
     for (let k in item) {
       if (k === 'abstract') {
         if (!(category === constants.gojs.C_OBJECT || 
@@ -304,7 +304,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case 'editRelationshipType':
           case 'editObjectview':
           case 'editRelshipview':
-            val = item[k];
+            val = selObj[k]; // item[k];
             break;
           case 'editTypeview':
             const tview = item;

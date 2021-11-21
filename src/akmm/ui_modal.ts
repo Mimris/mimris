@@ -569,15 +569,16 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     case "editObject": {
       const selObj = selectedData;
+      if (!debug) console.log('572 selObj', selObj);
       // selObj is a node representing an objectview
       let node = selObj;
       let obj = selObj.object;
       obj = myMetis.findObject(obj?.id);
-      if (debug) console.log('497 selObj', selObj, obj);
+      if (debug) console.log('576 selObj', selObj, obj);
       const properties = obj.setAndGetAllProperties(myMetis);
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;
-      if (debug) console.log('500 obj, jsnObject', obj, jsnObject);
+      if (debug) console.log('580 obj, jsnObject', obj, jsnObject);
       const type = obj?.type;
       for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];
@@ -603,10 +604,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         obj[prop.name] = expr;
         jsnObject[prop.name] = expr;
       }
-      if (debug) console.log('527 obj, jsnObject, node', obj, jsnObject, node);
+      if (debug) console.log('606 obj, jsnObject, node', obj, jsnObject, node);
       node = myDiagram.findNodeForKey(node.key)
       const data = node.data;
-      if (debug) console.log('530 node', node);
+      if (debug) console.log('609 node', node);
       for (let k in data) {
         if (typeof(obj[k]) === 'object')    continue;
         if (typeof(obj[k]) === 'function')  continue;
@@ -638,7 +639,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
-      if (debug) console.log('558 selObj', selObj);
+      if (!debug) console.log('641 selObj', selObj);
     break;
     }
     case "editRelationship": {

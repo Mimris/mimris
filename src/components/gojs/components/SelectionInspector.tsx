@@ -64,16 +64,30 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     const modalContext = this.props.context;
     let category = selObj?.category;
     if (debug) console.log('37 selObj', selObj, myMetamodel);
-    let inst, instview, type, typeview, item, chosenType;
     if (selObj.type === 'GraphLinksModel') {
       return;
-    } else if (category === constants.gojs.C_OBJECT) {
-      inst = selObj.object;
-      const inst1 = myModel.findObject(inst?.id);
+    } 
+    let inst, instview, type, typeview, item, chosenType, nameFieldtype, description;
+    inst = selObj.object;
+    const inst1 = myModel.findObject(inst?.id);
+    if (false) {
+      let type0 = inst1.type;
+      type0 = myMetis.findObjectType(type0.id);
+      const p = type0?.findPropertyByName2('name', true);
+      if (p) {
+        const dtRef = p.datatypeRef;
+        if (dtRef) {
+          const nameDType = myMetis.findDatatype(dtRef);
+          nameFieldtype = nameDType?.fieldType;
+          if (debug) console.log('99 nameFieldtype', nameFieldtype);
+        }
+      }
+    }
+   if (category === constants.gojs.C_OBJECT) {
       const inheritedTypes = inst1?.getInheritedTypes();
       const namelist = inst1?.getInheritedTypeNames();
       if (debug) console.log('75 inst, activeTab, inheritedTypes, namelist', inst, activeTab, inheritedTypes, namelist);
-      const what = modalContext?.what;
+     const what = modalContext?.what;
       switch (what) {
         case "editObject": {
           let typename = namelist[activeTab];
@@ -87,7 +101,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
           } else {
             type = inst?.type;
-          }          
+          }  
         }
         break;
       }
@@ -178,10 +192,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editObject":
         item = inst;
+        description = "";
         if (type.name === 'Label')
           isLabel = true;
         break;
       case "editRelationshipType":
+        description = "";
         item = inst.reltype;
         item = type;
         break;
@@ -353,6 +369,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 pattern     = dtype.inputPattern;
                 defValue    = dtype.defaultValue;
                 values      = dtype.allowedValues;
+                description = prop.description;
               }
               const mtdRef = prop.methodRef;
               if (mtdRef) {
@@ -365,7 +382,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 if (debug) console.log('347 inst, prop, val', inst, prop, val);
               }
             }
-            if (debug) console.log('363 prop, dtype, fieldType: ', prop, fieldType);
+            if (debug) console.log('363 prop, fieldType: ', prop, fieldType);
           }
         }
         if (debug) console.log('366 k, val', k, val, item[k], selObj[k]);
@@ -507,7 +524,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (val === "")
             val = defValue;
         }
-
+        if (k === 'name') {
+          fieldType = 'text' // nameFieldtype;
+        }
         if (viewFormat) {
           if (utils.isNumeric(val))
             val = printf(viewFormat, Number(val));
@@ -526,7 +545,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (debug) console.log('509 selObj, item:', selObj, item);
         if (debug) console.log('510 k, value, disabled:', k, val, disabled);
-        if (debug) console.log('511 k, fieldType', k, fieldType, defValue, values);
+        if (debug && k==='name') console.log('511 k, fieldType', k, fieldType, defValue, values);
         if (isLabel) {
           if (k === 'viewkind')
             continue;
@@ -542,6 +561,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           type={fieldType}
           value={val}
           values={values}
+          description={description}
           default={defValue}
           readonly={readonly}
           disabled={disabled}

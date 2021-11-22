@@ -11,7 +11,9 @@ const debug = false;
 interface InspectorRowProps {
   id: string;
   value: string;
+  description: string;
   values: any;
+  pattern: string;
   disabled: boolean;
   checked: boolean;
   type: string;
@@ -66,7 +68,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   public render() {
     // -------------- linjen nedenfor må endres til å vise description på denne property
     // f.eks.  this.props.description  
-    const propDesc = `Fieldtype : ${this.props.type} \nDescription: ${'to be inserted'}`;
+    const propDesc = `Fieldtype : ${this.props.type} \nDescription: ${this.props.description}`;
     // ---------------
     if (debug) console.log('64 InspectorRow: this.props', this.props);
     let val = this.props.value;

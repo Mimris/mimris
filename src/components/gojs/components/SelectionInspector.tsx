@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -220,7 +220,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (debug) console.log('224 item, myMetis.state', item, myMetis.state);
+    if (debug) console.log('224 inst, item, selObj', inst, item, selObj);
     for (let k in item) {
       if (k === 'abstract') {
         if (!(category === constants.gojs.C_OBJECT || 
@@ -255,13 +255,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         switch (chosenType.name) {
           case 'Element':
-          case 'EntityType':
             if ((k === 'id') || (k === 'name') || (k === 'description'))
               found = true;
-              break;
+            break;
+          case 'EntityType':
+            if ((k === 'id') || 
+                (k === 'name') || 
+                (k === 'description') ||
+                (k === 'typeName')
+              )
+              found = true;
+            break;
           default:
-            if ((k === 'name') || (k === 'description')) 
-              continue;              
+            if (k === 'name')
+              found = true;          
           }
         if (!found) continue;
       }
@@ -304,7 +311,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           case 'editRelationshipType':
           case 'editObjectview':
           case 'editRelshipview':
-            val = item[k];
+            val = selObj[k]; // item[k];
             break;
           case 'editTypeview':
             const tview = item;
@@ -332,8 +339,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
         }
         if (debug) console.log('334 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
-
-        //        if (!debug) console.log('326 k, val: ', k, val);
         if (properties?.length > 0) {
           if (debug) console.log('338 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
@@ -519,7 +524,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             disabled = true;
             break;
         }
-        if (!debug) console.log('509 selObj, item:', selObj, item);
+        if (debug) console.log('509 selObj, item:', selObj, item);
         if (debug) console.log('510 k, value, disabled:', k, val, disabled);
         if (debug) console.log('511 k, fieldType', k, fieldType, defValue, values);
         if (isLabel) {

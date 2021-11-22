@@ -5217,7 +5217,7 @@
             },
             {
               "id": "82760d53-8a60-4403-2b31-ce81ffea76c1",
-              "name": "RelationshipType",
+              "name": "RelshipType",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -6447,7 +6447,7 @@
                 },
                 {
                   "id": "d083218c-227d-46ad-6e94-eb901bb266d3",
-                  "name": "RelationshipType",
+                  "name": "RelshipType",
                   "description": "",
                   "objectRef": "82760d53-8a60-4403-2b31-ce81ffea76c1",
                   "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",
@@ -7177,7 +7177,7 @@
                 },
                 {
                   "id": "80737f8f-e1da-45e4-fb7a-4dc46a665365",
-                  "name": "RelationshipType",
+                  "name": "RelshipType",
                   "description": "",
                   "objectRef": "82760d53-8a60-4403-2b31-ce81ffea76c1",
                   "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",
@@ -7435,7 +7435,7 @@
                 },
                 {
                   "id": "f76c4b43-abe8-4495-4549-0a3fa0f5e5c1",
-                  "name": "RelationshipType",
+                  "name": "RelshipType",
                   "description": "",
                   "objectRef": "82760d53-8a60-4403-2b31-ce81ffea76c1",
                   "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",

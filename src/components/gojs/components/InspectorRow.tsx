@@ -68,7 +68,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     // f.eks.  this.props.description  
     const propDesc = `Fieldtype : ${this.props.type} \nDescription: ${'to be inserted'}`;
     // ---------------
-    if (!debug) console.log('64 InspectorRow: this.props', this.props);
+    if (debug) console.log('64 InspectorRow: this.props', this.props);
     let val = this.props.value;
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );

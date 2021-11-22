@@ -99,8 +99,8 @@ const page = (props:any) => {
                   <SetContext className='setContext flex' ph={props} />
                   <SelectContext className='ContextModal m-0 p-0' buttonLabel='Context' phFocus={props.phFocus} /> 
                   <Link href="/videos"><a className="nav-link bg-warning py-0 text-white border" style={{height: "22px"}} >Video</a></Link>
-                  {/* <SelectVideo className='VideoModal' buttonLabel='?' phFocus={props.phFocus} />  */}
-                  {/* <button className="helpbutton float-right m-0 py-0 bg-warning color-white" onClick={onplayVideo}>?</button> */}
+                  {/* <SelectVideo className='VideoModal' buttonLabel='!' phFocus={props.phFocus} />  */}
+                  {/* <button className="helpbutton float-right m-0 py-0 bg-warning color-white" onClick={onplayVideo}>i</button> */}
                 </div>
               </div>
               <div className="tasksarea mr-1" style={{ backgroundColor: "#eed", borderRadius: "5px 5px 5px 5px" }} >

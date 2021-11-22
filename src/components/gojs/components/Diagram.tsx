@@ -2677,7 +2677,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     })
 
     const toolTip = <div className="btn-sm bg-light text-black py-0 mt-2 ml-3"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-      title="Select tab to see different group of properties.">?
+      title="Select tab to see different group of properties.">i
     </div>
 
     const modaltabsContent = 

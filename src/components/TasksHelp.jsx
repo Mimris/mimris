@@ -65,7 +65,7 @@ const TasksHelp = () => {
 //         </TabPane>
 //       </TabContent>
 //       {/* <div className="tooltip">
-//         <p>Somewhere in here is a <span style={{ textDecoration: "underline", color: "blue" }} href="#" id="TooltipExample">!</span>.</p>
+//         <p>Somewhere in here is a <span style={{ textDecoration: "underline", color: "blue" }} href="#" id="TooltipExample"i</span>.</p>
 //         <Tooltip placement="right" isOpen={tooltipOpen} target="TooltipExample" toggle={toggleTip}>
 //           Tooltip test!
 //         </Tooltip>

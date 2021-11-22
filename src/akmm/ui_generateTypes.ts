@@ -216,7 +216,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     { // Handle properties
         const proptypes = new Array();
-        getAllPropertytypes(object, proptypes, myModel);
+        getPropertyTypes(object, proptypes, myModel);
         if (debug) console.log('220 proptypes, myMetis', proptypes, myMetis);
         addProperties(objtype, proptypes, context);
         if (debug) console.log('222 objtype', objtype);
@@ -1149,11 +1149,15 @@ function getAllPropertytypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxM
             }
         }
     }
+    getPropertyTypes(obj, proptypes, myModel);
+}
+
+function getPropertyTypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxModel) {
     const rels = obj?.findOutputRelships(myModel, constants.relkinds.REL);
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
         const toObj = rel?.getToObject();
-        if (debug) console.log('1156 toObj', toObj);
+        if (debug) console.log('1186 toObj', toObj);
         if (toObj.type?.name === constants.types.AKM_PROPERTY) {
             const proptype = rel?.getToObject();
             // Check if property type already exists
@@ -1161,7 +1165,7 @@ function getAllPropertytypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxM
                 if (proptype.name === proptypes[j].name)
                     continue;
             }
-            if (debug) console.log('1164 proptype', proptype);
+            if (debug) console.log('1194 proptype', proptype);
             proptypes.push(proptype);
         }
         if (rel?.type?.name === constants.types.AKM_HAS_PROPERTIES) {
@@ -1176,6 +1180,7 @@ function getAllPropertytypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxM
             }
         }
     }    
+
 }
 
 function getPropertiesInGroup(groupId: string, proptypes: any, myModel: akm.cxModel) {
@@ -1204,7 +1209,7 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, cont
         // Check if property already exists
         let proptype = proptypes[i];
         let prop = type.findPropertyByName(proptype.name);
-        if (debug) console.log('1207 proptype, prop', proptype, prop);
+        if (debug) console.log('1212 proptype, prop', proptype, prop);
         if (!prop) {
             // New property - create it
             prop = new akm.cxProperty(utils.createGuid(), proptype.name, proptype.description);
@@ -1213,19 +1218,19 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, cont
             type.addProperty(prop);
             myTargetMetamodel.addProperty(prop);
             myMetis.addProperty(prop);
-            if (debug) console.log('1216 prop', prop);
+            if (debug) console.log('1221 prop', prop);
         } else {
             prop = myMetis.findProperty(prop.id);
             type.addProperty(prop);
         }
         // }
-        if (debug) console.log('1222 objtype, prop, targetMetamodel', type, prop, myTargetMetamodel);
+        if (debug) console.log('1227 objtype, prop, targetMetamodel', type, prop, myTargetMetamodel);
         if (prop) {
             const p = myMetis.findProperty(prop.id);
             prop = p ? p : prop;
             // Find datatype connected to current property
             let rels = proptype.findOutputRelships(myModel, constants.relkinds.REL);
-            if (debug) console.log('1228 rels', rels);
+            if (debug) console.log('1233 rels', rels);
             if (prop && rels) {
                 for (let i=0; i < rels.length; i++) {
                     let rel = rels[i];
@@ -1234,7 +1239,7 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, cont
                             let dtype = rel.toObject;
                             if (dtype) {
                                 const datatype = myMetis.findDatatypeByName(dtype.name);
-                                if (debug) console.log('1237 datatype', datatype);
+                                if (debug) console.log('1242 datatype', datatype);
                                 if (datatype) prop.setDatatype(datatype);
                             }
                         }
@@ -1248,7 +1253,7 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, cont
                             // }
                         }
                     }
-                    if (debug) console.log('1251 property', prop);
+                    if (debug) console.log('1256 property', prop);
                     type.addProperty(prop);
                     myTargetMetamodel?.addProperty(prop);
                     myMetis.addProperty(prop); 
@@ -1256,21 +1261,21 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, cont
             }
             // Find method connected to current property
             rels = proptype.findOutputRelships(myModel, constants.relkinds.REL);
-            if (debug) console.log('1259 rels', rels);
+            if (debug) console.log('1264 rels', rels);
             if (prop && rels) {
                 for (let i=0; i < rels.length; i++) {
                     let rel = rels[i];
                     if (!rel.markedAsDeleted) {
                         if (rel.name === constants.types.AKM_HAS_METHOD) {
-                            if (debug) console.log('1265 rel', rel);
+                            if (debug) console.log('1270 rel', rel);
                             const toObj = rel.toObject;
-                            if (debug) console.log('1267 toObj', toObj);
+                            if (debug) console.log('1272 toObj', toObj);
                             if (toObj.type.name === constants.types.AKM_METHOD) {
-                                if (debug) console.log('1269 mtdname', toObj.name);
+                                if (debug) console.log('1274 mtdname', toObj.name);
                                 const mtd = toObj;
                                 if (mtd) {
                                     const method = myMetis.findMethodByName(mtd.name);
-                                    if (debug) console.log('1273 method', method);
+                                    if (debug) console.log('1277 method', method);
                                     if (method) {
                                         prop.setMethod(method);
                                     }
@@ -1282,13 +1287,13 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, cont
             }
         }
     }
-    if (debug) console.log('1285 type', type);
+    if (debug) console.log('1290 type', type);
     // Do the dispatches
     const props = type?.properties;
     const modifiedProps = new Array();
     for (let i=0; i<props?.length; i++) {
         const jsnProperty = new jsn.jsnProperty(props[i]);
-        if (debug) console.log('1291 prop, jsnProperty', props[i], jsnProperty);
+        if (debug) console.log('1296 prop, jsnProperty', props[i], jsnProperty);
         modifiedProps.push(jsnProperty);
     }
     if (modifiedProps?.length > 0) {
@@ -1297,6 +1302,6 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, cont
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_PROPERTY_PROPERTIES', data })
         });
-        if (debug) console.log('1300 modifiedProps', modifiedProps);
+        if (debug) console.log('1305 modifiedProps', modifiedProps);
     }
 }

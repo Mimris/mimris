@@ -67,7 +67,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (selObj.type === 'GraphLinksModel') {
       return;
     } 
-    let inst, instview, type, typeview, item, chosenType, nameFieldtype, description;
+    let inst, instview, type, typeview, item, chosenType, nameFieldtype, description, currentType;
     inst = selObj.object;
     const inst1 = myModel.findObject(inst?.id);
     if (false) {
@@ -84,9 +84,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       }
     }
    if (category === constants.gojs.C_OBJECT) {
+      currentType = inst1.type;
       const inheritedTypes = inst1?.getInheritedTypes();
-      const namelist = inst1?.getInheritedTypeNames();
-      if (debug) console.log('75 inst, activeTab, inheritedTypes, namelist', inst, activeTab, inheritedTypes, namelist);
+      inheritedTypes.push(currentType);
+      let namelist = [];
+      for (let j=0;j<inheritedTypes.length; j++) {
+        const tname = inheritedTypes[j].name;
+        namelist.push(tname);
+      }
+      namelist.push(currentType.name);
+      if (debug) console.log('95 inst, inheritedTypes, namelist', inst, inheritedTypes, namelist);
      const what = modalContext?.what;
       switch (what) {
         case "editObject": {
@@ -139,32 +146,26 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_MODELVIEW) {
       inst = selObj;
     }
-    if (debug) console.log('129 inst, instview', inst, instview);
+    if (debug) console.log('148 inst, instview', inst, instview);
     if (inst == undefined)
       return;
-    // type = inst.type;
-    // if (!type) type = selObj.objecttype;
     if (typeof(type) !== 'object')
       return;
-    if (debug) console.log('136 type', type);
+    if (debug) console.log('155 type', type);
     let props;
-    // try {
-    //   props = inst.setAndGetAllProperties(myMetis);
-    // } catch {
       props = type?.getProperties(false/* true*/);
     // }
-    if (debug) console.log('143 props', props);
     let properties = props;
-    if (debug) console.log('145 props', properties);
+    if (debug) console.log('163 props', properties);
     for (let i=0; i<properties?.length; i++) {
       const prop = properties[i];
       if (!prop) 
         continue;
       const v = inst[prop.name];
-      if (debug) console.log('151 prop.name, inst', prop.name, inst);
+      if (debug) console.log('169 prop.name, inst', prop.name, inst);
       if (!v) inst[prop.name] = "";  // Sets empty string if undefined
     }
-    if (debug) console.log('154 inst', properties, inst, selObj);
+    if (debug) console.log('172 properties, inst, selObj', properties, inst, selObj);
     const dets = [];
     let hideNameAndDescr = false;
     let useColor = false;
@@ -192,12 +193,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editObject":
         item = inst;
-        description = "";
         if (type.name === 'Label')
           isLabel = true;
         break;
       case "editRelationshipType":
-        description = "";
         item = inst.reltype;
         item = type;
         break;
@@ -275,22 +274,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               found = true;
             break;
           case 'EntityType':
-            if ((k === 'id') || 
-                (k === 'name') || 
-                (k === 'description') ||
-                (k === 'typeName')
-              )
+            if ((k === 'id') || (k === 'name') || (k === 'description') ||
+                (k === 'typeName'))
               found = true;
             break;
           default:
-            if (k === 'name')
+            if ((k === 'id') || (k === 'name'))
               found = true;          
           }
         if (!found) continue;
       }
-      if (debug) console.log('269 props', properties);
+      if (debug) console.log('296 props', properties);
 
       let row;
+      description = "";
       if (k) {
         let fieldType = 'text';
         let viewFormat = "";
@@ -535,6 +532,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         switch(k) {
           case 'id':
             val = item[k];
+            description = 'Unique identifier';
           case "typename":
           case "typeName":
           case "loc":

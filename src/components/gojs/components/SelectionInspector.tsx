@@ -70,8 +70,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_OBJECT) {
       inst = selObj.object;
       const inst1 = myModel.findObject(inst?.id);
-      const inheritedTypes = inst1.getInheritedTypes();
-      const namelist = inst1.getInheritedTypeNames();
+      const inheritedTypes = inst1?.getInheritedTypes();
+      const namelist = inst1?.getInheritedTypeNames();
       if (debug) console.log('75 inst, activeTab, inheritedTypes, namelist', inst, activeTab, inheritedTypes, namelist);
       const what = modalContext?.what;
       switch (what) {
@@ -333,7 +333,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         if (debug) console.log('334 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
 
-//        if (!debug) console.log('326 k, val: ', k, val);
+        //        if (!debug) console.log('326 k, val: ', k, val);
         if (properties?.length > 0) {
           if (debug) console.log('338 properties: ', properties);
           for (let i=0; i<properties.length; i++) {
@@ -519,7 +519,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             disabled = true;
             break;
         }
-        if (debug) console.log('509 selObj, item:', selObj, item);
+        if (!debug) console.log('509 selObj, item:', selObj, item);
         if (debug) console.log('510 k, value, disabled:', k, val, disabled);
         if (debug) console.log('511 k, fieldType', k, fieldType, defValue, values);
         if (isLabel) {

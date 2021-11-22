@@ -2608,7 +2608,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         if (debug) console.log('2599 Diagram ', icon, typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2602 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          if (!debug) console.log('2602 selectedData, modalContext: ', this.state.selectedData, modalContext);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -2676,15 +2676,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       }
     })
 
+    const toolTip = <div className="btn-sm bg-light text-black py-0 mt-2 ml-3"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+      title="Select tab to see different group of properties.">?
+    </div>
+
     const modaltabsContent = 
       <>
         <Nav tabs >
           {navitemDiv}  
-          <NavItem >
-          <button className="btn-sm bg-warning text-white py-0 ml-3 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="Select tab to see different group of properties.">?
-          </button>
-          </NavItem>
+          <NavItem > {toolTip} </NavItem>
         </Nav>
         <TabContent activeTab={this.state.currentActiveTab} > 
           <TabPane tabId={this.state.currentActiveTab} >
@@ -2718,10 +2718,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 <Button className="modal-button btn-sm float-right m-1" color="link" 
                   onClick={() => { this.handleCloseModal('x') }} ><span>x</span>
                 </Button>
-                  <span className="text-secondary float-left">{ header }: </span> 
+                  <span className="text-secondary float-left">{ header }:</span> 
                 <ModalHeader className="modal-header" >
-                  <span className="modal-name " >{this.state.selectedData?.name} </span>
-                  <span className="modal-objecttype float-right"> {typename} </span> 
+                  <span className="modal-name ml-2" >{this.state.selectedData?.name} </span>
+                  <span className="modal-objecttype"> {typename} </span> 
                 </ModalHeader>
               </div>
               <ModalBody  className="moda-body">

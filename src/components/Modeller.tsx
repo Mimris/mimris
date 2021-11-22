@@ -77,18 +77,18 @@ const Modeller = (props: any) => {
             {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
             <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
           {/* </div>  */}
-          <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
-              style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-              <div style={{display: "flex",}}>
-                <label> Project :  
-                  <input type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
+          <div className="modeller-heading float-right text-dark py-0 m-0 mr-5 px-2 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'" 
+              style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
+              <div className="w-100" >
+                <label className="m-0 p-0  w-50 float-right" > Project :  
+                  <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
                 </label>
                 {/* <label for="projName">Project :</label> 
                 <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
               </div>
               {/* <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span>  */}
-          </h5>
+          </div>
         </>
       :
       <div className="modeller-selection float-right" >

@@ -116,6 +116,7 @@
 .modal-header {
   background: rgba(253, 252, 252, 0.7);
   font-family: Arial;
+  
   color:  #333;
   margin-top: 3px;
   padding: 1px;
@@ -159,11 +160,11 @@
   background: rgba(255,255,255,0.2);
 }
 .modal-title {
-  width: 70%;
+  width: 100%;
   /* margin: 2px; */
 }
 .text-secondary {
-  font-size: 70%;
+  font-size: 90%;
   padding: 1%;
   
 }
@@ -175,9 +176,10 @@
   box-shadow: 0 20px 20px rgba(0, 0, 0, 0.2), 0px 0px 50px rgba(0, 0, 0, 0.2);
 }
 .modal-objecttype {
-  float: left;
+  float: right;
   margin-top: 0.2rem;
   margin-left: 2rem;
+  margin-right: 3px;
   font-size: 1rem
 }
 

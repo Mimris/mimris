@@ -569,7 +569,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
     }
     case "editObject": {
       const selObj = selectedData;
-      if (!debug) console.log('572 selObj', selObj);
+      if (debug) console.log('572 selObj', selObj);
       // selObj is a node representing an objectview
       let node = selObj;
       let obj = selObj.object;
@@ -622,7 +622,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       const myNode = myGoModel.findNode(node.key);
       if (myNode) {
         myNode.name = data.name;
-        if (debug) console.log('544 myNode, myMetis', myNode, myMetis);
+        node.data = myNode;
+        if (debug) console.log('544 myNode, node', myNode, node);
         if (debug) console.log('546 jsnObject', jsnObject);
         modifiedObjects.push(jsnObject);
       }
@@ -639,7 +640,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         data = JSON.parse(JSON.stringify(data));
         props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
-      if (!debug) console.log('641 selObj', selObj);
+      if (debug) console.log('641 selObj', selObj);
     break;
     }
     case "editRelationship": {

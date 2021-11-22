@@ -224,7 +224,7 @@
             },
             {
               "id": "4beef970-06ed-4f54-6589-5804e358a8a6",
-              "name": "RelationshipType",
+              "name": "RelshipType",
               "description": "",
               "abstract": false,
               "viewkind": "Object",
@@ -3979,7 +3979,7 @@
               "abstract": false,
               "viewkind": "",
               "typeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-              "typeName": "RelationshipType",
+              "typeName": "RelshipType",
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "",

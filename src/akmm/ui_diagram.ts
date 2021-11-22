@@ -421,7 +421,7 @@ function createModel(context: any) {
     } else {
         const model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
         myMetis.addModel(model);
-        const modelviewName = prompt("Enter Modelview name:", model.name);
+        const modelviewName = prompt("Enter Modelview name:", "Main");
         if (modelviewName == null || modelviewName === "") {
             alert("New operation was cancelled");
         } else {

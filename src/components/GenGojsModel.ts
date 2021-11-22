@@ -196,7 +196,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (
               typename === 'Entity' || 
               typename === 'EntityType' ||
-              typename === 'RelationshipType' ||
+              typename === 'RelshipType' ||
               typename === 'Method'     ||
               typename === 'MethodType'
             )

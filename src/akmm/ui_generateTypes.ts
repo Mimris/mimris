@@ -846,7 +846,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
-    const systemtypes = ['Element', 'EntityType', 'RelationshipType', 'Generic', 'Container', 'Method'];
+    const systemtypes = ['Element', 'EntityType', 'RelshipType', 'Generic', 'Container', 'Method'];
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;
@@ -935,7 +935,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 let obj = objview.object;
                 if (!obj /*|| obj.markedAsDeleted*/) 
                     continue;
-                if (obj.type.name === 'RelationshipType')
+                if (obj.type.name === 'RelshipType')
                     continue;
                 const  types = []; 
                 if (obj.name === obj.type.name)
@@ -1024,12 +1024,12 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
     }
-    { // Then handle objects of type "RelationshipType"
+    { // Then handle objects of type "RelshipType"
         for (let i=0; i<objectviews.length; i++) {
             const objview = objectviews[i];
             const obj = objview.object;
             const type = obj.type;
-            if (type.name !== 'RelationshipType')
+            if (type.name !== 'RelshipType')
                 continue;
             const rtypename = obj.name;
             // Find fromObject and toObject

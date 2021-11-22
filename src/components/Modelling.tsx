@@ -416,7 +416,7 @@ const page = (props:any) => {
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
               {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-              <span className="sourceName p-1 ml-4 " style={{ minWidth: "130px", backgroundColor: "#fff", color: "#b00",  fontWeight: "bolder"}}>Current source: {props.phSource} </span> 
+              <span className="sourceName p-1 ml-4 " style={{ minWidth: "130px", backgroundColor: "#fff", color: "#b00", fontWeight: "bolder"}}>Current source: {props.phSource} </span> 
             {/* </div>  */}
           </div> 
         <div className="modellingContent pt-1 pr-2"  >

@@ -2511,7 +2511,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       namelist.push(obj.type.name);
       selpropgroup = [];
       for (let i=0; i<namelist.length; i++) {
-        const name = namelist[i];
+        let name = namelist[i];
+        if (name === 'Element') name = 'Default';
         const proptab = { tabName: name };
         selpropgroup.push(proptab);
       }

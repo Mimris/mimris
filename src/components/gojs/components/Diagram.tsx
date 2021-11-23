@@ -2509,10 +2509,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       obj = this.myMetis.findObject(obj.id);
       const namelist = obj.getInheritedTypeNames();
       namelist.push(obj.type.name);
+      namelist.reverse();
       selpropgroup = [];
       for (let i=0; i<namelist.length; i++) {
         let name = namelist[i];
-        if (name === 'Element') name = 'Default';
+        if (name === 'Element') 
+          continue; // name = 'Default';
         const proptab = { tabName: name };
         selpropgroup.push(proptab);
       }

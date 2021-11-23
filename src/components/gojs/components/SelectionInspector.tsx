@@ -87,13 +87,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       currentType = inst1.type;
       const inheritedTypes = inst1?.getInheritedTypes();
       inheritedTypes.push(currentType);
+      inheritedTypes.reverse();
       let namelist = [];
       for (let j=0;j<inheritedTypes.length; j++) {
         const tname = inheritedTypes[j].name;
         namelist.push(tname);
       }
-      namelist.push(currentType.name);
-      if (debug) console.log('95 inst, inheritedTypes, namelist', inst, inheritedTypes, namelist);
      const what = modalContext?.what;
       switch (what) {
         case "editObject": {
@@ -269,18 +268,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           }
         }
         switch (chosenType.name) {
-          case 'Element':
-            if ((k === 'id') || (k === 'name') || (k === 'description'))
-              found = true;
-            break;
           case 'EntityType':
             if ((k === 'id') || (k === 'name') || (k === 'description') ||
                 (k === 'typeName'))
               found = true;
             break;
           default:
-            if ((k === 'id') || (k === 'name'))
-              found = true;          
+            if ((k === 'id') || (k === 'name') || (k === 'description'))
+              found = true;
+            break;
           }
         if (!found) continue;
       }

@@ -68,7 +68,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);
       if (debug) console.log('69 myTargetMetamodel :', myTargetMetamodel);
 
-      const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
+      const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette();
       if (debug) console.log('72 myMetamodelPalette', myMetamodelPalette);
       const myGoMetamodel = buildGoMetaModel(myMetamodel);
       if (debug) console.log('74 myGoMetamodel', myGoMetamodel);
@@ -373,14 +373,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
       const nodes = myGoModel.nodes;
+      if (!debug) console.log('382 nodes', nodes);
       for (let i = 0; i < nodes.length; i++) {
-        const objview = nodes[i].objectview;
-        const isGroup = (objview.viewkind === 'Container');
         const node = nodes[i] as gjs.goObjectNode;
-          node.name = objview.name;
-          node.loadNodeContent(myGoModel);
-          node.text = objview.text ? objview.text : objview.object.text;
-          node.isGroup = isGroup;
+        const objview = node.objectview;
+        const isGroup = (objview.viewkind === 'Container');
+        node.name = objview.name;
+        node.loadNodeContent(myGoModel);
+        node.text = objview.name ? objview.name : objview.object.name;
+        node.isGroup = isGroup;
       }
       if (debug) console.log('382 nodes', nodes);
     }
@@ -517,7 +518,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                 objtype.typeview = objtype.newDefaultTypeView('Object');
               const node = new gjs.goObjectTypeNode(utils.createGuid(), objtype);
               node.loadNodeContent(metamodel);
-              node.text = objtype.text;
+              node.text = objtype.name;
               if (node.name === "") node.name = node.text;
               node.strokecolor = strokecolor;
               // node.fillcolor = fillcolor;

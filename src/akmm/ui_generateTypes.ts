@@ -519,6 +519,10 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     datatype.addAllowedValue(values[i]);
                     if (debug) console.log('520 allowedValue', values[i]);
                 }
+                if (values.length > 0) {
+                    if (datatype.getFieldType() === 'text')
+                        datatype.setFieldType('radio');
+                }
             }
 
             for (let i=0; i < rels.length; i++) {
@@ -548,6 +552,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     }
                 }
             }
+
             if (debug) console.log('551 datatype', datatype);
             myTargetMetamodel.addDatatype(datatype);
             // Update phData

@@ -373,7 +373,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
       const nodes = myGoModel.nodes;
-      if (!debug) console.log('382 nodes', nodes);
+      if (debug) console.log('382 nodes', nodes);
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i] as gjs.goObjectNode;
         const objview = node.objectview;

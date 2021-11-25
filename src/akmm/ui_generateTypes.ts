@@ -109,7 +109,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                 break;
             }
         }
-        if (!debug) console.log('112 metaObject', metaObject);
+        if (debug) console.log('112 metaObject', metaObject);
         if (obj.type.name === metaObject) {
             let name = objname;
             objtype = new akm.cxObjectType(utils.createGuid(), name, obj.description);

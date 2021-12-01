@@ -187,8 +187,9 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             //     topTitle = cNewVal.title
                             // }
                             // const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
-                            if (debug) console.log('190 parentKey', parentKey, 'tmpArray ',tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o), o);
-                            parentId = (i === 0) ? null : (parentKey) ? tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] : oId // set parentId to be used in the next iteration of  objectet.
+                            // if (debug) console.log('190 parentKey', parentKey, 'tmpArray ',tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o), o);
+                            parentId = (i === 0) ? null : (parentKey) ? tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[1] : oId // set parentId to be used in the next iteration of object.
+                            parentName = (i === 0) ? null : (parentKey) ? tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[0] : oName // set parentId to be used in the next iteration of object.
                             entityId = oId
                             entityName = (i === 0) ? cNewVal.title : parentName+' '+oName // if topobject use title as name
                             // entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName // if topobject use title as name
@@ -199,6 +200,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             relshipKind = 'Association'
 
                             createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal)
+                            
 
                         // } else if (oName === 'properties') {
                             
@@ -251,13 +253,14 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
                             if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === gparentKey) && o[1]));
 
-                            parentId = tmpArray.find((o) => (o[0] === gparentKey) && o)[1] 
-                            parentName = tmpArray.find((o) => (o[0] === gparentKey) && o)[0] 
+                            parentId = tmpArray.find((o) => (o[0] === gggparentKey) && o)[1] 
+                            parentName = tmpArray.find((o) => (o[0] === gggparentKey) && o)[0].split('|').slice(-2)[0] 
+
                         } else {                           
                             continue;
                         }
-                        parentId = (parentName === 'properties') ? tmpArray.find((o) => (o[0] === parentKey) && o)[1]  : parentId
-                        parentName = (parentName === 'properties') ? parentName = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[0] : parentName
+                        // parentId = (parentName === 'properties') ? tmpArray.find((o) => (o[0] === parentKey) && o)[1]  : parentId
+                        // parentName = (parentName === 'properties') ? parentName = tmpArray.find( (o) => (parentKey && o[0] === parentKey) && o)[0].split('|').slice(-2)[0] : parentName
 
                     } else {   // create the json objects 
                       
@@ -278,7 +281,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // fromobjectId = (parentId) ? parentId : null
                     fromobjectId = parentId
                     fromobjectName = parentName
-                    if (!debug) console.log('259 propId',propertyId, 'propName', propertyName, 'parentId ',  parentId, 'parName', parentName, 'entId ', entityId, 'entName', entityName);
+                    if (!debug) console.log('259 parentId ',  parentId, 'parName', parentName, 'entId ', entityId, 'entName', entityName, 'tmpArray ', tmpArray);
                     toobjectId = oId
                     toobjectName = oName
                     if (!debug) console.log('301 : name', reltypeName, 'reltypeRef', reltypeRef, 'fromobjectId', fromobjectId, fromobjectName, toobjectId, toobjectName);

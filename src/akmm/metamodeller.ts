@@ -6119,12 +6119,6 @@ export class cxInstance extends cxMetaObject {
         const types = type?.getSupertypes();
         for (let i=0; i<types.length; i++) {
             const tname = types[i]?.name;
-            if (tname === 'Element') {
-                namelist.push(tname);
-            }
-        }
-        for (let i=0; i<types.length; i++) {
-            const tname = types[i]?.name;
             if (tname !== 'Element') 
                 namelist.push(tname);
         }

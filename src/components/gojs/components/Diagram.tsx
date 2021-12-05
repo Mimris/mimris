@@ -32,6 +32,8 @@ import * as constants from '../../../akmm/constants';
 const printf = require('printf');
 const RegexParser = require("regex-parser");
 
+const useTabs = true;
+
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 import { FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
@@ -2507,9 +2509,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (modalContext?.what === 'editObject') {
       let obj = this.state.selectedData?.object;
       obj = this.myMetis.findObject(obj.id);
-      const namelist = obj.getInheritedTypeNames();
-      namelist.push(obj.type.name);
-      namelist.reverse();
+      let namelist;
+      if (useTabs) {
+        namelist = obj.getInheritedTypeNames();
+        namelist.push(obj.type.name);
+        namelist.reverse();
+        namelist.push('All');
+      } else
+        namelist = ['All'];
       selpropgroup = [];
       for (let i=0; i<namelist.length; i++) {
         let name = namelist[i];

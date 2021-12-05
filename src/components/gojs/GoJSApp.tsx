@@ -328,7 +328,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
                       if (debug) console.log('326 node', node);
-                      node = myDiagram.findNodeForKey(node.key)
+                      const n = myDiagram.findNodeForKey(node.key)
+                      if (n) node = n;
                       myDiagram.model?.setDataProperty(node.data, "name", myNode.name);
                       const jsnObjview = new jsn.jsnObjectView(objview);
                       jsnObjview.text = textvalue;
@@ -461,7 +462,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (n) {
                 node = n;
                 node.group = group;
-              }              
+              }   
               for (let lit = node?.findLinksConnected(); lit?.next(); ) {
                 let link = lit?.value;  
                 if (debug) console.log('447 link', link);
@@ -478,20 +479,9 @@ class GoJSApp extends React.Component<{}, AppState> {
               }               
               if (debug) console.log('459 node, modifiedNodes: ', node, modifiedNodes);
               if (node) myDiagram.model.setDataProperty(data, "group", node.group);
-              //const myNode = this.getNode(myGoModel, key);
               if (debug) console.log('462 myGoModel', myGoModel);
               if (debug) console.log('463 SelectionMoved', modifiedNodes);
             }
-          }
-          const nodes = myGoModel?.nodes;
-          if (debug) console.log('467 nodes', nodes);
-          for (let i=0; i<nodes?.length; i++) {
-              const node = nodes[i];
-              if (node.key === data.key) {
-                  node.loc = data.loc;
-                  node.size = data.size;
-                  break;
-              }
           }
         }
       }

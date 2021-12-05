@@ -69,7 +69,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } 
     let inst, instview, type, typeview, item, chosenType, nameFieldtype, description, currentType;
     inst = selObj.object;
-    const inst1 = myModel.findObject(inst?.id);
+    let inst1 = myModel.findObject(inst?.id);
     if (false) {
       let type0 = inst1.type;
       type0 = myMetis.findObjectType(type0.id);
@@ -83,36 +83,39 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
       }
     }
-   if (category === constants.gojs.C_OBJECT) {
-      currentType = inst1.type;
-      const inheritedTypes = inst1?.getInheritedTypes();
-      inheritedTypes.push(currentType);
-      inheritedTypes.reverse();
-      let namelist = [];
-      for (let j=0;j<inheritedTypes.length; j++) {
-        const tname = inheritedTypes[j].name;
-        namelist.push(tname);
-      }
-     const what = modalContext?.what;
-      switch (what) {
-        case "editObject": {
-          let typename = namelist[activeTab];
-          if (useTabs && namelist.length > 1) {
-            for (let i=0; i<inheritedTypes.length; i++) {
-              const tname = inheritedTypes[i]?.name;
-              if (tname === typename) {
-                type = inheritedTypes[i];
-                chosenType = type;
-              }
+    if (category === constants.gojs.C_OBJECT) {
+      currentType = inst1?.type;
+      let namelist = ['All'];
+
+      if (useTabs && modalContext?.what === 'editObject') {
+        const inheritedTypes = inst1?.getInheritedTypes();
+        inheritedTypes.push(currentType);
+        inheritedTypes.reverse();
+        namelist = inst1.getInheritedTypeNames();
+        namelist.push(inst1.type.name);
+        namelist.reverse();
+        namelist.push('All');
+        let typename = namelist[activeTab];
+        if (namelist.length > 1 && typename !== 'Element' && typename !== 'All') {
+          for (let i=0; i<inheritedTypes.length; i++) {
+            const tname = inheritedTypes[i]?.name;
+            if (tname === typename) {
+              type = inheritedTypes[i];
+              chosenType = type;
+              if (debug) console.log('105 type', type);
             }
-          } else {
-            type = inst?.type;
-          }  
-        }
-        break;
+          }
+        } 
+        if (debug) console.log('109 typename', typename);
+        if (typename === 'All') {
+          type = inst?.type;
+          chosenType = null;
+          if (debug) console.log('113 type', type);
+        }  
       }
       if (!type) type = selObj.objecttype;
       type = myMetis.findObjectType(type.id);
+      if (debug) console.log('118 type, chosenType', type, chosenType);
       instview = selObj;
       typeview = instview?.typeview;
     } else if (category === constants.gojs.C_RELATIONSHIP) {
@@ -145,17 +148,27 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } else if (category === constants.gojs.C_MODELVIEW) {
       inst = selObj;
     }
-    if (debug) console.log('148 inst, instview', inst, instview);
+    if (debug) console.log('161 inst, instview', inst, instview);
     if (inst == undefined)
       return;
     if (typeof(type) !== 'object')
       return;
-    if (debug) console.log('155 type', type);
+    if (debug) console.log('166 type', type);
     let props;
-      props = type?.getProperties(false/* true*/);
-    // }
+    try {
+      if (chosenType && type.name !== 'Method') {
+        props = chosenType.getProperties(false);
+      } else {
+        props = inst.setAndGetAllProperties(myMetis);
+      }
+      if (debug) console.log('170 chosenType, props', chosenType, props);
+    } catch {
+      let flag = false;
+      props = type?.getProperties(flag);
+      if (debug) console.log('173 props', props);
+    }
     let properties = props;
-    if (debug) console.log('163 props', properties);
+    if (debug) console.log('176 props', properties);
     for (let i=0; i<properties?.length; i++) {
       const prop = properties[i];
       if (!prop) 
@@ -187,7 +200,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       //   break;
       break;
       case "editObjectType":
-        item = inst.objecttype;
+        // item = inst.objecttype;
         item = type;
         break;
       case "editObject":
@@ -238,19 +251,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     for (let k in item) {
       if (k === 'abstract') {
         if (!(category === constants.gojs.C_OBJECT || 
-          category === constants.gojs.C_OBJECTTYPE) || chosenType)
+              category === constants.gojs.C_OBJECTTYPE)) 
           continue;
       }
       if (k === 'viewkind') {
         if (!(category === constants.gojs.C_OBJECT || 
-          category === constants.gojs.C_OBJECTTYPE) || chosenType)
+              category === constants.gojs.C_OBJECTTYPE))
           continue;
       }
       if (k === 'relshipkind') {
         if (!includeRelshipkind)
           continue;
         if (!(category === constants.gojs.C_RELATIONSHIP || 
-          category === constants.gojs.C_RELSHIPTYPE))
+              category === constants.gojs.C_RELSHIPTYPE))
           continue;
       }
       if (k === 'text') {
@@ -269,10 +282,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         switch (chosenType.name) {
           case 'EntityType':
-            if ((k === 'id') || (k === 'name') || (k === 'description') ||
-                (k === 'typeName'))
+            if ((k === 'id') || (k === 'name') || (k === 'description') 
+                || (k === 'typeName') 
+                || (k === 'abstract') || (k === 'viewkind')
+                )
               found = true;
             break;
+          case 'All':
+              found = true;
+              break;
           default:
             if ((k === 'id') || (k === 'name') || (k === 'description'))
               found = true;
@@ -335,8 +353,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
           case 'editObject':
           case 'editRelationship':
-            if (selObj[k]) 
+            if (selObj[k]) {
+              if (debug) console.log('352 k, selObj, item', k, selObj, item);
               item[k] = selObj[k];
+            }
             if (item.id === inst.id) {
               val = item[k];
             } else {

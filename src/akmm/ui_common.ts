@@ -712,18 +712,9 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
                     node.group = "";
                 }
                 if (debug) console.log('714 Moved node', node, objview);
-                let found = false;
-                for (let i=0; i<nodes?.length; i++) {
-                    const n = nodes[i];
-                    if (n.id === objview.id) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    const modNode = new jsn.jsnObjectView(objview);
-                    nodes.push(modNode);
-                }
+                const modNode = new jsn.jsnObjectView(objview);
+                nodes.push(modNode);
+                if (debug) console.log('726 Moved node', modNode, sel);
             }
             // Trying to handle container 'grabbing' objects
             if (objview.isGroup) {   // node / objview is a group
@@ -968,6 +959,23 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
             }
         }
     }
+}
+
+export function getNodesInGroup(groupNode: gjs.goObjectNode, context: any): gjs.goObjectNode[] {
+    const nodes = new Array();
+    const myGoModel = context.myGoModel;
+    const myModelview = context.myModelview;
+    const groupObject = groupNode.objectview;
+    const groupId = groupObject.id;
+    const objviews = myModelview.objectviews;
+    for (let i=0; i<objviews.length; i++) {
+        const oview = objviews[i];
+        if (oview.group === groupId) {
+            const node = myGoModel.findNodeByViewId(oview.id);
+            nodes.push(node);
+        }
+    }
+    return nodes;
 }
 
 // functions to handle links
@@ -1880,10 +1888,14 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
     if (k === 'valueset') retVal = false;
     // if (k === 'viewkind') retVal = false;
     if (k === 'visible') retVal = false;
-    if (type?.name !== 'ViewFormat' && type?.name !== 'Datatype') {
+    if (type?.name !== 'ViewFormat' && 
+        type?.name !== 'Datatype' && 
+        type?.name !== 'Property') {
       if (k === 'viewFormat') retVal = false;
     }
-    if (type?.name !== 'InputPattern' && type?.name !== 'Datatype') {
+    if (type?.name !== 'InputPattern' && 
+        type?.name !== 'Datatype' &&
+        type?.name !== 'Property') {
       if (k === 'inputPattern') retVal = false;
       if (k === 'inputExample') retVal = false;
     }
@@ -2239,15 +2251,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     msg += "\tObject has been undeleted";
                     report += printf(format, msg);
                 }
-                if (!oview.object) { // Not deleted but has no object
-                    const type = myMetis.findObjectTypeByName(defObjTypename);
-                    const obj = new akm.cxObject(utils.createGuid(), oview.name, type, "");
-                    const jsnObject = new jsn.jsnObject(obj);
-                    oview.object = obj;
-                    oview.objectRef = obj.id;
-                    if (debug) console.log('2248 jsnObject', jsnObject);
-                    modifiedObjects.push(jsnObject);
-                }
             }
             else if (!oview.object) { // Object view is deleted and has no object
                 msg = "\tVerifying objectview " + oview.name + " ( without object )\n";
@@ -2265,6 +2268,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        if (debug) console.log('2263 objviews', data);
     })
     msg = "Verifying object views is completed\n";
     report += printf(format, msg);

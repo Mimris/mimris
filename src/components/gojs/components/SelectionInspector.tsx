@@ -67,25 +67,38 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (selObj.type === 'GraphLinksModel') {
       return;
     } 
-    let inst, instview, type, typeview, item, chosenType, nameFieldtype, description, currentType;
-    inst = selObj.object;
-    let inst1 = myModel.findObject(inst?.id);
+    let inst, inst1, instview, type, typeview, item, chosenType, nameFieldtype, description, currentType;
+    if (category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE) {
+      instview = selObj.objectview;
+      instview = myMetis.findObjectView(instview?.id);
+      inst = selObj.object;
+      if (!inst) inst = instview?.object;
+      inst = myMetis.findObject(inst?.id);   
+      inst1 = inst; 
+      type = inst?.type;
+      if (!type) type = selObj.objecttype;
+      type = myMetis.findObjectType(type.id);
+      typeview = instview?.typeview;
+    } else if (category === constants.gojs.C_OBC_RELATIONSHIPJECT || category === constants.gojs.C_RELSHIPTYPE) {
+      instview = selObj.relshipview;
+      instview = myMetis.findRelationshipView(instview?.id);
+      inst = selObj.relship;
+      if (debug) console.log('103 inst', inst, selObj);
+      if (!inst) inst = instview?.relship;
+      inst = myMetis.findRelationship(inst?.id);
+      type = inst?.type;
+      if (!type) type = selObj.relshiptype;
+      typeview = instview?.typeview;
+    }
+
     if (category === constants.gojs.C_OBJECT) {
-      if (inst1?.type.name === 'Method') {
-        type = inst1.type;
-        if (debug) console.log('89 type', type);
-        chosenType = null;
+      if (type.name === 'Method') {
+         chosenType = null;
       } else {
         currentType = inst1?.type;
         let namelist = ['All'];
         if (debug) console.log('94 inst1', inst1);
         if (useTabs && modalContext?.what === 'editObject') {
-          instview = selObj.objectview;
-          instview = myMetis.findObjectView(instview?.id);
-          inst = selObj.object;
-          if (debug) console.log('103 inst', inst, selObj);
-          if (!inst) inst = instview?.object;
-          inst = myMetis.findObject(inst?.id);    
           const inheritedTypes = inst1?.getInheritedTypes();
           inheritedTypes.push(currentType);
           inheritedTypes.reverse();
@@ -106,7 +119,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           } 
           if (debug) console.log('109 typename', typename);
           if (typename === 'All') {
-            type = inst?.type;
             chosenType = null;
             if (debug) console.log('113 type', type);
           }  
@@ -114,8 +126,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (!inst1?.hasInheritedProperties())
           chosenType = null;
       }
-      if (!type) type = selObj.objecttype;
-      type = myMetis.findObjectType(type.id);
       if (debug) console.log('122 type, chosenType', type, chosenType);
       instview = selObj;
       typeview = instview?.typeview;      

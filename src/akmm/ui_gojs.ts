@@ -358,6 +358,7 @@ export class goObjectNode extends goNode {
     textcolor: string;
     icon: string;
     isGroup: boolean | "";
+    isCollapsed: boolean | "";
     groupLayout: string;
     group: string;
     parent: string;
@@ -376,6 +377,7 @@ export class goObjectNode extends goNode {
         this.textcolor      = objview.textcolor;
         this.icon           = objview.icon;
         this.isGroup        = objview.isGroup;
+        this.isCollapsed    = objview.isCollapsed;
         this.groupLayout    = "Tree";
         this.group          = objview.group;
         this.parent         = "";

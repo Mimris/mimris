@@ -31,7 +31,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   }
 
   private handleInputChange(e: any) {
-    if (debug) console.log('29 handleInput', this.props);
+    if (!debug) console.log('29 handleInput', this.props);
     const fieldType = this.props.type;
     let value = e.target.value;
     if ((fieldType === 'checkbox') && (this.props.value === 'true')) {
@@ -70,13 +70,13 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     // f.eks.  this.props.description  
     const propDesc = `Fieldtype : ${this.props.type} \nDescription: ${this.props.description}`;
     // ---------------
-    if (debug) console.log('64 InspectorRow: this.props', this.props);
+    if (!debug) console.log('64 InspectorRow: this.props', this.props);
     let val = this.props.value;
     if (val === 'Not valid') {
       alert ('Input is not valid: ' + val );
     }
     if (this.props.type === 'textarea') {
-      if (debug) console.log('71 props', this.props);
+      if (!debug) console.log('71 props', this.props);
       return (  
         <tr>
           <td className="pr-2" >{this.props.id}</td> 
@@ -128,7 +128,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
      );
     }    
     else{
-      if (debug) console.log('113 props', this.props);
+      if (!debug) console.log('113 props', this.props);
       return (  
         <tr>
           <td className="pr-2" >{this.props.id}</td> 

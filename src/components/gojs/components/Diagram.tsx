@@ -32,8 +32,6 @@ import * as constants from '../../../akmm/constants';
 const printf = require('printf');
 const RegexParser = require("regex-parser");
 
-const useTabs = true;
-
 import { GuidedDraggingTool } from '../GuidedDraggingTool';
 import LoadLocal from '../../../components/LoadLocal'
 import { FaTemperatureLow, FaTumblrSquare } from 'react-icons/fa';
@@ -2495,6 +2493,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   }
 
   public render() {
+    let useTabs = true;
     if (debug) console.log('2804 Diagram', this.props.nodeDataArray);
     if (debug) console.log('2805 Diagram', this.props.linkDataArray);
 
@@ -2509,8 +2508,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (modalContext?.what === 'editObject') {
       let obj = this.state.selectedData?.object;
       obj = this.myMetis.findObject(obj.id);
+      if (obj?.type?.name === 'Method')
+        useTabs = false;
+      if (!obj.hasInheritedProperties())
+        useTabs = false;
       let namelist;
-      if (useTabs) {
+      if (useTabs && obj) {
         namelist = obj.getInheritedTypeNames();
         namelist.push(obj.type.name);
         namelist.reverse();

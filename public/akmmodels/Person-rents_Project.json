@@ -1,7 +1,7 @@
 {
   "phData": {
     "metis": {
-      "name": "NEW-Startup_Project",
+      "name": "Person-rents",
       "description": "New startup project",
       "metamodels": [
         {
@@ -3948,29 +3948,6 @@
           "routing": "Normal",
           "markedAsDeleted": false,
           "modified": false
-        },
-        {
-          "id": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-          "name": "TEST_MM",
-          "description": "",
-          "viewstyles": [],
-          "geometries": [],
-          "objecttypes": [],
-          "relshiptypes": [],
-          "properties": [],
-          "methods": [],
-          "methodtypes": [],
-          "datatypes": [],
-          "units": [],
-          "objecttypeviews": [],
-          "objtypegeos": [],
-          "relshiptypeviews": [],
-          "generatedFromModelRef": "",
-          "layout": "ForceDirected",
-          "routing": "Normal",
-          "linkcurve": "None",
-          "markedAsDeleted": false,
-          "modified": false
         }
       ],
       "models": [
@@ -4078,6 +4055,34 @@
               "generatedTypeId": "",
               "modified": true,
               "text": ""
+            },
+            {
+              "id": "bf83ae2b-5d87-4976-f301-f78832bc8bd4",
+              "name": "Car",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
+              "typeName": "EntityType",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true,
+              "text": ""
+            },
+            {
+              "id": "dcfb1ebf-a38e-4720-1484-5257e3a42e59",
+              "name": "rents",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
+              "typeName": "RelshipType",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true,
+              "text": ""
             }
           ],
           "relships": [
@@ -4134,6 +4139,60 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true
+            },
+            {
+              "id": "e0b67a43-c3c1-4903-685b-d3732b085fff",
+              "name": "from",
+              "description": "",
+              "relshipkind": "Association",
+              "typeRef": "ffba4fe9-bace-4bd3-0734-619f1c6e5c7a",
+              "fromobjectRef": "dcfb1ebf-a38e-4720-1484-5257e3a42e59",
+              "toobjectRef": "71de5894-be58-4610-2ada-7d3459790e01",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true
+            },
+            {
+              "id": "8cca38e1-1c57-4cc8-0725-a2bd662db610",
+              "name": "to",
+              "description": "",
+              "relshipkind": "Association",
+              "typeRef": "38be5614-3a23-4193-0aec-311c45f1f6a3",
+              "fromobjectRef": "dcfb1ebf-a38e-4720-1484-5257e3a42e59",
+              "toobjectRef": "bf83ae2b-5d87-4976-f301-f78832bc8bd4",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true
+            },
+            {
+              "id": "73bdd445-7afe-499e-9daa-2b60a6711977",
+              "name": "hasProperties",
+              "description": "",
+              "relshipkind": "Association",
+              "typeRef": "4e15d68d-8e3f-4de0-cf51-51ebfd363cb7",
+              "fromobjectRef": "dcfb1ebf-a38e-4720-1484-5257e3a42e59",
+              "toobjectRef": "f2f1a1e3-9436-4eac-a410-fb598817bf72",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true
             }
           ],
           "modelviews": [
@@ -4142,7 +4201,7 @@
               "name": "Main",
               "description": "",
               "layout": "Tree",
-              "routing": "Normal",
+              "routing": "Orthogonal",
               "linkcurve": "None",
               "showCardinality": false,
               "modelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
@@ -4156,7 +4215,7 @@
                   "group": "",
                   "viewkind": "Object",
                   "isGroup": false,
-                  "loc": "-510 -170",
+                  "loc": "-540 -170",
                   "size": "",
                   "markedAsDeleted": false,
                   "modified": true,
@@ -4177,7 +4236,7 @@
                   "group": "",
                   "viewkind": "Object",
                   "isGroup": false,
-                  "loc": "30 -170",
+                  "loc": "-20 -170",
                   "size": "",
                   "markedAsDeleted": false,
                   "modified": true,
@@ -4198,7 +4257,7 @@
                   "group": "",
                   "viewkind": "Object",
                   "isGroup": false,
-                  "loc": "-240 -170",
+                  "loc": "-280 -170",
                   "size": "",
                   "markedAsDeleted": false,
                   "modified": true,
@@ -4292,8 +4351,49 @@
                   "strokecolor": "",
                   "strokewidth": "1",
                   "textcolor": "",
-                  "icon": "",
-                  "text": ""
+                  "icon": ""
+                },
+                {
+                  "id": "02c66a06-d74b-49a9-e4dc-a75bdeb527b1",
+                  "name": "Car",
+                  "description": "",
+                  "objectRef": "bf83ae2b-5d87-4976-f301-f78832bc8bd4",
+                  "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",
+                  "group": "",
+                  "viewkind": "Object",
+                  "isGroup": false,
+                  "loc": "-540 180",
+                  "size": "",
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "icon": ""
+                },
+                {
+                  "id": "abd0839b-63c0-4dad-6fc5-44c46626178b",
+                  "name": "rents",
+                  "description": "",
+                  "objectRef": "dcfb1ebf-a38e-4720-1484-5257e3a42e59",
+                  "typeviewRef": "a870109d-3297-44ea-118b-6712e8026cf5",
+                  "group": "",
+                  "viewkind": "Object",
+                  "isGroup": false,
+                  "loc": "-540 0",
+                  "size": "",
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "icon": ""
                 }
               ],
               "relshipviews": [
@@ -4312,21 +4412,41 @@
                   "fromArrowColor": "",
                   "toArrowColor": "",
                   "points": {
-                    "__gohashid": 213573,
+                    "__gohashid": 401884,
                     "s": true,
                     "j": [
                       {
-                        "x": -239,
+                        "x": -279,
                         "y": -134,
                         "s": true
                       },
                       {
-                        "x": -349,
+                        "x": -289,
+                        "y": -134,
+                        "s": true
+                      },
+                      {
+                        "x": -329,
+                        "y": -134,
+                        "s": true
+                      },
+                      {
+                        "x": -329,
+                        "y": -134,
+                        "s": true
+                      },
+                      {
+                        "x": -369,
+                        "y": -134,
+                        "s": true
+                      },
+                      {
+                        "x": -379,
                         "y": -134,
                         "s": true
                       }
                     ],
-                    "Aa": 3,
+                    "Aa": 7,
                     "Ha": null,
                     "gh": null
                   },
@@ -4348,21 +4468,41 @@
                   "fromArrowColor": "",
                   "toArrowColor": "",
                   "points": {
-                    "__gohashid": 213534,
+                    "__gohashid": 401940,
                     "s": true,
                     "j": [
                       {
-                        "x": -79,
+                        "x": -119,
                         "y": -134,
                         "s": true
                       },
                       {
-                        "x": 31,
+                        "x": -109,
+                        "y": -134,
+                        "s": true
+                      },
+                      {
+                        "x": -69,
+                        "y": -134,
+                        "s": true
+                      },
+                      {
+                        "x": -69,
+                        "y": -134,
+                        "s": true
+                      },
+                      {
+                        "x": -29,
+                        "y": -134,
+                        "s": true
+                      },
+                      {
+                        "x": -19,
                         "y": -134,
                         "s": true
                       }
                     ],
-                    "Aa": 3,
+                    "Aa": 7,
                     "Ha": null,
                     "gh": null
                   },
@@ -4386,17 +4526,135 @@
                   "fromArrowColor": "",
                   "toArrowColor": "white",
                   "points": {
-                    "__gohashid": 344929,
+                    "__gohashid": 401892,
                     "s": true,
                     "j": [
                       {
-                        "x": -159.27838425343418,
-                        "y": -99.00003163030846,
+                        "x": -199,
+                        "y": -99,
                         "s": true
                       },
                       {
-                        "x": -160.06295273515786,
-                        "y": -0.35985458927316005,
+                        "x": -199,
+                        "y": -89,
+                        "s": true
+                      },
+                      {
+                        "x": -199,
+                        "y": -49.67993520221371,
+                        "s": true
+                      },
+                      {
+                        "x": -161,
+                        "y": -49.67993520221371,
+                        "s": true
+                      },
+                      {
+                        "x": -161,
+                        "y": -10.359870404427433,
+                        "s": true
+                      },
+                      {
+                        "x": -161,
+                        "y": -0.3598704044274328,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 7,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": false,
+                  "modified": false
+                },
+                {
+                  "id": "13277de4-c545-49bf-988e-d707049fc49b",
+                  "name": "from",
+                  "description": "",
+                  "relshipRef": "e0b67a43-c3c1-4903-685b-d3732b085fff",
+                  "typeviewRef": "ffe3f926-196b-423d-516e-e664b66500b1",
+                  "fromobjviewRef": "abd0839b-63c0-4dad-6fc5-44c46626178b",
+                  "toobjviewRef": "71840f54-fbd7-408e-e1ff-4cfb99b54ea0",
+                  "points": {
+                    "__gohashid": 348194,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -459,
+                        "y": 1,
+                        "s": true
+                      },
+                      {
+                        "x": -459,
+                        "y": -99,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 3,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": false,
+                  "modified": true
+                },
+                {
+                  "id": "743bb244-e1f9-463c-1cb4-ac877bd81295",
+                  "name": "to",
+                  "description": "",
+                  "relshipRef": "8cca38e1-1c57-4cc8-0725-a2bd662db610",
+                  "typeviewRef": "d8a87d81-eb47-47bb-a103-a2c5a0a823e7",
+                  "fromobjviewRef": "abd0839b-63c0-4dad-6fc5-44c46626178b",
+                  "toobjviewRef": "02c66a06-d74b-49a9-e4dc-a75bdeb527b1",
+                  "points": {
+                    "__gohashid": 348278,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -459,
+                        "y": 71,
+                        "s": true
+                      },
+                      {
+                        "x": -459,
+                        "y": 181,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 3,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": false,
+                  "modified": true
+                },
+                {
+                  "id": "df48d403-6e53-4e9f-9260-6575b0ef7a9c",
+                  "name": "hasProperties",
+                  "description": "",
+                  "relshipRef": "73bdd445-7afe-499e-9daa-2b60a6711977",
+                  "typeviewRef": "46313343-e2e8-44ae-e3d8-c697aa2a8977",
+                  "fromobjviewRef": "abd0839b-63c0-4dad-6fc5-44c46626178b",
+                  "toobjviewRef": "791c5d2a-f979-4697-1b73-4e2c85934ed3",
+                  "strokecolor": "black",
+                  "strokewidth": "1",
+                  "textcolor": "black",
+                  "dash": "None",
+                  "fromArrow": "",
+                  "toArrow": "OpenTriangle",
+                  "fromArrowColor": "",
+                  "toArrowColor": "white",
+                  "points": {
+                    "__gohashid": 348196,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -381.2587694903894,
+                        "y": 68.98805025974994,
+                        "s": true
+                      },
+                      {
+                        "x": -267.221699903859,
+                        "y": 117.37756710088118,
                         "s": true
                       }
                     ],
@@ -4408,41 +4666,6 @@
                   "modified": true
                 }
               ],
-              "objecttypeviews": [],
-              "relshiptypeviews": [],
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "markedAsDeleted": false,
-          "modified": false
-        },
-        {
-          "id": "c7cbc026-34cd-4f67-1101-23172126f155",
-          "name": "TEST_Model",
-          "description": "",
-          "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-          "sourceMetamodelRef": "",
-          "targetMetamodelRef": "",
-          "sourceModelRef": "",
-          "targetModelRef": "",
-          "isTemplate": false,
-          "includeSystemtypes": true,
-          "templates": [],
-          "objects": [],
-          "relships": [],
-          "modelviews": [
-            {
-              "id": "0e566f15-4fb6-4a67-a3f3-7448665f485a",
-              "name": "TEST_Model",
-              "description": "",
-              "layout": "Tree",
-              "routing": "Normal",
-              "linkcurve": "None",
-              "showCardinality": false,
-              "modelRef": "c7cbc026-34cd-4f67-1101-23172126f155",
-              "objectviews": [],
-              "relshipviews": [],
               "objecttypeviews": [],
               "relshiptypeviews": [],
               "markedAsDeleted": false,
@@ -4478,8 +4701,8 @@
       "name": "Property 1"
     },
     "focusObjectview": {
-      "id": "ff548d71-6164-4f8e-111f-e97cf4940f16",
-      "name": "rentPerMonth"
+      "id": "791c5d2a-f979-4697-1b73-4e2c85934ed3",
+      "name": ""
     },
     "focusRelship": {
       "id": null,
@@ -4527,7 +4750,7 @@
       "name": ""
     },
     "focusRefresh": {
-      "id": "akhknd",
+      "id": "non6vs",
       "name": "0name"
     }
   },

@@ -6064,27 +6064,36 @@
               "name": "calcAggregatedCost",
               "description": "",
               "abstract": false,
-              "viewkind": "",
+              "viewkind": "Object",
               "typeRef": "4f1e3080-24b0-4e9f-f8cc-f13e469232a2",
               "typeName": "Method",
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "methodtype": "AggregateValue"
+              "methodtype": "AggregateValue",
+              "reltype": "",
+              "reldir": "",
+              "objtype": "",
+              "expression": "Cost"
             },
             {
               "id": "22425c61-b44a-4bbb-9263-6dc87cab32c9",
               "name": "calcAggregatedWeight",
               "description": "",
               "abstract": false,
-              "viewkind": "",
+              "viewkind": "Object",
               "typeRef": "4f1e3080-24b0-4e9f-f8cc-f13e469232a2",
               "typeName": "Method",
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "",
-              "modified": true
+              "modified": true,
+              "methodtype": "AggregateValue",
+              "reltype": "",
+              "reldir": "",
+              "objtype": "",
+              "expression": "Weight"
             },
             {
               "id": "569f69c7-a33a-4e96-923f-d442139be37c",
@@ -6097,7 +6106,9 @@
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "",
-              "modified": true
+              "modified": true,
+              "methodtype": "CalculateValue",
+              "expression": "0.4*Weight"
             },
             {
               "id": "71f327a1-5668-40ad-26dc-21ab2a0018e8",
@@ -6985,8 +6996,8 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "Weight": "10",
-              "Cost": 4
+              "Weight": "19",
+              "Cost": 7.6000000000000005
             },
             {
               "id": "12c34160-413e-43ac-18be-1747b88fe18b",
@@ -7000,8 +7011,8 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "Weight": "20",
-              "Cost": 8
+              "Weight": "29",
+              "Cost": 11.600000000000001
             },
             {
               "id": "ee1ce706-2805-4121-7ca3-e60417b2a897",
@@ -7015,8 +7026,8 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "Weight": "40",
-              "Cost": 16
+              "Weight": "49",
+              "Cost": 19.6
             },
             {
               "id": "732a4029-463a-4f49-1a9a-e937b367dfe3",
@@ -7030,8 +7041,9 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "Weight": "30",
-              "Cost": 12
+              "Weight": "39",
+              "Cost": 15.600000000000001,
+              "text": "C3"
             },
             {
               "id": "4ab3d20a-a5ff-424c-5814-3e6c329fbe27",
@@ -7045,8 +7057,8 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "Weight": "60",
-              "Cost": 24
+              "Weight": "69",
+              "Cost": 27.6
             },
             {
               "id": "c520d68a-e446-42e6-5e4c-ce8ac1e2a2b6",
@@ -7060,8 +7072,8 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": true,
-              "Weight": "50",
-              "Cost": 20
+              "Weight": "59",
+              "Cost": 23.6
             }
           ],
           "relships": [
@@ -7351,8 +7363,11 @@
                   "template": "",
                   "fillcolor": "",
                   "strokecolor": "",
-                  "strokewidth": "",
-                  "icon": ""
+                  "strokewidth": "1",
+                  "icon": "",
+                  "geometry": "",
+                  "textcolor": "",
+                  "text": "C3"
                 },
                 {
                   "id": "5a049e1b-ac31-4737-9300-3b087f4ec51e",
@@ -7582,8 +7597,8 @@
       "name": "Property 1"
     },
     "focusObjectview": {
-      "id": "5a049e1b-ac31-4737-9300-3b087f4ec51e",
-      "name": "C6"
+      "id": "2fadccb0-2730-4931-6a77-49fec51066db",
+      "name": "Select Components"
     },
     "focusRelship": {
       "id": null,

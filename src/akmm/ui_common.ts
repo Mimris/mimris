@@ -482,12 +482,14 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
                 for (let i=0; i<groupMembers?.length; i++) {
                     const member = groupMembers[i];
                     deleteNode(member, deletedFlag, deletedObjviews, deletedObjects, deletedLinks, deletedRelships, deletedTypeviews, context);
+                    myDiagram.requestUpdate();
                 }
             }
             // Handle deleteViewsOnly
             if (myMetis.deleteViewsOnly) {
                 object.removeObjectView(objview);
-                if (debug) console.log('490 object, objview');
+                if (debug) console.log('490 object, objview', object, objview);
+                if (debug) console.log('491 myMetis', myMetis);
                 return;
             }
             // Else handle delete object AND object views
@@ -694,7 +696,9 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
     if (sel.category === 'Object') {
         const modelView = goModel?.modelView;
         let node = goModel?.findNode(sel.key);
+        if (!node) node = sel;
         if (node) {
+            if (debug) console.log('700 node', node);
             node.loc = sel.loc;
             node.size = sel.size;
             const objview = node.objectview;

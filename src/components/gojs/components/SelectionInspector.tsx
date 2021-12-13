@@ -63,7 +63,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (debug) console.log('37 selObj', selObj, myMetamodel);
+    if (debug) console.log('37 selObj', selObj);
     if (selObj.type === 'GraphLinksModel') {
       return;
     } 
@@ -263,20 +263,17 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('224 inst, item, selObj', inst, item, selObj);
     for (let k in item) {
       if (k === 'abstract') {
-        if (!(category === constants.gojs.C_OBJECT || 
-              category === constants.gojs.C_OBJECTTYPE)) 
-          continue;
-      }
+          if (what !== 'editObject' && what !== 'editObjectType')
+              continue;
+      }      
       if (k === 'viewkind') {
-        if (!(category === constants.gojs.C_OBJECT || 
-              category === constants.gojs.C_OBJECTTYPE))
+        if (what !== 'editObject' && what !== 'editObjectType')
           continue;
       }
       if (k === 'relshipkind') {
         if (!includeRelshipkind)
           continue;
-        if (!(category === constants.gojs.C_RELATIONSHIP || 
-              category === constants.gojs.C_RELSHIPTYPE))
+        if (what !== 'editRelationship' && what !== 'editRelationshipType')
           continue;
       }
       if (k === 'text') {

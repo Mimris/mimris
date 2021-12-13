@@ -574,12 +574,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let node = selObj;
       let obj = selObj.object;
       obj = myMetis.findObject(obj?.id);
-      if (!debug) console.log('577 selObj', selObj, obj);
+      if (debug) console.log('577 selObj', selObj, obj);
       const properties = obj.setAndGetAllProperties(myMetis);
       if (debug) console.log('579 properties', properties);
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;
-      if (!debug) console.log('580 obj, jsnObject', obj, jsnObject);
+      if (debug) console.log('580 obj, jsnObject', obj, jsnObject);
       const type = obj?.type;
       for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];

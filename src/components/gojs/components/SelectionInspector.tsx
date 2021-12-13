@@ -80,6 +80,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         let namelist = ['All'];
         if (debug) console.log('94 inst1', inst1);
         if (useTabs && modalContext?.what === 'editObject') {
+          instview = selObj.objectview;
+          instview = myMetis.findObjectView(instview?.id);
+          inst = selObj.object;
+          if (debug) console.log('103 inst', inst, selObj);
+          if (!inst) inst = instview?.object;
+          inst = myMetis.findObject(inst?.id);    
           const inheritedTypes = inst1?.getInheritedTypes();
           inheritedTypes.push(currentType);
           inheritedTypes.reverse();
@@ -328,7 +334,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (hideNameAndDescr) {
           if (k === 'name' || k === 'description' || k === 'title') continue; 
         }
-        if (!debug) console.log('302 k, item[k], selObj[k]: ', k, item[k], selObj[k]);
+        if (debug) console.log('302 k, item[k], selObj[k]: ', k, item[k], selObj[k]);
         switch (what) {
           case 'editObjectType':
           case 'editRelationshipType':

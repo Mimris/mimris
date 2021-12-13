@@ -6278,13 +6278,13 @@ export class cxInstance extends cxMetaObject {
         const mtdRef = prop.methodRef;
         const method = metis.findMethod(mtdRef);
         const propname = prop.name;
-        if (!debug) console.log('6268 prop, method', prop, method);
+        if (debug) console.log('6268 prop, method', prop, method);
         if (method) {
             const mtdtype = method.methodtype;
             let context;
             switch (mtdtype) {
                 case "AggregateValue":
-                    if (!debug) console.log('6273 method', method);
+                    if (debug) console.log('6273 method', method);
                     const reltype = metis.findRelationshipTypeByName(method["reltype"]);
                     const otypename = method["objtype"];
                     let objtype = null;
@@ -6301,7 +6301,7 @@ export class cxInstance extends cxMetaObject {
                     break;
                 case "CalculateValue":
                 default:
-                    if (!debug) console.log('6290 method', method);
+                    if (debug) console.log('6290 method', method);
                     context = {
                         "myMetis":   metis,
                         "prop":      prop,

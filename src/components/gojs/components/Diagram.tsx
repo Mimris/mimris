@@ -477,7 +477,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              return false;
+              // return false;
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const object = node.object;
@@ -2507,10 +2507,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     let selpropgroup = [  {tabName: 'Default'} ];
     if (modalContext?.what === 'editObject') {
       let obj = this.state.selectedData?.object;
-      obj = this.myMetis.findObject(obj.id);
+      obj = this.myMetis.findObject(obj?.id);
       if (obj?.type?.name === 'Method')
         useTabs = false;
-      if (!obj.hasInheritedProperties())
+      if (!obj?.hasInheritedProperties())
         useTabs = false;
       let namelist;
       if (useTabs && obj) {

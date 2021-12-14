@@ -443,6 +443,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             link.fromArrow = '';
           if (relview.toArrow === '') 
             link.toArrow = relview.typeview?.toArrow;
+          if (link.toArrow == '')
+            link.toArrow = 'OpenTriangle';
           if (link.toArrow === 'None') 
             link.toArrow = '';
           link.routing = modelview.routing;
@@ -454,10 +456,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             link.cardinalityFrom = "";
             link.cardinalityTo = "";
           }
+          if (!debug) console.log('459 modelview:', modelview, link);
           if (link.toArrow == undefined)
             link.toArrow = 'OpenTriangle';
-          if (debug) console.log('455 modelview:', modelview, link);
-          if (debug) console.log('456 GenGojsModel: props', props);
+          if (debug) console.log('461 modelview:', modelview, link);
+          if (debug) console.log('4562GenGojsModel: props', props);
           myGoModel.addLink(link);
           if (debug) console.log('458 buildGoModel - link', link, myGoModel);
         }

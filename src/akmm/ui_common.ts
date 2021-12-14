@@ -91,8 +91,13 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();
+                if (context.pasted) {
+                    const id = data.typeview?.id;
+                    objtypeView = myMetis.findObjectTypeView(id);
+                    if (debug) console.log('97 objtypeView', objtypeView);
+                }
                 if (oview) {
-                    if (debug) console.log('95 oview', oview);
+                    if (debug) console.log('100 oview', oview);
                     const otdata = objtypeView.data;
                     let modified = false;
                     for (let prop in otdata) {
@@ -102,13 +107,13 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                             modified = true;
                         }
                     }
-                    if (debug) console.log('105 objview', objview);
-                    if (modified)
+                    if (debug) console.log('110 modified, objview', modified, objview);
+                    if (modified) {
+                        const node = new gjs.goObjectNode(data.key, objview);
+                        myGoModel.addNode(node);
+                        updateNode(node, objtypeView, myDiagram, myGoModel);
                         return objview;
-                }
-                if (context.pasted) {
-                    const id = data.typeview?.id;
-                    objtypeView = myMetis.findObjectTypeView(id);
+                    }
                 }
                 if (!objtypeView) {
                     const key = utils.createGuid();
@@ -991,9 +996,10 @@ export function createRelationship(data: any, context: any) {
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = context.myModel;
     const fromNode = myGoModel.findNode(data.from);
-    const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
+    console.log('998 fromNode, data.from', fromNode, data.from);
+    let nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
     const toNode = myGoModel.findNode(data.to);
-    const nodeTo   = myDiagram.findNodeForKey(toNode?.key)
+    let nodeTo   = myDiagram.findNodeForKey(toNode?.key)
     if (debug) console.log('985 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode?.object;
     const toObj = toNode?.object;
@@ -2508,6 +2514,7 @@ function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, 
             if (debug) console.log('2500 updateNode', node, goModel);
         }
         if (debug) console.log('2502 updateNode', node, diagram);
+        diagram.requestUpdate();
     }
 }
 

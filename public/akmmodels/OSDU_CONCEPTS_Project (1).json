@@ -10545,7 +10545,40 @@
               "modified": false
             }
           ],
-          "relshiptypeviews": [],
+          "relshiptypeviews": [
+            {
+              "id": "aa962d77-b638-4684-bf59-7736b605d293",
+              "name": "aa962d77-b638-4684-bf59-7736b605d293",
+              "description": "",
+              "typeRef": "aa91426e-6a8c-4189-9058-5b1a78aa4432",
+              "strokecolor": "black",
+              "strokewidth": "1",
+              "textcolor": "black",
+              "dash": "None",
+              "fromArrow": " ",
+              "toArrow": "Triangle",
+              "fromArrowColor": " ",
+              "toArrowColor": "white",
+              "markedAsDeleted": true,
+              "modified": false
+            },
+            {
+              "id": "baf2c424-f4e6-4a3e-5b88-6c3e91947e0c",
+              "name": "baf2c424-f4e6-4a3e-5b88-6c3e91947e0c",
+              "description": "",
+              "typeRef": "055c251c-aff4-4984-6b91-b819801c16a6",
+              "strokecolor": "black",
+              "strokewidth": "1",
+              "textcolor": "black",
+              "dash": "None",
+              "fromArrow": " ",
+              "toArrow": "Triangle",
+              "fromArrowColor": " ",
+              "toArrowColor": "white",
+              "markedAsDeleted": true,
+              "modified": false
+            }
+          ],
           "generatedFromModelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
           "layout": "ForceDirected",
           "routing": "Normal",
@@ -14431,7 +14464,8 @@
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "",
-              "modified": true
+              "modified": true,
+              "text": "DefaultVerticalCRSID"
             },
             {
               "id": "9d461482-d3b3-42fe-58b2-2fa3cfd549d8",
@@ -14442,7 +14476,7 @@
               "typeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
               "typeName": "Property",
               "propertyValues": [],
-              "markedAsDeleted": false,
+              "markedAsDeleted": true,
               "generatedTypeId": "",
               "modified": true
             },
@@ -15263,7 +15297,50 @@
               "propertyValues": [],
               "markedAsDeleted": false,
               "generatedTypeId": "",
-              "modified": true
+              "modified": true,
+              "text": "VerticalMeasurement"
+            },
+            {
+              "id": "7af28e46-198b-45d8-3241-706c8a6b8ce8",
+              "name": "DefaultVerticalMeasurementID",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
+              "typeName": "Property",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true,
+              "text": "VerticalMeasurementID"
+            },
+            {
+              "id": "8b649328-1fd5-4584-6bc3-375ab14304f8",
+              "name": "VerticalMeasurementID",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
+              "typeName": "Property",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true,
+              "text": "VerticalMeasurementType"
+            },
+            {
+              "id": "71c8e5a8-5f67-4105-4276-c7e9a83b7a5f",
+              "name": "WellLog",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "a2706cc8-61f2-440a-4725-560185127d01",
+              "typeName": "WorkProductComponent",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true,
+              "text": ""
             }
           ],
           "relships": [
@@ -16417,7 +16494,7 @@
               "nameTo": "",
               "markedAsDeleted": false,
               "generatedTypeId": "",
-              "modified": false
+              "modified": true
             },
             {
               "id": "bc48d731-1a73-4deb-fa58-fb61811e04e4",
@@ -16436,6 +16513,114 @@
               "markedAsDeleted": false,
               "generatedTypeId": "",
               "modified": false
+            },
+            {
+              "id": "9fd8287a-9522-49d1-fa60-c2eadfeea046",
+              "name": "DefaultVerticalMeasurement",
+              "description": "",
+              "relshipkind": "Generalization",
+              "typeRef": "5718b4c7-3aa1-4ee3-0a9d-5e7cdcd18a24",
+              "fromobjectRef": "c7b5df84-f853-48fe-9281-34b363689c70",
+              "toobjectRef": "6dde3d8a-b1b0-4a3a-d992-311aeefb72e5",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true
+            },
+            {
+              "id": "67f39ef4-28ed-4f8c-43b6-34770af3c58c",
+              "name": "DefaultVerticalCRSID",
+              "description": "",
+              "relshipkind": "Association",
+              "typeRef": "f84a6f3b-a7b1-4fcc-c3c2-f16874a491a7",
+              "fromobjectRef": "c7b5df84-f853-48fe-9281-34b363689c70",
+              "toobjectRef": "0e88f7b0-490d-4df0-952f-281767022044",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": true
+            },
+            {
+              "id": "1131fbd4-a7df-49a9-0579-7aca8c6d245a",
+              "name": "Is",
+              "description": "",
+              "relshipkind": "Generalization",
+              "typeRef": "5718b4c7-3aa1-4ee3-0a9d-5e7cdcd18a24",
+              "fromobjectRef": "edd6bdb1-77ae-4978-bc66-60164e77b4d8",
+              "toobjectRef": "6dde3d8a-b1b0-4a3a-d992-311aeefb72e5",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": true,
+              "generatedTypeId": "",
+              "modified": false
+            },
+            {
+              "id": "d60479d7-ce91-44bf-5caf-0f62b5f89f8d",
+              "name": "has",
+              "description": "",
+              "relshipkind": "Generalization",
+              "typeRef": "5718b4c7-3aa1-4ee3-0a9d-5e7cdcd18a24",
+              "fromobjectRef": "71c8e5a8-5f67-4105-4276-c7e9a83b7a5f",
+              "toobjectRef": "6dde3d8a-b1b0-4a3a-d992-311aeefb72e5",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": true,
+              "generatedTypeId": "",
+              "modified": false
+            },
+            {
+              "id": "616641d0-9f07-4dd7-6f9a-6758a504b60f",
+              "name": "WellboreID",
+              "description": "",
+              "relshipkind": "Generalization",
+              "typeRef": "5718b4c7-3aa1-4ee3-0a9d-5e7cdcd18a24",
+              "fromobjectRef": "71c8e5a8-5f67-4105-4276-c7e9a83b7a5f",
+              "toobjectRef": "edd6bdb1-77ae-4978-bc66-60164e77b4d8",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": true,
+              "generatedTypeId": "",
+              "modified": true
+            },
+            {
+              "id": "a8cc67b6-7455-4928-b48e-82637d839ccf",
+              "name": "",
+              "description": "",
+              "relshipkind": "Generalization",
+              "typeRef": "5718b4c7-3aa1-4ee3-0a9d-5e7cdcd18a24",
+              "fromobjectRef": "edd6bdb1-77ae-4978-bc66-60164e77b4d8",
+              "toobjectRef": "71c8e5a8-5f67-4105-4276-c7e9a83b7a5f",
+              "propvalues": [],
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
+              "nameFrom": "",
+              "nameTo": "",
+              "markedAsDeleted": true,
+              "generatedTypeId": "",
+              "modified": true
             }
           ],
           "modelviews": [
@@ -16522,7 +16707,7 @@
                   "group": "",
                   "viewkind": "Object",
                   "isGroup": false,
-                  "loc": "-350 -510",
+                  "loc": "-200 -20",
                   "size": "",
                   "markedAsDeleted": false,
                   "modified": true,
@@ -16532,7 +16717,8 @@
                   "strokecolor": "",
                   "strokewidth": "1",
                   "textcolor": "",
-                  "icon": ""
+                  "icon": "",
+                  "isCollapsed": false
                 },
                 {
                   "id": "6ed98f6b-f400-4b55-5ffc-a20cefb78c73",
@@ -16543,7 +16729,7 @@
                   "group": "",
                   "viewkind": "Object",
                   "isGroup": false,
-                  "loc": "-600 70",
+                  "loc": "-790 120",
                   "size": "",
                   "markedAsDeleted": false,
                   "modified": true,
@@ -16553,7 +16739,8 @@
                   "strokecolor": "",
                   "strokewidth": "1",
                   "textcolor": "",
-                  "icon": ""
+                  "icon": "",
+                  "isCollapsed": false
                 },
                 {
                   "id": "d97dc834-a930-4bc6-2f74-12efbde9f11c",
@@ -16564,7 +16751,7 @@
                   "group": "",
                   "viewkind": "Object",
                   "isGroup": false,
-                  "loc": "-660 -120",
+                  "loc": "-670 -150",
                   "size": "",
                   "markedAsDeleted": false,
                   "modified": true,
@@ -16574,7 +16761,8 @@
                   "strokecolor": "",
                   "strokewidth": "1",
                   "textcolor": "",
-                  "icon": ""
+                  "icon": "",
+                  "isCollapsed": false
                 },
                 {
                   "id": "c60b9080-3abf-436d-2886-12da8cc758f0",
@@ -16587,7 +16775,7 @@
                   "isGroup": false,
                   "loc": "10 -350",
                   "size": "",
-                  "markedAsDeleted": false,
+                  "markedAsDeleted": true,
                   "modified": true,
                   "template": "",
                   "geometry": "",
@@ -16595,7 +16783,8 @@
                   "strokecolor": "",
                   "strokewidth": "1",
                   "textcolor": "",
-                  "icon": ""
+                  "icon": "",
+                  "isCollapsed": false
                 },
                 {
                   "id": "d8ce3fa3-64db-4c6d-b87c-746fee160fa0",
@@ -16616,7 +16805,9 @@
                   "strokecolor": "",
                   "strokewidth": "1",
                   "textcolor": "",
-                  "icon": ""
+                  "icon": "",
+                  "isCollapsed": false,
+                  "text": "DefaultVerticalCRSID"
                 },
                 {
                   "id": "d0608f49-4f0b-468e-fe89-faad5a3932e9",
@@ -16688,7 +16879,7 @@
                   "group": "",
                   "viewkind": "Object",
                   "isGroup": false,
-                  "loc": "-350 -30",
+                  "loc": "-450 120",
                   "size": "",
                   "markedAsDeleted": false,
                   "modified": true,
@@ -16698,7 +16889,78 @@
                   "strokecolor": "",
                   "strokewidth": "1",
                   "textcolor": "",
-                  "icon": ""
+                  "icon": "",
+                  "isCollapsed": false,
+                  "text": "VerticalMeasurement"
+                },
+                {
+                  "id": "6feb82da-aa1b-4b74-6ec8-a57ed1714896",
+                  "name": "DefaultVerticalMeasurementID",
+                  "description": "",
+                  "objectRef": "7af28e46-198b-45d8-3241-706c8a6b8ce8",
+                  "typeviewRef": "e05d9ee2-7592-4313-4b53-865f7964294a",
+                  "group": "e2bed60e-56e6-4fbd-5b14-d97af950ca6b",
+                  "viewkind": "Object",
+                  "isGroup": false,
+                  "isCollapsed": false,
+                  "loc": "10 -350",
+                  "size": "",
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "icon": "",
+                  "text": "VerticalMeasurementID"
+                },
+                {
+                  "id": "ec0d7bca-e909-4f9a-8849-7aa52cda8122",
+                  "name": "VerticalMeasurementID",
+                  "description": "",
+                  "objectRef": "8b649328-1fd5-4584-6bc3-375ab14304f8",
+                  "typeviewRef": "e05d9ee2-7592-4313-4b53-865f7964294a",
+                  "group": "",
+                  "viewkind": "Object",
+                  "isGroup": false,
+                  "isCollapsed": false,
+                  "loc": "-450 260",
+                  "size": "",
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "icon": "",
+                  "text": "VerticalMeasurementType"
+                },
+                {
+                  "id": "26f4d17d-f8b9-4bc4-1ce1-5533715a1736",
+                  "name": "WellLog",
+                  "description": "",
+                  "objectRef": "71c8e5a8-5f67-4105-4276-c7e9a83b7a5f",
+                  "typeviewRef": "748a0d4b-b0a1-4337-08bd-4c878a7b81af",
+                  "group": "",
+                  "viewkind": "Object",
+                  "isGroup": false,
+                  "isCollapsed": false,
+                  "loc": "-90 120",
+                  "size": "",
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "icon": "",
+                  "text": ""
                 }
               ],
               "relshipviews": [
@@ -16719,21 +16981,26 @@
                   "fromArrowColor": "",
                   "toArrowColor": "white",
                   "points": {
-                    "__gohashid": 1823818,
+                    "__gohashid": 3285859,
                     "s": true,
                     "j": [
                       {
-                        "x": -269,
-                        "y": -439,
+                        "x": -140.77999894000317,
+                        "y": -18.84799830400509,
                         "s": true
                       },
                       {
-                        "x": -269,
-                        "y": -269,
+                        "x": -181.60005046574835,
+                        "y": -111.74996845890726,
+                        "s": true
+                      },
+                      {
+                        "x": -247.22000105999683,
+                        "y": -189.1520016959949,
                         "s": true
                       }
                     ],
-                    "Aa": 3,
+                    "Aa": 4,
                     "Ha": null,
                     "gh": null
                   },
@@ -16757,21 +17024,26 @@
                   "fromArrowColor": "",
                   "toArrowColor": "white",
                   "points": {
-                    "__gohashid": 991421,
+                    "__gohashid": 3274113,
                     "s": true,
                     "j": [
                       {
-                        "x": -344.5233115024511,
-                        "y": -189.8926980311511,
+                        "x": -348.94568659930485,
+                        "y": -196.51867023148895,
                         "s": true
                       },
                       {
-                        "x": -503.4766884975488,
-                        "y": -118.1073019688489,
+                        "x": -426.25082392578815,
+                        "y": -161.00239687502008,
+                        "s": true
+                      },
+                      {
+                        "x": -509.05431340069515,
+                        "y": -141.48132976851105,
                         "s": true
                       }
                     ],
-                    "Aa": 3,
+                    "Aa": 4,
                     "Ha": null,
                     "gh": null
                   },
@@ -16895,7 +17167,7 @@
                   "name": "hasMeasurements",
                   "description": "",
                   "relshipRef": "55c256ac-e93d-42b7-ba85-14f4cb70f978",
-                  "typeviewRef": "6ff5e845-7181-4119-20e6-ffdeb370394b",
+                  "typeviewRef": "5d717c56-8696-424b-3e62-16295c85953e",
                   "fromobjviewRef": "7a3b6303-2074-4389-ae60-106589238046",
                   "toobjviewRef": "8e2e1411-d3ef-451c-7045-d5cae513ca23",
                   "strokecolor": "",
@@ -16905,17 +17177,17 @@
                   "fromArrowColor": "",
                   "toArrowColor": "",
                   "points": {
-                    "__gohashid": 991469,
+                    "__gohashid": 3285306,
                     "s": true,
                     "j": [
                       {
-                        "x": -269,
-                        "y": -189,
+                        "x": -278.20186172033226,
+                        "y": -189.03292546273735,
                         "s": true
                       },
                       {
-                        "x": -269,
-                        "y": -29,
+                        "x": -359.79813827966774,
+                        "y": 121.03292546273735,
                         "s": true
                       }
                     ],
@@ -16924,14 +17196,16 @@
                     "gh": null
                   },
                   "markedAsDeleted": false,
-                  "modified": false
+                  "modified": false,
+                  "fromArrow": "",
+                  "toArrow": "OpenTriangle"
                 },
                 {
                   "id": "59ea39b2-3f41-43c4-7061-8840a35b555f",
                   "name": "Is",
                   "description": "",
                   "relshipRef": "bc48d731-1a73-4deb-fa58-fb61811e04e4",
-                  "typeviewRef": "",
+                  "typeviewRef": "c209e950-0875-4a51-fab9-dbd987e81778",
                   "fromobjviewRef": "8e2e1411-d3ef-451c-7045-d5cae513ca23",
                   "toobjviewRef": "6ed98f6b-f400-4b55-5ffc-a20cefb78c73",
                   "strokecolor": "",
@@ -16940,20 +17214,142 @@
                   "dash": "",
                   "fromArrow": " ",
                   "toArrow": "Triangle",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
                   "points": {
-                    "__gohashid": 991470,
+                    "__gohashid": 3285302,
                     "s": true,
                     "j": [
                       {
-                        "x": -347.8501216460504,
-                        "y": 37.540048658420176,
+                        "x": -449,
+                        "y": 156,
                         "s": true
                       },
                       {
-                        "x": -440.1498783539496,
-                        "y": 74.45995134157985,
+                        "x": -629,
+                        "y": 156,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 2,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": false,
+                  "modified": false
+                },
+                {
+                  "id": "ad99abc2-bc62-4cb1-bcad-07295735274a",
+                  "name": "DefaultVerticalMeasurement",
+                  "description": "",
+                  "relshipRef": "9fd8287a-9522-49d1-fa60-c2eadfeea046",
+                  "typeviewRef": "aa962d77-b638-4684-bf59-7736b605d293",
+                  "fromobjviewRef": "7a3b6303-2074-4389-ae60-106589238046",
+                  "toobjviewRef": "8e2e1411-d3ef-451c-7045-d5cae513ca23",
+                  "fromArrow": " ",
+                  "toArrow": "OpenTriangle",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
+                  "points": {
+                    "__gohashid": 4750252,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -294.2936191013056,
+                        "y": -189.19102075181746,
+                        "s": true
+                      },
+                      {
+                        "x": -408.3333435058594,
+                        "y": -32.25,
+                        "s": true
+                      },
+                      {
+                        "x": -376.3085554641593,
+                        "y": 121.02113872106919,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 0,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "strokecolor": "black",
+                  "strokewidth": "1",
+                  "textcolor": "black",
+                  "dash": "None"
+                },
+                {
+                  "id": "dcca8a85-f24a-43db-762a-ad584ba56d28",
+                  "name": "DefaultVerticalCRSID",
+                  "description": "",
+                  "relshipRef": "67f39ef4-28ed-4f8c-43b6-34770af3c58c",
+                  "typeviewRef": "c87e5eab-575c-432b-5d3c-578c6f73b3ce",
+                  "fromobjviewRef": "7a3b6303-2074-4389-ae60-106589238046",
+                  "toobjviewRef": "d97dc834-a930-4bc6-2f74-12efbde9f11c",
+                  "points": {
+                    "__gohashid": 3274118,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -348.94568659930485,
+                        "y": -196.51867023148895,
+                        "s": true
+                      },
+                      {
+                        "x": -431.74917607421185,
+                        "y": -176.99760312497992,
+                        "s": true
+                      },
+                      {
+                        "x": -509.05431340069515,
+                        "y": -141.48132976851105,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 4,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": false,
+                  "modified": false,
+                  "strokecolor": "",
+                  "strokewidth": "",
+                  "textcolor": "",
+                  "dash": "",
+                  "fromArrowColor": "",
+                  "toArrowColor": ""
+                },
+                {
+                  "id": "1891dcff-0ef9-4fe0-4010-7cf641ec38a0",
+                  "name": "Is",
+                  "description": "",
+                  "relshipRef": "1131fbd4-a7df-49a9-0579-7aca8c6d245a",
+                  "typeviewRef": "aa962d77-b638-4684-bf59-7736b605d293",
+                  "fromobjviewRef": "670253ca-0675-4258-6c47-70d3a5c7d086",
+                  "toobjviewRef": "8e2e1411-d3ef-451c-7045-d5cae513ca23",
+                  "strokecolor": "black",
+                  "strokewidth": "1",
+                  "textcolor": "black",
+                  "dash": "None",
+                  "fromArrow": " ",
+                  "toArrow": "Triangle",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
+                  "points": {
+                    "__gohashid": 2577849,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": 11.023812939816047,
+                        "y": 138.22751398662578,
+                        "s": true
+                      },
+                      {
+                        "x": -189.02381293981605,
+                        "y": 93.77248601337422,
                         "s": true
                       }
                     ],
@@ -16961,8 +17357,201 @@
                     "Ha": null,
                     "gh": null
                   },
-                  "markedAsDeleted": false,
+                  "markedAsDeleted": true,
                   "modified": false
+                },
+                {
+                  "id": "d3038726-a4fa-44f4-6fc5-daa55fb3a668",
+                  "name": "has",
+                  "description": "",
+                  "relshipRef": "d60479d7-ce91-44bf-5caf-0f62b5f89f8d",
+                  "typeviewRef": "baf2c424-f4e6-4a3e-5b88-6c3e91947e0c",
+                  "fromobjviewRef": "26f4d17d-f8b9-4bc4-1ce1-5533715a1736",
+                  "toobjviewRef": "8e2e1411-d3ef-451c-7045-d5cae513ca23",
+                  "fromArrow": " ",
+                  "toArrow": "Triangle",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
+                  "points": null,
+                  "markedAsDeleted": true,
+                  "modified": false,
+                  "strokecolor": "",
+                  "strokewidth": "",
+                  "textcolor": "",
+                  "dash": ""
+                },
+                {
+                  "id": "8a55e52a-2d21-46dd-d4d6-3a5ca2f84869",
+                  "name": "has",
+                  "description": "",
+                  "relshipRef": "d60479d7-ce91-44bf-5caf-0f62b5f89f8d",
+                  "typeviewRef": "baf2c424-f4e6-4a3e-5b88-6c3e91947e0c",
+                  "fromobjviewRef": "26f4d17d-f8b9-4bc4-1ce1-5533715a1736",
+                  "toobjviewRef": "8e2e1411-d3ef-451c-7045-d5cae513ca23",
+                  "fromArrow": " ",
+                  "toArrow": "Triangle",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
+                  "points": {
+                    "__gohashid": 3285605,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -89,
+                        "y": 156,
+                        "s": true
+                      },
+                      {
+                        "x": -289,
+                        "y": 156,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 3,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": true,
+                  "modified": false,
+                  "strokecolor": "black",
+                  "strokewidth": "1",
+                  "textcolor": "black",
+                  "dash": "None"
+                },
+                {
+                  "id": "3c39cf96-be42-4595-ca01-12f3883c4d94",
+                  "name": "WellboreID",
+                  "description": "",
+                  "relshipRef": "616641d0-9f07-4dd7-6f9a-6758a504b60f",
+                  "typeviewRef": "baf2c424-f4e6-4a3e-5b88-6c3e91947e0c",
+                  "fromobjviewRef": "26f4d17d-f8b9-4bc4-1ce1-5533715a1736",
+                  "toobjviewRef": "670253ca-0675-4258-6c47-70d3a5c7d086",
+                  "fromArrow": " ",
+                  "toArrow": "Triangle",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
+                  "points": {
+                    "__gohashid": 3278612,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -532.3329043307233,
+                        "y": 90.99549547259396,
+                        "s": true
+                      },
+                      {
+                        "x": -545.6670956692767,
+                        "y": 231.00450452740606,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 3,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": true,
+                  "modified": true
+                },
+                {
+                  "id": "771e6673-0284-4872-cef5-f518b015e29a",
+                  "name": "",
+                  "description": "",
+                  "relshipRef": "a8cc67b6-7455-4928-b48e-82637d839ccf",
+                  "typeviewRef": "aa962d77-b638-4684-bf59-7736b605d293",
+                  "fromobjviewRef": "670253ca-0675-4258-6c47-70d3a5c7d086",
+                  "toobjviewRef": "26f4d17d-f8b9-4bc4-1ce1-5533715a1736",
+                  "strokecolor": "black",
+                  "strokewidth": "1",
+                  "textcolor": "black",
+                  "dash": "None",
+                  "fromArrow": " ",
+                  "toArrow": "Triangle",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
+                  "points": {
+                    "__gohashid": 3285869,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -36.33210726621762,
+                        "y": 121.21368166117757,
+                        "s": true
+                      },
+                      {
+                        "x": -57.714118223629015,
+                        "y": 81.06109288999423,
+                        "s": true
+                      },
+                      {
+                        "x": -91.6678927337824,
+                        "y": 50.786318338822426,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 4,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": true,
+                  "modified": true
+                },
+                {
+                  "id": "d59085fc-6863-4a10-c271-b18c1b059f71",
+                  "name": "",
+                  "description": "",
+                  "relshipRef": "a8cc67b6-7455-4928-b48e-82637d839ccf",
+                  "typeviewRef": "aa962d77-b638-4684-bf59-7736b605d293",
+                  "fromobjviewRef": "670253ca-0675-4258-6c47-70d3a5c7d086",
+                  "toobjviewRef": "26f4d17d-f8b9-4bc4-1ce1-5533715a1736",
+                  "strokecolor": "black",
+                  "strokewidth": "1",
+                  "textcolor": "black",
+                  "dash": "None",
+                  "fromArrow": " ",
+                  "toArrow": "Triangle",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
+                  "points": {
+                    "__gohashid": 3285874,
+                    "s": true,
+                    "j": [
+                      {
+                        "x": -91.6678927337824,
+                        "y": 50.786318338822426,
+                        "s": true
+                      },
+                      {
+                        "x": -36.33210726621762,
+                        "y": 121.21368166117757,
+                        "s": true
+                      }
+                    ],
+                    "Aa": 3,
+                    "Ha": null,
+                    "gh": null
+                  },
+                  "markedAsDeleted": true,
+                  "modified": false
+                },
+                {
+                  "id": "970475ab-481d-400e-6a6c-286229c1e8b8",
+                  "name": "Is",
+                  "description": "",
+                  "relshipRef": "1131fbd4-a7df-49a9-0579-7aca8c6d245a",
+                  "typeviewRef": "aa962d77-b638-4684-bf59-7736b605d293",
+                  "fromobjviewRef": "670253ca-0675-4258-6c47-70d3a5c7d086",
+                  "toobjviewRef": "8e2e1411-d3ef-451c-7045-d5cae513ca23",
+                  "strokecolor": "black",
+                  "strokewidth": "1",
+                  "textcolor": "black",
+                  "dash": "None",
+                  "fromArrow": " ",
+                  "toArrow": "Triangle",
+                  "fromArrowColor": " ",
+                  "toArrowColor": "white",
+                  "points": null,
+                  "markedAsDeleted": false,
+                  "modified": true
                 }
               ],
               "objecttypeviews": [],
@@ -17010,7 +17599,7 @@
                   "group": "",
                   "viewkind": "Object",
                   "isGroup": false,
-                  "loc": "50 -320",
+                  "loc": "-190 -850",
                   "size": "",
                   "markedAsDeleted": false,
                   "modified": true,
@@ -17020,7 +17609,8 @@
                   "strokecolor": "",
                   "strokewidth": "1",
                   "textcolor": "",
-                  "icon": ""
+                  "icon": "",
+                  "isCollapsed": false
                 },
                 {
                   "id": "fdd37cbf-75f3-4c5b-2627-dbe6fa2a473b",
@@ -17357,6 +17947,28 @@
                   "strokewidth": "1",
                   "textcolor": "",
                   "icon": ""
+                },
+                {
+                  "id": "cee7262f-e363-4797-08fa-e8b7546a73da",
+                  "name": "VerticalMeasurement",
+                  "description": "",
+                  "objectRef": "6dde3d8a-b1b0-4a3a-d992-311aeefb72e5",
+                  "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",
+                  "group": "",
+                  "viewkind": "Object",
+                  "isGroup": false,
+                  "isCollapsed": false,
+                  "loc": "50 -310",
+                  "size": "",
+                  "markedAsDeleted": false,
+                  "modified": true,
+                  "template": "",
+                  "geometry": "",
+                  "fillcolor": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
+                  "textcolor": "",
+                  "icon": ""
                 }
               ],
               "relshipviews": [
@@ -17377,17 +17989,17 @@
                   "fromArrowColor": "",
                   "toArrowColor": "",
                   "points": {
-                    "__gohashid": 15985277,
+                    "__gohashid": 1888410,
                     "s": true,
                     "j": [
                       {
-                        "x": 131,
-                        "y": -319,
+                        "x": -84.42331680240135,
+                        "y": -779.1830321367353,
                         "s": true
                       },
                       {
-                        "x": 131,
-                        "y": -439,
+                        "x": 106.42331680240135,
+                        "y": -508.8169678632648,
                         "s": true
                       }
                     ],
@@ -21530,28 +22142,28 @@
     "focusTargetModel": null,
     "focusTargetModelview": null,
     "focusModel": {
-      "id": "05d5b929-b985-49ac-cf92-cc095a03889d",
-      "name": "OSDU_CONCEPT_MODEL"
+      "id": "e0e5a499-9a1f-43f6-d2c7-9fe8c9582e1d",
+      "name": "OSDU.2_TDM"
     },
     "focusModelview": {
-      "id": "80b31d8d-7571-4f87-2a74-11db0353332c",
-      "name": "OsduJson"
+      "id": "95b79cb7-9dd8-48f4-9458-62556d8f14c3",
+      "name": "01-Well"
     },
     "focusObject": {
       "id": "8a2f98d3-ecde-4bf3-ec29-6495a9566e10",
       "name": "Property 1"
     },
     "focusObjectview": {
-      "id": "f4e756df-0360-42d3-a7bc-dde9cea5ad0e",
-      "name": "System Properties"
+      "id": "8e2e1411-d3ef-451c-7045-d5cae513ca23",
+      "name": "VerticalMeasurement"
     },
     "focusRelship": {
       "id": null,
       "name": ""
     },
     "focusRelshipview": {
-      "id": "0bddfafe-ee29-4f3a-4fca-e12473dfe6cc",
-      "name": "hasMember"
+      "id": "d3038726-a4fa-44f4-6fc5-daa55fb3a668",
+      "name": "has"
     },
     "focusObjecttype": {
       "id": "6382b0c9-4d4d-41a8-da86-1f7f39de2f7c",
@@ -21591,8 +22203,8 @@
       "name": ""
     },
     "focusRefresh": {
-      "id": "v0955",
-      "name": "2name"
+      "id": "sekatw",
+      "name": "0name"
     }
   },
   "phUser": {

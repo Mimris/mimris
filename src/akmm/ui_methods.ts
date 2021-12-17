@@ -482,10 +482,10 @@ function execMethod(object: akm.cxObject, context: any) {
     const gjsNode = myDiagram.findNodeForKey(node?.key);
     switch(context.action) {
         case 'Highlight':
-            gjsNode.isHighlighted = true;
+            if (gjsNode) gjsNode.isHighlighted = true;
             break;
         case 'Select':
-            gjsNode.isSelected = true;
+            if (gjsNode) gjsNode.isSelected = true;
             break;
         case 'generateosduId':
             context.myObject = object;

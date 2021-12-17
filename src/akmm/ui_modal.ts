@@ -574,12 +574,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       let node = selObj;
       let obj = selObj.object;
       obj = myMetis.findObject(obj?.id);
-      if (debug) console.log('576 selObj', selObj, obj);
-      const properties = obj.setAndGetAllProperties(myMetis);
+      const type = obj?.type;
+      if (debug) console.log('577 selObj', selObj, obj);
+      let properties;
+      if (type?.name === 'Method')
+        properties = obj.setAndGetAllProperties(myMetis);
+      else 
+        properties = type?.getProperties(false);
+      if (debug) console.log('579 properties', properties);
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;
       if (debug) console.log('580 obj, jsnObject', obj, jsnObject);
-      const type = obj?.type;
       for (let i=0; i<properties?.length; i++) {
         const prop = properties[i];
         if (!prop)
@@ -605,8 +610,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         jsnObject[prop.name] = expr;
       }
       if (debug) console.log('606 obj, jsnObject, node', obj, jsnObject, node);
-      node = myDiagram.findNodeForKey(node.key)
-      const data = node.data;
+      const n = myDiagram.findNodeForKey(node.key)
+      const data = n ? n.data : node.data;
       if (debug) console.log('609 node', node);
       for (let k in data) {
         if (typeof(obj[k]) === 'object')    continue;
@@ -618,15 +623,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('538 node', node, data, obj);
         myDiagram.model.setDataProperty(data, k, obj[k]);
       }
-      const myGoModel = myMetis.gojsModel;
-      const myNode = myGoModel.findNode(node.key);
-      if (myNode) {
-        myNode.name = data.name;
-        node.data = myNode;
-        if (debug) console.log('544 myNode, node', myNode, node);
-        if (debug) console.log('546 jsnObject', jsnObject);
+      if (jsnObject)
         modifiedObjects.push(jsnObject);
-      }
+      // const myGoModel = myMetis.gojsModel;
+      // const myNode = myGoModel.findNode(node.key);
+      // if (myNode) {
+      //   myNode.name = data.name;
+      //   node.data = myNode;
+      //   if (debug) console.log('544 myNode, node', myNode, node);
+      //   if (debug) console.log('546 jsnObject', jsnObject);
+      //   modifiedObjects.push(jsnObject);
+      // }
       // Do the dispatches
       modifiedObjects.map(mn => {
         let data = mn;

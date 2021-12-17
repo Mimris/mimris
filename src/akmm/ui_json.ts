@@ -1248,6 +1248,7 @@ export class jsnObjectView {
     group:           string;
     viewkind:        string;
     isGroup:         boolean;
+    isCollapsed:     boolean;
     loc:             string;
     size:            string;
     markedAsDeleted: boolean;
@@ -1268,6 +1269,7 @@ export class jsnObjectView {
         this.group           = objview?.group;
         this.viewkind        = objview?.viewkind;
         this.isGroup         = objview?.isGroup;
+        this.isCollapsed     = objview?.isCollapsed;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
         this.geometry        = objview?.geometry;

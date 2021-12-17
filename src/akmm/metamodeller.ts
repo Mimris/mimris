@@ -943,6 +943,7 @@ export class cxMetis {
                     // objview.isGroup = true;
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
+                    // objview.isCollapsed = item.isCollapsed;
                     objview.text = item.text;
                     objview.modified = true;
                     if (debug) console.log('660 objview', objview);
@@ -6124,6 +6125,18 @@ export class cxInstance extends cxMetaObject {
         }
         return namelist;
     }
+    hasInheritedProperties(): boolean {
+        let retval = false;
+        const types = this.getInheritedTypes();
+        if (types.length == 0)
+            return null;
+        for (let i=0; i<types.length; i++) {
+            const type = types[i];
+            if (type.hasProperties())
+                retval = true;
+        }
+        return retval;
+    }  
     setFromObject(obj: cxObject) {
         this.fromObject = obj;
     }
@@ -6265,11 +6278,13 @@ export class cxInstance extends cxMetaObject {
         const mtdRef = prop.methodRef;
         const method = metis.findMethod(mtdRef);
         const propname = prop.name;
+        if (debug) console.log('6268 prop, method', prop, method);
         if (method) {
             const mtdtype = method.methodtype;
             let context;
             switch (mtdtype) {
                 case "AggregateValue":
+                    if (debug) console.log('6273 method', method);
                     const reltype = metis.findRelationshipTypeByName(method["reltype"]);
                     const otypename = method["objtype"];
                     let objtype = null;
@@ -6286,6 +6301,7 @@ export class cxInstance extends cxMetaObject {
                     break;
                 case "CalculateValue":
                 default:
+                    if (debug) console.log('6290 method', method);
                     context = {
                         "myMetis":   metis,
                         "prop":      prop,

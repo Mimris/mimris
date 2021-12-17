@@ -804,7 +804,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     const mtdtypes = myMetamodel.methodtypes;
     if (mtdtypes) 
         metamodel.methodtypes = mtdtypes;
-        
+
     // For each MethodType object call generateMethodType
     objects = model?.getObjectsByTypename('MethodType', false);
     if (objects) {
@@ -818,16 +818,18 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // For each Method object call generateMethod
     objects = model?.getObjectsByTypename('Method', false);
     if (objects) {
+        if (debug) console.log('821 methods', objects);
         for (let i=0; i<objects.length; i++) {
             let obj = objects[i];
             if (obj && !obj.markedAsDeleted) {
                 const mtd = generateMethod(obj, context);
                 const jsnMethod = new jsn.jsnMethod(mtd);
                 modifiedMethods.push(jsnMethod);
+                if (debug) console.log('828 methods', jsnMethod);
             }
         }
     }
-    if (debug) console.log('825 myMetis', myMetis);
+    if (debug) console.log('832 methods, myMetis', objects, myMetis);
     // Add system datatypes
     let systemdtypes = ['cardinality', 'viewkind', 'relshipkind', 'fieldtype', 
                     'layout', 'routing', 'linkcurve',
@@ -1106,6 +1108,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'UPDATE_METHOD_PROPERTIES', data })
+            if (debug) console.log('1111 data', data);
         });
         modifiedTypeNodes.map(mn => {
             let data = (mn) && mn;

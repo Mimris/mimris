@@ -623,7 +623,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return null;
     return (
       <div id='myInspectorDiv' className='inspector'>
-        <table>
+        <table className="w-100">
           <tbody className="table-body">
             {this.renderObjectDetails()}
           </tbody>

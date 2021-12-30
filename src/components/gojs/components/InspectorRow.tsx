@@ -79,7 +79,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       if (debug) console.log('71 props', this.props);
       return (  
         <tr>
-          <td className="pr-2" >{this.props.id}</td> 
+          <td className="label pr-2" >{this.props.id}</td> 
           <td>
             <textarea
               disabled={this.props.disabled}

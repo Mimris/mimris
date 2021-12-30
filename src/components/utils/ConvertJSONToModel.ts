@@ -124,6 +124,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // const gchildKey =  cleanGchildPathKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
                     // const ggchildKey =  cleanGchildPathKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
                   
+                    const ggggparentKey = oKey.split('|').slice(0, -5).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
+                    const ggggparentName = oKey.split('|').slice(-6)[0] // 
                     const gggparentKey = oKey.split('|').slice(0, -4).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
                     const gggparentName = oKey.split('|').slice(-5)[0] // 
                     const ggparentKey = oKey.split('|').slice(0, -3).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
@@ -138,6 +140,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     if (debug) console.log('153 :', '\n cleanPath: ', cleanPath, '\n oKey: ', oKey, '\n oName : ', oName, '\n oVal: ', oVal, '\n parentKey: ', parentKey, '\n parentId: ', parentId, '\n parentName: ', parentName);
  
                     let cNewVal = filterObject(oVal)// we only want attributes (objects are handled in the next iteration)
+                    let relshipoName // the name of the relationship object
 
                     if (oName === 'required')  { // special case for required. a list of properties that is required
                         const attributes  = Object.assign(...Object.entries(obj).map(([k, v]) => (k !== (!isNaN(k))))); 
@@ -160,7 +163,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
                     objecttypeRef = curObjTypes.find(ot => ot.name === objTypeName)?.id  || curObjTypes.find(ot => ot.name === 'EntityType')?.id // find objecttypeRef for the objecttypeName
                     
-                    if (!debug) console.log('161 : ', i, modelType, oName, objTypeName, ' - ', objecttypeRef, oVal['$ref']);
+                    if (debug) console.log('161 : ', i, modelType, oName, objTypeName, ' - ', objecttypeRef, oVal['$ref']);
 
                     // check if the object is already in the phData
                     if (debug) console.log('172 : props', props, 'curModel ', curModel);
@@ -173,59 +176,97 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     
                     // ---------------------------------------------------------------------------------------------------------------------------------------        
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
-
+                        console.log('179 ', oKey, oVal);
+                        
                         // make switch depending on oName
                         if (i === 0) { // if first object in the path then create the top level object, it has no parent
 
                             parentId = null 
                             parentName = null 
                             entityId = oId
-                            entityName = cNewVal.title // if topobject use title as name
+                            entityName = cNewVal.title.replace(/\s+/g, '') // if topobject use title as name
                             // get type from the objects $id attribute and pick the second last element of the path
                             entityTypePathElement = (oVal.$id) ? oVal.$id.split('/').slice(-2)[0] : 'EntityType'
                             // convert to camelCase
                             let objTypeElementName = camelCase(entityTypePathElement, {pascalCase: true}) // convert to pascalCase i.e. master-data -> MasterData
                             
                             objecttypeRef = curObjTypes.find(ot => ot.name === objTypeElementName)?.id || entityType.id
-                            if (debug) console.log('205 ', objTypeElementName, objecttypeRef, cNewVal);
+                            if (!debug) console.log('205 ', objTypeElementName, objecttypeRef, cNewVal);
 
                             createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the top level object
 
-                        } else if (parentName === 'properties' && inclProps) { // if parent is properties this is propertyobject create if import includes properties
+                            // remember top level object
+                            const topId = oId
 
+
+                        } else if (parentName === 'properties' && inclProps) { // if parent is properties this is propertyobject create if import includes properties
+                            console.log('227 ', oKey, oVal);
+                            
                             // if oVal.type is an array then create a RelshipType objectype
-                            if (oVal.type === 'string' &&  oName.includes('ID')) { // if type is string and name contains ID then it is a relship using the ID as key
-                                objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id                              
-                            } else if (oVal.type === 'string') {    // if type is string then it is a property
-                                objecttypeRef = curObjTypes.find(ot => ot.name === 'Property')?.id
-                            } else if (oVal.type === 'array') { // if type is array then it is a list of relships using the ID as key
-                                objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id
-                            } else if (oVal.type === 'x-osdu-indexing') { // if type is x-osdu-indexing then it is a indexing object
-                                objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id
+                            if (oVal.type === 'string') { 
+                                if (oName.includes('ID')) { // if type is string and name contains ID then it is a relship using the ID as key
+                                    objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id   
+                                    relshipoName = 'has'
+                                    cNewVal.title = oName
+                                } else {
+                                    objecttypeRef = curObjTypes.find(ot => ot.name === 'Property')?.id
+                                }                          
+                            } else if (oVal.type === 'array') {    // if type is array (and x-osdu-indexing.type === 'nested' ??) then it is a EntityType
+                                objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id // maybe this should be a special typ for lists of IDs
+                            } else if (!oVal.type && oVal['$ref']) { // if no type 
+                                console.log('243 ', oVal);
+                                
+                                objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id
+                            } else if (oVal['x-osdu-indexing']) { // if type is x-osdu-indexing then it is a indexing object
+                                // objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id
+                                continue;
                             } else {
                                 objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id
                             }
                             
-                            createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the property object
+                            createObject(oId, (relshipoName || oName), objecttypeRef, oKey, jsonType, cNewVal) // create the property object
                             
                             if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === gparentKey) && o[1]));
 
                             reltypeRef = hasType.id
                             reltypeName = hasType.name      
-                            relshipKind = 'Association'     
-                            
-                            parentId = tmpArray.find((o) => (o[0] === gggparentKey) && o)[1] 
-                            parentName = tmpArray.find((o) => (o[0] === gggparentKey) && o)[0].split('|').slice(3)[0] 
-                            
-                            if (debug) console.log( '232 : ', oVal, oId, oName, parentId, parentName);                         
+                            relshipKind = 'Association'   
+
+                            console.log('222 ',  gggparentName, 'oKey', oKey);
+
+                            if (gggparentName === 'items') {        // if parent is items then create a relship between the parent of the item and the property  
+                                if (parentId === ggggparentKey) {     // if parentId =         
+                                    parentId = tmpArray.find((o) => (o[0] === ggggparentKey) && o)[1] 
+                                    parentName = tmpArray.find((o) => (o[0] === ggggparentKey) && o)[0].split('|').slice(3)[0] 
+                                } else if (parentId === gggparentKey) {
+                                    console.log('257 parentId === gggparentKey',  parentId);                        
+                                    parentId = tmpArray.find((o) => (o[0] === gggparentKey) && o)[1]
+                                    parentName = tmpArray.find((o) => (o[0] === gggparentKey) && o)[0].split('|').slice(3)[0] 
+                                } else if (parentId = gparentKey) {                                  
+                                    parentId = tmpArray.find((o) => (o[0] === gparentKey) && o)[1]
+                                    parentName = tmpArray.find((o) => (o[0] === gparentKey) && o)[0].split('|').slice(3)[0]
+                                // } else {
+                                //     parentId = tmpArray.find((o) => (o[0] === parentKey) && o)[1]
+                                //     parentName = tmpArray.find((o) => (o[0] === parentKey) && o)[0].split('|').slice(3)[0]
+                                }
+                            } else if (gparentKey === topName) { // most AbstractObjects has properties on the top level object
+                                parentId = tmpArray.find((o) => (o[0] === gparentKey) && o)[1]
+                                parentName = tmpArray.find((o) => (o[0] === gparentKey) && o)[0].split('|').slice(3)[0] 
+                            } else if (gggparentKey){
+                                parentId = tmpArray.find((o) => (o[0] === gggparentKey) && o)[1]
+                                parentName = tmpArray.find((o) => (o[0] === gggparentKey) && o)[0].split('|').slice(3)[0]
+                            }
+
+                            if (!debug) console.log( '232 :  oVal, oId, oName, parentId, parentName', oVal, oId, oName, parentId, parentName);   
 
                         } else if (oVal['$ref']) {   
                             
-
                             entityId = oId
-                            entityName = oVal['$ref'].split('/').slice(-1)  || null // 
+                            entityName = 'Is'
+                            cNewVal.title = oVal['$ref'].split('/').slice(-1) 
+                            // entityName = oVal['$ref'].split('/').slice(-1)  || 'Is' // 
                             // entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName // if topobject use title as name
-                            // console.log('142 i', i, entityName, entityId);
+                            console.log('142 i', i, oName, entityName, entityId);
                             if (debug) console.log('262: ', oId, oName, entityName, entityId, parentId, parentName);
 
                             objecttypeRef = curObjTypes.find(ot => ot.name === objTypeName)?.id  || curObjTypes.find(ot => ot.name === 'RelshipType')?.id // find objecttypeRef for the objecttypeName
@@ -238,17 +279,18 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             parentId = (gparentKey) && tmpArray.find((o) => (o[0] === gparentKey) && o)[1] 
                             parentName = (gparentKey) && tmpArray.find((o) => (o[0] === gparentKey) && o)[0].split('|').slice(-1) 
                             // find last element of the path
-                            
-                            
+                                                      
                             if (debug) console.log( '232 : ', oVal, oId, oName, parentId, parentName);        
                             
                             createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the items object    
+
+
 
                         } else {             
                             switch (oName) {
                                 case 'allOf': 
                                     continue;
-                                case 'anyOf'    :
+                                case 'anyOf':
                                     continue;
                                 case 'oneOf':
                                     continue;
@@ -258,9 +300,11 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                     continue;
                                 // case '$ref':                           
                                 //     continue;
-                                // case 'x-osdu-indexing':                           
-                                //     continue;
+                                case 'x-osdu-indexing':                           
+                                    continue;
                                 case 'items':
+                                    continue;
+                                case 'itemss':
                                     
                                     // const parentName = parentKey.split('|').slice(-1)[0] // parentName ; split and slice it, pick last element 
 
@@ -400,7 +444,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
             ?   {
                     id: relId,
                     name: typeName,
-                    title: title,
+                    title: title.replace(/\s+/g, ''),
                     cardinality: "",
                     cardinalityFrom: undefined,
                     cardinalityTo: undefined,

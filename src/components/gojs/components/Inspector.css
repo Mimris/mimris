@@ -8,6 +8,7 @@
 }
 
 .inspector td, th {
+  width: auto;
   padding: 2px;
 }
 
@@ -20,6 +21,8 @@
   /* border-bottom: 1px solid #212121; Grey 900 */
   padding: 2px;
 }
+
+
 .inspector textarea {
   float: left;
   width: auto;

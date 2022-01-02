@@ -79,7 +79,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       if (debug) console.log('71 props', this.props);
       return (  
         <tr>
-          <td className="pr-2" >{this.props.id}</td> 
+          <td className="label pr-2" >{this.props.id}</td> 
           <td>
             <textarea
               disabled={this.props.disabled}
@@ -93,8 +93,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             </textarea>
           </td>
           <td>
-          <div className="btn-sm bg-light text-green px-0 pr-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title={propDesc}>?
+          <div className="btn-sm bg-light text-green px-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title={propDesc}>i
           </div>
           </td>
         </tr>
@@ -120,8 +120,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             {optionslistDiv}
         </td>
         <td>
-          <div className="btn-sm bg-light text-green px-0 pr-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title={propDesc}>?
+          <div className="btn-sm bg-light text-green px-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title={propDesc}>i
           </div>
           </td>
       </tr>
@@ -145,8 +145,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             </input>
           </td>
           <td>
-          <div className="btn-sm bg-light text-green px-0 pr-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title={propDesc}>?
+          <div className="btn-sm bg-light text-green px-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title={propDesc}>i
           </div>
           </td>
         </tr>

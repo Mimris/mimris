@@ -459,7 +459,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (node) {
               if (debug) console.log('444 node, data', node, data);
               const group = node.group;
-              const n = myDiagram.findNodeForKey(data.key);
+              const n = myDiagram.findNodeForKey(node.key);
               if (n) {
                 node = n;
                 node.group = group;

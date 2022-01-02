@@ -79,7 +79,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       if (debug) console.log('71 props', this.props);
       return (  
         <tr>
-          <td className="label pr-2" >{this.props.id}</td> 
+          <td className="label pr-2 w-25" >{this.props.id}</td> 
           <td>
             <textarea
               disabled={this.props.disabled}
@@ -107,7 +107,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       const optionslistDiv = <datalist id={listname}>{optionsDiv}</datalist>
       return (
       <tr>
-        <td className="pr-2" >{this.props.id}</td> 
+        <td className="pr-2 w-25" >{this.props.id}</td> 
         <td>
           <input
             id={this.props.id}
@@ -123,7 +123,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
           <div className="btn-sm bg-light text-green px-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
             title={propDesc}>i
           </div>
-          </td>
+        </td>
       </tr>
      );
     }    
@@ -131,7 +131,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       if (debug) console.log('113 props', this.props);
       return (  
         <tr>
-          <td className="pr-2" >{this.props.id}</td> 
+          <td className="pr-2  w-25" >{this.props.id}</td> 
           <td>
             <input
               disabled={this.props.disabled}
@@ -145,9 +145,9 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             </input>
           </td>
           <td>
-          <div className="btn-sm bg-light text-green px-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title={propDesc}>i
-          </div>
+            <div className="btn-sm bg-light text-green px-1 py-2 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title={propDesc}>i
+            </div>
           </td>
         </tr>
       );

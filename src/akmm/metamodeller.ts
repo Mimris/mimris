@@ -6102,12 +6102,6 @@ export class cxInstance extends cxMetaObject {
         const types = type?.getSupertypes();
         for (let i=0; i<types.length; i++) {
             const tname = types[i]?.name;
-            if (tname === 'Element') {
-                typelist.push(types[i]);
-            }
-        }
-        for (let i=0; i<types.length; i++) {
-            const tname = types[i]?.name;
             if (tname !== 'Element') 
                 typelist.push(types[i]);
         }
@@ -6125,18 +6119,6 @@ export class cxInstance extends cxMetaObject {
         }
         return namelist;
     }
-    hasInheritedProperties(): boolean {
-        let retval = false;
-        const types = this.getInheritedTypes();
-        if (types.length == 0)
-            return null;
-        for (let i=0; i<types.length; i++) {
-            const type = types[i];
-            if (type.hasProperties())
-                retval = true;
-        }
-        return retval;
-    }  
     setFromObject(obj: cxObject) {
         this.fromObject = obj;
     }
@@ -6443,6 +6425,96 @@ export class cxObject extends cxInstance {
     }
     getObjectType(): cxObjectType | null {
         return this.type;
+    }
+    getInheritanceObjects(model: cxModel): cxObject[] | null {
+        const objlist = [];
+        const relships = this.findOutputRelships(model, constants.relkinds.GEN);
+        if (relships?.length) {
+            for (let i=0; i<relships?.length; i++) {
+                const rel = relships[i];
+                if (rel) {
+                    const toObj = rel.toObject;
+                    if (toObj)
+                    objlist.push(toObj);
+                }
+            }
+        }
+        if (debug) console.log('6459 objlist', objlist);
+        return objlist;
+    }
+    getInheritedObjectTypes(model: cxModel): cxType[] | null {
+        const typelist = [];
+        const relships = this.findOutputRelships(model, constants.relkinds.GEN);
+        for (let i=0; i<relships?.length; i++) {
+            const rel = relships[i];
+            if (rel) {
+                const toObj = rel.toObject;
+                if (toObj && toObj.type)
+                    typelist.push(toObj.type);
+            }
+        }
+        if (debug) console.log('6472 typelist', typelist);
+        return typelist;
+    }
+    hasInheritedProperties(model: cxModel): boolean {
+        let retval = false;
+        let types = this.getInheritedTypes();
+        if (types?.length > 0) {
+            for (let i=0; i<types.length; i++) {
+                const type = types[i];
+                if (type.hasProperties())
+                    return true;
+            }
+        }
+        types = this.getInheritedObjectTypes(model);
+        if (types?.length > 0) {
+            for (let i=0; i<types?.length; i++) {
+            const type = types[i];
+            if (type.hasProperties())
+                return true;
+            }
+        }
+        let objects = this.getInheritanceObjects(model);
+        if (debug) console.log('6496 this, objects', this, objects);
+        if (types?.length > 0) {
+            for (let i=0; i<objects?.length; i++) {
+                const obj = objects[i];
+                const type = obj?.type;
+                if (type?.hasProperties())
+                    return true;
+            }
+        }
+        return retval;
+    }  
+    getInheritedProperties(model: cxModel): cxProperty[] {
+        const properties = new Array();
+        let objects = this.getInheritanceObjects(model);
+        for (let i=0; i<objects?.length; i++) {
+            const obj = objects[i];
+            const type = obj?.type;
+            if (type?.hasProperties()) {
+                const props = type.properties;
+                for (let j=0; j<props.length; j++) {
+                    const prop = props[j];
+                    properties.push(prop);
+                }
+            }
+        }  
+        return properties;  
+    }
+    isOfSystemType(systemtypeName: string): boolean {
+        let retval = false;
+        const type = this.type;
+        if ((this.name === type.name) || (type.name === systemtypeName)) { 
+            return true;
+        }
+        const stypes = type.supertypes;
+        for (let i=0; i<stypes.length; i++) {
+            const stype = stypes[i];
+            if (stype.name === systemtypeName)
+                return true;
+        }
+        return retval;
     }
 }
 

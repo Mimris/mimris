@@ -456,7 +456,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             link.cardinalityFrom = "";
             link.cardinalityTo = "";
           }
-          if (!debug) console.log('459 modelview:', modelview, link);
+          if (debug) console.log('459 modelview:', modelview, link);
           if (link.toArrow == undefined)
             link.toArrow = 'OpenTriangle';
           if (debug) console.log('461 modelview:', modelview, link);

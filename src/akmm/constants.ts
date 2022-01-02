@@ -105,6 +105,7 @@ export let types = {
          _EKA_PART         : "_part",
     
     // AKM types
+         AKM_COLLECTION        : "Collection",
          AKM_CONTAINER         : "Container",
          AKM_INFORMATION       : "Information",
          AKM_ROLE              : "Role",
@@ -123,10 +124,13 @@ export let types = {
          AKM_VIEWFORMAT        : "ViewFormat",
          AKM_FIELDTYPE         : "FieldType",
          AKM_UNIT              : "Unit",
+         AKM_CONTAINS          : "contains",
+         AKM_HAS_COLLECTION    : "has",
          AKM_HAS_MEMBER        : "hasMember",
          AKM_HAS_PART          : "hasPart",
          AKM_HAS_PROPERTY      : "has",
          AKM_HAS_PROPERTIES    : "hasProperties",
+         AKM_IS                : "Is",
          AKM_IS_OF_DATATYPE    : "isOf",
          AKM_IS_DEFAULTVALUE   : "isDefault",
          AKM_HAS_METHOD        : "has",

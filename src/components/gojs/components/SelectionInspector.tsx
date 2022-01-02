@@ -74,9 +74,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       inst = selObj.object;
       if (debug) console.log('75 inst', inst, selObj);
       if (!inst) inst = instview?.object;
-      inst = myMetis.findObject(inst?.id);   
-      inst1 = inst; 
-      type = inst?.type;
+      inst1 = myMetis.findObject(inst?.id);   
+      type = inst1?.type;
       if (!type) type = selObj.objecttype;
       type = myMetis.findObjectType(type.id);
       typeview = instview?.typeview;
@@ -96,38 +95,47 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (type.name === 'Method') {
          chosenType = null;
       } else {
-        currentType = inst1?.type;
+        currentType = inst1.type;
         let namelist = ['All'];
-        if (debug) console.log('100 inst1', inst1);
+        if (debug) console.log('100 inst', inst);
         if (useTabs && modalContext?.what === 'editObject') {
           const inheritedTypes = inst1?.getInheritedTypes();
+          const inheritedObjTypes = inst1.getInheritedObjectTypes(myModel);
+          if (debug) console.log('105 inheritedObjTypes', inheritedObjTypes);
           inheritedTypes.push(currentType);
-          inheritedTypes.reverse();
           namelist = inst1.getInheritedTypeNames();
-          namelist.push(inst1.type.name);
-          namelist.reverse();
+          namelist.push(inst.type.name);
+          for (let i=0; i<inheritedObjTypes.length; i++) {
+            const type = inheritedObjTypes[i];
+            inheritedTypes.push(type);
+            namelist.push(type.name);
+          }
+          inheritedTypes.reverse();
           namelist.push('All');
+          namelist.reverse();
           let typename = namelist[activeTab];
+          if (debug) console.log('116 typename, namelist, inheritedTypes', typename, namelist, inheritedTypes);
           if (namelist.length > 1 && typename !== 'Element' && typename !== 'All') {
             for (let i=0; i<inheritedTypes.length; i++) {
               const tname = inheritedTypes[i]?.name;
               if (tname === typename) {
                 type = inheritedTypes[i];
                 chosenType = type;
-                if (debug) console.log('105 type', type);
+                if (debug) console.log('124 chosenType', chosenType);
               }
             }
           } 
-          if (debug) console.log('120 typename', typename);
+          if (debug) console.log('128 typename, chosenType', typename, chosenType);
           if (typename === 'All') {
             chosenType = null;
             if (debug) console.log('123 type', type);
           }  
         }
-        if (!inst1?.hasInheritedProperties())
+        if (debug) console.log('135 myModel', myModel);
+        if (!inst1?.hasInheritedProperties(myModel))
           chosenType = null;
       }
-      if (debug) console.log('129 inst1, chosenType', inst1, chosenType);
+      if (debug) console.log('139 inst, chosenType', inst, chosenType);
       instview = selObj;
       typeview = instview?.typeview;      
     } else if (category === constants.gojs.C_RELATIONSHIP) {
@@ -165,7 +173,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       return;
     if (typeof(type) !== 'object')
       return;
-    if (debug) console.log('167 type', type);
+    if (debug) console.log('167 chosenType', chosenType);
     let props;
     if (chosenType) {
       props = chosenType.getProperties(false);
@@ -267,7 +275,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               continue;
       }      
       if (k === 'viewkind') {
-        if (what !== 'editObject' && what !== 'editObjectType')
+        if (what !== 'editObject' && what !== 'editObjectType' && what !== 'editObjectview')
           continue;
       }
       if (k === 'relshipkind') {

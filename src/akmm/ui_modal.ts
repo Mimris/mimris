@@ -580,7 +580,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (type?.name === 'Method')
         properties = obj.setAndGetAllProperties(myMetis);
       else 
-        properties = type?.getProperties(false);
+        properties = type?.getProperties(true);
       if (debug) console.log('579 properties', properties);
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;

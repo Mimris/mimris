@@ -89,6 +89,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.myMetis.modelType = props.modelType;
     this.diagramRef = React.createRef(); 
     this.state = { 
+      myMetis: props.myMetis,
       showModal: false,
       selectedData: null, 
       modalContext: null,
@@ -477,7 +478,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             },
             function (o: any) { 
-              // return false;
+              return false;
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 const object = node.object;
@@ -1453,6 +1454,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } 
             },
             function (o: any) { 
+              return false;
               const link = o.part.data;
               if (link.category === constants.gojs.C_RELATIONSHIP) {
                 const relship = link.relship;
@@ -2497,11 +2499,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (debug) console.log('2804 Diagram', this.props.nodeDataArray);
     if (debug) console.log('2805 Diagram', this.props.linkDataArray);
 
-    if (debug) console.log('2807 Diagram ', this.state.selectedData, this.state.myMetis);
-    
+    if (debug) console.log('2807 Diagram ', this.state.selectedData, this.myMetis);
+    const myModel = this.myMetis.currentModel;
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
-    if (debug) console.log('2811 modalContext ', modalContext);
     const icon = modalContext?.icon;
 
     let selpropgroup = [  {tabName: 'Default'} ];
@@ -2510,14 +2511,22 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       obj = this.myMetis.findObject(obj?.id);
       if (obj?.type?.name === 'Method')
         useTabs = false;
-      if (!obj?.hasInheritedProperties())
+      if (!obj?.hasInheritedProperties(myModel))
         useTabs = false;
       let namelist;
       if (useTabs && obj) {
+        const inheritedObjTypes = obj.getInheritedObjectTypes(myModel);
         namelist = obj.getInheritedTypeNames();
         namelist.push(obj.type.name);
-        namelist.reverse();
+        for (let i=0; i<inheritedObjTypes.length; i++) {
+          const type = inheritedObjTypes[i];
+          namelist.push(type.name);
+        }
         namelist.push('All');
+        let uniquelist = [...new Set(namelist)];
+        uniquelist.reverse();
+        namelist = uniquelist;
+        if (debug) console.log('2527 namelist', namelist);
       } else
         namelist = ['All'];
       selpropgroup = [];

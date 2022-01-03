@@ -688,8 +688,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (fromArrow = 'None') fromArrow = "";
         let toArrow = relview.toArrow;
         if (toArrow = 'None') toArrow = "";
-        myDiagram.model.setDataProperty(data, 'fromArrow', fromArrow);
-        myDiagram.model.setDataProperty(data, 'toArrow', toArrow);
+        myDiagram.model.setDataProperty(data, 'fromArrow', relview.fromArrow);
+        myDiagram.model.setDataProperty(data, 'toArrow', relview.toArrow);
         myDiagram.model.setDataProperty(data, 'fromArrowColor', relview.fromArrowColor);
         myDiagram.model.setDataProperty(data, 'toArrowColor', relview.toArrowColor);
       }

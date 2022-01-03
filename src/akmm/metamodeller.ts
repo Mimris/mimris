@@ -7253,6 +7253,7 @@ export class cxRelationshipView extends cxMetaObject {
                 this.setFromArrowColor(' ');
                 break;
             default:
+                this.setToArrow('OpenTriangle');
                 break;
         }
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
@@ -7270,6 +7271,7 @@ export class cxRelationshipView extends cxMetaObject {
                 this.setToArrowColor('white');
                 break;
             default:
+                this.setToArrow('OpenTriangle');
                 break;
         }
     }

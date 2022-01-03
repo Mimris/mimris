@@ -207,7 +207,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             if (oVal.type === 'string') { 
                                 if (oName.includes('ID')) { // if type is string and name contains ID then it is a relship using the ID as key
                                     objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id   
-                                    relshipoName = 'has'
+                                    relshipoName = 'has'+oName.replace('ID', '')
+                                    externalId = oName
                                     cNewVal.title = oName
                                 } else {
                                     objecttypeRef = curObjTypes.find(ot => ot.name === 'Property')?.id

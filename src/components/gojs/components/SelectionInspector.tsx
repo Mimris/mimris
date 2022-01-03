@@ -630,7 +630,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (!modalContext)
       return null;
     return (
-      <div id='myInspectorDiv' className='inspector'>
+      <div id='myInspectorDiv' className='inspector w-100'>
         <table className="w-100">
           <tbody className="table-body">
             {this.renderObjectDetails()}

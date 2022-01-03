@@ -124,6 +124,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // const gchildKey =  cleanGchildPathKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
                     // const ggchildKey =  cleanGchildPathKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
                   
+                    const gggggparentKey = oKey.split('|').slice(0, -5).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
                     const ggggparentKey = oKey.split('|').slice(0, -5).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
                     const ggggparentName = oKey.split('|').slice(-6)[0] // 
                     const gggparentKey = oKey.split('|').slice(0, -4).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
@@ -212,7 +213,10 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                     objecttypeRef = curObjTypes.find(ot => ot.name === 'Property')?.id
                                 }                          
                             } else if (oVal.type === 'array') {    // if type is array (and x-osdu-indexing.type === 'nested' ??) then it is a EntityType
-                                objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id // maybe this should be a special typ for lists of IDs
+                                // find the property object under the Items and use it as the RelshipType
+                                // so just skip this object
+                                continue;
+                                // objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id // maybe this should be a special typ for lists of IDs
                             } else if (!oVal.type && oVal['$ref']) { // if no type 
                                 console.log('243 ', oVal);
                                 
@@ -220,6 +224,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             } else if (oVal['x-osdu-indexing']) { // if type is x-osdu-indexing then it is a indexing object
                                 // objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id
                                 continue;
+                            } else if (gggggparentKey === 'properties') { // if parent of top is also properties this is propertyobject create if import includes properties
+                                objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id
                             } else {
                                 objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id
                             }
@@ -231,11 +237,17 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             reltypeRef = hasType.id
                             reltypeName = hasType.name      
                             relshipKind = 'Association'   
+                            
 
                             console.log('222 ',  gggparentName, 'oKey', oKey);
 
-                            if (gggparentName === 'items') {        // if parent is items then create a relship between the parent of the item and the property  
-                                if (parentId === ggggparentKey) {     // if parentId =         
+                            if (gggparentName === 'items') {  // if parent is items then create a relship between the parent of the item and the property  
+                                // if parent of this item is also properties then use this property as the parent 
+                                if (parentId === gggggparentKey) {     // if parentId =         
+                                    parentId = tmpArray.find((o) => (o[0] === ggggparentKey) && o)[1] 
+                                    parentName = tmpArray.find((o) => (o[0] === ggggparentKey) && o)[0].split('|').slice(3)[0] 
+                                // if parent of this item is also properties then use this property as the parent 
+                                } else if (parentId === ggggparentKey) {     // if parentId =         
                                     parentId = tmpArray.find((o) => (o[0] === ggggparentKey) && o)[1] 
                                     parentName = tmpArray.find((o) => (o[0] === ggggparentKey) && o)[0].split('|').slice(3)[0] 
                                 } else if (parentId === gggparentKey) {
@@ -249,6 +261,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                 //     parentId = tmpArray.find((o) => (o[0] === parentKey) && o)[1]
                                 //     parentName = tmpArray.find((o) => (o[0] === parentKey) && o)[0].split('|').slice(3)[0]
                                 }
+                            
                             } else if (gparentKey === topName) { // most AbstractObjects has properties on the top level object
                                 parentId = tmpArray.find((o) => (o[0] === gparentKey) && o)[1]
                                 parentName = tmpArray.find((o) => (o[0] === gparentKey) && o)[0].split('|').slice(3)[0] 
@@ -348,11 +361,11 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         }
 
                     } else {   // create the json objects 
-                      
+                    
                         reltypeRef = hasPartType?.id
                         reltypeName = hasPartType?.name     
                         relshipKind = 'Association'
-                       
+                    
                         createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal)
                         parentIdArray = tmpArray.find( (o) => (o[0] === parentKey) && o) ;
                         parentId = (parentIdArray) && parentIdArray[1]
@@ -389,8 +402,8 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                    oldParentKey = parentKey // remember for next object
                 }
             return allkeys;
-        }
-
+            }
+        
         deepEntries(topModel) // find all the objects in the topModel and down the tree
 
         function stringifyEntries(allkeys){

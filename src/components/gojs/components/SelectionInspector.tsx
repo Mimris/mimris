@@ -44,7 +44,7 @@ const colornames = ['black', 'white',
 
 const strokewidths = ['1', '2', '3', '4', '5'];
 
-const includeRelshipkind = true;
+const includeRelshipkind = false;
 
 const useTabs = true;
 

@@ -44,8 +44,6 @@ const colornames = ['black', 'white',
 
 const strokewidths = ['1', '2', '3', '4', '5'];
 
-const includeRelshipkind = false;
-
 const useTabs = true;
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
@@ -281,7 +279,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
       }
       if (k === 'relshipkind') {
-        if (!includeRelshipkind)
+        if (!myMetis.includeRelshipkind)
           continue;
         if (what !== 'editRelationship' && what !== 'editRelationshipType')
           continue;

@@ -2247,7 +2247,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
-            makeButton("Toggle Cardinality On/Off",
+          makeButton("Toggle Cardinality On/Off",
             function (e: any, obj: any) {
               const modelview = myMetis.currentModelview;
               if (modelview.showCardinality == undefined)
@@ -2272,6 +2272,19 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
+              return true; 
+            }),
+            makeButton("Toggle 'Include Relationship Kind' On/Off",
+            function (e: any, obj: any) {
+              const relkind = myMetis.includeRelshipkind;
+              myMetis.includeRelshipkind = !relkind;
+              if (!myMetis.includeRelshipkind) {
+                alert("Setting 'Relationship Kind' will NOT be allowed!");
+              } else {
+                alert("Setting 'Relationship Kind' WILL be allowed!");
+              }
+            },
+            function (o: any) { 
               return true; 
             }),
           makeButton("Zoom All",

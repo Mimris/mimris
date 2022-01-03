@@ -73,6 +73,7 @@ export class cxMetis {
     deleteViewsOnly:    boolean = false;
     pasted:             boolean = false;
     modelType:          string = "";
+    includeRelshipkind: boolean;
     // Constructor
     constructor() {
         this.id = utils.createGuid();
@@ -81,6 +82,7 @@ export class cxMetis {
         this.viewstyles = [];
         this.geometries = [];
         this.category = 'Metis';
+        this.includeRelshipkind = false;
     }
     importData(importedData: any, includeDeleted: boolean) {
         if (debug) console.log('79 importedData', importedData);

@@ -137,7 +137,7 @@ export function findTopLevelObject( o: any, type: string, objects, relationships
     if (debug) console.log('133 ', o.name);
     const torships1 = relationships?.filter(r => r.toobjectRef === o.id && r); // find all relships to current obj object
     const fromObj1 =  objects?.find(o => o.id  === torships1[0].fromobjectRef); // find object in the other end of the relationship (assuming only one)
-    if (!debug) console.log('135 ', fromObj1, torships1, torships1[0]);
+    if (debug) console.log('135 ', fromObj1, torships1, torships1[0]);
     
     // const fromObj1 = torships1?.map(r => objects?.find(o => o.id  === r.fromobjectRef)); // find object in the other end of the relationship (assuming only one)
     const torships2 = relationships?.filter(r => r.toobjectRef === fromObj1?.id && r); // find all relships to current obj object
@@ -146,7 +146,7 @@ export function findTopLevelObject( o: any, type: string, objects, relationships
     // const fromObj2 = torships1?.find(r => objects?.find(o => o.id  === r.fromobjectRef)); // find object in the other end of the relationship (assuming only one)
     
     const topObj = fromObj1 || fromObj2;
-    if (!debug) console.log('140 ', fromObj1,  fromObj2, topObj);
+    if (debug) console.log('140 ', fromObj1,  fromObj2, topObj);
 
     return topObj;
     

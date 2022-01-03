@@ -961,6 +961,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 let obj = objview.object;
                 if (!obj /*|| obj.markedAsDeleted*/) 
                     continue;
+                if (obj.type.name === 'Property')
+                    continue;
                 if (obj.type.name === 'RelshipType')
                     continue;
                 const  types = []; 
@@ -980,10 +982,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             ||
                             (obj.isOfSystemType(metaObject))
                         ) {
-                            if (!debug) console.log('953 obj', obj.name, obj);
+                            if (debug) console.log('953 obj', obj.name, obj);
                             if (debug) console.log('956 obj, objview', obj, objview);                       
                             objtype = generateObjectType(obj, objview, context);
-                            if (!debug) console.log('958 objtype', objtype);   
+                            if (debug) console.log('958 objtype', objtype);   
                             if (objtype) metamodel.addObjectType(objtype);
                             const typeview = objtype?.typeview;
                             if (typeview) {

@@ -2276,15 +2276,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
             makeButton("Toggle 'Include Relationship Kind' On/Off",
             function (e: any, obj: any) {
-              const relkind = myMetis.includeRelshipkind;
-              myMetis.includeRelshipkind = !relkind;
-              if (!myMetis.includeRelshipkind) {
+              const model = myMetis.currentModel;
+              const relkind = model.includeRelshipkind;
+              model.includeRelshipkind = !relkind;
+              if (!model.includeRelshipkind) {
                 alert("Setting 'Relationship Kind' will NOT be allowed!");
               } else {
                 alert("Setting 'Relationship Kind' WILL be allowed!");
               }
+              const jsnModel = new jsn.jsnModel(model, true);
+              const modifiedModels = new Array();
+              modifiedModels.push(jsnModel);
+              modifiedModels.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+              })
             },
             function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
               return true; 
             }),
           makeButton("Zoom All",

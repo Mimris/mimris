@@ -279,7 +279,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
       }
       if (k === 'relshipkind') {
-        if (!myMetis.includeRelshipkind)
+        if (!myModel.includeRelshipkind)
           continue;
         if (what !== 'editRelationship' && what !== 'editRelationshipType')
           continue;

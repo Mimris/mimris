@@ -73,7 +73,6 @@ export class cxMetis {
     deleteViewsOnly:    boolean = false;
     pasted:             boolean = false;
     modelType:          string = "";
-    includeRelshipkind: boolean;
     // Constructor
     constructor() {
         this.id = utils.createGuid();
@@ -82,7 +81,6 @@ export class cxMetis {
         this.viewstyles = [];
         this.geometries = [];
         this.category = 'Metis';
-        this.includeRelshipkind = false;
     }
     importData(importedData: any, includeDeleted: boolean) {
         if (debug) console.log('79 importedData', importedData);
@@ -852,11 +850,12 @@ export class cxMetis {
                         if (model) this.importModelView(mv, model);
                     });
                 }
+                model.includeRelshipkind = item.includeRelshipkind;
                 model.targetMetamodelRef = item.targetMetamodelRef;
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
             }
-            if (debug) console.log('583 model', model);
+            if (debug) console.log('583 item, odel', item, model);
         }
     }
     importObject(item: any, model: cxModel | null) {
@@ -5544,6 +5543,7 @@ export class cxModel extends cxMetaObject {
     isTemplate: boolean;
     isMetamodel: boolean;
     includeSystemtypes: boolean;
+    includeRelshipkind: boolean;
     layer: string;
     submodels: cxModel[] | null; 
     objects: cxObject[] | null;
@@ -5563,6 +5563,7 @@ export class cxModel extends cxMetaObject {
         this.isTemplate = false;
         this.isMetamodel = false;
         this.includeSystemtypes = true;
+        this.includeRelshipkind = false;
         this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;

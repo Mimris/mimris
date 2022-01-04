@@ -789,6 +789,7 @@ export class jsnModel {
     targetModelRef:         string;
     isTemplate:             boolean;
     includeSystemtypes:     boolean;
+    includeRelshipkind:     boolean;
     templates:              jsnModelView[];
     objects:                jsnObject[];
     relships:               jsnRelationship[];
@@ -805,6 +806,7 @@ export class jsnModel {
         this.sourceModelRef     = model.sourceModelRef;
         this.targetModelRef     = model.targetModelRef;
         this.includeSystemtypes = model.includeSystemtypes;
+        this.includeRelshipkind = model.includeRelshipkind;
         this.isTemplate      = model.isTemplate;
         this.templates       = [];
         this.objects         = [];

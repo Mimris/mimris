@@ -2434,6 +2434,18 @@ export class cxMetis {
     getCurrentTargetModelview(): cxModelView | null {
         return this.currentTargetModelview;
     }
+    isAdminType(type: cxObjectType) {
+        if (!type)
+            return false;
+        if (type.name === 'Project' || 
+            type.name === 'Metamodel' || 
+            type.name === 'Model' || 
+            type.name === 'Modelview'
+            ) {
+            return true;
+        }
+        return false;
+    }
 }
 
 // -------  cxMetaObject - Den mest supre av alle supertyper  ----------------
@@ -6452,8 +6464,10 @@ export class cxObject extends cxInstance {
             const rel = relships[i];
             if (rel) {
                 const toObj = rel.toObject;
-                if (toObj && toObj.type)
-                    typelist.push(toObj.type);
+                if (toObj && toObj.type) {
+                    // if (toObj.type.properties.length > 0)
+                        typelist.push(toObj.type);
+                }
             }
         }
         if (debug) console.log('6472 typelist', typelist);
@@ -7246,14 +7260,17 @@ export class cxRelationshipView extends cxMetaObject {
             case 'Composition':
                 this.setFromArrow('StretchedDiamond');
                 this.setFromArrowColor('black');
+                this.textcolor = 'black';
                 break;
             case 'Aggregation':
                 this.setFromArrow('StretchedDiamond');
                 this.setFromArrowColor('white');
+                this.textcolor = 'black';
                 break;
             case 'Generalization':
                 this.setFromArrow(' ');
                 this.setFromArrowColor(' ');
+                this.textcolor = 'black';
                 break;
             default:
                 this.setToArrow('OpenTriangle');
@@ -7272,6 +7289,7 @@ export class cxRelationshipView extends cxMetaObject {
             case 'Generalization':
                 this.setToArrow('Triangle');
                 this.setToArrowColor('white');
+                this.textcolor = 'black';
                 break;
             default:
                 this.setToArrow('OpenTriangle');

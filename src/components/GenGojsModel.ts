@@ -6,6 +6,7 @@ const debug = false;
 import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
+import * as jsn from '../akmm/ui_json';
 
 const constants = require('../akmm/constants');
 
@@ -24,13 +25,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   // const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels
 
-
   if (metis != null) {
     console.log('29 GenGojsModel: phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
     if (debug) console.log('31 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
-    if (!debug) console.log('33 GenGojsModel: myMetis', myMetis);
+    buildAdminModel(myMetis);
+    if (!debug) console.log('34 GenGojsModel: myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -432,6 +433,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (includeRelview) {
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
+          if (relview.textcolor === '' || relview.textcolor == undefined)
+            relview.textcolor = 'black';
           if (debug) console.log('431 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
@@ -578,6 +581,107 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
       return myGoMetamodel;
+    }
+  }
+
+  function buildAdminModel(myMetis: akm.cxMetis) {
+    const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
+    if (!adminMetamodel) {
+      if (debug) console.log('590 No Admin Metamodel found!');
+      return;
+    }
+    let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
+    let adminModelview;
+    if (!adminModel) {
+      adminModel = new akm.cxModel(utils.createGuid(), constants.admin.AKM_ADMIN_MODEL, adminMetamodel, "");
+      myMetis.addModel(adminModel);
+    }
+    if (adminModel) {
+      if (adminModel.modelviews) 
+        adminModelview = adminModel?.modelviews[0];
+      if (!adminModelview) {
+        adminModelview = new akm.cxModelView(utils.createGuid(), 'Main', adminModel, '');
+        myMetis.addModelView(adminModelview);
+      }
+      if (debug) console.log('605 adminModel, adminModelview', adminModel, adminModelview);
+      const projectType = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
+      const metamodelType = myMetis.findObjectTypeByName(constants.admin.AKM_METAMODEL);
+      const modelType = myMetis.findObjectTypeByName(constants.admin.AKM_MODEL);
+      const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
+      const hasMetamodelType = null;
+      const hasModelType = null;
+      const hasModelviewType = null;
+      const refersToMetamodelType = null;
+
+      let project = adminModel.findObjectByTypeAndName(projectType, myMetis.name);
+      if (!project) {
+        project = new akm.cxObject(utils.createGuid(), myMetis.name, projectType, myMetis.description);
+        adminModel.addObject(project);
+        const projectview = new akm.cxObjectView(utils.createGuid(), project.name, project, '');
+        project.addObjectView(projectview);
+        adminModelview.addObjectView(projectview);
+      }
+      const metamodels = myMetis.metamodels;
+      for (let i=0; i<metamodels.length; i++) {
+        const mm = metamodels[i];
+        if (mm) {
+          if (mm.name === constants.admin.AKM_ADMIN_MM)
+            continue;
+          let mmObj = adminModel.findObjectByTypeAndName(metamodelType, mm.name);
+          if (!mmObj) {
+            mmObj = new akm.cxObject(utils.createGuid(), mm.name, metamodelType, mm.description);
+            adminModel.addObject(mmObj);
+            // Add relship from Project to Metamodel
+            const rel = new akm.cxRelationship(utils.createGuid(),hasMetamodelType, project, mmObj, 'has', '');
+            adminModel.addRelationship(rel);
+            // Create objectview
+            const mmObjview = new akm.cxObjectView(utils.createGuid(), mmObj.name, mmObj, '');
+            adminModelview.addObjectView(mmObjview);
+            mmObj.addObjectView(mmObjview);
+          }
+        }  
+      }
+      const models = myMetis.models;
+      console.log('629 models', models);
+      for (let i=0; i<models.length; i++) {
+        const m = models[i];
+        if (m) {
+          if (m.name === constants.admin.AKM_ADMIN_MODEL)
+            continue;
+          let mObj = adminModel.findObjectByTypeAndName(modelType, m.name);
+          if (!mObj) {
+            mObj = new akm.cxObject(utils.createGuid(), m.name, modelType, m.description);
+            adminModel.addObject(mObj);
+            // Add relship from Project to Model
+            const rel1 = new akm.cxRelationship(utils.createGuid(),hasModelType, project, mObj, 'has', '');
+            adminModel.addRelationship(rel1);
+            // Create objectview
+            const mObjview = new akm.cxObjectView(utils.createGuid(), mObj.name, mObj, '');
+            adminModelview.addObjectView(mObjview);
+            // Handle modelviews
+            const modelviews = m.modelviews;
+            for (let i=0; i<modelviews.length; i++) {
+              const mv = modelviews[i];
+              if (mv) {
+                let mvObj = adminModel.findObjectByTypeAndName(modelviewType, mv.name);
+                if (!mvObj) {
+                  mvObj = new akm.cxObject(utils.createGuid(), mv.name, modelviewType, mv.description);
+                  adminModel.addObject(mvObj);
+                  // Add relship from Model to Modelview
+                  const rel = new akm.cxRelationship(utils.createGuid(),hasModelviewType, mObj, mvObj, 'has', '');
+                  adminModel.addRelationship(rel);
+                  // Create objectview
+                  const mvObjview = new akm.cxObjectView(utils.createGuid(), mvObj.name, mvObj, '');
+                  adminModelview.addObjectView(mvObjview);
+                  mvObj.addObjectView(mvObjview);
+                }
+              }
+            }
+          }
+        }
+      }
+      if (debug) console.log('663 adminModel', adminModel);
+       
     }
   }
 }

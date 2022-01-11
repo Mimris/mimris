@@ -25,28 +25,29 @@ interface InspectorRowProps {
 export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
   constructor(props: InspectorRowProps) {
     super(props);
-    if (debug) console.log('23 InspectorRow: props', this.props);
+    if (!debug) console.log('28 InspectorRow: props', this.props);
     this.handleInputChange = this.handleInputChange.bind(this);
-    if (debug) console.log('24 InspectorRow: this', this, this.props);
+    if (debug) console.log('30 InspectorRow: this', this, this.props);
   }
 
   private handleInputChange(e: any) {
-    if (debug) console.log('29 handleInput', this.props);
+    if (!debug) console.log('33 handleInput', this.props, e.target);
     const fieldType = this.props.type;
     let value = e.target.value;
     if ((fieldType === 'checkbox') && (this.props.value === 'true')) {
       e.target.checked = true;
     }
     if (fieldType === 'checkbox') value = e.target.checked;
-    if (debug) console.log('36 e.target', e.target, e.type, this.props);
+    if (!debug) console.log('41 e.target: ', e.target, e.type);
+    if (!debug) console.log('42 InspectorRow: this.props, value: ', this.props, value);
     const checked = e.target.checked;
     this.props.onInputChange(this.props, value, e.type === 'blur');
     if (e.type === 'blur') {
-      if (debug) console.log('40 InspectorRow: value, checked', value, checked, this.props);
+      if (!debug) console.log('46 InspectorRow: value, checked: ', value, checked, this.props);
       const pattern = this.props.pattern;
       if ((pattern?.length > 0) && (value?.length > 0)) {
         const regex = new RegexParser(pattern);
-        if (debug) console.log('44 regex:', regex);
+        if (debug) console.log('50 regex:', regex);
         if (!regex.test(value)) {
           alert("Value: '" + value + "' IS NOT valid");
         }
@@ -76,7 +77,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
       alert ('Input is not valid: ' + val );
     }
     if (this.props.type === 'textarea') {
-      if (debug) console.log('71 props', this.props);
+      if (!debug) console.log('71 props', this.props);
       return (  
         <tr>
           <td className="label pr-2 w-25" >{this.props.id}</td> 

@@ -53,20 +53,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
     const activeTab = this.props.activeTab;
-    if (debug) console.log('58 activeTab', activeTab);
+    if (!debug) console.log('56 this.props', this.props);
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myMetis.currentModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
-    if (debug) console.log('33 allowsMetamodeling', myModel, allowsMetamodeling);
+    if (debug) console.log('60 allowsMetamodeling', myModel, allowsMetamodeling);
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (debug) console.log('37 selObj', selObj);
-    if (selObj.type === 'GraphLinksModel') {
+    if (debug) console.log('64 selObj', selObj);
+    if (selObj?.type === 'GraphLinksModel') {
       return;
     } 
+    let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, type, typeview, item, chosenType, nameFieldtype, description, currentType;
-    if (category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE) {
+    if (myMetis.isAdminType(selObj?.type)) {
+      inst = selObj;
+      type = inst.type;
+    } else if (category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE) {
       instview = selObj.objectview;
       instview = myMetis.findObjectView(instview?.id);
       inst = selObj.object;
@@ -75,7 +79,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       inst1 = myMetis.findObject(inst?.id);   
       type = inst1?.type;
       if (!type) type = selObj.objecttype;
-      type = myMetis.findObjectType(type.id);
+      type = myMetis.findObjectType(type?.id);
       typeview = instview?.typeview;
     } else if (category === constants.gojs.C_RELATIONSHIP || 
                category === constants.gojs.C_RELSHIPTYPE) {
@@ -93,15 +97,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (category === constants.gojs.C_OBJECT) {
       if (type.name === 'Method') {
          chosenType = null;
+      } else if (myMetis.isAdminType(type)) {
+        chosenType = null;
       } else {
         currentType = inst1.type;
         let namelist = ['All'];
         if (debug) console.log('100 inst', inst);
         if (useTabs && modalContext?.what === 'editObject') {
-          const inheritedTypes = inst1?.getInheritedTypes();
+          let inheritedTypes = []; 
+          inheritedTypes = inst1?.getInheritedTypes();
           const inheritedObjTypes = inst1.getInheritedObjectTypes(myModel);
           if (debug) console.log('105 inheritedObjTypes', inheritedObjTypes);
           inheritedTypes.push(currentType);
+          namelist = []; 
           namelist = inst1.getInheritedTypeNames();
           namelist.push(inst.type.name);
           for (let i=0; i<inheritedObjTypes.length; i++) {
@@ -270,10 +278,20 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('224 inst, item, selObj', inst, item, selObj);
     for (let k in item) {
       if (k === 'abstract') {
-          if (what !== 'editObject' && what !== 'editObjectType')
+        if (type.name === constants.admin.AKM_PROJECT ||
+            type.name === constants.admin.AKM_MODEL ||
+            type.name === constants.admin.AKM_MODELVIEW
+        )
+        continue;
+        if (what !== 'editObject' && what !== 'editObjectType')
               continue;
       }      
       if (k === 'viewkind') {
+        if (type.name === constants.admin.AKM_PROJECT ||
+            type.name === constants.admin.AKM_MODEL ||
+            type.name === constants.admin.AKM_MODELVIEW
+          )
+          continue;
         if (what !== 'editObject' && what !== 'editObjectType' && 
             what !== 'editObjectview' && what !== 'editTypeview')
           continue;
@@ -584,7 +602,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
         }
         if (debug) console.log('509 selObj, item:', selObj, item);
-        if (debug) console.log('510 k, value, disabled:', k, val, disabled);
+        if (!debug) console.log('510 k, value, disabled:', k, val, disabled);
         if (debug && k==='name') console.log('511 k, fieldType', k, fieldType, defValue, values);
         if (isLabel) {
           if (k === 'viewkind')

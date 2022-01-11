@@ -24,7 +24,7 @@
               "name": "Collection",
               "description": "",
               "abstract": false,
-              "viewkind": "Container",
+              "viewkind": "Object",
               "typename": "Object type",
               "typeviewRef": "6f79614a-7444-4a3e-94b0-35a499cf23da",
               "properties": [],

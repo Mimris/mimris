@@ -142,6 +142,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
  
                     let cNewVal = filterObject(oVal)// we only want attributes (objects are handled in the next iteration)
                     let relshipoName // the name of the relationship object
+                    let propColloName // the name of the collection object
 
                     if (oName === 'required')  { // special case for required. a list of properties that is required
                         const attributes  = Object.assign(...Object.entries(obj).map(([k, v]) => (k !== (!isNaN(k))))); 
@@ -185,7 +186,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             parentId = null 
                             parentName = null 
                             entityId = oId
-                            entityName = cNewVal.title.replace(/\s+/g, '') // if topobject use title as name
+                            entityName = cNewVal?.title?.replace(/\s+/g, '') // if topobject use title as name
                             // get type from the objects $id attribute and pick the second last element of the path
                             entityTypePathElement = (oVal.$id) ? oVal.$id.split('/').slice(-2)[0] : 'EntityType'
                             // convert to camelCase
@@ -204,39 +205,58 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             console.log('227 ', oKey, oVal);
                             
                             // if oVal.type is an array then create a RelshipType objectype
-                            if (oVal.type === 'string') { 
+                            if (oVal.type === 'string' || oVal.type === 'number' || oVal.type === 'integer' || oVal.type === 'boolean') { 
                                 if (oName.includes('ID')) { // if type is string and name contains ID then it is a relship using the ID as key
-                                    objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id   
+                                    objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id   
                                     relshipoName = 'has'+oName.replace('ID', '')
-                                    externalId = oName
+                                    cNewVal.linkID = oName
                                     cNewVal.title = oName
                                 } else {
                                     objecttypeRef = curObjTypes.find(ot => ot.name === 'Property')?.id
                                 }                          
-                            } else if (oVal.type === 'array') {    // if type is array (and x-osdu-indexing.type === 'nested' ??) then it is a EntityType
-                                // find the property object under the Items and use it as the RelshipType
-                                // so just skip this object
-                                continue;
-                                // objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id // maybe this should be a special typ for lists of IDs
+                            } else if (oVal.type === 'array') { // if type is array then create a collection of objects
+                                if (oVal.items) {
+                                    if (oVal.items.$ref) { // if items is an object then it is a relship using the ID as key
+                                        objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
+                                        relshipoName = 'has'+oVal.items.$ref.split('/').slice(-2)[0]
+                                        cNewVal.linkID = oVal.items.$ref
+                                        cNewVal.title = oVal.items.$ref                                  
+                                    } else if (oVal.items.allOf) {     //if allOf then its the definition of a relship to an array of objects
+                                        if (oVal.items.allOf[1].$ref) { // the object inherits from a ref object (the ref)
+                                            objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
+
+                                            // continue; // skip this object for now
+                                        } else if (oVal.items.allOf[0].type === 'object') { // this is the object in the array
+                                            objecttypeRef = curObjTypes.find(ot => ot.name === 'PropCollection')?.id
+                                            propColloName = ggparentName
+                                            oId = ggparentKey
+                                            // propColloName = Object.keys(oVal.items.allOf[0].properties)[0].replace('ID', '')
+                                            cNewVal.linkID = Object.keys(oVal.items.allOf[0].properties)[0]
+                                            cNewVal.title = Object.keys(oVal.items.allOf[0].properties)[0]
+                                        }
+                                    }  
+                                }
                             } else if (!oVal.type && oVal['$ref']) { // if no type 
                                 console.log('243 ', oVal);
                                 
-                                objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id
+        
+                                objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
                             } else if (oVal['x-osdu-indexing']) { // if type is x-osdu-indexing then it is a indexing object
                                 // objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id
                                 continue;
+ 
                             } else if (gggggparentKey === 'properties') { // if parent of top is also properties this is propertyobject create if import includes properties
                                 objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id
                             } else {
-                                objecttypeRef = curObjTypes.find(ot => ot.name === 'RelshipType')?.id
+                                objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
                             }
                             
-                            createObject(oId, (relshipoName || oName), objecttypeRef, oKey, jsonType, cNewVal) // create the property object
+                            createObject(oId, (propColloName || relshipoName || oName), objecttypeRef, oKey, jsonType, cNewVal) // create the property object
                             
-                            if (debug) console.log('220 ', tmpArray.find( (o) => (o[0] === gparentKey) && o[1]));
+                            if (!debug) console.log('220 ', tmpArray.find( (o) => (o[0] === gparentKey) && o[1]));
 
-                            reltypeRef = hasType.id
-                            reltypeName = hasType.name      
+                            reltypeRef = containsType.id
+                            reltypeName = containsType.name      
                             relshipKind = 'Association'   
                             
 
@@ -276,14 +296,17 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         } else if (oVal['$ref']) {   
                             
                             entityId = oId
-                            entityName = 'Is'
-                            cNewVal.title = oVal['$ref'].split('/').slice(-1) 
+                            const typeRest = oVal['$ref'].split('/').slice(-1)[0]
+                            console.log('280 ', typeRest);
+                            
+                            cNewVal.title = (typeRest) && typeRest.split('.')[0] 
+                            entityName = 'Is'+cNewVal.title
                             // entityName = oVal['$ref'].split('/').slice(-1)  || 'Is' // 
                             // entityName = (i === 0) ? cNewVal.title : (oName === 'items') ? parentName : oName // if topobject use title as name
                             console.log('142 i', i, oName, entityName, entityId);
                             if (debug) console.log('262: ', oId, oName, entityName, entityId, parentId, parentName);
 
-                            objecttypeRef = curObjTypes.find(ot => ot.name === objTypeName)?.id  || curObjTypes.find(ot => ot.name === 'RelshipType')?.id // find objecttypeRef for the objecttypeName
+                            objecttypeRef = curObjTypes.find(ot => ot.name === objTypeName)?.id  || curObjTypes.find(ot => ot.name === 'PropLink')?.id // find objecttypeRef for the objecttypeName
 
 
                             reltypeRef = hasType?.id 

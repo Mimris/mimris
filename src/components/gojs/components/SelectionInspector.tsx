@@ -44,8 +44,6 @@ const colornames = ['black', 'white',
 
 const strokewidths = ['1', '2', '3', '4', '5'];
 
-const includeRelshipkind = false;
-
 const useTabs = true;
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
@@ -79,7 +77,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (!type) type = selObj.objecttype;
       type = myMetis.findObjectType(type.id);
       typeview = instview?.typeview;
-    } else if (category === constants.gojs.C_RELATIONSHIP || category === constants.gojs.C_RELSHIPTYPE) {
+    } else if (category === constants.gojs.C_RELATIONSHIP || 
+               category === constants.gojs.C_RELSHIPTYPE) {
       instview = selObj.relshipview;
       instview = myMetis.findRelationshipView(instview?.id);
       inst = selObj.relship;
@@ -250,16 +249,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         // if (instview) 
         //   item = instview.typeview?.data;
         if (selObj.category === constants.gojs.C_RELATIONSHIP) {
-          item = inst.type.typeview;
+          item = inst.type.typeview.data;
         } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
-          item = inst.typeview;
+          item = inst.typeview.data;
           // for (const prop in item.data) {
           //   item[prop] = item.data[prop];
           // }
         } else if (selObj.category === constants.gojs.C_OBJECT) {
-          item = inst.type.typeview;
+          item = inst.type.typeview.data;
         } else if (selObj.category === constants.gojs.C_OBJECTTYPE) {
-          item = inst.typeview;
+          item = inst.typeview.data;
         }
 
         hideNameAndDescr = true;
@@ -275,11 +274,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               continue;
       }      
       if (k === 'viewkind') {
-        if (what !== 'editObject' && what !== 'editObjectType' && what !== 'editObjectview')
+        if (what !== 'editObject' && what !== 'editObjectType' && 
+            what !== 'editObjectview' && what !== 'editTypeview')
           continue;
       }
       if (k === 'relshipkind') {
-        if (!includeRelshipkind)
+        if (!myModel.includeRelshipkind)
           continue;
         if (what !== 'editRelationship' && what !== 'editRelationshipType')
           continue;

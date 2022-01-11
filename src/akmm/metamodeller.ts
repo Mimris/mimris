@@ -850,11 +850,12 @@ export class cxMetis {
                         if (model) this.importModelView(mv, model);
                     });
                 }
+                model.includeRelshipkind = item.includeRelshipkind;
                 model.targetMetamodelRef = item.targetMetamodelRef;
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
             }
-            if (debug) console.log('583 model', model);
+            if (debug) console.log('583 item, odel', item, model);
         }
     }
     importObject(item: any, model: cxModel | null) {
@@ -5542,6 +5543,7 @@ export class cxModel extends cxMetaObject {
     isTemplate: boolean;
     isMetamodel: boolean;
     includeSystemtypes: boolean;
+    includeRelshipkind: boolean;
     layer: string;
     submodels: cxModel[] | null; 
     objects: cxObject[] | null;
@@ -5561,6 +5563,7 @@ export class cxModel extends cxMetaObject {
         this.isTemplate = false;
         this.isMetamodel = false;
         this.includeSystemtypes = true;
+        this.includeRelshipkind = false;
         this.layer = 'Foreground';
         this.submodels = null;
         this.objects = null;
@@ -7253,6 +7256,7 @@ export class cxRelationshipView extends cxMetaObject {
                 this.setFromArrowColor(' ');
                 break;
             default:
+                this.setToArrow('OpenTriangle');
                 break;
         }
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
@@ -7270,6 +7274,7 @@ export class cxRelationshipView extends cxMetaObject {
                 this.setToArrowColor('white');
                 break;
             default:
+                this.setToArrow('OpenTriangle');
                 break;
         }
     }

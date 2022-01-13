@@ -192,7 +192,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             let objTypeElementName = camelCase(entityTypePathElement, {pascalCase: true}) // convert to pascalCase i.e. master-data -> MasterData
                             
                             objecttypeRef = curObjTypes.find(ot => ot.name === objTypeElementName)?.id || entityType.id
-                            if (!debug) console.log('205 ', objTypeElementName, objecttypeRef, cNewVal);
+                            if (debug) console.log('205 ', objTypeElementName, objecttypeRef, cNewVal);
 
                             createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the top level object
 
@@ -270,7 +270,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                 parentName = tmpArray.find((o) => (o[0] === gggparentKey) && o)[0].split('|').slice(3)[0]
                             }
 
-                            if (!debug) console.log( '232 :  oVal, oId, oName, parentId, parentName', oVal, oId, oName, parentId, parentName);   
+                            if (debug) console.log( '232 :  oVal, oId, oName, parentId, parentName', oVal, oId, oName, parentId, parentName);   
 
                         } else if (oVal['$ref']) {   
                             

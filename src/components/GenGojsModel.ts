@@ -615,7 +615,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
       let project = adminModel.findObjectByTypeAndName(projectType, myMetis.name);
       if (!project) {
-        project = new akm.cxObject(utils.createGuid(), myMetis.name, projectType, myMetis.description);
+        project = new akm.cxObject(utils.createGuid(), myMetis.name, projectType, "D");
         adminModel.addObject(project);
         const projectview = new akm.cxObjectView(utils.createGuid(), project.name, project, '');
         project.addObjectView(projectview);
@@ -642,7 +642,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }  
       }
       const models = myMetis.models;
-      console.log('629 models', models);
+      if (debug) console.log('629 models', models);
       for (let i=0; i<models.length; i++) {
         const m = models[i];
         if (m) {

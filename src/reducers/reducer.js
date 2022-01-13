@@ -805,7 +805,7 @@ function reducer(state = InitialStateStr, action) {
       return retval_UPDATE_OBJECTVIEW_PROPERTIES
 
     case UPDATE_RELSHIP_PROPERTIES:
-      if (!debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
+      if (debug) console.log('697 UPDATE_RELSHIP_PROPERTIES', action);
       const curmr = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexr = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
 

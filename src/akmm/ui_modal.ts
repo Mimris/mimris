@@ -13,7 +13,7 @@ import * as constants from './constants';
 const RegexParser = require("regex-parser");
 
 export function handleInputChange(myMetis: akm.cxMetis, props: any, value: string) {
-  if (!debug) console.log('16 ui_modal: props, value', props, value);
+  if (debug) console.log('16 ui_modal: props, value', props, value);
   const propname = props.id;
   const fieldType = props.type;
   const obj = props.obj;
@@ -58,7 +58,7 @@ if (obj.category === constants.gojs.C_OBJECT) {
         myInstview[prop] = obj[prop];
       }
     }
-    if (debug) console.log('68 myInst', inst, myInstview, typeview);
+    if (debug) console.log('68 inst, myInst', inst, myInst);
     if (context?.what === "editObjectview") {
         myItem = myInstview;
     } else if (context?.what === "editTypeview") {
@@ -67,14 +67,14 @@ if (obj.category === constants.gojs.C_OBJECT) {
     } else {
         myItem = myInst;
     }
-    if (!debug) console.log('77 myItem, propname, value', myItem, propname, value);
+    if (debug) console.log('77 myItem, propname, value', myItem, propname, value);
     try {
       myItem[propname] = value;
     } catch {
       // Do nothing
     }
   }
-  if (!debug) console.log('84 myItem', myItem);
+  if (debug) console.log('84 myItem', myItem);
 
   // Handle relationship types
   if (obj.category === constants.gojs.C_RELSHIPTYPE) {

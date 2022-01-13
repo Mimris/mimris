@@ -108,7 +108,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const adminModel = this.myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     this.myMetis.adminModel = adminModel;
-    // this.myMetis.adminModel = null;
+    this.myMetis.adminModel = null;
   }
   /**
    * Get the diagram reference and add any desired diagram listeners.
@@ -178,7 +178,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       showModal: true,
       currentActiveTab: '0'
     });
-    if (!debug) console.log('181 this.state', this.state);
+    if (debug) console.log('181 this.state', this.state);
   } 
 
   public handleSelectDropdownChange = (selected) => {
@@ -212,7 +212,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
   
   //public handleInputChange(propname: string, value: string, fieldType: string, obj: any, context: any, isBlur: boolean) {
   public handleInputChange(props: any, value: string, isBlur: boolean) {
-    if (!debug) console.log('215 Diagram: props, value, isBlur: ', props, value, isBlur);
+    if (debug) console.log('215 Diagram: props, value, isBlur: ', props, value, isBlur);
     const propname = props.id;
     const fieldType = props.type;
     const obj = props.obj;
@@ -224,13 +224,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     this.setState(
       produce((draft: AppState) => {
         let data = draft.selectedData as any;  // only reached if selectedData isn't null
-        if (!debug) console.log('227 data', data, this);
+        if (debug) console.log('227 data', data, this);
         // if (data[propname] = 'icon' && value.includes("fakepath")) {
         //   data[propname] = context.files[0];
         // } else {
           data[propname] = value;
         // }
-        if (!debug) console.log('233 data, value, isBlur: ', data[propname], value, isBlur);
+        if (debug) console.log('233 data, value, isBlur: ', data[propname], value, isBlur);
         if (isBlur) {
           const key = data.key;
           if (debug) console.log('236 key', key);
@@ -266,7 +266,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       })
     );
     if (debug) console.log('268 obj, context', obj, context);
-    if (!debug) console.log('269 Diagram: propname, value, isBlur:', propname, value, isBlur);
+    if (debug) console.log('269 Diagram: props, propname, value, isBlur:', props, propname, value, isBlur);
 
     uim.handleInputChange(this.myMetis, props, value);
   }
@@ -2558,8 +2558,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     let useTabs = true;
     if (debug) console.log('2560 Diagram: ', this.props.nodeDataArray);
     if (debug) console.log('2561 Diagram: ', this.props.linkDataArray);
-
-    if (!debug) console.log('2563 Diagram: ', this.state.selectedData, this.myMetis);
+    const selObj = this.state.selectedData;
+    if (debug) console.log('2563 selObj: ', selObj);
     const myModel = this.myMetis.currentModel;
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
@@ -2569,6 +2569,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     if (modalContext?.what === 'editObject') {
       let obj = this.state.selectedData?.object;
       obj = this.myMetis.findObject(obj?.id);
+      if (!obj) obj = selObj;
+      if (debug) console.log('2572 obj: description', obj, obj['description']);
       if (obj?.type?.name === 'Method')
         useTabs = false;
       if (!obj?.hasInheritedProperties(myModel))
@@ -2688,7 +2690,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         // if (debug) console.log('2599 Diagram ', typename, modalContext, this.state.selectedData);
         
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (!debug) console.log('2692 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          if (debug) console.log('2692 selectedData, modalContext: ', this.state.selectedData, modalContext);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -2699,6 +2701,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 activeTab     ={this.state.currentActiveTab}
               />
             </div>
+          if (debug) console.log('2704 selectedData, modalContent: ', this.state.selectedData, modalContent);
         }
         break;
       case 'editRelationshipType':
@@ -2722,8 +2725,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 activeTab     ={this.state.currentActiveTab}
               />
             </div>
-          }
         }
+      }
       break;
       default:
         break;
@@ -2776,7 +2779,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       </>  
 
     if (debug) console.log('2682 Active tab: ', this.state.currentActiveTab);
-    
     return (
       <div>
         <ReactDiagram 
@@ -2804,7 +2806,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   <span className="modal-objecttype"> {typename} </span> 
                 </ModalHeader>
               </div>
-              <ModalBody  className="moda-body">
+              <ModalBody  className="modal-body">
                 {/* <div className="modal-body1"> */}
                   {/* <div className="modal-pict"><img className="modal-image" src={icon}></img></div> */}
                   {/* {modalContent} */}

@@ -53,7 +53,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
     const activeTab = this.props.activeTab;
-    if (!debug) console.log('56 this.props', this.props);
+    if (debug) console.log('56 this.props', this.props);
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myMetis.currentModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
@@ -141,15 +141,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('135 myModel', myModel);
         if (!inst1?.hasInheritedProperties(myModel))
           chosenType = null;
+        inst = inst1;
       }
-      if (debug) console.log('139 inst, chosenType', inst, chosenType);
+      if (debug) console.log('145 inst, inst1, selObj, chosenType', inst, inst1, selObj, chosenType);
       instview = selObj;
       typeview = instview?.typeview;      
     } else if (category === constants.gojs.C_RELATIONSHIP) {
       instview = selObj.relshipview;
       instview = myMetis.findRelationshipView(instview?.id);
       inst = selObj.relship;
-      if (debug) console.log('103 inst', inst, selObj);
+      if (debug) console.log('152 inst', inst, selObj);
       if (!inst) inst = instview?.relship;
       inst = myMetis.findRelationship(inst?.id);
       // type = inst.type;
@@ -275,7 +276,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (debug) console.log('224 inst, item, selObj', inst, item, selObj);
+    if (debug) console.log('224 inst, inst1, item, selObj', inst, inst1, item, selObj);
     for (let k in item) {
       if (k === 'abstract') {
         if (type.name === constants.admin.AKM_PROJECT ||
@@ -543,6 +544,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'select';
             }
             break;
+          case 'strokewidth': 
+            values = strokewidths;
+            defValue = '1';
+            fieldType = 'select';
+            break;
           case 'textcolor':
           case 'fromArrowColor':
           case 'toArrowColor':
@@ -602,7 +608,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             break;
         }
         if (debug) console.log('509 selObj, item:', selObj, item);
-        if (!debug) console.log('510 k, value, disabled:', k, val, disabled);
+        if (debug) console.log('510 k, value, disabled:', k, val, disabled);
         if (debug && k==='name') console.log('511 k, fieldType', k, fieldType, defValue, values);
         if (isLabel) {
           if (k === 'viewkind')
@@ -638,7 +644,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    if (debug) console.log('545 SelectionInspector ', dets);
+    if (debug) console.log('641 SelectionInspector ', dets);
     return dets;
   }
   

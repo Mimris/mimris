@@ -6913,6 +6913,43 @@
           ],
           "markedAsDeleted": false,
           "modified": false
+        },
+        {
+          "id": "0beba80b-8664-4093-b37a-9ba00af42f3d",
+          "name": "ADMIN_TEST",
+          "description": "",
+          "metamodelRef": "f738227d-8a0b-4500-5ea5-b047a17b479f",
+          "sourceMetamodelRef": "",
+          "targetMetamodelRef": "",
+          "sourceModelRef": "",
+          "targetModelRef": "",
+          "isTemplate": false,
+          "includeSystemtypes": true,
+          "includeRelshipkind": false,
+          "templates": [],
+          "objects": [],
+          "relships": [],
+          "modelviews": [
+            {
+              "id": "d3bb3c8d-b9c6-464d-660e-e062473da29b",
+              "name": "Admin",
+              "description": "",
+              "layout": "Tree",
+              "routing": "Normal",
+              "linkcurve": "None",
+              "showCardinality": false,
+              "modelRef": "0beba80b-8664-4093-b37a-9ba00af42f3d",
+              "viewstyleRef": "7981354b-c92f-4e34-8281-82b5b21c8414",
+              "objectviews": [],
+              "relshipviews": [],
+              "objecttypeviews": [],
+              "relshiptypeviews": [],
+              "markedAsDeleted": false,
+              "modified": false
+            }
+          ],
+          "markedAsDeleted": false,
+          "modified": false
         }
       ],
       "currentMetamodelRef": "82e6ec62-e66e-4dc7-9780-32f4b1aa69b3",
@@ -6989,7 +7026,7 @@
       "name": ""
     },
     "focusRefresh": {
-      "id": "44uwrn",
+      "id": "t13nph",
       "name": "0name"
     }
   },

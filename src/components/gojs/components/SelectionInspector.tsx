@@ -137,15 +137,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             chosenType = null;
             if (debug) console.log('123 type', type);
           }  
+          if (!inst1?.hasInheritedProperties(myModel))
+            chosenType = null;
+          inst = inst1;
         }
         if (debug) console.log('135 myModel', myModel);
-        if (!inst1?.hasInheritedProperties(myModel))
-          chosenType = null;
-        inst = inst1;
       }
       if (debug) console.log('145 inst, inst1, selObj, chosenType', inst, inst1, selObj, chosenType);
-      instview = selObj;
-      typeview = instview?.typeview;      
+      // instview = selObj;
+      // typeview = instview?.typeview;      
+      if (debug) console.log('149 instview, typeview', instview, typeview);
     } else if (category === constants.gojs.C_RELATIONSHIP) {
       instview = selObj.relshipview;
       instview = myMetis.findRelationshipView(instview?.id);
@@ -214,20 +215,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let isLabel = false;
     const what = modalContext?.what;
     switch (what) {
-      case "toBeDefined":
-      // case 'editProject':
-      //   item = modalContext.gojsModel?.nodes[0];
-      //   useItem = true;
-      //   break;
-      // case 'editModel':
-      //   item = myMetis.currentModel;
-      //   useItem = true;
-      //   break;
-      // case 'editModelview':
-      //   item = myMetis.currentModelview;
-      //   useItem = true;
-      //   break;
-      break;
       case "editObjectType":
         // item = inst.objecttype;
         item = type;
@@ -378,7 +365,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             val = selObj[k]; // item[k];
             break;
           case 'editTypeview':
-            const tview = item;
+            const tview = instview ? instview.typeview : item.typeview;
             if (tview?.category === constants.gojs.C_OBJECTTYPEVIEW) {
               val = tview.data[k];
             } else 

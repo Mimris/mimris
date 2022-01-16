@@ -67,7 +67,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
                 }  
             :   {}
  
-        if (!debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel );
+        if (debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel );
 
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel });
 
@@ -134,7 +134,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
         const firstElement = lastElement.split('.')[0]        
         const restObject = utils.findObjectByName(curModel.objects, {}, firstElement)
     
-        if (!debug) console.log('134 ', o, firstElement, restObject);
+        if (debug) console.log('134 ', o, firstElement, restObject);
         // check if the relationship exists between the objects
         const existRelship = utils.findRelshipByToIdAndType(curRelships, restObject?.id, hasType?.id)
         // console.log('140 ', restObject.id, existRelship);
@@ -142,11 +142,11 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
         let topLevelObject
         if (restObject) { // if no restObject, skip this relationship
 
-            if (!debug) console.log('142 ', o, restObject);  
+            if (debug) console.log('142 ', o, restObject);  
 
             topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
             // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
-            if (!debug) console.log('146 ', topLevelObject);  
+            if (debug) console.log('146 ', topLevelObject);  
             // console.log('98 ', topLevelObject, topLevelObject.id, topLevelObject.name);  
             if (!topLevelObject) console.log('151 ', topLevelObject.name , 'does not exist');
             
@@ -160,7 +160,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
             description = `${fromobjectName} Is ${toobjectName}`;
             title = '';
             
-            if (!debug) console.log('159 ', relId, reltypeName, description, title, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
+            if (debug) console.log('159 ', relId, reltypeName, description, title, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
             
             (fromobjectId !== toobjectId) && (toobjectId) &&
                  createRel(relId, reltypeName, relDescription="", relTitle="", reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName)

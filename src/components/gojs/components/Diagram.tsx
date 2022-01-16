@@ -108,7 +108,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const adminModel = this.myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     this.myMetis.adminModel = adminModel;
-    // this.myMetis.adminModel = null;
+    this.myMetis.adminModel = null;
   }
   /**
    * Get the diagram reference and add any desired diagram listeners.

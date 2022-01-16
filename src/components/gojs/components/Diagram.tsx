@@ -1871,7 +1871,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 // console.log('1875 node', node);
                 // uid.editObjectview(node, myMetis, myDiagram); 
                 const node = project;
-                console.log('1875 node', node);
+                if (debug) console.log('1875 node', node);
                 uid.editObject(node, myMetis, myDiagram); 
               }
             },
@@ -2575,22 +2575,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         useTabs = false;
       if (!obj?.hasInheritedProperties(myModel))
         useTabs = false;
-      let namelist =[];
-      if (useTabs && obj) {
-        const inheritedObjTypes = obj.getInheritedObjectTypes(myModel);
-        namelist = obj.getInheritedTypeNames();
-        namelist.push(obj.type.name);
-        for (let i=0; i<inheritedObjTypes.length; i++) {
-          const type = inheritedObjTypes[i];
-          namelist.push(type.name);
-        }
-        namelist.push('All');
-        let uniquelist = [...new Set(namelist)];
-        uniquelist.reverse();
-        namelist = uniquelist;
-        if (debug) console.log('2590 namelist', namelist);
-      } else
-        namelist = ['All'];
+      let namelist = useTabs ? uic.getNameList(myModel, obj) : [];
       selpropgroup = [];
       for (let i=0; i<namelist.length; i++) {
         let name = namelist[i];

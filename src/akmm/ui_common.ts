@@ -2482,7 +2482,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
 
 // Local functions
 function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
-    if (!debug) console.log('2471 updateNode', node, diagram);
+    if (debug) console.log('2471 updateNode', node, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;
@@ -2611,3 +2611,22 @@ function selectNameFromNameList(question, namelist, defText): string {
     }
 }
 
+export function getNameList(myModel: akm.cxModel, obj: akm.cxObject): string[] {
+    let namelist =[];
+    if (obj) {
+      const inheritedObjTypes = obj.getInheritedObjectTypes(myModel);
+      namelist = obj.getInheritedTypeNames();
+      namelist.push(obj.type.name);
+      for (let i=0; i<inheritedObjTypes.length; i++) {
+        const type = inheritedObjTypes[i];
+        namelist.push(type.name);
+      }
+      namelist.push('All');
+      let uniquelist = [...new Set(namelist)];
+      uniquelist.reverse();
+      namelist = uniquelist;
+      if (debug) console.log('2590 namelist', namelist);
+    } else
+      namelist = ['All'];
+    return namelist;
+}

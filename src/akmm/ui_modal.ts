@@ -498,13 +498,14 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('417 selObj', selObj);
       // selObj is a node representing an objecttype
       let node = selObj;
-      let type = node.objecttype;
       node = myDiagram.findNodeForKey(node.key);
+      let type = selObj.objecttype;
       type = myMetis.findObjectType(type.id);
       if (debug) console.log('423 selObj', selObj, type);
       const data = node.data;
       if (debug) console.log('425 node, type', data, type);
-      for (let k in selObj) {
+      for (let k in type) {
+        if (k === 'id') continue;
         if (typeof(type[k]) === 'object')    continue;
         if (typeof(type[k]) === 'function')  continue;
         if (!uic.isPropIncluded(k, type))    continue;
@@ -772,6 +773,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('772 node', node, selObjview);
       const data = node.data;
       for (let prop in  objtypeview?.data) {
+        if (prop === 'group') continue;
         if (debug) console.log('775 prop, objview', prop, objview, selObjview);
         try {
           objview[prop] = selObjview[prop];

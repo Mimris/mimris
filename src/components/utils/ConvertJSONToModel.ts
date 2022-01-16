@@ -276,7 +276,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                                 parentName = topName
                             }
 
-                            if (!debug) console.log( '232 :  oVal, oId, oName, parentId, parentName', oVal, oId, oName, parentId, parentName);   
+                            if (debug) console.log( '232 :  oVal, oId, oName, parentId, parentName', oVal, oId, oName, parentId, parentName);   
 
                         } else if (oVal['$ref']) {   
                             

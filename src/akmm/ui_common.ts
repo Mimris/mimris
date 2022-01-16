@@ -2482,7 +2482,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
 
 // Local functions
 function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, goModel: gjs.goModel) {
-    if (debug) console.log('2471 updateNode', node, diagram);
+    if (!debug) console.log('2471 updateNode', node, diagram);
     if (objtypeView) {
         let viewdata: any = objtypeView.data;
         let prop: string;

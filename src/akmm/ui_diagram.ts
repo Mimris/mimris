@@ -218,7 +218,7 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 }
 
 export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    const icon = uit.findImage(node.icon);
+    const icon = uit.findImage(node?.icon);
     const modalContext = {
       what:       "editObject",
       title:      "Edit Object",
@@ -227,6 +227,7 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     }
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
+    if (debug) console.log('230 editObject');
     myDiagram.handleOpenModal(node, modalContext);
 }
 
@@ -289,6 +290,8 @@ function askForMetamodel(context: any) {
       for (let i=0; i<allMetaModels.length; i++) {
         const metaModel = allMetaModels[i];
         if (metaModel.markedAsDeleted)
+            continue;
+        if (metaModel.name === constants.admin.AKM_ADMIN_MM)
             continue;
         if (context.case === "Delete Metamodel") {
             if (metaModel.id === myMetamodel.id)
@@ -455,6 +458,8 @@ function askForModel(context: any) {
       const allModels = myMetis.models;
       for (let i=0; i<allModels?.length; i++) {
         const model = allModels[i];
+        if (model.name === constants.admin.AKM_ADMIN_MODEL)
+            continue;
         if (model.markedAsDeleted)
             continue;
         if (context.case === "Delete Model") {

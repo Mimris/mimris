@@ -53,20 +53,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis;
     const activeTab = this.props.activeTab;
-    if (debug) console.log('58 activeTab', activeTab);
+    if (debug) console.log('56 this.props', this.props);
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myMetis.currentModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
-    if (debug) console.log('33 allowsMetamodeling', myModel, allowsMetamodeling);
+    if (debug) console.log('60 allowsMetamodeling', myModel, allowsMetamodeling);
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (debug) console.log('37 selObj', selObj);
-    if (selObj.type === 'GraphLinksModel') {
+    if (debug) console.log('64 selObj', selObj);
+    if (selObj?.type === 'GraphLinksModel') {
       return;
     } 
+    let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, type, typeview, item, chosenType, nameFieldtype, description, currentType;
-    if (category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE) {
+    if (myMetis.isAdminType(selObj?.type)) {
+      inst = selObj;
+      type = inst.type;
+    } else if (category === constants.gojs.C_OBJECT || category === constants.gojs.C_OBJECTTYPE) {
       instview = selObj.objectview;
       instview = myMetis.findObjectView(instview?.id);
       inst = selObj.object;
@@ -75,7 +79,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       inst1 = myMetis.findObject(inst?.id);   
       type = inst1?.type;
       if (!type) type = selObj.objecttype;
-      type = myMetis.findObjectType(type.id);
+      type = myMetis.findObjectType(type?.id);
       typeview = instview?.typeview;
     } else if (category === constants.gojs.C_RELATIONSHIP || 
                category === constants.gojs.C_RELSHIPTYPE) {
@@ -93,15 +97,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (category === constants.gojs.C_OBJECT) {
       if (type.name === 'Method') {
          chosenType = null;
+      } else if (myMetis.isAdminType(type)) {
+        chosenType = null;
       } else {
         currentType = inst1.type;
         let namelist = ['All'];
         if (debug) console.log('100 inst', inst);
         if (useTabs && modalContext?.what === 'editObject') {
-          const inheritedTypes = inst1?.getInheritedTypes();
+          let inheritedTypes = []; 
+          inheritedTypes = inst1?.getInheritedTypes();
           const inheritedObjTypes = inst1.getInheritedObjectTypes(myModel);
           if (debug) console.log('105 inheritedObjTypes', inheritedObjTypes);
           inheritedTypes.push(currentType);
+          namelist = []; 
           namelist = inst1.getInheritedTypeNames();
           namelist.push(inst.type.name);
           for (let i=0; i<inheritedObjTypes.length; i++) {
@@ -129,19 +137,21 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             chosenType = null;
             if (debug) console.log('123 type', type);
           }  
+          if (!inst1?.hasInheritedProperties(myModel))
+            chosenType = null;
+          inst = inst1;
         }
         if (debug) console.log('135 myModel', myModel);
-        if (!inst1?.hasInheritedProperties(myModel))
-          chosenType = null;
       }
-      if (debug) console.log('139 inst, chosenType', inst, chosenType);
-      instview = selObj;
-      typeview = instview?.typeview;      
+      if (debug) console.log('145 inst, inst1, selObj, chosenType', inst, inst1, selObj, chosenType);
+      // instview = selObj;
+      // typeview = instview?.typeview;      
+      if (debug) console.log('149 instview, typeview', instview, typeview);
     } else if (category === constants.gojs.C_RELATIONSHIP) {
       instview = selObj.relshipview;
       instview = myMetis.findRelationshipView(instview?.id);
       inst = selObj.relship;
-      if (debug) console.log('103 inst', inst, selObj);
+      if (debug) console.log('152 inst', inst, selObj);
       if (!inst) inst = instview?.relship;
       inst = myMetis.findRelationship(inst?.id);
       // type = inst.type;
@@ -205,20 +215,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let isLabel = false;
     const what = modalContext?.what;
     switch (what) {
-      case "toBeDefined":
-      // case 'editProject':
-      //   item = modalContext.gojsModel?.nodes[0];
-      //   useItem = true;
-      //   break;
-      // case 'editModel':
-      //   item = myMetis.currentModel;
-      //   useItem = true;
-      //   break;
-      // case 'editModelview':
-      //   item = myMetis.currentModelview;
-      //   useItem = true;
-      //   break;
-      break;
       case "editObjectType":
         // item = inst.objecttype;
         item = type;
@@ -267,13 +263,23 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       default:
         item = inst;
     }
-    if (debug) console.log('224 inst, item, selObj', inst, item, selObj);
+    if (debug) console.log('224 inst, inst1, item, selObj', inst, inst1, item, selObj);
     for (let k in item) {
       if (k === 'abstract') {
-          if (what !== 'editObject' && what !== 'editObjectType')
+        if (type.name === constants.admin.AKM_PROJECT ||
+            type.name === constants.admin.AKM_MODEL ||
+            type.name === constants.admin.AKM_MODELVIEW
+        )
+        continue;
+        if (what !== 'editObject' && what !== 'editObjectType')
               continue;
       }      
       if (k === 'viewkind') {
+        if (type.name === constants.admin.AKM_PROJECT ||
+            type.name === constants.admin.AKM_MODEL ||
+            type.name === constants.admin.AKM_MODELVIEW
+          )
+          continue;
         if (what !== 'editObject' && what !== 'editObjectType' && 
             what !== 'editObjectview' && what !== 'editTypeview')
           continue;
@@ -359,7 +365,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             val = selObj[k]; // item[k];
             break;
           case 'editTypeview':
-            const tview = item;
+            const tview = instview ? instview.typeview : item.typeview;
             if (tview?.category === constants.gojs.C_OBJECTTYPEVIEW) {
               val = tview.data[k];
             } else 
@@ -525,6 +531,11 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'select';
             }
             break;
+          case 'strokewidth': 
+            values = strokewidths;
+            defValue = '1';
+            fieldType = 'select';
+            break;
           case 'textcolor':
           case 'fromArrowColor':
           case 'toArrowColor':
@@ -620,7 +631,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         dets.push(row);
       }
     }
-    if (debug) console.log('545 SelectionInspector ', dets);
+    if (debug) console.log('641 SelectionInspector ', dets);
     return dets;
   }
   

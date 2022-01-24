@@ -278,6 +278,7 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
     const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
     const adminModel    = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     const projectType   = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
+    const metamodelType = myMetis.findObjectTypeByName(constants.admin.AKM_METAMODEL);
     const modelType     = myMetis.findObjectTypeByName(constants.admin.AKM_MODEL);
     const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
 
@@ -291,7 +292,35 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
       const prop = properties[i];
       myMetis[prop.name] = project[prop.name];
     }
-    // Then handle models
+    // Then handle metamodels, but only existing ones
+    const mmObjects = adminModel.getObjectsByType(metamodelType);
+    for (let i=0; i<mmObjects.length; i++) {
+        let metamodel;
+        const mmObj = mmObjects[i];
+        if (mmObj.metamodelId) {
+            // Existing metamodel
+            metamodel = myMetis.findMetamodel(mmObj.metamodelId) as akm.cxMetaModel;
+            metamodel.name = mmObj.name;
+            metamodel.description = mmObj.description;
+        }
+        if (metamodel) {
+            const properties = metamodelType.getProperties(true);
+            for (let i=0; i<properties.length; i++) {
+                const prop = properties[i];
+                metamodel[prop.name] = mmObj[prop.name];
+            }  
+        } else {
+            // New metamodel
+            metamodel = new akm.cxMetaModel(utils.createGuid(), mmObj.name, mmObj.description);
+            myMetis.addMetamodel(metamodel);
+            const properties = metamodelType.getProperties(true);
+            for (let i=0; i<properties.length; i++) {
+                const prop = properties[i];
+                metamodel[prop.name] = mmObj[prop.name];
+            }  
+       }
+    }
+    // And then handle models
     const mObjects = adminModel.getObjectsByType(modelType);
     for (let i=0; i<mObjects.length; i++) {
         let model;
@@ -359,7 +388,7 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-    if (debug) console.log('347 data', data, myMetis);
+    if (debug) console.log('362 myMetis, data', myMetis, data);
 } 
 
 function askForMetamodel(context: any) {

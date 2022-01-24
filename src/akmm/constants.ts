@@ -155,6 +155,8 @@ export let types = {
 export let admin = {
      AKM_ADMIN_MM:            "AKM-ADMIN_MM",
      AKM_ADMIN_MODEL:         "_ADMIN_MODEL",
+     AKM_ADMIN_MODELVIEW:     "_ADMIN",
+     AKM_ADMIN_GOMODEL:       "_ADMIN_GOMODEL",
      AKM_PROJECT:             "Project",
      AKM_METAMODEL:           "Metamodel",
      AKM_MODEL:               "Model",
@@ -162,5 +164,8 @@ export let admin = {
      AKM_HAS_METAMODEL:       "has",
      AKM_HAS_MODEL:           "has",
      AKM_HAS_MODELVIEW:       "has",
-     AKM_REFERSTO_METAMODEL:  "refersTo"
+     AKM_REFERSTO_METAMODEL:  "refersTo",
+     AKM_PROP_METAMODEL_ID:   "metamodelId",
+     AKM_PROP_MODEL_ID:       "modelId",
+     AKM_PROP_MODELVIEW_ID:   "modelviewId",
 }

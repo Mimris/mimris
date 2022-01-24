@@ -1887,6 +1887,24 @@ export class cxMetis {
         }
         return null;
     }
+    findModelByMetamodelAndName(metamodel: cxMetamodel, name: string): cxModel | null {
+        const models = this.getModels();
+        if (!models) {
+            return null;
+        } else {
+            let i = 0;
+            let model = null;
+            while (i < models.length) {
+                model = models[i];
+                if (model.metamodel.id === metamodel.id) {
+                    if (model.getName() === name)
+                        return model;
+                }
+                i++;
+            }
+        }
+        return null;
+    }
     findObjectType(id: string): cxObjectType | null {
         const types = this.getObjectTypes();
         if (!types) {
@@ -6559,6 +6577,8 @@ export class cxRelationship extends cxInstance {
             this.cardinalityFrom = this.getCardinalityFrom();
             this.cardinalityTo = this.getCardinalityTo();
         }
+        toObj?.addInputrel(this);
+        fromObj?.addOutputrel(this);
     }
     // Methods
     setNameFrom(name: string) {

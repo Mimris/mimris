@@ -1,7 +1,34 @@
 // @ts-nocheck
 // Utility functions
-
 const debug = false;
+
+const constants = require('./constants');
+
+let showAdminModel = false;
+
+export function toggleAdminModel(): boolean {
+    showAdminModel = !showAdminModel;
+    return showAdminModel;    
+}
+
+export function getShowAdminModel() {
+    return showAdminModel;
+}
+
+export function isAdminType(type): boolean {
+    if (type.name === constants.admin.AKM_PROJECT
+        ||
+        type.name === constants.admin.AKM_METAMODEL
+        ||
+        type.name === constants.admin.AKM_MODEL
+        ||
+        type.name === constants.admin.AKM_MODELVIEW
+        )
+        return true;
+    else
+        return false;
+}
+
 export let isArrayEmpty = (array: any) => {
     let retval = false;
     if (array == null)

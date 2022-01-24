@@ -697,12 +697,12 @@ function reducer(state = InitialStateStr, action) {
             {
               ...state.phData.metis.models[curmindexo],
               objects: [
-                ...curmo.objects.slice(0, curoindexo),
+                ...curmo?.objects.slice(0, curoindexo),
                 {
                   ...curmo.objects[curoindexo], 
                   ...action.data, 
                 },
-                ...curmo.objects.slice(curoindexo + 1, curmo.objects.length)
+                ...curmo?.objects.slice(curoindexo + 1, curmo?.objects.length)
               ],
             },
             ...state.phData.metis.models.slice(curmindexo + 1, state.phData.metis.models.length),
@@ -722,12 +722,12 @@ function reducer(state = InitialStateStr, action) {
             {
               ...state.phData.metis.models[curmindexo],
               objects: [
-                ...curmo.objects.slice(0, curoindexo),
+                ...curmo?.objects.slice(0, curoindexo),
                 {
                   ...curmo.objects[curoindexo], 
                   ...action.data,
                 },
-                ...curmo.objects.slice(curoindexo + 1, curmo.objects.length)
+                ...curmo?.objects.slice(curoindexo + 1, curmo?.objects.length)
               ],
             },
             ...state.phData.metis.models.slice(curmindexo + 1, state.phData.metis.models.length),

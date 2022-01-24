@@ -108,7 +108,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     const adminModel = this.myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     this.myMetis.adminModel = adminModel;
-    this.myMetis.adminModel = null;
+    this.myMetis.showAdminModel = false;
+    // this.myMetis.adminModel = null;
   }
   /**
    * Get the diagram reference and add any desired diagram listeners.
@@ -388,8 +389,11 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       );
     myDiagram.grid.visible = true;
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
-    myDiagram.toolManager.resizingTool.isGridSnapEnabled = true;    //myDiagram.dispatch ({ type: 'SET_MYMETIS_MODEL', myMetis });
+    myDiagram.toolManager.resizingTool.isGridSnapEnabled = true; 
     myMetis.myDiagram = myDiagram;
+    if (myMetis.currentModelview.name === constants.admin.AKM_ADMIN_MODELVIEW) {
+      setLayout(myDiagram, myMetis.currentModelview?.layout);
+    }
     
     // Tooltip functions
     function nodeInfo(d: any) {  // Tooltip info for a node data object
@@ -1866,7 +1870,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const projectType = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
                 const project = adminModel.findObjectByTypeAndName(projectType, myMetis.name);
                 if (debug) console.log('1868 project', project);
-                project.category = constants.gojs.C_OBJECT;
+                // project.category = constants.gojs.C_OBJECT;
+                const projectview = project.objectviews[0];
                 // const node = project.objectviews[0];
                 // console.log('1875 node', node);
                 // uid.editObjectview(node, myMetis, myDiagram); 
@@ -1901,12 +1906,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 modifiedModels?.map(mn => {
                   let data = (mn) && mn
                   data = JSON.parse(JSON.stringify(data));
+                  if (debug) console.log('1906 model', data);
                   e.diagram?.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
                 })
               } else {
                 const modelType = myMetis.findObjectTypeByName(constants.admin.AKM_MODEL);
                 let model = adminModel.findObjectByTypeAndName(modelType, currentName);
-                if (debug) console.log('1901 model', model);
+                if (debug) console.log('1912 model', model);
                 model.category = constants.gojs.C_OBJECT;
                 uid.editObject(model, myMetis, myDiagram); 
               }
@@ -1937,12 +1943,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 modifiedModelviews?.map(mn => {
                   let data = (mn) && mn
                   data = JSON.parse(JSON.stringify(data));
+                  if (debug) console.log('1942 modelview', data);
                   e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
                 })
               } else {
                 const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
                 let modelview = adminModel.findObjectByTypeAndName(modelviewType, currentName);
-                if (debug) console.log('1946 modelview', modelview);
+                if (debug) console.log('1948 modelview', modelview);
                 modelview.category = constants.gojs.C_OBJECT;
                 uid.editObject(modelview, myMetis, myDiagram); 
               }
@@ -1952,6 +1959,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
+
+          makeButton("Update Project from AdminModel",
+          function (e: any, obj: any) {
+            let adminModel = myMetis.adminModel;
+            if (adminModel) {
+              uid.updateProjectFromAdminmodel(myMetis, myDiagram);
+            }           
+          },
+          function (o: any) { 
+            if (myMetis.modelType === 'Metamodelling')
+              return false;
+            return true; 
+          }),
+
           makeButton("----------",
             function (e: any, obj: any) {
             },
@@ -2173,6 +2194,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return false;
               return true; 
             }),
+          makeButton("Toggle Admin layer",
+            function (e: any, obj: any) {
+              utils.toggleAdminModel();
+
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true; 
+            }),
+          makeButton("----------",
+            function (e: any, obj: any) {
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true; 
+            }),
           makeButton("Set Layout Scheme",
             function (e: any, obj: any) {
               const layoutList = () => [
@@ -2206,28 +2245,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const myGoModel = myMetis.gojsModel;
               let layout = myGoModel.modelView?.layout;
               if (myMetis.modelType === 'Metamodelling') 
-                layout = myGoModel.metamodel?.layout;
-              switch (layout) {
-                case 'Circular':
-                  myDiagram.layout = $(go.CircularLayout); 
-                  break;
-                case 'Grid':
-                  myDiagram.layout = $(go.GridLayout); 
-                  break;
-                case 'Tree':
-                  myDiagram.layout = $(go.TreeLayout); 
-                  break;
-                case 'ForceDirected':
-                  myDiagram.layout = $(go.ForceDirectedLayout); 
-                  break;
-                case 'LayeredDigraph':
-                  myDiagram.layout = $(go.LayeredDigraphLayout); 
-                  break;
-                case 'Manual':
-                  myDiagram.layout.isInitial = false; 
-                  myDiagram.layout.isOngoing = false; 
-                  break;
-              }
+                layout = myGoModel.metamodel?.layout;              
+              setLayout(myDiagram, layout);
             },
             function (o: any) { 
               return true; 
@@ -2531,6 +2550,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         );
     }
 
+    function setLayout (myDiagram, layout) {
+      switch (layout) {
+        case 'Circular':
+          myDiagram.layout = $(go.CircularLayout); 
+          break;
+        case 'Grid':
+          myDiagram.layout = $(go.GridLayout); 
+          break;
+        case 'Tree':
+          myDiagram.layout = $(go.TreeLayout); 
+          break;
+        case 'ForceDirected':
+          myDiagram.layout = $(go.ForceDirectedLayout); 
+          break;
+        case 'LayeredDigraph':
+          myDiagram.layout = $(go.LayeredDigraphLayout); 
+          break;
+        case 'Manual':
+          myDiagram.layout.isInitial = false; 
+          myDiagram.layout.isOngoing = false; 
+          break;
+      }
+    }
+
     // this DiagramEvent handler is called during the linking or relinking transactions
     function maybeChangeLinkCategory(e: any) {
       var link = e.subject;
@@ -2568,12 +2611,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     let selpropgroup = [  {tabName: 'Default'} ];
     if (modalContext?.what === 'editObject') {
       let obj = this.state.selectedData?.object;
-      obj = this.myMetis.findObject(obj?.id);
-      if (!obj) obj = selObj;
+      const obj1 = this.myMetis.findObject(obj?.id);
+      // if (!obj) obj = selObj;
       if (debug) console.log('2572 obj: description', obj, obj['description']);
       if (obj?.type?.name === 'Method')
         useTabs = false;
-      if (!obj?.hasInheritedProperties(myModel))
+      if (obj1?.hasInheritedProperties(myModel))
         useTabs = false;
       let namelist = useTabs ? uic.getNameList(myModel, obj) : [];
       selpropgroup = [];

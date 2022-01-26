@@ -105,6 +105,7 @@ export let types = {
          _EKA_PART         : "_part",
     
     // AKM types
+         AKM_COLLECTION        : "Collection",
          AKM_CONTAINER         : "Container",
          AKM_INFORMATION       : "Information",
          AKM_ROLE              : "Role",
@@ -123,10 +124,13 @@ export let types = {
          AKM_VIEWFORMAT        : "ViewFormat",
          AKM_FIELDTYPE         : "FieldType",
          AKM_UNIT              : "Unit",
+         AKM_CONTAINS          : "contains",
+         AKM_HAS_COLLECTION    : "has",
          AKM_HAS_MEMBER        : "hasMember",
          AKM_HAS_PART          : "hasPart",
          AKM_HAS_PROPERTY      : "has",
          AKM_HAS_PROPERTIES    : "hasProperties",
+         AKM_IS                : "Is",
          AKM_IS_OF_DATATYPE    : "isOf",
          AKM_IS_DEFAULTVALUE   : "isDefault",
          AKM_HAS_METHOD        : "has",
@@ -148,3 +152,20 @@ export let types = {
     
 };
     
+export let admin = {
+     AKM_ADMIN_MM:            "AKM-ADMIN_MM",
+     AKM_ADMIN_MODEL:         "_ADMIN_MODEL",
+     AKM_ADMIN_MODELVIEW:     "_ADMIN",
+     AKM_ADMIN_GOMODEL:       "_ADMIN_GOMODEL",
+     AKM_PROJECT:             "Project",
+     AKM_METAMODEL:           "Metamodel",
+     AKM_MODEL:               "Model",
+     AKM_MODELVIEW:           "Modelview",
+     AKM_HAS_METAMODEL:       "has",
+     AKM_HAS_MODEL:           "has",
+     AKM_HAS_MODELVIEW:       "has",
+     AKM_REFERSTO_METAMODEL:  "refersTo",
+     AKM_PROP_METAMODEL_ID:   "metamodelId",
+     AKM_PROP_MODEL_ID:       "modelId",
+     AKM_PROP_MODELVIEW_ID:   "modelviewId",
+}

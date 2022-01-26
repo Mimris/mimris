@@ -79,7 +79,7 @@ const LoadFile = (props: any) => {
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) 
-    SaveModelToFile(metamodel, metamodel.name, 'Metamodel')
+    SaveModelToFile(metamodel, metamodel.name, 'MM')
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
   

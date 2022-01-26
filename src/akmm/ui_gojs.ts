@@ -29,6 +29,9 @@ export class goModel {
     metamodel: akm.cxMetaModel | null;
     nodes: goNode[];
     links: goLink[];
+    layout: string;
+    layer: string;
+    visible: boolean;
     constructor(key: string, name: string, modelView: akm.cxModelView) {
         this.key = key;
         this.name = name;
@@ -39,6 +42,9 @@ export class goModel {
         this.metamodel = (modelView)
             ? ((modelView.model) ? (modelView.model.metamodel) : null)
             : null;
+        this.layout = "";
+        this.layer = this.model?.layer;
+        this.visible = this.layer !== 'Admin';
         if (debug) console.log('41 constants', constants, this);
     }
     // Methods
@@ -358,6 +364,7 @@ export class goObjectNode extends goNode {
     textcolor: string;
     icon: string;
     isGroup: boolean | "";
+    isCollapsed: boolean | "";
     groupLayout: string;
     group: string;
     parent: string;
@@ -376,6 +383,7 @@ export class goObjectNode extends goNode {
         this.textcolor      = objview.textcolor;
         this.icon           = objview.icon;
         this.isGroup        = objview.isGroup;
+        this.isCollapsed    = objview.isCollapsed;
         this.groupLayout    = "Tree";
         this.group          = objview.group;
         this.parent         = "";

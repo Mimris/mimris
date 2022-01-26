@@ -77,18 +77,18 @@ const Modeller = (props: any) => {
             {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
             <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
           {/* </div>  */}
-          <h5 className="modeller-heading float-right text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
-              style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-              <div style={{display: "flex",}}>
-                <label> Project :  
-                  <input type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
+          <div className="modeller-heading float-right text-dark py-0 m-0 mr-5 px-2 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'" 
+              style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
+              <div className="w-100" >
+                <label className="m-0 p-0  w-50 float-right" > Project :  
+                  <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
                 </label>
                 {/* <label for="projName">Project :</label> 
                 <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
               </div>
               {/* <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span>  */}
-          </h5>
+          </div>
         </>
       :
       <div className="modeller-selection float-right" >
@@ -142,7 +142,7 @@ const Modeller = (props: any) => {
     const model = models.find(m => m.id === focusModel?.id)
     if (model) {
       const modelviews = model.modelviews;
-      if (modelviews) {
+      if (modelviews?.length > 0) {
         if (debug) console.log('111 model', model);
         if (activeTab === 0) {
           const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
@@ -201,7 +201,7 @@ const Modeller = (props: any) => {
         <NavItem >
         <button className="btn-sm bg-warning text-white py-0 ml-3 float-right"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title=" Modelling:&#013;Insert an Object: Click on an Object Type in the Palette (the left) and drag and drop it into the Modelling area below.&#013;&#013;
-                  Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">?
+                  Connect two objects: &#013;Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object to make a relationshop between them.">i
         </button>
          
         </NavItem>
@@ -264,7 +264,7 @@ const Modeller = (props: any) => {
       {/* <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
         title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
         Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."
-        >?
+        >i
       </button> */}
 
         {selector}

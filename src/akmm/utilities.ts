@@ -1,7 +1,34 @@
 // @ts-nocheck
 // Utility functions
-
 const debug = false;
+
+const constants = require('./constants');
+
+let showAdminModel = false;
+
+export function toggleAdminModel(): boolean {
+    showAdminModel = !showAdminModel;
+    return showAdminModel;    
+}
+
+export function getShowAdminModel() {
+    return showAdminModel;
+}
+
+export function isAdminType(type): boolean {
+    if (type.name === constants.admin.AKM_PROJECT
+        ||
+        type.name === constants.admin.AKM_METAMODEL
+        ||
+        type.name === constants.admin.AKM_MODEL
+        ||
+        type.name === constants.admin.AKM_MODELVIEW
+        )
+        return true;
+    else
+        return false;
+}
+
 export let isArrayEmpty = (array: any) => {
     let retval = false;
     if (array == null)
@@ -116,6 +143,9 @@ export function findObjectsByType(objects: any, objecttypes: any,  objTypeName: 
 export function findObjectByName(objects: any, arg1: {}, restName: any) {
     return objects.find(o => o.name === restName && o);
 }
+export function findObjectByTitle(objects: any, arg1: {}, restTitle: any) {
+    return objects.find(o => o.name === restTitle && o);
+}
 
 export function findFromObjects( o: any, objects: any, torships: any ) {
     if (debug) console.log('120 findFromObjects', o, objects, torships);
@@ -134,19 +164,20 @@ export function findTopLevelObject( o: any, type: string, objects, relationships
     if (debug) console.log('133 ', o.name);
     const torships1 = relationships?.filter(r => r.toobjectRef === o.id && r); // find all relships to current obj object
     const fromObj1 =  objects?.find(o => o.id  === torships1[0].fromobjectRef); // find object in the other end of the relationship (assuming only one)
-    if (debug) console.log('135 ', torships1, torships1[0]);
+    if (debug) console.log('135 ', fromObj1, torships1, torships1[0]);
     
     // const fromObj1 = torships1?.map(r => objects?.find(o => o.id  === r.fromobjectRef)); // find object in the other end of the relationship (assuming only one)
     const torships2 = relationships?.filter(r => r.toobjectRef === fromObj1?.id && r); // find all relships to current obj object
     if (debug) console.log('139 ', torships2);
     const fromObj2 =  (torships2[0]) && objects?.find(o => o.id  === torships2[0].fromobjectRef); // find object in the other end of the relationship (assuming only one)
     // const fromObj2 = torships1?.find(r => objects?.find(o => o.id  === r.fromobjectRef)); // find object in the other end of the relationship (assuming only one)
-    if (debug) console.log('140 ', fromObj2);
     
-    return fromObj2;
+    const topObj = fromObj1 || fromObj2;
+    if (debug) console.log('140 ', fromObj1,  fromObj2, topObj);
+
+    return topObj;
     
 }
-
 
 export function findRelshipByToIdAndType(curRelships: any, toObjId: string, relType: string) {
     if (debug) console.log('151 ', curRelships, toObjId, relType);

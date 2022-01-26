@@ -9,7 +9,7 @@ import * as uid from './ui_diagram';
 import * as ui_mtd from './ui_methods';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
-import * as gql from './ui_graphql';
+import * as jsn from './ui_json';
 const constants = require('./constants');
 const printf = require('printf');
 
@@ -767,7 +767,7 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
                     return getCurve(c);
                 }
             ),
-            // new go.Binding("points").makeTwoWay(),
+            new go.Binding("points").makeTwoWay(),
             { contextMenu: contextMenu },
             // link shape
             $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
@@ -869,7 +869,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 // Groups containing Nodes lay out their members vertically
                 //layout: $(go.TreeLayout)
             },
-            //new go.Binding("layout", "groupLayout"),
+            // new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
+            // new go.Binding("layout", "groupLayout"),
             new go.Binding("background", "isHighlighted",
             function (h) {
                 return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is te background of all

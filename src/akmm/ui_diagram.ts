@@ -8,6 +8,7 @@ import * as ui_mtd from './ui_methods';
 import * as akm from './metamodeller';
 import * as gjs from './ui_gojs';
 import * as jsn from './ui_json';
+import { setMyGoModel } from '../actions/actions';
 const constants = require('./constants');
 const printf = require('printf');
 
@@ -273,6 +274,123 @@ export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: 
     gjsNode.isHighlighted = true;
 }
 
+export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any) {
+    const adminMetamodel = myMetis.findMetamodelByName(constants.admin.AKM_ADMIN_MM);
+    const adminModel    = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
+    const projectType   = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
+    const metamodelType = myMetis.findObjectTypeByName(constants.admin.AKM_METAMODEL);
+    const modelType     = myMetis.findObjectTypeByName(constants.admin.AKM_MODEL);
+    const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
+
+    // First handle project properties
+    const projects = adminModel.getObjectsByType(projectType);
+    const project = projects[0];
+    myMetis.name = project.name;
+    myMetis.description = project.description;
+    const properties = projectType.getProperties(true);
+    for (let i=0; i<properties.length; i++) {
+      const prop = properties[i];
+      myMetis[prop.name] = project[prop.name];
+    }
+    // Then handle metamodels, but only existing ones
+    const mmObjects = adminModel.getObjectsByType(metamodelType);
+    for (let i=0; i<mmObjects.length; i++) {
+        let metamodel;
+        const mmObj = mmObjects[i];
+        if (mmObj.metamodelId) {
+            // Existing metamodel
+            metamodel = myMetis.findMetamodel(mmObj.metamodelId) as akm.cxMetaModel;
+            metamodel.name = mmObj.name;
+            metamodel.description = mmObj.description;
+        }
+        if (metamodel) {
+            const properties = metamodelType.getProperties(true);
+            for (let i=0; i<properties.length; i++) {
+                const prop = properties[i];
+                metamodel[prop.name] = mmObj[prop.name];
+            }  
+        } else {
+            // New metamodel
+            metamodel = new akm.cxMetaModel(utils.createGuid(), mmObj.name, mmObj.description);
+            myMetis.addMetamodel(metamodel);
+            const properties = metamodelType.getProperties(true);
+            for (let i=0; i<properties.length; i++) {
+                const prop = properties[i];
+                metamodel[prop.name] = mmObj[prop.name];
+            }  
+       }
+    }
+    // And then handle models
+    const mObjects = adminModel.getObjectsByType(modelType);
+    for (let i=0; i<mObjects.length; i++) {
+        let model;
+        const mObj = mObjects[i];
+        if (mObj.modelId) {
+            // Existing model
+            model = myMetis.findModel(mObj.modelId) as akm.cxModel;
+            model.name = mObj.name;
+            model.description = mObj.description;
+        } else {
+            // New model
+            model = new akm.cxModel(utils.createGuid(), mObj.name, mObj.description);
+            myMetis.addModel(model);
+            // Locate metamodel
+            const rels = mObj.outputrels;
+            for (let i=0; i<rels.length; i++) {
+                const rel = rels[i];
+                if (rel.name === constants.admin.AKM_REFERSTO_METAMODEL) {
+                    const mmObj = rel.toObject;
+                    const metamodel = myMetis.findMetamodel(mmObj.metamodelId) as akm.cxMetaModel;
+                    model.metamodel = metamodel;
+                    break;
+                }
+            }
+        }
+        if (model) {
+            const properties = modelType.getProperties(true);
+            for (let i=0; i<properties.length; i++) {
+                const prop = properties[i];
+                model[prop.name] = mObj[prop.name];
+            }        
+            // Find modelviews
+            const rels = mObj.outputrels;
+            for (let i=0; i<rels.length; i++) {
+                const rel = rels[i];
+                if (rel.name === constants.admin.AKM_HAS_MODELVIEW) {
+                    const mvObj = rel.toObject;
+                    if (mvObj.type.name === constants.admin.AKM_MODELVIEW) {
+                        let modelview;
+                        if (mvObj.modelviewId) {
+                            // Existing modelview
+                            modelview = myMetis.findModelView(mvObj.modelviewId);
+                            modelview.name = mvObj.name;
+                            modelview.description = mvObj.description;                
+                        } else {
+                            // New modelview
+                            modelview = new akm.cxModelView(utils.createGuid(), mvObj.name, mObj, mvObj.description);
+                            model.addModelView(modelview);
+                            myMetis.addModelView(modelview);
+                        }
+                        if (modelview) {
+                            const properties = modelviewType.getProperties(true);
+                            for (let i=0; i<properties.length; i++) {
+                                const prop = properties[i];
+                                modelview[prop.name] = mvObj[prop.name];
+                            }        
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // Dispatch metis
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = {metis: jsnMetis}
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    if (debug) console.log('362 myMetis, data', myMetis, data);
+} 
+
 function askForMetamodel(context: any) {
     if (debug) console.log('223 context', context);
     const myMetis = context.myMetis;
@@ -291,8 +409,8 @@ function askForMetamodel(context: any) {
         const metaModel = allMetaModels[i];
         if (metaModel.markedAsDeleted)
             continue;
-        if (metaModel.name === constants.admin.AKM_ADMIN_MM)
-            continue;
+        // if (metaModel.name === constants.admin.AKM_ADMIN_MM)
+        //     continue;
         if (context.case === "Delete Metamodel") {
             if (metaModel.id === myMetamodel.id)
                 continue;
@@ -418,26 +536,52 @@ function createModel(context: any) {
     if (!metamodel) return;
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
-    const modelName = prompt("Enter Model name:", "");
-    if (modelName == null || modelName === "") {
-        alert("New operation was cancelled");
-    } else {
-        const model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
-        myMetis.addModel(model);
-        const modelviewName = prompt("Enter Modelview name:", "Main");
-        if (modelviewName == null || modelviewName === "") {
-            alert("New operation was cancelled");
-        } else {
-            // const curmodel = myMetis.currentModel;
-            const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model, "");
-            if (metamodel?.viewstyle) 
-            modelView.viewstyle = metamodel.viewstyle;
-            model.addModelView(modelView);
-            myMetis.addModelView(modelView);
+    let model, modelName, modelview, modelviewName;
+    if (metamodel.name === constants.admin.AKM_ADMIN_MM) {
+        modelName = constants.admin.AKM_ADMIN_MODEL;
+        modelviewName = constants.admin.AKM_ADMIN_MODELVIEW;
+        model = myMetis.findModelByName(modelName);
+        if (!model) {
+            model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
+            myMetis.addModel(model);    
+        }
+        if (model) {
+            modelview = model.findModelViewByName(modelviewName);
+            if (!modelview) {
+                modelview = new akm.cxModelView(utils.createGuid(), modelviewName, model, "");
+                model.addModelView(modelView);
+                myMetis.addModelView(modelView);    
+            }
             let data = new jsn.jsnModel(model, true);
             if (debug) console.log('35 jsnModel', data);
             data = JSON.parse(JSON.stringify(data));
             myDiagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data }); // dispatches model with modelview
+            return;
+        } 
+    }       
+    else {
+        modelName = prompt("Enter Model name:", "");
+    
+        if (modelName == null || modelName === "") {
+            alert("New operation was cancelled");
+        } else {
+            const model = new akm.cxModel(utils.createGuid(), modelName, metamodel, "");
+            myMetis.addModel(model);
+            const modelviewName = prompt("Enter Modelview name:", "Main");
+            if (modelviewName == null || modelviewName === "") {
+                alert("New operation was cancelled");
+            } else {
+                // const curmodel = myMetis.currentModel;
+                const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, model, "");
+                if (metamodel?.viewstyle) 
+                modelView.viewstyle = metamodel.viewstyle;
+                model.addModelView(modelView);
+                myMetis.addModelView(modelView);
+                let data = new jsn.jsnModel(model, true);
+                if (debug) console.log('35 jsnModel', data);
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data }); // dispatches model with modelview
+            }
         }
     }
 }

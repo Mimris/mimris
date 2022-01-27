@@ -146,7 +146,7 @@
         },
         {
           "id": "afd09d30-6c70-4745-7d34-7f3756e6764b",
-          "name": "metamodelId",
+          "name": "externalId",
           "description": "",
           "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
           "methodRef": "",
@@ -300,7 +300,7 @@
         },
         {
           "id": "65842fa4-cd05-41f8-009c-6582f2a373d1",
-          "name": "modelId",
+          "name": "externalId",
           "description": "",
           "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
           "methodRef": "",
@@ -398,7 +398,7 @@
         },
         {
           "id": "09226654-a7f0-4655-f578-a2a89593d432",
-          "name": "modelviewId",
+          "name": "externalId",
           "description": "",
           "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
           "methodRef": "",
@@ -1255,7 +1255,7 @@
     },
     {
       "id": "bdb4fd0c-8935-4c76-8aac-4749ec7f9798",
-      "name": "metamodelId",
+      "name": "externalId",
       "description": "",
       "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
       "methodRef": "",
@@ -1367,7 +1367,7 @@
     },
     {
       "id": "98fdb479-d425-4877-3782-f04cd87a6e9c",
-      "name": "modelId",
+      "name": "externalId",
       "description": "",
       "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
       "methodRef": "",
@@ -1451,7 +1451,7 @@
     },
     {
       "id": "5ed7533f-7636-4f6d-922d-ffe8cee84c23",
-      "name": "modelviewId",
+      "name": "externalId",
       "description": "",
       "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
       "methodRef": "",
@@ -1605,7 +1605,7 @@
     },
     {
       "id": "afd09d30-6c70-4745-7d34-7f3756e6764b",
-      "name": "metamodelId",
+      "name": "externalId",
       "description": "",
       "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
       "methodRef": "",
@@ -1717,7 +1717,7 @@
     },
     {
       "id": "65842fa4-cd05-41f8-009c-6582f2a373d1",
-      "name": "modelId",
+      "name": "externalId",
       "description": "",
       "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
       "methodRef": "",
@@ -1801,7 +1801,7 @@
     },
     {
       "id": "09226654-a7f0-4655-f578-a2a89593d432",
-      "name": "modelviewId",
+      "name": "externalId",
       "description": "",
       "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
       "methodRef": "",

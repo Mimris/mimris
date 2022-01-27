@@ -142,7 +142,7 @@ const Modeller = (props: any) => {
     const model = models.find(m => m.id === focusModel?.id)
     if (model) {
       const modelviews = model.modelviews;
-      if (modelviews) {
+      if (modelviews?.length > 0) {
         if (debug) console.log('111 model', model);
         if (activeTab === 0) {
           const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}

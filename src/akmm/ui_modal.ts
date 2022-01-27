@@ -593,38 +593,53 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         properties = obj.setAndGetAllProperties(myMetis);
       else 
         properties = type?.getProperties(true);
-
-      if (type.name === constants.admin.AKM_PROJECT) {
-          for (let i=0; i<properties.length; i++) {
-            const prop = properties[i];
-            myMetis[prop.name] = selObj[prop.name];
-          }
-      }
-      else if (type.name === constants.admin.AKM_MODEL) {
-        const model = myMetis.currentModel;
-        for (let i=0; i<properties.length; i++) {
-          const prop = properties[i];
-          model[prop.name] = selObj[prop.name];
-        }
-        jsnModel = new jsn.jsnModel(model, false);
-        modifiedModels.push(jsnModel);
-      }
-      else if (type.name === constants.admin.AKM_MODELVIEW) {
-        if (debug) console.log('612 selObj, obj, type', selObj, obj, type);
-        const modelview = myMetis.currentModelview;
-        for (let i=0; i<properties.length; i++) {
-          const prop = properties[i];
-          if (debug) console.log('616 prop, value', prop, obj[prop.name]);
-          if (prop.name === 'link curve')
-            modelview.linkcurve = obj[prop.name];
-          else if (prop.name === 'link routing')
-            modelview.routing = obj[prop.name];
-          else
-            modelview[prop.name] = obj[prop.name];
-        }
-        jsnModelview = new jsn.jsnModelView(modelview);
-        modifiedModelviews.push(jsnModelview);
-      }
+      // const isAdmin = utils.isAdminType(type);
+      // if (type.name === constants.admin.AKM_PROJECT) {
+      //     const project = {
+      //       "name":         selObj.name,
+      //       "description":  selObj.description
+      //     }
+      //     for (let i=0; i<properties.length; i++) {
+      //       const prop = properties[i];
+      //       project[prop.name] = selObj[prop.name];
+      //     }
+      //     const modifiedProjects = new Array();  // metis-objektet i phData
+      //     modifiedProjects.push(project);
+      //     modifiedProjects?.map(mn => {
+      //       let data = (mn) && mn
+      //       data = JSON.parse(JSON.stringify(data));
+      //       props.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
+      //     });
+      // }
+      // else if (type.name === constants.admin.AKM_MODEL) {
+      //   const model = myMetis.findModel(obj.modelId);
+      //   model.name = selObj.name;
+      //   model.description = selObj.description;
+      //   for (let i=0; i<properties.length; i++) {
+      //     const prop = properties[i];
+      //     model[prop.name] = selObj[prop.name];
+      //   }
+      //   jsnModel = new jsn.jsnModel(model, false);
+      //   modifiedModels.push(jsnModel);
+      // }
+      // else if (type.name === constants.admin.AKM_MODELVIEW) {
+      //   if (debug) console.log('612 selObj, obj, type', selObj, obj, type);
+      //   const modelview = myMetis.findModelView(obj.modelviewId);
+      //   modelview.name = selObj.name;
+      //   modelview.description = selObj.description;
+      //   for (let i=0; i<properties.length; i++) {
+      //     const prop = properties[i];
+      //     if (debug) console.log('616 prop, value', prop, obj[prop.name]);
+      //     if (prop.name === 'link curve')
+      //       modelview.linkcurve = obj[prop.name];
+      //     else if (prop.name === 'link routing')
+      //       modelview.routing = obj[prop.name];
+      //     else
+      //       modelview[prop.name] = obj[prop.name];
+      //   }
+      //   jsnModelview = new jsn.jsnModelView(modelview);
+      //   modifiedModelviews.push(jsnModelview);
+      // }
       if (debug) console.log('627 properties', properties);
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;

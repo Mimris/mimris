@@ -19,16 +19,16 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
     const JsonObjectType = curObjTypes.find(co => (co.name === 'JsonObject') && co)
     
-    const containerType = curObjTypes.find(co => (co.name === 'Container') && co)
-    const JsonArrayType = curObjTypes.find(co => (co.name === 'JsonArray') && co)
+    // const containerType = curObjTypes.find(co => (co.name === 'Container') && co)
+    // const JsonArrayType = curObjTypes.find(co => (co.name === 'JsonArray') && co)
     const entityType = curObjTypes.find(co => (co.name === 'EntityType') && co)
     // const masterDataType = curObjTypes.find(co => (co.name === 'MasterData') && co)
     // const WorkProductType = curObjTypes.find(co => (co.name === 'WorkProduct') && co)
     // const WorkProductComponentType = curObjTypes.find(co => (co.name === 'WorkProductComponent') && co)
-    const propertiesType = curObjTypes.find(co => (co.name === 'Properties') && co)
-    const propertyType = curObjTypes.find(co => (co.name === 'Property') && co)
+    // const propertiesType = curObjTypes.find(co => (co.name === 'Properties') && co)
+    // const propertyType = curObjTypes.find(co => (co.name === 'Property') && co)
     const hasPartType = curRelTypes.find(co => (co.name === 'hasPart') && co)
-    const hasMemberType = curRelTypes.find(co => (co.name === 'hasMember') && co)
+    // const hasMemberType = curRelTypes.find(co => (co.name === 'hasMember') && co)
     const containsType = curRelTypes.find(co => (co.name === 'contains') && co)
     const hasType = curRelTypes.find(co => (co.name === 'has') && co)
     // console.log('38', hasPartType);
@@ -62,14 +62,16 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
         let topId, topTitle, topDescription, topType, topTypeId 
         let propertyId, propertyName
 
-        // deepEntries take all object-keys and concatinate them in curKey with a path showing all above levels and put them in a new array
+        // deepEntries take all object-keys and concatinate them in curKey as a path showing all above levels and put them in a new array
         // example: deepEntries
-        //    0: (2) ['Well.1.0.0.json', '846aa642-1ae5-4deb-3cbb-cb7f26615838']
-        //    1: (2) ['Well.1.0.0.json|allOf', 'fc76c04d-0379-4301-b7cd-d68d861d47f6']
-        //    2: (2) ['Well.1.0.0.json|allOf|0', '20200684-f5d4-460b-0f2e-8f4dcaac0441']
+        //    0: (2) ['Well.1.0.0.json','846aa642-1ae5-4deb-3cbb-cb7f26615838',{$id: 'https://schema.osdu.opengroup.org/json/master-data/Well.1.0.0.json', $schema: 'http://json-schema.org/draft-07/schema#', title: 'Well', description: 'The origin of a set of wellbores.', type: 'object', …}
+        //    1: (2) ['Well.1.0.0.json|allOf', 'fc76c04d-0379-4301-b7cd-d68d861d47f6', .....]
+        //    2: (2) ['Well.1.0.0.json|allOf|0', '20200684-f5d4-460b-0f2e-8f4dcaac0441',  .......]
 
-        // the curKey is put in a array "allKeys" with curKey as first and the obect as second. 
-        function deepEntries( obj ) {
+        // the curKey is put in a array "allKeys" with curKey as first and the object id as second,and the content i.e. an object as third. 
+        function deepEntries( obj ) { // ToDo: this should be a separate function returning an array of allKeys.
+
+
             'use-strict';
             var allkeys, curKey = '', len = 0, i = -1, entryK;
             if (debug) console.log('75 deepEntries', obj);
@@ -124,7 +126,9 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // const childKey = cleanChildPathKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
                     // const gchildKey =  cleanGchildPathKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
                     // const ggchildKey =  cleanGchildPathKey.split('|').slice(-1)[0] // objectName ; split and slice it, pick last element 
-                  
+
+
+                  // define the anscesters of the object in the JSON-file by splitting the path and i.e. get the parentKey (name)
                     const gggggparentKey = oKey.split('|').slice(0, -5).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
                     const ggggparentKey = oKey.split('|').slice(0, -5).join('|') // parent path ; split and slice it, pick all exept last element and rejoin
                     const ggggparentName = oKey.split('|').slice(-6)[0] // 
@@ -179,7 +183,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     const oId = (existObj) ? existObj.id : utils.createGuid()
                     
                     mainArray = [...mainArray, [oId, oKey, oVal] ] // we add the oId to the oKey and oVal in the mainArray so we can search for the id by oKey (the total path id)
-                    if (debug) console.log('180 ', mainArray);           
+                    if (!debug) console.log('180 ', mainArray);           
                     
                     // ---------------------------------------------------------------------------------------------------------------------------------------        
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
@@ -208,7 +212,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             if (debug) console.log('227 ', oKey, oVal);
                             
                             // if oVal.type is an array then create a RelshipType objectype
-                            if (oVal.type === 'string' || oVal.type === 'number' || oVal.type === 'integer' || oVal.type === 'boolean') { // this is a property
+                            if (oVal.type === 'string' || oVal.type === 'number' || oVal.type === 'integer' || oVal.type === 'boolean') { // this is a normal property
                                 if (oName.includes('ID')) { // if type is string and name contains ID then it is a relship using the ID as key
                                     objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id   
                                     relshipoName = 'has'+oName.replace('ID', '')
@@ -527,6 +531,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
         
         return newobj;
     }
+
 
     function process(key,value) { //called with every property and its value
         // if (key === "id") key = "$id"  // We will use our own uuid so rename if source has id

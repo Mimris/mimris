@@ -62,7 +62,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
-    if (debug) console.log('64 selObj', selObj);
     if (selObj?.type === 'GraphLinksModel') {
       return;
     } 
@@ -71,7 +70,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     let item, chosenType, description, currentType, properties;
     if (myMetis.isAdminType(selObj?.type)) {
       inst = selObj;
-      type = inst.objecttype;
+      type = inst.type;
     } else {
       switch(category) {
         case constants.gojs.C_OBJECT:
@@ -120,13 +119,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     // Set chosenType
     {
       if (category === constants.gojs.C_OBJECT) {
-        if (type.name === 'Method') {
+        if (debug) console.log('122 type', type);
+        if (type?.name === 'Method') {
           chosenType = null;
         } else if (myMetis.isAdminType(type)) {
           chosenType = null;
         } else {
           currentType = inst.type;
-          if (debug) console.log('100 inst', inst);
+          if (debug) console.log('128 inst', inst);
           if (useTabs && modalContext?.what === 'editObject') {
             const inheritedTypes = inst?.getInheritedTypes();
             inheritedTypes.push(currentType);
@@ -193,7 +193,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
         const v = inst[prop.name];
         if (debug) console.log('190 prop.name, inst', prop.name, inst);
-        if (!v) inst[prop.name] = "";  // Sets empty string if undefined
+        // if (!v) inst[prop.name] = "";  // Sets empty string if undefined
       }
       if (debug) console.log('193 properties, inst, selObj', properties, inst, selObj);
     }
@@ -561,6 +561,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             case "loc":
             case "size":
             case "markedAsDeleted":
+            case "modelId":
+            case "metamodelId":
+            case "modelviewId":
               disabled = true;
               break;
           }

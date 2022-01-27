@@ -1182,8 +1182,6 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
             relship.setModified();
             data.relship = relship;
             relship.setName(reltype.name);
-            fromObj.addOutputrel(relship);
-            toObj.addInputrel(relship);
             myMetis.currentModel.addRelationship(relship);
             myMetis.addRelationship(relship);
         }
@@ -1493,8 +1491,6 @@ export function createLink(data: any, context: any): any {
                         relship.setModified();
                         data.relship = relship;
                         relship.setName(reltype.name);
-                        fromObj.addOutputrel(relship);
-                        toObj.addInputrel(relship);
                         myModel.addRelationship(relship);
                         myMetis.addRelationship(relship);
                     }
@@ -2614,13 +2610,15 @@ function selectNameFromNameList(question, namelist, defText): string {
 export function getNameList(myModel: akm.cxModel, obj: akm.cxObject): string[] {
     let namelist =[];
     if (obj) {
-      const inheritedObjTypes = obj.getInheritedObjectTypes(myModel);
-      namelist = obj.getInheritedTypeNames();
-      namelist.push(obj.type.name);
-      for (let i=0; i<inheritedObjTypes.length; i++) {
-        const type = inheritedObjTypes[i];
-        namelist.push(type.name);
-      }
+      try {
+        const inheritedObjTypes = obj?.getInheritedObjectTypes(myModel);
+        namelist = obj?.getInheritedTypeNames();
+        namelist.push(obj.type.name);
+        for (let i=0; i<inheritedObjTypes.length; i++) {
+            const type = inheritedObjTypes[i];
+            namelist.push(type.name);
+        } 
+      } catch {}
       namelist.push('All');
       let uniquelist = [...new Set(namelist)];
       uniquelist.reverse();

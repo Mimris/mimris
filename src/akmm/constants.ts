@@ -165,6 +165,7 @@ export let admin = {
      AKM_HAS_MODEL:           "has",
      AKM_HAS_MODELVIEW:       "has",
      AKM_REFERSTO_METAMODEL:  "refersTo",
+     AKM_GENERATEDFROM_MODEL: "generatedFrom",
      AKM_PROP_METAMODEL_ID:   "metamodelId",
      AKM_PROP_MODEL_ID:       "modelId",
      AKM_PROP_MODELVIEW_ID:   "modelviewId",

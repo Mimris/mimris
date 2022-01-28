@@ -745,9 +745,16 @@ export function askForTargetMetamodel(context: any) {
         myDiagram:      myDiagram,
         context:        context,
       } 
-      const mmNameIds = myMetis.metamodels.map(mm => mm && mm.nameId);
-      if (debug) console.log('724', mmNameIds, modalContext, context);
-      myDiagram.handleOpenModal(mmNameIds, modalContext);
+      const metamodels = myMetis.metamodels;
+      let mmlist = [];
+      for (let i=0; i<metamodels.length; i++) {
+        const mm = metamodels[i];
+        if (mm.name === constants.admin.AKM_ADMIN_MM)
+            continue;
+        mmlist.push(mm.nameId);
+    }
+      if (debug) console.log('724', mmlist, modalContext, context);
+      myDiagram.handleOpenModal(mmlist, modalContext);
 }
 
 export function generateTargetMetamodel2(context: any) {

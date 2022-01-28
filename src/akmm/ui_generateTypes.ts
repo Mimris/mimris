@@ -19,6 +19,8 @@ export function askForMetamodel(context: any, create: boolean, hideEKA: boolean)
     let mmlist = "";
     for (let i=0; i<metamodels.length; i++) {
         const mm = metamodels[i];
+        if (mm.name === constants.admin.AKM_ADMIN_MM)
+            continue;
         if (i == 0) {
             mmlist = "'" + mm.name + "'";
         } else 
@@ -993,7 +995,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                                 vstyle.addObjectTypeView(typeview);
                                 metamodel.addViewStyle(vstyle); 
                             }
-                            if (debug) console.log('966 typeview, vstyle, metamodel', typeview, vstyle, metamodel);                            
+                            if (debug) console.log('966 metamodel, typeview, vstyle ', metamodel, typeview, vstyle);                            
                         }
                     }
                 }

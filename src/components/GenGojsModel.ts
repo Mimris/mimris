@@ -27,12 +27,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   let adminModel;
 
   if (metis != null) {
-    console.log('33 GenGojsModel: phData, metis:', props.phData, props);
+    console.log('30 GenGojsModel: phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
-    if (debug) console.log('35 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
     adminModel = buildAdminModel(myMetis);
-    console.log('37 GenGojsModel: myMetis', myMetis);
+    console.log('34 GenGojsModel: myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview

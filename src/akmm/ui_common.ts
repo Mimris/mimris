@@ -2607,16 +2607,18 @@ function selectNameFromNameList(question, namelist, defText): string {
     }
 }
 
-export function getNameList(myModel: akm.cxModel, obj: akm.cxObject): string[] {
+export function getNameList(myModel: akm.cxModel, obj: akm.cxObject, onlyWithProperties: boolean): string[] {
     let namelist =[];
     if (obj) {
       try {
         const inheritedObjTypes = obj?.getInheritedObjectTypes(myModel);
-        namelist = obj?.getInheritedTypeNames();
-        namelist.push(obj.type.name);
         for (let i=0; i<inheritedObjTypes.length; i++) {
             const type = inheritedObjTypes[i];
-            namelist.push(type.name);
+            if (onlyWithProperties) {
+                 if (type.properties?.length>0)
+                 namelist.push(type.name);
+            } else 
+                namelist.push(type.name);
         } 
       } catch {}
       namelist.push('All');

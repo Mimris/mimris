@@ -130,7 +130,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (useTabs && modalContext?.what === 'editObject') {
             const inheritedTypes = inst?.getInheritedTypes();
             inheritedTypes.push(currentType);
-            let namelist = uic.getNameList(myModel, inst); 
+
+            let namelist = uic.getNameList(myModel, inst, true); 
+            if (debug) console.log('135 namelist', namelist);
             let typename = namelist[activeTab];
             if (debug) console.log('116 typename, namelist, inheritedTypes', typename, namelist, inheritedTypes);
             if (namelist.length > 1 && typename !== 'Element' && typename !== 'All') {
@@ -143,7 +145,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 }
               }
             } 
-            if (debug) console.log('128 typename, chosenType', typename, chosenType);
+            if (debug) console.log('148 typename, chosenType', typename, chosenType);
             if (typename === 'All') {
               chosenType = null;
             }  
@@ -151,12 +153,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               chosenType = null;
             }
           }
-          if (debug) console.log('135 myModel', myModel);
+          if (debug) console.log('156 myModel', myModel);
         }
-        if (debug) console.log('145 inst, inst1, selObj, chosenType', inst, inst1, selObj, chosenType);
-        // instview = selObj;
-        // typeview = instview?.typeview;      
-        if (debug) console.log('149 instview, typeview', instview, typeview);
+        if (debug) console.log('158 inst, inst1, selObj, chosenType', inst, inst1, selObj, chosenType);
+        if (debug) console.log('159 instview, typeview', instview, typeview);
       }
     }
 
@@ -170,7 +170,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       let props;
       if (chosenType) {
         props = chosenType.getProperties(false);
-        if (debug) console.log('172 chosenType, props', chosenType, properties);
+        if (debug) console.log('172 chosenType, props', chosenType, props);
       } 
       else if (type.name === 'Method') {
         inst = myMetis.findObject(inst.id);
@@ -179,12 +179,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       else {
         let flag = false;
         try {
-          props = type?.getProperties(flag);
-          if (debug) console.log('181 props', props);
+          const typeprops = type?.getProperties(flag);
+          const inheritedProps = inst.getInheritedProperties(myModel);
+          props = typeProps.concat(inheritedProps);
+          if (!debug) console.log('181 props', props);
         } catch {}
       }
       properties = props;
-      if (debug) console.log('184 props', properties);
+      if (debug) console.log('184 properties', properties);
 
       // Handle property values that are undefined
       for (let i=0; i<properties?.length; i++) {
@@ -193,7 +195,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           continue;
         const v = inst[prop.name];
         if (debug) console.log('190 prop.name, inst', prop.name, inst);
-        // if (!v) inst[prop.name] = "";  // Sets empty string if undefined
+        if (!v) inst[prop.name] = "";  // Sets empty string if undefined
       }
       if (debug) console.log('193 properties, inst, selObj', properties, inst, selObj);
     }

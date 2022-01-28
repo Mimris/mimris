@@ -1704,7 +1704,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
-              return true; 
+              const adminModel = myMetis.adminModel;
+              const currentModel = myMetis.currentModel; 
+              if (currentModel.id === adminModel.id)
+                return false; 
+              else
+                return true;
             }),
           makeButton("Set Modelview as Template",
             function (e: any, obj: any) {
@@ -1842,122 +1847,107 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Edit Project",
             function (e: any, obj: any) {
-              let adminModel = myMetis.adminModel;
-              if (!adminModel) {
-                const currentName = myMetis.name; 
-                const projectName = prompt("Enter Project name:", currentName);
-                if (projectName?.length > 0) {
-                  myMetis.name = projectName;
-                }
-                const currentDescr = myMetis.description; 
-                const projectDescr = prompt("Enter Project description:", currentDescr);
-                if (projectDescr?.length > 0) {
-                  myMetis.description = projectDescr;
-                }
-                const project = {
-                  // "id":           myMetis.id, // ToDo: add id to project
-                  "name":         myMetis.name,
-                  "description":  myMetis.description
-                }
-                const modifiedProjects = new Array();  // metis-objektet i phData
-                modifiedProjects.push(project);
-                modifiedProjects?.map(mn => {
-                  let data = (mn) && mn
-                  data = JSON.parse(JSON.stringify(data));
-                  e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
-                });
-              } else {
-                const projectType = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
-                const project = adminModel.findObjectByTypeAndName(projectType, myMetis.name);
-                if (debug) console.log('1868 project', project);
-                // project.category = constants.gojs.C_OBJECT;
-                const projectview = project.objectviews[0];
-                // const node = project.objectviews[0];
-                // console.log('1875 node', node);
-                // uid.editObjectview(node, myMetis, myDiagram); 
-                const node = project;
-                if (debug) console.log('1875 node', node);
-                uid.editObject(node, myMetis, myDiagram); 
+              const currentName = myMetis.name; 
+              const projectName = prompt("Enter Project name:", currentName);
+              if (projectName?.length > 0) {
+                myMetis.name = projectName;
               }
+              const currentDescr = myMetis.description; 
+              const projectDescr = prompt("Enter Project description:", currentDescr);
+              if (projectDescr?.length > 0) {
+                myMetis.description = projectDescr;
+              }
+              const project = {
+                // "id":           myMetis.id, // ToDo: add id to project
+                "name":         myMetis.name,
+                "description":  myMetis.description
+              }
+              const modifiedProjects = new Array();  // metis-objektet i phData
+              modifiedProjects.push(project);
+              modifiedProjects?.map(mn => {
+                let data = (mn) && mn
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram?.dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data })
+              });
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
+              if (myMetis.modelType === 'Metamodelling') {
                 return false;
-              return true; 
+              }
+              const adminModel = myMetis.adminModel;
+              const currentModel = myMetis.currentModel; 
+              if (currentModel.id === adminModel.id)
+                return false; 
+              else
+                return true;
             }),
           makeButton("Edit Model",
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel; 
               const currentName = currentModel.name;
-              let adminModel = myMetis.adminModel;
-              if (!adminModel) {
-                const modelName = prompt("Enter Model name:", currentName);
-                if (modelName?.length > 0) {
-                  currentModel.name = modelName;
-                }
-                const currentDescr = currentModel.description; 
-                const modelDescr = prompt("Enter Model description:", currentDescr);
-                if (modelDescr?.length > 0) {
-                  currentModel.description = modelDescr;
-                }
-                const jsnModel = new jsn.jsnModel(currentModel, true);
-                const modifiedModels = new Array();  
-                modifiedModels.push(jsnModel);
-                modifiedModels?.map(mn => {
-                  let data = (mn) && mn
-                  data = JSON.parse(JSON.stringify(data));
-                  if (debug) console.log('1906 model', data);
-                  e.diagram?.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                })
-              } else {
-                const modelType = myMetis.findObjectTypeByName(constants.admin.AKM_MODEL);
-                let model = adminModel.findObjectByTypeAndName(modelType, currentName);
-                if (debug) console.log('1912 model', model);
-                model.category = constants.gojs.C_OBJECT;
-                uid.editObject(model, myMetis, myDiagram); 
+              const modelName = prompt("Enter Model name:", currentName);
+              if (modelName?.length > 0) {
+                currentModel.name = modelName;
               }
+              const currentDescr = currentModel.description; 
+              const modelDescr = prompt("Enter Model description:", currentDescr);
+              if (modelDescr?.length > 0) {
+                currentModel.description = modelDescr;
+              }
+              const jsnModel = new jsn.jsnModel(currentModel, true);
+              const modifiedModels = new Array();  
+              modifiedModels.push(jsnModel);
+              modifiedModels?.map(mn => {
+                let data = (mn) && mn
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('1906 model', data);
+                e.diagram?.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+              })
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
+              if (myMetis.modelType === 'Metamodelling') {
                 return false;
-              return true; 
+              }
+              const adminModel = myMetis.adminModel;
+              const currentModel = myMetis.currentModel; 
+              if (currentModel.id === adminModel.id)
+                return false; 
+              else
+                return true;
             }),
           makeButton("Edit Modelview",
             function (e: any, obj: any) {
               const currentModelview = myMetis.currentModelview; 
               let currentName = currentModelview.name;
-              let adminModel = myMetis.adminModel;
-              if (!adminModel) {
-                const modelviewName = prompt("Enter Modelview name:", currentName);
-                if (modelviewName?.length > 0) {
-                  currentModelview.name = modelviewName;
-                }
-                const currentDescr = currentModelview.description; 
-                const modelviewDescr = prompt("Enter Modelview description:", currentDescr);
-                if (modelviewDescr?.length > 0) {
-                  currentModelview.description = modelviewDescr;
-                }
-                const jsnModelview = new jsn.jsnModelView(currentModelview);
-                const modifiedModelviews = new Array();  
-                modifiedModelviews.push(jsnModelview);
-                modifiedModelviews?.map(mn => {
-                  let data = (mn) && mn
-                  data = JSON.parse(JSON.stringify(data));
-                  if (debug) console.log('1942 modelview', data);
-                  e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
-                })
-              } else {
-                const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
-                let modelview = adminModel.findObjectByTypeAndName(modelviewType, currentName);
-                if (debug) console.log('1948 modelview', modelview);
-                modelview.category = constants.gojs.C_OBJECT;
-                uid.editObject(modelview, myMetis, myDiagram); 
+              const modelviewName = prompt("Enter Modelview name:", currentName);
+              if (modelviewName?.length > 0) {
+                currentModelview.name = modelviewName;
               }
+              const currentDescr = currentModelview.description; 
+              const modelviewDescr = prompt("Enter Modelview description:", currentDescr);
+              if (modelviewDescr?.length > 0) {
+                currentModelview.description = modelviewDescr;
+              }
+              const jsnModelview = new jsn.jsnModelView(currentModelview);
+              const modifiedModelviews = new Array();  
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews?.map(mn => {
+                let data = (mn) && mn
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('1942 modelview', data);
+                e.diagram?.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
             },
             function (o: any) { 
-              if (myMetis.modelType === 'Metamodelling')
+              if (myMetis.modelType === 'Metamodelling') {
                 return false;
-              return true; 
+              }
+              const adminModel = myMetis.adminModel;
+              const currentModel = myMetis.currentModel; 
+              if (currentModel.id === adminModel.id)
+                return false; 
+              else
+                return true;
             }),
 
           makeButton("Update Project from AdminModel",
@@ -1968,9 +1958,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }           
           },
           function (o: any) { 
-            if (myMetis.modelType === 'Metamodelling')
+            if (myMetis.modelType === 'Metamodelling') {
               return false;
-            return true; 
+            }
+            const adminModel = myMetis.adminModel;
+            const currentModel = myMetis.currentModel; 
+            if (currentModel.id === adminModel.id)
+              return true; 
+            else
+              return false;
           }),
 
           makeButton("----------",
@@ -2613,12 +2609,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       let obj = this.state.selectedData?.object;
       const obj1 = this.myMetis.findObject(obj?.id);
       // if (!obj) obj = selObj;
-      if (debug) console.log('2572 obj: description', obj, obj['description']);
+      if (debug) console.log('2572 obj, obj1', obj, obj1);
       if (obj?.type?.name === 'Method')
         useTabs = false;
-      if (obj1?.hasInheritedProperties(myModel))
+      if (!obj1?.hasInheritedProperties(myModel)) {
         useTabs = false;
-      let namelist = useTabs ? uic.getNameList(myModel, obj) : [];
+      }
+      let namelist = useTabs ? uic.getNameList(myModel, obj1, true) : [];
+      if (debug) console.log('2619 namelist', namelist);
       selpropgroup = [];
       for (let i=0; i<namelist.length; i++) {
         let name = namelist[i];

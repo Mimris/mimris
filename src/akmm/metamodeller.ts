@@ -6477,6 +6477,7 @@ export class cxObject extends cxInstance {
     }
     getInheritedObjectTypes(model: cxModel): cxType[] | null {
         const typelist = [];
+        // Handle Is relationships from the object
         const relships = this.findOutputRelships(model, constants.relkinds.GEN);
         for (let i=0; i<relships?.length; i++) {
             const rel = relships[i];
@@ -6487,6 +6488,13 @@ export class cxObject extends cxInstance {
                         typelist.push(toObj.type);
                 }
             }
+        }
+        // Then handle the type itself
+        const type = this.type;
+        const supertypes = type.getSupertypes();
+        for (let i=0; i<supertypes.length; i++) {
+            const stype = supertypes[i];
+            typelist.push(stype);
         }
         if (debug) console.log('6472 typelist', typelist);
         return typelist;

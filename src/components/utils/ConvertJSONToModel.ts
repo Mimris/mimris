@@ -89,7 +89,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
             // iterate over all objects allKeys is an array with [key, value] where key is the Json-object-path and value is the object
             // the key is the path to the object in the JSON-file and the value is the object itself 
-            while (++i !== len)
+            while (++i !== len) // iterate over all objects ToDo: this should be a separate function returning an mainArray including the id.
                 if (typeof allkeys[i][1] === 'object' && allkeys[i][1] !== null){ // It is an Json structure key as with an object 
                     curKey = allkeys[i][0]+ '';
                     // childKey = (allkeys[i+1]) ? allkeys[i+1][0]+ '' : '';
@@ -183,8 +183,9 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     const oId = (existObj) ? existObj.id : utils.createGuid()
                     
                     mainArray = [...mainArray, [oId, oKey, oVal] ] // we add the oId to the oKey and oVal in the mainArray so we can search for the id by oKey (the total path id)
-                    if (!debug) console.log('180 ', mainArray);           
-                    
+                    if (!debug) console.log('180 ', mainArray);      
+                }    
+                while (i++ < mainArray.length) { // we loop through the allkeys array
                     // ---------------------------------------------------------------------------------------------------------------------------------------        
                     if (modelType === 'AKM') { // if AKM then just create the top level object with title as name + properties
                         if (debug) console.log('184 ', oKey, oVal);
@@ -247,19 +248,9 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                             reltypeRef = containsType.id
                             reltypeName = containsType.name      
                             relshipKind = 'Association'   
-                            
-
-                            
+                                                     
                             console.log('247 ', parentKey, gparentKey,ggparentKey, gggparentKey, 'oKey', oKey);
-                            console.log('248 ', parentName, gparentName,ggparentName, gggparentName, parentId);
-
-                            // if (gggparentName === 'items') {  
-                            //     parentId = mainArray.find(a => (a[1] === ggggparentKey) && a[0]) 
-                            //     parentName = mainArray.find(a => (a[1] === ggggparentKey) && a[1])
-                            // } else {
-                            //     parentId = topId
-                            //     parentName = topName
-                            // }
+                            console.log('248 ', parentName, gparentName,ggparentName, gggparentName, parentId);''
 
                             if (debug) console.log( '232 :  oVal, oId, oName, parentId, parentName \n', oVal, oId, oName, parentId, parentName);   
 

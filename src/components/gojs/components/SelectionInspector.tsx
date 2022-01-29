@@ -182,7 +182,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           const typeprops = type?.getProperties(flag);
           const inheritedProps = inst.getInheritedProperties(myModel);
           props = typeProps.concat(inheritedProps);
-          if (!debug) console.log('181 props', props);
+          if (debug) console.log('181 props', props);
         } catch {}
       }
       properties = props;

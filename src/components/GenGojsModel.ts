@@ -580,7 +580,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       return;
     }
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    let adminModelview, adminGoModel;
+    let adminModelview;
     if (!adminModel) {
       adminModel = new akm.cxModel(utils.createGuid(), constants.admin.AKM_ADMIN_MODEL, adminMetamodel, "");
       // adminModel.layer = "Admin";
@@ -597,7 +597,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         // adminModelview.linkcurve = 'JumpOver';
         adminModel.addModelView(adminModelview);
         myMetis.addModelView(adminModelview);
-      }
+  }
       if (adminModelview) {
         adminModelview.objectviews = null;
         adminModelview.relshipviews = null;
@@ -782,11 +782,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
         }
       }
-
-      // adminGoModel = new gjs.goModel(utils.createGuid(), constants.admin.AKM_ADMIN_GOMODEL, adminModelview);
-      // adminGoModel.layout = adminModelview.layout;
-      if (debug) console.log('605 adminModel, adminModelview, adminGoModel', adminModel, adminModelview);
-
 
     }
     return adminModel;

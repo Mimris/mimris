@@ -1887,6 +1887,24 @@ export class cxMetis {
         }
         return null;
     }
+    findModelsByName(name: string): cxModel[] | null {
+        const models = [];
+        const allModels = this.getModels();
+        if (!allModels) {
+            return null;
+        } else {
+            let i = 0;
+            let model = null;
+            while (i < models.length) {
+                model = models[i];
+                if (model.getName() === name)
+                    models.push(model);
+                i++;
+            }
+            return models;
+        }
+        return null;
+    }
     findModelByMetamodelAndName(metamodel: cxMetamodel, name: string): cxModel | null {
         const models = this.getModels();
         if (!models) {

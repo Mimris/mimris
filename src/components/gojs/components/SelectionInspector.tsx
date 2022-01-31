@@ -82,14 +82,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           type = selObj.objecttype;
           type1 = myMetis.findObjectType(type?.id);
           if (type1) type = type1;
-          objtypeview = type.typeview;
+          objtypeview = type?.typeview;
           objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
           break;
         case constants.gojs.C_OBJECTTYPE:
           type = selObj.objecttype;
           type1 = myMetis.findObjectType(type?.id);
           if (type1) type = type1;
-          objtypeview = type.typeview;
+          objtypeview = type?.typeview;
           objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
           break;
         case constants.gojs.C_RELATIONSHIP:
@@ -101,14 +101,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           type = selObj.relshiptype;
           type1 = myMetis.findRelationshipType(type?.id);
           if (type1) type = type1;
-          reltypeview = type.typeview;
+          reltypeview = type?.typeview;
           reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
           break;
         case constants.gojs.C_RELSHIPTYPE:
           type = selObj.relshiptype;
           type1 = myMetis.findRelationshipType(type?.id);
           if (type1) type = type1;
-          reltypeview = type.typeview;
+          reltypeview = type?.typeview;
           reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
           break;       
       }

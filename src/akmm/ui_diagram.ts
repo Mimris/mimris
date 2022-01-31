@@ -85,6 +85,24 @@ export function deleteMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     askForMetamodel(context);
 }
 
+export function clearMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
+    // Select metamodel among all metamodels (except the current)
+    const args = {
+        "metamodel":          "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentMetamodel": myMetis.currentMetamodel,
+        "myDiagram":          myDiagram,
+        "case":               "Clear Metamodel",
+        "title":              "Select Metamodel to Clear",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      clearMetamodel2,
+        "args":               args
+    }
+    askForMetamodel(context);
+}
+
 export function newModel(myMetis: akm.cxMetis, myDiagram: any) {
     const args = {
         "metamodel":    myMetis.currentTargetMetamodel, 
@@ -118,6 +136,24 @@ export function deleteModel(myMetis: akm.cxMetis, myDiagram: any) {
         "title":              "Select Model to Delete",
         "dispatch":           myDiagram.dispatch,
         "postOperation":      deleteModel1,
+        "args":               args
+    }
+    askForModel(context);
+}
+
+export function clearModel(myMetis: akm.cxMetis, myDiagram: any) {
+    // Select model among all models (except the current)
+    const args = {
+        "model":              "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentModel":     myMetis.currentModel,
+        "myDiagram":          myDiagram,
+        "case":               "Clear Model",
+        "title":              "Select Model to Clear",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      clearModel1,
         "args":               args
     }
     askForModel(context);
@@ -530,6 +566,47 @@ function deleteMetamodel2(context: any) {
     if (debug) console.log('302 myMetis', myMetis);
 }
 
+function clearMetamodel2(context: any) {
+    const myMetis = context.myMetis as akm.cxMetis;
+    let metamodel = context.args.metamodel;
+    metamodel = myMetis.findMetamodel(metamodel.id)
+    const myDiagram = context.myDiagram;
+    if (debug) console.log('271 metamodel, myMetis', metamodel, myMetis);
+    const modifiedMetamodels = new Array();
+    const models = myMetis.getModelsByMetamodel(metamodel, false);
+    if (debug) console.log('274 models', models);
+    let doClear = false;
+    if (models.length > 0) {
+        let msg = "There are models based on the metamodel '" + metamodel.name + "'.\n";
+        msg += "The models will be deleted!\n";
+        msg += "Do you still want to continue?";
+        doClear = confirm(msg);
+    } else {
+        doClear = confirm("Do you really want to clear the metamodel '" + metamodel.name + "'?");
+    }
+    if (!doClear) {
+            return;
+    } else {
+        for (let i=0; i<models.length; i++) {
+            const model = models[i];
+            deleteModel2(model, myMetis, myDiagram);
+        }
+        
+        metamodel.clearContent();
+        const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+        if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
+        modifiedMetamodels.push(jsnMetamodel);
+        modifiedMetamodels.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+        });
+
+        uic.purgeDeletions(myMetis, myDiagram);
+    } 
+    if (debug) console.log('302 myMetis', myMetis);
+}
+
 function createModel(context: any) {
     const metamodel = context.args.metamodel;
     if (debug) console.log('51 Metamodel chosen: ', metamodel);
@@ -643,6 +720,18 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
     });
     alert("The model '" + model.name + "' has been deleted!");
     uic.purgeDeletions(myMetis, myDiagram);
+}
+
+function clearModel1(context: any) {
+    const model = context.args.model;
+    if (model) {
+        if (!confirm("Do you really want to clear '" + model.name + "'?"))
+            return;
+        const myMetis = context.myMetis;
+        const myDiagram = context.myDiagram;
+        if (debug) console.log('367 model, myMetis', model, myMetis);
+        clearModel2(model, myMetis, myDiagram);
+    }
 }
 
 

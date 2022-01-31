@@ -901,6 +901,15 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         modalContext.context.postOperation(context);        
         break;
       }
+      else if (modalContext.case === 'Clear Metamodel') {
+        const selectedValue = modalContext.selected?.value;
+        const metamodel = myMetis.findMetamodelByName(selectedValue); 
+        if (debug) console.log('881 metamodel, modalContext: ', metamodel, modalContext);
+        const context = modalContext.context;
+        context.args.metamodel = metamodel;
+        modalContext.context.postOperation(context);        
+        break;
+      }
       else if (modalContext.case === 'Delete Model') {
         const selectedValue = modalContext.selected?.value;
         const model = myMetis.findModelByName(selectedValue); 

@@ -2915,30 +2915,36 @@ export class cxMetaModel extends cxMetaObject {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_METAMODELS;  // Firestore collection
         this.category = constants.gojs.C_METAMODEL;
-        this.metamodels = null;
-        this.viewstyle  = null; // Current viewstyle
-        this.viewstyles = [];
-        this.geometries = [];
-        this.containers = null;
-        this.objecttypes = null;
-        this.objtypegeos = null;
-        this.objecttypeviews = null;
-        this.relshiptypes = null;
-        this.relshiptypeviews = null;
-        this.properties = null;
-        this.methods = null;
-        this.methodtypes = null;
-        this.enumerations = null;
-        this.units = null;
-        this.datatypes = null;
-        this.categories = null;
-        this.generatedFromModelRef = "";
-        this.isEKA = false;
-        this.layout = "ForceDirected";
-        this.routing = "Normal";
-        this.linkcurve = "None";
+        this.clearContent();
     }
     // Methods
+    clearContent(onlyUsedInCurrent: boolean) {
+            this.metamodels = null;
+            this.viewstyle  = null; // Current viewstyle
+            this.viewstyles = [];
+            this.geometries = [];
+            this.containers = null;
+            this.properties = null;
+            this.methods = null;
+            this.methodtypes = null;
+            this.enumerations = null;
+            this.units = null;
+            this.datatypes = null;
+            this.categories = null;
+            this.generatedFromModelRef = "";
+            this.isEKA = false;
+            this.layout = "ForceDirected";
+            this.routing = "Normal";
+            this.linkcurve = "None";  
+            
+            this.objecttypes = null;
+            this.objtypegeos = null;
+            this.objecttypeviews = null;
+            this.relshiptypes = null;
+            this.relshiptypeviews = null;
+            
+    }
+
     getLoc(type: cxObjectType): string {
         let retval = "";
         if (utils.objExists(type)) {
@@ -4825,6 +4831,22 @@ export class cxObjectType extends cxType {
             return null;
         }
     }
+    numberOfMetamodelsUsage(metis: cxMetis): integer {
+        let count = 0;
+        const metamodels = metis.metamodels;
+        for (let i=0; i<metamodels.length; i++) {
+            const mm = metamodels[i];
+            const objtypes = mm.objecttypes;
+            for (let j=0; j<objtypes.length; j++) {
+                const otype = objtypes[j];
+                if (otype.id === this.id) {
+                    count++;
+                    break;
+                }
+            }
+        }
+        return count;
+    }
 }
 
 export class cxObjtypeGeo extends cxMetaObject {
@@ -4986,6 +5008,22 @@ export class cxRelationshipType extends cxObjectType {
     }
     setToObjectType(objtype: cxObjectType) {
         this.toObjtype = objtype;
+    }
+    numberOfMetamodelsUsage(metis: cxMetis): integer {
+        let count = 0;
+        const metamodels = metis.metamodels;
+        for (let i=0; i<metamodels.length; i++) {
+            const mm = metamodels[i];
+            const reltypes = mm.relshiptypes;
+            for (let j=0; j<reltypes.length; j++) {
+                const rtype = reltypes[j];
+                if (rtype.id === this.id) {
+                    count++;
+                    break;
+                }
+            }
+        }
+        return count;
     }
 }
 
@@ -5603,6 +5641,9 @@ export class cxModel extends cxMetaObject {
         this.category = constants.gojs.C_MODEL;
         // this.modeltype = "";
         this.metamodel = metamodel;
+        this.clearContent();
+    }
+    clearContent() {
         this.sourceMetamodelRef = "";
         this.targetMetamodelRef = "";
         this.sourceModelRef = "";
@@ -6046,7 +6087,7 @@ export class cxInstance extends cxMetaObject {
         super(id, name, description);
         this.id = id;
         this.type = type;
-        this.typeRef = "";
+        this.typeRef = type?.id;
         this.typeName = type?.name;
         this.typeview = null;
         this.fromObject = null;

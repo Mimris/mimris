@@ -148,7 +148,8 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
     
         if (debug) console.log('134 ', o, firstElement, restObject);
         // check if the relationship exists between the objects
-        const existRelship = utils.findRelshipByToIdAndType(curRelships, restObject?.id, hasType?.id)
+        const existRelship = utils.findRelshipByToIdAndType(curRelships, restObject?.id, IsType?.id)
+        // const existRelship = utils.findRelshipByFromIdToIdAndType(curRelships, restObject?.id, hasType?.id)
         // console.log('140 ', restObject.id, existRelship);
         // find top level object
         let topLevelObject

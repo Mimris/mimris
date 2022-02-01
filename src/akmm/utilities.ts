@@ -184,3 +184,8 @@ export function findRelshipByToIdAndType(curRelships: any, toObjId: string, relT
     const relship = (toObjId) ? curRelships?.find(r => r.toobjectRef === toObjId && r.typeRef === relType) : null;
     return relship;
 }
+export function findRelshipByFromIdToIdAndType(curRelships: any, toObjId: string, relType: string) {
+    if (debug) console.log('151 ', curRelships, toObjId, relType);
+    const relship = (toObjId && fromObjId) ? curRelships?.find(r => r.fromobjectRef === fromObjId && r.toobjectRef === toObjId && r.typeRef === relType) : null;
+    return relship;
+}

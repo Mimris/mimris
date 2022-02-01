@@ -1039,7 +1039,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     }
                 }
                 if (debug) console.log('1003 relview', relview);
-                if (fromObj.isOfSystemType(metaObject) && toObj.isOfSystemType(metaObject)) {
+                if (fromObj?.isOfSystemType(metaObject) && toObj?.isOfSystemType(metaObject)) {
                     if (debug) console.log('1005 rel', rel);
                     const reltype = generateRelshipType(rel, relview, context);
                     if (debug) console.log('1007 reltype', reltype);

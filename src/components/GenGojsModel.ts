@@ -166,11 +166,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
 
     }
-    // if (debug) console.log('663 adminModel', adminModel);
-    // let data = new jsn.jsnModel(adminModel, true);
-    // if (debug) console.log('735 jsnModel', data);
-    // data = JSON.parse(JSON.stringify(data));
-    // dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data }); // dispatches model with modelview
 }
 
   function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
@@ -597,7 +592,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         // adminModelview.linkcurve = 'JumpOver';
         adminModel.addModelView(adminModelview);
         myMetis.addModelView(adminModelview);
-  }
+      }
       if (adminModelview) {
         adminModelview.objectviews = null;
         adminModelview.relshipviews = null;
@@ -689,6 +684,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                     rvToMMv.setFromObjectView(mObjview);
                     rvToMMv.setToObjectView(mmObjview);
                     relToMM.addRelationshipView(rvToMMv);
+                    rvToMMv.strokecolor = 'blue';
                     adminModelview.addRelationshipView(rvToMMv);
                     myMetis.addRelationshipView(rvToMMv);
 
@@ -775,6 +771,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
               const mObjview = mObj.objectviews[0];
               genRelview.setFromObjectView(mmObjview);
               genRelview.setToObjectView(mObjview);
+              genRelview.strokecolor = 'red';
               genRel.addRelationshipView(genRelview);
               adminModelview.addRelationshipView(genRelview);
               myMetis.addRelationshipView(genRelview);

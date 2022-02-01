@@ -2310,6 +2310,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     report += printf(format, msg);
                 }
             }
+            if (!typeRef) {
+                typeRef = rel.type.id;
+            }
             let reltype = metamodel.findRelationshipType(typeRef);
             if (debug) console.log('2304 fromType and toType', typeRef, typeName, fromType, toType, reltype);
             msg = "\tVerifying relationship type " + typeRef + " (" + typeName + ")";

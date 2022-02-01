@@ -2026,6 +2026,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else 
                 return false;
             }),
+          makeButton("Clear Metamodel Content",
+            function (e: any, obj: any) {
+              uid.clearMetamodel(myMetis, myDiagram);
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              let cnt = 0;
+              const metamodels = myMetis.metamodels;
+              for (let i=0; i<metamodels.length; i++) {
+                const metamodel = metamodels[i];
+                if (metamodel.markedAsDeleted)
+                  continue;
+                cnt++;
+              }
+              if (cnt>1)
+                return false; 
+              else 
+                return false;
+            }),
           makeButton("Undo",
             function (e: any, obj: any) { 
               e.diagram.commandHandler.undo(); 

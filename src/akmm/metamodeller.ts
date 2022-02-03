@@ -830,14 +830,14 @@ export class cxMetis {
             if (metamodel) {
                 model.setMetamodel(metamodel);
                 const objects: any[] = item.objects;
-                if (debug) console.log('561 objects', objects);
+                if (debug) console.log('833 model', model);
                 if (objects && objects.length) {
                     objects.forEach(object => {
                         if (model) this.importObject(object, model);
                     });
                 }
                 const relships: any[] = item.relships;
-                if (debug) console.log('563 relships', relships);
+                if (debug) console.log('845 relships', relships);
                 if (relships && (relships.length > 0)) {
                     relships.forEach(rel => {
                         if (model) this.importRelship(rel, model);
@@ -855,14 +855,14 @@ export class cxMetis {
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
             }
-            if (debug) console.log('583 item, odel', item, model);
+            if (debug) console.log('863 item, model', item, model);
         }
     }
     importObject(item: any, model: cxModel | null) {
         const obj = this.findObject(item.id);
         if (obj) {
             const objtype = this.findObjectType(item.typeRef);
-            if (debug) console.log('613 item, obj, objtype', item, obj, objtype);
+            if (debug) console.log('866 item, obj, objtype', item, obj, objtype);
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;

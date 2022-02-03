@@ -967,7 +967,7 @@ export class jsnObject {
         if (debug) console.log('876 this', this);
         const objtype = object.type;
         const properties = object.allProperties;
-        if (debug) console.log('879 properties', properties);
+        if (debug) console.log('879 object, properties', object, properties);
         for (let i=0; i<properties?.length; i++) {
           const prop = properties[i];
           if (!prop) continue;

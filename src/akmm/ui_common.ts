@@ -67,12 +67,12 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             myDiagram.model.setDataProperty(data, 'category', data.category);
             // Include the new object in the current model
             myModel?.addObject(obj);
-            if (debug) console.log('70 createObject', obj, myModel, myMetis);
+            if (debug) console.log('70 obj, myModel, myMetis', obj, myModel, myMetis);
             myMetis.addObject(obj);
             // Create the corresponding object view
             if (debug) console.log('73 obj', obj);
             const oviews = obj.objectviews;
-            const oview = oviews ? oviews[0] : null;            
+            const oview = oviews?.length>0 ? oviews[0] : null;  
             objview = new akm.cxObjectView(utils.createGuid(), name, obj, "");
             if (objview) {
                 objview.setIsGroup(data.isGroup);
@@ -99,21 +99,20 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 if (oview) {
                     if (debug) console.log('100 oview', oview);
                     const otdata = objtypeView.data;
-                    let modified = false;
                     for (let prop in otdata) {
                         if (oview[prop]) {
                             objview[prop] = oview[prop];
                             myDiagram.model.setDataProperty(data, prop, objview[prop]);
-                            modified = true;
+                        } else {
+                            myDiagram.model.setDataProperty(data, prop, otdata[prop]);
+
                         }
                     }
-                    if (debug) console.log('110 modified, objview', modified, objview);
-                    if (modified) {
-                        const node = new gjs.goObjectNode(data.key, objview);
-                        myGoModel.addNode(node);
-                        updateNode(node, objtypeView, myDiagram, myGoModel);
-                        return objview;
-                    }
+                    if (debug) console.log('110 objview', objview);
+                    const node = new gjs.goObjectNode(data.key, objview);
+                    myGoModel.addNode(node);
+                    updateNode(node, objtypeView, myDiagram, myGoModel);
+                    return objview;
                 }
                 if (!objtypeView) {
                     const key = utils.createGuid();
@@ -1668,7 +1667,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
         if (relview.markedAsDeleted) continue;
         let fromObjview = null;
-        for (let i=0; i<fromObjviews.length; i++) {
+        for (let i=0; i<fromObjviews?.length; i++) {
           const oview = fromObjviews[i];
           const moviews = modelview.objectviews;
           for (let j=0; j<moviews.length; j++) {
@@ -1679,7 +1678,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
           }
         }
         let toObjview = null;
-        for (let i=0; i<toObjviews.length; i++) {
+        for (let i=0; i<toObjviews?.length; i++) {
           const oview = toObjviews[i];
           const moviews = modelview.objectviews;
           for (let j=0; j<moviews.length; j++) {
@@ -1742,9 +1741,9 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
         if (debug) console.log('1728 rviews, mrelviews', rviews, mrelviews)
         let found = false;
         if (rviews?.length > 0) {
-            for (let i=0; i<rviews.length; i++) {
+            for (let i=0; i<rviews?.length; i++) {
             const rv = rviews[i];
-            for (let j=0; j<mrelviews.length; j++) {
+            for (let j=0; j<mrelviews?.length; j++) {
                 const mrv = mrelviews[j];
                 if (mrv.id === rv.id) {
                 found = true;
@@ -1775,7 +1774,7 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
         const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
         if (relview.markedAsDeleted) continue;
         let fromObjview = null;
-        for (let i=0; i<fromObjviews.length; i++) {
+        for (let i=0; i<fromObjviews?.length; i++) {
           const oview = fromObjviews[i];
           const moviews = modelview.objectviews;
           for (let j=0; j<moviews.length; j++) {
@@ -1786,10 +1785,10 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
           }
         }
         let toObjview = null;
-        for (let i=0; i<toObjviews.length; i++) {
+        for (let i=0; i<toObjviews?.length; i++) {
           const oview = toObjviews[i];
           const moviews = modelview.objectviews;
-          for (let j=0; j<moviews.length; j++) {
+          for (let j=0; j<moviews?.length; j++) {
             if (moviews[j].id === oview.id) {
               toObjview = oview;;
               break;
@@ -1913,13 +1912,13 @@ export function isPropIncluded(k: string, type: akm.cxType): boolean {
 
 function propIsUsedInTypes(metis: akm.cxMetis, prop): boolean {
     const metamodels = metis.metamodels;
-    for (let i=0; i<metamodels.length; i++) {
+    for (let i=0; i<metamodels?.length; i++) {
         const mmodel = metamodels[i] as akm.cxMetaModel;
         const otypes = mmodel.objecttypes;
         for (let j=0; j<otypes?.length; j++) {
             const otype = otypes[j];
             const props = otype.properties;
-            for (let k=0; k<props.length; k++) {
+            for (let k=0; k<props?.length; k++) {
                 const p = props[k];
                 if (p.id === prop.id)
                     return true;
@@ -1932,7 +1931,7 @@ function propIsUsedInTypes(metis: akm.cxMetis, prop): boolean {
 export function purgeUnusedProperties(metis: akm.cxMetis) {
     const properties = new Array();
     const props = metis.properties;
-    for (let k=0; k<props.length; k++) {
+    for (let k=0; k<props?.length; k++) {
         const prop = props[k];
         if (!propIsUsedInTypes(metis, prop))
             continue;
@@ -1941,7 +1940,7 @@ export function purgeUnusedProperties(metis: akm.cxMetis) {
     metis.properties = properties;
     // Handle properties in metamodels
     const metamodels =metis.metamodels;
-    for (let k=0; k<metamodels.length; k++) {
+    for (let k=0; k<metamodels?.length; k++) {
         const mmodel = metamodels[k];
         const properties = new Array();
         const props = mmodel.properties;
@@ -1961,7 +1960,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     
     // handle modelview contentss
     const models = metis.models;
-    for (let k=0; k<models.length; k++) {
+    for (let k=0; k<models?.length; k++) {
         const model = models[k];
         const modelviews = model?.modelviews;
         for (let i=0; i<modelviews?.length; i++) {
@@ -2113,7 +2112,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     const allModelviews = metis.modelviews;
     // Handle metamodels
     metis.metamodels = new Array();
-    for (let i=0; i<allMetamodels.length; i++) {
+    for (let i=0; i<allMetamodels?.length; i++) {
         const mm = allMetamodels[i];
         if (mm.markedAsDeleted)
             continue;
@@ -2121,7 +2120,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     }
     // Handle models
     metis.models = new Array();
-    for (let i=0; i<allModels.length; i++) {
+    for (let i=0; i<allModels?.length; i++) {
         const m = allModels[i];
         if (m.markedAsDeleted)
             continue;
@@ -2129,7 +2128,7 @@ export function purgeDeletions(metis: akm.cxMetis, diagram: any) {
     }
     // Handle modelviews
     metis.modelviews = new Array();
-    for (let i=0; i<allModelviews.length; i++) {
+    for (let i=0; i<allModelviews?.length; i++) {
         const mv = allModelviews[i];
         if (mv.markedAsDeleted)
             continue;
@@ -2243,7 +2242,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     report += printf(format, msg);
     const modifiedObjviews = new Array();
     const oviews = modelview.objectviews;
-    for (let i=0; i<oviews.length; i++) {
+    for (let i=0; i<oviews?.length; i++) {
         const oview = oviews[i];
         if (oview) {
             if (!oview.markedAsDeleted) { // Object view is not deleted
@@ -2288,7 +2287,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     const modifiedRelviews = new Array();
     const relships = model.relships;
     if (relships) { // sf added
-        for (let i=0; i<relships.length; i++) {
+        for (let i=0; i<relships?.length; i++) {
             const rel = relships[i];
             if (debug) console.log('2283 rel', rel);
             const fromObj  = rel.fromObject;
@@ -2343,7 +2342,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 const reltypes = metamodel.findRelationshipTypesByName(typeName);
                 if (debug) console.log('2331 Relationship type with name:', typeName, reltypes);
                 if (reltypes) {
-                    for (let i=0; i<reltypes.length; i++) {
+                    for (let i=0; i<reltypes?.length; i++) {
                         const rtype = reltypes[i] as akm.cxRelationshipType;
                         let fromObjType = fromType;
                         if (!fromObjType) fromObjType = rtype.fromObjtype;
@@ -2387,7 +2386,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     }
     // Handle the relationship views in all modelviews
     const mviews = model.modelviews;
-    for (let i=0; i<mviews.length; i++) {
+    for (let i=0; i<mviews?.length; i++) {
         const mview = mviews[i];
         if (mview && mview.id === modelview.id) {
             const rviews = mview.relshipviews;
@@ -2402,7 +2401,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 if (relviews.length > 1) {
                     let n = 0;
                     const rvs = [];
-                    for (let k=0; k<relviews.length; k++) {
+                    for (let k=0; k<relviews?.length; k++) {
                         const rv = relviews[k];
                         if (!rv.markedAsDeleted) {
                             rvs.push(rv);
@@ -2411,7 +2410,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     }
                     if (debug) console.log('2399 n, rel, rvs', n, rel, rvs);
                     if (n>1) {
-                        for (let k=0; k<rvs.length; k++) {
+                        for (let k=0; k<rvs?.length; k++) {
                             if (k == 0) 
                                 continue;
                             const rv = rvs[k];
@@ -2615,7 +2614,7 @@ export function getNameList(myModel: akm.cxModel, obj: akm.cxObject, onlyWithPro
     if (obj) {
       try {
         const inheritedObjTypes = obj?.getInheritedObjectTypes(myModel);
-        for (let i=0; i<inheritedObjTypes.length; i++) {
+        for (let i=0; i<inheritedObjTypes?.length; i++) {
             const type = inheritedObjTypes[i];
             if (onlyWithProperties) {
                  if (type.properties?.length>0)
@@ -2623,6 +2622,7 @@ export function getNameList(myModel: akm.cxModel, obj: akm.cxObject, onlyWithPro
             } else 
                 namelist.push(type.name);
         } 
+        namelist.push(obj.type?.name);
       } catch {}
       namelist.push('All');
       let uniquelist = [...new Set(namelist)];

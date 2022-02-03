@@ -67,7 +67,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
-    let item, chosenType, description, currentType, properties;
+    let item, chosenType, description, currentType, props, properties;
     if (myMetis.isAdminType(selObj?.type)) {
       inst = selObj;
       type = inst.type;
@@ -178,15 +178,19 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       }
       else {
         let flag = false;
-        try {
-          const typeprops = type?.getProperties(flag);
+        // let typeProps, inheritedProps;
+        // try {
+          const typeProps = type?.getProperties(flag);
           const inheritedProps = inst.getInheritedProperties(myModel);
-          props = typeProps.concat(inheritedProps);
-          if (debug) console.log('181 props', props);
-        } catch {}
+          if (inheritedProps.length>0)
+            props = typeProps.concat(inheritedProps);
+          else
+            props = typeProps;
+          if (debug) console.log('181 typeprops', typeprops);
+        // } catch {}
       }
       properties = props;
-      if (debug) console.log('184 properties', properties);
+      if (debug) console.log('184 type, properties', type, properties);
 
       // Handle property values that are undefined
       for (let i=0; i<properties?.length; i++) {

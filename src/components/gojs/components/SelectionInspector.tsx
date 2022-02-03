@@ -105,7 +105,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
           break;
         case constants.gojs.C_RELSHIPTYPE:
-          type = selObj.relshiptype;
+          type = selObj.reltype;
           type1 = myMetis.findRelationshipType(type?.id);
           if (type1) type = type1;
           reltypeview = type?.typeview;
@@ -113,9 +113,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           break;       
       }
     }
-
-
-
     // Set chosenType
     {
       if (category === constants.gojs.C_OBJECT) {
@@ -159,35 +156,36 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('159 instview, typeview', instview, typeview);
       }
     }
-
-
     if (typeof(type) !== 'object')
       return;
 
     // Get properties, and handle empty property values
     {
-      if (debug) console.log('167 chosenType', chosenType);
-      let props;
-      if (chosenType) {
-        props = chosenType.getProperties(false);
-        if (debug) console.log('172 chosenType, props', chosenType, props);
-      } 
-      else if (type.name === 'Method') {
-        inst = myMetis.findObject(inst.id);
-        props = inst.setAndGetAllProperties(myMetis);
-      }
-      else {
-        let flag = false;
-        // let typeProps, inheritedProps;
-        // try {
+      if (category === constants.gojs.C_OBJECT) {
+        if (debug) console.log('167 chosenType', chosenType);
+        let props;
+        if (chosenType) {
+          props = chosenType.getProperties(false);
+          if (debug) console.log('172 chosenType, props', chosenType, props);
+        } 
+        else if (type.name === 'Method') {
+          inst = myMetis.findObject(inst.id);
+          props = inst.setAndGetAllProperties(myMetis);
+        } else {
+          let flag = false;
           const typeProps = type?.getProperties(flag);
-          const inheritedProps = inst.getInheritedProperties(myModel);
-          if (inheritedProps.length>0)
+          const inheritedProps = inst?.getInheritedProperties(myModel);
+          if (inheritedProps?.length>0)
             props = typeProps.concat(inheritedProps);
           else
             props = typeProps;
           if (debug) console.log('181 typeprops', typeprops);
-        // } catch {}
+        }
+      }
+      else if (category === constants.gojs.C_RELATIONSHIP) {
+        let flag = false;
+        const typeProps = type?.getProperties(flag);
+        props = typeProps;
       }
       properties = props;
       if (debug) console.log('184 type, properties', type, properties);

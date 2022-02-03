@@ -885,8 +885,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     // Add system types 
     // First object types
-    const systemtypes = ['Element', 'EntityType', 'RelshipType',  
-                         'Generic', 'Container', 'Collection', 'Method'];
+    // const systemtypes = ['Element', 'EntityType', 'RelshipType',  
+    //                      'Generic', 'Container', 'Collection', 'Method'];
+    const systemtypes = ['Generic', 'Container'];
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;

@@ -204,7 +204,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
 
     const dets = [];
     let hideNameAndDescr = false;
-    let useColor = false;
+    let useFillColor = false;
+    let useStrokeColor = false;
     let useItem = false;
     let isLabel = false;
     const what = modalContext?.what;
@@ -226,6 +227,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editObjectview":
       case "editRelshipview":
+        useFillColor = true;
       case "editTypeview":
         if (selObj.category === constants.gojs.C_RELATIONSHIP) {
           item = reltypeview.data;
@@ -402,7 +404,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         // Handle color values
         {
-          if (useColor && (k === 'fillcolor' || k === 'strokecolor')) {
+          if ((useFillColor && k === 'fillcolor') ||
+             (useStrokeColor && k === 'strokecolor')) {
             if (debug) console.log('356 val', val);
             fieldType = 'color';
             if (val?.substr(0,4) === 'rgb(') {
@@ -491,14 +494,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
             break;
             case 'fillcolor':
-              if (!useColor) {
+              if (!useFillColor) {
                 values = colornames;
                 defValue = 'white';
                 fieldType = 'select';
               }
               break;
             case 'strokecolor':
-              if (!useColor) {
+              if (!useStrokeColor) {
                 values = colornames;
                 defValue = 'black';
                 fieldType = 'select';

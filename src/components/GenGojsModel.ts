@@ -437,6 +437,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
           link.strokecolor = relcolor;
+          link.strokewidth = relview.strokewidth ? relview.strokewidth : '1';
           link.fromArrow = relview.fromArrow;
           link.toArrow = relview.toArrow;
           link.fromArrowColor = relview.fromArrowColor;

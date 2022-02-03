@@ -995,7 +995,7 @@ export function createRelationship(data: any, context: any) {
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = context.myModel;
     const fromNode = myGoModel.findNode(data.from);
-    console.log('998 fromNode, data.from', fromNode, data.from);
+    if (debug) console.log('998 fromNode, data.from', fromNode, data.from);
     let nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
     const toNode = myGoModel.findNode(data.to);
     let nodeTo   = myDiagram.findNodeForKey(toNode?.key)
@@ -1112,9 +1112,6 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
         relship.addRelationshipView(relshipview);
-        for (let prop in  reltypeview?.data) {
-            relshipview[prop] = reltypeview[prop];
-        }        
         updateLink(data, relshipview.typeview, myDiagram, myGoModel);
         if (debug) console.log('1102 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());

@@ -105,9 +105,10 @@ if (obj.category === constants.gojs.C_OBJECT) {
       if (debug) console.log('112 myInst', myInst, myInstview);
       if (context?.what === "editRelshipview") 
           myItem = myInstview;
-      else if (context?.what === "editTypeview") 
+      else if (context?.what === "editTypeview") {
+          if (debug) console.log('109 myInst', myInst);
           myItem = myInst?.type?.typeview?.data;
-      else
+      } else
           myItem = myInst;
       myItem[propname] = value;
       if (debug) console.log('120 myItem', myItem);

@@ -227,7 +227,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editObjectview":
       case "editRelshipview":
-        useFillColor = true;
       case "editTypeview":
         if (selObj.category === constants.gojs.C_RELATIONSHIP) {
           item = reltypeview.data;
@@ -240,9 +239,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         hideNameAndDescr = true;
         if (debug) console.log('219 inst, item', inst, item);
-        break;  
+        if (what === "editObjectview")
+          useFillColor = true;
+        else if (what === "editRelshipview")
+          useStrokeColor = true;
+        break;
       default:
         item = inst;
+        break;
     }
     if (debug) console.log('249 inst, item, selObj, type', inst, item, selObj, type);
     for (let k in item) {

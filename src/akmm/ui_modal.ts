@@ -977,10 +977,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           let fromArrow = relview[prop];
           if (relview[prop] === 'None') fromArrow = "";
           myDiagram.model.setDataProperty(data, prop, fromArrow);           
-      }          
+        }          
         if (prop === 'fromArrowColor' && relview[prop] !== "") 
-          myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'toArrow') {
+            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+        if (prop === 'toArrow') {
             let toArrow = relview[prop];
             if (relview[prop] === 'None') toArrow = "";
             myDiagram.model.setDataProperty(data, prop, toArrow);           
@@ -1093,7 +1093,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           }
           if (debug) console.log('1067 reltypeview, link', typeview, link);
           const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
-          if (debug) console.log('1069 jsnReltypeview', jsnReltypeview);
+          if (!debug) console.log('1069 jsnReltypeview', jsnReltypeview);
           modifiedRelTypeviews.push(jsnReltypeview);
           modifiedRelTypeviews.map(mn => {
             let data = mn;

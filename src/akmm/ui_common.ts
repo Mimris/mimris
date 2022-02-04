@@ -1120,6 +1120,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         if (debug) console.log('1106 relshipview', relshipview);
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
+        if (debug) console.log('1123 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
@@ -1504,8 +1505,6 @@ export function createLink(data: any, context: any): any {
                         relshipview.setTypeView(typeview);
                         relshipview.setFromObjectView(fromObjView);
                         relshipview.setToObjectView(toObjView);
-                        relshipview.fromArrow = typeview.data.fromArrow;
-                        relshipview.toArrow = typeview.data.toArrow;
                         myModelview.addRelationshipView(relshipview);
                         myMetis.addRelationshipView(relshipview);
                         let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);

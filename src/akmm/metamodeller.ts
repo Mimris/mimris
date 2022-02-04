@@ -986,6 +986,7 @@ export class cxMetis {
                     relview.fromArrow = item.fromArrow;
                     relview.toArrow = item.toArrow;
                     relview.points = item.points;
+                    if (debug) console.log('989 relview', relview);
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
                         if (reltypeview) {
@@ -1009,6 +1010,7 @@ export class cxMetis {
                             }
                         }
                     }
+                    if (debug) console.log('1013 relview', relview);
                     relview.markedAsDeleted = item.markedAsDeleted;
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
@@ -5581,6 +5583,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
             case 'Generalization':
                 this.setToArrow('Triangle');
                 this.setToArrowColor('white');
+                this.textcolor = 'black';
                 break;
             default:
                 break;
@@ -7360,7 +7363,6 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             default:
-                this.setToArrow('OpenTriangle');
                 break;
         }
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
@@ -7379,7 +7381,6 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             default:
-                this.setToArrow('OpenTriangle');
                 break;
         }
     }

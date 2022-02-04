@@ -907,7 +907,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           function (o: any) { 
             const node = o.part.data;
             if (node.isGroup)
-              return true;
+              return false;
             else
               return false;
           }),

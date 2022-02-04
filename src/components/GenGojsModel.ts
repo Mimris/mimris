@@ -300,7 +300,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    if (debug) console.log('292 GenGojsModel', metis, model, modelview);
+    if (debug) console.log('303 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
     // const admModel = metis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
@@ -315,7 +315,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
-      if (debug) console.log('281 modelview, objviews:', modelview.name, objviews);
+      if (debug) console.log('318 modelview, objviews:', modelview.name, objviews);
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -346,7 +346,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         if (includeNoType) {
           if (!objview.object?.type) {
-            if (debug) console.log('295 objview', objview);
+            if (debug) console.log('349 objview', objview);
             objview.strokecolor = "green"; 
             if (objview.fillcolor) objview.fillcolor = "lightgrey";
             includeObjview = true;
@@ -357,7 +357,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         // if (!objview.visible) includeObjview = false;
         if (includeObjview) {
-          if (debug) console.log('305 includeNoObject, objview:', includeNoObject, objview);
+          if (debug) console.log('360 includeNoObject, objview:', includeNoObject, objview);
           if (!includeDeleted && objview.markedAsDeleted)
             continue;
           if (!includeNoObject && !objview.object)
@@ -370,7 +370,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (node.fillcolor === "") {
             node.fillcolor = "lightgrey";
           }
-          if (debug) console.log('314 buildGoModel - node', node, myGoModel);
+          if (debug) console.log('373 buildGoModel - node', node, myGoModel);
         }
       }
       const nodes = myGoModel.nodes;
@@ -380,12 +380,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
       }
-      if (debug) console.log('346 nodes', nodes);
+      if (debug) console.log('383 nodes', nodes);
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
-      if (debug) console.log('368 modelview, relviews', modelview.name, relviews);
+      if (debug) console.log('388 modelview, relviews', modelview.name, relviews);
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
         let includeRelview = false;
@@ -430,17 +430,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           relcolor = relview.strokecolor;
           if (!relcolor) relcolor = 'black';
         if (includeRelview) {
+          if (debug) console.log('433 rel, relview:', rel, relview);
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
-          if (debug) console.log('410 rel, relview:', rel, relview);
+          if (debug) console.log('436 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
           link.name = rel?.name;
-          link.strokecolor = relcolor;
-          link.fromArrow = relview.fromArrow;
-          link.toArrow = relview.toArrow;
-          link.fromArrowColor = relview.fromArrowColor;
-          link.toArrowColor = relview.toArrowColor;
           link.routing = modelview.routing;
           link.curve = modelview.linkcurve;
           if (modelview.showCardinality) {
@@ -450,10 +446,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             link.cardinalityFrom = "";
             link.cardinalityTo = "";
           }
-          if (debug) console.log('414 modelview:', modelview, link);
-          if (debug) console.log('415 GenGojsModel: props', props);
+          if (debug) console.log('449 modelview, link:', modelview, link);
+          if (debug) console.log('450 GenGojsModel: props', props);
           myGoModel.addLink(link);
-          if (debug) console.log('421 buildGoModel - link', link, myGoModel);
+          if (debug) console.log('452 buildGoModel - link', link, myGoModel);
         }
       }
     }

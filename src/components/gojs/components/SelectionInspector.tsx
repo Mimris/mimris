@@ -67,7 +67,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
-    let item, chosenType, description, currentType, properties;
+    let item, chosenType, description, currentType, props, properties;
     if (myMetis.isAdminType(selObj?.type)) {
       inst = selObj;
       type = inst.type;
@@ -105,7 +105,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
           break;
         case constants.gojs.C_RELSHIPTYPE:
-          type = selObj.relshiptype;
+          type = selObj.reltype;
           type1 = myMetis.findRelationshipType(type?.id);
           if (type1) type = type1;
           reltypeview = type?.typeview;
@@ -113,9 +113,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           break;       
       }
     }
-
-
-
     // Set chosenType
     {
       if (category === constants.gojs.C_OBJECT) {
@@ -159,34 +156,39 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('159 instview, typeview', instview, typeview);
       }
     }
-
-
     if (typeof(type) !== 'object')
       return;
 
     // Get properties, and handle empty property values
     {
-      if (debug) console.log('167 chosenType', chosenType);
-      let props;
-      if (chosenType) {
-        props = chosenType.getProperties(false);
-        if (debug) console.log('172 chosenType, props', chosenType, props);
-      } 
-      else if (type.name === 'Method') {
-        inst = myMetis.findObject(inst.id);
-        props = inst.setAndGetAllProperties(myMetis);
+      if (category === constants.gojs.C_OBJECT) {
+        if (debug) console.log('167 chosenType', chosenType);
+        let props;
+        if (chosenType) {
+          props = chosenType.getProperties(false);
+          if (debug) console.log('172 chosenType, props', chosenType, props);
+        } 
+        else if (type.name === 'Method') {
+          inst = myMetis.findObject(inst.id);
+          props = inst.setAndGetAllProperties(myMetis);
+        } else {
+          let flag = false;
+          const typeProps = type?.getProperties(flag);
+          const inheritedProps = inst?.getInheritedProperties(myModel);
+          if (inheritedProps?.length>0)
+            props = typeProps.concat(inheritedProps);
+          else
+            props = typeProps;
+          if (debug) console.log('181 typeprops', typeprops);
+        }
       }
-      else {
+      else if (category === constants.gojs.C_RELATIONSHIP) {
         let flag = false;
-        try {
-          const typeprops = type?.getProperties(flag);
-          const inheritedProps = inst.getInheritedProperties(myModel);
-          props = typeProps.concat(inheritedProps);
-          if (debug) console.log('181 props', props);
-        } catch {}
+        const typeProps = type?.getProperties(flag);
+        props = typeProps;
       }
       properties = props;
-      if (debug) console.log('184 properties', properties);
+      if (debug) console.log('184 type, properties', type, properties);
 
       // Handle property values that are undefined
       for (let i=0; i<properties?.length; i++) {
@@ -202,7 +204,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
 
     const dets = [];
     let hideNameAndDescr = false;
-    let useColor = false;
+    let useFillColor = false;
+    let useStrokeColor = false;
     let useItem = false;
     let isLabel = false;
     const what = modalContext?.what;
@@ -236,9 +239,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         hideNameAndDescr = true;
         if (debug) console.log('219 inst, item', inst, item);
-        break;  
+        if (what === "editObjectview")
+          useFillColor = true;
+        else if (what === "editRelshipview")
+          useStrokeColor = true;
+        break;
       default:
         item = inst;
+        break;
     }
     if (debug) console.log('249 inst, item, selObj, type', inst, item, selObj, type);
     for (let k in item) {
@@ -400,7 +408,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         // Handle color values
         {
-          if (useColor && (k === 'fillcolor' || k === 'strokecolor')) {
+          if ((useFillColor && k === 'fillcolor') ||
+             (useStrokeColor && k === 'strokecolor')) {
             if (debug) console.log('356 val', val);
             fieldType = 'color';
             if (val?.substr(0,4) === 'rgb(') {
@@ -489,14 +498,14 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             }
             break;
             case 'fillcolor':
-              if (!useColor) {
+              if (!useFillColor) {
                 values = colornames;
                 defValue = 'white';
                 fieldType = 'select';
               }
               break;
             case 'strokecolor':
-              if (!useColor) {
+              if (!useStrokeColor) {
                 values = colornames;
                 defValue = 'black';
                 fieldType = 'select';

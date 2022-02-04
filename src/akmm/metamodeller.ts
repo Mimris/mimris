@@ -830,14 +830,14 @@ export class cxMetis {
             if (metamodel) {
                 model.setMetamodel(metamodel);
                 const objects: any[] = item.objects;
-                if (debug) console.log('561 objects', objects);
+                if (debug) console.log('833 model', model);
                 if (objects && objects.length) {
                     objects.forEach(object => {
                         if (model) this.importObject(object, model);
                     });
                 }
                 const relships: any[] = item.relships;
-                if (debug) console.log('563 relships', relships);
+                if (debug) console.log('845 relships', relships);
                 if (relships && (relships.length > 0)) {
                     relships.forEach(rel => {
                         if (model) this.importRelship(rel, model);
@@ -855,14 +855,14 @@ export class cxMetis {
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
             }
-            if (debug) console.log('583 item, odel', item, model);
+            if (debug) console.log('863 item, model', item, model);
         }
     }
     importObject(item: any, model: cxModel | null) {
         const obj = this.findObject(item.id);
         if (obj) {
             const objtype = this.findObjectType(item.typeRef);
-            if (debug) console.log('613 item, obj, objtype', item, obj, objtype);
+            if (debug) console.log('866 item, obj, objtype', item, obj, objtype);
             if (objtype) {
                 obj.setType(objtype);
                 obj.markedAsDeleted = item.markedAsDeleted;
@@ -986,6 +986,7 @@ export class cxMetis {
                     relview.fromArrow = item.fromArrow;
                     relview.toArrow = item.toArrow;
                     relview.points = item.points;
+                    if (debug) console.log('989 relview', relview);
                     if (item.typeviewRef) {
                         const reltypeview = this.findRelationshipTypeView(item.typeviewRef);
                         if (reltypeview) {
@@ -1009,6 +1010,7 @@ export class cxMetis {
                             }
                         }
                     }
+                    if (debug) console.log('1013 relview', relview);
                     relview.markedAsDeleted = item.markedAsDeleted;
                     relship.addRelationshipView(relview);
                     modelview.addRelationshipView(relview);
@@ -5581,6 +5583,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
             case 'Generalization':
                 this.setToArrow('Triangle');
                 this.setToArrowColor('white');
+                this.textcolor = 'black';
                 break;
             default:
                 break;
@@ -7360,7 +7363,6 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             default:
-                this.setToArrow('OpenTriangle');
                 break;
         }
         if (debug) console.log('5773 fromArrowColor', this.fromArrowColor);
@@ -7379,7 +7381,6 @@ export class cxRelationshipView extends cxMetaObject {
                 this.textcolor = 'black';
                 break;
             default:
-                this.setToArrow('OpenTriangle');
                 break;
         }
     }

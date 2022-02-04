@@ -749,9 +749,6 @@ export class goRelshipLink extends goLink {
                             this[prop] = relview[prop];
                         } else {
                             this[prop] = typeview[prop];
-                        // if (prop === 'fromArrow' || prop === 'toArrow') {
-                        //     if (this[prop] === 'None')
-                        //         this[prop] = "";
                         }
                     }        
                 }

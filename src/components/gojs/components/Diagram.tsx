@@ -2042,7 +2042,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 cnt++;
               }
               if (cnt>1)
-                return false; 
+                return true; 
               else 
                 return false;
             }),

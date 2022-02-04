@@ -449,7 +449,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (debug) console.log('449 modelview, link:', modelview, link);
           if (debug) console.log('450 GenGojsModel: props', props);
           myGoModel.addLink(link);
-          if (debug) console.log('452 buildGoModel - link', link, myGoModel);
+          if (!debug) console.log('452 buildGoModel - link', link, myGoModel);
         }
       }
     }

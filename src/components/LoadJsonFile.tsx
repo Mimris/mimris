@@ -10,6 +10,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
+import { ReadConvertJSONFromFileToAkm } from './utils/ConvertJSONToAkmModel';
 import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
 import { ConnectImportedTopEntityTypes } from './utils/ConnectImportedTopEntityTypes';
 import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
@@ -133,6 +134,15 @@ const LoadJsonFile = (props: any) => {
                     {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
                     <h5>AKM objecttypes</h5>
                     <div className="selectbox3 mb-2 border">
+                      <h6>Import OSDU JSON-file as AKM model types</h6>
+                      <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
+                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} />
+                      <label className="pt-3" htmlFor="inclProps ">Include Properties 
+                        <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
+                      </label>
+                      {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
+                    </div>
+                    <div className="selectbox3 mb-2 border bg-secondary">
                       <h6>Import OSDU JSON-file as AKM model types</h6>
                       <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
                       <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("AKM", inclProps, props.ph, dispatch, e)} />

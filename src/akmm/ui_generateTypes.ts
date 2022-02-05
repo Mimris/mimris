@@ -977,14 +977,17 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 let obj = objview.object;
                 if (!obj /*|| obj.markedAsDeleted*/) 
                     continue;
-                if (obj.type.name === 'Property')
-                    continue;
-                if (obj.type.name === 'RelshipType')
-                    continue;
-                if (obj.type.name === 'MethodType')
-                    continue;
-                if (obj.type.name === 'Method')
-                    continue;
+                switch (obj.type.name) {
+                    case 'Datatype':
+                    case 'Property':
+                    case 'PropLink':
+                    case 'PropCollection':
+                    case 'RelshipType':
+                    case 'MethodType':
+                    case 'Method':
+                    case 'Collection':
+                        continue;
+                }
                 const  types = []; 
                 if (obj.name === obj.type.name)
                     types.push(obj.type.name);

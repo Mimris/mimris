@@ -91,7 +91,8 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         }
     } else // Check if the types has not been generated, but exists anyway
     {        
-        objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
+        // objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
+        objtype = myMetis.findObjectTypeByName(obj.name);
         if (objtype) {
             objtype.setViewKind(obj.getViewKind());
             objtype.setAbstract(obj.getAbstract());
@@ -985,7 +986,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     case 'RelshipType':
                     case 'MethodType':
                     case 'Method':
-                    case 'Collection':
+                    // case 'Collection':
                         continue;
                 }
                 const  types = []; 

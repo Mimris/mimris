@@ -2636,7 +2636,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         useTabs = false;
       }
       let namelist = useTabs ? uic.getNameList(myModel, obj1, true) : [];
-      if (debug) console.log('2619 namelist', namelist);
+      if (!debug) console.log('2619 namelist', namelist);
       selpropgroup = [];
       for (let i=0; i<namelist.length; i++) {
         let name = namelist[i];

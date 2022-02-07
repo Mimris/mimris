@@ -268,6 +268,20 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myDiagram.handleOpenModal(node, modalContext);
 }
 
+export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const icon = uit.findImage(node?.icon);
+    const modalContext = {
+      what:       "editObjectType",
+      title:      "Edit Object Type",
+      icon:       icon,
+      myDiagram:  myDiagram
+    }
+    myMetis.currentNode = node;
+    myMetis.myDiagram = myDiagram;
+    if (debug) console.log('230 editObjectType');
+    myDiagram.handleOpenModal(node, modalContext);
+}
+
 export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     const icon = uit.findImage(node.icon);
     const modalContext = {

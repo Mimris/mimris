@@ -634,14 +634,14 @@ export class cxMetis {
             objtype = new cxObjectType(item.id, item.name, item.description);
         }
         if (objtype) {
-            if (debug) console.log('439 item, objtype', item, objtype);
+            if (debug) console.log('637 item, objtype', item, objtype);
             objtype.markedAsDeleted = item.markedAsDeleted;
-            let otype = (objtype as any);
+            let otype = (objtype as cxObjectType);
             for (const prop in item) {
-                if (item[prop]) {
-                    otype[prop] = item[prop];
-                }
+                otype[prop] = item[prop];
             }
+            objtype = otype;
+            if (debug) console.log('645 item, otype, objtype', item, otype, objtype);
             if (item.typeviewRef) {
                 const objtypeview = this.findObjectTypeView(item.typeviewRef);
                 if (objtype && objtypeview)

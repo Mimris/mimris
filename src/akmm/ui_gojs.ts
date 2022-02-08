@@ -87,7 +87,8 @@ export class goModel {
             while (i < this.nodes?.length) {
                 const node = this.nodes[i];
                 const n = node as goObjectNode;
-                if (n.objectview && n.objectview.getId() === objviewId) {
+                const objview = n.objectview as akm.cxObjectView;
+                if (objview && objview.id === objviewId) {
                     return (n);
                 }
                 i++;
@@ -102,7 +103,7 @@ export class goModel {
             while (i < this.nodes?.length) {
                 const node = this.nodes[i];
                 const n = node as goObjectNode;
-                if (n.object && n.object.getId() === objId) {
+                if (n.object && n.object.id === objId) {
                     return (n);
                 }
                 i++;
@@ -148,7 +149,7 @@ export class goModel {
             if (!node.isGroup)
                 continue;
             const objview = node.objectview;
-            if (objview && objview.getId() === groupKey)
+            if (objview && objview.id === groupKey)
                 return node;
         }
         return null;
@@ -745,7 +746,7 @@ export class goRelshipLink extends goLink {
                     this.points = relview.points;
                     for (let prop in viewdata) {
                         // this[prop] = typeview[prop];
-                        if (relview[prop] && relview[prop] !== "") {
+                        if (relview[prop] && relview[prop] !== "" && relview[prop] != undefined) {
                             this[prop] = relview[prop];
                         } else {
                             this[prop] = typeview[prop];

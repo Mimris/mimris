@@ -163,7 +163,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     {
       if (category === constants.gojs.C_OBJECT) {
         if (debug) console.log('167 chosenType', chosenType);
-        let props;
         if (chosenType) {
           props = chosenType.getProperties(false);
           if (debug) console.log('172 chosenType, props', chosenType, props);
@@ -179,7 +178,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
             props = typeProps.concat(inheritedProps);
           else
             props = typeProps;
-          if (debug) console.log('181 typeprops', typeprops);
+          if (debug) console.log('181 props', props);
         }
       }
       else if (category === constants.gojs.C_RELATIONSHIP) {

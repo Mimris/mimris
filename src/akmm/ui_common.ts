@@ -2608,7 +2608,8 @@ function selectNameFromNameList(question, namelist, defText): string {
 export function getNameList(myModel: akm.cxModel, obj: akm.cxObject, onlyWithProperties: boolean): string[] {
     let namelist =[];
     if (obj) {
-      try {
+        namelist.push('All');
+        try {
         const inheritedObjTypes = obj?.getInheritedObjectTypes(myModel);
         for (let i=0; i<inheritedObjTypes?.length; i++) {
             const type = inheritedObjTypes[i];
@@ -2620,7 +2621,6 @@ export function getNameList(myModel: akm.cxModel, obj: akm.cxObject, onlyWithPro
         } 
         namelist.push(obj.type?.name);
       } catch {}
-      namelist.push('All');
       let uniquelist = [...new Set(namelist)];
       uniquelist.reverse();
       namelist = uniquelist;

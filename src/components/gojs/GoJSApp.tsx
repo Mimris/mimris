@@ -749,7 +749,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let sel = e.subject.part;
         this.state.selectedData = sel.data;
         const node = sel.data;
-        if (!debug) console.log('566 node', node);
+        if (debug) console.log('566 node', node);
         const category = node.category;
         switch (category) {
           case constants.gojs.C_OBJECTTYPE:

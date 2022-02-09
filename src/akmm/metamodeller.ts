@@ -6607,6 +6607,19 @@ export class cxObject extends cxInstance {
         }  
         return properties;  
     }
+    isOfType(typeName: string): boolean {
+        let retval = false;
+        if (this.type.name === typeName) { 
+            return true;
+        }
+        const stypes = this.type.supertypes;
+        for (let i=0; i<stypes?.length; i++) {
+            const stype = stypes[i];
+            if (stype?.name === typeName)
+                return true;
+        }
+        return retval;
+    }
     isOfSystemType(systemtypeName: string): boolean {
         let retval = false;
         const type = this.type;
@@ -6614,9 +6627,9 @@ export class cxObject extends cxInstance {
             return true;
         }
         const stypes = type.supertypes;
-        for (let i=0; i<stypes.length; i++) {
+        for (let i=0; i<stypes?.length; i++) {
             const stype = stypes[i];
-            if (stype.name === systemtypeName)
+            if (stype?.name === systemtypeName)
                 return true;
         }
         return retval;

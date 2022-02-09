@@ -230,16 +230,16 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     { // Handle properties
         const proptypes = new Array();
-        getAllPropertytypes(object, proptypes, myModel);
+        getPropertyTypes(object, proptypes, myModel);
         if (debug) console.log('220 object, proptypes, myMetis', object, proptypes, myMetis);
         addProperties(objtype, proptypes, context);
-        const properties = new Array();
-        getInheritedProperties(object, properties, myModel);
-        for (let i=0; i<properties?.length; i++) {
-            const prop = properties[i];
-            objtype.properties.push(prop);
-        }
-        if (debug) console.log('228 object, properties', object, properties);
+        // const properties = new Array();
+        // getInheritedProperties(object, properties, myModel);
+        // for (let i=0; i<properties?.length; i++) {
+        //     const prop = properties[i];
+        //     objtype.properties.push(prop);
+        // }
+        // if (debug) console.log('228 object, properties', object, properties);
         if (debug) console.log('229 objtype', objtype);
         const jsnObjectType = new jsn.jsnObjectType(objtype, true);
         if (debug) console.log('231 jsnObjectType', jsnObjectType);
@@ -980,14 +980,15 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     continue;
                 switch (obj.type.name) {
                     case 'Datatype':
-                    case 'Property':
-                    case 'PropLink':
-                    case 'PropCollection':
                     case 'RelshipType':
                     case 'MethodType':
                     case 'Method':
                     // case 'Collection':
                         continue;
+                    default:
+                        obj = myMetis.findObject(obj.id);
+                        if (obj.isOfType('Property'))
+                            continue;
                 }
                 const  types = []; 
                 if (obj.name === obj.type.name)

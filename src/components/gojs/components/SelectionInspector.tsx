@@ -47,6 +47,8 @@ const strokewidths = ['1', '2', '3', '4', '5'];
 
 const useTabs = true;
 
+const booleanAsCheckbox = false;
+
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**
    * Render the object data, passing down property keys and values.
@@ -67,7 +69,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
-    let item, chosenType, description, currentType, props, properties;
+    let item, chosenType, description, currentType, properties;
     if (myMetis.isAdminType(selObj?.type)) {
       inst = selObj;
       type = inst.type;
@@ -164,29 +166,28 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       if (category === constants.gojs.C_OBJECT) {
         if (debug) console.log('167 chosenType', chosenType);
         if (chosenType) {
-          props = chosenType.getProperties(false);
-          if (debug) console.log('172 chosenType, props', chosenType, props);
+          properties = chosenType.getProperties(false);
+          if (debug) console.log('172 chosenType, properties', chosenType, properties);
         } 
         else if (type.name === 'Method') {
           inst = myMetis.findObject(inst.id);
-          props = inst.setAndGetAllProperties(myMetis);
+          properties = inst.setAndGetAllProperties(myMetis);
         } else {
           let flag = false;
           const typeProps = type?.getProperties(flag);
           const inheritedProps = inst?.getInheritedProperties(myModel);
           if (inheritedProps?.length>0)
-            props = typeProps.concat(inheritedProps);
+            roperties = typeProps.concat(inheritedProps);
           else
-            props = typeProps;
-          if (debug) console.log('181 props', props);
+            properties = typeProps;
+          if (debug) console.log('181 properties', properties);
         }
       }
       else if (category === constants.gojs.C_RELATIONSHIP) {
         let flag = false;
         const typeProps = type?.getProperties(flag);
-        props = typeProps;
+        properties = typeProps;
       }
-      properties = props;
       if (debug) console.log('184 type, properties', type, properties);
 
       // Handle property values that are undefined
@@ -463,7 +464,13 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'abstract':
               dtype = myMetis.findDatatypeByName('boolean');
-              fieldType = 'checkbox';
+              if (booleanAsCheckbox)
+                fieldType = 'checkbox';
+              else {
+                fieldType   = 'radio';
+                defValue    = 'false';
+                values      = ['false', 'true'];
+              }
               if (!allowsMetamodeling) disabled = true;
               break;
             case 'methodtype':
@@ -585,7 +592,6 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('509 selObj, item:', selObj, item);
         if (debug) console.log('510 k, value, disabled:', k, val, disabled);
         if (debug && k==='name') console.log('511 k, fieldType', k, fieldType, defValue, values);
-
         row  = <InspectorRow
           key={k}
           id={k}

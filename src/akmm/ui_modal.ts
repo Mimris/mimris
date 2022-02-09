@@ -1046,7 +1046,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           }
           if (debug) console.log('1067 reltypeview, link', typeview, link);
           const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
-          if (!debug) console.log('1069 jsnReltypeview', jsnReltypeview);
+          if (debug) console.log('1069 jsnReltypeview', jsnReltypeview);
           modifiedRelTypeviews.push(jsnReltypeview);
           modifiedRelTypeviews.map(mn => {
             let data = mn;

@@ -210,7 +210,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
             const parentName = oKey?.split('|')?.slice(-2,-1)[0] // parentName ; split and slice it, pick second last element
             const jsonType = (Array.isArray(oVal)) ? 'isArray' : 'isObject';
 
-            // first we create the objects
+            // first we create the objects ----------------------------------------------------------------------
             if (index === 0) { // the first object is the in the json file (topObj)
                 //  Set tobObjName = all before dot
                 const topObjName = oName.split('.')[0] // remove the version number from the name
@@ -239,50 +239,70 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                 }
                 // ----------- end of hardcoded for now --------------
             } else if (parentName === 'properties') { // this is property and proplink objects
-                if (oVal === 'string') { // || oVal === 'integer' || oVal === 'number' || oVal === 'boolean' || oVal === 'array' || oVal === 'object') { // if the value is a primitive type                  
-                    if (oName.includes('ID')) { // if the name contains ID, we create a relationship between the object and the parent object
-                        objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
-                        createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
-                        console.log('222 ID', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
-                        findOwnerandCreateRelationship(osduObj)
-                    } else { // if the name does not contain ID, we create a property object
-                        objecttypeRef = curObjTypes.find(ot => ot.name === 'Property')?.id
-                        createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
-                        console.log('227 not ID ', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
-                        findOwnerandCreateRelationship(osduObj)
-                    }
-                } else if (oVal.type === 'array') { // if the value is an array we create a collection object
+                
+                if (oVal.type === 'array') { // if the value is an array we create a collection object
                     objecttypeRef = curObjTypes.find(ot => ot.name === 'PropCollection')?.id
                     createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the collection objects
-                    console.log('232  array', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
+                    console.log('259  array', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
                     findOwnerandCreateRelationship(osduObj)
                     // } else if (oVal.type === '$ref') { // if the value is a reference we create a reference object
                     //     objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
                     //     createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects
                     //     console.log('235 Properties $ref', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
+                } else if (oVal.type === 'string') { // || oVal === 'integer' || oVal === 'number' || oVal === 'boolean' || oVal === 'array' || oVal === 'object') { // if the value is a primitive type                  
+                    if (oName.includes('ID')) { // if the name contains ID, we create a relationship between the object and the parent object
+                        const objName = 'has'+oName.replace('ID', '')
+                        objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
+                        console.log('247 ID', oId, objName, objecttypeRef,oKey, jsonType, cNewVal);
+                        createObject(oId, objName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
+                        findOwnerandCreateRelationship(osduObj)
+                    } else { // if the name does not contain ID, we create a property object
+                        objecttypeRef = curObjTypes.find(ot => ot.name === 'Property')?.id
+                        createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
+                        console.log('253 not ID ', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
+                        findOwnerandCreateRelationship(osduObj)
+                    }
                 } else {
                     objecttypeRef = curObjTypes.find(ot => ot.name === 'Property')?.id
                     createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the collection objects
-                    console.log('240  array', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
+                    console.log('268  array', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
                     findOwnerandCreateRelationship(osduObj)
                 }
             } else if (oVal['$ref']) { // this is a reference to another object (abstract)
-                objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
+                const objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id
                 const typeRest = oVal['$ref'].split('/').slice(-1)[0]
                 cNewVal.title = (typeRest) && typeRest.split('.')[0] 
-                entityName = 'Is'+cNewVal.title
+                const entityName = 'Is'+cNewVal.title
                 createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects               
-                console.log('248 $ref', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);  
+                if (debug) console.log('278 $ref', oId, entityName, objecttypeRef,oKey, jsonType, cNewVal);  
                 findOwnerandCreateRelationship(osduObj)
+            } else if (oName === 'items') { // 
+
+                const gchildKeyName = (oVal.allOf) ? Object.keys(oVal?.allOf[0]?.properties).find(k => k.includes('ID')).replace('ID', '') : null
+
+                if (gchildKeyName) {
+                    entityName = gchildKeyName
+                    objecttypeRef =  (gchildKeyName) && curObjTypes.find(ot => ot.name === 'EntityType')?.id || curObjTypes.find(ot => ot.name === 'PropLink')?.id // find objecttypeRef for the objecttypeName
+                    // objecttypeRef = (gchildKeyName === '$ref') ? curObjTypes.find(ot => ot.name === 'PropLink')?.id  : curObjTypes.find(ot => ot.name === objTypeName)?.id // find objecttypeRef for the objecttypeName
+
+                    reltypeRef = containsType?.id 
+                    reltypeName = containsType?.name
+                    relshipKind = 'Association'
+                    
+                    createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects               
+                    // console.log('278 $ref', oId, entityName, objecttypeRef,oKey, jsonType, cNewVal);  
+                    findOwnerandCreateRelationship(osduObj)
+                }
             } else { // the rest we dont make objects for
                     console.log('249 no obj', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);  
                     // createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects  
             }
         })
+
+        // -----------------------------------------------------------------------------------------------------------------
         // crate relationships between objects
         // create function findOwnerandCreateRelationship(oId, oKey)
         function findOwnerandCreateRelationship(osObj) {
-
             const topObj = mainArray[0]
             const topObjId = topObj[0]
             const topObjKey = topObj[1]
@@ -307,10 +327,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
             const ggggparentKey = oKey.split('|').slice(0,-5).join('|') // find greatgreatgreatgrandparent key by splitting the oKey and remove the last five elements
             const gggggparentKey = oKey.split('|').slice(0,-6).join('|') // find greatgreatgreatgreatgrandparent key by splitting the oKey and remove the last six elements
 
-            // const osduRelationships = osduArray.map( (arr, index) => {
-                // console.log('306 arr', arr);
-                // const [arrId, arrKey, arrVal] = arr
-
                 const relId = utils.createGuid()
                 const relDescription = ''
                 const relTitle = ''
@@ -323,7 +339,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                 // console.log('322  ', osduArray.find(o => o[1] === ggparentKey)[2]) //?.type === 'object')
                 if (parentName === 'properties') { // if the parent is properties, we have to fine owner and create a relationship between the object and the owner object    
                     // console.log('317 ', parentName, gggparentKey, topObjKey, oKey );
-                    if (gparentKey === topObjKey) { //  
+                    if (gparentKey === topObjKey) { // if granparent is the top object, it is the owner
                         const fromobjectId = topObjId
                         const fromobjectName = topObjName
                         const toobjectId = oId
@@ -340,15 +356,14 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         if (debug) console.log('340 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                         (fromobjectId !== toobjectId) && 
                         createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
-                    } else if (gparentName === 'items' || ggparentName === 'properties') { // if the parent is items, we have to fine owner and create a relationship between the object and the owner object
+                    } else if (gparentName === 'items' || ggparentName === 'properties') { // if the parent is items, we have to find owner 
                         let ownerObj 
                         if (ggparentName === 'properties') { // if the greatgrandparent is properties, we have to fine owner and create a relationship between the object and the owner object}
-                            ownerObj = osduArray.find(o => o[1] === gparentKey)
+                            ownerObj = osduArray.find(o => o[1] === parentKey)
                         } else {
-                            ownerObj = osduArray.find(o => o[1] === ggparentKey)
+                            ownerObj = osduArray.find(o => o[1] === gparentKey)
                         }
-                        console.log('331', gparentKey, parentName, topObjKey );
-                    
+                        console.log('331', gparentKey, parentName, topObjKey );               
                         const fromobjectId = ownerObj[0]
                         const fromobjectName = ownerObj[1].split('|').slice(-1)[0]
                         const toobjectId = oId
@@ -364,9 +379,36 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         if (!debug) console.log('356 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                         createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
                     }
-
-            
-                } 
+                } else if (oVal['$ref']) { // if the object is a reference, we have to find the object and create a relationship between the object and the reference object
+                    if (gparentKey === topObjKey) { // if granparent is the top object, it is the owner
+                        const ownerObj = osduArray.find(o => o[1] === gparentKey)
+                        const fromobjectId = ownerObj[0]
+                        const fromobjectName = ownerObj[1].split('|').slice(-1)[0]
+                        const toobjectId = oId
+                        const toobjectName = oName
+                        if (!debug) console.log('318 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
+                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
+                    } else { // if gparentKey is the same as topObjKey, we use the topObj as owner
+                        const ownerObj = osduArray.find(o => o[1] === gparentKey)
+                        const fromobjectId = ownerObj[0]
+                        const fromobjectName = ownerObj[1].split('|').slice(-1)[0]
+                        const toobjectId = oId
+                        const toobjectName = oName
+                        if (!debug) console.log('318 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
+                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
+                    }
+                } else if (oName === 'items') { // if the greatgrandparent is items, we have to fine owner and create a relationship between the object and the owner object
+                    const ownerObj = osduArray.find(o => o[1] === parentKey)
+                    const fromobjectId = ownerObj[0]
+                    const fromobjectName = ownerObj[1].split('|').slice(-1)[0]
+                    const toobjectId = oId
+                    const toobjectName = oName
+                    if (!debug) console.log('356 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
+                    createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
+                
+                } else {
+                    
+                }
             // })
         }
         // filter to get only attributes (objects removed)

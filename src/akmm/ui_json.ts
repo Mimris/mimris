@@ -424,6 +424,7 @@ export class jsnObjectType {
     typename:       string;
     typeviewRef:    string;
     properties:     jsnProperty[];
+    attributes:     jsnAttribute[];
     methods:        jsnMethod[];
     markedAsDeleted: boolean;
     modified:       boolean;
@@ -436,6 +437,7 @@ export class jsnObjectType {
         this.typeviewRef    = objtype.typeview ? objtype.typeview.id : "";
         this.description    = (objtype.description) ? objtype.description : "";
         this.properties     = [];
+        this.attributes     = [];
         this.methods        = [];
         this.markedAsDeleted = objtype.markedAsDeleted;
         this.modified       = objtype.modified;
@@ -445,6 +447,14 @@ export class jsnObjectType {
         for (let i = 0; i < cnt; i++) {
             const prop = props[i];
             this.addProperty(prop);
+
+        }
+        const attrs = objtype.getAttributes();
+        cnt = attrs?.length;
+        for (let i = 0; i < cnt; i++) {
+            const attr = attrs[i];
+            this.addAttribute(attr);
+            
         }
         if (debug) console.log('345 objtype, props, this', objtype, props, this);
         const mtds = objtype.getMethods();
@@ -460,7 +470,7 @@ export class jsnObjectType {
     addProperty(prop: akm.cxProperty) {
         if (prop) {
             const gProperty = new jsnProperty(prop);
-            if (debug) console.log('352 prop, gProperty', prop, gProperty);
+            if (debug) console.log('465 prop, gProperty', prop, gProperty);
             this.properties.push(gProperty);
         }
     }
@@ -469,6 +479,13 @@ export class jsnObjectType {
             const gMethod = new jsnMethod(mtd);
             if (debug) console.log('352 mtd, gProperty', mtd, gMethod);
             this.methods.push(gMethod);
+        }
+    }
+    addAttribute(attr: akm.cxAttribute) {
+        if (attr) {
+            const jAttr = new jsnAttribute(attr);
+            if (debug) console.log('479 jAttr, jAttr', attr, jAttr);
+            this.attributes.push(jAttr);
         }
     }
 }
@@ -742,6 +759,18 @@ export class jsnProperty {
         if (prop.defaultValue)
             this.description = prop.defaultValue;
         if (debug) console.log('612 this', this);
+    }
+}
+export class jsnAttribute {
+    name:       string;
+    typeName:   string;
+    propName:   string;
+    propRef:    string;     // Property id
+    constructor(attr: akm.cxAttribute) {
+        this.typeName = attr.typeName;
+        this.propName = attr.propName;
+        this.name     = attr.name;
+        this.propRef  = attr.propRef;
     }
 }
 export class jsnMethodType {

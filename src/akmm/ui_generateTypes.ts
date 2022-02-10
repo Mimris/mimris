@@ -137,6 +137,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                     const prop = props[i];
                     objtype.properties.push(prop);
                 }
+                // Handle attributes
                 objtype.attributes = [];
                 if (props && props.length) {
                     props.forEach(p => {
@@ -899,7 +900,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // First object types
     // const systemtypes = ['Element', 'EntityType', 'RelshipType',  
     //                      'Generic', 'Container', 'Collection', 'Method'];
-    const systemtypes = ['Generic', 'Container'];
+    const systemtypes = ['Element', 'Generic', 'Container'];
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;

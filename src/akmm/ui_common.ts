@@ -1471,10 +1471,12 @@ export function createLink(data: any, context: any): any {
             let fromObj = null;
             if (fromObjView) {
                 fromObj = fromObjView.object;
+                fromObj = myMetis.findObject(fromObj?.id);
             }
             let toObj = null;
             if (toObjView) {
                 toObj = toObjView.object;
+                toObj = myMetis.findObject(toObj?.id);
             }
             if (debug) console.log('1466 createLink', fromObj, toObj);
             if (fromObj && toObj) {

@@ -346,7 +346,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         const toobjectName = oName
                         if (debug) console.log('331 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                         (fromobjectId !== toobjectId) && 
-                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
+                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)  
+                              
                     } else if (gggparentKey === topObjKey) { // if gggparentKey is the same as topObjKey, we use the topObj as owner
                         // console.log('322', gggparentKey, parentName,  topObjKey );
                         const fromobjectId = topObjId
@@ -355,7 +356,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         const toobjectName = oName
                         if (debug) console.log('340 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                         (fromobjectId !== toobjectId) && 
-                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
+                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName) 
+
                     } else if (gparentName === 'items' || ggparentName === 'properties') { // if the parent is items, we have to find owner 
                         let ownerObj 
                         if (ggparentName === 'properties') { // if the greatgrandparent is properties, we have to fine owner and create a relationship between the object and the owner object}
@@ -369,7 +371,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         const toobjectId = oId
                         const toobjectName = oName  
                         if (!debug) console.log('318 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
-                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
+                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName) 
+
                     } else if (gggparentName === 'items') { // if the greatgrandparent is items, we have to fine owner and create a relationship between the object and the owner object
                         const ownerObj = osduArray.find(o => o[1] === ggggparentKey)
                         const fromobjectId = ownerObj[0]
@@ -387,7 +390,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         const toobjectId = oId
                         const toobjectName = oName
                         if (!debug) console.log('318 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
-                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
+                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName) 
+
                     } else { // if gparentKey is the same as topObjKey, we use the topObj as owner
                         const ownerObj = osduArray.find(o => o[1] === gparentKey)
                         const fromobjectId = ownerObj[0]
@@ -395,7 +399,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         const toobjectId = oId
                         const toobjectName = oName
                         if (!debug) console.log('318 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
-                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)        
+                        createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName) 
+
                     }
                 } else if (oName === 'items') { // if the greatgrandparent is items, we have to fine owner and create a relationship between the object and the owner object
                     const ownerObj = osduArray.find(o => o[1] === parentKey)

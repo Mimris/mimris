@@ -124,6 +124,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
             description = `${fromobjectName} has ${toobjectName}`;
             title = '';
             
+
             
             if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
                 if (!debug) console.log('117 ', relId, reltypeName, description, title, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
@@ -148,7 +149,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
     
         if (debug) console.log('134 ', o, firstElement, restObject);
         // check if the relationship exists between the objects
-        const existRelship = utils.findRelshipByToIdAndType(curRelships, restObject?.id, IsType?.id)
+        const existRelship = utils.findRelshipByToIdAndType(curRelships, restObject?.id, IsType?.id) || null
         // const existRelship = utils.findRelshipByFromIdToIdAndType(curRelships, restObject?.id, hasType?.id)
         // console.log('140 ', restObject.id, existRelship);
         // find top level object
@@ -168,16 +169,28 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
             fromobjectId = topLevelObject?.id
             fromobjectName = topLevelObject?.name
             relId = (existRelship) ? existRelship.id : utils.createGuid(); // use the exist relship id if it exists
-            reltypeRef = IsType?.id
-            reltypeName = IsType?.name
-            description = `${fromobjectName} Is ${toobjectName}`;
-            title = '';
-            
-            if (debug) console.log('164 ', relId, reltypeName, description, title, reltypeRef,'from :', fromobjectId, fromobjectName, 'to :', toobjectId, toobjectName, o.id);
-            
-            if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
-                 createRel(relId, reltypeName, relDescription="", relTitle="", reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
-            }
+
+            const fromTypeId = curObjTypes.find(t => t.id === (curObjects.find(o => o.id === topLevelObject.id).typeRef)).id
+            const reltype = curRelTypes.find(co => (co.name === 'Is' && co.fromobjtypeRef === fromTypeId) && co)
+
+            // check if a relationship with name = 'Is' already exists between the from and to objects
+            // console.log('177 ', fromobjectName, curRelships.find(r => r.fromobjectRef === fromobjectId), toobjectId, curRelships.find(r => r.toobjectRef === toobjectId) )
+             if (curRelships.find(r => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype.id)) {
+                 // relship exists
+             } else {
+                console.log('158 ', fromTypeId, reltype);
+                reltypeRef = reltype?.id
+                reltypeName = reltype?.name
+
+                description = `${fromobjectName} Is ${toobjectName}`;
+                title = '';
+                
+                if (!debug) console.log('164 ', relId, reltypeName, description, title, reltypeRef,'from :', fromobjectId, fromobjectName, 'to :', toobjectId, toobjectName, o.id);
+                
+                if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
+                    createRel(relId, reltypeName, relDescription="", relTitle="", reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
+                }
+             }
 
         }     
             

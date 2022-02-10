@@ -177,7 +177,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           const typeProps = type?.getProperties(flag);
           const inheritedProps = inst?.getInheritedProperties(myModel);
           if (inheritedProps?.length>0)
-            roperties = typeProps.concat(inheritedProps);
+            properties = typeProps.concat(inheritedProps);
           else
             properties = typeProps;
           if (debug) console.log('181 properties', properties);

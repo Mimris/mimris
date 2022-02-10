@@ -21,6 +21,7 @@ const utils = require('./utilities');
 const constants = require('./constants');
 
 import * as gjs from './ui_gojs';
+import akmmGraphql from '../pages/akmm-graphql';
 
 // cxMetis
 
@@ -662,6 +663,20 @@ export class cxMetis {
                     if (prop) this.importProperty(prop, metamodel);
                 })
             }
+
+            objtype.attributes = [];
+            const props = objtype.properties;
+            if (props && props.length) {
+                props.forEach(p => {
+                    const prop = p as cxProperty;
+                    let attr = objtype.findAttributeByProperty(prop.id);
+                    if (!attr) {
+                        attr = new cxAttribute(objtype, prop);
+                        objtype.addAttribute(attr);
+                    }
+                })
+            }
+
             const methods: any[] = item.methods;
             if (methods && methods.length) {
                 methods.forEach(m => {
@@ -4103,6 +4118,7 @@ export class cxType extends cxMetaObject {
     abstract: boolean;
     supertypes: cxType[] | null;
     properties: cxProperty[] | null;
+    attributes: cxAttribute[] | null;
     methods: cxMethod[] | null;
     queries: any;
     typeview: cxObjectTypeView | cxRelationshipTypeView | null;
@@ -4116,6 +4132,7 @@ export class cxType extends cxMetaObject {
         this.supertypes = [];
         this.fs_collection = "types"; // Firestore collection
         this.properties = [];
+        this.attributes = [];
         this.typeview = null; // Default typeview
         this.viewkind = "";
         this.relshipkind = "";
@@ -4144,9 +4161,10 @@ export class cxType extends cxMetaObject {
         if (prop.category === constants.gojs.C_PROPERTY) {
             const props = new Array();
             const len = this.properties?.length;
-            if (!len)
+            if (!len) {
+                // New property
                 props.push(prop);
-            else {
+            } else {
                 let found = false;
                 for (let i=0; i<len; i++) {
                     const p = this.properties[i];
@@ -4156,9 +4174,10 @@ export class cxType extends cxMetaObject {
                         found = true;
                     } else
                         props.push(p);
-                }
-                if (!found)
+                    }
+                if (!found) {
                     props.push(prop);
+                }
             }
             this.properties = props;
         }
@@ -4172,6 +4191,16 @@ export class cxType extends cxMetaObject {
         prop.setDatatype(dtype);
         this.properties.push(prop);
         return prop;
+    }
+    addAttribute(attr: cxAttribute) {
+        if (attr) {
+            this.attributes.push(attr);       
+        } 
+    }
+    addAttribute2(prop: cxProperty) {
+        const attr = new cxAttribute(this, prop);
+        if (attr)
+            this.attributes.push(attr);
     }
     addMethod(mtd: cxMethod) {
         if (!mtd) return;
@@ -4199,6 +4228,16 @@ export class cxType extends cxMetaObject {
     }
     addQuery(query: any) {
         // To be defined
+    }
+    findAttributeByProperty(propRef) {
+        const attrs = this.attributes;
+        for (let i=0; i<attrs.length; i++) {
+            const attr = attrs[i];
+            if (attr.propRef === propRef) {
+                return attr;
+            }
+        }
+        return null;
     }
     findProperty(propid: string): cxProperty | null {
         let properties = this.properties;
@@ -4388,6 +4427,9 @@ export class cxType extends cxMetaObject {
             return false;
         else
             return true;
+    }
+    getAttributes() {
+        return this.attributes;
     }
     getMethods(): any[] | null {
         return this.methods;
@@ -5092,6 +5134,21 @@ export class cxProperty extends cxMetaObject {
             return this.defaultValue;
         else
             return "";
+    }
+}
+
+export class cxAttribute {
+    name:       string;
+    typeName:   string;
+    propName:   string;
+    propRef:    string;     // Property id
+    constructor(type: cxType, prop: cxProperty) {
+        if (prop && type) {
+            this.typeName = type.name;
+            this.propName = prop.name;
+            this.name     = this.typeName + '.' + this.propName;
+            this.propRef  = prop.id;
+        }
     }
 }
 

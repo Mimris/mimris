@@ -137,6 +137,17 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
                     const prop = props[i];
                     objtype.properties.push(prop);
                 }
+                objtype.attributes = [];
+                if (props && props.length) {
+                    props.forEach(p => {
+                        const prop = p as akm.cxProperty;
+                        let attr = objtype.findAttributeByProperty(prop.id);
+                        if (!attr) {
+                            attr = new akm.cxAttribute(objtype, prop);
+                            objtype.addAttribute(attr);
+                        }
+                    })
+                }
             }
             myTargetMetamodel?.addObjectType(objtype);
             myMetis.addObjectType(objtype);
@@ -309,12 +320,12 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     // relship is the relationship defining the relationship type to be generated
     const currentRel  = myMetis.findRelationship(relship.id);
     if (debug) console.log('290 currentRel: ', currentRel);
-    const fromObj  = currentRel.getFromObject();
+    const fromObj  = currentRel?.getFromObject();
     let fromName = fromObj.name;
     fromName = utils.camelize(fromName);
     fromName = utils.capitalizeFirstLetter(fromName);
     const fromtype = myTargetMetamodel.findObjectTypeByName(fromName);
-    const toObj    = currentRel.getToObject();
+    const toObj    = currentRel?.getToObject();
     let toName = toObj.name;
     toName = utils.camelize(toName);
     toName = utils.capitalizeFirstLetter(toName);

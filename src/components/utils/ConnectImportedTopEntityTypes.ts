@@ -174,7 +174,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
             const reltype = curRelTypes.find(co => (co.name === 'Is' && co.fromobjtypeRef === fromTypeId) && co)
 
             // check if a relationship with name = 'Is' already exists between the from and to objects
-            // console.log('177 ', fromobjectName, curRelships.find(r => r.fromobjectRef === fromobjectId), toobjectId, curRelships.find(r => r.toobjectRef === toobjectId) )
+            console.log('177 ', fromobjectName, curRelships.find(r => r.fromobjectRef === fromobjectId), toobjectId, curRelships.find(r => r.toobjectRef === toobjectId) )
              if (curRelships.find(r => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype.id)) {
                  // relship exists
              } else {

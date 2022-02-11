@@ -217,6 +217,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                 // get type from the objects $id attribute and pick the second last element of the path
                 const entityTypePathElement = (oVal.$id) ? oVal.$id.split('/').slice(-2)[0] : 'EntityType' // filter out the entityType from the file path i.e master-data 
                 let objTypeElementName = camelCase(entityTypePathElement, {pascalCase: true}) // convert to pascalCase i.e. master-data -> MasterData
+                if (objTypeElementName === 'Abstract') cNewVal.abstract = true // if the object is abstract, set the abstract property to true
+                console.log('221 objTypeElementName', objTypeElementName, cNewVal);
                 objecttypeRef = curObjTypes.find(ot => ot.name === objTypeElementName)?.id || curObjTypes.find(ot => ot.name === 'EntityType')?.id // find objecttypeRef for the objecttypeName
                 createObject(oId, topObjName, objecttypeRef, oKey, jsonType, cNewVal) // create the top object   
                 console.log('215 topObject', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
@@ -347,7 +349,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         if (debug) console.log('331 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                         (fromobjectId !== toobjectId) && 
                         createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName)  
-                              
+
                     } else if (gggparentKey === topObjKey) { // if gggparentKey is the same as topObjKey, we use the topObj as owner
                         // console.log('322', gggparentKey, parentName,  topObjKey );
                         const fromobjectId = topObjId
@@ -392,7 +394,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                         if (!debug) console.log('318 ---------',fromobjectName, reltypeName, toobjectName, fromobjectId, toobjectId);
                         createRel(relId, reltypeName, relDescription, relTitle, reltypeRef, relshipKind, fromobjectId, fromobjectName, toobjectId, toobjectName) 
 
-                    } else { // if gparentKey is the same as topObjKey, we use the topObj as owner
+                    } else { // 
                         const ownerObj = osduArray.find(o => o[1] === gparentKey)
                         const fromobjectId = ownerObj[0]
                         const fromobjectName = ownerObj[1].split('|').slice(-1)[0]

@@ -91,7 +91,6 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         }
     } else // Check if the types has not been generated, but exists anyway
     {        
-        // objtype = myTargetMetamodel?.findObjectTypeByName(obj.name);
         objtype = myMetis.findObjectTypeByName(obj.name);
         if (objtype) {
             objtype.setViewKind(obj.getViewKind());
@@ -101,20 +100,20 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }
     if (debug) console.log('99 newName', newName);
     if (!objtype) { // This is a new object type
-        let metaObject;
-        const metaObjects = ['EntityType'];
-        for (let i=0; i<metaObjects.length; i++) {
-            const mObject = metaObjects[i];
-            const mType = myMetamodel.findObjectTypeByName(mObject);
+        let metaObjectName;
+        const metaObjectNames = ['EntityType'];
+        for (let i=0; i<metaObjectNames.length; i++) {
+            const mObjectName = metaObjectNames[i];
+            const mType = myMetamodel.findObjectTypeByName(mObjectName);
             if (mType) {
                 // metaObject exists
-                metaObject = mObject;
+                metaObjectName = mObjectName;
                 break;
             }
         }
-        if (debug) console.log('112 metaObject', metaObject);
-        if (obj.type.name === metaObject 
-            || obj.isOfSystemType(metaObject)
+        if (debug) console.log('112 metaObjectName', metaObjectName);
+        if (obj.type.name === metaObjectName 
+            || obj.isOfSystemType(metaObjectName)
             ) {
             let name = objname;
             // Handle local inheritance

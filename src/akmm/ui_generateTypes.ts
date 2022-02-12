@@ -222,8 +222,10 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     }  
     if (debug) console.log('197 objtype, myMetis', objtype, myMetis);
     { // Handle methods
-        const mtdtype = myTargetMetamodel.findObjectTypeByName(constants.types.AKM_METHOD);
-        const reltype = myTargetMetamodel.findRelationshipTypeByName2(constants.types.AKM_HAS_METHOD, objtype, mtdtype);
+        const baseObject = 'EntityType';
+        const basetype = myMetis.findObjectTypeByName(baseObject);
+        const mtdtype = myMetis.findObjectTypeByName(constants.types.AKM_METHOD);
+        const reltype = myMetis.findRelationshipTypeByName2(constants.types.AKM_HAS_METHOD, basetype, mtdtype);
         const methods = [];
         const rels = obj.outputrels;
         for (let i=0; i<rels?.length; i++) {
@@ -332,7 +334,7 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     toName = utils.capitalizeFirstLetter(toName);
     const totype   = myTargetMetamodel.findObjectTypeByName(toName);
     if (debug) console.log('301 fromObj, toObj: ', fromObj, toObj);
-    if (debug) console.log('302 fromtype, totype: ', fromtype, totype);
+    if (debug) console.log('302 fromtype, totype, toname ', fromtype, totype, toName);
     let newName  = currentRel?.getName();
     let oldName = "";
     newName = utils.camelize(newName);
@@ -900,7 +902,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // First object types
     // const systemtypes = ['Element', 'EntityType', 'RelshipType',  
     //                      'Generic', 'Container', 'Collection', 'Method'];
-    const systemtypes = ['Element', 'Generic', 'Container'];
+    const systemtypes = ['Generic', 'Container'];
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;
@@ -1067,7 +1069,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     }
                 }
                 if (debug) console.log('1003 relview', relview);
-                if (fromObj?.isOfSystemType(metaObject) && toObj?.isOfSystemType(metaObject)) {
+                if (fromObj?.isOfSystemType(metaObject) && 
+                    toObj?.isOfSystemType(metaObject)) {
                     if (debug) console.log('1005 rel', rel);
                     const reltype = generateRelshipType(rel, relview, context);
                     if (debug) console.log('1007 reltype', reltype);

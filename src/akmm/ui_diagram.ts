@@ -566,6 +566,23 @@ function deleteMetamodel2(context: any) {
             deleteModel2(model, myMetis, myDiagram);
         }
         metamodel.markedAsDeleted = true;
+        const generatedFromModel = myMetis.findModel(metamodel.generatedFromModelRef);
+        if (generatedFromModel) {
+            const modifiedObjects = [];
+            const objects = generatedFromModel.objects;
+            for (let i=0; i<objects?.length; i++) {
+                const obj = objects[i];
+                obj.generatedTypeId = "";
+                const jsnObject = new jsn.jsnObject(obj);
+                modifiedObjects.push(jsnObject);
+            }
+            modifiedObjects.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('582 object', data);
+                myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            })        
+        }
         const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
         if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
         modifiedMetamodels.push(jsnMetamodel);

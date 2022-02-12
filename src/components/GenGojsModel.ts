@@ -572,25 +572,23 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('590 No Admin Metamodel found!');
       return;
     }
+    let firstTime = false;
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let adminModelview;
     if (!adminModel) {
+      firstTime = true;
       adminModel = new akm.cxModel(utils.createGuid(), constants.admin.AKM_ADMIN_MODEL, adminMetamodel, "");
-      // adminModel.layer = "Admin";
       myMetis.addModel(adminModel);
+      // Add modelview
+      adminModelview = new akm.cxModelView(utils.createGuid(), '_ADMIN', adminModel, '');
+      adminModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
+      adminModel.addModelView(adminModelview);
+      myMetis.addModelView(adminModelview);
     }
     if (adminModel) {
       adminModel.objects = null;
       adminModel.relships = null;
       adminModelview = adminModel.modelviews ? adminModel.modelviews[0] : null;
-      if (!adminModelview) {
-        adminModelview = new akm.cxModelView(utils.createGuid(), '_ADMIN', adminModel, '');
-        adminModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
-        // adminModelview.routing = 'AvoidsNodes';
-        // adminModelview.linkcurve = 'JumpOver';
-        adminModel.addModelView(adminModelview);
-        myMetis.addModelView(adminModelview);
-      }
       if (adminModelview) {
         adminModelview.objectviews = null;
         adminModelview.relshipviews = null;
@@ -739,8 +737,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                   }
                 }
               }
-            }
-          
+            }          
           }
         }  
       }
@@ -777,7 +774,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
         }
       }
-
+    }
+    if (firstTime) {
+      // Do a dispatch 
+      const jsnModel = new jsn.jsnModel(adminModel, true);
+      const modifiedModels = []
+      modifiedModels.push(jsnModel);
+      modifiedModels.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
+      });
     }
     return adminModel;
   }

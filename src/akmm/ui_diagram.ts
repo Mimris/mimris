@@ -580,7 +580,7 @@ function deleteMetamodel2(context: any) {
             modifiedObjects.map(mn => {
                 let data = mn;
                 data = JSON.parse(JSON.stringify(data));
-                if (!debug) console.log('582 object', data);
+                if (debug) console.log('582 object', data);
                 myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
             })        
             const modifiedRelships = [];
@@ -594,7 +594,7 @@ function deleteMetamodel2(context: any) {
             modifiedRelships.map(mn => {
                 let data = mn;
                 data = JSON.parse(JSON.stringify(data));
-                if (!debug) console.log('596 relship', data);
+                if (debug) console.log('596 relship', data);
                 myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
             }) 
         }       

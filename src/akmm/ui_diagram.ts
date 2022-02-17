@@ -566,17 +566,49 @@ function deleteMetamodel2(context: any) {
             deleteModel2(model, myMetis, myDiagram);
         }
         metamodel.markedAsDeleted = true;
-        const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-        if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
-        modifiedMetamodels.push(jsnMetamodel);
-        modifiedMetamodels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
-        });
+        // If the metamodel was generated from a model, remove references in the model
+        const generatedFromModel = myMetis.findModel(metamodel.generatedFromModelRef);
+        if (generatedFromModel) {
+            const modifiedObjects = [];
+            const objects = generatedFromModel.objects;
+            for (let i=0; i<objects?.length; i++) {
+                const obj = objects[i];
+                obj.generatedTypeId = "";
+                const jsnObject = new jsn.jsnObject(obj);
+                modifiedObjects.push(jsnObject);
+            }
+            modifiedObjects.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('582 object', data);
+                myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            })        
+            const modifiedRelships = [];
+            const relships = generatedFromModel.relationships;
+            for (let i=0; i<relships?.length; i++) {
+                const rel = relships[i];
+                rel.generatedTypeId = "";
+                const jsnRelship = new jsn.jsnRelationship(rel);
+                modifiedRelships.push(jsnRelship);
+            }
+            modifiedRelships.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('596 relship', data);
+                myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+            }) 
+        }       
+    }
+    const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+    if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
+    modifiedMetamodels.push(jsnMetamodel);
+    modifiedMetamodels.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    });
 
-        uic.purgeDeletions(myMetis, myDiagram);
-    } 
+    uic.purgeDeletions(myMetis, myDiagram);     
     if (debug) console.log('302 myMetis', myMetis);
 }
 

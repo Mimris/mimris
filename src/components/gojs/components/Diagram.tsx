@@ -391,7 +391,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     myDiagram.toolManager.draggingTool.isGridSnapEnabled = true;
     myDiagram.toolManager.resizingTool.isGridSnapEnabled = true; 
     myMetis.myDiagram = myDiagram;
-    if (myMetis.currentModelview.name === constants.admin.AKM_ADMIN_MODELVIEW) {
+    if (myMetis.currentModelview?.name === constants.admin.AKM_ADMIN_MODELVIEW) {
       setLayout(myDiagram, myMetis.currentModelview?.layout);
     }
     

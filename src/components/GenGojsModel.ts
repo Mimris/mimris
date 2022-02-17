@@ -15,6 +15,8 @@ const constants = require('../akmm/constants');
 // const includeInstancesOnly = true 
 const includeNoType = false;
 
+const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
+
 const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -166,41 +168,63 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
 
     }
-}
+  }
 
   function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
     if (debug) console.log('173 metamodel', metamodel);
+    let typenames;
+    const modelRef = metamodel.generatedFromModelRef;
+    let model = metis.findModel(modelRef);
+    if (model) {
+      const mmodel = model.metamodel;
+      const objtypenames = [];
+      const objtypes = mmodel?.objecttypes;
+      if (objtypes) {
+        for (let i=0; i<objtypes.length; i++) {
+          const objtype = objtypes[i];
+          if (objtype) {
+            objtypenames.push(objtype.name);
+          }
+        }
+      }
+      typenames = [...new Set(objtypenames)];
+      if (debug) console.log('191 objecttypes', typenames);
+    }
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
     if (objecttypes) {
       objecttypes.sort(utils.compare);
     }
-    if (debug) console.log('176 objecttypes', objecttypes);
+    if (debug) console.log('196 objecttypes', objecttypes);
     if (objecttypes) {
       let includesSystemtypes = false;
       const otypes = new Array();
       for (let i = 0; i < objecttypes.length; i++) {
         const objtype: akm.cxObjectType = objecttypes[i];  
-        if (debug) console.log('179 objtype', objtype); 
+        if (debug) console.log('202 objtype', objtype); 
         if (!objtype) continue;
         if (objtype.markedAsDeleted) continue;
         if (objtype.abstract) continue;
         if (objtype.nameId === 'Entity0') continue;
         if (objtype.name === 'Datatype') includesSystemtypes = true;
+        if (!includesSystemtypes) {
+          if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
+            if (typenames && utils.nameExistsInNames(typenames, objtype.name)) 
+              continue;
+          }
+        }
         otypes.push(objtype);
       }
+      if (debug) console.log('211 otypes', otypes); 
       const noTypes = otypes.length;
       for (let i = 0; i < noTypes; i++) {
         const objtype: akm.cxObjectType = otypes[i];  
-        // Hack
         if (!includesSystemtypes) {    // Systemtypes are not included
-          const typename = objtype.name;
-          if (typename === 'Entity' || 
-              typename === 'EntityType' ||
-              typename === 'Method')
-            continue;
+          if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
+            if (typenames && utils.nameExistsInNames(typenames, objtype.name)) 
+              continue;
+          }
         }
-        // End Hack
         const id = utils.createGuid();
         const name = objtype.name;
         const obj = new akm.cxObject(id, name, objtype, "");
@@ -212,7 +236,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }    
         if (obj.isDeleted()) 
             continue;
-        if (debug) console.log('193 obj, objtype', obj, objtype);
+        if (debug) console.log('230 obj, objtype', obj, objtype);
         const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
         let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
         // Hack
@@ -234,7 +258,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         myGoPaletteModel.addNode(node);        
       }
     }
-    if (debug) console.log('216 Objecttype palette', myGoPaletteModel);
+    if (debug) console.log('252 Objecttype palette', myGoPaletteModel);
     return myGoPaletteModel;
   }
 
@@ -572,25 +596,23 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('590 No Admin Metamodel found!');
       return;
     }
+    let firstTime = false;
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let adminModelview;
     if (!adminModel) {
+      firstTime = true;
       adminModel = new akm.cxModel(utils.createGuid(), constants.admin.AKM_ADMIN_MODEL, adminMetamodel, "");
-      // adminModel.layer = "Admin";
       myMetis.addModel(adminModel);
+      // Add modelview
+      adminModelview = new akm.cxModelView(utils.createGuid(), '_ADMIN', adminModel, '');
+      adminModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
+      adminModel.addModelView(adminModelview);
+      myMetis.addModelView(adminModelview);
     }
     if (adminModel) {
       adminModel.objects = null;
       adminModel.relships = null;
       adminModelview = adminModel.modelviews ? adminModel.modelviews[0] : null;
-      if (!adminModelview) {
-        adminModelview = new akm.cxModelView(utils.createGuid(), '_ADMIN', adminModel, '');
-        adminModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
-        // adminModelview.routing = 'AvoidsNodes';
-        // adminModelview.linkcurve = 'JumpOver';
-        adminModel.addModelView(adminModelview);
-        myMetis.addModelView(adminModelview);
-      }
       if (adminModelview) {
         adminModelview.objectviews = null;
         adminModelview.relshipviews = null;
@@ -739,8 +761,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                   }
                 }
               }
-            }
-          
+            }          
           }
         }  
       }
@@ -777,7 +798,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
         }
       }
-
+    }
+    if (firstTime) {
+      // Do a dispatch 
+      const jsnModel = new jsn.jsnModel(adminModel, true);
+      const modifiedModels = []
+      modifiedModels.push(jsnModel);
+      modifiedModels.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
+      });
     }
     return adminModel;
   }

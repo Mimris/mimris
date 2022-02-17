@@ -936,25 +936,25 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         // if (!objtypes[i]) continue; 
         const typename = objtypes[i]?.name;
         const objtype = myMetamodel.findObjectTypeByName(typename);
-        if (debug) console.log('865 objtype', objtype, myMetis);
+        if (!debug) console.log('939 typename, objtype', typename, objtype);
         if (objtype) {
             metamodel.addObjectType(objtype);
             metamodel.addObjectTypeView(objtype.typeview as akm.cxObjectTypeView);
             let geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype, "", "");
             metamodel.addObjtypeGeo(geo);
             const jsnObjTypegeo = new jsn.jsnObjectTypegeo(geo);
-            if (debug) console.log('872 Generate Object Type', jsnObjTypegeo, myMetis);
+            if (debug) console.log('946 Generate Object Type', jsnObjTypegeo, myMetis);
             modifiedGeos.push(jsnObjTypegeo);
         }
     }
-    if (debug) console.log('876 system object types completed', objtypes, myMetis);
+    if (debug) console.log('950 system object types completed', objtypes, myMetis);
 
     // Add system relationship types
-    const rsystemtypes = ['relationshipType', 'isRelatedTo', 'Is', 'has', 'contains'];
+    const rsystemtypes = ['relationshipType', 'isRelatedTo', 'Is', 'has', 'contains', 'hasLabel'];
     let reltypes;
     if (model.includeSystemtypes) {
         reltypes = myMetamodel.relshiptypes;
-        if (debug) console.log('882 reltypes', reltypes);
+        if (debug) console.log('957 reltypes', reltypes);
     } else {
         reltypes = [];
         for (let i=0; i<rsystemtypes.length; i++) {
@@ -984,10 +984,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         const reltype = reltypes[i];
         if (reltype) {
             metamodel.addRelationshipType(reltype);
-            if (debug) console.log('912 reltype', reltype);
+            if (debug) console.log('987 reltype', reltype);
         }
     }
-    if (debug) console.log('915 system relship types completed', myMetis);
+    if (debug) console.log('990 system relship types completed', myMetis);
 
     let metaObject;
     { // Add or generate objecttypes
@@ -1065,7 +1065,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             if (debug) console.log('979 relshipviews', relshipviews);
             for (let i=0; i<relshipviews.length; i++) {
                 const relview = relshipviews[i];
-                if (debug) console.log('982 relview', relview);
+                if (debug) console.log('1068 relview', relview);
                 if (!relview) continue;
                 const rel = relview.relship;
                 const fromObjview = relview.fromObjview;

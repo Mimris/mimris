@@ -208,7 +208,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (objtype.nameId === 'Entity0') continue;
         if (objtype.name === 'Datatype') includesSystemtypes = true;
         if (!includesSystemtypes) {
-          if (objtype.name !== 'Generic' && objtype.name !== 'Container') {
+          if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
             if (typenames && utils.nameExistsInNames(typenames, objtype.name)) 
               continue;
           }
@@ -220,7 +220,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < noTypes; i++) {
         const objtype: akm.cxObjectType = otypes[i];  
         if (!includesSystemtypes) {    // Systemtypes are not included
-          if (objtype.name !== 'Generic' && objtype.name !== 'Container') {
+          if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
             if (typenames && utils.nameExistsInNames(typenames, objtype.name)) 
               continue;
           }

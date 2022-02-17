@@ -4488,6 +4488,19 @@ export class cxType extends cxMetaObject {
         if (debug) console.log('3893 this.properties, props', this.properties, props);
         this.properties = props;
     }
+    isOfType(typeName: string): boolean {
+        let retval = false;
+        if (this.name === typeName) { 
+            return true;
+        }
+        const stypes = this.supertypes;
+        for (let i=0; i<stypes?.length; i++) {
+            const stype = stypes[i];
+            if (stype?.name === typeName)
+                return true;
+        }
+        return retval;
+    }
 }
 
 export class cxObjectType extends cxType {

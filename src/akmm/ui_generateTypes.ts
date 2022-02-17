@@ -192,12 +192,16 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             objtype.setModified();
             if (!parentType)
                 parentType = obj.type;
+            if (debug) console.log('195 myMetis', myMetis);
             // Connect objtype to parentType
             // First check if it already exists
             parentRelType = myMetis.findRelationshipTypeByName2(constants.types.AKM_IS, objtype, parentType);
+            if (debug) console.log('199 objtype, parentType, parentRelType', objtype, parentType, parentRelType);
             if (!parentRelType) {
                 parentRelType  = new akm.cxRelationshipType(utils.createGuid(), constants.types.AKM_IS, objtype, parentType, "");
-                if (debug) console.log('200 parentType, parentRelType', parentType, parentRelType);
+                if (debug) console.log('202 objtype, parentType, parentRelType', objtype, parentType, parentRelType);
+                objtype.addOutputreltype(parentRelType);
+                parentType.addInputreltype(parentRelType);
                 parentRelType.setModified();
                 parentRelType.setRelshipKind('Generalization');
                 myMetamodel.addRelationshipType(parentRelType);
@@ -903,14 +907,27 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // const systemtypes = ['Element', 'EntityType', 'RelshipType',  
     //                      'Generic', 'Container', 'Collection', 'Method'];
     const systemtypes = ['Element', 'EntityType', 'Generic', 'Container'];
+    const dsystemtypes = ['Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Unittype'];
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;
     } else {
-        const elementType = myMetis.findObjectTypeByName('Element');
         objtypes = [];
-        for (let i=0; i<systemtypes.length; i++) {
-            const typename = systemtypes[i];
+        const otypes = myMetamodel.objecttypes;
+        for (let i=0; i<otypes.length; i++) {
+            let otype = otypes[i];
+            otype = myMetis.findObjectType(otype.id);
+            const typename = otype.name;
+            if (utils.nameExistsInNames(dsystemtypes, typename))
+                continue;
+            if (otype.isOfType('Property'))
+                continue;
+            if (otype.isOfType('Method'))
+                continue;
+            if (otype.isOfType('MethodType'))
+                continue;
+            if (otype.isOfType('RelshipType'))
+                continue;
             const type = myMetamodel.findObjectTypeByName(typename);
             objtypes.push(type);
         }

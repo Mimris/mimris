@@ -1295,12 +1295,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let toType   = toNode?.objecttype;
               fromType = myMetis.findObjectType(fromType?.id);
               toType   = myMetis.findObjectType(toType?.id);
+              const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';
               if (debug) console.log('672 link', fromType, toType);
               const myMetamodel = myMetis.currentMetamodel;
               const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
               let   defText  = "";
               link.choices = [];
-              link.choices.push('isRelatedTo');
+              if (!appliesToLabel)
+                link.choices.push('isRelatedTo');
               if (debug) console.log('675 createRelationship', reltypes, fromType, toType);
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {

@@ -1022,7 +1022,8 @@ export function createRelationship(data: any, context: any) {
             toType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
         if (fromType && toType) {
-            let defText = 'isRelatedTo';
+            const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';            
+            let defText = appliesToLabel ? "" : 'isRelatedTo';
             const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
             if (debug) console.log('1010 createRelationship', reltypes, fromType, toType);
             if (reltypes) {

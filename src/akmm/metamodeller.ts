@@ -7463,6 +7463,11 @@ export class cxRelationshipView extends cxMetaObject {
                 this.setToArrowColor('white');
                 this.textcolor = 'black';
                 break;
+            case 'Aggregation':
+            case 'Composition':
+                this.setToArrow('OpenTriangle');
+                this.textcolor = 'black';
+                break;
             default:
                 break;
         }

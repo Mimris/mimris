@@ -122,7 +122,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionCopied', this.props.onDiagramEvent);
-      //diagram.addDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.addDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.addDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.addDiagramListener('LinkDrawn', this.props.onDiagramEvent);
@@ -151,7 +150,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('TextEdited', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionMoved', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionCopied', this.props.onDiagramEvent);
-      //diagram.removeDiagramListener('SelectionDeleted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('SelectionDeleting', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ExternalObjectsDropped', this.props.onDiagramEvent);
       diagram.removeDiagramListener('LinkDrawn', this.props.onDiagramEvent);
@@ -167,7 +165,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
 
       diagram.removeChangedListener(this.props.onModelChange);
-
     }
   }
 
@@ -302,7 +299,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "scrollMode": go.Diagram.InfiniteScroll,
             "initialAutoScale": go.Diagram.UniformToFill,
             'undoManager.isEnabled': false,  // must be set to allow for model change listening
-            //'undoManager.maxHistoryLength': 100,  // uncomment disable undo/redo functionality
+            // undoManager.maxHistoryLength': 100,  // uncomment disable undo/redo functionality
 
             "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
             "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below
@@ -2612,7 +2609,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
 
     return myDiagram;
-
   }
 
   public render() {
@@ -2826,8 +2822,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         </TabContent>
       </>  
 
-    if (debug) console.log('2682 Active tab: ', this.state.currentActiveTab);
-    return (
+if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
+return (
       <div>
         <ReactDiagram 
           ref={this.diagramRef}

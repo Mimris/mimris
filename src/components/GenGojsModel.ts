@@ -349,7 +349,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (obj?.markedAsDeleted)
           objview.markedAsDeleted = obj?.markedAsDeleted;
         objview.name = obj?.name;
-        if (obj.type.name === 'Label')
+        if (obj?.type?.name === 'Label')
           objview.name = obj.text;
         // objview.visible = obj?.visible
         if (includeDeleted) {
@@ -411,7 +411,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
       }
-      if (!debug) console.log('383 nodes', nodes);
+      if (debug) console.log('383 nodes', nodes);
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();

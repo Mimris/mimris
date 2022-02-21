@@ -936,7 +936,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         // if (!objtypes[i]) continue; 
         const typename = objtypes[i]?.name;
         const objtype = myMetamodel.findObjectTypeByName(typename);
-        if (!debug) console.log('939 typename, objtype', typename, objtype);
+        if (debug) console.log('939 typename, objtype', typename, objtype);
         if (objtype) {
             metamodel.addObjectType(objtype);
             metamodel.addObjectTypeView(objtype.typeview as akm.cxObjectTypeView);

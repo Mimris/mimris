@@ -419,7 +419,7 @@ export function handleSelectDropdownChange(selected, context) {
       const data = modalContext.data;
       const typename = selected.value;
       modalContext.selected = selected;
-      if (!debug) console.log('358 typename', typename);
+      if (debug) console.log('358 typename', typename);
       const fromNode = myGoModel.findNode(modalContext.data.from);
       // const nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
       const toNode = myGoModel.findNode(modalContext.data.to);

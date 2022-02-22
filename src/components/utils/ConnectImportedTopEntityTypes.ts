@@ -90,8 +90,9 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
     // then find objects a name that includes the text 'ID' 
     const propLinkObjectsWithId =  propLinkObjects.filter(o => o.name?.includes('ID') && o)
     const propLinkObjectsWithSet = propLinkObjects.filter(o => o.name?.includes('Set') && o)
+    const propLinkObjectsWithPattern = propLinkObjects.filter(o => o.items?.pattern && o)
     
-    const propLinks = [...propLinkObjectsWithId, ...propLinkObjectsWithSet]
+    const propLinks = [...propLinkObjectsWithId, ...propLinkObjectsWithSet, ...propLinkObjectsWithPattern]
     // const propLinks = (propLinkObjectsWithId.length > 0) ? propLinkObjectsWithId : propLinkObjectsWithSet
     // if (!debug) console.log('81 ', propLinkObjects, propLinkObjectsWithId, propLinkObjectsWithSet, propLinks);
     if (!debug) console.log('96 ', propLinks);
@@ -100,15 +101,9 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
     const genrel = propLinks.forEach(o => {
         // use the linkId to find the top object
        if (!debug) console.log('97 ', o.name, o.title, o.id, o.linkId, o);
-        // let restName
-        // if (o.title.includes('ID')) {
-        //     restName = o.title.replace(/ID/g, '')  
-        // } else if (o.title.includes('Set')) {
-        //     restName = o.title.replace(/Set/g, '')
-        // }
-        // if (debug) console.log('103 ', o.name, o.title, restName);
+        if (debug) console.log('115 ', o.linkId);
         const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.linkId)
-        if (debug) console.log('106 ', o, o.linkId, targetObject);
+        if (!debug) console.log('106 ', o, o.linkId, targetObject);
         // check if the relationship exists between the objects
         const existRelship = utils.findRelshipByToIdAndType(curRelships, targetObject?.id, hasType?.id)
         if (debug) console.log('109 ', o.name, targetObject && targetObject.id, existRelship);
@@ -165,9 +160,9 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
 
             topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
             // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
-            if (debug) console.log('166 ', topLevelObject);  
+            if (!debug) console.log('166 ', topLevelObject);  
             // console.log('98 ', topLevelObject, topLevelObject.id, topLevelObject.name);  
-            if (topLevelObject) console.log('171 ', topLevelObject.name , 'does not exist');
+            if (!topLevelObject) console.log('171 topLevelObject does not exist');
             
             fromobjectId = topLevelObject?.id
             fromobjectName = topLevelObject?.name

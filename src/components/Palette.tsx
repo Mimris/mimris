@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 import React, { useState , useEffect} from "react";
@@ -31,7 +31,7 @@ const Palette = (props) => {
   let filteredArr = ndarr
   
   let gojstypes = []
-  let tmpndarr = ndarr
+  // let tmpndarr = ndarr
   if (ndarr) {
     if (debug) console.log('32 Palette', ndarr);
 
@@ -128,13 +128,14 @@ const Palette = (props) => {
   const hasOsdu = ndarr?.find(i => i?.typename === 'JsonObject')
   
   const [selectedIrtvMM, setSelectedIrtvMM] = useState(false)
-  const [filter, setFilter] = useState('All')
+  const [otfilter, setOtfilter] = useState('All')
+  const [ofilter, setOfilter] = useState('All')
   const [refreshPalette, setRefreshPalette] = useState(true)
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
   const handleSetFilter = (filter) => {
     if (debug) console.log('Palette handleSetFilter', filter);
-    setFilter(filter)
+    setOtfilter(filter)
     // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
     toggleRefreshPalette()
   }
@@ -148,23 +149,60 @@ const Palette = (props) => {
       <button className= "btn bg-light btn-sm " onClick={() => { handleSetFilter('All') }}>All</button>
     </div>
   )
+ 
+  if (otfilter === 'All') filteredArr = ndarr
+  if (otfilter === 'IRTV') filteredArr = irtvNodeDataArray
+  if (otfilter === 'INIT') filteredArr = initNodeDataArray
+  if (otfilter === '!INIT') filteredArr = notInitNodeDataArray
+  if (otfilter === 'OSDU') filteredArr = osduNodeDataArray
+  // set nodeDataArray = fileredArr and linkDataArray = ldarr
 
-  if (filter === 'All') filteredArr = ndarr
-  if (filter === 'IRTV') filteredArr = irtvNodeDataArray
-  if (filter === 'INIT') filteredArr = initNodeDataArray
-  if (filter === '!INIT') filteredArr = notInitNodeDataArray
-  if (filter === 'OSDU') filteredArr = osduNodeDataArray
-
-  gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
-
+  // gojstypes = {nodeDataArray: {filteredArr: nodeDataArray}, linkDataArray: ldarr} 
+  
+  // const oNodeDataArray = filteredArr.nodeDataArray
+    gojstypes = {nodeDataArray: filteredArr, linkDataArray: ldarr}
+  // gojstypes =  { nodeDataArray: filteredArr, linkDataArray: ldarr}
   if (debug) console.log('37 Palette', gojstypes);
+  
+  
+  // Show all the objects in this model
+  const gojsmodel = props.gojsModel
+  const nodeArray_all = props.gojsModel?.nodeDataArray 
+  if (!debug) console.log('164 Palette', nodeArray_all);
+  // filter out the objects that are marked as deleted
+  const objectsNotDeleted = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
+  
+  // // filter out all objects of type Property
+  const noPropertyObj = objectsNotDeleted?.filter(node => node && node.typename !== 'Property')
+  console.log('171 Palette noPropertyObj', noPropertyObj);
 
-  const nodeArray_all = props.gojsModelObjects?.nodeDataArray 
-  if (debug) console.log('27 Palette', nodeArray_all);
-  const objectsNodeDataArray = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
-  // if (debug) console.log('29 Palette objectsNodeDataArray', nodeArray_all?.filter(n => n.markedAsDeleted === false) );
+  const handleSetObjFilter = (filter) => {
+    if (debug) console.log('Palette handleSetFilter', filter);
+    setOfilter(filter)
+    // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
+    toggleRefreshPalette()
+  }
+  
+  const selectedObjDiv = (
+    <div>
+      { (noPropertyObj) && <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROPERTY</button>}
+      <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button>
+    </div>
+  )
 
-  // /** Toggle divs */
+
+  // // filter out all objects of type Property
+  
+  let ofilteredArr = nodeArray_all
+  if (ofilter === 'All') ofilteredArr = objectsNotDeleted
+  if (ofilter === '!Property') ofilteredArr = noPropertyObj
+
+  const oNodeDataArray = ofilteredArr
+
+
+
+
+  // /** Toggle divs **/
   const [visiblePalette, setVisiblePalette] = useState(true)
   function togglePalette() { setVisiblePalette(!visiblePalette); }
   const [isOpen, setIsOpen] = useState(false);
@@ -184,8 +222,8 @@ const Palette = (props) => {
   /**  * Get the state and metie from the store,  */
   // const gojstypes = props.phFocus.gojsMetamodel
   if (debug) console.log('48 Palette', gojstypes);
-  if (debug) console.log('49 Palette', gojstypes.nodeDataArray);
-  if (debug) console.log('50 Palette', gojstypes.linkDataArray);
+  // if (debug) console.log('49 Palette', gojstypes.nodeDataArray);
+  // if (debug) console.log('50 Palette', gojstypes.linkDataArray);
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   
@@ -220,7 +258,7 @@ const Palette = (props) => {
                 <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mmnamediv}</div>
                 {selectedMMDiv}
               < GoJSPaletteApp
-                nodeDataArray={gojstypes.nodeDataArray}
+                nodeDataArray= {gojstypes.nodeDataArray}
                 linkDataArray={[]}
                 // linkDataArray={gojstypes.linkDataArray}
                 metis={props.metis}
@@ -240,8 +278,9 @@ const Palette = (props) => {
             {/* <Row >
               <Col xs="auto m-0 p-0 pl-3"> */}
                 {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
+                {selectedObjDiv}
                   < GoJSPaletteApp
-                    nodeDataArray={objectsNodeDataArray}
+                    nodeDataArray={oNodeDataArray}
                     linkDataArray={[]}
                     // linkDataArray={gojstypes.linkDataArray}
                     metis={props.metis}
@@ -250,10 +289,10 @@ const Palette = (props) => {
                     phFocus={props.phFocus}
                     dispatch={props.dispatch}
                   />
-                </div>
+                {/* </div> */}
               {/* </Col>
             </Row> */}
-          {/* </div> */}
+          </div>
         </TabPane>
       </TabContent>
     </>

@@ -281,6 +281,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   private initDiagram(): go.Diagram {
     if (debug) console.log('282 this', this);
+    this.diagramRef.current?.clear();
     const $ = go.GraphObject.make;
     // go.GraphObject.fromLinkableDuplicates = true;
     // go.GraphObject.toLinkableDuplicates   = true;

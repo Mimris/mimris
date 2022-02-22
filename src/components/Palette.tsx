@@ -161,8 +161,8 @@ const Palette = (props) => {
 
   const nodeArray_all = props.gojsModelObjects?.nodeDataArray 
   if (debug) console.log('27 Palette', nodeArray_all);
-  const objectsNodeDataArray = nodeArray_all?.filter(node => node.object && node.object.markedAsDeleted === false)
-  if (debug) console.log('29 Palette objectsNodeDataArray', nodeArray_all?.filter(n => n.markedAsDeleted === false) );
+  const objectsNodeDataArray = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
+  // if (debug) console.log('29 Palette objectsNodeDataArray', nodeArray_all?.filter(n => n.markedAsDeleted === false) );
 
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(true)

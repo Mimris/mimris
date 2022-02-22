@@ -1,4 +1,4 @@
-// @ts-snocheck
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
@@ -121,7 +121,9 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       // upload files and import them as objects to the project 
       const upload = async (e) => {        
         // Convert the FileList into an array and iterate
-        let files = Array.from(e.target.files).map(file => {
+        let files = Array.from(e.target.files)
+        console.log('125', files);
+        let filess = files.map(file => {
           if (debug) console.log('126 file', file);          
             // Define a new file reader
             let reader = new FileReader();
@@ -133,9 +135,9 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                 reader.readAsText(file);             
             });        
         });
-        if (debug) console.log('12 files', files);
+        if (debug) console.log('12 files', filess);
         // At this point you'll have an array of results
-        let res = await Promise.all(files);
+        let res = await Promise.all(filess);
         // console.log('146 res', res, res[0]);
         res.map(r => {
           ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, r)         

@@ -5,7 +5,10 @@
 const debug = false;
 const linkToLink = false;
 
-import * as go from 'gojs';
+// import * as go from 'gojs';
+
+<script src="../release/go-debug.js"></script>
+
 import { produce } from 'immer';
 import { ReactDiagram } from 'gojs-react';
 import * as React from 'react';
@@ -298,8 +301,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
             "initialAutoScale": go.Diagram.UniformToFill,
-            'undoManager.isEnabled': false,  // must be set to allow for model change listening
-            // undoManager.maxHistoryLength': 100,  // uncomment disable undo/redo functionality
+            // "undoManager.isEnabled": true,  // must be set to allow for model change listening
+            // "undoManager.maxHistoryLength": 100,  // uncomment disable undo/redo functionality
 
             "LinkDrawn": maybeChangeLinkCategory,     // these two DiagramEvents call a
             "LinkRelinked": maybeChangeLinkCategory,  // function that is defined below

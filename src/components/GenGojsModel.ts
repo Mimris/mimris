@@ -349,6 +349,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (obj?.markedAsDeleted)
           objview.markedAsDeleted = obj?.markedAsDeleted;
         objview.name = obj?.name;
+        if (obj?.type?.name === 'Label')
+          objview.name = obj.text;
         // objview.visible = obj?.visible
         if (includeDeleted) {
           if (objview.markedAsDeleted) {
@@ -401,6 +403,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i] as gjs.goObjectNode;
           const objview = node.objectview;
+          const obj = objview.object;
+          const objtype = obj.type;
+          if (objtype.name === 'Label') {
+            node.text = objview.name;
+          }
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
       }

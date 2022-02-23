@@ -912,7 +912,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (debug) console.log('828 ClipboardPasted', modifiedLinks, modifiedRelships);       
+        if (debug) console.log('828 ClipboardPasted', modifiedLinks, modifiedRelships, myMetis);       
         myDiagram.requestUpdate();
       }
       break;

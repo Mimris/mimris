@@ -7,6 +7,7 @@ import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
 import * as jsn from '../akmm/ui_json';
+import * as uic from '../akmm/ui_common';
 
 const constants = require('../akmm/constants');
 
@@ -486,6 +487,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
     }
+    // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
+    uic.repairGoModel(myGoModel, modelview);
     if (debug) console.log('431 myGoModel.links', myGoModel.links);
     return myGoModel;
   }

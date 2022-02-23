@@ -189,7 +189,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
             // check if a relationship with name = 'Is' already exists between the from and to objects
             // console.log('178 ', fromobjectId, fromobjectName, toobjectId, toobjectName, relId, reltype.id, reltype.name);
 
-             if (curRelships.find(r => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype.id)) {
+             if (curRelships.find(r => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype?.id)) {
                  // relship exists
              } else {
                 console.log('198 ', fromType?.id, reltype);

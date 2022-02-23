@@ -23,7 +23,7 @@ const Palette = (props) => {
   // console.log('16', props, mmodel.name, model.metamodelRef);
   
   const unsorted = props.gojsMetamodel
-  if (debug) console.log('25', unsorted);
+  if (debug) console.log('25 propsMetamodel', unsorted);
 
   //rearrange sequence
   let ndarr = unsorted?.nodeDataArray
@@ -66,7 +66,7 @@ const Palette = (props) => {
     // gojstypes = (ndarr) ? {nodeDataArray: ndarr, linkDataArray: ldarr} : unsorted
   }
   // select some nodeDataArray elements to be the irtv
-  if (debug) console.log('55 Palette', ndarr);
+  if (debug) console.log('69 ndarr', ndarr);
   const irtvNodeDataArray = ndarr?.filter(i => 
       i?.typename === 'Container'
     || i?.typename === 'Information'
@@ -166,15 +166,23 @@ const Palette = (props) => {
   
   
   // Show all the objects in this model
-  const gojsmodel = props.gojsModel
-  const nodeArray_all = props.gojsModel?.nodeDataArray 
-  if (!debug) console.log('164 Palette', nodeArray_all);
+  const gojsmodelObjects = props.gojsModelObjects
+
+  const unsortedObj = gojsmodelObjects
+  if (debug) console.log('172 unsorted gojsModelobjects', props, gojsmodelObjects, unsortedObj);
+
+  //rearrange sequence
+  let objArr = unsortedObj?.nodeDataArray
+
+  const nodeArray_all = objArr 
+  if (debug) console.log('178 nodeArray_all', nodeArray_all);
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
   
   // // filter out all objects of type Property
-  const noPropertyObj = objectsNotDeleted?.filter(node => node && (!(node.typename === 'Property' || node.typename === 'PropLink')))
-  console.log('171 Palette noPropertyObj', noPropertyObj);
+  const noPropertyObj = objectsNotDeleted?.filter(node => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
+  const noAbstractObj = objectsNotDeleted?.filter(node => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
+  if (debug) console.log('185 Palette noPropertyObj', noPropertyObj);
 
   const handleSetObjFilter = (filter) => {
     if (debug) console.log('Palette handleSetFilter', filter);
@@ -185,15 +193,17 @@ const Palette = (props) => {
   
   const selectedObjDiv = (
     <div>
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROPERTY</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROPS</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABSTRACT</button>}
       <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button>
     </div>
   )
 
   // // filter out all objects of type Property
-  let ofilteredArr = objectsNotDeleted
-  if (ofilter === 'All') ofilteredArr = objectsNotDeleted
+  let ofilteredArr = nodeArray_all
   if (ofilter === '!Property') ofilteredArr = noPropertyObj
+  if (ofilter === '!Abstract') ofilteredArr = noAbstractObj
+  if (ofilter === 'All') ofilteredArr = objectsNotDeleted
 
   // const oNodeDataArray = nodeArray_all
   const oNodeDataArray = ofilteredArr
@@ -220,7 +230,7 @@ const Palette = (props) => {
   const toggleTip = () => setTooltipOpen(!tooltipOpen);
   /**  * Get the state and metie from the store,  */
   // const gojstypes = props.phFocus.gojsMetamodel
-  if (!debug) console.log('48 Palette', gojstypes.nodeDataArray, oNodeDataArray);
+  if (debug) console.log('233 Palette', gojstypes.nodeDataArray, oNodeDataArray);
   // if (debug) console.log('49 Palette', gojstypes.nodeDataArray);
   // if (debug) console.log('50 Palette', gojstypes.linkDataArray);
 
@@ -278,7 +288,7 @@ const Palette = (props) => {
             {/* <Row >
               <Col xs="auto m-0 p-0 pl-3"> */}
                 {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
-                 <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mnamediv}</div>
+                 {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mnamediv}</div> */}
                   {selectedObjDiv}
                   < GoJSPaletteApp
                     nodeDataArray={oNodeDataArray}

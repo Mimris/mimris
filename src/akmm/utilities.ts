@@ -80,17 +80,17 @@ export let removeElementFromArray = (arr: any[], id: string) => {
 }
 
 export function camelize(str: string): string {
-    return str.replace(/\W+(.)/g, function(match, chr) {
+    return str?.replace(/\W+(.)/g, function(match, chr) {
         return chr.toUpperCase();
     });
 }
 
 export function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    return string?.charAt(0).toUpperCase() + string?.slice(1);
 }
 
 export function uncapitalizeFirstLetter(string) {
-    return string.charAt(0).toLowerCase() + string.slice(1);
+    return string?.charAt(0).toLowerCase() + string?.slice(1);
 }
 
 export function removeArrayDuplicates(array: any): any {
@@ -137,7 +137,7 @@ export function findObjectsByType(objects: any, objecttypes: any,  objTypeName: 
     const objtype = objecttypes.find(ot => ot.name === objTypeName && ot);
     if (debug) console.log('109 ', objecttypes, objects, objTypeName, objtype.id);
     if (debug) console.log('111 ', objecttypes.filter(ot => ot.name === objTypeName && ot), objects.filter(o => o.typeRef === objtype.id && o));
-   return objects.filter(o => o.typeRef === objtype.id && o);
+   return objects.filter(o => o.typeRef === objtype?.id && o);
 }
 
 export function findObjectByName(objects: any, arg1: {}, restName: any) {

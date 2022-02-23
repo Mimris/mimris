@@ -363,10 +363,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
           }
         
-          if (debug) console.log('334 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
+          if (debug) console.log('366 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
           // Get property values
           if (properties?.length > 0) {
-            if (debug) console.log('338 properties: ', properties);
+            if (debug) console.log('369 properties: ', properties);
             for (let i=0; i<properties.length; i++) {
               const prop = properties[i];
               if (prop && prop.name === k) {
@@ -392,43 +392,47 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                     const rel = myMetis.findRelationship(inst.id);
                     if (rel) inst = rel;
                   }
-                  if (debug) console.log('403 item, prop', item, prop);
+                  if (debug) console.log('395 item, prop', item, prop);
                   try {
                     val = item.getPropertyValue(prop, myMetis);
                   } catch {
                     // Do nothing
                   }
-                  if (debug) console.log('412 item, prop, val', item, prop, val);
+                  if (debug) console.log('401 item, prop, val', item, prop, val);
                 }
               }
-              if (debug) console.log('415 prop, fieldType: ', prop, fieldType);
+              if (debug) console.log('404 prop, fieldType: ', prop, fieldType);
             }
           }
-          if (debug) console.log('417 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
+          if (debug) console.log('407 k, val, item[k], selObj[k]: ', k, val, item[k], selObj[k]);
         }
         // Handle color values
         {
           if ((useFillColor && k === 'fillcolor') ||
              (useStrokeColor && k === 'strokecolor')) {
-            if (debug) console.log('356 val', val);
+            if (val === "" && what === "editObjectview") {
+              val = instview.typeview.fillcolor;
+            }
+            if (debug) console.log('416 instview, val', instview, val);
+
             fieldType = 'color';
             if (val?.substr(0,4) === 'rgb(') {
-              if (debug) console.log('359 val', val);
+              if (debug) console.log('420 val', val);
               let color = '#'+val.match(/\d+/g).map(function(x){
                 x = parseInt(x).toString(16);
                 return (x.length==1) ? "0"+x : x;
               }).join("");
-              if (debug) console.log('364 color', color);
+              if (debug) console.log('425 color', color);
               val = color.toUpperCase();
             }
             if ((val) && val[0] !== '#') {
               // Convert colorname to hex
               val = toHex(val); 
             }         
-            if (debug) console.log('371 color', val);
+            if (debug) console.log('432 color', val);
           }
         }
-        if (debug) console.log('386 k, val', k, val, item[k], selObj[k]);
+        if (debug) console.log('435 k, val', k, val, item[k], selObj[k]);
         // Handle datatypes and fieldtypes
         {
           let dtype;

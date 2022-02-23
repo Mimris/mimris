@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // Application code
 const debug = false;
 
@@ -62,7 +62,8 @@ export class goModel {
         this.metamodel = metamodel;
     }
     addNode(node: goObjectNode | goObjectTypeNode) {
-        node.setParentModel(this);
+        // node.setParentModel(this);
+        node.setParentModelRef(this);
         let oldNodes: goObjectNode[] = new Array();
         for (let i = 0; i < this.nodes?.length; i++) {
             let n = this.nodes[i] as goObjectNode;
@@ -274,10 +275,12 @@ export class goMetaObject {
     name: string;
     category: string;
     type: any;
-    parentModel: goModel | null;
+    // parentModel: goModel | null;
+    parentModelRef: string;
     data: any;
     constructor(key: string) {
-        this.parentModel = null;
+        // this.parentModel = null;
+        this.parentModelRef = "";
         this.key = key;
         this.category = "default";
         this.type = null;
@@ -288,11 +291,17 @@ export class goMetaObject {
     getClass() {
         return this.class;
     }
-    getParentModel() {
-        return this.parentModel;
+    // getParentModel() {
+    //     return this.parentModel;
+    // }
+    getParentModelRef() {
+        return this.parentModelRef;
     }
-    setParentModel(model: goModel) {
-        this.parentModel = model;
+    // setParentModel(model: goModel) {
+    //     this.parentModel = model;
+    // }
+    setParentModelRef(model: goModel) {
+        this.parentModelRef = model?.key;
     }
     getKey(): string {
         return this.key;
@@ -318,7 +327,8 @@ export class goMetaObject {
 }
 
 export class goNode extends goMetaObject {
-    parentModel: goModel | null;
+    // parentModel: goModel | null;
+    parentModelRef:  string;
     text:            string;
     loc:             string;
     size:            string;
@@ -327,7 +337,8 @@ export class goNode extends goMetaObject {
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
-        this.parentModel = model;  // goModel
+        // this.parentModel = model;  // goModel
+        this.parentModelRef = model?.key;  // goModel
         this.text = "";
         this.loc = "";
         this.size = "";
@@ -578,10 +589,10 @@ export class goObjectTypeNode extends goNode {
                 this.addData(data);
                 this.setName(objtype.getName());
                 this.setType(constants.gojs.C_OBJECTTYPE);
-                if (!metamodel) {
-                    let model = this.parentModel;
-                    metamodel = model ? model.metamodel : null;
-                }
+                // if (!metamodel) {
+                //     let model = this.parentModel;
+                //     metamodel = model ? model.metamodel : null;
+                // }
                 if (metamodel) {
                     let loc = objtype.getLoc(metamodel)
                     this.setLoc(loc);
@@ -608,11 +619,13 @@ export class goObjectTypeNode extends goNode {
 }
 
 export class goLink extends goMetaObject {
-    parentModel: goModel;
+    // parentModel: goModel;
+    parentModelRef: string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel) {
         super(key);
-        this.parentModel = model;  // goModel
+        this.parentModelRef = model.key;  // goModel
+        // this.parentModel = model;  // goModel
         this.markedAsDeleted = false;
     }
     // Methods

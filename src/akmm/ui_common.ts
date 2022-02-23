@@ -2632,3 +2632,25 @@ export function getNameList(myModel: akm.cxModel, obj: akm.cxObject, onlyWithPro
       namelist = ['All'];
     return namelist;
 }
+
+export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) {
+    // Repair links
+    const relviews = modelview.relshipviews;
+    for (let i=0; i<relviews?.length; i++) {
+        const rview = relviews[i];
+        const links = goModel.links as gjs.goRelshipLink[];
+        let found = false;
+        for (let j=0; j<links.length; j++) {
+            const link = links[j];
+            const rv =link.relshipview;
+            if (rv.id === rview.id) {
+                found = true;
+                break;
+            }            
+        }
+        if (!found) {
+            const link = new gjs.goRelshipLink(utils.createGuid(), goModel, rview);
+            goModel.addLink(link);
+        }
+    }
+}

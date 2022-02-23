@@ -709,7 +709,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             if (isLabel) part.text = 'label';
             if (debug) console.log('722 part', part);
-            if (part.parentModel == null)
+            // if (part.parentModel == null)
+            if (part.parentModelRef === "")
               myMetis.pasteViewsOnly = true;
             if (debug) console.log('725 myMetis', myMetis);
             const objview = uic.createObject(part, context);
@@ -911,7 +912,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (debug) console.log('828 ClipboardPasted', modifiedLinks, modifiedRelships);       
+        if (debug) console.log('828 ClipboardPasted', modifiedLinks, modifiedRelships, myMetis);       
         myDiagram.requestUpdate();
       }
       break;
@@ -992,13 +993,22 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "LinkReshaped": {
         const link = e.subject; 
         const data = myDiagram.model?.findLinkDataForKey(link.key);
-        if (debug) console.log('895 data', data);
+        if (debug) console.log('996 data', data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
         if (relview) {
+          if (link.data.points?.j) {
+            const points = [];
+            const array = link.points.j;
+            for (let i=0; i<array.length; i++) {
+              points.push(array[i].x)
+              points.push(array[i].y)
+            }
+            link.data.points = points;
+          }
           relview.points = link.data.points;;
           const jsnRelview = new jsn.jsnRelshipView(relview);
-          if (debug) console.log('912 relview, jsnRelview', relview, jsnRelview);
+          if (debug) console.log('1011 relview, jsnRelview', relview, jsnRelview);
           modifiedLinks.push(jsnRelview);
         }
       }

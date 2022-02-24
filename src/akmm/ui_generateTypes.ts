@@ -907,7 +907,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // const systemtypes = ['Element', 'EntityType', 'RelshipType',  
     //                      'Generic', 'Container', 'Collection', 'Method'];
     const systemtypes = ['Element', 'EntityType', 'Generic', 'Container'];
-    const dsystemtypes = ['Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat', 'Unittype'];
+    const dsystemtypes = ['Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;
@@ -1044,13 +1044,14 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             objtype = generateObjectType(obj, objview, context);
                             if (debug) console.log('958 objtype', objtype);   
                             if (objtype) metamodel.addObjectType(objtype);
+                            if (objtype) metamodel.addObjectType0(objtype);
                             const typeview = objtype?.typeview;
                             if (typeview) {
                                 metamodel.addObjectTypeView(typeview); 
                                 vstyle.addObjectTypeView(typeview);
                                 metamodel.addViewStyle(vstyle); 
                             }
-                            if (debug) console.log('966 metamodel, typeview, vstyle ', metamodel, typeview, vstyle);                            
+                            if (debug) console.log('966 metamodel ', metamodel);                            
                         }
                     }
                 }

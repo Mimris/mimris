@@ -552,6 +552,15 @@ export class cxMetis {
                 }
             });
         }
+        let objecttypes0: any[] = item.objecttypes0;
+        if (objecttypes0 && objecttypes0.length) {
+            objecttypes0.forEach(objtype0 => {
+                if (objtype0) {
+                    let objtype = this.findObjectType(objtype0.id);
+                    metamodel.addObjectType0(objtype);
+                }
+            });
+        }
         if (debug) console.log('351 this', this);
         let objtypegeos: any[] = item.objtypegeos;
         if (objtypegeos && objtypegeos.length) {
@@ -2914,6 +2923,8 @@ export class cxMetaModel extends cxMetaObject {
     objecttypeviews:  cxObjectTypeView[] | null;
     relshiptypes:     cxRelationshipType[] | null;
     relshiptypeviews: cxRelationshipTypeView[] | null;
+    objecttypes0:  cxObjectType[] | null;
+    relshiptypes0: cxRelationshipType[] | null;
     properties:    cxProperty[] | null;
     methods:       cxMethod[] | null;
     methodtypes:   cxMethodType[] | null;
@@ -2954,14 +2965,15 @@ export class cxMetaModel extends cxMetaObject {
             this.routing = "Normal";
             this.linkcurve = "None";  
             
-            this.objecttypes = null;
-            this.objtypegeos = null;
+            this.objecttypes  = null;
+            this.objecttypes0 = null;
+            this.objtypegeos  = null;
             this.objecttypeviews = null;
-            this.relshiptypes = null;
+            this.relshiptypes  = null;
+            this.relshiptypes0 = null;
             this.relshiptypeviews = null;
             
     }
-
     getLoc(type: cxObjectType): string {
         let retval = "";
         if (utils.objExists(type)) {
@@ -3139,6 +3151,9 @@ export class cxMetaModel extends cxMetaObject {
     getObjectTypes(): cxObjectType[] | null {
         return this.objecttypes;
     }
+    getObjectTypes0(): cxObjectType[] | null {
+        return this.objecttypes0;
+    }
     getObjectTypeViews(): cxObjectTypeView[] | null {
         return this.objecttypeviews;
     }
@@ -3191,6 +3206,9 @@ export class cxMetaModel extends cxMetaObject {
     }
     getRelshipTypes(): cxRelationshipType[] | null {
         return this.relshiptypes;
+    }
+    getRelshipTypes0(): cxRelationshipType[] | null {
+        return this.relshiptypes0;
     }
     getRelshipTypeViews(): cxRelationshipTypeView[] | null {
         return this.relshiptypeviews;
@@ -3319,6 +3337,25 @@ export class cxMetaModel extends cxMetaObject {
                 this.objecttypes.push(objType);
             else {
                 const types = this.objecttypes;
+                for (let i = 0; i < types.length; i++) {
+                    const type = types[i];
+                    if (type.id === objType.id) {
+                        types[i] = objType;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    addObjectType0(objType: cxObjectType) {
+        // Check if input is of correct category and not already in list (TBD)
+        if (objType.category === constants.gojs.C_OBJECTTYPE) {
+            if (this.objecttypes0 == null)
+                this.objecttypes0 = new Array();
+            if (!this.findObjectType0(objType.id))
+                this.objecttypes0.push(objType);
+            else {
+                const types = this.objecttypes0;
                 for (let i = 0; i < types.length; i++) {
                     const type = types[i];
                     if (type.id === objType.id) {
@@ -3459,6 +3496,25 @@ export class cxMetaModel extends cxMetaObject {
                 this.relshiptypes.push(relType);
             else {
                 const types = this.relshiptypes;
+                for (let i = 0; i < types.length; i++) {
+                    const type = types[i];
+                    if (type.id === relType.id) {
+                        types[i] = relType;
+                        break;
+                    }
+                }
+            }                
+        }
+    }
+    addRelationshipType0(relType: cxRelationshipType) {
+        // Check if input is of correct category and not already in list (TBD)
+        if (relType.category === constants.gojs.C_RELSHIPTYPE) {
+            if (this.relshiptypes0 == null)
+                this.relshiptypes0 = new Array();
+            if (!this.findRelationshipType(relType.id)) 
+                this.relshiptypes0.push(relType);
+            else {
+                const types = this.relshiptypes0;
                 for (let i = 0; i < types.length; i++) {
                     const type = types[i];
                     if (type.id === relType.id) {
@@ -3628,6 +3684,26 @@ export class cxMetaModel extends cxMetaObject {
                     return objtype;
                 else if (objtype.getFirestoreId() === id)
                     return objtype;
+            }
+        }
+        return null;
+    }
+    findObjectType0(id: string): cxObjectType | null {
+        const types = this.getObjectTypes0();
+        if (!types) {
+            return null;
+        } else {
+            let i = 0;
+            let objtype = null;
+            while (i < types.length) {
+                objtype = types[i];
+                if (objtype) {
+                    if (objtype.id === id)
+                        return objtype;
+                    else if (objtype.getFirestoreId() === id)
+                        return objtype;
+                }
+                i++;
             }
         }
         return null;

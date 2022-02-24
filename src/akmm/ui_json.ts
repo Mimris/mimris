@@ -67,14 +67,14 @@ export class jsnExportMetis {
     // Functions
     addMetamodel(metamodel: akm.cxMetaModel, includeViews: boolean) {
         if (metamodel) {
-            const gMetamodel = new jsnMetaModel(metamodel, includeViews);
-            this.metamodels.push(gMetamodel);
+            const jMetamodel = new jsnMetaModel(metamodel, includeViews);
+            this.metamodels.push(jMetamodel);
         }
     }
     addModel(model: akm.cxModel, includeViews: boolean) {
         if (model && model.metamodel) {
-            const gModel = new jsnModel(model, includeViews);
-            this.models.push(gModel);
+            const jModel = new jsnModel(model, includeViews);
+            this.models.push(jModel);
         }
     }
 }
@@ -85,8 +85,8 @@ export class jsnExportMetaModel {
     }
     addMetamodel(metamodel: akm.cxMetaModel, includeViews: boolean) {
         if (metamodel) {
-            const gMetamodel = new jsnMetaModel(metamodel, includeViews);
-            this.metamodels.push(gMetamodel);
+            const jMetamodel = new jsnMetaModel(metamodel, includeViews);
+            this.metamodels.push(jMetamodel);
         }
     }
 }
@@ -132,6 +132,8 @@ export class jsnMetaModel {
     geometries:         jsnGeometry[] | null;
     objecttypes:        jsnObjectType[];
     relshiptypes:       jsnRelationshipType[];
+    objecttypes0:       jsnObjectType[];
+    relshiptypes0:      jsnRelationshipType[];
     properties:         jsnProperty[];
     methods:            jsnMethod[];
     methodtypes:        jsnMethodType[];
@@ -154,6 +156,8 @@ export class jsnMetaModel {
         this.geometries = [];
         this.objecttypes = [];
         this.relshiptypes = [];
+        this.objecttypes0 = [];
+        this.relshiptypes0 = [];
         this.properties = [];
         this.datatypes = [];
         this.methodtypes = [];
@@ -176,6 +180,14 @@ export class jsnMetaModel {
             for (let i = 0; i < cnt; i++) {
                 const objtype = objtypes[i];
                 this.addObjectType(objtype, includeViews);
+            }
+        }
+        const objtypes0 = metamodel.getObjectTypes0();
+        if (objtypes0) {
+            const cnt = objtypes0.length;
+            for (let i = 0; i < cnt; i++) {
+                const objtype = objtypes0[i];
+                this.addObjectType0(objtype, includeViews);
             }
         }
         const reltypes = metamodel.getRelshipTypes();
@@ -278,6 +290,14 @@ export class jsnMetaModel {
             this.objecttypes.push(gObjtype);
         }
     }
+    addObjectType0(objtype: akm.cxObjectType, includeViews: boolean) {
+        if (utils.objExists(objtype) &&
+            !objtype.isDeleted()
+        ) {
+            const gObjtype = new jsnObjectType(objtype, includeViews);
+            this.objecttypes0.push(gObjtype);
+        }
+    }
     addRelationshipType(reltype: akm.cxRelationshipType, includeViews: boolean) {
         if (
             utils.objExists(reltype) &&
@@ -287,6 +307,17 @@ export class jsnMetaModel {
         ) {
             const gReltype = new jsnRelationshipType(reltype, includeViews);
             this.relshiptypes.push(gReltype);
+        }
+    }
+    addRelationshipType0(reltype: akm.cxRelationshipType, includeViews: boolean) {
+        if (
+            utils.objExists(reltype) &&
+            !reltype.isDeleted() &&
+            utils.objExists(reltype.fromObjtype) &&
+            utils.objExists(reltype.toObjtype)
+        ) {
+            const gReltype = new jsnRelationshipType(reltype, includeViews);
+            this.relshiptypes0.push(gReltype);
         }
     }
     addDataType(datatype: akm.cxDatatype) {

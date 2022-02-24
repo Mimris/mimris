@@ -173,9 +173,23 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
   function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
     if (debug) console.log('173 metamodel', metamodel);
-    let typenames;
+    let inheritedTypenames, typenames;
     const modelRef = metamodel.generatedFromModelRef;
     let model = metis.findModel(modelRef);
+    if (metamodel) {
+      const mmtypenames = [];
+      const objtypes = metamodel?.objecttypes0;
+      if (objtypes) {
+        for (let i=0; i<objtypes.length; i++) {
+          const objtype = objtypes[i];
+          if (objtype) {
+            mmtypenames.push(objtype.name);
+          }
+        }
+      }
+      typenames = [...new Set(mmtypenames)];
+      if (debug) console.log('191 MM objecttypes', typenames);
+    }
     if (model) {
       const mmodel = model.metamodel;
       const objtypenames = [];
@@ -188,8 +202,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
         }
       }
-      typenames = [...new Set(objtypenames)];
-      if (debug) console.log('191 objecttypes', typenames);
+      inheritedTypenames = [...new Set(objtypenames)];
+      if (debug) console.log('206 objecttypes', inheritedTypenames);
     }
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
@@ -209,9 +223,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (objtype.nameId === 'Entity0') continue;
         if (objtype.name === 'Datatype') includesSystemtypes = true;
         if (!includesSystemtypes) {
-          if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
-            if (typenames && utils.nameExistsInNames(typenames, objtype.name)) 
-              continue;
+          // Check if objtype is one of typenames
+            if (!(typenames && utils.nameExistsInNames(typenames, objtype.name))) {
+              // If not:
+              if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
+                if (inheritedTypenames && utils.nameExistsInNames(inheritedTypenames, objtype.name)) 
+                continue;
+            }
           }
         }
         otypes.push(objtype);
@@ -221,9 +239,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < noTypes; i++) {
         const objtype: akm.cxObjectType = otypes[i];  
         if (!includesSystemtypes) {    // Systemtypes are not included
-          if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
-            if (typenames && utils.nameExistsInNames(typenames, objtype.name)) 
-              continue;
+          // Check if objtype is one of typenames
+          if (!(typenames && utils.nameExistsInNames(typenames, objtype.name))) {
+            // If not:
+            if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
+              if (inheritedTypenames && utils.nameExistsInNames(inheritedTypenames, objtype.name)) 
+                continue;
+            }
           }
         }
         const id = utils.createGuid();
@@ -596,6 +618,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
         }
       }
+      if (debug) console.log('599 myGoMetamodel', myGoMetamodel);
       return myGoMetamodel;
     }
   }

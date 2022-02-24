@@ -920,8 +920,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             const typename = otype.name;
             if (utils.nameExistsInNames(dsystemtypes, typename))
                 continue;
-            if (otype.isOfType('Property'))
-                continue;
+            if (typename !== 'Property') {
+                if (otype.isOfType('Property'))
+                    continue;
+            }
             if (otype.isOfType('Method'))
                 continue;
             if (otype.isOfType('MethodType'))

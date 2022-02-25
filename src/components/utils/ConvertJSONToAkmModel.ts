@@ -327,7 +327,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                 cNewVal.linkId = (typeRest) && typeRest.split('.')[0] 
                 const entityName = 'Is'+cNewVal.title
                 createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects               
-                if (!debug) console.log('318 $ref', oId, entityName, objecttypeRef,oKey, jsonType, cNewVal);  
+                if (!debug) console.log('330 $ref', oId, entityName, objecttypeRef,oKey, jsonType, cNewVal);  
                 findOwnerandCreateRelationship(osduObj)
             } else if (oName === 'items') { // 
                 let gchildKeyName, gchildKeyNameId

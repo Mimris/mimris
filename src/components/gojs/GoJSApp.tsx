@@ -701,7 +701,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('712 part', part);
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
-              console.log('715 obj', obj);
             }
             if (part.objecttype?.viewkind === 'Container') {
               part.isGroup = true;
@@ -709,8 +708,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             if (isLabel) part.text = 'label';
             if (debug) console.log('722 part', part);
-            // if (part.parentModel == null)
-            if (part.parentModelRef === "")
+            if (!part.parentModelRef)
               myMetis.pasteViewsOnly = true;
             if (debug) console.log('725 myMetis', myMetis);
             const objview = uic.createObject(part, context);

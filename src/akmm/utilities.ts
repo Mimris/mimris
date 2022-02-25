@@ -116,6 +116,10 @@ export function isNumeric(str: string) {
     return typeof(str) === 'number';
 }
 
+export function delay(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
+
 // -----------  TEMPLATES -----------------
 
 // ---------  Read key value arrays -------

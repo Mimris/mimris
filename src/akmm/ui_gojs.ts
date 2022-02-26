@@ -651,6 +651,7 @@ export class goRelshipLink extends goLink {
     routing:            string;
     curve:              string;
     points:             any;
+    relshipkind:        string;
     cardinality:        string;
     cardinalityFrom:    string;
     cardinalityTo:      string;
@@ -678,6 +679,7 @@ export class goRelshipLink extends goLink {
         this.routing         = "";
         this.curve           = "";
         this.points          = null;
+        this.relshipkind     = "";
         this.cardinality     = "";
         this.cardinalityFrom = "";
         this.cardinalityTo   = "";
@@ -701,6 +703,7 @@ export class goRelshipLink extends goLink {
                 if (debug) console.log('629 relshipLink', this);
             }
             this.typeview = relview.getTypeView();
+            this.relshipkind = this.relshiptype?.getRelshipKind();
             const fromObjview = relview.getFromObjectView();
             if (fromObjview) {
                 let node: goNode | null = model?.findNodeByViewId(fromObjview.id);
@@ -743,7 +746,10 @@ export class goRelshipLink extends goLink {
         if (typeview) {
             return typeview.getRelshipKind();
         } else
-            return "";
+            return this.relshipkind;
+    }
+    setRelshipKind(kind: string) {
+        this.relshipkind = kind;
     }
     loadLinkContent(model: goModel) {
         const relview: akm.cxRelationshipView | null = this.relshipview;
@@ -797,13 +803,14 @@ export class goRelshipLink extends goLink {
     }
 }
 
-export class goRelshipTypeLink extends goRelshipLink {
+export class goRelshipTypeLink extends goLink {
     reltype:    akm.cxRelationshipType | null;
-    typeview:   akm.cxObjectTypeView | akm.cxRelationshipTypeView | null;
+    typeview:   akm.cxRelationshipTypeView | null;
     fromNode:   goNode | null;
     toNode:     goNode | null;
     from:       string | undefined;
     to:         string | undefined;
+    relshipkind: string;
     cardinality: string;
     cardinalityFrom: string;
     cardinalityTo: string;
@@ -819,6 +826,7 @@ export class goRelshipTypeLink extends goRelshipLink {
         this.toNode     = null;
         this.from       = "";
         this.to         = "";
+        this.relshipkind = "";
         this.cardinality = "";
         this.cardinalityFrom = "";
         this.cardinalityTo = "";
@@ -829,6 +837,7 @@ export class goRelshipTypeLink extends goRelshipLink {
         if (reltype) {
             this.setName(reltype.getName());
             this.setType(constants.gojs.C_RELSHIPTYPE);
+            this.relshipkind = this.reltype.relshipkind;
             this.cardinalityFrom = this.reltype.cardinalityFrom;
             this.cardinalityTo = this.reltype.cardinalityTo;
             this.nameFrom = this.reltype.nameFrom;

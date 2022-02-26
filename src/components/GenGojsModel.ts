@@ -609,10 +609,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             const link = new gjs.goRelshipTypeLink(key, myGoMetamodel, reltype);
             if (debug) console.log('533 link', link);
             if (link.loadLinkContent()) {
+              link.relshipkind = reltype.relshipkind;
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;
-                  if (debug) console.log('536 link', link);
+              if (debug) console.log('536 link', link);
               myGoMetamodel.addLink(link);
             }            
           }

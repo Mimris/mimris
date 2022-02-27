@@ -488,8 +488,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     desiredSize: new go.Size(168, 68), // outer Shape size 
                     // set the port properties
                     portId: "", 
-                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
+                    toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: false
                 },
                 new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),    
                 // Shape bindings
@@ -507,8 +506,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         defaultAlignment: go.Spot.Center
                     },
                     // define the panel where the text will appear
-                    $(go.Panel, "Table", // separator ---------------------------------
-                        { contextMenu: contextMenu , cursor: "move" },
+                    $(go.Panel, "Table", 
+                        // { contextMenu: contextMenu , cursor: "move" },
                         {
                             defaultRowSeparatorStroke: "black",
                             defaultAlignment: go.Spot.Center,

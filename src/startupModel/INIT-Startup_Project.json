@@ -28,6 +28,7 @@
               "typename": "Object type",
               "typeviewRef": "6f79614a-7444-4a3e-94b0-35a499cf23da",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -41,6 +42,7 @@
               "typename": "Object type",
               "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -54,6 +56,7 @@
               "typename": "Object type",
               "typeviewRef": "1f906da8-da00-4068-06ed-6f670e17ef0f",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -67,6 +70,7 @@
               "typename": "Object type",
               "typeviewRef": "6aad4796-8648-4c1b-b31e-7501afdcb19d",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -80,6 +84,7 @@
               "typename": "Object type",
               "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -108,6 +113,14 @@
                   "modified": false
                 }
               ],
+              "attributes": [
+                {
+                  "name": "FieldType.fieldType",
+                  "typeName": "FieldType",
+                  "propName": "fieldType",
+                  "propRef": "d210b11b-84eb-471d-aa93-15cb25b9f5db"
+                }
+              ],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -121,6 +134,7 @@
               "typename": "Object type",
               "typeviewRef": "b42be04d-f9e5-4906-0459-80f43aada183",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -147,6 +161,14 @@
                   "example": "",
                   "markedAsDeleted": false,
                   "modified": false
+                }
+              ],
+              "attributes": [
+                {
+                  "name": "InputPattern.pattern",
+                  "typeName": "InputPattern",
+                  "propName": "pattern",
+                  "propRef": "95292049-811b-46d0-c202-bba9466fde50"
                 }
               ],
               "methods": [],
@@ -177,6 +199,14 @@
                   "modified": false
                 }
               ],
+              "attributes": [
+                {
+                  "name": "Label.text",
+                  "typeName": "Label",
+                  "propName": "text",
+                  "propRef": "f2a07c3b-025f-483c-327a-7e6a8f6b283b"
+                }
+              ],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -205,6 +235,14 @@
                   "modified": false
                 }
               ],
+              "attributes": [
+                {
+                  "name": "Method.methodtype",
+                  "typeName": "Method",
+                  "propName": "methodtype",
+                  "propRef": "d836ad9a-00f6-4cf2-2986-9ca1b4e71498"
+                }
+              ],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -218,6 +256,7 @@
               "typename": "Object type",
               "typeviewRef": "b5f05f73-b85b-4fb9-2cab-f67084239e8b",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -231,6 +270,7 @@
               "typename": "Object type",
               "typeviewRef": "e05d9ee2-7592-4313-4b53-865f7964294a",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -244,6 +284,7 @@
               "typename": "Object type",
               "typeviewRef": "a870109d-3297-44ea-118b-6712e8026cf5",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -257,6 +298,7 @@
               "typename": "Object type",
               "typeviewRef": "7587ab7b-6f12-4149-c7eb-cfcfb4060374",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -270,6 +312,7 @@
               "typename": "Object type",
               "typeviewRef": "0dd90a4c-048b-48fc-5bab-4b02e108fd6d",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -296,6 +339,14 @@
                   "example": "",
                   "markedAsDeleted": false,
                   "modified": false
+                }
+              ],
+              "attributes": [
+                {
+                  "name": "ViewFormat.viewFormat",
+                  "typeName": "ViewFormat",
+                  "propName": "viewFormat",
+                  "propRef": "ed7f1d92-88ed-46bc-7dc9-0e5c55f83bdb"
                 }
               ],
               "methods": [],
@@ -899,6 +950,8 @@
               "modified": true
             }
           ],
+          "objecttypes0": [],
+          "relshiptypes0": [],
           "properties": [
             {
               "id": "d836ad9a-00f6-4cf2-2986-9ca1b4e71498",
@@ -4051,1268 +4104,9 @@
               "modified": false
             }
           ],
-          "relshiptypeviews": [
-            {
-              "id": "b372b988-7216-4988-7101-3921e27bac37",
-              "name": "b372b988-7216-4988-7101-3921e27bac37",
-              "description": "",
-              "typeRef": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
-              "strokecolor": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "dash": "None",
-              "fromArrow": "",
-              "toArrow": "OpenTriangle",
-              "fromArrowColor": "",
-              "toArrowColor": "white",
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
+          "relshiptypeviews": [],
           "generatedFromModelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
           "routing": "Normal",
-          "markedAsDeleted": false,
-          "modified": false
-        },
-        {
-          "id": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-          "name": "TEST_MM",
-          "description": "",
-          "viewstyles": [
-            {
-              "id": "c0c24a51-a251-4457-81b3-1e1efafe4b96",
-              "name": "TEST_MM_Viewstyle",
-              "description": "",
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "geometries": [],
-          "objecttypes": [
-            {
-              "id": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
-              "name": "Element",
-              "description": "",
-              "abstract": true,
-              "viewkind": "Object",
-              "typename": "Object type",
-              "typeviewRef": "6aad4796-8648-4c1b-b31e-7501afdcb19d",
-              "properties": [],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "name": "EntityType",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typename": "Object type",
-              "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",
-              "properties": [],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "4beef970-06ed-4f54-6589-5804e358a8a6",
-              "name": "RelshipType",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typename": "Object type",
-              "typeviewRef": "a870109d-3297-44ea-118b-6712e8026cf5",
-              "properties": [],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
-              "name": "Generic",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typename": "Object type",
-              "typeviewRef": "b42be04d-f9e5-4906-0459-80f43aada183",
-              "properties": [],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-              "name": "Container",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Container",
-              "typename": "Object type",
-              "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
-              "properties": [],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "188020c6-953a-49a5-d2a1-812076a5b26d",
-              "name": "Collection",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typename": "Object type",
-              "typeviewRef": "6f79614a-7444-4a3e-94b0-35a499cf23da",
-              "properties": [],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "4f1e3080-24b0-4e9f-f8cc-f13e469232a2",
-              "name": "Method",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typename": "Object type",
-              "typeviewRef": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
-              "properties": [
-                {
-                  "id": "d836ad9a-00f6-4cf2-2986-9ca1b4e71498",
-                  "name": "methodtype",
-                  "description": "",
-                  "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                  "methodRef": "",
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                }
-              ],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "93bad8b7-f8df-42a9-e469-90f0eb0258da",
-              "name": "Car",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typename": "Object type",
-              "typeviewRef": "1f64c035-f7df-4a93-a6a8-49d83601e68a",
-              "properties": [
-                {
-                  "id": "3b7f1bd0-73e3-46f0-769c-353100aecbf0",
-                  "name": "brand",
-                  "description": "",
-                  "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                  "methodRef": "",
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                }
-              ],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "15977211-421d-4f86-507d-dffd9563b479",
-              "name": "Person",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typename": "Object type",
-              "typeviewRef": "9d6dcdb1-fd23-4a6a-53f6-af15bb10f451",
-              "properties": [
-                {
-                  "id": "05914e37-57a1-4027-028e-5a8ee8e5e08b",
-                  "name": "name",
-                  "description": "",
-                  "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                  "methodRef": "",
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                }
-              ],
-              "methods": [],
-              "markedAsDeleted": false,
-              "modified": true
-            }
-          ],
-          "relshiptypes": [
-            {
-              "id": "f8ed90ff-d68a-467a-385a-b4f2754ce254",
-              "name": "Is",
-              "description": "",
-              "typeviewRef": "",
-              "properties": [],
-              "relshipkind": "Generalization",
-              "viewkind": "",
-              "fromobjtypeRef": "93bad8b7-f8df-42a9-e469-90f0eb0258da",
-              "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "cardinality": "",
-              "cardinalityFrom": "",
-              "cardinalityTo": "",
-              "nameFrom": "",
-              "nameTo": "",
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "9edbc303-b5b4-4a11-129c-3dcf7b5be88d",
-              "name": "Is",
-              "description": "",
-              "typeviewRef": "",
-              "properties": [],
-              "relshipkind": "Generalization",
-              "viewkind": "",
-              "fromobjtypeRef": "15977211-421d-4f86-507d-dffd9563b479",
-              "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "cardinality": "",
-              "cardinalityFrom": "",
-              "cardinalityTo": "",
-              "nameFrom": "",
-              "nameTo": "",
-              "markedAsDeleted": false,
-              "modified": true
-            },
-            {
-              "id": "80b2144b-9fd5-4a56-2536-7747c6bb251a",
-              "name": "owns",
-              "description": "",
-              "typeviewRef": "834d87d7-81ef-4598-a4a4-e769fde68dee",
-              "properties": [],
-              "relshipkind": "Association",
-              "viewkind": "",
-              "fromobjtypeRef": "15977211-421d-4f86-507d-dffd9563b479",
-              "toobjtypeRef": "93bad8b7-f8df-42a9-e469-90f0eb0258da",
-              "cardinality": "",
-              "cardinalityFrom": "",
-              "cardinalityTo": "",
-              "nameFrom": "",
-              "nameTo": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "d657d559-be6a-41cf-2764-e5d3c8b7ea2e",
-              "name": "rents",
-              "description": "",
-              "typeviewRef": "899d2789-b4c3-4b1c-96d0-c2ae4ae94932",
-              "properties": [],
-              "relshipkind": "Association",
-              "viewkind": "",
-              "fromobjtypeRef": "15977211-421d-4f86-507d-dffd9563b479",
-              "toobjtypeRef": "93bad8b7-f8df-42a9-e469-90f0eb0258da",
-              "cardinality": "",
-              "cardinalityFrom": "",
-              "cardinalityTo": "",
-              "nameFrom": "",
-              "nameTo": "",
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "properties": [
-            {
-              "id": "3b7f1bd0-73e3-46f0-769c-353100aecbf0",
-              "name": "brand",
-              "description": "",
-              "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-              "methodRef": "",
-              "unitCategoryRef": "",
-              "defaultValue": "",
-              "inputPattern": "",
-              "viewFormat": "",
-              "example": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "05914e37-57a1-4027-028e-5a8ee8e5e08b",
-              "name": "name",
-              "description": "",
-              "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-              "methodRef": "",
-              "unitCategoryRef": "",
-              "defaultValue": "",
-              "inputPattern": "",
-              "viewFormat": "",
-              "example": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "d836ad9a-00f6-4cf2-2986-9ca1b4e71498",
-              "name": "methodtype",
-              "description": "",
-              "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-              "methodRef": "",
-              "unitCategoryRef": "",
-              "defaultValue": "",
-              "inputPattern": "",
-              "viewFormat": "",
-              "example": "",
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "methods": [],
-          "methodtypes": [
-            {
-              "id": "3625c808-3d5c-498a-87cb-5a245a7a9dea",
-              "name": "AggregateValue",
-              "description": "",
-              "properties": [
-                {
-                  "id": "010fb767-99d2-4f25-0340-34150e459116",
-                  "name": "reltype",
-                  "nameId": "reltype",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                    "name": "string",
-                    "nameId": "string",
-                    "category": "Datatype",
-                    "description": "String",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": "",
-                    "defaultValue": null,
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "%s",
-                    "fieldType": "text",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                },
-                {
-                  "id": "59240f6a-3a86-48eb-cc69-e070a0de7e65",
-                  "name": "reldir",
-                  "nameId": "reldir",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "4260f5d9-16ee-40e2-3503-1d4988f2c23a",
-                    "name": "reldir",
-                    "nameId": "reldir",
-                    "category": "Datatype",
-                    "description": "",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": [
-                      "in",
-                      "out"
-                    ],
-                    "defaultValue": "out",
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "",
-                    "fieldType": "radio",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                },
-                {
-                  "id": "ca9c27a5-33b2-4fdf-c969-5716a06fe960",
-                  "name": "objtype",
-                  "nameId": "objtype",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                    "name": "string",
-                    "nameId": "string",
-                    "category": "Datatype",
-                    "description": "String",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": "",
-                    "defaultValue": null,
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "%s",
-                    "fieldType": "text",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                },
-                {
-                  "id": "e658c82d-0282-4d86-3c78-3cc0ed912459",
-                  "name": "expression",
-                  "nameId": "expression",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                    "name": "string",
-                    "nameId": "string",
-                    "category": "Datatype",
-                    "description": "String",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": "",
-                    "defaultValue": null,
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "%s",
-                    "fieldType": "text",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                }
-              ],
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "28381d9b-cfe6-4a49-70de-a92ffd2080e0",
-              "name": "CalculateValue",
-              "description": "",
-              "properties": [
-                {
-                  "id": "02c171f7-176a-46ef-81a5-83e1e62fb219",
-                  "name": "expression",
-                  "nameId": "expression",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                    "name": "string",
-                    "nameId": "string",
-                    "category": "Datatype",
-                    "description": "String",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": "",
-                    "defaultValue": null,
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "%s",
-                    "fieldType": "text",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                }
-              ],
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "082a6b39-f7b3-42ab-d204-2b4361f0de4a",
-              "name": "Traverse",
-              "description": "",
-              "properties": [
-                {
-                  "id": "994673b9-afe3-4274-42fc-4df1e1d607ee",
-                  "name": "reltype",
-                  "nameId": "reltype",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                    "name": "string",
-                    "nameId": "string",
-                    "category": "Datatype",
-                    "description": "String",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": "",
-                    "defaultValue": null,
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "%s",
-                    "fieldType": "text",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                },
-                {
-                  "id": "178b9cb0-a012-41e9-3a77-664966915b07",
-                  "name": "reldir",
-                  "nameId": "reldir",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "4260f5d9-16ee-40e2-3503-1d4988f2c23a",
-                    "name": "reldir",
-                    "nameId": "reldir",
-                    "category": "Datatype",
-                    "description": "",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": [
-                      "in",
-                      "out"
-                    ],
-                    "defaultValue": "out",
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "",
-                    "fieldType": "radio",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                },
-                {
-                  "id": "3098e39c-bb33-4c05-e91b-ab83465e1a5d",
-                  "name": "typecondition",
-                  "nameId": "typecondition",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                    "name": "string",
-                    "nameId": "string",
-                    "category": "Datatype",
-                    "description": "String",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": "",
-                    "defaultValue": null,
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "%s",
-                    "fieldType": "text",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                },
-                {
-                  "id": "a52ed52b-540b-4d7f-f6fa-20d8c34f7f2c",
-                  "name": "valuecondition",
-                  "nameId": "valuecondition",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
-                    "name": "string",
-                    "nameId": "string",
-                    "category": "Datatype",
-                    "description": "String",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": "",
-                    "defaultValue": null,
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "%s",
-                    "fieldType": "text",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                },
-                {
-                  "id": "7e488b8d-e935-4d6e-fa95-452104984a0b",
-                  "name": "preaction",
-                  "nameId": "preaction",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "afc3d3bd-2a61-4e15-0503-c85bb300ca85",
-                    "name": "actiontype",
-                    "nameId": "actiontype",
-                    "category": "Datatype",
-                    "description": "",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": [
-                      "Highlight",
-                      "Select"
-                    ],
-                    "defaultValue": "",
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "",
-                    "fieldType": "radio",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                },
-                {
-                  "id": "3fc1cd64-c52e-479f-10a8-83b38f9c9242",
-                  "name": "postaction",
-                  "nameId": "postaction",
-                  "category": "Property",
-                  "description": "",
-                  "markedAsDeleted": false,
-                  "modified": false,
-                  "fs_collection": "properties",
-                  "datatype": {
-                    "id": "afc3d3bd-2a61-4e15-0503-c85bb300ca85",
-                    "name": "actiontype",
-                    "nameId": "actiontype",
-                    "category": "Datatype",
-                    "description": "",
-                    "markedAsDeleted": false,
-                    "modified": false,
-                    "fs_collection": "datatypes",
-                    "isOfDatatype": null,
-                    "allowedValues": [
-                      "Highlight",
-                      "Select"
-                    ],
-                    "defaultValue": "",
-                    "value": "",
-                    "inputPattern": "",
-                    "viewFormat": "",
-                    "fieldType": "radio",
-                    "datatypeRef": ""
-                  },
-                  "datatypeRef": "",
-                  "method": null,
-                  "methodRef": "",
-                  "unitCategory": null,
-                  "unitCategoryRef": "",
-                  "defaultValue": "",
-                  "inputPattern": "",
-                  "viewFormat": "",
-                  "example": ""
-                }
-              ],
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "datatypes": [
-            {
-              "id": "abc274e1-f4e9-4d9c-7f98-b0ffe26499c9",
-              "name": "cardinality",
-              "description": "",
-              "datatypeRef": "",
-              "allowedValues": [
-                "0-1",
-                "1",
-                "0-n",
-                "1-n",
-                "n"
-              ],
-              "defaultValue": "",
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "%s",
-              "fieldType": "select",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "ae89dc9b-91ee-47a9-15a8-32ab3a593d03",
-              "name": "viewkind",
-              "description": "",
-              "datatypeRef": "",
-              "allowedValues": [
-                "Object",
-                "Container",
-                "Subprocess"
-              ],
-              "defaultValue": "Object",
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "%s",
-              "fieldType": "radio",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "2c460d8f-8b4f-402c-bd09-54177f28c330",
-              "name": "relshipkind",
-              "description": "",
-              "datatypeRef": "",
-              "allowedValues": [
-                "Association",
-                "Generalization",
-                "Composition",
-                "Aggregation"
-              ],
-              "defaultValue": "Association",
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "%s",
-              "fieldType": "radio",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "c02679a8-aa20-4140-09c5-b5e6c2644185",
-              "name": "layout",
-              "description": "",
-              "datatypeRef": "",
-              "allowedValues": [
-                "Circular",
-                "Grid",
-                "Tree",
-                "ForceDirected",
-                "LayeredDigraph",
-                "Manual"
-              ],
-              "defaultValue": "Tree",
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "%s",
-              "fieldType": "radio",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "38e214e8-80f4-4f4f-bf56-feff87579529",
-              "name": "routing",
-              "description": "",
-              "datatypeRef": "",
-              "allowedValues": [
-                "AvoidsNodes",
-                "Orthogonal",
-                "Normal"
-              ],
-              "defaultValue": "Normal",
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "%s",
-              "fieldType": "radio",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "8148679b-66b8-4035-27ff-d7e3435465f0",
-              "name": "linkcurve",
-              "description": "",
-              "datatypeRef": "",
-              "allowedValues": [
-                "None",
-                "Bezier",
-                "JumpGap",
-                "JumpOver"
-              ],
-              "defaultValue": "None",
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "%s",
-              "fieldType": "radio",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "b044f60b-1763-480b-576f-4e4b110ba495",
-              "name": "integer",
-              "description": "Integer",
-              "datatypeRef": "",
-              "allowedValues": "",
-              "defaultValue": null,
-              "value": "",
-              "inputPattern": "^[-+]?\\d+$",
-              "viewFormat": "%d",
-              "fieldType": "text",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "160e8cac-4003-4b00-175f-2b720ba088e0",
-              "name": "string",
-              "description": "String",
-              "datatypeRef": "",
-              "allowedValues": "",
-              "defaultValue": null,
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "%s",
-              "fieldType": "text",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "5e614cf4-c91d-49a6-2e12-e033d7536682",
-              "name": "number",
-              "description": "Number",
-              "datatypeRef": "",
-              "allowedValues": "",
-              "defaultValue": null,
-              "value": "",
-              "inputPattern": "^\\+?([1-9]\\d*)$",
-              "viewFormat": "%f",
-              "fieldType": "number",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "9c426092-98be-4470-97d3-99ee033b6b29",
-              "name": "boolean",
-              "description": "Boolean",
-              "datatypeRef": "",
-              "allowedValues": "",
-              "defaultValue": null,
-              "value": "",
-              "inputPattern": "[0-1]",
-              "viewFormat": "",
-              "fieldType": "checkbox",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "b959f506-7609-4915-80dc-2b64270efa9f",
-              "name": "date",
-              "description": "Date",
-              "datatypeRef": "",
-              "allowedValues": "",
-              "defaultValue": null,
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "%s",
-              "fieldType": "date",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "4260f5d9-16ee-40e2-3503-1d4988f2c23a",
-              "name": "reldir",
-              "description": "",
-              "datatypeRef": "",
-              "allowedValues": [
-                "in",
-                "out"
-              ],
-              "defaultValue": "out",
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "",
-              "fieldType": "radio",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "afc3d3bd-2a61-4e15-0503-c85bb300ca85",
-              "name": "actiontype",
-              "description": "",
-              "datatypeRef": "",
-              "allowedValues": [
-                "Highlight",
-                "Select"
-              ],
-              "defaultValue": "",
-              "value": "",
-              "inputPattern": "",
-              "viewFormat": "",
-              "fieldType": "radio",
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "units": [],
-          "objecttypeviews": [
-            {
-              "id": "6aad4796-8648-4c1b-b31e-7501afdcb19d",
-              "name": "6aad4796-8648-4c1b-b31e-7501afdcb19d",
-              "description": "",
-              "typeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
-              "viewkind": "Object",
-              "isGroup": false,
-              "template": "",
-              "geometry": "",
-              "fillcolor": "lightgray",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "2970b95c-f760-42c4-2c70-40723a79d921",
-              "name": "2970b95c-f760-42c4-2c70-40723a79d921",
-              "description": "",
-              "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "viewkind": "Object",
-              "isGroup": false,
-              "template": "textOnly",
-              "geometry": "",
-              "fillcolor": "white",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "a870109d-3297-44ea-118b-6712e8026cf5",
-              "name": "New Type",
-              "description": "",
-              "typeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-              "viewkind": "Object",
-              "isGroup": false,
-              "group": "",
-              "template": "",
-              "geometry": "",
-              "fillcolor": "#f4e6e8",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "b42be04d-f9e5-4906-0459-80f43aada183",
-              "name": "b42be04d-f9e5-4906-0459-80f43aada183",
-              "description": "",
-              "typeRef": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
-              "viewkind": "Object",
-              "isGroup": false,
-              "template": "",
-              "geometry": "",
-              "fillcolor": "#96c5b9",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "./../images/default.png",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "a3112875-e4fe-4100-b290-5634d8b8acfc",
-              "name": "a3112875-e4fe-4100-b290-5634d8b8acfc",
-              "description": "",
-              "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-              "viewkind": "Object",
-              "isGroup": false,
-              "template": "",
-              "geometry": "",
-              "fillcolor": "white",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "6f79614a-7444-4a3e-94b0-35a499cf23da",
-              "name": "Collection",
-              "description": "",
-              "typeRef": "188020c6-953a-49a5-d2a1-812076a5b26d",
-              "viewkind": "Object",
-              "isGroup": false,
-              "group": "",
-              "template": "",
-              "geometry": "",
-              "fillcolor": "white",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
-              "name": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
-              "description": "",
-              "typeRef": "4f1e3080-24b0-4e9f-f8cc-f13e469232a2",
-              "viewkind": "Object",
-              "isGroup": false,
-              "template": "",
-              "geometry": "",
-              "fillcolor": "#ead6f0",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "1f64c035-f7df-4a93-a6a8-49d83601e68a",
-              "name": "1f64c035-f7df-4a93-a6a8-49d83601e68a",
-              "description": "",
-              "typeRef": "93bad8b7-f8df-42a9-e469-90f0eb0258da",
-              "viewkind": "Object",
-              "isGroup": false,
-              "template": "textOnly",
-              "geometry": "",
-              "fillcolor": "white",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "9d6dcdb1-fd23-4a6a-53f6-af15bb10f451",
-              "name": "9d6dcdb1-fd23-4a6a-53f6-af15bb10f451",
-              "description": "",
-              "typeRef": "15977211-421d-4f86-507d-dffd9563b479",
-              "viewkind": "Object",
-              "isGroup": false,
-              "template": "textOnly",
-              "geometry": "",
-              "fillcolor": "white",
-              "strokecolor": "black",
-              "strokecolor1": "black",
-              "strokewidth": "1",
-              "textcolor": "black",
-              "icon": "",
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "objtypegeos": [
-            {
-              "id": "21d7e4a2-0a1c-4178-9b9a-4c0f6e8017f9",
-              "name": "",
-              "description": "",
-              "typeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "",
-              "size": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "009b4882-7315-4bfe-bc39-af31df7db075",
-              "name": "",
-              "description": "",
-              "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "",
-              "size": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "32ca2a8e-3758-4cd2-6247-f7ba09cb0990",
-              "name": "",
-              "description": "",
-              "typeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "",
-              "size": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "979acf8f-588a-4abb-a92d-041887aa0979",
-              "name": "",
-              "description": "",
-              "typeRef": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "",
-              "size": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "4787371d-0287-45c8-1097-8b7ff3a7a0a8",
-              "name": "",
-              "description": "",
-              "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "",
-              "size": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "01f6fcdd-3781-4761-c1f2-8f55092f2e12",
-              "name": "",
-              "description": "",
-              "typeRef": "188020c6-953a-49a5-d2a1-812076a5b26d",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "",
-              "size": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "a745511c-07cc-4ddc-4ddb-7cad9a54015d",
-              "name": "",
-              "description": "",
-              "typeRef": "4f1e3080-24b0-4e9f-f8cc-f13e469232a2",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "",
-              "size": "",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "3b550bf0-c8e9-4352-843c-71787af8941b",
-              "name": "",
-              "description": "",
-              "typeRef": "93bad8b7-f8df-42a9-e469-90f0eb0258da",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "0 0",
-              "size": "100 50",
-              "markedAsDeleted": false,
-              "modified": false
-            },
-            {
-              "id": "7c4e6db3-d84b-4bfa-6ec2-fe30637d904a",
-              "name": "",
-              "description": "",
-              "typeRef": "15977211-421d-4f86-507d-dffd9563b479",
-              "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-              "loc": "0 0",
-              "size": "100 50",
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "relshiptypeviews": [],
-          "generatedFromModelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
-          "layout": "ForceDirected",
-          "routing": "Normal",
-          "linkcurve": "None",
           "markedAsDeleted": false,
           "modified": false
         },
@@ -5340,6 +4134,7 @@
               "typename": "Object type",
               "typeviewRef": "6aad4796-8648-4c1b-b31e-7501afdcb19d",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5353,6 +4148,7 @@
               "typename": "Object type",
               "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5366,6 +4162,7 @@
               "typename": "Object type",
               "typeviewRef": "b42be04d-f9e5-4906-0459-80f43aada183",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5379,6 +4176,7 @@
               "typename": "Object type",
               "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5407,6 +4205,14 @@
                   "modified": false
                 }
               ],
+              "attributes": [
+                {
+                  "name": "Method.methodtype",
+                  "typeName": "Method",
+                  "propName": "methodtype",
+                  "propRef": "d836ad9a-00f6-4cf2-2986-9ca1b4e71498"
+                }
+              ],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5420,6 +4226,7 @@
               "typename": "Object type",
               "typeviewRef": "b843eedc-b7d1-432c-4814-e24053fa3f62",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5433,6 +4240,7 @@
               "typename": "Object type",
               "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5446,6 +4254,7 @@
               "typename": "Object type",
               "typeviewRef": "735c257c-39a7-4a40-c879-ac3fda1b9754",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5459,6 +4268,7 @@
               "typename": "Object type",
               "typeviewRef": "f513a655-511f-4faf-e3e2-10fbe4dccb0d",
               "properties": [],
+              "attributes": [],
               "methods": [],
               "markedAsDeleted": false,
               "modified": true
@@ -5628,6 +4438,8 @@
               "modified": false
             }
           ],
+          "objecttypes0": [],
+          "relshiptypes0": [],
           "properties": [
             {
               "id": "d836ad9a-00f6-4cf2-2986-9ca1b4e71498",
@@ -7151,44 +5963,34 @@
           "linkcurve": "None",
           "markedAsDeleted": false,
           "modified": false
+        },
+        {
+          "id": "b5655e2a-e181-431b-1406-72d8156f87ae",
+          "name": "TEST_MM",
+          "description": "",
+          "viewstyles": [],
+          "geometries": [],
+          "objecttypes": [],
+          "relshiptypes": [],
+          "objecttypes0": [],
+          "relshiptypes0": [],
+          "properties": [],
+          "methods": [],
+          "methodtypes": [],
+          "datatypes": [],
+          "units": [],
+          "objecttypeviews": [],
+          "objtypegeos": [],
+          "relshiptypeviews": [],
+          "generatedFromModelRef": "",
+          "layout": "ForceDirected",
+          "routing": "Normal",
+          "linkcurve": "None",
+          "markedAsDeleted": false,
+          "modified": false
         }
       ],
       "models": [
-        {
-          "id": "c7cbc026-34cd-4f67-1101-23172126f155",
-          "name": "TEST_Model",
-          "description": "",
-          "metamodelRef": "1a14aeb1-57ba-491c-45e5-66c13a3ec4bd",
-          "sourceMetamodelRef": "",
-          "targetMetamodelRef": "",
-          "sourceModelRef": "",
-          "targetModelRef": "",
-          "isTemplate": false,
-          "includeSystemtypes": true,
-          "templates": [],
-          "objects": [],
-          "relships": [],
-          "modelviews": [
-            {
-              "id": "0e566f15-4fb6-4a67-a3f3-7448665f485a",
-              "name": "TEST_Model",
-              "description": "",
-              "layout": "Tree",
-              "routing": "Normal",
-              "linkcurve": "None",
-              "showCardinality": false,
-              "modelRef": "c7cbc026-34cd-4f67-1101-23172126f155",
-              "objectviews": [],
-              "relshipviews": [],
-              "objecttypeviews": [],
-              "relshiptypeviews": [],
-              "markedAsDeleted": false,
-              "modified": false
-            }
-          ],
-          "markedAsDeleted": false,
-          "modified": false
-        },
         {
           "id": "05d5b929-b985-49ac-cf92-cc095a03889d",
           "name": "INIT_MODEL",
@@ -7225,7 +6027,7 @@
               "typeName": "EntityType",
               "propertyValues": [],
               "markedAsDeleted": false,
-              "generatedTypeId": "93bad8b7-f8df-42a9-e469-90f0eb0258da",
+              "generatedTypeId": "",
               "modified": true
             },
             {
@@ -7238,7 +6040,7 @@
               "typeName": "EntityType",
               "propertyValues": [],
               "markedAsDeleted": false,
-              "generatedTypeId": "15977211-421d-4f86-507d-dffd9563b479",
+              "generatedTypeId": "",
               "modified": true
             },
             {
@@ -7321,7 +6123,7 @@
               "nameTo": "",
               "markedAsDeleted": false,
               "generatedTypeId": "",
-              "modified": true
+              "modified": false
             },
             {
               "id": "277e9534-7c1e-40d1-35a8-a0e51362e724",
@@ -7339,7 +6141,7 @@
               "nameTo": "",
               "markedAsDeleted": false,
               "generatedTypeId": "",
-              "modified": true
+              "modified": false
             }
           ],
           "modelviews": [
@@ -7558,7 +6360,7 @@
                   "toArrowColor": "",
                   "points": null,
                   "markedAsDeleted": false,
-                  "modified": true
+                  "modified": false
                 },
                 {
                   "id": "6a4721a9-157a-4bb9-7c04-a8978bbe80a3",
@@ -7578,7 +6380,7 @@
                   "toArrowColor": "",
                   "points": null,
                   "markedAsDeleted": false,
-                  "modified": true
+                  "modified": false
                 }
               ],
               "objecttypeviews": [],
@@ -7605,7 +6407,7 @@
           "templates": [],
           "objects": [
             {
-              "id": "2d82ed41-bcd9-4878-c554-a5ed71a30070",
+              "id": "5b3df135-4676-40ec-e335-a6d62b3cc8b5",
               "name": "INIT-Startup",
               "description": "New startup project",
               "abstract": false,
@@ -7618,7 +6420,7 @@
               "modified": false
             },
             {
-              "id": "2b3e37d1-2a14-4222-2134-ed063f3ab6b6",
+              "id": "e1e3c840-18c1-4d0f-adda-2ea68ac8246e",
               "name": "Basic Modeling Metamodel",
               "description": "",
               "abstract": false,
@@ -7631,7 +6433,7 @@
               "modified": false
             },
             {
-              "id": "c0dcc772-8596-4aa8-8013-cb84a0da468a",
+              "id": "e51951fd-e3be-46db-e218-7ace582fdd5c",
               "name": "INIT_MODEL",
               "description": "",
               "abstract": false,
@@ -7644,7 +6446,7 @@
               "modified": false
             },
             {
-              "id": "dbb0c9c3-6f8c-403f-3b6b-277166dd4c98",
+              "id": "c35e70da-8d40-4866-2d73-17c800892642",
               "name": "Main",
               "description": "",
               "abstract": false,
@@ -7657,7 +6459,7 @@
               "modified": false
             },
             {
-              "id": "bef76719-a0ad-40b7-0492-5cef18b31c41",
+              "id": "1afa4a2a-1665-4f0a-93ba-1517e03febe4",
               "name": "TEST_MM",
               "description": "",
               "abstract": false,
@@ -7670,7 +6472,7 @@
               "modified": false
             },
             {
-              "id": "4b75a840-b924-4b09-6fb9-d91ded70a7e3",
+              "id": "caa60179-e17e-488d-63fe-9537ca635c5b",
               "name": "TEST_Model",
               "description": "",
               "abstract": false,
@@ -7683,7 +6485,7 @@
               "modified": false
             },
             {
-              "id": "abc9fe06-bf91-4488-15d0-c50b252eec8c",
+              "id": "01b2e8b9-a602-44a7-b47c-48b8e6c86179",
               "name": "TEST_Model",
               "description": "",
               "abstract": false,
@@ -7698,13 +6500,13 @@
           ],
           "relships": [
             {
-              "id": "e73e8847-6539-49fd-3807-3cf7a6272146",
+              "id": "2a3f5933-b9b4-443c-faa2-ad989149f6fb",
               "name": "has",
               "description": "",
               "relshipkind": "Association",
               "typeRef": "22f50fa8-90be-4738-8f71-670a19668fe0",
-              "fromobjectRef": "2d82ed41-bcd9-4878-c554-a5ed71a30070",
-              "toobjectRef": "2b3e37d1-2a14-4222-2134-ed063f3ab6b6",
+              "fromobjectRef": "5b3df135-4676-40ec-e335-a6d62b3cc8b5",
+              "toobjectRef": "e1e3c840-18c1-4d0f-adda-2ea68ac8246e",
               "propvalues": [],
               "cardinality": "0-n",
               "cardinalityFrom": "0",
@@ -7716,13 +6518,13 @@
               "modified": false
             },
             {
-              "id": "dc042285-273d-4bd9-9aac-f9281055bbee",
+              "id": "3087588b-89ec-458b-8593-c129ddf6d886",
               "name": "refersTo",
               "description": "",
               "relshipkind": "Association",
               "typeRef": "a7c5a98e-82ae-438b-c5c6-e836f8d2f538",
-              "fromobjectRef": "c0dcc772-8596-4aa8-8013-cb84a0da468a",
-              "toobjectRef": "2b3e37d1-2a14-4222-2134-ed063f3ab6b6",
+              "fromobjectRef": "e51951fd-e3be-46db-e218-7ace582fdd5c",
+              "toobjectRef": "e1e3c840-18c1-4d0f-adda-2ea68ac8246e",
               "propvalues": [],
               "cardinality": "",
               "cardinalityFrom": "",
@@ -7734,13 +6536,13 @@
               "modified": false
             },
             {
-              "id": "27308ff3-64c3-40c8-9a38-8fe2b26162de",
+              "id": "c7cb960f-4500-47e7-41da-958890920865",
               "name": "has",
               "description": "",
               "relshipkind": "Association",
               "typeRef": "22f50fa8-90be-4738-8f71-670a19668fe0",
-              "fromobjectRef": "2d82ed41-bcd9-4878-c554-a5ed71a30070",
-              "toobjectRef": "c0dcc772-8596-4aa8-8013-cb84a0da468a",
+              "fromobjectRef": "5b3df135-4676-40ec-e335-a6d62b3cc8b5",
+              "toobjectRef": "e51951fd-e3be-46db-e218-7ace582fdd5c",
               "propvalues": [],
               "cardinality": "0-n",
               "cardinalityFrom": "0",
@@ -7752,13 +6554,13 @@
               "modified": false
             },
             {
-              "id": "a09f7806-e57c-4674-6544-ca937bde446c",
+              "id": "7dd7f843-b8e5-49aa-4b52-633e26ad63c2",
               "name": "has",
               "description": "",
               "relshipkind": "Association",
               "typeRef": "22f50fa8-90be-4738-8f71-670a19668fe0",
-              "fromobjectRef": "c0dcc772-8596-4aa8-8013-cb84a0da468a",
-              "toobjectRef": "dbb0c9c3-6f8c-403f-3b6b-277166dd4c98",
+              "fromobjectRef": "e51951fd-e3be-46db-e218-7ace582fdd5c",
+              "toobjectRef": "c35e70da-8d40-4866-2d73-17c800892642",
               "propvalues": [],
               "cardinality": "0-n",
               "cardinalityFrom": "0",
@@ -7770,13 +6572,13 @@
               "modified": false
             },
             {
-              "id": "2a92de63-f8e0-4688-fc8f-acf0b16b45f4",
+              "id": "798631bc-dfc7-468e-6f67-ff9149cb93b3",
               "name": "has",
               "description": "",
               "relshipkind": "Association",
               "typeRef": "22f50fa8-90be-4738-8f71-670a19668fe0",
-              "fromobjectRef": "2d82ed41-bcd9-4878-c554-a5ed71a30070",
-              "toobjectRef": "bef76719-a0ad-40b7-0492-5cef18b31c41",
+              "fromobjectRef": "5b3df135-4676-40ec-e335-a6d62b3cc8b5",
+              "toobjectRef": "1afa4a2a-1665-4f0a-93ba-1517e03febe4",
               "propvalues": [],
               "cardinality": "0-n",
               "cardinalityFrom": "0",
@@ -7788,13 +6590,13 @@
               "modified": false
             },
             {
-              "id": "a0d10a06-cb39-4022-5398-1fb06bd1ffb9",
+              "id": "f6b96191-612b-4d34-50c6-e77c3c040286",
               "name": "refersTo",
               "description": "",
               "relshipkind": "Association",
               "typeRef": "a7c5a98e-82ae-438b-c5c6-e836f8d2f538",
-              "fromobjectRef": "4b75a840-b924-4b09-6fb9-d91ded70a7e3",
-              "toobjectRef": "bef76719-a0ad-40b7-0492-5cef18b31c41",
+              "fromobjectRef": "caa60179-e17e-488d-63fe-9537ca635c5b",
+              "toobjectRef": "1afa4a2a-1665-4f0a-93ba-1517e03febe4",
               "propvalues": [],
               "cardinality": "",
               "cardinalityFrom": "",
@@ -7806,13 +6608,13 @@
               "modified": false
             },
             {
-              "id": "960ed84c-e7c2-4f00-5814-f11bf9328bf8",
+              "id": "77a336c9-bd3f-435c-f2e1-11cadd68e45a",
               "name": "has",
               "description": "",
               "relshipkind": "Association",
               "typeRef": "22f50fa8-90be-4738-8f71-670a19668fe0",
-              "fromobjectRef": "2d82ed41-bcd9-4878-c554-a5ed71a30070",
-              "toobjectRef": "4b75a840-b924-4b09-6fb9-d91ded70a7e3",
+              "fromobjectRef": "5b3df135-4676-40ec-e335-a6d62b3cc8b5",
+              "toobjectRef": "caa60179-e17e-488d-63fe-9537ca635c5b",
               "propvalues": [],
               "cardinality": "0-n",
               "cardinalityFrom": "0",
@@ -7824,13 +6626,13 @@
               "modified": false
             },
             {
-              "id": "2de3893b-4336-42fc-5d06-bdb2b8dd5965",
+              "id": "7d5aa9f2-42d4-4d91-01eb-8ef648419fdd",
               "name": "has",
               "description": "",
               "relshipkind": "Association",
               "typeRef": "22f50fa8-90be-4738-8f71-670a19668fe0",
-              "fromobjectRef": "4b75a840-b924-4b09-6fb9-d91ded70a7e3",
-              "toobjectRef": "abc9fe06-bf91-4488-15d0-c50b252eec8c",
+              "fromobjectRef": "caa60179-e17e-488d-63fe-9537ca635c5b",
+              "toobjectRef": "01b2e8b9-a602-44a7-b47c-48b8e6c86179",
               "propvalues": [],
               "cardinality": "0-n",
               "cardinalityFrom": "0",
@@ -7854,10 +6656,10 @@
               "modelRef": "5afde020-1cec-4b50-eaf3-9c2ce3f93a11",
               "objectviews": [
                 {
-                  "id": "e612adf8-a17d-48a5-9c66-957eae0481e3",
+                  "id": "9d5196b8-fec6-4169-83e5-cfe0928c6a63",
                   "name": "INIT-Startup",
                   "description": "",
-                  "objectRef": "2d82ed41-bcd9-4878-c554-a5ed71a30070",
+                  "objectRef": "5b3df135-4676-40ec-e335-a6d62b3cc8b5",
                   "typeviewRef": "b843eedc-b7d1-432c-4814-e24053fa3f62",
                   "group": "",
                   "viewkind": "",
@@ -7876,10 +6678,10 @@
                   "icon": ""
                 },
                 {
-                  "id": "7bafb6fc-b0f8-4336-3318-89ba39b97459",
+                  "id": "f5d19fe8-f4d5-4c20-d864-2f4692fd2ddb",
                   "name": "Basic Modeling Metamodel",
                   "description": "",
-                  "objectRef": "2b3e37d1-2a14-4222-2134-ed063f3ab6b6",
+                  "objectRef": "e1e3c840-18c1-4d0f-adda-2ea68ac8246e",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",
                   "group": "",
                   "viewkind": "",
@@ -7898,10 +6700,10 @@
                   "icon": ""
                 },
                 {
-                  "id": "f5d2d36d-dec3-4504-83de-057e7a868831",
+                  "id": "96234cd6-96c7-465b-d330-5f5986d3ff44",
                   "name": "INIT_MODEL",
                   "description": "",
-                  "objectRef": "c0dcc772-8596-4aa8-8013-cb84a0da468a",
+                  "objectRef": "e51951fd-e3be-46db-e218-7ace582fdd5c",
                   "typeviewRef": "735c257c-39a7-4a40-c879-ac3fda1b9754",
                   "group": "",
                   "viewkind": "",
@@ -7920,10 +6722,10 @@
                   "icon": ""
                 },
                 {
-                  "id": "710022e9-b8fb-4abd-fa75-0c6661b59865",
+                  "id": "fd2e3b1c-db6b-47bb-6ecb-c3305867ea29",
                   "name": "Main",
                   "description": "",
-                  "objectRef": "dbb0c9c3-6f8c-403f-3b6b-277166dd4c98",
+                  "objectRef": "c35e70da-8d40-4866-2d73-17c800892642",
                   "typeviewRef": "f513a655-511f-4faf-e3e2-10fbe4dccb0d",
                   "group": "",
                   "viewkind": "",
@@ -7942,10 +6744,10 @@
                   "icon": ""
                 },
                 {
-                  "id": "ee744886-e635-496e-a7e1-abcd2637f5d3",
+                  "id": "5cf2ebb6-f5fa-4141-6fce-06441d468d2e",
                   "name": "TEST_MM",
                   "description": "",
-                  "objectRef": "bef76719-a0ad-40b7-0492-5cef18b31c41",
+                  "objectRef": "1afa4a2a-1665-4f0a-93ba-1517e03febe4",
                   "typeviewRef": "b307d924-aaef-416c-245b-dacdb10f4b05",
                   "group": "",
                   "viewkind": "",
@@ -7964,10 +6766,10 @@
                   "icon": ""
                 },
                 {
-                  "id": "16f91aa4-62fb-4ef4-aaa9-2772c9ab8daf",
+                  "id": "c2b8ccd8-a859-4e26-fa57-c5f723b47934",
                   "name": "TEST_Model",
                   "description": "",
-                  "objectRef": "4b75a840-b924-4b09-6fb9-d91ded70a7e3",
+                  "objectRef": "caa60179-e17e-488d-63fe-9537ca635c5b",
                   "typeviewRef": "735c257c-39a7-4a40-c879-ac3fda1b9754",
                   "group": "",
                   "viewkind": "",
@@ -7986,10 +6788,10 @@
                   "icon": ""
                 },
                 {
-                  "id": "519b9556-7078-4cae-72ed-866263f9fa50",
+                  "id": "39e58785-681d-4512-23a2-41fd154e4be5",
                   "name": "TEST_Model",
                   "description": "",
-                  "objectRef": "abc9fe06-bf91-4488-15d0-c50b252eec8c",
+                  "objectRef": "01b2e8b9-a602-44a7-b47c-48b8e6c86179",
                   "typeviewRef": "f513a655-511f-4faf-e3e2-10fbe4dccb0d",
                   "group": "",
                   "viewkind": "",
@@ -8010,13 +6812,13 @@
               ],
               "relshipviews": [
                 {
-                  "id": "59d8980c-dfb3-4b35-88b9-ef99462713b9",
+                  "id": "bec98069-f9ed-43bc-631c-dab1b52f042a",
                   "name": "has",
                   "description": "",
-                  "relshipRef": "e73e8847-6539-49fd-3807-3cf7a6272146",
+                  "relshipRef": "2a3f5933-b9b4-443c-faa2-ad989149f6fb",
                   "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
-                  "fromobjviewRef": "e612adf8-a17d-48a5-9c66-957eae0481e3",
-                  "toobjviewRef": "7bafb6fc-b0f8-4336-3318-89ba39b97459",
+                  "fromobjviewRef": "9d5196b8-fec6-4169-83e5-cfe0928c6a63",
+                  "toobjviewRef": "f5d19fe8-f4d5-4c20-d864-2f4692fd2ddb",
                   "strokecolor": "",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8030,13 +6832,13 @@
                   "modified": false
                 },
                 {
-                  "id": "9613caa4-ba9c-458d-ffc5-8b23ac5616ad",
+                  "id": "238c3468-0e55-4286-db8f-24ef498ed34a",
                   "name": "refersTo",
                   "description": "",
-                  "relshipRef": "dc042285-273d-4bd9-9aac-f9281055bbee",
+                  "relshipRef": "3087588b-89ec-458b-8593-c129ddf6d886",
                   "typeviewRef": "e095bbff-bd34-4d6b-d23b-d9937feaa378",
-                  "fromobjviewRef": "f5d2d36d-dec3-4504-83de-057e7a868831",
-                  "toobjviewRef": "7bafb6fc-b0f8-4336-3318-89ba39b97459",
+                  "fromobjviewRef": "96234cd6-96c7-465b-d330-5f5986d3ff44",
+                  "toobjviewRef": "f5d19fe8-f4d5-4c20-d864-2f4692fd2ddb",
                   "strokecolor": "blue",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8050,13 +6852,13 @@
                   "modified": false
                 },
                 {
-                  "id": "0d684694-2ffb-4f60-7dd9-5511aa2e98e6",
+                  "id": "fb249ed8-7c08-4ebf-a0cb-e169af99571e",
                   "name": "has",
                   "description": "",
-                  "relshipRef": "27308ff3-64c3-40c8-9a38-8fe2b26162de",
+                  "relshipRef": "c7cb960f-4500-47e7-41da-958890920865",
                   "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
-                  "fromobjviewRef": "e612adf8-a17d-48a5-9c66-957eae0481e3",
-                  "toobjviewRef": "f5d2d36d-dec3-4504-83de-057e7a868831",
+                  "fromobjviewRef": "9d5196b8-fec6-4169-83e5-cfe0928c6a63",
+                  "toobjviewRef": "96234cd6-96c7-465b-d330-5f5986d3ff44",
                   "strokecolor": "",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8070,13 +6872,13 @@
                   "modified": false
                 },
                 {
-                  "id": "46df31bf-b2a1-47b8-8c7d-9b1563ca0100",
+                  "id": "8b83d629-e9b5-4c4e-4ef0-b432ac8c130a",
                   "name": "has",
                   "description": "",
-                  "relshipRef": "a09f7806-e57c-4674-6544-ca937bde446c",
+                  "relshipRef": "7dd7f843-b8e5-49aa-4b52-633e26ad63c2",
                   "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
-                  "fromobjviewRef": "f5d2d36d-dec3-4504-83de-057e7a868831",
-                  "toobjviewRef": "710022e9-b8fb-4abd-fa75-0c6661b59865",
+                  "fromobjviewRef": "96234cd6-96c7-465b-d330-5f5986d3ff44",
+                  "toobjviewRef": "fd2e3b1c-db6b-47bb-6ecb-c3305867ea29",
                   "strokecolor": "",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8090,13 +6892,13 @@
                   "modified": false
                 },
                 {
-                  "id": "66336086-ea72-495c-149e-bfc8143043c7",
+                  "id": "0bd54d8c-f81d-43a3-c24f-791983452948",
                   "name": "has",
                   "description": "",
-                  "relshipRef": "2a92de63-f8e0-4688-fc8f-acf0b16b45f4",
+                  "relshipRef": "798631bc-dfc7-468e-6f67-ff9149cb93b3",
                   "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
-                  "fromobjviewRef": "e612adf8-a17d-48a5-9c66-957eae0481e3",
-                  "toobjviewRef": "ee744886-e635-496e-a7e1-abcd2637f5d3",
+                  "fromobjviewRef": "9d5196b8-fec6-4169-83e5-cfe0928c6a63",
+                  "toobjviewRef": "5cf2ebb6-f5fa-4141-6fce-06441d468d2e",
                   "strokecolor": "",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8110,13 +6912,13 @@
                   "modified": false
                 },
                 {
-                  "id": "385ad086-4228-4f0a-af89-7654ac3fcc06",
+                  "id": "0c33c36b-ce16-41f1-d122-30dc06f7f384",
                   "name": "refersTo",
                   "description": "",
-                  "relshipRef": "a0d10a06-cb39-4022-5398-1fb06bd1ffb9",
+                  "relshipRef": "f6b96191-612b-4d34-50c6-e77c3c040286",
                   "typeviewRef": "e095bbff-bd34-4d6b-d23b-d9937feaa378",
-                  "fromobjviewRef": "16f91aa4-62fb-4ef4-aaa9-2772c9ab8daf",
-                  "toobjviewRef": "ee744886-e635-496e-a7e1-abcd2637f5d3",
+                  "fromobjviewRef": "c2b8ccd8-a859-4e26-fa57-c5f723b47934",
+                  "toobjviewRef": "5cf2ebb6-f5fa-4141-6fce-06441d468d2e",
                   "strokecolor": "blue",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8130,13 +6932,13 @@
                   "modified": false
                 },
                 {
-                  "id": "7bcd0e46-a6d9-4f70-dcc7-e6d6f5a0c09a",
+                  "id": "5fdeff8a-44bf-4d90-af21-94af39a2e714",
                   "name": "has",
                   "description": "",
-                  "relshipRef": "960ed84c-e7c2-4f00-5814-f11bf9328bf8",
+                  "relshipRef": "77a336c9-bd3f-435c-f2e1-11cadd68e45a",
                   "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
-                  "fromobjviewRef": "e612adf8-a17d-48a5-9c66-957eae0481e3",
-                  "toobjviewRef": "16f91aa4-62fb-4ef4-aaa9-2772c9ab8daf",
+                  "fromobjviewRef": "9d5196b8-fec6-4169-83e5-cfe0928c6a63",
+                  "toobjviewRef": "c2b8ccd8-a859-4e26-fa57-c5f723b47934",
                   "strokecolor": "",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8150,13 +6952,13 @@
                   "modified": false
                 },
                 {
-                  "id": "ea7db16e-7698-42ec-66e8-ba3ef2175463",
+                  "id": "555a148b-d47f-46ed-e04b-0e10e8299660",
                   "name": "has",
                   "description": "",
-                  "relshipRef": "2de3893b-4336-42fc-5d06-bdb2b8dd5965",
+                  "relshipRef": "7d5aa9f2-42d4-4d91-01eb-8ef648419fdd",
                   "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
-                  "fromobjviewRef": "16f91aa4-62fb-4ef4-aaa9-2772c9ab8daf",
-                  "toobjviewRef": "519b9556-7078-4cae-72ed-866263f9fa50",
+                  "fromobjviewRef": "c2b8ccd8-a859-4e26-fa57-c5f723b47934",
+                  "toobjviewRef": "39e58785-681d-4512-23a2-41fd154e4be5",
                   "strokecolor": "",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8170,13 +6972,13 @@
                   "modified": false
                 },
                 {
-                  "id": "853b6927-745b-4f75-3659-0dca6b80f9ef",
+                  "id": "3d38f394-ff78-4766-d549-327e29178c3e",
                   "name": "generatedFrom",
                   "description": "",
-                  "relshipRef": "f1938fed-9683-4dd5-a60e-e3f92bb23344",
+                  "relshipRef": "e5457a3d-de12-4b52-9cca-f5dadd35fb93",
                   "typeviewRef": "",
-                  "fromobjviewRef": "ee744886-e635-496e-a7e1-abcd2637f5d3",
-                  "toobjviewRef": "f5d2d36d-dec3-4504-83de-057e7a868831",
+                  "fromobjviewRef": "5cf2ebb6-f5fa-4141-6fce-06441d468d2e",
+                  "toobjviewRef": "96234cd6-96c7-465b-d330-5f5986d3ff44",
                   "strokecolor": "red",
                   "strokewidth": "",
                   "textcolor": "",
@@ -8190,6 +6992,42 @@
                   "modified": false
                 }
               ],
+              "objecttypeviews": [],
+              "relshiptypeviews": [],
+              "markedAsDeleted": false,
+              "modified": false
+            }
+          ],
+          "markedAsDeleted": false,
+          "modified": false
+        },
+        {
+          "id": "2a73cc5f-8c0f-4c91-56b0-46090f03e945",
+          "name": "TEST_Model",
+          "description": "",
+          "metamodelRef": "b5655e2a-e181-431b-1406-72d8156f87ae",
+          "sourceMetamodelRef": "",
+          "targetMetamodelRef": "",
+          "sourceModelRef": "",
+          "targetModelRef": "",
+          "isTemplate": false,
+          "includeSystemtypes": true,
+          "includeRelshipkind": false,
+          "templates": [],
+          "objects": [],
+          "relships": [],
+          "modelviews": [
+            {
+              "id": "2d806916-7459-4472-8503-eab3f0785174",
+              "name": "Main",
+              "description": "",
+              "layout": "Tree",
+              "routing": "Normal",
+              "linkcurve": "None",
+              "showCardinality": false,
+              "modelRef": "2a73cc5f-8c0f-4c91-56b0-46090f03e945",
+              "objectviews": [],
+              "relshipviews": [],
               "objecttypeviews": [],
               "relshiptypeviews": [],
               "markedAsDeleted": false,
@@ -8274,7 +7112,7 @@
       "name": ""
     },
     "focusRefresh": {
-      "id": "yli03d",
+      "id": "6o6hsg",
       "name": "0name"
     }
   },

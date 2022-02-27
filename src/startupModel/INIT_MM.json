@@ -1016,6 +1016,34 @@
       "example": "",
       "markedAsDeleted": false,
       "modified": false
+    },
+    {
+      "id": "3b7f1bd0-73e3-46f0-769c-353100aecbf0",
+      "name": "brand",
+      "description": "",
+      "datatypeRef": "",
+      "methodRef": "",
+      "unitCategoryRef": "",
+      "defaultValue": "",
+      "inputPattern": "",
+      "viewFormat": "",
+      "example": "",
+      "markedAsDeleted": false,
+      "modified": false
+    },
+    {
+      "id": "05914e37-57a1-4027-028e-5a8ee8e5e08b",
+      "name": "name",
+      "description": "",
+      "datatypeRef": "",
+      "methodRef": "",
+      "unitCategoryRef": "",
+      "defaultValue": "",
+      "inputPattern": "",
+      "viewFormat": "",
+      "example": "",
+      "markedAsDeleted": false,
+      "modified": false
     }
   ],
   "methods": [

@@ -4104,7 +4104,24 @@
               "modified": false
             }
           ],
-          "relshiptypeviews": [],
+          "relshiptypeviews": [
+            {
+              "id": "87fc3b22-6947-4182-2ba2-4279a24e76d4",
+              "name": "87fc3b22-6947-4182-2ba2-4279a24e76d4",
+              "description": "",
+              "typeRef": "3f739100-23e2-4582-1bb4-f55a1ae0b286",
+              "strokecolor": "grey",
+              "strokewidth": "1",
+              "textcolor": "lightgrey",
+              "dash": "Dashed",
+              "fromArrow": "",
+              "toArrow": "OpenTriangle",
+              "fromArrowColor": "",
+              "toArrowColor": "white",
+              "markedAsDeleted": false,
+              "modified": false
+            }
+          ],
           "generatedFromModelRef": "00e311ea-b26e-41d2-ff16-2b48dda97282",
           "routing": "Normal",
           "markedAsDeleted": false,

@@ -253,6 +253,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                 const entityTypePathElement = (oVal.$id) ? oVal.$id.split('/').slice(-2)[0] : 'EntityType' // filter out the entityType from the file path i.e master-data 
                 let objTypeElementName = camelCase(entityTypePathElement, {pascalCase: true}) // convert to pascalCase i.e. master-data -> MasterData
                 if (objTypeElementName === 'Abstract') cNewVal.abstract = true // if the object is abstract, set the abstract property to true
+                // if (objTypeElementName === 'ReferenceData') cNewVal.abstract = true // if the object is abstract, set the abstract property to true
                 // console.log('221 objTypeElementName', objTypeElementName, cNewVal);
                 objecttypeRef = curObjTypes.find(ot => ot.name === objTypeElementName)?.id || curObjTypes.find(ot => ot.name === 'EntityType')?.id // find objecttypeRef for the objecttypeName
                 createObject(oId, topObjName, objecttypeRef, oKey, jsonType, cNewVal) // create the top object   

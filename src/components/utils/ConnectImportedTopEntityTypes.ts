@@ -129,7 +129,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
             if (debug) console.log('127 ', relId, reltypeName, description, title, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);
             if (!debug) console.log('127 ', reltypeName,  'from: ', fromobjectName, 'to:', toobjectName);
             if ((fromobjectId !== toobjectId) && (toobjectId) && (!existRelship)) {
-                createRel(relId, reltypeName, relDescription="", relTitle="", relshipkind='Generalization', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
+                createRel(relId, reltypeName, relDescription="", relTitle="", relshipkind='Associaton', reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, o.id)
             }
         }          
     });

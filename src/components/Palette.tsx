@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false;
 
 import React, { useState , useEffect} from "react";

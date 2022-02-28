@@ -200,7 +200,7 @@ const page = (props) => {
                     <CardTitle className="card-title-bold" >Release 2022.02.28</CardTitle>
                     <CardText >
                           &bull; Generate metamodel is now working.<br />
-                          &bull; OSDU JSON-file import to AKM strukture<br />
+                          &bull; OSDU JSON-file import to AKM Objects<br />
                           &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>

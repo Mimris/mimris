@@ -207,7 +207,7 @@ const Palette = (props) => {
 
   // const oNodeDataArray = nodeArray_all
   // const oNodeDataArray = ofilteredArr
-  let gojsobjects = {nodeDataArray: filteredArr, linkDataArray: ldarr}
+  let gojsobjects = {nodeDataArray: ofilteredArr, linkDataArray: []}
 
 
 

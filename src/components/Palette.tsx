@@ -1,19 +1,16 @@
-// @ts-nocheck
-const debug = false;
-
+// @ts- nocheck
 import React, { useState , useEffect} from "react";
-// import { Collapse, Button } from 'reactstrap'
+import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
-import { connect, useSelector, useDispatch } from 'react-redux';
-// import Page from './page';
-// import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 // import { setGojsModelObjects } from "../actions/actions";
 
-const Palette = (props) => {
+const debug = false;
+
+const Palette = (props: any) => {
   const dispatch = useDispatch();
-  if (debug) console.log('13 Palette ',  props );
+  if (!debug) console.log('13 Palette ',  props );
 
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
@@ -61,7 +58,7 @@ const Palette = (props) => {
     ndarr =  (indexInfo > 0) ? [ndarr[indexInfo], ...ndarr.slice(0,indexInfo), ...ndarr.slice(indexInfo+1, ndarr.length)] : ndarr
     const indexContainer = (ndarr) && ndarr?.findIndex(i => i?.typename === 'Container')
     ndarr = (indexContainer > 0) ? [ndarr[indexContainer], ...ndarr.slice(0,indexContainer), ...ndarr.slice(indexContainer+1, ndarr.length)] : ndarr
-    if (debug) console.log('47 Palette', ndarr);
+    if (debug) console.log('64 Palette', ndarr);
     // gojstypes = {nodeDataArray: ndarr, linkDataArray: ldarr}
     // gojstypes = (ndarr) ? {nodeDataArray: ndarr, linkDataArray: ldarr} : unsorted
   }
@@ -134,7 +131,7 @@ const Palette = (props) => {
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
   const handleSetFilter = (filter) => {
-    if (debug) console.log('Palette handleSetFilter', filter);
+    if (!debug) console.log('137 Palette handleSetFilter', filter);
     setOtfilter(filter)
     // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
     toggleRefreshPalette()
@@ -160,22 +157,22 @@ const Palette = (props) => {
   // gojstypes = {nodeDataArray: {filteredArr: nodeDataArray}, linkDataArray: ldarr} 
   
   // const oNodeDataArray = filteredArr.nodeDataArray
-    gojstypes = {nodeDataArray: filteredArr, linkDataArray: ldarr}
+  gojstypes = {nodeDataArray: filteredArr, linkDataArray: ldarr}
   // gojstypes =  { nodeDataArray: filteredArr, linkDataArray: ldarr}
-  // if (debug) console.log('37 Palette', gojstypes);
+  if (!debug) console.log('37 Palette', gojstypes);
   
   // ================================================================================================
   // Show all the objects in this model
   const gojsmodelObjects = props.gojsModelObjects
 
   let unsortedObj = gojsmodelObjects
-  if (debug) console.log('172 unsorted gojsModelobjects', props, gojsmodelObjects, unsortedObj);
+  if (!debug) console.log('172 unsorted gojsModelobjects', props, gojsmodelObjects, unsortedObj);
 
   //rearrange sequence
   let objArr = unsortedObj?.nodeDataArray
 
   const nodeArray_all = objArr 
-  if (debug) console.log('178 nodeArray_all', nodeArray_all);
+  if (!debug) console.log('178 nodeArray_all', nodeArray_all);
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
   
@@ -185,7 +182,7 @@ const Palette = (props) => {
   if (debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
 
   const handleSetObjFilter = (filter) => {
-    if (debug) console.log('Palette handleSetFilter', filter);
+    if (debug) console.log('Palette handleSetOfilter', filter);
     setOfilter(filter)
     // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
     toggleRefreshPalette()
@@ -268,7 +265,7 @@ const Palette = (props) => {
                 <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mmnamediv}</div>
                 {selectedMMDiv}
               < GoJSPaletteApp
-                nodeDataArray= {gojstypes.nodeDataArray}
+                nodeDataArray={gojstypes.nodeDataArray}
                 linkDataArray={[]}
                 // linkDataArray={gojstypes.linkDataArray}
                 metis={props.metis}

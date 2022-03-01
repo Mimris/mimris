@@ -10,14 +10,12 @@ import genGojsModel from './GenGojsModel'
 const debug = false;
 
 const Modeller = (props: any) => {
-  const debug = false
+  const dispatch = useDispatch();
   if (debug) console.log('13 Modeller: props', props);
-  // let prevgojsmodel = null
-  // let gojsmodel = {}
+
   const gojsmodel = props.gojsModel;
   let myMetis = props.myMetis;
   let activetabindex = '0'
-  const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(false)
   const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted

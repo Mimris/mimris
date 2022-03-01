@@ -94,7 +94,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('92 node', this.state.selectedData);
   } 
 
-  public handleSelectDropdownChange = (selected) => {
+  public handleSelectDropdownChange = (selected: any) => {
     const myMetis = this.state.myMetis;
     const context = {
       "myMetis":      myMetis,

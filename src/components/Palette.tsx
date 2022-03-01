@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 import React, { useState , useEffect} from "react";
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';

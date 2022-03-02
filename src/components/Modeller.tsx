@@ -51,7 +51,8 @@ const Modeller = (props: any) => {
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
   // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
 
-  const gojsapp = (gojsmodel) && <GoJSApp
+  const gojsapp = (gojsmodel) && 
+    <GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
       metis={props.metis}
@@ -61,7 +62,7 @@ const Modeller = (props: any) => {
       phFocus={props.phFocus}
       dispatch={props.dispatch}
       modelType={props.phFocus.focusTab}
-  />
+    />
 
   const handleChange = (e) => {
     if (debug) console.log('69 Modeller: handleChange', e);

@@ -41,25 +41,26 @@ const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Uni
 interface AppState {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
-  modelData:    go.ObjectData;
-  selectedData: go.ObjectData | null;
-  editedData: go.ObjectData | null;
-  skipsDiagramUpdate: boolean;
   metis: any;
   myMetis: akm.cxMetis;
   myGoModel: gjs.goModel;
   myGoMetamodel: gjs.goModel;
   phFocus: any;
   dispatch: any;
-  showModal: boolean;
-  modalContext: any;
-  selectedOption: any;
+  modelType: any;
+  // showModal: boolean;
+  // modalContext: any;
+  // selectedOption: any;
+  // modelData:    go.ObjectData;
+  // selectedData: go.ObjectData | null;
+  // editedData: go.ObjectData | null;
+  // skipsDiagramUpdate: boolean;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props);
-    if (!debug) console.log('62 GoJSApp',props.nodeDataArray);
+    if (!debug) console.log('62 GoJSApp', this.props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -77,6 +78,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       dispatch: this.props.dispatch,
       modelType: this.props.phFocus.focusTab,
     };
+
     if (debug) console.log('76 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);

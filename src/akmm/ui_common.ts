@@ -768,7 +768,7 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
     const myNode = new gjs.goObjectNode(node.key, objview);
     myNode.loc = node.loc;
     myNode.size = node.size;
-    myNode.parentModel = node.parentModel;
+    myNode.parentModelRef = node.parentModelRef;
     myNode.type = node.type;
     const objtype = objview.object?.type;
     const typeview = objtype?.typeview;

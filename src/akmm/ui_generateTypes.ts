@@ -776,12 +776,70 @@ export function askForTargetMetamodel(context: any) {
       myDiagram.handleOpenModal(mmlist, modalContext);
 }
 
+function buildTemporaryModelView(context: any) {
+    const modelview = context.myCurrentModelview;
+    const model = context.myModel;
+    let objlist = [];
+    let rellist = [];
+    let objectviews = modelview.objectviews;
+    for (let i=0; i<objectviews?.length; i++) {
+        const objview = objectviews[i];
+        const obj = objview.object;
+        objlist.push(obj);
+        addToObjAndRelLists(model, obj, objlist, rellist);
+    }
+    let uniquelist = [...new Set(objlist)];
+    objlist = uniquelist;
+    uniquelist = [...new Set(rellist)];
+    rellist = uniquelist;
+    if (!debug) console.log('798 objlist, rellist', objlist, rellist);
+    // Build tempModelview
+    const tempModelview = new akm.cxModelView(utils.createGuid(), '_TEMPVIEW', model, 'Temporary modelview');
+    // First handle the objects
+    for (let i=0; i<objlist.length; i++) {
+        const obj = objlist[i];
+        const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+        obj.addObjectView(objview);
+        tempModelview.addObjectView(objview);
+    }
+    // Then handle the relationships
+    for (let i=0; i<rellist.length; i++) {
+        const rel = rellist[i];
+        const fromObj = rel.fromObject;
+        const fromObjview = fromObj.objectviews[0];
+        const toObj   = rel.toObject;
+        const toObjview = toObj.objectviews[0];
+        const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
+        relview.setFromObjectView(fromObjview);
+        relview.setToObjectView(toObjview);
+        tempModelview.addRelationshipView(relview);
+    }
+    if (!debug) console.log('810 tempModelview', tempModelview);
+    return tempModelview;
+}
+
+function addToObjAndRelLists(model: akm.cxModel, obj: akm.cxObject, objlist, rellist) {
+    const relships = obj.findOutputRelships(model, constants.relkinds.GEN);
+    if (relships?.length) {
+        for (let i=0; i<relships?.length; i++) {
+            const rel = relships[i];
+            if (rel) {
+                const toObj = rel.toObject;
+                if (toObj) {
+                    objlist.push(toObj);
+                    rellist.push(rel);
+                }
+            }
+        }
+    }    
+}
+
 export function generateTargetMetamodel2(context: any) {
+    const sourcemodelview = buildTemporaryModelView(context);
     const args = context.args;
     const targetmetamodel = context.myTargetMetamodel;
-    const sourcemodelview = context.myCurrentModelview;
     const sourcemodel = context.myModel;
-    if (debug) console.log('733 metamodel, modelview, context', targetmetamodel, sourcemodelview, context, );
+    if (debug) console.log('733 metamodel, modelview, context', targetmetamodel, sourcemodelview, context);
     if (!targetmetamodel)
         return false;
     if (!sourcemodelview)

@@ -1,4 +1,4 @@
-// @ts-snocheck
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
@@ -10,11 +10,12 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
 import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
+import { ReadConvertJSONFromFileToAkm } from './utils/ConvertJSONToAkmModel';
 import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
 import { ConnectImportedTopEntityTypes } from './utils/ConnectImportedTopEntityTypes';
 import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
 
-const LoadJsonFile = (props: any) => {
+const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
     
       const debug = false
       const dispatch = useDispatch()  
@@ -116,6 +117,34 @@ const LoadJsonFile = (props: any) => {
         </button >
    
       if (debug) console.log('172', buttonLabel);
+
+      // upload files and import them as objects to the project 
+      const upload = async (e) => {        
+        // Convert the FileList into an array and iterate
+        let files = Array.from(e.target.files)
+        console.log('125', files);
+        let filess = files.map(file => {
+          if (debug) console.log('126 file', file);          
+            // Define a new file reader
+            let reader = new FileReader();
+            // Create a new promise
+            return new Promise((resolve) => {              
+                // Resolve the promise after reading file
+                reader.onload = () => resolve(reader.result);              
+                // Reade the file as a text
+                reader.readAsText(file);             
+            });        
+        });
+        if (debug) console.log('12 files', filess);
+        // At this point you'll have an array of results
+        let res = await Promise.all(filess);
+        // console.log('146 res', res, res[0]);
+        res.map(r => {
+          ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, r)         
+        })
+      }
+
+
       
       return (
         <>
@@ -135,12 +164,21 @@ const LoadJsonFile = (props: any) => {
                     <div className="selectbox3 mb-2 border">
                       <h6>Import OSDU JSON-file as AKM model types</h6>
                       <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
-                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("AKM", inclProps, props.ph, dispatch, e)} />
+                      <input className="select-input w-100" type="file" accept=".json" onChange={ upload } multiple />
+                      {/* <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFileToAkm("AKM", inclProps, props.ph, dispatch, e)} multiple /> */}
                       <label className="pt-3" htmlFor="inclProps ">Include Properties 
                         <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
                       </label>
                       {/* <input className="select-input w-100" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props.ph, dispatch, e)} /> */}
                     </div>
+                    {/* <div className="selectbox3 mb-2 border bg-secondary">
+                      <h6>Import OSDU JSON-file as AKM model types</h6>
+                      <h6>(This will import the OSDU Types as AKM EntityType and Property)</h6>
+                      <input className="select-input w-100" type="file" accept=".json" onClick={(e) => {"this.value=null;"}} onChange={(e) => ReadConvertJSONFromFile("AKM", inclProps, props.ph, dispatch, e)} />
+                      <label className="pt-3" htmlFor="inclProps ">Include Properties 
+                        <input className="ml-3 mt-2 " type="checkbox" checked={inclProps} onChange={handleInclPropChange}/>
+                      </label>
+                    </div> */}
 
                     <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} />
                     <h6>Connect imported EntityTypes</h6> 

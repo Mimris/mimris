@@ -187,13 +187,21 @@ const page = (props) => {
                 style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
-                  <CardHeader className="card-header " >AKMM release blog ... </CardHeader>
-                  <CardBody className="card-body" >  
+                  <CardHeader className="card-header " >AKMM releas log ... </CardHeader>
+                  {/* <CardBody className="card-body" >  
                     <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
                     <CardText >
                         &bull; Workplace templates for reflective workplace modelling! <br />
                         &bull; Strokewidth for synbol border and relship line!<br />
                         &bull; GraphQL shema reporting from Solution models!<br />
+                    </CardText>
+                  </CardBody> */}
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.02.28</CardTitle>
+                    <CardText >
+                          &bull; Generate metamodel is now working.<br />
+                          &bull; OSDU JSON-file import to AKM strukture<br />
+                          &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >

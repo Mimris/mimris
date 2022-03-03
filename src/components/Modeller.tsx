@@ -34,7 +34,7 @@ const Modeller = (props: any) => {
   const modelindex = models?.findIndex((m: any) => m?.id === focusModel?.id)
   const modelviews = model?.modelviews
   const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
-  const modelviewindex = modelviews?.findIndex((m: any) => m?.id === focusModelview?.id)
+  const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
@@ -114,8 +114,10 @@ const Modeller = (props: any) => {
       </div> 
   // mx-auto h-25 d-inline-block
 
-  activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : 0 //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
-  if (debug) console.log('78 Modeller', activetabindex);
+  activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
+  // ToDo: remember last current modelview for each model, so that we can set focus to it when we come back to the that model 
+  // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
+  if (debug) console.log('78 Modeller', focusModel.name, focusModelview.name, activetabindex);
 
   // (selmodviews && props.phSource === 'Model server') &&  
   // (selmodviews) &&  

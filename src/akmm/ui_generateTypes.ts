@@ -327,12 +327,12 @@ export function generateRelshipType(relship: akm.cxRelationship, relview: akm.cx
     const currentRel  = myMetis.findRelationship(relship.id);
     if (debug) console.log('290 currentRel: ', currentRel);
     const fromObj  = currentRel?.getFromObject();
-    let fromName = fromObj.name;
+    let fromName = fromObj?.name;
     fromName = utils.camelize(fromName);
     fromName = utils.capitalizeFirstLetter(fromName);
     const fromtype = myTargetMetamodel.findObjectTypeByName(fromName);
     const toObj    = currentRel?.getToObject();
-    let toName = toObj.name;
+    let toName = toObj?.name;
     toName = utils.camelize(toName);
     toName = utils.capitalizeFirstLetter(toName);
     const totype   = myTargetMetamodel.findObjectTypeByName(toName);

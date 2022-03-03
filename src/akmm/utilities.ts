@@ -80,17 +80,17 @@ export let removeElementFromArray = (arr: any[], id: string) => {
 }
 
 export function camelize(str: string): string {
-    return str.replace(/\W+(.)/g, function(match, chr) {
+    return str?.replace(/\W+(.)/g, function(match, chr) {
         return chr.toUpperCase();
     });
 }
 
 export function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+    return string?.charAt(0).toUpperCase() + string?.slice(1);
 }
 
 export function uncapitalizeFirstLetter(string) {
-    return string.charAt(0).toLowerCase() + string.slice(1);
+    return string?.charAt(0).toLowerCase() + string?.slice(1);
 }
 
 export function removeArrayDuplicates(array: any): any {
@@ -141,7 +141,7 @@ export function findObjectsByType(objects: any, objecttypes: any,  objTypeName: 
     const objtype = objecttypes.find(ot => ot.name === objTypeName && ot);
     if (debug) console.log('109 ', objecttypes, objects, objTypeName, objtype.id);
     if (debug) console.log('111 ', objecttypes.filter(ot => ot.name === objTypeName && ot), objects.filter(o => o.typeRef === objtype.id && o));
-   return objects.filter(o => o.typeRef === objtype.id && o);
+   return objects.filter(o => o.typeRef === objtype?.id && o);
 }
 
 export function findObjectByName(objects: any, arg1: {}, restName: any) {
@@ -167,7 +167,7 @@ export function findTopLevelObject( o: any, type: string, objects, relationships
     // hardcoded for now, by traversin 2 steps from the current object to the top level object
     if (debug) console.log('133 ', o.name);
     const torships1 = relationships?.filter(r => r.toobjectRef === o.id && r); // find all relships to current obj object
-    const fromObj1 =  objects?.find(o => o.id  === torships1[0].fromobjectRef); // find object in the other end of the relationship (assuming only one)
+    const fromObj1 =  objects?.find(o => o.id  === torships1[0]?.fromobjectRef); // find object in the other end of the relationship (assuming only one)
     if (debug) console.log('135 ', fromObj1, torships1, torships1[0]);
     
     // const fromObj1 = torships1?.map(r => objects?.find(o => o.id  === r.fromobjectRef)); // find object in the other end of the relationship (assuming only one)
@@ -186,5 +186,10 @@ export function findTopLevelObject( o: any, type: string, objects, relationships
 export function findRelshipByToIdAndType(curRelships: any, toObjId: string, relType: string) {
     if (debug) console.log('151 ', curRelships, toObjId, relType);
     const relship = (toObjId) ? curRelships?.find(r => r.toobjectRef === toObjId && r.typeRef === relType) : null;
+    return relship;
+}
+export function findRelshipByFromIdToIdAndType(curRelships: any, toObjId: string, relType: string) {
+    if (debug) console.log('151 ', curRelships, toObjId, relType);
+    const relship = (toObjId && fromObjId) ? curRelships?.find(r => r.fromobjectRef === fromObjId && r.toobjectRef === toObjId && r.typeRef === relType) : null;
     return relship;
 }

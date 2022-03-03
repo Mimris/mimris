@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false; 
 
 import * as utils from './utilities';
@@ -1618,7 +1618,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
     const objviews = modelview.objectviews;
     const links = new Array();
     const modifiedRelshipViews = new Array();
-    for (let i=0; i<objviews.length; i++) {
+    for (let i=0; i<objviews?.length; i++) {
     //   const objview = objviews[i];
     //   addRelationshipViewsToObjectView(modelview, objview, myMetis);  
     // }   

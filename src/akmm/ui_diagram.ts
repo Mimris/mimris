@@ -255,6 +255,7 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 }
 
 export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('258 myMetis', myMetis);
     const icon = uit.findImage(node?.icon);
     const modalContext = {
       what:       "editObject",
@@ -265,6 +266,7 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
     if (debug) console.log('230 editObject');
+    if (debug) console.log('268 myMetis', myMetis);
     myDiagram.handleOpenModal(node, modalContext);
 }
 

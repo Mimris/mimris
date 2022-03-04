@@ -248,7 +248,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = inst;
         break;
     }
-    if (debug) console.log('249 inst, item, selObj, type', inst, item, selObj, type);
+    if (debug) console.log('249 inst, selObj, type', inst, selObj, type);
     for (let k in item) {
       // Filter some system attributes
       {

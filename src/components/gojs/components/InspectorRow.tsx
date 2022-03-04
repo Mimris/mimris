@@ -112,7 +112,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             id={this.props.id}
             type="text"
             list={listname}
-            placeholder={val.toString()}
+            placeholder={val?.toString()}
             onChange={this.handleInputChange}
             onBlur={this.handleInputChange}
             />

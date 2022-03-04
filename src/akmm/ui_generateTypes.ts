@@ -776,7 +776,7 @@ export function askForTargetMetamodel(context: any) {
       myDiagram.handleOpenModal(mmlist, modalContext);
 }
 
-function buildTemporaryModelView(context: any) {
+function buildTemporaryModelView(context: any): akm.cxModelView {
     const modelview = context.myCurrentModelview;
     const model = context.myModel;
     let objlist = [];
@@ -785,20 +785,27 @@ function buildTemporaryModelView(context: any) {
     for (let i=0; i<objectviews?.length; i++) {
         const objview = objectviews[i];
         const obj = objview.object;
-        objlist.push(obj);
-        addToObjAndRelLists(model, obj, objlist, rellist);
+        if (obj) {
+            objlist.push(obj);
+            addToObjAndRelLists(model, obj, objlist, rellist);
+        }
     }
     let uniquelist = [...new Set(objlist)];
     objlist = uniquelist;
     uniquelist = [...new Set(rellist)];
     rellist = uniquelist;
-    if (!debug) console.log('798 objlist, rellist', objlist, rellist);
+    if (debug) console.log('798 objlist, rellist', objlist, rellist);
     // Build tempModelview
     const tempModelview = new akm.cxModelView(utils.createGuid(), '_TEMPVIEW', model, 'Temporary modelview');
     // First handle the objects
     for (let i=0; i<objlist.length; i++) {
         const obj = objlist[i];
-        const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
+        const noObjviews = obj.objectviews?.length;
+        let objview;
+        if (noObjviews>0)
+            objview = obj.objectviews[0];
+        else
+            objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
         obj.addObjectView(objview);
         tempModelview.addObjectView(objview);
     }
@@ -808,13 +815,19 @@ function buildTemporaryModelView(context: any) {
         const fromObj = rel.fromObject;
         const fromObjview = fromObj.objectviews[0];
         const toObj   = rel.toObject;
+
+        const noRelviews = rel.relationshipviews?.length;
+        let relview;
+        if (noRelviews>0)
+            relview = rel.relationshipviews[0];
+        else
+            relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
         const toObjview = toObj.objectviews[0];
-        const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
         relview.setFromObjectView(fromObjview);
         relview.setToObjectView(toObjview);
         tempModelview.addRelationshipView(relview);
     }
-    if (!debug) console.log('810 tempModelview', tempModelview);
+    if (debug) console.log('810 tempModelview', tempModelview);
     return tempModelview;
 }
 

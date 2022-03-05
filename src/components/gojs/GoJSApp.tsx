@@ -748,7 +748,9 @@ class GoJSApp extends React.Component<{}, AppState> {
             uid.editObjectType(node, myMetis, myDiagram); 
             break;
           case constants.gojs.C_OBJECT:
+            if (debug) console.log('749 myMetis', myMetis);
             uid.editObject(node, myMetis, myDiagram); 
+            if (debug) console.log('751 myMetis', myMetis);
             break;
           }
       }
@@ -1123,6 +1125,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
       })
     }
+    if (debug) console.log('1126 myMetis', myMetis);
   }
 
   public render() {   

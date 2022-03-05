@@ -56,11 +56,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
   private renderObjectDetails() {
     const myMetis = this.props.myMetis as akm.cxMetis;
     const activeTab = this.props.activeTab;
-    if (debug) console.log('56 this.props', this.props);
+    if (debug) console.log('59 myMetis', myMetis);
+    if (debug) console.log('60 this.props', this.props);
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = myMetis.currentModel;
     const allowsMetamodeling = myModel.includeSystemtypes;
-    if (debug) console.log('60 allowsMetamodeling', myModel, allowsMetamodeling);
+    if (debug) console.log('64 allowsMetamodeling', myModel, allowsMetamodeling);
     let selObj = this.props.selectedData; // node
     const modalContext = this.props.context;
     let category = selObj?.category;
@@ -160,6 +161,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     }
     if (typeof(type) !== 'object')
       return;
+    if (debug) console.log('164 myMetis', myMetis);
 
     // Get properties, and handle empty property values
     {
@@ -248,7 +250,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         item = inst;
         break;
     }
-    if (debug) console.log('249 inst, item, selObj, type', inst, item, selObj, type);
+    if (debug) console.log('253 myMetis', myMetis);
+    if (debug) console.log('249 inst, selObj, type', inst, selObj, type);
     for (let k in item) {
       // Filter some system attributes
       {
@@ -622,11 +625,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       }
     }
     if (debug) console.log('641 SelectionInspector ', dets);
+    if (debug) console.log('628 myMetis', myMetis);
     return dets;
   }
   
   public render() {
-    if (debug) console.log('550 SelectionInspector ', this.renderObjectDetails());
+    if (debug) console.log('633 SelectionInspector ', this.renderObjectDetails());
     const modalContext = this.props.context;
     if (!modalContext)
       return null;

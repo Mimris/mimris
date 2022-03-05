@@ -255,6 +255,7 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 }
 
 export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('258 myMetis', myMetis);
     const icon = uit.findImage(node?.icon);
     const modalContext = {
       what:       "editObject",
@@ -265,6 +266,7 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
     if (debug) console.log('230 editObject');
+    if (debug) console.log('268 myMetis', myMetis);
     myDiagram.handleOpenModal(node, modalContext);
 }
 
@@ -619,12 +621,13 @@ function clearMetamodel2(context: any) {
     const myDiagram = context.myDiagram;
     if (debug) console.log('271 metamodel, myMetis', metamodel, myMetis);
     const modifiedMetamodels = new Array();
+    const modifiedModels = new Array();
     const models = myMetis.getModelsByMetamodel(metamodel, false);
     if (debug) console.log('274 models', models);
     let doClear = false;
     if (models.length > 0) {
         let msg = "There are models based on the metamodel '" + metamodel.name + "'.\n";
-        msg += "The models will be deleted!\n";
+        msg += "The models will be cleared!\n";
         msg += "Do you still want to continue?";
         doClear = confirm(msg);
     } else {
@@ -635,12 +638,23 @@ function clearMetamodel2(context: any) {
     } else {
         for (let i=0; i<models.length; i++) {
             const model = models[i];
-            deleteModel2(model, myMetis, myDiagram);
-        }
-        
+            // deleteModel2(model, myMetis, myDiagram);
+            const modelview = model.modelviews[0];
+            modelview.clearContent();
+            model.clearContent();
+            model.addModelView(modelview);
+            const jsnModel = new jsn.jsnModel(model, true);
+            if (debug) console.log('644 jsnModel', jsnModel);
+            modifiedModels.push(jsnModel);
+            modifiedModels.map(mn => {
+              let data = mn;
+              data = JSON.parse(JSON.stringify(data));
+              myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+            });
+        }        
         metamodel.clearContent();
         const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-        if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
+        if (debug) console.log('654 jsnMetamodel', jsnMetamodel);
         modifiedMetamodels.push(jsnMetamodel);
         modifiedMetamodels.map(mn => {
           let data = mn;
@@ -773,10 +787,9 @@ function clearModel1(context: any) {
     if (model) {
         if (!confirm("Do you really want to clear '" + model.name + "'?"))
             return;
+        model.clearContent();
         const myMetis = context.myMetis;
-        const myDiagram = context.myDiagram;
         if (debug) console.log('367 model, myMetis', model, myMetis);
-        clearModel2(model, myMetis, myDiagram);
     }
 }
 

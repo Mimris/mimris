@@ -475,11 +475,14 @@ export function handleSelectDropdownChange(selected, context) {
 }
 
 export function handleCloseModal(selectedData: any, props: any, modalContext: any) {
-  if (debug) console.log('398 selectedData, props, modalContext: ', selectedData, props, modalContext);
+  if (debug) console.log('478 selectedData, props, modalContext: ', selectedData, props, modalContext);
+  if (debug) console.log('479 selectedData.objecttype: ', selectedData.objecttype);
+  if (debug) console.log('480 props.nodedataArray[0].objecttype: ', props.nodeDataArray[0].objecttype);
   const what = modalContext.what;
   let myDiagram = modalContext.myDiagram;
-  if (!myDiagram && modalContext.context) myDiagram = modalContext.context.myDiagram;
+  if (myDiagram && modalContext.context) myDiagram = modalContext.context.myDiagram;
   const myMetis = props.myMetis;
+  if (debug) console.log('478 myMetis', myMetis);
   const myModelview = myMetis.currentModelview;
   const myGoModel = myMetis.myGoModel;
   // Prepare for dispatches
@@ -593,7 +596,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (type?.name === 'Method')
         properties = obj.setAndGetAllProperties(myMetis);
       else 
-        properties = type?.getProperties(true);
+        properties = type?.getProperties(false);
       if (debug) console.log('597 properties', properties);
       const jsnObject = new jsn.jsnObject(obj);
       jsnObject["text"] = obj.text;
@@ -1101,5 +1104,6 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
     })
   }
+  if (debug) console.log('1104 myMetis', myMetis);
 }
 

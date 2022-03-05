@@ -6991,6 +6991,21 @@ export class cxModelView extends cxMetaObject {
         this.diagrams = null;
     }
     // Methods
+    clearContent() {
+        this.viewstyle = null; // Default viewstyle
+        this.viewstyles = null;
+        this.objecttypeviews = null;
+        this.relshiptypeviews = null;
+        this.objectviews = null;
+        this.relshipviews = null;
+        this.layout = "Tree";
+        this.routing = "Normal";
+        this.linkcurve = "None";
+        this.showCardinality = false;
+        this.template = null;
+        this.isTemplate = false;
+        this.diagrams = null;
+    }
     setModel(model: cxModel) {
         this.model = model;
     }

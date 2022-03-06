@@ -498,6 +498,17 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 .ofObject(),
                 { contextMenu: contextMenu },    
             ),
+            $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
+                {
+                    cursor: "move",    
+                    fill: "transparent",
+                    stroke: "transparent",
+                    strokeWidth: 10,
+                    margin: new go.Margin(1, 1, 1, 1),
+                    shadowVisible: false,
+                    desiredSize: new go.Size(136, 48),              
+                }    
+            ),
             $(go.Panel, "Table", // Panel for text  -----------------------
                 { defaultAlignment: go.Spot.Left, margin: 4, cursor: "move" },
                 $(go.RowColumnDefinition, { column: 1, width: 4 }),

@@ -493,7 +493,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'radio';
               break;
             case 'template':
-              if (!item.isGroup) {
+              if (!selObj.isGroup) {
                 values = uit.getNodeTemplateNames();
                 defValue = '';
                 fieldType = 'select';

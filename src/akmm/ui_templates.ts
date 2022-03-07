@@ -546,7 +546,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     );
     // addNodeTemplateName('label');
 
-    if (true) {                    
+    if (false) {                    
         let nodeInput =               
             $(go.Node, 'Auto',  // the Shape will go around the TextBlock
                 new go.Binding("layerName", "layer"),

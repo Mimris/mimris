@@ -1659,7 +1659,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         const toObj = rel.toObject as akm.cxObject;
         const toObjviews = toObj.objectviews;
         if (toObjviews?.length == 0) {
-          // From objview is NOT in modelview - do nothing
+          // To objview is NOT in modelview - do nothing
           continue;
         }
         if (debug) console.log('1652 toObjviews', toObjviews);
@@ -1698,7 +1698,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             const myGoModel = myMetis.gojsModel;
             let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
             link.loadLinkContent(myGoModel);
-            myGoModel.addLink(link);
+              myGoModel.addLink(link);
             links.push(link);
             if (debug) console.log('1690 relview, link', relview, link);
             // Prepare and do the dispatch

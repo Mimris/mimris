@@ -754,6 +754,7 @@ export class goRelshipLink extends goLink {
     loadLinkContent(model: goModel) {
         const relview: akm.cxRelationshipView | null = this.relshipview;
         const typeview: akm.cxRelationshipTypeView | null = this.typeview;
+        const modelview = model.modelView;
         if (debug) console.log('722 typeview, relview: ', typeview, relview);
         if ((relview) && (typeview)) {
             if (!relview.markedAsDeleted) {
@@ -768,7 +769,7 @@ export class goRelshipLink extends goLink {
                         if (relview[prop] && relview[prop] !== "" && relview[prop] != undefined) {
                             this[prop] = relview[prop];
                         } else {
-                            this[prop] = typeview[prop];
+                            this[prop] = viewdata[prop];
                         }
                     }        
                 }
@@ -789,6 +790,17 @@ export class goRelshipLink extends goLink {
                 }
             }
         }
+        this.routing = modelview.routing;
+        this.curve = modelview.linkcurve;
+        if (modelview.showCardinality) {
+            this.cardinalityFrom = rel?.getCardinalityFrom(); 
+            this.cardinalityTo = rel?.getCardinalityTo();
+        } else {
+            this.cardinalityFrom = "";
+            this.cardinalityTo = "";
+        }
+        if (!this.fromArrow && !this.toArrow)
+        this.toArrow = 'OpenTriangle';
     }
     updateLink(data: any, diagram: any) {
         if (this.typeview) {

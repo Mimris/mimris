@@ -1690,7 +1690,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         if (fromObjview && toObjview) {
             relview.setFromObjectView(fromObjview);
             relview.setToObjectView(toObjview);
-        
+            rel.addRelationshipView(relview);
             if (debug) console.log('1682 relview', relview);
             modelview.addRelationshipView(relview);
             // Add link

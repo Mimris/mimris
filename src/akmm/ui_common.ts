@@ -1637,7 +1637,8 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             for (let j=0; j<mrelviews?.length; j++) {
               const mrv = mrelviews[j];
               if (mrv.id === rv.id) {
-                found = true;
+                  if (!mrv.markedAsDeleted)
+                    found = true;
                 break;
               }
             }                      
@@ -2638,6 +2639,8 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
     const relviews = modelview.relshipviews;
     for (let i=0; i<relviews?.length; i++) {
         const rview = relviews[i];
+        if (rview.markedAsDeleted)
+            continue;
         const links = goModel.links as gjs.goRelshipLink[];
         let found = false;
         for (let j=0; j<links.length; j++) {

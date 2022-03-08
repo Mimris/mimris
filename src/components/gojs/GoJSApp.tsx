@@ -60,7 +60,7 @@ interface AppState {
 class GoJSApp extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props);
-    if (!debug) console.log('62 GoJSApp', this.props.nodeDataArray);
+    if (debug) console.log('62 GoJSApp', this.props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,

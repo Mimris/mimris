@@ -10,7 +10,7 @@ const debug = false;
 
 const Palette = (props: any) => {
   const dispatch = useDispatch();
-  if (!debug) console.log('13 Palette ',  props );
+  if (debug) console.log('13 Palette ',  props );
 
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
@@ -131,7 +131,7 @@ const Palette = (props: any) => {
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
   const handleSetFilter = (filter) => {
-    if (!debug) console.log('137 Palette handleSetFilter', filter);
+    if (debug) console.log('137 Palette handleSetFilter', filter);
     setOtfilter(filter)
     // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
     toggleRefreshPalette()
@@ -159,20 +159,20 @@ const Palette = (props: any) => {
   // const oNodeDataArray = filteredArr.nodeDataArray
   gojstypes = {nodeDataArray: filteredArr, linkDataArray: ldarr}
   // gojstypes =  { nodeDataArray: filteredArr, linkDataArray: ldarr}
-  if (!debug) console.log('37 Palette', gojstypes);
+  if (debug) console.log('162 Palette', gojstypes);
   
   // ================================================================================================
   // Show all the objects in this model
   const gojsmodelObjects = props.gojsModelObjects
 
   let unsortedObj = gojsmodelObjects
-  if (!debug) console.log('172 unsorted gojsModelobjects', props, gojsmodelObjects, unsortedObj);
+  if (debug) console.log('172 unsorted gojsModelobjects', props, gojsmodelObjects, unsortedObj);
 
   //rearrange sequence
   let objArr = unsortedObj?.nodeDataArray
 
   const nodeArray_all = objArr 
-  if (!debug) console.log('178 nodeArray_all', nodeArray_all);
+  if (debug) console.log('178 nodeArray_all', nodeArray_all);
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
   

@@ -7225,8 +7225,8 @@ export class cxModelView extends cxMetaObject {
                 if (rv.markedAsDeleted)
                     continue;
                 if (rv?.relship?.id === rel?.id) {
-                    if (rv.fromObjview.id === fromObjview.id) {
-                        if (rv.toObjview.id === toObjview.id)
+                    if (rv.fromObjview?.id === fromObjview.id) {
+                        if (rv.toObjview?.id === toObjview.id)
                             relviews.push(rv);
                     }
                 }

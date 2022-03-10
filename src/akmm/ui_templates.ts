@@ -914,7 +914,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 // Groups containing Nodes lay out their members vertically
                 //layout: $(go.TreeLayout)
             },
-            new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
+            // new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
             // new go.Binding("layout", "groupLayout"),
             new go.Binding("background", "isHighlighted",
             function (h) {

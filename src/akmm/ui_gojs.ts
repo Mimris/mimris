@@ -456,7 +456,7 @@ export class goObjectNode extends goNode {
                 this.setName(this.objectview.getName());
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
-                this.isCollapsed = this.objectview.isCollapsed;
+                // this.isCollapsed = this.objectview.isCollapsed;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
             }

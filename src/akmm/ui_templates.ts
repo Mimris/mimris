@@ -1034,7 +1034,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
     groupTemplateMap.add("Container1", groupTemplate1);
     addGroupTemplateName('Container1');
 
-    if (true) {
+    if (false) {
     const groupTemplate2 =
         $(go.Group, "Auto",
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),

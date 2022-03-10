@@ -44,7 +44,7 @@ export function getCurve(c: string): any {
 }
 
 function selectionIncludesPorts(n, myDiagram) {
-    return n.containingGroup !== null && !myDiagram.selection.has(n.containingGroup);
+    return n.containingGroup !== null && !myDiagram?.selection.has(n.containingGroup);
   }
 
 let nodeTemplateNames = []; 
@@ -891,12 +891,12 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     var shp = grp.resizeObject;
                     if (grp.diagram.undoManager.isUndoingRedoing) return;
                     if (grp.isSubGraphExpanded) {
-                    // shp.height = grp._savedBreadth;
-                    shp.fill = "white"
+                        // shp.height = grp._savedBreadth;
+                        shp.fill = "white";
                     } else {
-                    // grp._savedBreadth = shp.height;
-                    // shp.height = NaN;
-                    shp.fill = "transparent"
+                        // grp._savedBreadth = shp.height;
+                        // shp.height = NaN;
+                        shp.fill = "transparent";
                     }
                 },
             },
@@ -914,31 +914,26 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 // Groups containing Nodes lay out their members vertically
                 //layout: $(go.TreeLayout)
             },
-            // new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
+            new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
             // new go.Binding("layout", "groupLayout"),
             new go.Binding("background", "isHighlighted",
             function (h) {
-                return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is te background of all
+                return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is the background of all
                 }).ofObject(),
-                {
-                    toolTip:
-                    $(go.Adornment, "Auto",
-                        $(go.Shape, { fill: "lightyellow" }),
-                        $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
-                            new go.Binding("text", "", 
-                                function (d) { 
-                                    return uid.nodeInfo(d, myMetis);                
-                                }
-                            )
+            {
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
                         )
                     )
-                },
+                )
+            },
                 $(go.Shape, "RoundedRectangle", // surrounds everything
-            // {
-            //   stroke: "gray", strokeWidth: "1",
-            // },
-            // new go.Binding("stroke", "strokecolor"),
-            // new go.Binding("strokeWidth", "strokewidth"),
             {
                 cursor: "alias",
                 fill: "transparent", 
@@ -1016,20 +1011,18 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 ), // End Horizontal Panel
                 $(go.Shape,  // using a Shape instead of a Placeholder - this is open container
                     {
-                        // name: "SHAPE", //fill: "rgba(228,228,228,0.53)",
-                        // name: "SHAPE", fill: "transparent",
                         name: "SHAPE", fill: "white",
                         opacity: 0.95,
-                        minSize: new go.Size(180, 120), 
-                        desiredSize: new go.Size(300, 200),
+                        minSize: new go.Size(100, 50), 
+                        // desiredSize: new go.Size(300, 200),
                         margin: new go.Margin(0, 1, 1, 4),
                         cursor: "move",
                     },
                     new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),
-                    new go.Binding("isSubGraphExpanded").makeTwoWay(),            
-                ),
+                    new go.Binding("isSubGraphExpanded").makeTwoWay(),    
+                )        
             ),
-        );    
+    )    
     groupTemplateMap.add("", groupTemplate1);
     groupTemplateMap.add("Container1", groupTemplate1);
     addGroupTemplateName('Container1');
@@ -1119,90 +1112,93 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             )
           )
         )
-    groupTemplateMap.add("Container2", groupTemplate2);
-    addGroupTemplateName('Container2');
-
-    const groupTemplate3 =
-        $(go.Group, "Auto",
-          {
-            selectionAdorned: false,
-            locationSpot: go.Spot.Center, locationObjectName: "ICON"
-          },
-          new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
-          { contextMenu: contextMenu },
-          {
-            selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
-            locationObjectName:  "SHAPE",
-            resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-          },
-          {
-            mouseDrop: function(e, g) {
-              // when the selection is entirely ports and is dropped onto a Group, transfer membership
-              if (myDiagram.selection.all(selectionIncludesPorts)) {
-                myDiagram.selection.each(function(p) { p.containingGroup = g; });
-              } else {
-                myDiagram.currentTool.doCancel();
-              }
-            },
-            // layout: new InputOutputGroupLayout()
-          },
-          $(go.Shape, "RoundedRectangle",
-            { stroke: "gray", strokeWidth: 2, fill: "white" },
-            {minSize: new go.Size(100, 50)},
-            new go.Binding("stroke", "isSelected", function(b) { return b ? SelectedBrush : UnselectedBrush; }).ofObject()),
-          $(go.Panel, "Vertical",
-            { margin: 6 },
-            $(go.TextBlock,
-              new go.Binding("text", "name"),
-              { alignment: go.Spot.Left }),
-            // $(go.Panel, "Spot",
-            //   { name: "ICON", height: 60 },  // an initial height; size will be set by InputOutputGroupLayout
-            //   $(go.Shape,
-            //     { fill: null, stroke: null, stretch: go.GraphObject.Fill }),
-            //   $(go.Picture, "images/60x90.png",
-            //     { width: 30, height: 45 })
-            // )
-          )
-        );
-    groupTemplateMap.add("Process", groupTemplate3);
-    addGroupTemplateName('Process');
-
-    const groupTemplate4 = 
-        $(go.Group, "Vertical",
-        { layout: $(go.TreeLayout, { setsPortSpot: false, setsChildPortSpot: false }) },
-        { defaultStretch: go.GraphObject.Horizontal },
-        { fromSpot: go.Spot.RightSide, toSpot: go.Spot.LeftSide },
-        $(go.Panel, "Auto",
-        // $(go.Shape, "RoundedTopRectangle",
-        $(go.Shape, "RoundedRectangle",
-        { fill: "white" },
-            new go.Binding("fill", "role", function(r) { return r[0] === 't' ? "lightgray" : "white"; })),
-            $(go.TextBlock,
-            { margin: new go.Margin(2, 2, 0, 2), textAlign: "center" },
-            new go.Binding("text", "header"))
-        ),
-        $(go.Panel, "Auto",
-            $(go.Shape, { fill: "white" }),
-            $(go.Placeholder, { padding: 20 }),
-            $(go.Shape, "Rectangle",
+        groupTemplateMap.add("Container2", groupTemplate2);
+        addGroupTemplateName('Container2');
+    }
+    if (false) {
+        const groupTemplate3 =
+            $(go.Group, "Auto",
             {
-                visible: false, width: 10, height: 10,
-                alignment: new go.Spot(0.5, 1, 0, -3), alignmentFocus: go.Spot.Bottom
+                selectionAdorned: false,
+                locationSpot: go.Spot.Center, locationObjectName: "ICON"
             },
-            new go.Binding("visible", "loop"))
-        ),
-        $(go.Panel, "Auto",
-            // $(go.Shape, "RoundedBottomRectangle",
+            new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+            { contextMenu: contextMenu },
+            {
+                selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
+                locationObjectName:  "SHAPE",
+                resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+            },
+            {
+                mouseDrop: function(e, g) {
+                // when the selection is entirely ports and is dropped onto a Group, transfer membership
+                // if (myDiagram.selection.all(selectionIncludesPorts)) {
+                //     myDiagram.selection.each(function(p) { p.containingGroup = g; });
+                // } else {
+                //     myDiagram.currentTool.doCancel();
+                // }
+                },
+                // layout: new InputOutputGroupLayout()
+            },
+            $(go.Shape, "RoundedRectangle",
+                { stroke: "gray", strokeWidth: 2, fill: "white" },
+                {minSize: new go.Size(100, 50)},
+                new go.Binding("stroke", "isSelected", function(b) { return b ? SelectedBrush : UnselectedBrush; }).ofObject()),
+            $(go.Panel, "Vertical",
+                { margin: 6 },
+                $(go.TextBlock,
+                new go.Binding("text", "name"),
+                { alignment: go.Spot.Left }),
+                // $(go.Panel, "Spot",
+                //   { name: "ICON", height: 60 },  // an initial height; size will be set by InputOutputGroupLayout
+                //   $(go.Shape,
+                //     { fill: null, stroke: null, stretch: go.GraphObject.Fill }),
+                //   $(go.Picture, "images/60x90.png",
+                //     { width: 30, height: 45 })
+                // )
+            )
+            );
+        groupTemplateMap.add("Process", groupTemplate3);
+        addGroupTemplateName('Process');
+    }
+
+    if (false) {
+        const groupTemplate4 = 
+            $(go.Group, "Vertical",
+            { layout: $(go.TreeLayout, { setsPortSpot: false, setsChildPortSpot: false }) },
+            { defaultStretch: go.GraphObject.Horizontal },
+            { fromSpot: go.Spot.RightSide, toSpot: go.Spot.LeftSide },
+            $(go.Panel, "Auto",
+            // $(go.Shape, "RoundedTopRectangle",
             $(go.Shape, "RoundedRectangle",
             { fill: "white" },
-            new go.Binding("fill", "role", function(r) { return r[0] === 'b' ? "lightgray" : "white"; })),
-            $(go.TextBlock,
-            { margin: new go.Margin(2, 2, 0, 2), textAlign: "center" },
-            new go.Binding("text", "footer"))
-        )
-        );
-        groupTemplateMap.add("Test", groupTemplate4);
-        addGroupTemplateName('Test');
+                new go.Binding("fill", "role", function(r) { return r[0] === 't' ? "lightgray" : "white"; })),
+                $(go.TextBlock,
+                { margin: new go.Margin(2, 2, 0, 2), textAlign: "center" },
+                new go.Binding("text", "header"))
+            ),
+            $(go.Panel, "Auto",
+                $(go.Shape, { fill: "white" }),
+                $(go.Placeholder, { padding: 20 }),
+                $(go.Shape, "Rectangle",
+                {
+                    visible: false, width: 10, height: 10,
+                    alignment: new go.Spot(0.5, 1, 0, -3), alignmentFocus: go.Spot.Bottom
+                },
+                new go.Binding("visible", "loop"))
+            ),
+            $(go.Panel, "Auto",
+                // $(go.Shape, "RoundedBottomRectangle",
+                $(go.Shape, "RoundedRectangle",
+                { fill: "white" },
+                new go.Binding("fill", "role", function(r) { return r[0] === 'b' ? "lightgray" : "white"; })),
+                $(go.TextBlock,
+                { margin: new go.Margin(2, 2, 0, 2), textAlign: "center" },
+                new go.Binding("text", "footer"))
+            )
+            );
+            groupTemplateMap.add("Test", groupTemplate4);
+            addGroupTemplateName('Test');
     }
 }
 

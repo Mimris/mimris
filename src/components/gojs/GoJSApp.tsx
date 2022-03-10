@@ -758,7 +758,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const data = sel.data;
         if (debug) console.log('644 selected', sel.key);
         this.state.selectedData = data;
-        if (debug) console.log('646 GoJSApp :', data, data.name, data.object);
+        if (!debug) console.log('646 GoJSApp :', data, data.name, data.object);
         if (sel) {
           if (sel instanceof go.Node) {
             const key = data.key;
@@ -796,9 +796,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview = myMetis.findObjectView(objview?.id);
               // Do whatever you like
               // ..
+              if (data.isCollapsed)
+                objview.isCollapsed = true;
+              else
+                objview.isCollapsed = false;
+              // objview.isCollapsed = data.isCollapsed;
+              if (!debug) console.log('800 data, objview :', data, objview);
               const jsnObjView = new jsn.jsnObjectView(objview);
               selectedObjectViews.push(jsnObjView);
-              if (debug) console.log('572 GoJSApp :', context.myGoModel);                
+              if (debug) console.log('803 GoJSApp :', context.myGoModel);                
             }
           } else if (sel instanceof go.Link) {
             const key = data.key;

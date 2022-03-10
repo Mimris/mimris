@@ -968,7 +968,7 @@ export class cxMetis {
                     // objview.isGroup = true;
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
-                    // objview.isCollapsed = item.isCollapsed;
+                    objview.isCollapsed = item.isCollapsed;
                     objview.text = item.text;
                     objview.modified = true;
                     if (debug) console.log('660 objview', objview);

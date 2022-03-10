@@ -456,6 +456,7 @@ export class goObjectNode extends goNode {
                 this.setName(this.objectview.getName());
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
+                this.isCollapsed = this.objectview.isCollapsed;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
             }
@@ -793,8 +794,8 @@ export class goRelshipLink extends goLink {
         this.routing = modelview.routing;
         this.curve = modelview.linkcurve;
         if (modelview.showCardinality) {
-            this.cardinalityFrom = rel?.getCardinalityFrom(); 
-            this.cardinalityTo = rel?.getCardinalityTo();
+            this.cardinalityFrom = relview.relship?.getCardinalityFrom(); 
+            this.cardinalityTo = relview.relship?.getCardinalityTo();
         } else {
             this.cardinalityFrom = "";
             this.cardinalityTo = "";

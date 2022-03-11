@@ -134,6 +134,10 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
             console.log('126 ', osduMod, aspObj)
             // insert aspropObj as item number 1 into the allOf array of the jsonobject
             osduMod.allOf?.splice(1, 0, aspObj)
+
+            const aspData = JSON.parse(`{ "data": {"name": "data","type": "object" }}`)
+            // insert aspData as item number 2 into the allOf array of the jsonobject
+            osduMod.allOf?.splice(2, 0, aspData)
         }
 
 
@@ -341,11 +345,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                     gchildKeyNameId = Object.keys(oVal?.allOf[0]?.properties).find(k => k.includes('ID')) 
                     gchildKeyName = gchildKeyName?.replace('ID', '')
                     objecttypeRef = curObjTypes.find(ot => ot.name === 'PropLink')?.id // find objecttypeRef
-                // } else if (parentName.includes('Set')) {           
-                //     gchildKeyNameId = parentName
-                //     gchildKeyName = gchildKeyNameId.replace('Set', '') 
-                //     console.log('296 Set', oName, gchildKeyNameId, gchildKeyName, cNewVal);
-                //     objecttypeRef =  curObjTypes.find(ot => ot.name === 'PropLink')?.id // find objecttypeRef
                 }
 
                 if (gchildKeyName) {
@@ -364,6 +363,14 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
                 // } else if (oVal.it) {
 
                 }
+            } else if (oName === 'data') { // this the data object hardcoded to represent the the data attributes
+                const objecttypeRef = curObjTypes.find(ot => ot.name === 'EntityType')?.id
+
+                cNewVal.title = 'data' 
+
+                createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects               
+                if (!debug) console.log('330 $ref', oId, entityName, objecttypeRef,oKey, jsonType, cNewVal);  
+                findOwnerandCreateRelationship(osduObj)
             } else { // the rest we dont make objects for
                     if (debug) console.log('350 no obj', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);  
                     // createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects  

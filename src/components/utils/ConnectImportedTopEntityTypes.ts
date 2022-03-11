@@ -41,14 +41,10 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
     let title, description
     let relId, relshipkind
 
-
     const createRel = (relId, typeName, description, title, relshipkind, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName, linkId) => {  
         console.log('45 ', fromobjectId, fromobjectName,  toobjectId, toobjectName);
-
         // check if relship already exists
-        const relship = curRelships.find(r => r.id === relId)
-
-        
+        const relship = curRelships.find(r => r.id === relId) // if exists, skip  
         const rel = (fromobjectId) 
             ?   {
                     id: relId,
@@ -71,8 +67,7 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
                 }  
             :   {}
 
-        if (debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel );
-
+        if (!debug) console.log('67 CreatedRel', fromobjectId, toobjectId, rel );
         if (!relship) {
             if (fromobjectId && toobjectId) { 
                 dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel }); // new relship
@@ -153,19 +148,20 @@ export const ConnectImportedTopEntityTypes = async (modelType, inclProps, props,
         // const existRelship = utils.findRelshipByFromIdToIdAndType(curRelships, targetObject?.id, hasType?.id)
         // console.log('140 ', targetObject.id, existRelship);
         // find top level object
-        let topLevelObject
+        let topDataObject
         if (targetObject) { // if no targetObject, skip this relationship
 
             if (debug) console.log('162 ', o, targetObject, IsType.id, IsType.name);  
 
-            topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
-            // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
-            if (debug) console.log('166 ', topLevelObject);  
-            // console.log('98 ', topLevelObject, topLevelObject.id, topLevelObject.name);  
-            if (!topLevelObject) console.log('171 topLevelObject does not exist');
+            topDataObject = curObjects.find(o => o.name === 'data')
+            // topDataObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
+            // topDataObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
+            if (debug) console.log('166 ', topDataObject);  
+            // console.log('98 ', topDataObject, topLevelObject.id, topLevelObject.name);  
+            if (!topDataObject) console.log('171 topLevelObject does not exist');
             
-            fromobjectId = topLevelObject?.id
-            fromobjectName = topLevelObject?.name
+            fromobjectId = topDataObject?.id
+            fromobjectName = topDataObject?.name
             toobjectId = targetObject?.id
             toobjectName = targetObject?.name
             relId = (existRelship) ? existRelship.id : utils.createGuid(); // use the exist relship id if it exists

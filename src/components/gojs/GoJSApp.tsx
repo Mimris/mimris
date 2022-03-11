@@ -798,9 +798,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview = myMetis.findObjectView(objview?.id);
               // Do whatever you like
               // ..
+              if (data.isCollapsed)
+                objview.isCollapsed = true;
+              else
+                objview.isCollapsed = false;
+              // objview.isCollapsed = data.isCollapsed;
+              if (debug) console.log('800 data, objview :', data, objview);
               const jsnObjView = new jsn.jsnObjectView(objview);
               selectedObjectViews.push(jsnObjView);
-              if (debug) console.log('572 GoJSApp :', context.myGoModel);                
+              if (debug) console.log('803 GoJSApp :', context.myGoModel);                
             }
           } else if (sel instanceof go.Link) {
             const key = data.key;

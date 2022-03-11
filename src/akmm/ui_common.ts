@@ -1637,7 +1637,8 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             for (let j=0; j<mrelviews?.length; j++) {
               const mrv = mrelviews[j];
               if (mrv.id === rv.id) {
-                found = true;
+                  if (!mrv.markedAsDeleted)
+                    found = true;
                 break;
               }
             }                      
@@ -1658,7 +1659,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
         const toObj = rel.toObject as akm.cxObject;
         const toObjviews = toObj.objectviews;
         if (toObjviews?.length == 0) {
-          // From objview is NOT in modelview - do nothing
+          // To objview is NOT in modelview - do nothing
           continue;
         }
         if (debug) console.log('1652 toObjviews', toObjviews);
@@ -1697,7 +1698,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
             const myGoModel = myMetis.gojsModel;
             let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
             link.loadLinkContent(myGoModel);
-            myGoModel.addLink(link);
+              myGoModel.addLink(link);
             links.push(link);
             if (debug) console.log('1690 relview, link', relview, link);
             // Prepare and do the dispatch
@@ -2280,11 +2281,42 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     // Handle the relationships
     msg += "Verifying relationships";
     report += printf(format, msg);
+    // First check for duplicate relships
+    const relships = model.relships;
+    if (relships) { 
+        for (let i=0; i<relships?.length; i++) {
+            const rel = relships[i];
+            const fromObj  = rel.fromObject;
+            const toObj    = rel.toObject;
+            const rtype = rel.type;
+            const rels = model.findRelationships(fromObj, toObj, rel.relshipkind);
+            const rels2 = [];
+            if (rtype && rels.length>1) {
+                for (let j=0; j<rels.length; j++) {
+                    const r = rels[j];
+                    if (r?.type?.id === rtype.id) {
+                        if (r.name === rel.name) {
+                            rels2.push(r);
+                        }
+                    }
+                }
+                for (let j=0; j<rels2.length; j++) {
+                    if (j == 0) continue;
+                    const r = rels2[j];
+                    r.markedAsDeleted = true;    
+                    const rviews = r.relshipviews;          
+                    for (let k=0; k<rviews?.length; k++) {
+                        const rv = rviews[k];
+                        rv.markedAsDeleted = true;
+                    }      
+                }
+            }
+        }
+    }
     // Check if the referenced type exists - otherwse find a type that corresponds
     const defRelTypename = 'isRelatedTo';
     const modifiedRelships = new Array();
     const modifiedRelviews = new Array();
-    const relships = model.relships;
     if (relships) { // sf added
         for (let i=0; i<relships?.length; i++) {
             const rel = relships[i];
@@ -2638,6 +2670,8 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
     const relviews = modelview.relshipviews;
     for (let i=0; i<relviews?.length; i++) {
         const rview = relviews[i];
+        if (rview.markedAsDeleted)
+            continue;
         const links = goModel.links as gjs.goRelshipLink[];
         let found = false;
         for (let j=0; j<links.length; j++) {

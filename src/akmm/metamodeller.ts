@@ -968,7 +968,7 @@ export class cxMetis {
                     // objview.isGroup = true;
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
-                    // objview.isCollapsed = item.isCollapsed;
+                    objview.isCollapsed = item.isCollapsed;
                     objview.text = item.text;
                     objview.modified = true;
                     if (debug) console.log('660 objview', objview);
@@ -7206,7 +7206,7 @@ export class cxModelView extends cxMetaObject {
             return null;
         for (let i=0; i<rviews.length; i++) {
             const rv = rviews[i];
-            if (rv.markedAsDeleted)
+            if (rv?.markedAsDeleted)
                 continue;
             if (rv?.relship?.id === rel.id) {
                 relviews.push(rv);
@@ -7222,11 +7222,11 @@ export class cxModelView extends cxMetaObject {
                 return null;
             for (let i=0; i<rviews.length; i++) {
                 const rv:cxRelationshipView = rviews[i];
-                if (rv.markedAsDeleted)
+                if (rv?.markedAsDeleted)
                     continue;
                 if (rv?.relship?.id === rel?.id) {
-                    if (rv.fromObjview.id === fromObjview.id) {
-                        if (rv.toObjview.id === toObjview.id)
+                    if (rv.fromObjview?.id === fromObjview.id) {
+                        if (rv.toObjview?.id === toObjview.id)
                             relviews.push(rv);
                     }
                 }
@@ -7238,7 +7238,7 @@ export class cxModelView extends cxMetaObject {
         if (!this.relshiptypeviews) return null;
         let i = 0;
         let obj = null;
-        while (i < this.relshiptypeviews.length) {
+        while (i < this.relshiptypeviews?.length) {
             obj = this.relshiptypeviews[i];
             if (obj?.markedAsDeleted)
                 continue;

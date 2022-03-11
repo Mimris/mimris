@@ -482,36 +482,24 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         if (!includeDeleted && !includeNoObject && !includeNoType)
           relcolor = relview.strokecolor;
-          if (!relcolor) relcolor = 'black';
+        if (!relcolor) relcolor = 'black';
+        if (debug) console.log('486 rel, relview:', rel, relview);
         if (includeRelview) {
-          if (debug) console.log('433 rel, relview:', rel, relview);
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
-          if (debug) console.log('436 rel, relview:', rel, relview);
+          if (debug) console.log('490 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
-          link.name = rel?.name;
-          link.routing = modelview.routing;
-          link.curve = modelview.linkcurve;
-          if (modelview.showCardinality) {
-            link.cardinalityFrom = rel?.getCardinalityFrom(); 
-            link.cardinalityTo = rel?.getCardinalityTo();
-          } else {
-            link.cardinalityFrom = "";
-            link.cardinalityTo = "";
-          }
-          if (!link.fromArrow && !link.toArrow)
-            link.toArrow = 'OpenTriangle';
-          if (debug) console.log('449 modelview, link:', modelview, link);
-          if (debug) console.log('450 GenGojsModel: props', props);
+          if (debug) console.log('493 modelview, link:', modelview, link);
+          if (debug) console.log('494 GenGojsModel: props', props);
           myGoModel.addLink(link);
-          if (debug) console.log('452 buildGoModel - link', link, myGoModel);
+          if (debug) console.log('496 buildGoModel - link', link, myGoModel);
         }
       }
     }
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
-    if (debug) console.log('431 myGoModel.links', myGoModel.links);
+    if (debug) console.log('502 myGoModel.links', myGoModel.links);
     return myGoModel;
   }
 
@@ -590,7 +578,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (reltype && !reltype.markedAsDeleted)
             includeReltype = true;
           else {
-            if (includeDeleted) {
+            if (includeDeleted) {debug
               if (reltype.markedAsDeleted) {
                 strokecolor = "orange";
                 includeReltype = true;

@@ -233,9 +233,8 @@ const Palette = (props: any) => {
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
-  
-  // const gojsapp = (gojstypes?.nodeDataArray && gojstypes?.nodeDataArray[0]?.typename) &&
-  const gojsappPalette = 
+
+  const gojsappPalette = // this is the palette with tabs for Types and Objects Todo: add posibility to select many types or objects to drag in (and also with links)
     <>
       <Nav tabs >
         <NavItem >
@@ -256,7 +255,7 @@ const Palette = (props: any) => {
         </NavItem>
       </Nav>
       <TabContent activeTab={activeTab} >
-        {/* TYPES */}
+        {/* TYPES this is the tab for Objecttypes */}
         <TabPane tabId="1">
           <div className="workpad p-1 pt-2 bg-white" >
             {/* <Row >
@@ -279,7 +278,7 @@ const Palette = (props: any) => {
             </Row> */}
           {/* </div> */}
         </TabPane>
-        {/* OBJECTS */}
+        {/* OBJECTS  this is the tab for Object instances*/}
         <TabPane tabId="2">
           <div className="workpad p-1 pt-2 bg-white">
             {/* <Row >
@@ -305,7 +304,7 @@ const Palette = (props: any) => {
       </TabContent>
     </>
     
-   const palette =
+   const palette = // this is the left pane with the palette and toggle for refreshing
       <> 
         <button className="btn-sm px-0 m-0" style={{ backgroundColor: "#7ac", outline: "0", borderStyle: "none"}}
           onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette </span> : <span>&gt;</span>} 
@@ -326,9 +325,7 @@ const Palette = (props: any) => {
     <>
       {palette} 
       {/* {refreshPalette ? <> {palette} </> : <> {palette} </>} */}
-        {/* <style jsx>{`
-
-       `}</style> */}
+      {/* <style jsx>{``}</style> */}
     </>
   )
 }

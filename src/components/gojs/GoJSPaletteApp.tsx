@@ -282,7 +282,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
     return (
       <div>
-
         <PaletteWrapper
           nodeDataArray     ={this.state.nodeDataArray}
           linkDataArray     ={this.state.linkDataArray}

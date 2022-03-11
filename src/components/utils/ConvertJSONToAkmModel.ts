@@ -135,7 +135,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType, inclProps, props, 
             // insert aspropObj as item number 1 into the allOf array of the jsonobject
             osduMod.allOf?.splice(1, 0, aspObj)
 
-            const aspData = JSON.parse(`{ "data": {"name": "data","type": "object" }}`)
+            const aspData = JSON.parse(`{ "data": {"name": "${oName}data","type": "object" }}`)
             // insert aspData as item number 2 into the allOf array of the jsonobject
             osduMod.allOf?.splice(2, 0, aspData)
         }

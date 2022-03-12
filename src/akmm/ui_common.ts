@@ -2160,7 +2160,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     // Handle the objects
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
-        if (obj.markedAsDeleted) console.log('2146 obj:', obj);
         if (!obj.type) {
             if (debug) console.log('2148 obj, myMetis', obj, myMetis);
             const type = myMetis.findObjectTypeByName(defObjTypename);

@@ -2281,6 +2281,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg += "Verifying relationships";
     report += printf(format, msg);
     // First check for duplicate relships
+    msg = "\Checking for duplicate relationships. \n";
+    msg += "\tIf found, they are deleted, including their relationship views.";
     const relships = model.relships;
     if (relships) { 
         for (let i=0; i<relships?.length; i++) {

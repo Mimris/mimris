@@ -6178,30 +6178,7 @@ export class cxModel extends cxMetaObject {
         }
         return null;
     }
-    findRelationships(fromObj: cxObject, toObj: cxObject, relkind: string): cxRelationship[] | null {
-        const relationships = new Array();
-        const relships = this.relships;
-        if (relships) {
-            const len = relships?.length;
-            for (let i = 0; i < len; i++) {
-                const rel = relships[i];
-                const reltype = rel.getType();
-                if (reltype && (reltype.getRelshipKind() === relkind)) {
-                    let relFromObj = rel.getFromObject();
-                    let relToObj = rel.getToObject();
-                    if (relFromObj && relToObj) {
-                        if (relFromObj.id === fromObj.id) {
-                            if (relToObj.id === toObj.id) {
-                                relationships.push(rel);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return relationships;
-    }
-    findRelationships2(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType): cxRelationship[] | null {
+    findRelationships(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType): cxRelationship[] | null {
         const relationships = new Array();
         const relships = this.relships;
         if (relships) {
@@ -6224,6 +6201,29 @@ export class cxModel extends cxMetaObject {
         }
         return relationships;
 
+    }
+    findRelationships1(fromObj: cxObject, toObj: cxObject, relkind: string): cxRelationship[] | null {
+        const relationships = new Array();
+        const relships = this.relships;
+        if (relships) {
+            const len = relships?.length;
+            for (let i = 0; i < len; i++) {
+                const rel = relships[i];
+                const reltype = rel.getType();
+                if (reltype && (reltype.getRelshipKind() === relkind)) {
+                    let relFromObj = rel.getFromObject();
+                    let relToObj = rel.getToObject();
+                    if (relFromObj && relToObj) {
+                        if (relFromObj.id === fromObj.id) {
+                            if (relToObj.id === toObj.id) {
+                                relationships.push(rel);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return relationships;
     }
     deleteObjectViewsWithoutObjects() {
         // Get modelviews

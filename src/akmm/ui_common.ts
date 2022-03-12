@@ -2291,7 +2291,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             const rtype = rel.type;
             const rels2 = [];
             if (rtype) {
-                const rels = model.findRelationships2(fromObj, toObj, rtype);
+                const rels = model.findRelationships(fromObj, toObj, rtype);
                 for (let j=0; j<rels?.length; j++) {
                     const r = rels[j];
                     if (r?.type?.id === rtype.id) {

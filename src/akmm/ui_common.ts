@@ -2289,10 +2289,10 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             const fromObj  = rel.fromObject;
             const toObj    = rel.toObject;
             const rtype = rel.type;
-            const rels = model.findRelationships(fromObj, toObj, rel.relshipkind);
             const rels2 = [];
-            if (rtype && rels.length>1) {
-                for (let j=0; j<rels.length; j++) {
+            if (rtype) {
+                const rels = model.findRelationships2(fromObj, toObj, rtype);
+                for (let j=0; j<rels?.length; j++) {
                     const r = rels[j];
                     if (r?.type?.id === rtype.id) {
                         if (r.name === rel.name) {

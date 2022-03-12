@@ -6182,7 +6182,7 @@ export class cxModel extends cxMetaObject {
         const relationships = new Array();
         const relships = this.relships;
         if (relships) {
-            const len = utils.objExists(relships) ? relships.length : 0;
+            const len = relships?.length;
             for (let i = 0; i < len; i++) {
                 const rel = relships[i];
                 const reltype = rel.getType();
@@ -6200,6 +6200,30 @@ export class cxModel extends cxMetaObject {
             }
         }
         return relationships;
+    }
+    findRelationships2(fromObj: cxObject, toObj: cxObject, reltype: cxRelationshipType): cxRelationship[] | null {
+        const relationships = new Array();
+        const relships = this.relships;
+        if (relships) {
+            const len = relships?.length;
+            for (let i = 0; i < len; i++) {
+                const rel = relships[i];
+                const rtype = rel.type;
+                if (rtype && rtype.id === reltype.id) {
+                    let relFromObj = rel.getFromObject();
+                    let relToObj = rel.getToObject();
+                    if (relFromObj && relToObj) {
+                        if (relFromObj.id === fromObj.id) {
+                            if (relToObj.id === toObj.id) {
+                                relationships.push(rel);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return relationships;
+
     }
     deleteObjectViewsWithoutObjects() {
         // Get modelviews

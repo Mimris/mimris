@@ -2160,7 +2160,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     // Handle the objects
     for (let i=0; i<objects?.length; i++) {
         const obj = objects[i];
-        if (obj.markedAsDeleted) console.log('2146 obj:', obj);
         if (!obj.type) {
             if (debug) console.log('2148 obj, myMetis', obj, myMetis);
             const type = myMetis.findObjectTypeByName(defObjTypename);
@@ -2282,6 +2281,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg += "Verifying relationships";
     report += printf(format, msg);
     // First check for duplicate relships
+    msg = "\Checking for duplicate relationships. \n";
+    msg += "\tIf found, they are deleted, including their relationship views.";
     const relships = model.relships;
     if (relships) { 
         for (let i=0; i<relships?.length; i++) {
@@ -2289,10 +2290,10 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             const fromObj  = rel.fromObject;
             const toObj    = rel.toObject;
             const rtype = rel.type;
-            const rels = model.findRelationships(fromObj, toObj, rel.relshipkind);
             const rels2 = [];
-            if (rtype && rels.length>1) {
-                for (let j=0; j<rels.length; j++) {
+            if (rtype) {
+                const rels = model.findRelationships(fromObj, toObj, rtype);
+                for (let j=0; j<rels?.length; j++) {
                     const r = rels[j];
                     if (r?.type?.id === rtype.id) {
                         if (r.name === rel.name) {

@@ -7,6 +7,7 @@ import * as utils from '../akmm/utilities';
 import * as akm from '../akmm/metamodeller';
 import * as gjs from '../akmm/ui_gojs';
 import * as jsn from '../akmm/ui_json';
+import * as uic from '../akmm/ui_common';
 
 const constants = require('../akmm/constants');
 
@@ -14,6 +15,8 @@ const constants = require('../akmm/constants');
 // const includeNoObject = false;
 // const includeInstancesOnly = true 
 const includeNoType = false;
+
+const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -27,12 +30,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   let adminModel;
 
   if (metis != null) {
-    console.log('33 GenGojsModel: phData, metis:', props.phData, props);
+    console.log('30 GenGojsModel: phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
-    if (debug) console.log('35 GenGojsModel', myMetis);  
     myMetis.importData(metis, true);
     adminModel = buildAdminModel(myMetis);
-    console.log('37 GenGojsModel: myMetis', myMetis);
+    console.log('34 GenGojsModel: myMetis', myMetis);
     
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
@@ -167,46 +169,85 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         dispatch({ type: 'SET_MY_GOMETAMODEL', myGoMetamodel })
 
     }
-    // if (debug) console.log('663 adminModel', adminModel);
-    // let data = new jsn.jsnModel(adminModel, true);
-    // if (debug) console.log('735 jsnModel', data);
-    // data = JSON.parse(JSON.stringify(data));
-    // dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data }); // dispatches model with modelview
-}
+  }
 
   function buildGoPalette(metamodel: akm.cxMetaModel, metis: akm.cxMetis): gjs.goModel {
     if (debug) console.log('173 metamodel', metamodel);
+    let inheritedTypenames, typenames;
+    const modelRef = metamodel.generatedFromModelRef;
+    let model = metis.findModel(modelRef);
+    if (metamodel) {
+      const mmtypenames = [];
+      const objtypes = metamodel?.objecttypes0;
+      if (objtypes) {
+        for (let i=0; i<objtypes.length; i++) {
+          const objtype = objtypes[i];
+          if (objtype) {
+            mmtypenames.push(objtype.name);
+          }
+        }
+      }
+      typenames = [...new Set(mmtypenames)];
+      if (debug) console.log('191 MM objecttypes', typenames);
+    }
+    if (model) {
+      const mmodel = model.metamodel;
+      const objtypenames = [];
+      const objtypes = mmodel?.objecttypes;
+      if (objtypes) {
+        for (let i=0; i<objtypes.length; i++) {
+          const objtype = objtypes[i];
+          if (objtype) {
+            objtypenames.push(objtype.name);
+          }
+        }
+      }
+      inheritedTypenames = [...new Set(objtypenames)];
+      if (debug) console.log('206 objecttypes', inheritedTypenames);
+    }
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
     if (objecttypes) {
       objecttypes.sort(utils.compare);
     }
-    if (debug) console.log('176 objecttypes', objecttypes);
+    if (debug) console.log('196 objecttypes', objecttypes);
     if (objecttypes) {
       let includesSystemtypes = false;
       const otypes = new Array();
       for (let i = 0; i < objecttypes.length; i++) {
         const objtype: akm.cxObjectType = objecttypes[i];  
-        if (debug) console.log('179 objtype', objtype); 
+        if (debug) console.log('202 objtype', objtype); 
         if (!objtype) continue;
         if (objtype.markedAsDeleted) continue;
         if (objtype.abstract) continue;
         if (objtype.nameId === 'Entity0') continue;
         if (objtype.name === 'Datatype') includesSystemtypes = true;
+        if (!includesSystemtypes) {
+          // Check if objtype is one of typenames
+            if (!(typenames && utils.nameExistsInNames(typenames, objtype.name))) {
+              // If not:
+              if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
+                if (inheritedTypenames && utils.nameExistsInNames(inheritedTypenames, objtype.name)) 
+                continue;
+            }
+          }
+        }
         otypes.push(objtype);
       }
+      if (debug) console.log('211 otypes', otypes); 
       const noTypes = otypes.length;
       for (let i = 0; i < noTypes; i++) {
         const objtype: akm.cxObjectType = otypes[i];  
-        // Hack
         if (!includesSystemtypes) {    // Systemtypes are not included
-          const typename = objtype.name;
-          if (typename === 'Entity' || 
-              typename === 'EntityType' ||
-              typename === 'Method')
-            continue;
+          // Check if objtype is one of typenames
+          if (!(typenames && utils.nameExistsInNames(typenames, objtype.name))) {
+            // If not:
+            if (objtype.name !== 'Generic' && objtype.name !== 'Container' && objtype.name !== 'Label') {
+              if (inheritedTypenames && utils.nameExistsInNames(inheritedTypenames, objtype.name)) 
+                continue;
+            }
+          }
         }
-        // End Hack
         const id = utils.createGuid();
         const name = objtype.name;
         const obj = new akm.cxObject(id, name, objtype, "");
@@ -218,7 +259,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }    
         if (obj.isDeleted()) 
             continue;
-        if (debug) console.log('193 obj, objtype', obj, objtype);
+        if (debug) console.log('230 obj, objtype', obj, objtype);
         const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
         let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
         // Hack
@@ -240,7 +281,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         myGoPaletteModel.addNode(node);        
       }
     }
-    if (debug) console.log('216 Objecttype palette', myGoPaletteModel);
+    if (debug) console.log('252 Objecttype palette', myGoPaletteModel);
     return myGoPaletteModel;
   }
 
@@ -306,7 +347,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    if (debug) console.log('292 GenGojsModel', metis, model, modelview);
+    if (debug) console.log('303 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
     // const admModel = metis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
@@ -321,7 +362,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
-      if (debug) console.log('281 modelview, objviews:', modelview.name, objviews);
+      if (debug) console.log('318 modelview, objviews:', modelview.name, objviews);
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -331,6 +372,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (obj?.markedAsDeleted)
           objview.markedAsDeleted = obj?.markedAsDeleted;
         objview.name = obj?.name;
+        if (obj?.type?.name === 'Label')
+          objview.name = obj.text;
         // objview.visible = obj?.visible
         if (includeDeleted) {
           if (objview.markedAsDeleted) {
@@ -352,7 +395,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         if (includeNoType) {
           if (!objview.object?.type) {
-            if (debug) console.log('295 objview', objview);
+            if (debug) console.log('349 objview', objview);
             objview.strokecolor = "green"; 
             if (objview.fillcolor) objview.fillcolor = "lightgrey";
             includeObjview = true;
@@ -363,7 +406,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         // if (!objview.visible) includeObjview = false;
         if (includeObjview) {
-          if (debug) console.log('305 includeNoObject, objview:', includeNoObject, objview);
+          if (debug) console.log('360 includeNoObject, objview:', includeNoObject, objview);
           if (!includeDeleted && objview.markedAsDeleted)
             continue;
           if (!includeNoObject && !objview.object)
@@ -376,22 +419,27 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (node.fillcolor === "") {
             node.fillcolor = "lightgrey";
           }
-          if (debug) console.log('314 buildGoModel - node', node, myGoModel);
+          if (debug) console.log('373 buildGoModel - node', node, myGoModel);
         }
       }
       const nodes = myGoModel.nodes;
       for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i] as gjs.goObjectNode;
           const objview = node.objectview;
+          const obj = objview.object;
+          const objtype = obj.type;
+          if (objtype.name === 'Label') {
+            node.text = objview.name;
+          }
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
       }
-      if (debug) console.log('346 nodes', nodes);
+      if (debug) console.log('383 nodes', nodes);
     }
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
-      if (debug) console.log('368 modelview, relviews', modelview.name, relviews);
+      if (debug) console.log('388 modelview, relviews', modelview.name, relviews);
       let l = relviews.length;
       for (let i = 0; i < l; i++) {
         let includeRelview = false;
@@ -434,36 +482,24 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
         if (!includeDeleted && !includeNoObject && !includeNoType)
           relcolor = relview.strokecolor;
-          if (!relcolor) relcolor = 'black';
+        if (!relcolor) relcolor = 'black';
+        if (debug) console.log('486 rel, relview:', rel, relview);
         if (includeRelview) {
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
-          if (debug) console.log('410 rel, relview:', rel, relview);
+          if (debug) console.log('490 rel, relview:', rel, relview);
           let link = new gjs.goRelshipLink(utils.createGuid(), myGoModel, relview);
           link.loadLinkContent(myGoModel);
-          link.name = rel?.name;
-          link.strokecolor = relcolor;
-          link.fromArrow = relview.fromArrow;
-          link.toArrow = relview.toArrow;
-          link.fromArrowColor = relview.fromArrowColor;
-          link.toArrowColor = relview.toArrowColor;
-          link.routing = modelview.routing;
-          link.curve = modelview.linkcurve;
-          if (modelview.showCardinality) {
-            link.cardinalityFrom = rel?.getCardinalityFrom(); 
-            link.cardinalityTo = rel?.getCardinalityTo();
-          } else {
-            link.cardinalityFrom = "";
-            link.cardinalityTo = "";
-          }
-          if (debug) console.log('414 modelview:', modelview, link);
-          if (debug) console.log('415 GenGojsModel: props', props);
+          if (debug) console.log('493 modelview, link:', modelview, link);
+          if (debug) console.log('494 GenGojsModel: props', props);
           myGoModel.addLink(link);
-          if (debug) console.log('421 buildGoModel - link', link, myGoModel);
+          if (debug) console.log('496 buildGoModel - link', link, myGoModel);
         }
       }
     }
-    if (debug) console.log('431 myGoModel.links', myGoModel.links);
+    // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
+    uic.repairGoModel(myGoModel, modelview);
+    if (debug) console.log('502 myGoModel.links', myGoModel.links);
     return myGoModel;
   }
 
@@ -542,7 +578,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (reltype && !reltype.markedAsDeleted)
             includeReltype = true;
           else {
-            if (includeDeleted) {
+            if (includeDeleted) {debug
               if (reltype.markedAsDeleted) {
                 strokecolor = "orange";
                 includeReltype = true;
@@ -561,15 +597,17 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             const link = new gjs.goRelshipTypeLink(key, myGoMetamodel, reltype);
             if (debug) console.log('533 link', link);
             if (link.loadLinkContent()) {
+              link.relshipkind = reltype.relshipkind;
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;
-                  if (debug) console.log('536 link', link);
+              if (debug) console.log('536 link', link);
               myGoMetamodel.addLink(link);
             }            
           }
         }
       }
+      if (debug) console.log('599 myGoMetamodel', myGoMetamodel);
       return myGoMetamodel;
     }
   }
@@ -580,25 +618,23 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('590 No Admin Metamodel found!');
       return;
     }
+    let firstTime = false;
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    let adminModelview, adminGoModel;
+    let adminModelview;
     if (!adminModel) {
+      firstTime = true;
       adminModel = new akm.cxModel(utils.createGuid(), constants.admin.AKM_ADMIN_MODEL, adminMetamodel, "");
-      // adminModel.layer = "Admin";
       myMetis.addModel(adminModel);
+      // Add modelview
+      adminModelview = new akm.cxModelView(utils.createGuid(), '_ADMIN', adminModel, '');
+      adminModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
+      adminModel.addModelView(adminModelview);
+      myMetis.addModelView(adminModelview);
     }
     if (adminModel) {
       adminModel.objects = null;
       adminModel.relships = null;
       adminModelview = adminModel.modelviews ? adminModel.modelviews[0] : null;
-      if (!adminModelview) {
-        adminModelview = new akm.cxModelView(utils.createGuid(), '_ADMIN', adminModel, '');
-        adminModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
-        // adminModelview.routing = 'AvoidsNodes';
-        // adminModelview.linkcurve = 'JumpOver';
-        adminModel.addModelView(adminModelview);
-        myMetis.addModelView(adminModelview);
-      }
       if (adminModelview) {
         adminModelview.objectviews = null;
         adminModelview.relshipviews = null;
@@ -612,6 +648,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const hasModelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_HAS_MODEL);
       const hasModelviewType = myMetis.findRelationshipTypeByName(constants.admin.AKM_HAS_MODELVIEW);
       const refersToMetamodelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_REFERSTO_METAMODEL);
+      const generatedFromModelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_GENERATEDFROM_MODEL);
       let projectview;
       if (debug) console.log('598 adminModel', adminModel);
       let project; 
@@ -639,7 +676,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             adminModel.addObject(mmObj);
             myMetis.addObject(mmObj);
             // Add relship from Project to Metamodel
-            const mmRel = new akm.cxRelationship(utils.createGuid(),hasMetamodelType, project, mmObj, 'has', '');
+            const mmRel = new akm.cxRelationship(utils.createGuid(),hasMetamodelType, project, mmObj, constants.admin.AKM_HAS_METAMODEL, '');
             adminModel.addRelationship(mmRel);
             myMetis.addRelationship(mmRel);
             // Create objectview of metamodel object
@@ -672,6 +709,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                   
                   // Create objectview
                   const mObjview = new akm.cxObjectView(utils.createGuid(), mObj.name, mObj, '');
+                  mObj.addObjectView(mObjview);
                   adminModelview.addObjectView(mObjview);
                   myMetis.addObjectView(mObjview);
 
@@ -679,22 +717,23 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                   let mMeta = m.metamodel;
                   let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta.name);
                   if (mmRef) {
-                    const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, 'refersTo', '');
+                    const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, constants.admin.AKM_REFERSTO_METAMODEL, '');
                     adminModel.addRelationship(relToMM);
                     myMetis.addRelationship(relToMM);
 
                     // Create relshipview from Model to Metamodel
-                    const rvToMMv = new akm.cxRelationshipView(utils.createGuid(), 'refersTo', relToMM, '');
+                    const rvToMMv = new akm.cxRelationshipView(utils.createGuid(), relToMM.name, relToMM, '');
                     rvToMMv.setFromObjectView(mObjview);
                     rvToMMv.setToObjectView(mmObjview);
                     relToMM.addRelationshipView(rvToMMv);
+                    rvToMMv.strokecolor = 'blue';
                     adminModelview.addRelationshipView(rvToMMv);
                     myMetis.addRelationshipView(rvToMMv);
 
                   }
 
                   // Add relship from Project object to Model object
-                  const mRelPtoM = new akm.cxRelationship(utils.createGuid(),hasModelType, project, mObj, 'has', '');
+                  const mRelPtoM = new akm.cxRelationship(utils.createGuid(),hasModelType, project, mObj, constants.admin.AKM_HAS_MODEL, '');
                   adminModel.addRelationship(mRelPtoM);
                   myMetis.addRelationship(mRelPtoM);
 
@@ -725,7 +764,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                         myMetis.addObjectView(mvObjview);
 
                         // Add relship from Model object to Modelview object
-                        const mvRel = new akm.cxRelationship(utils.createGuid(), hasModelviewType, mObj, mvObj, 'has', '');
+                        const mvRel = new akm.cxRelationship(utils.createGuid(), hasModelviewType, mObj, mvObj, constants.admin.AKM_HAS_MODELVIEW, '');
                         mvRel.setFromObject(mObj);
                         mvRel.setToObject(mvObj);
                         adminModel.addRelationship(mvRel);
@@ -744,17 +783,54 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                   }
                 }
               }
-            }
-          
+            }          
           }
         }  
       }
-
-      // adminGoModel = new gjs.goModel(utils.createGuid(), constants.admin.AKM_ADMIN_GOMODEL, adminModelview);
-      // adminGoModel.layout = adminModelview.layout;
-      if (debug) console.log('605 adminModel, adminModelview, adminGoModel', adminModel, adminModelview);
-
-
+      // Handle metamodels generated from models
+      for (let i=0; i<metamodels.length; i++) {
+        const mmodel = metamodels[i];
+        if (mmodel.generatedFromModelRef) {
+          const modelRef = mmodel.generatedFromModelRef;
+          const model = myMetis.findModel(modelRef);
+          if (model) {
+            // Find metamodelObj
+            const mmObj = adminModel.findObjectByTypeAndName(metamodelType, mmodel.name);
+            // Find modelObj
+            const mObj = adminModel.findObjectByTypeAndName(modelType, model.name);
+            // Add relship from Metamodel object to Model object
+            const genRel = new akm.cxRelationship(utils.createGuid(), generatedFromModelType, mmObj, mObj, constants.admin.AKM_GENERATEDFROM_MODEL, '');
+            genRel.setFromObject(mmObj);
+            genRel.setToObject(mObj);
+            adminModel.addRelationship(genRel);
+            myMetis.addRelationship(genRel);
+            // Create relshipview from Metamodel view to Model view
+            const genRelview = new akm.cxRelationshipView(utils.createGuid(), genRel.name, genRel, '');
+            // Find mmObj->objectview
+            if (mmObj && mObj && genRel && genRelview) {
+              const mmObjview = mmObj.objectviews[0];
+              const mObjview = mObj.objectviews[0];
+              genRelview.setFromObjectView(mmObjview);
+              genRelview.setToObjectView(mObjview);
+              genRelview.strokecolor = 'red';
+              genRel.addRelationshipView(genRelview);
+              adminModelview.addRelationshipView(genRelview);
+              myMetis.addRelationshipView(genRelview);
+            }
+          }
+        }
+      }
+    }
+    if (firstTime) {
+      // Do a dispatch 
+      const jsnModel = new jsn.jsnModel(adminModel, true);
+      const modifiedModels = []
+      modifiedModels.push(jsnModel);
+      modifiedModels.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
+      });
     }
     return adminModel;
   }

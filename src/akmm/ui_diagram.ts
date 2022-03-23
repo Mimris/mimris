@@ -85,6 +85,24 @@ export function deleteMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     askForMetamodel(context);
 }
 
+export function clearMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
+    // Select metamodel among all metamodels (except the current)
+    const args = {
+        "metamodel":          "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentMetamodel": myMetis.currentMetamodel,
+        "myDiagram":          myDiagram,
+        "case":               "Clear Metamodel",
+        "title":              "Select Metamodel to Clear",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      clearMetamodel2,
+        "args":               args
+    }
+    askForMetamodel(context);
+}
+
 export function newModel(myMetis: akm.cxMetis, myDiagram: any) {
     const args = {
         "metamodel":    myMetis.currentTargetMetamodel, 
@@ -118,6 +136,24 @@ export function deleteModel(myMetis: akm.cxMetis, myDiagram: any) {
         "title":              "Select Model to Delete",
         "dispatch":           myDiagram.dispatch,
         "postOperation":      deleteModel1,
+        "args":               args
+    }
+    askForModel(context);
+}
+
+export function clearModel(myMetis: akm.cxMetis, myDiagram: any) {
+    // Select model among all models (except the current)
+    const args = {
+        "model":              "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentModel":     myMetis.currentModel,
+        "myDiagram":          myDiagram,
+        "case":               "Clear Model",
+        "title":              "Select Model to Clear",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      clearModel1,
         "args":               args
     }
     askForModel(context);
@@ -219,6 +255,7 @@ export function deleteInvisibleObjects(myMetis: akm.cxMetis, myDiagram: any) {
 }
 
 export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('258 myMetis', myMetis);
     const icon = uit.findImage(node?.icon);
     const modalContext = {
       what:       "editObject",
@@ -229,6 +266,21 @@ export function editObject(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myMetis.currentNode = node;
     myMetis.myDiagram = myDiagram;
     if (debug) console.log('230 editObject');
+    if (debug) console.log('268 myMetis', myMetis);
+    myDiagram.handleOpenModal(node, modalContext);
+}
+
+export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const icon = uit.findImage(node?.icon);
+    const modalContext = {
+      what:       "editObjectType",
+      title:      "Edit Object Type",
+      icon:       icon,
+      myDiagram:  myDiagram
+    }
+    myMetis.currentNode = node;
+    myMetis.myDiagram = myDiagram;
+    if (debug) console.log('230 editObjectType');
     myDiagram.handleOpenModal(node, modalContext);
 }
 
@@ -409,8 +461,8 @@ function askForMetamodel(context: any) {
         const metaModel = allMetaModels[i];
         if (metaModel.markedAsDeleted)
             continue;
-        // if (metaModel.name === constants.admin.AKM_ADMIN_MM)
-        //     continue;
+        if (metaModel.name === constants.admin.AKM_ADMIN_MM)
+            continue;
         if (context.case === "Delete Metamodel") {
             if (metaModel.id === myMetamodel.id)
                 continue;
@@ -516,8 +568,93 @@ function deleteMetamodel2(context: any) {
             deleteModel2(model, myMetis, myDiagram);
         }
         metamodel.markedAsDeleted = true;
+        // If the metamodel was generated from a model, remove references in the model
+        const generatedFromModel = myMetis.findModel(metamodel.generatedFromModelRef);
+        if (generatedFromModel) {
+            const modifiedObjects = [];
+            const objects = generatedFromModel.objects;
+            for (let i=0; i<objects?.length; i++) {
+                const obj = objects[i];
+                obj.generatedTypeId = "";
+                const jsnObject = new jsn.jsnObject(obj);
+                modifiedObjects.push(jsnObject);
+            }
+            modifiedObjects.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('582 object', data);
+                myDiagram.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+            })        
+            const modifiedRelships = [];
+            const relships = generatedFromModel.relationships;
+            for (let i=0; i<relships?.length; i++) {
+                const rel = relships[i];
+                rel.generatedTypeId = "";
+                const jsnRelship = new jsn.jsnRelationship(rel);
+                modifiedRelships.push(jsnRelship);
+            }
+            modifiedRelships.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                if (debug) console.log('596 relship', data);
+                myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+            }) 
+        }       
+    }
+    const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
+    if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
+    modifiedMetamodels.push(jsnMetamodel);
+    modifiedMetamodels.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    });
+
+    uic.purgeDeletions(myMetis, myDiagram);     
+    if (debug) console.log('302 myMetis', myMetis);
+}
+
+function clearMetamodel2(context: any) {
+    const myMetis = context.myMetis as akm.cxMetis;
+    let metamodel = context.args.metamodel;
+    metamodel = myMetis.findMetamodel(metamodel.id)
+    const myDiagram = context.myDiagram;
+    if (debug) console.log('271 metamodel, myMetis', metamodel, myMetis);
+    const modifiedMetamodels = new Array();
+    const modifiedModels = new Array();
+    const models = myMetis.getModelsByMetamodel(metamodel, false);
+    if (debug) console.log('274 models', models);
+    let doClear = false;
+    if (models.length > 0) {
+        let msg = "There are models based on the metamodel '" + metamodel.name + "'.\n";
+        msg += "The models will be cleared!\n";
+        msg += "Do you still want to continue?";
+        doClear = confirm(msg);
+    } else {
+        doClear = confirm("Do you really want to clear the metamodel '" + metamodel.name + "'?");
+    }
+    if (!doClear) {
+            return;
+    } else {
+        for (let i=0; i<models.length; i++) {
+            const model = models[i];
+            // deleteModel2(model, myMetis, myDiagram);
+            const modelview = model.modelviews[0];
+            modelview.clearContent();
+            model.clearContent();
+            model.addModelView(modelview);
+            const jsnModel = new jsn.jsnModel(model, true);
+            if (debug) console.log('644 jsnModel', jsnModel);
+            modifiedModels.push(jsnModel);
+            modifiedModels.map(mn => {
+              let data = mn;
+              data = JSON.parse(JSON.stringify(data));
+              myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+            });
+        }        
+        metamodel.clearContent();
         const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-        if (debug) console.log('293 jsnMetamodel', jsnMetamodel);
+        if (debug) console.log('654 jsnMetamodel', jsnMetamodel);
         modifiedMetamodels.push(jsnMetamodel);
         modifiedMetamodels.map(mn => {
           let data = mn;
@@ -643,6 +780,17 @@ function deleteModel2(model: akm.cxModel, myMetis: akm.cxMetis, myDiagram: any) 
     });
     alert("The model '" + model.name + "' has been deleted!");
     uic.purgeDeletions(myMetis, myDiagram);
+}
+
+function clearModel1(context: any) {
+    const model = context.args.model;
+    if (model) {
+        if (!confirm("Do you really want to clear '" + model.name + "'?"))
+            return;
+        model.clearContent();
+        const myMetis = context.myMetis;
+        if (debug) console.log('367 model, myMetis', model, myMetis);
+    }
 }
 
 

@@ -287,17 +287,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                 text = prompt('Enter name');
               }
               const myNode = sel;
-              if (debug) console.log('207 myNode', myNode);
+              if (debug) console.log('290 myNode', myNode);
               if (myNode) {
                 data.name = text;
-                if (debug) console.log('216 data, field, text', data, field, text);
+                if (debug) console.log('293 data, field, text', data, field, text);
                 uic.updateObjectType(data, field, text, context);
-                if (debug) console.log('218 TextEdited', data);
+                if (debug) console.log('295 TextEdited', data);
                 const objtype = myMetis.findObjectType(data.objecttype?.id);
                 if (objtype) {
                   const jsnObjType = new jsn.jsnObjectType(objtype, true);
                   modifiedTypeNodes.push(jsnObjType);
-                  if (debug) console.log('223 TextEdited', jsnObjType);
+                  if (debug) console.log('300 TextEdited', jsnObjType);
                 }
               }
             } else { // Object           
@@ -307,13 +307,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
               const myNode = this.getNode(myGoModel, key);
               myNode.text = textvalue;
-              if (debug) console.log('307 text, node', textvalue, myNode);
+              if (debug) console.log('310 text, node', textvalue, myNode);
               if (myNode) {
                   myNode.name = text;
                 // }
-                if (debug) console.log('315 node, field, text', field, text, myNode);
+                if (debug) console.log('314 node, field, text', field, text, myNode);
                 let obj = uic.updateObject(myNode, field, text, context);
-                if (debug) console.log('317 node', data, myNode);
+                if (debug) console.log('316 node', data, myNode);
                 if (!obj) 
                   obj = myNode.object;
                 if (obj) {
@@ -327,21 +327,21 @@ class GoJSApp extends React.Component<{}, AppState> {
                     // objview.text = myNode.text;
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
-                      if (debug) console.log('326 node', node);
+                      if (debug) console.log('330 node', node);
                       const n = myDiagram.findNodeForKey(node.key)
                       if (n) node = n;
                       myDiagram.model?.setDataProperty(node.data, "name", myNode.name);
                       const jsnObjview = new jsn.jsnObjectView(objview);
                       jsnObjview.text = textvalue;
                       modifiedNodes.push(jsnObjview);
-                      if (debug) console.log('331 jsnObjview', jsnObjview);
+                      if (debug) console.log('337 jsnObjview', jsnObjview);
                     } 
                   }
                 }
                 const jsnObj = new jsn.jsnObject(obj);
                 jsnObj.text = textvalue;
                 modifiedObjects.push(jsnObj);
-                if (debug) console.log('337 obj, jsnObj', obj, jsnObj);
+                if (debug) console.log('343 obj, jsnObj', obj, jsnObj);
               }
             }
             const nodes = myGoModel?.nodes;
@@ -361,7 +361,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Relationship type
             if (typename === 'Relationship type') {
               const myLink = this.getLink(context.myGoMetamodel, key);
-              if (debug) console.log('232 TextEdited', myLink);
+              if (debug) console.log('364 TextEdited', myLink);
               if (myLink) {
                 if (text === 'Edit name') {
                   text = prompt('Enter name');
@@ -373,14 +373,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (myLink.reltype) {
                   const jsnReltype = new jsn.jsnRelationshipType(myLink.reltype, true);
                   modifiedTypeLinks.push(jsnReltype);
-                  if (debug) console.log('242 TextEdited', modifiedTypeLinks);
+                  if (debug) console.log('376 TextEdited', modifiedTypeLinks);
                 }
               }
               myDiagram.model?.setDataProperty(myLink.data, "name", myLink.name);
             }             
             else { // Relationship
-              if (debug) console.log('290 data', data);
-              field = 'name';
+              if (debug) console.log('382 data', data);
               const myLink = this.getLink(context.myGoModel, key);
               if (myLink) {
                 if (text === 'Edit name') {
@@ -388,11 +387,11 @@ class GoJSApp extends React.Component<{}, AppState> {
                   data.name = text;
                 }
                 myLink.name = text;
-                if (debug) console.log('299 myLink', myLink);
+                if (debug) console.log('390 myLink', myLink);
                 const rel = uic.updateRelationship(myLink, field, text, context);
                 if (rel) {
                   const relviews = rel.relshipviews;
-                  if (debug) console.log('303 relviews', relviews);
+                  if (debug) console.log('394 relviews', relviews);
                   for (let i=0; i<relviews.length; i++) {
                     const relview = relviews[i];
                     relview.name = myLink.name;
@@ -400,25 +399,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (!link) link = myLink;
                     if (link) {
                       link = myDiagram.findLinkForKey(link.key)
-                      if (debug) console.log('311 link', link, relview);
+                      if (debug) console.log('402 link', link, relview);
                       if (link) myDiagram.model?.setDataProperty(link.data, "name", myLink.name);
                       const jsnRelview = new jsn.jsnRelshipView(relview);
                       modifiedLinks.push(jsnRelview);
                     } 
                   }
-                  if (debug) console.log('317 rel, myLink', rel, myLink);
+                  if (debug) console.log('408 rel, myLink', rel, myLink);
                   if (myLink.relshipview) {
                     const jsnRel = new jsn.jsnRelationship(rel);
                     modifiedRelships.push(jsnRel);
                   }
-                }
-              }
-              const links = myGoModel.links;
-              for (let i=0; i<links.length; i++) {
-                const link = links[i];
-                if (link.key === key) {
-                    link.name = data.name;
-                    break;
                 }
               }
             }
@@ -710,7 +701,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('712 part', part);
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
-              console.log('715 obj', obj);
             }
             if (part.objecttype?.viewkind === 'Container') {
               part.isGroup = true;
@@ -718,7 +708,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             if (isLabel) part.text = 'label';
             if (debug) console.log('722 part', part);
-            if (part.parentModel == null)
+            if (!part.parentModelRef)
               myMetis.pasteViewsOnly = true;
             if (debug) console.log('725 myMetis', myMetis);
             const objview = uic.createObject(part, context);
@@ -750,7 +740,17 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.state.selectedData = sel.data;
         const node = sel.data;
         if (debug) console.log('566 node', node);
-        uid.editObject(node, myMetis, myDiagram); 
+        const category = node.category;
+        switch (category) {
+          case constants.gojs.C_OBJECTTYPE:
+            uid.editObjectType(node, myMetis, myDiagram); 
+            break;
+          case constants.gojs.C_OBJECT:
+            if (debug) console.log('749 myMetis', myMetis);
+            uid.editObject(node, myMetis, myDiagram); 
+            if (debug) console.log('751 myMetis', myMetis);
+            break;
+          }
       }
       break;
       case "ObjectSingleClicked": {
@@ -796,9 +796,15 @@ class GoJSApp extends React.Component<{}, AppState> {
               objview = myMetis.findObjectView(objview?.id);
               // Do whatever you like
               // ..
+              if (data.isCollapsed)
+                objview.isCollapsed = true;
+              else
+                objview.isCollapsed = false;
+              // objview.isCollapsed = data.isCollapsed;
+              if (debug) console.log('800 data, objview :', data, objview);
               const jsnObjView = new jsn.jsnObjectView(objview);
               selectedObjectViews.push(jsnObjView);
-              if (debug) console.log('572 GoJSApp :', context.myGoModel);                
+              if (debug) console.log('803 GoJSApp :', context.myGoModel);                
             }
           } else if (sel instanceof go.Link) {
             const key = data.key;
@@ -912,7 +918,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
           }
         }
-        if (debug) console.log('828 ClipboardPasted', modifiedLinks, modifiedRelships);       
+        if (debug) console.log('828 ClipboardPasted', modifiedLinks, modifiedRelships, myMetis);       
         myDiagram.requestUpdate();
       }
       break;
@@ -993,13 +999,22 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "LinkReshaped": {
         const link = e.subject; 
         const data = myDiagram.model?.findLinkDataForKey(link.key);
-        if (debug) console.log('895 data', data);
+        if (debug) console.log('996 data', data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
         if (relview) {
+          if (link.data.points?.j) {
+            const points = [];
+            const array = link.points.j;
+            for (let i=0; i<array.length; i++) {
+              points.push(array[i].x)
+              points.push(array[i].y)
+            }
+            link.data.points = points;
+          }
           relview.points = link.data.points;;
           const jsnRelview = new jsn.jsnRelshipView(relview);
-          if (debug) console.log('912 relview, jsnRelview', relview, jsnRelview);
+          if (debug) console.log('1011 relview, jsnRelview', relview, jsnRelview);
           modifiedLinks.push(jsnRelview);
         }
       }
@@ -1114,6 +1129,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
       })
     }
+    if (debug) console.log('1126 myMetis', myMetis);
   }
 
   public render() {   

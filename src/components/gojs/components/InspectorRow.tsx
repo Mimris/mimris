@@ -40,10 +40,8 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
     if (fieldType === 'checkbox') value = e.target.checked;
     if (debug) console.log('41 e.target: ', e.target, e.type);
     if (debug) console.log('42 InspectorRow: this.props, value: ', this.props, value);
-    const checked = e.target.checked;
     this.props.onInputChange(this.props, value, e.type === 'blur');
     if (e.type === 'blur') {
-      if (debug) console.log('46 InspectorRow: value, checked: ', value, checked, this.props);
       const pattern = this.props.pattern;
       if ((pattern?.length > 0) && (value?.length > 0)) {
         const regex = new RegexParser(pattern);
@@ -114,7 +112,7 @@ export class InspectorRow extends React.PureComponent<InspectorRowProps, {}> {
             id={this.props.id}
             type="text"
             list={listname}
-            placeholder={val}
+            placeholder={val?.toString()}
             onChange={this.handleInputChange}
             onBlur={this.handleInputChange}
             />

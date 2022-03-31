@@ -705,6 +705,12 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (part.objecttype?.viewkind === 'Container') {
               part.isGroup = true;
               part.viewkind = 'Container';
+              // -------
+              part.scale = 1;
+              part.memberscale = 0.75;
+              // -------
+            } else {
+              
             }
             if (isLabel) part.text = 'label';
             if (debug) console.log('722 part', part);

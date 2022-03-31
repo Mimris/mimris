@@ -48,8 +48,8 @@ const LoadFile = (props: any) => {
     const projectname = props.ph.phData.metis.name
     console.log('37 LoadFile', data);
     
+    // SaveAllToFileDate(data, projectname, 'Project')
     SaveAllToFileDate(data, projectname, 'Project')
-    // SaveAllToFileDate(data, projectname, 'AKMM-Project')
   }
   
 

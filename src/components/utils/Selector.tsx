@@ -46,9 +46,9 @@ const Selector = ( props: any ) => {
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
     ? (props.selName === 'Model') 
       ?
-      <div key={props.type} className="select" >
-          <span className="title mx-2 ">{props.selName}:</span>
-          <select key={focus} className="list-obj mx-2" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+      <div key={props.type} className="select w-100" >
+          <span className="title mx-0 float-left ">{props.selName} :</span>
+          <select key={focus} className="list-obj mx-2 w-75" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
             onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
             {options}
           </select>
@@ -71,7 +71,7 @@ const Selector = ( props: any ) => {
       </div>
 
   return (
-    <div className="mod-modview float-right">
+    <div className="mod-modview w-25 float-right">
       {selectDiv}
     </div>
   )

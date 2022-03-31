@@ -197,6 +197,14 @@ const page = (props) => {
                     </CardText>
                   </CardBody> */}
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.03.??</CardTitle>
+                    <CardText >
+                          &bull; Save Project with current date in the end of the filename.<br />
+                          &bull; <br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.02.28</CardTitle>
                     <CardText >
                           &bull; Generate metamodel is now working.<br />

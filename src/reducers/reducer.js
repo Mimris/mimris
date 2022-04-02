@@ -678,7 +678,7 @@ function reducer(state = InitialStateStr, action) {
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object
       let curoindexo = (curmo) && curmo.objects?.findIndex(o => o.id === curoo?.id) // curretn objectindex
-      if (debug) console.log('593 UPDATE_OBJECT_PROPERTIES', curmindexo);
+      if (debug) console.log('593 UPDATE_OBJECT_PROPERTIES', action.data, curoo, curmindexo);
 
       const lengtho = curmo?.objects.length
       if (curoindexo < 0) { curoindexo = lengtho } // ovindex = -1, i.e.  not fond, which means adding a new objectview

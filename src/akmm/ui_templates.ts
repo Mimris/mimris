@@ -169,9 +169,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             { contextMenu: contextMenu , cursor: "move" },
             {
             defaultRowSeparatorStroke: "black",
-            desiredSize: new go.Size(136, 60),
-            maxSize: new go.Size(140, 66), 
-            // margin: new go.Margin(2),
+            desiredSize: new go.Size(300, 60),
             defaultAlignment: go.Spot.Center,
             },
             // content
@@ -180,15 +178,13 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 isMultiline: false,  // don't allow newlines in text
                 editable: true,  // allow in-place editing by user
                 row: 0, column: 0, columnSpan: 6,
+                stretch: go.GraphObject.Fill,
                 font: "bold 10pt Segoe UI,sans-serif",
                 minSize: new go.Size(120, 36), 
                 textAlign: "center",
                 height: 46,
-                // overflow: go.TextBlock.OverflowEllipsis,  // this result in only 2 lines with ... where cut
                 verticalAlignment: go.Spot.Center,
-                // stretch: go.GraphObject.Fill, // added to not resize object
-                // overflow: go.TextBlock.OverflowEllipsis, // added to not resize object
-                margin: new go.Margin(0,2,0,0),
+                margin: new go.Margin(0,0,0,2),
                 name: "name"
             },        
             new go.Binding("text", "name").makeTwoWay(),
@@ -197,10 +193,11 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             $(go.TextBlock, textStyle(), // the typename  --------------------
             {
                 row: 1, column: 1, columnSpan: 6,
+                stretch: go.GraphObject.Fill,
                 editable: false, isMultiline: false,
-                // minSize: new go.Size(10, 4),
-                margin: new go.Margin(2, 0, 1, 0),  
-                alignment: go.Spot.Center,                  
+                minSize: new go.Size(10, 4),
+                margin: new go.Margin(0, 0, 0, 2),  
+                textAlign: "center",
             },
             new go.Binding("text", "typename")
             ),

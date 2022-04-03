@@ -131,16 +131,19 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     updateNode(node, objtypeView, myDiagram, myGoModel);
                     node.loc      = data.loc;
                     node.size     = data.size;
+                    node.scale    = data.scale;
                     node.isGroup  = data.isGroup;
                     myDiagram.model.setDataProperty(data, 'category', node.category);
                     const group = getGroupByLocation(myGoModel, objview.loc);
                     if (group) {
                         node.group = group.key;
+                        node.scale *= group.memberscale;
                         objview.group = group.objectview.id;
+                        objview.scale = node.scale;
                         myDiagram.model.setDataProperty(data, "group", node.group);
                         if (debug) console.log('137 group', group, node)
                     }
-                    if (debug) console.log('139 group', group, objview);
+                    if (!debug) console.log('139 group', group, objview);
                     myGoModel.addNode(node);
                     if (debug) console.log('141 createObject', myGoModel, myModel);
                 }

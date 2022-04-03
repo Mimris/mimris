@@ -6988,6 +6988,8 @@ export class cxModelView extends cxMetaObject {
     relshiptypeviews: cxRelationshipTypeView[] | null;
     objectviews: cxObjectView[] | null;
     relshipviews: cxRelationshipView[] | null;
+    scale: string;
+    memberscale: string;
     layout: string;
     routing: string;
     linkcurve: string;
@@ -7006,6 +7008,8 @@ export class cxModelView extends cxMetaObject {
         this.relshiptypeviews = null;
         this.objectviews = null;
         this.relshipviews = null;
+        this.scale = "1";
+        this.memberscale = "1";
         this.layout = "Tree";
         this.routing = "Normal";
         this.linkcurve = "None";
@@ -7294,6 +7298,8 @@ export class cxObjectView extends cxMetaObject {
     text: string;
     loc: string;
     size: string;
+    scale: string;
+    memberscale: string;
     viewkind: string;
     template: string;
     geometry: string;
@@ -7320,6 +7326,8 @@ export class cxObjectView extends cxMetaObject {
         this.viewkind = "";
         this.loc = "";
         this.size = "";
+        this.scale = "1";
+        this.memberscale = "1";
         this.template = "";
         this.geometry = "";
         this.fillcolor = "";
@@ -7441,6 +7449,26 @@ export class cxObjectView extends cxMetaObject {
         if (this.size == undefined)
             return "";
         return this.size;
+    }
+    setScale(scale: string) {
+        if (scale == undefined)
+        scale = "";
+        this.scale = scale;
+    }
+    getScale(): string {
+        if (this.scale == undefined)
+            return "1";
+        return this.scale;
+    }
+    setMemberScale(memberscale: string) {
+        if (memberscale == undefined)
+        memberscale = "1";
+        this.memberscale = memberscale;
+    }
+    getMemberScale(): string {
+        if (this.memberscale == undefined)
+            return "1";
+        return this.memberscale;
     }
     setLoc(loc: string) {
         this.loc = loc;

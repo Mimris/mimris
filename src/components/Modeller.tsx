@@ -10,14 +10,12 @@ import genGojsModel from './GenGojsModel'
 const debug = false;
 
 const Modeller = (props: any) => {
-  const debug = false
+  const dispatch = useDispatch();
   if (debug) console.log('13 Modeller: props', props);
-  // let prevgojsmodel = null
-  // let gojsmodel = {}
+
   const gojsmodel = props.gojsModel;
   let myMetis = props.myMetis;
   let activetabindex = '0'
-  const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(false)
   const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
@@ -53,7 +51,8 @@ const Modeller = (props: any) => {
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
   // if (debug) console.log('49 Modeller', selmods, selmodels, modelviews, selmodviews);
 
-  const gojsapp = (gojsmodel) && <GoJSApp
+  const gojsapp = (gojsmodel) && 
+    <GoJSApp
       nodeDataArray={gojsmodel.nodeDataArray}
       linkDataArray={gojsmodel.linkDataArray}
       metis={props.metis}
@@ -63,7 +62,7 @@ const Modeller = (props: any) => {
       phFocus={props.phFocus}
       dispatch={props.dispatch}
       modelType={props.phFocus.focusTab}
-  />
+    />
 
   const handleChange = (e) => {
     if (debug) console.log('69 Modeller: handleChange', e);
@@ -76,42 +75,38 @@ const Modeller = (props: any) => {
           {/* <div className="modeller-selection" > */}
             {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
             <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
-          {/* </div>  */}
-          <div className="modeller-heading float-right text-dark py-0 m-0 mr-5 px-2 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'" 
-              style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
-              <div className="w-100" >
-                <label className="m-0 p-0  w-50 float-right" > Project :  
-                  <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
-                </label>
-                {/* <label for="projName">Project :</label> 
-                <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
-              </div>
-              {/* <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span>  */}
+            {/* </div>  */}
+            <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'. The text 'Project_<currentdate>' will be added to the filename.'" 
+                style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
+                <div className="w-100 float-left" >
+                  <label className="m-0 p-0 w-100" > Project :  
+                    <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
+                  </label>
+                  {/* <label for="projName">Project :</label> 
+                  <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
+                </div>
+                {/* <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span>  */}
           </div>
         </>
-      :
-      <div className="modeller-selection float-right" >
-        <>
-          {/* <div className="modeller-selection" > */}
-            {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
-            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
-          {/* </div>  */}
-          <h5 className="modeller-heading float-left text-dark m-0 mr-5 px-2 clearfix" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title="To change Project Name : Right-click the background below and select 'Edit Project Name'" 
-              style={{ margin: "0px", paddingLeft: "0 px", paddingRight: "0px" }}>
-                   <div style={{display: "flex",}}>
-                <label> Project :  
-                  <input type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
-                </label>
-                {/* <label for="projName">Project :</label> 
-                <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
-              </div>
-              {/* Project 
-              <span className="projectname ml-2 px-1 bg-secondary w-25"> {props.metis.name || '---- none ----'} </span>  */}
-          </h5>
-        </>
-      </div> 
+      : <>
+      {/* <div className="modeller-selection" > */}
+        {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
+        <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+        {/* </div>  */}
+        <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-2 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+            title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'. The text 'Project_<currentdate>' will be added to the filename.'" 
+            style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
+            <div className="w-100 float-left" >
+              <label className="m-0 p-0 w-100" > Project :  
+                <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
+              </label>
+              {/* <label for="projName">Project :</label> 
+              <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
+            </div>
+            {/* <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span>  */}
+      </div>
+    </>
   // mx-auto h-25 d-inline-block
 
   activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0

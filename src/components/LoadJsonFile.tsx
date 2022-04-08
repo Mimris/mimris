@@ -184,7 +184,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                     <h6>Connect imported EntityTypes</h6> 
                     <div className="selectbox3 mb-2 border">
                       <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                        title="Click here when done!" onClick={() => { ConnectImportedTopEntityTypes("JSON", inclProps, props.ph, dispatch) }}>Generate Relationships between EntityTypes 
+                        title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", inclProps, props.ph, dispatch) }}>Generate Relationships between EntityTypes 
                       </Button>
                     </div>
                 </div>

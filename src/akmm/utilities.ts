@@ -155,9 +155,19 @@ export function findFromObjects( o: any, objects: any, torships: any ) {
     if (debug) console.log('120 findFromObjects', o, objects, torships);
    
     // const torships = relationships?.filter(r => r.toobjectRef === o.id && r); // find all relships to current obj object
-    const fromObj = torships?.map(r => objects?.find(o => o.id  === r.fromobjectRef)); // find objects in the other end of the relationship
-    if (debug) console.log('124 ', torships, fromObj);
-    return fromObj
+    const fromObjs = torships?.map(r => objects?.find(o => o.id  === r.fromobjectRef)); // find objects in the other end of the relationship
+    if (debug) console.log('124 ', torships, fromObjs);
+    return fromObjs
+    
+}
+
+export function findToObjects( o: any, objects: any, fromrships: any ) {
+    if (debug) console.log('120 findToObjects', o, objects, fromrships);
+   
+    // const fromrships = relationships?.filter(r => r.fromobjectRef === o.id && r); // find all relships to current obj object
+    const toObjs = fromrships?.map(r => objects?.find(o => o.id  === r.toobjectRef)); // find objects in the other end of the relationship
+    if (debug) console.log('124 ', fromrships, toObjs);
+    return toObjs
     
 }
 

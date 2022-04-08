@@ -44,6 +44,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   
   constructor(props: object) {
     super(props);
+    if (debug) console.log('47 GoJSPaletteApp',props.nodeDataArray);
     this.state = {
       nodeDataArray: this.props?.nodeDataArray,
       linkDataArray: this.props?.linkDataArray,
@@ -281,7 +282,6 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
 
     return (
       <div>
-
         <PaletteWrapper
           nodeDataArray     ={this.state.nodeDataArray}
           linkDataArray     ={this.state.linkDataArray}

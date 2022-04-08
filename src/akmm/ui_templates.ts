@@ -209,6 +209,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     ),
     );
     nodeTemplateMap.add("textOnly", nodeTemplate0);
+    nodeTemplateMap.add("", nodeTemplate0);
     addNodeTemplateName('textOnly');
 
     let nodeTemplate1 =      

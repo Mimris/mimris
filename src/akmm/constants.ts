@@ -5,7 +5,7 @@
 // Define View kinds
 
 export let params = {
-     MEMBERSCALE:   "0.75",
+     MEMBERSCALE:   "1",
 }
 
 export let viewkinds = {

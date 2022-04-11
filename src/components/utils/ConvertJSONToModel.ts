@@ -180,7 +180,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                     // check if the object is already in the phData
                     if (debug) console.log('173 : props', props, 'curModel ', curModel);
                     const existObj = curModel.objects.find(a => a.osduId === oKey )
-                    if (!debug) console.log('175 : ', curModel.objects, existObj, oKey, existObj?.id);
+                    if (debug) console.log('175 : ', curModel.objects, existObj, oKey, existObj?.id);
                     
                     const oId = (existObj) ? existObj.id : utils.createGuid()
                     
@@ -490,7 +490,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
                         ...cNewVal // want only attributes
                     }            
 
-            if (!debug) console.log('469 Create object: ', importedObject.name);             
+            if (debug) console.log('469 Create object: ', importedObject.name);             
             dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: importedObject } );  
         }
     }
@@ -522,7 +522,7 @@ export const ReadConvertJSONFromFile = async (modelType, inclProps, props, dispa
 
             // entityId = oId // remember entity id to be used in the next iteration of property  sub objectet.
  
-            if (!debug) console.log('492 Create relship', fromobjectName, importedRel.name, toobjectName );
+            if (debug) console.log('492 Create relship', fromobjectName, importedRel.name, toobjectName );
 
         (fromobjectId && toobjectId) && dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: importedRel });
 

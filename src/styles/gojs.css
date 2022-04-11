@@ -48,7 +48,7 @@ p {
   border-bottom: 1px solid #EEEEEE; /* Grey 900 */
   padding: 2px;
   padding-right: 0px;
-  width: 330px;
+  width: 100%;
 }
 
 .inspector input:disabled {

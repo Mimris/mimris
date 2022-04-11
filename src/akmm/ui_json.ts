@@ -666,6 +666,7 @@ export class jsnObjectTypeView {
     strokecolor1:    string;
     strokewidth:     string;
     textcolor:       string;
+    memberscale:     string;
     icon:            string;
     markedAsDeleted: boolean;
     modified:        boolean;
@@ -684,6 +685,7 @@ export class jsnObjectTypeView {
         this.strokecolor1    = this.strokecolor;
         this.strokewidth     = objtypeview.getStrokewidth();
         this.textcolor       = objtypeview.getTextcolor();
+        this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
@@ -1313,6 +1315,8 @@ export class jsnObjectView {
     isCollapsed:     boolean;
     loc:             string;
     size:            string;
+    scale:           string;
+    memberscale:     string;
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
@@ -1341,6 +1345,8 @@ export class jsnObjectView {
         this.textcolor       = objview?.textcolor;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
+        this.scale           = objview?.scale1;
+        this.memberscale     = objview?.memberscale;
         this.viewkind        = objview?.viewkind;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
@@ -1354,6 +1360,8 @@ export class jsnRelshipView {
     typeviewRef:     string;
     fromobjviewRef:  string;
     toobjviewRef:    string;
+    textscale:       string;
+    arrowscale:      string;
     strokecolor:     string;
     strokewidth:     string;
     textcolor:       string;
@@ -1371,6 +1379,8 @@ export class jsnRelshipView {
         this.description     = "";
         this.relshipRef      = "";
         this.typeviewRef     = "";
+        this.textscale       = relview.textscale;
+        this.arrowscale      = relview.arrowscale;
         this.strokecolor     = relview.strokecolor;
         this.strokewidth     = relview.strokewidth;
         this.textcolor       = relview?.textcolor;

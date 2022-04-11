@@ -4,6 +4,10 @@
 
 // Define View kinds
 
+export let params = {
+     MEMBERSCALE:   "0.75",
+}
+
 export let viewkinds = {
 	OBJ:    "Object",
 	AKM:    "AkmObject",

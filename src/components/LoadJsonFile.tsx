@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
+import Draggable from "react-draggable";
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
@@ -149,8 +150,11 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       return (
         <>
           <button className="btn-context btn-success float-right mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
-          <Modal isOpen={modal} toggle={toggle} className={className} >
-            <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
+        <Draggable handle=".handle">
+          <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
+            <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import: </ModalHeader>
+              {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
+                {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
             <ModalBody className="pt-0">
               Current Source: <strong> {props.ph.phSource}</strong>
               <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
@@ -219,6 +223,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
               </Button>
             </ModalFooter>
           </Modal>
+          </Draggable>
           <style jsx>{`
                 .selectbox2 {
                     background-color: rgba(0, 0, 0, 0.3) ;

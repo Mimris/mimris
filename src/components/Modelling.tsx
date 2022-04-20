@@ -18,6 +18,8 @@ import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
 import LoadFile from '../components/LoadFile'
 import LoadJsonFile from '../components/LoadJsonFile'
+import { ReadModelFromFile } from './utils/SaveModelToFile';
+
 // import ImpExpJSONFile from '../components/ImpExpJSONFile'
 import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
@@ -31,6 +33,7 @@ const page = (props:any) => {
   if (debug) console.log('28 Modelling', props, props.phUser.focusUser.diagram);
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState(true);
+
   // const refresh = props.refresh
   // const setRefresh = props.setRefresh
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
@@ -44,6 +47,7 @@ const page = (props:any) => {
   const focusRelshipview = useSelector(focusRelshipview => props.phFocus?.focusRelshipview) 
   const focusObjecttype = useSelector(focusObjecttype => props.phFocus?.focusObjecttype) 
   const focusRelshiptype = useSelector(focusRelshiptype => props.phFocus?.focusRelshiptype) 
+  const phSource = useSelector(phSource => props.phSource) 
   // if (debug) console.log('37 Modelling', props.phFocus, focusRelshiptype?.name);
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
@@ -314,6 +318,7 @@ const page = (props:any) => {
                     myGoMetamodel={myGoMetamodel}
                     phFocus={phFocus}
                     phUser={phUser}
+                    phSource={phSource}
                     metis={metis}
                     dispatch={dispatch}
                     modelType='model'
@@ -416,7 +421,9 @@ const page = (props:any) => {
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
               {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-              <span className="sourceName p-1 ml-4 " style={{ minWidth: "130px", backgroundColor: "#fff", color: "#b00", fontWeight: "bolder"}}>Current source: {props.phSource} </span> 
+              <span className="sourceName p-0 ml-2 mb-1 " style={{ minWidth: "130px", maxHeight: "35px", backgroundColor: "#fff"}}>
+                <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
+              </span> 
             {/* </div>  */}
           </div> 
         <div className="modellingContent pt-1 pr-2"  >

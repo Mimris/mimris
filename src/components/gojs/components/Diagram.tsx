@@ -416,6 +416,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Copy",
           function (e: any, obj: any) { 
+            const selection = [];
+            e.diagram.selection.each(function(sel) {
+              selection.push(sel.data);
+            });
+            myMetis.currentSelection = selection;
+            if (debug) console.log('424 selection', myMetis.currentSelection);
             e.diagram.commandHandler.copySelection(); 
           },
           function (o: any) { 
@@ -427,7 +433,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel;
               myMetis.pasteViewsOnly = false;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+              e.diagram.commandHandler.pasteSelection(point);
             },
             function (o: any) {
               return o.diagram.commandHandler.canPasteSelection(); 
@@ -442,7 +449,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               data = myDiagram.myGoModel;
               data = JSON.parse(JSON.stringify(data));
               e.diagram.dispatch({ type: 'SET_MY_GOMODEL', data });
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+              e.diagram.commandHandler.pasteSelection(point);
               if (debug) console.log('560 Paste View', myMetis);
             },
             function (o: any) { 
@@ -1669,7 +1677,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Paste",
             function (e: any, obj: any) {
               myMetis.pasteViewsOnly = false;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              const point1 = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+              e.diagram.commandHandler.pasteSelection(point1);
             },
             function (o: any) { 
               return o.diagram.commandHandler.canPasteSelection(); 
@@ -1677,7 +1686,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Paste View",
             function (e: any, obj: any) {
               myMetis.pasteViewsOnly = true;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+              e.diagram.commandHandler.pasteSelection(point);
             },
             function (o: any) { 
               //return false;

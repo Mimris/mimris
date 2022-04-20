@@ -332,6 +332,8 @@ export class goNode extends goMetaObject {
     text:            string;
     loc:             string;
     size:            string;
+    scale1:          string;
+    memberscale:     string;
     strokecolor:     string;
     fillcolor:       string;
     markedAsDeleted: boolean;
@@ -342,6 +344,8 @@ export class goNode extends goMetaObject {
         this.text = "";
         this.loc = "";
         this.size = "";
+        this.scale1 = "";
+        this.memberscale = "";
         this.strokecolor = "";
         this.fillcolor = "";
         this.markedAsDeleted = false;
@@ -358,6 +362,12 @@ export class goNode extends goMetaObject {
     }
     getSize(): string {
         return this.size;
+    }
+    setScale(scale: string) {
+        this.scale1 = scale;
+    }
+    getScale(): string {
+        return this.scale1;
     }
 }
 
@@ -395,6 +405,8 @@ export class goObjectNode extends goNode {
         this.textcolor      = objview.textcolor;
         this.icon           = objview.icon;
         this.isGroup        = objview.isGroup;
+        this.scale1         = objview.scale1;
+        this.memberscale    = objview.memberscale;
         this.isCollapsed    = objview.isCollapsed;
         this.groupLayout    = "Tree";
         this.group          = objview.group;
@@ -643,6 +655,8 @@ export class goRelshipLink extends goLink {
     toNode:             goNode | null;
     from:               string;
     to:                 string;
+    textscale:          string;
+    arrowscale:         string;
     strokecolor:        string;
     textcolor:          string;
     fromArrow:          string;
@@ -671,12 +685,14 @@ export class goRelshipLink extends goLink {
         this.from            = "";
         this.to              = "";
         this.template        = "";
-        this.strokecolor     = "";
-        this.textcolor       = "";
-        this.fromArrow       = "";
-        this.fromArrowColor  = "";
-        this.toArrow         = "";
-        this.toArrowColor    = "";
+        this.textscale       = relview?.textscale;
+        this.arrowscale      = relview?.arrowscale;
+        this.strokecolor     = relview?.strokecolor;
+        this.textcolor       = relview?.textcolor;
+        this.fromArrow       = relview?.fromArrow;
+        this.fromArrowColor  = relview?.fromArrowColor;
+        this.toArrow         = relview?.toArrow;
+        this.toArrowColor    = relview?.toArrowColor;
         this.routing         = "";
         this.curve           = "";
         this.points          = null;

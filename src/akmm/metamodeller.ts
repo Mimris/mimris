@@ -964,6 +964,7 @@ export class cxMetis {
                     objview.setLoc(item.loc);
                     // objview.setLoc(item.loc);
                     objview.setSize(item.size);
+                    objview.setScale(item.scale);
                     objview.setGroup(item.group);
                     // objview.isGroup = true;
                     objview.setIsGroup(item.isGroup);
@@ -1007,6 +1008,8 @@ export class cxMetis {
                     const toobjview = modelview.findObjectView(item.toobjviewRef) as cxObjectView;
                     relview.setFromObjectView(fromobjview);
                     relview.setToObjectView(toobjview);
+                    relview.textscale = item.textscale;
+                    relview.arrowscale = item.arrowscale;
                     relview.fromArrow = item.fromArrow;
                     relview.toArrow = item.toArrow;
                     relview.points = item.points;
@@ -5355,6 +5358,7 @@ export class cxObjectTypeView extends cxMetaObject {
     strokecolor: string;
     strokewidth: string;
     textcolor: string;
+    memberscale: string;
     icon: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
@@ -5368,6 +5372,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.strokecolor = "black";
         this.strokewidth = "2";
         this.textcolor   = "black";
+        this.memberscale = "1";
         this.icon        = "";
         this.data        = new cxObjtypeviewData();
         if (type) {
@@ -5522,6 +5527,17 @@ export class cxObjectTypeView extends cxMetaObject {
         else if (this.strokewidth)
             return this.strokewidth;
         return "2";
+    }
+    setMemberscale(memberscale: string) {
+        this.memberscale = memberscale;
+        this.data.memberscale = memberscale;
+    }
+    getMemberscale(): string {
+        if (this.data.memberscale)
+            return this.data.memberscale;
+        else if (this.memberscale)
+            return this.memberscale;
+        return "1"; // Default  1
     }
     setIcon(icon: string) { 
         this.data.icon = icon;
@@ -7009,7 +7025,7 @@ export class cxModelView extends cxMetaObject {
         this.objectviews = null;
         this.relshipviews = null;
         this.scale = "1";
-        this.memberscale = "1";
+        this.memberscale = constants.params.MEMBERSCALE;
         this.layout = "Tree";
         this.routing = "Normal";
         this.linkcurve = "None";
@@ -7298,7 +7314,7 @@ export class cxObjectView extends cxMetaObject {
     text: string;
     loc: string;
     size: string;
-    scale: string;
+    scale1: string;
     memberscale: string;
     viewkind: string;
     template: string;
@@ -7326,8 +7342,8 @@ export class cxObjectView extends cxMetaObject {
         this.viewkind = "";
         this.loc = "";
         this.size = "";
-        this.scale = "1";
-        this.memberscale = "1";
+        this.scale1 = "1";
+        this.memberscale = constants.params.MEMBERSCALE;
         this.template = "";
         this.geometry = "";
         this.fillcolor = "";
@@ -7453,21 +7469,21 @@ export class cxObjectView extends cxMetaObject {
     setScale(scale: string) {
         if (scale == undefined)
         scale = "";
-        this.scale = scale;
+        this.scale1 = scale;
     }
     getScale(): string {
-        if (this.scale == undefined)
+        if (this.scale1 == undefined)
             return "1";
-        return this.scale;
+        return this.scale1;
     }
     setMemberScale(memberscale: string) {
         if (memberscale == undefined)
-        memberscale = "1";
+        memberscale = constants.params.MEMBERSCALE;
         this.memberscale = memberscale;
     }
     getMemberScale(): string {
         if (this.memberscale == undefined)
-            return "1";
+            return constants.params.MEMBERSCALE;
         return this.memberscale;
     }
     setLoc(loc: string) {
@@ -7498,6 +7514,8 @@ export class cxRelationshipView extends cxMetaObject {
     typeview: cxRelationshipTypeView | null;
     fromObjview: cxObjectView | null;
     toObjview: cxObjectView | null;
+    textscale:      string;
+    arrowscale:     string;
     strokecolor:    string;
     strokewidth:    string;
     textcolor:      string;
@@ -7515,9 +7533,11 @@ export class cxRelationshipView extends cxMetaObject {
         this.typeview = relship?.type?.typeview as cxRelationshipTypeView;             
         this.fromObjview = null;
         this.toObjview = null;
-        this.strokecolor = "";
-        this.strokewidth = "";
-        this.textcolor = "";
+        this.textscale = "1";
+        this.arrowscale = "1.3";
+        this.strokecolor = "black";
+        this.strokewidth = "1";
+        this.textcolor = "black";
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";
@@ -7564,6 +7584,25 @@ export class cxRelationshipView extends cxMetaObject {
             if (k === 'relshipkind') continue;
             this[k] = "";
         }
+    }
+    setTextScale(scale: string) {
+        this.textscale = scale;
+    }
+    getTextScale(): string {
+        if (this.textscale == undefined)
+            return "1";
+        return this.textscale;
+    }
+    setArrowScale(scale: string) {
+        this.arrowscale = scale;
+    }
+    getArrowScale(): string {
+        if (this.arrowscale == undefined)
+            return "1";
+        return this.arrowscale;
+    }
+    setFromArrowColor(color: string) {
+        this.fromArrowColor = color;
     }
     setFromArrow(fromArrow: string) {
         this.fromArrow = fromArrow;

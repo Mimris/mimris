@@ -45,7 +45,7 @@ export function getCurve(c: string): any {
 
 function selectionIncludesPorts(n, myDiagram) {
     return n.containingGroup !== null && !myDiagram?.selection.has(n.containingGroup);
-  }
+}
 
 let nodeTemplateNames = []; 
 let groupTemplateNames = []; 
@@ -100,11 +100,13 @@ function addGroupTemplateName(name: string) {
 
 export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis: akm.cxMetis) {
     const myDiagram = myMetis.myDiagram;
-    let nodeTemplate0 =      
+    let nodeTemplate1 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+    new go.Binding("stroke", "strokecolor"),
     new go.Binding("layerName", "layer"),
     new go.Binding("deletable"),
     new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+    new go.Binding("scale", "scale1").makeTwoWay(),
     {
         toolTip:
         $(go.Adornment, "Auto",
@@ -208,15 +210,17 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         ),
     ),
     );
-    nodeTemplateMap.add("textOnly", nodeTemplate0);
-    nodeTemplateMap.add("", nodeTemplate0);
+    nodeTemplateMap.add("", nodeTemplate1);
+    nodeTemplateMap.add("textOnly", nodeTemplate1);
     addNodeTemplateName('textOnly');
 
-    let nodeTemplate1 =      
+    let nodeTemplate2 =      
     $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+    new go.Binding("stroke", "strokecolor"),
     new go.Binding("layerName", "layer"),
     new go.Binding("deletable"),
     new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+    new go.Binding("scale", "scale1").makeTwoWay(),
     {
         toolTip:
         $(go.Adornment, "Auto",
@@ -241,7 +245,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         margin: new go.Margin(1, 1, 1, 1),
         shadowVisible: true,
         minSize: new go.Size(158, 68),
-        // desiredSize: new go.Size(158, 68), 
+        desiredSize: new go.Size(158, 68), 
         // set the port properties
         portId: "", 
         fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
@@ -260,6 +264,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         ),
     $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
         {
+            name: "SHAPE",
             cursor: "move",    
             fill: "transparent",
             stroke: "transparent",
@@ -281,7 +286,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             { contextMenu: contextMenu , cursor: "move" },
             {
             defaultRowSeparatorStroke: "black",
-            desiredSize: new go.Size(300, 60),
             defaultAlignment: go.Spot.Center,
             },
             // content
@@ -293,10 +297,11 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 // stretch: go.GraphObject.Fill,
                 font: "bold 10pt Segoe UI,sans-serif",
                 minSize: new go.Size(120, 36), 
+                desiredSize: new go.Size(800, 60),
                 textAlign: "center",
                 height: 46,
                 verticalAlignment: go.Spot.Center,
-                margin: new go.Margin(0,0,0,2),
+                margin: new go.Margin(2,2,2,2),
                 name: "name"
             },        
             new go.Binding("text", "name").makeTwoWay(),
@@ -317,15 +322,16 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         ),
     ),
     );
-    nodeTemplateMap.add("", nodeTemplate1);
-    nodeTemplateMap.add("textOnly1", nodeTemplate1);
+    nodeTemplateMap.add("textOnly1", nodeTemplate2);
     addNodeTemplateName('textOnly1');
 
     nodeTemplateMap.add("textAndIcon", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
+            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("scale", "scale1").makeTwoWay(),
             {
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -461,6 +467,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            new go.Binding("scale", "scale1").makeTwoWay(),
             {
                 toolTip:
                 $(go.Adornment, "Auto",
@@ -935,30 +942,34 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             ),
             // the "from" arrowhead
             $(go.Shape, { fromArrow: ""},
+            { scale: 1.3, fill: "" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
             new go.Binding("stroke", "strokecolor"),
-            { scale: 1.3, fill: "" }
+            new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // the "to" arrowhead
             $(go.Shape, { toArrow: ""},  
+            { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
             new go.Binding("stroke", "strokecolor"),
-            { scale: 1.3, fill: "white" }
+            new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // cardinality from
             $(go.TextBlock, "",
                 { segmentIndex: NaN, segmentFraction: 0.15},
                 { segmentOffset: new go.Point(0, 10) },
                 new go.Binding("text", "cardinalityFrom"),
-            ),
+                new go.Binding("scale", "textscale").makeTwoWay(),
+                ),
             // cardinality to
             $(go.TextBlock, "",
             { segmentIndex: NaN, segmentFraction: 0.85},
-            { segmentOffset: new go.Point(0, -10) },
-            new go.Binding("text", "cardinalityTo"),
-            ),
+                { segmentOffset: new go.Point(0, -10) },
+                new go.Binding("text", "cardinalityTo"),
+                new go.Binding("scale", "textscale").makeTwoWay(),
+                ),
             // link label
             $(go.TextBlock,  "",
             {
@@ -967,7 +978,8 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             },
             { segmentOffset: new go.Point(0, 10) },
             new go.Binding("text", "name").makeTwoWay(),
-            new go.Binding("stroke", "textcolor").makeTwoWay()
+            new go.Binding("stroke", "textcolor").makeTwoWay(),
+            new go.Binding("scale", "textscale").makeTwoWay(),
             ),
             {
             toolTip:
@@ -1028,6 +1040,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             },
             // new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
             // new go.Binding("layout", "groupLayout"),
+            new go.Binding("scale", "scale1").makeTwoWay(),
             new go.Binding("background", "isHighlighted",
             function (h) {
                 return h ? "rgba(255,0,0,0.2)" : "transparent"; // this is the background of all
@@ -1045,14 +1058,14 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     )
                 )
             },
-                $(go.Shape, "RoundedRectangle", // surrounds everything
+            $(go.Shape, "RoundedRectangle", // surrounds everything
             {
                 cursor: "alias",
                 fill: "transparent", 
                 // stroke: "black", 
                 shadowVisible: true,
                 // strokeWidth: 1,
-                minSize: new go.Size(20, 30),
+                minSize: new go.Size(150,75),
                 portId: "", 
                 fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
                 toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
@@ -1125,7 +1138,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                     {
                         name: "SHAPE", fill: "white",
                         opacity: 0.95,
-                        minSize: new go.Size(100, 50), 
+                        minSize: new go.Size(150, 75), 
                         // desiredSize: new go.Size(300, 200),
                         margin: new go.Margin(0, 1, 1, 4),
                         cursor: "move",

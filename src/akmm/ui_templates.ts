@@ -942,19 +942,19 @@ export function getLinkTemplate(templateName: string, contextMenu: any, myMetis:
             ),
             // the "from" arrowhead
             $(go.Shape, { fromArrow: ""},
+            { scale: 1.3, fill: "" },
             new go.Binding("fromArrow", "fromArrow"),
             new go.Binding("fill", "fromArrowColor"),
             new go.Binding("stroke", "strokecolor"),
-            new go.Binding("scale", "arrowscale"),
-            { scale: 1.3, fill: "" }
+            new go.Binding("scale", "arrowscale").makeTwoWay(),
             ),
             // the "to" arrowhead
             $(go.Shape, { toArrow: ""},  
+            { scale: 1.3, fill: "white" },
             new go.Binding("toArrow", "toArrow"),
             new go.Binding("fill", "toArrowColor"),
             new go.Binding("stroke", "strokecolor"),
             new go.Binding("scale", "arrowscale").makeTwoWay(),
-            { scale: 1.3, fill: "white" }
             ),
             // cardinality from
             $(go.TextBlock, "",

@@ -1026,8 +1026,20 @@ export class jsnObject {
         this.modified        = object.modified;
 
         // Code
-        if (debug) console.log('876 this', this);
-        const objtype = object.type;
+        if (debug) console.log('876 this, object', this, object);
+
+        // for (let k in object) {
+        //     switch (k) {
+        //         case 'type':
+        //         case 'typeRef':
+        //         case 'generatedTypeId':
+        //         case 'modified':
+        //             continue;
+        //         break;
+        //     }
+        //     this[k] = object[k];
+        // }
+
         const properties = object.allProperties;
         if (debug) console.log('879 object, properties', object, properties);
         for (let i=0; i<properties?.length; i++) {

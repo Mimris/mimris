@@ -903,6 +903,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (!relview)
         break;
       relview = myMetis.findRelationshipView(relview.id);
+
+      const fromObjview = relview.fromObjview;
+      const toObjview = relview.toObjview;
+      let fromTextscale = fromObjview.textscale;
+      let toTextscale = toObjview.textscale;
+      const textscale = toTextscale > fromTextscale ? toTextscale : fromTextscale;
       const reltype = selRelview.relshiptype;
       let reltypeview = reltype.typeview;
       if (reltypeview) {
@@ -944,6 +950,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           if (prop === 'toArrowColor' && relview[prop] !== "") 
           myDiagram.model.setDataProperty(data, prop, relview[prop]);
       }
+      relview = uic.setLinkProperties(link, relview, myDiagram);
       const jsnRelview = new jsn.jsnRelshipView(relview);
       if (debug) console.log('965 data, jsnRelview', link, data, relview, jsnRelview);
       modifiedRelviews.push(jsnRelview);

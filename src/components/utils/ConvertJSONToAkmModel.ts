@@ -321,11 +321,12 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
                 } else if (oVal.type === 'string') { // || oVal === 'integer' || oVal === 'number' || oVal === 'boolean' || oVal === 'array' || oVal === 'object') { // if the value is a primitive type    
                     if (debug) console.log('321  primitive', oId, oName, oKey, jsonType, cNewVal);              
-                    if (oName.includes('ID')) { // if the name contains ID, its a link to another object "ObjectName"-ID
+                    if (oName.includes('ID') || oName.includes('IDs')) { // if the name contains ID, its a link to another object "ObjectName"-ID
                         const propLinkName = 'has'+oName
 
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-                        cNewVal.linkId = oName.replace('ID', '')
+                        cNewVal.linkId = oName.replace('IDs', '') // remove IDs from the name
+                        cNewVal.linkId = oName.replace('ID', '') // remove ID from the name
 
                         // hardcoded transformation of the name
                         // i.e. if o.linkId is = 'Company' then transform to 'Organisation'     
@@ -341,7 +342,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (cNewVal.linkId === 'ColumnStratigraphicHorizonTop') {cNewVal.linkId = 'HorizonInterpretation'}
                         if (cNewVal.linkId === 'ColumnStratigraphicHorizonBase') {cNewVal.linkId = 'HorizonInterpretation'}
                         if (cNewVal.linkId === 'Interpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-                        if (cNewVal.linkId === 'RockVolumeFeature') {cNewVal.linkId = 'LocalRockVolumeFeature'}
+                        if (cNewVal.linkId === 'RockVolumeFeature') {cNewVal.linkId = 'RockVolumeFeature'}
                         if (cNewVal.linkId === 'MarkerPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
                         if (cNewVal.linkId === 'WellLogType') {cNewVal.linkId = 'LogType'}
                         if (cNewVal.linkId === 'SamplingDomainType') {cNewVal.linkId = 'WellLogSamplingDomainType'}
@@ -349,6 +350,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (cNewVal.linkId === 'StopMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
                         if (cNewVal.linkId === 'StarBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
                         if (cNewVal.linkId === 'StopBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
+                        if (cNewVal.linkId === 'GeologicUnitInterpretation') {cNewVal.linkId = 'GeologicUnitInterpretation'} // TODO: check if this is correct
                
                         createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
                         if (debug) console.log('349 ID', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
@@ -376,7 +378,8 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 const objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
                 const typeRest = oVal['$ref'].split('/').slice(-1)[0]
                 cNewVal.title = (typeRest) && typeRest.split('.')[0] 
-                cNewVal.linkId = (typeRest) && typeRest.split('.')[0].replace('Abstract', '')
+                const typeRestNoDot = (typeRest) && typeRest.split('.')[0]
+                cNewVal.linkId = (typeRestNoDot) && (typeRestNoDot === 'AbstractWorkProductComponent') ? typeRestNoDot : typeRestNoDot.replace('Abstract', '')
 
                 const entityName = 'Is'+cNewVal.title
                 createObject(oId, entityName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects               

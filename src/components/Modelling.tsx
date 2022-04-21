@@ -18,7 +18,7 @@ import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
 import LoadFile from '../components/LoadFile'
 import LoadJsonFile from '../components/LoadJsonFile'
-import { ReadModelFromFile } from './utils/SaveModelToFile';
+import { ReadModelFromFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 
 // import ImpExpJSONFile from '../components/ImpExpJSONFile'
 import useLocalStorage  from '../hooks/use-local-storage'
@@ -125,8 +125,20 @@ const page = (props:any) => {
       }
       setTimeout(refres, 1);
     }, [props.phUser.focusUser])
+    
+    const data = {
+      phData:   props.phData,
+      phFocus:  props.phFocus,
+      phUser:   props.phUser,
+      phSource: 'localFile'
+    }
+    function handleSaveAllToFileDate() {
+      const projectname = props.phData.metis.name
+      // console.log('37 LoadFile', data);
+      // SaveAllToFileDate(data, projectname, 'Project')
+      SaveAllToFileDate(data, projectname, 'Project')
+    }
 
-  
   function toggleRefresh() {
     if (debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);
     const data = {
@@ -399,34 +411,42 @@ const page = (props:any) => {
   const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
   const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Object' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Relship' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="m-0 p-0" buttonLabel='Relship' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // if (debug) console.log('177 Modelling', EditFocusModalDiv);
 
   return (
     <>
-      <div className="diagramtabs pl-1 pb-1">
+      <div className="diagramtabs pl-1 pb-0">
       {/* <div className="diagramtabs pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "100px" , whitespace: "nowrap"}}> */}
           <span className="btn-link btn-sm float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
-          <div className="buttonrow m-0 d-inline-flex float-right" style={{ minWidth: "830px",transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
+          <div className="buttonrow m-0 d-inline-flex float-right" style={{transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
             {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-              <span className="pt-1 pr-2 bg-secondary" > Edit selected :  </span>
+              <span className="pt-1 pb-1 m-0 pr-2 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
  
-              <span className="pt-1 pr-2" > </span>
+              <span className="pt-1 pr-1" > </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" > {loadfile} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
               {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
               <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-              <span className="sourceName p-0 ml-2 mb-1 " style={{ minWidth: "130px", maxHeight: "35px", backgroundColor: "#fff"}}>
+              <span className="sourceName p-0 ml-2 mb-1 " style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#fff"}}>
                 <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
+              </span>
+              <span >
+                <button 
+                  className="btn-secondary ml-2 mr-2 mb-3 " 
+                  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                  title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                  onClick={handleSaveAllToFileDate}>Save
+                </button >
               </span> 
             {/* </div>  */}
           </div> 
-        <div className="modellingContent pt-1 pr-2"  >
+        <div className="modellingContent pt-3 pr-2"  >
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>
       </div>

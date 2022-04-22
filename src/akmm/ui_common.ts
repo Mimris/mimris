@@ -730,34 +730,34 @@ export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel
             // return node;
             // Trying to handle container 'grabbing' objects
 
-            // if (objview.isGroup) {   // node / objview is a group
-            //     const group = node;
-            //     // Get potential members of the group
-            //     const nods = goModel?.nodes;
-            //     for (let i=0; i<nods.length; i++) {
-            //         let nod = nods[i] as gjs.goObjectNode;
-            //         // if nod is the group, do nothing
-            //         if (nod.key === group.key)
-            //             continue;
-            //         const oview = nod.objectview;
-            //         const grp = getGroupByLocation(goModel, oview.loc);
-            //         if (grp) {
-            //             if (debug) console.log('741 grp', grp);
-            //             // This (grp) is the container
-            //             oview.group = grp.objectview.id;
-            //             nod.group = grp.key;
-            //             // nod.scale1 = ;
-            //             const loc = scaleNodeLocation(grp, nod);
+            if (objview.isGroup) {   // node / objview is a group
+                const group = node;
+                // Get potential members of the group
+                const nods = goModel?.nodes;
+                for (let i=0; i<nods.length; i++) {
+                    let nod = nods[i] as gjs.goObjectNode;
+                    // if nod is the group, do nothing
+                    if (nod.key === group.key)
+                        continue;
+                    const oview = nod.objectview;
+                    const grp = getGroupByLocation(goModel, oview.loc);
+                    if (grp) {
+                        if (debug) console.log('741 grp', grp);
+                        // This (grp) is the container
+                        oview.group = grp.objectview.id;
+                        nod.group = grp.key;
+                        // nod.scale1 = ;
+                        const loc = scaleNodeLocation(grp, nod);
 
 
-            //             const n = myDiagram.findNodeForKey(nod.key);
-            //             if (n?.data)
-            //                 myDiagram.model.setDataProperty(n.data, "group", grp.key);
-            //             const jsnObjview = new jsn.jsnObjectView(oview);
-            //             modifiedNodes.push(jsnObjview);
-            //         }
-            //     }
-            // }
+                        const n = myDiagram.findNodeForKey(nod.key);
+                        if (n?.data)
+                            myDiagram.model.setDataProperty(n.data, "group", grp.key);
+                        const jsnObjview = new jsn.jsnObjectView(oview);
+                        modifiedNodes.push(jsnObjview);
+                    }
+                }
+            }
 
         }
         return node;

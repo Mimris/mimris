@@ -821,19 +821,20 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
     for (let i=0; i<rellist.length; i++) {
         const rel = rellist[i];
         const fromObj = rel.fromObject;
-        const fromObjview = fromObj.objectviews[0];
         const toObj   = rel.toObject;
-
-        const noRelviews = rel.relationshipviews?.length;
-        let relview;
-        if (noRelviews>0)
-            relview = rel.relationshipviews[0];
-        else
-            relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
-        const toObjview = toObj.objectviews[0];
-        relview.setFromObjectView(fromObjview);
-        relview.setToObjectView(toObjview);
-        tempModelview.addRelationshipView(relview);
+        if (fromObj && toObj) { // changed
+            const noRelviews = rel.relationshipviews?.length;
+            let relview;
+            if (noRelviews>0)
+                relview = rel.relationshipviews[0];
+            else
+                relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, "");
+            const fromObjview = fromObj?.objectviews[0];
+            const toObjview = toObj?.objectviews[0];
+            relview.setFromObjectView(fromObjview);
+            relview.setToObjectView(toObjview);
+            tempModelview.addRelationshipView(relview);
+        }
     }
     if (debug) console.log('810 tempModelview', tempModelview);
     return tempModelview;

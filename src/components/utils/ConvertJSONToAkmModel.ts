@@ -115,30 +115,6 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
     }
 
-    function editLinkId() {
-        if (cNewVal.linkId === 'Company') {cNewVal.linkId = 'Organisation'}
-        if (cNewVal.linkId === 'ServiceCompany') {cNewVal.linkId = 'Organisation'}
-        if (cNewVal.linkId === 'ParentProject') {cNewVal.linkId = 'Project'}
-        if (cNewVal.linkId === 'StationPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
-        if (cNewVal.linkId === 'TrajectoryStationPropertyType') {cNewVal.linkId = 'TrajectoryStationPropertyType'}
-        if (cNewVal.linkId === 'SurveyToolType') {cNewVal.linkId = 'SurveyToolType'}
-        if (cNewVal.linkId === 'GeographicCRS') {cNewVal.linkId = 'CoordinateReferenceSystem'}
-        if (cNewVal.linkId === 'ProjectedCRS') {cNewVal.linkId = 'CoordinateReferenceSystem'}
-        if (cNewVal.linkId === 'Feature') {cNewVal.linkId = 'LocalRockVolumeFeature'}
-        if (cNewVal.linkId === 'ColumnStratigraphicHorizonTop') {cNewVal.linkId = 'HorizonInterpretation'}
-        if (cNewVal.linkId === 'ColumnStratigraphicHorizonBase') {cNewVal.linkId = 'HorizonInterpretation'}
-        if (cNewVal.linkId === 'Interpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-        if (cNewVal.linkId === 'RockVolumeFeature') {cNewVal.linkId = 'RockVolumeFeature'}
-        if (cNewVal.linkId === 'MarkerPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
-        if (cNewVal.linkId === 'WellLogType') {cNewVal.linkId = 'LogType'}
-        if (cNewVal.linkId === 'SamplingDomainType') {cNewVal.linkId = 'WellLogSamplingDomainType'}
-        if (cNewVal.linkId === 'StartMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
-        if (cNewVal.linkId === 'StopMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
-        if (cNewVal.linkId === 'StarBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-        if (cNewVal.linkId === 'StopBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
-        if (cNewVal.linkId === 'GeologicUnitInterpretation') {cNewVal.linkId = 'GeologicUnitInterpretation'} // TODO: check if this is correct
-    }
-
         const osduMod = JSON.parse(jsonFile) // importert JSON file
         if (debug) console.log('121 osduMod', osduMod)
 
@@ -256,11 +232,12 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     
                     // the osduId is lost so we have to find the object with the name and that has the same parentId as the object we are currently working on
 
-                    const existName = curModel.objects.find((o: { name: string; }) => o.name === oKey?.split('|')?.slice(-1)[0].split('.')[0] && o) // use name as key to find the object in the model
-                    const existParent = curModel.objects.find((o: { name: string; }) => o.name === otKey?.split('|')?.slice(-1)[0].split('.')[0] && o) // use name as key to find the object in the model
+                    // const existName = curModel.objects.find((o: { name: string; }) => o.name === oKey?.split('|')?.slice(-1)[0].split('.')[0] && o) // use name as key to find the object in the model
+                    // const existParent = curModel.objects.find((o: { name: string; }) => o.name === otKey?.split('|')?.slice(-1)[0].split('.')[0] && o) // use name as key to find the object in the model
+
                     // const existFromobject  
 
-                    // const existObj = curModel.objects.find((o: { osduId: any; }) => o.osduId === oKey && o)  
+                    const existObj = curModel.objects.find((o: { osduId: any; }) => o.osduId === oKey && o)  
                     const oId = (existObj) ? existObj.id : utils.createGuid()
                     if (!debug) console.log('244 : ',  existObj, existObj?.id, oId, oKey, oVal );
 
@@ -342,19 +319,40 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     }
                 } else if (oVal.type === 'string') { // || oVal === 'integer' || oVal === 'number' || oVal === 'boolean' || oVal === 'array' || oVal === 'object') { // if the value is a primitive type    
                     if (debug) console.log('321  primitive', oId, oName, oKey, jsonType, cNewVal);              
-                    if (oName.includes('ID') || oName.includes('IDs')) { // if the name contains ID, its a link to another object "ObjectName"-ID
+                    if (oName.includes('IDs') || oName.includes('ID')) { // if the name contains ID, its a link to another object "ObjectName"-ID
                         const propLinkName = 'has'+oName
 
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
                         cNewVal.linkId = oName.replace('IDs', '') // remove IDs from the name
                         cNewVal.linkId = oName.replace('ID', '') // remove ID from the name
                         if (!debug) console.log('322 ', cNewVal);
+
                         // hardcoded transformation of the name
                         // i.e. if o.linkId is = 'Company' then transform to 'Organisation'   
-                        
-                        editLinkId()
+                        if (cNewVal.linkId === 'Company') {cNewVal.linkId = 'Organisation'}
+                        if (cNewVal.linkId === 'ServiceCompany') {cNewVal.linkId = 'Organisation'}
+                        if (cNewVal.linkId === 'ParentProject') {cNewVal.linkId = 'Project'}
+                        if (cNewVal.linkId === 'StationPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
+                        if (cNewVal.linkId === 'TrajectoryStationPropertyType') {cNewVal.linkId = 'TrajectoryStationPropertyType'}
+                        if (cNewVal.linkId === 'SurveyToolType') {cNewVal.linkId = 'SurveyToolType'}
+                        if (cNewVal.linkId === 'GeographicCRS') {cNewVal.linkId = 'CoordinateReferenceSystem'}
+                        if (cNewVal.linkId === 'ProjectedCRS') {cNewVal.linkId = 'CoordinateReferenceSystem'}
+                        if (cNewVal.linkId === 'Feature') {cNewVal.linkId = 'LocalRockVolumeFeature'}
+                        if (cNewVal.linkId === 'ColumnStratigraphicHorizonTop') {cNewVal.linkId = 'HorizonInterpretation'}
+                        if (cNewVal.linkId === 'ColumnStratigraphicHorizonBase') {cNewVal.linkId = 'HorizonInterpretation'}
+                        if (cNewVal.linkId === 'Interpretation') {cNewVal.linkId = 'HorizonInterpretation'}
+                        if (cNewVal.linkId === 'RockVolumeFeature') {cNewVal.linkId = 'RockVolumeFeature'}
+                        if (cNewVal.linkId === 'MarkerPropertyUnit') {cNewVal.linkId = 'UnitOfMeasure'}
+                        if (cNewVal.linkId === 'WellLogType') {cNewVal.linkId = 'LogType'}
+                        if (cNewVal.linkId === 'SamplingDomainType') {cNewVal.linkId = 'WellLogSamplingDomainType'}
+                        if (cNewVal.linkId === 'StartMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
+                        if (cNewVal.linkId === 'StopMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
+                        if (cNewVal.linkId === 'StarBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
+                        if (cNewVal.linkId === 'StopBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
+                        // if (cNewVal.linkId === 'GeologicUnitInterpretation') {cNewVal.linkId = 'GeologicUnitInterpretation'} // TODO: check if this is correct
 
                         if (debug) console.log('346  ', cNewVal);
+
                         createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
                         if (debug) console.log('349 ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
@@ -399,7 +397,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
                     if (debug) console.log('349 Set', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
                     findOwnerandCreateRelationship(osduObj)
-                } else if (parentName === 'Markers'){ // Special case for Markers   
+                } else if (parentName === 'Markers' || parentName.contains('IDs') ){ // Special case for Markers or containing IDs   
                     const oMName  = parentName.substring(0, parentName.length-1) // remove the last plural character s
                     objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id
                     reltypeRef = containsType?.id

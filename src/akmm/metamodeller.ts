@@ -577,7 +577,6 @@ export class cxMetis {
                     this.importObjectTypeView(objtypeview, metamodel);
             });
         }
-        if (debug) console.log('367 this', this);
 
         let relshiptypes: any[] = item.relshiptypes;
         if (relshiptypes && relshiptypes.length) {
@@ -764,6 +763,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setType(type);
             objtypeview.setTemplate(item.template);
+            objtypeview.setMemberscale(item.memberscale);
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setTextcolor(item.textcolor);
@@ -5325,6 +5325,7 @@ export class cxObjtypeviewData {
     abstract: boolean;
     isGroup: boolean;               // Container behaviour
     group: string;                  // Parent group
+    memberscale: string;
     viewkind: string;
     template: string;
     geometry: string;
@@ -5337,6 +5338,7 @@ export class cxObjtypeviewData {
         this.abstract = false;
         this.isGroup = false;              // Container behaviour
         this.group = "";                // Parent group
+        this.memberscale = "1";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "";
         this.geometry = "";
@@ -5349,30 +5351,30 @@ export class cxObjtypeviewData {
 }
 
 export class cxObjectTypeView extends cxMetaObject {
-    type: cxObjectType | null;
+    // type: cxObjectType | null;
     typeRef: string;
     data: cxObjtypeviewData;
     template: string;
+    memberscale: string;
     geometry: string;
     fillcolor: string;
     strokecolor: string;
     strokewidth: string;
     textcolor: string;
-    memberscale: string;
     icon: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_OBJECTTYPEVIEWS;  // Firestore collection
         this.category    = constants.gojs.C_OBJECTTYPEVIEW;
-        this.type        = type;
+        // this.type        = type;
         this.typeRef     = type?.id;
         this.template    = "";
         this.geometry    = "";
+        this.memberscale = "1";
         this.fillcolor   = "lightyellow";
         this.strokecolor = "black";
         this.strokewidth = "2";
         this.textcolor   = "black";
-        this.memberscale = "1";
         this.icon        = "";
         this.data        = new cxObjtypeviewData();
         if (type) {
@@ -5407,13 +5409,16 @@ export class cxObjectTypeView extends cxMetaObject {
         }
     }
     setType(type: cxObjectType) {
-        this.type = type;
+        // this.type = type;
         this.typeRef = type?.id;
     }
-    getType(): cxObjectType | null {
-        if (this.type)
-            return this.type;
-        return null;
+    // getType(): cxObjectType | null {
+    //     if (this.type)
+    //         return this.type;
+    //     return null;
+    // }
+    getTypeRef(): string {
+        return this.typeRef;
     }
     setData(data: any) {
         // If is valid JSON
@@ -5578,8 +5583,8 @@ export class cxReltypeviewData {
 }
 
 export class cxRelationshipTypeView extends cxMetaObject {
-    type:    cxRelationshipType | null;
-    typeRef: string;
+    // type:           cxRelationshipType | null;
+    typeRef:        string;
     data:           cxReltypeviewData;
     strokecolor:    string;
     strokewidth:    string;
@@ -5593,7 +5598,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_RELSHIPTYPEVIEWS;  // Firestore collection
         this.category = constants.gojs.C_RELSHIPTYPEVIEW;
-        this.type     = type;
+        // this.type     = type;
         this.typeRef  = type?.id;
         this.data     = new cxReltypeviewData();
         this.setFromArrow2(type?.relshipkind);
@@ -5626,12 +5631,15 @@ export class cxRelationshipTypeView extends cxMetaObject {
         }
     }
     setType(type: cxRelationshipType) {
-        this.type = type;
+        this.typeRef = type?.id;
     }
-    getType(): cxRelationshipType | null {
-        if (this.type)
-            return this.type;
-        return null;
+    // getType(): cxRelationshipType | null {
+    //     if (this.type)
+    //         return this.type;
+    //     return null;
+    // }
+    getTypeRef(): string {
+        return this.typeRef;
     }
     setData(data: cxReltypeviewData) {
         // If is valid JSON
@@ -7343,7 +7351,7 @@ export class cxObjectView extends cxMetaObject {
         this.loc = "";
         this.size = "";
         this.scale1 = "1";
-        this.memberscale = constants.params.MEMBERSCALE;
+        this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
         this.template = "";
         this.geometry = "";
         this.fillcolor = "";
@@ -7478,12 +7486,12 @@ export class cxObjectView extends cxMetaObject {
     }
     setMemberScale(memberscale: string) {
         if (memberscale == undefined)
-        memberscale = constants.params.MEMBERSCALE;
+            this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
         this.memberscale = memberscale;
     }
     getMemberScale(): string {
         if (this.memberscale == undefined)
-            return constants.params.MEMBERSCALE;
+            return this.typeview?.memberscale ? this.typeview.memberscale : "1";
         return this.memberscale;
     }
     setLoc(loc: string) {
@@ -7600,9 +7608,6 @@ export class cxRelationshipView extends cxMetaObject {
         if (this.arrowscale == undefined)
             return "1";
         return this.arrowscale;
-    }
-    setFromArrowColor(color: string) {
-        this.fromArrowColor = color;
     }
     setFromArrow(fromArrow: string) {
         this.fromArrow = fromArrow;

@@ -674,7 +674,7 @@ export class jsnObjectTypeView {
         this.id              = objtypeview.id;
         this.name            = objtypeview.name;
         this.description     = "";
-        this.typeRef         = objtypeview.type?.id;
+        this.typeRef         = objtypeview.typeRef;
         this.isGroup         = objtypeview.getIsGroup();
         this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
@@ -735,7 +735,7 @@ export class jsnRelshipTypeView {
         this.id              = reltypeview.id;
         this.name            = reltypeview.name;
         this.description     = (reltypeview.description) ? reltypeview.description : "";
-        this.typeRef         = reltypeview.type?.id;
+        this.typeRef         = reltypeview.getTypeRef();
         this.strokecolor     = reltypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor1;
         this.strokewidth     = reltypeview.getStrokewidth();
@@ -1028,17 +1028,34 @@ export class jsnObject {
         // Code
         if (debug) console.log('876 this, object', this, object);
 
-        // for (let k in object) {
-        //     switch (k) {
-        //         case 'type':
-        //         case 'typeRef':
-        //         case 'generatedTypeId':
-        //         case 'modified':
-        //             continue;
-        //         break;
-        //     }
-        //     this[k] = object[k];
-        // }
+        for (let k in object) {
+            switch (k) {
+                case 'id':
+                case 'name':
+                case 'description':
+                case 'abstract':
+                case 'viewkind':
+                case 'allProperties':
+                case 'fromObject':
+                case 'fs_collection':
+                case 'parentModel':
+                case 'propertyValues':
+                case 'toObject':
+                case 'type':
+                case 'typeview':
+                case 'typeName':
+                case 'typeRef':
+                case 'generatedTypeId':
+                case 'markedAsDeleted':
+                case 'modified':
+                case 'inputrels':
+                case 'outputrels':
+                case 'objectviews':
+                    continue;
+                break;
+            }
+            this[k] = object[k];
+        }
 
         const properties = object.allProperties;
         if (debug) console.log('879 object, properties', object, properties);

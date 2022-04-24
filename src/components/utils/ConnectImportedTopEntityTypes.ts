@@ -81,7 +81,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
     // console.log('56 :', stringifyEntries(deepEntries(topModel))); 
 
     const propLinkObjects = utils.findObjectsByType(curModel.objects, curObjTypes, 'PropLink' ) // find all PropLink objects, this is temporary objedts representing on end of a relship
-    if (!debug) console.log('85 :', curModel.objects, propLinkObjects);
+    if (debug) console.log('85 :', curModel.objects, propLinkObjects);
     // then find objects a name that includes the text 'ID' 
     // const propLinkObjectsWithId =  propLinkObjects.filter((o: { name: string | string[]; }) => o.name?.includes('ID') && o)
     // const propLinkObjectsWithType =  propLinkObjects.filter((o: { name: string | string[]; }) => o.name?.includes('Type') && o)
@@ -92,7 +92,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
     const propLinks = propLinkObjects
     // const propLinks = (propLinkObjectsWithId.length > 0) ? propLinkObjectsWithId : propLinkObjectsWithSet
     // if (debug) console.log('81 ', propLinkObjects, propLinkObjectsWithId, propLinkObjectsWithSet, propLinks);
-    if (!debug) console.log('96 ', propLinks);
+    if (debug) console.log('96 ', propLinks);
 
     let topLevelObject: { id: any; name: any; }
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
@@ -108,13 +108,13 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
         if (debug) console.log('109 ', o.name, targetObject && targetObject.id, existRelship);
     
         
-        if (!debug) console.log('112 ', o.name);
+        if (debug) console.log('112 ', o.name);
         
         // find top level object
         if (targetObject) { // if no targetObject, skip this relationship
             topLevelObject = (o) ? utils.findTopLevelObject(o, '', curObjects,  curRelships) : null;
-            if (!debug) console.log('114 ', o.name, targetObject) //, curObjects, curRelships);  
-            if (!debug) console.log('115 ', topLevelObject) //, curObjects, curRelships);  
+            if (debug) console.log('114 ', o.name, targetObject) //, curObjects, curRelships);  
+            if (debug) console.log('115 ', topLevelObject) //, curObjects, curRelships);  
             // topLevelObject = utils.findObjectByTitle(curModel.objects, '', restTitle )
             if (debug) console.log('123 ', targetObject, o.name, curObjects, topLevelObject );  
             // if (debug) console.log('98 ', topLevelObject, topLevelObject.id, topLevelObject.name);            

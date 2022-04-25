@@ -461,8 +461,8 @@ function askForMetamodel(context: any) {
         const metaModel = allMetaModels[i];
         if (metaModel.markedAsDeleted)
             continue;
-        if (metaModel.name === constants.admin.AKM_ADMIN_MM)
-            continue;
+        // if (metaModel.name === constants.admin.AKM_ADMIN_MM)
+        //     continue;
         if (context.case === "Delete Metamodel") {
             if (metaModel.id === myMetamodel.id)
                 continue;

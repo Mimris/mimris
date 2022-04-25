@@ -578,7 +578,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (reltype && !reltype.markedAsDeleted)
             includeReltype = true;
           else {
-            if (includeDeleted) {debug
+            if (includeDeleted) {
               if (reltype.markedAsDeleted) {
                 strokecolor = "orange";
                 includeReltype = true;

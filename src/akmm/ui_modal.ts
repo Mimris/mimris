@@ -980,45 +980,41 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('990 node, data', node, data);
         objtypeview = data.typeview;
         typeview = myMetis.findObjectTypeView(objtypeview?.id);
-        // let objtype = node.objecttype;
-        // if (!typeview) typeview = objtype.newDefaultTypeView('Object');
-        for (let prop in typeview?.data) {
+        for (let prop in objtypeview?.data) {
           if (prop === 'abstract') continue;
           if (prop === 'class') continue;
+          typeview[prop] = selObj[prop];
           typeview.data[prop] = selObj[prop];
-          if (data) data[prop] = selObj[prop];
+          objtypeview[prop] = selObj[prop];
+          myDiagram.model.setDataProperty(data, prop, selObj[prop]);
         }
-        if (debug) console.log('1001 typeview', typeview, data);
-         const jsnObjtypeview = new jsn.jsnObjectTypeView(typeview);
-        if (debug) console.log('1003 jsnObjtypeview', jsnObjtypeview);
-        modifiedObjTypeviews.push(jsnObjtypeview);
-        modifiedObjTypeviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-        })
       }
       if (selObj.category === constants.gojs.C_OBJECT) {
         const node = myDiagram.findNodeForKey(selObj.key);
         data = node.data;
-        if (debug) console.log('1014 objtypeview, data', data);
+        const objview = data.objectview;
         objtypeview = data.objectview?.typeview;
-        // if (!typeview) typeview = data.typeview;
-        // if (!typeview) 
-        typeview = myMetis.findObjectTypeView(objtypeview?.id);
-        for (let prop in objtypeview.data) {
-          typeview.data[prop] = selObj[prop];
-          objtypeview.data[prop] = selObj[prop];
-          objtypeview[prop] = selObj[prop];
+        if (!debug) console.log('996 objtypeview, data, objview', objtypeview, data, objview);
+        const typeviews = myMetis.objecttypeviews;
+        for (let i = 0; i < typeviews.length; i++) {
+          const typeview = typeviews[i];
+          if (typeview.id === objtypeview?.id) {
+            for (let prop in data.typeview.data) {
+              if (prop === 'abstract') continue;
+              if (prop === 'class') continue;
+              if (prop === 'isGroup') continue;
+              if (prop === 'group') continue;
+              // if (prop === 'memberscale') continue;
+              // if (prop === 'geometry') continue;
+              // if (prop === 'template') continue;
+              // if (prop === 'viewkind') continue;
+              objview[prop] = data.objectview[prop];
+              typeview.data[prop] = selObj[prop];
+              if (debug) console.log('1005 typeview', typeview);
+            }
+          }
         }
-        const jsnObjtypeview = new jsn.jsnObjectTypeView(typeview);
-        if (!debug) console.log('1024 jsnObjtypeview, typeview, objtypeview', jsnObjtypeview, typeview, objtypeview);
-        modifiedObjTypeviews.push(jsnObjtypeview);
-        modifiedObjTypeviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-        })
+        if (debug) console.log('1014 data, objtypeview', data, objtypeview);        
       }
       if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
         const link = myDiagram.findLinkForKey(selObj.key);
@@ -1026,45 +1022,63 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('1035 data, link', data, link);
         reltypeview = data.typeview;
         typeview = myMetis.findRelationshipTypeView(reltypeview.id);
-        for (let prop in typeview.data) {
+        typeview.setFromArrow2(selObj.relshipkind);
+        typeview.setToArrow2(selObj.relshipkind);
+        for (let prop in reltypeview.data) {
           if (prop === 'abstract') continue;
           if (prop === 'class') continue;
           if (prop === 'relshipkind') continue;
+          typeview[prop] = selObj[prop];
           typeview.data[prop] = selObj[prop];
-          if (data) data[prop] = selObj[prop];
+          reltypeview[prop] = selObj[prop];
+          reltypeview.data[prop] = selObj[prop];
+          myDiagram.model.setDataProperty(data, prop, selObj[prop]);
         }
-        typeview.setFromArrow2(selObj.relshipkind);
-        typeview.setToArrow2(selObj.relshipkind);
-        if (debug) console.log('1047 typeview', typeview, data);
-        const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
-        if (debug) console.log('1049 jsnReltypeview', jsnReltypeview);
-        modifiedRelTypeviews.push(jsnReltypeview);
-        modifiedRelTypeviews.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-        })
+        if (!debug) console.log('1047 typeview', typeview, data);
+        // const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
+        // if (debug) console.log('1049 jsnReltypeview', jsnReltypeview);
+        // modifiedRelTypeviews.push(jsnReltypeview);
+        // modifiedRelTypeviews.map(mn => {
+        //   let data = mn;
+        //   data = JSON.parse(JSON.stringify(data));
+        //   props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+        // })
       }
       if (selObj.category === constants.gojs.C_RELATIONSHIP) {
         const link = myDiagram.findLinkForKey(selObj.key);
         data = link.data;
-        reltypeview = data.relshipview.typeview;
-        typeview = myMetis.findRelationshipTypeView(typeview?.id);
-        if (typeview) {
-          for (let prop in typeview.data) {
-            typeview.data[prop] = selObj[prop];
-            data[prop] = selObj[prop];
+        reltypeview = data.relshipview?.typeview;
+        const relview = data.relshipview;
+        const typeviews = myMetis.relshiptypeviews;
+        for (let i = 0; i < typeviews.length; i++) {
+          const typeview = typeviews[i];
+          if (typeview.id === objtypeview?.id) {
+            for (let prop in data.typeview.data) {
+              relview[prop] = selObj[prop];
+              typeview.data[prop] = selObj[prop];
+              myDiagram.model.setDataProperty(data, prop, selObj[prop]);
+            }
           }
-          if (debug) console.log('1067 reltypeview, link', typeview, link);
-          const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
-          if (debug) console.log('1069 jsnReltypeview', jsnReltypeview);
-          modifiedRelTypeviews.push(jsnReltypeview);
-          modifiedRelTypeviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
-          })
         }
+
+
+        // typeview = myMetis.findRelationshipTypeView(reltypeview?.id);
+        // if (typeview) {
+        //   for (let prop in typeview.data) {
+        //     typeview[prop] = selObj[prop];
+        //     typeview.data[prop] = selObj[prop];
+        //     data[prop] = selObj[prop];
+        //   }
+        //   if (!debug) console.log('1067 typeview, link', typeview, link);
+        //   const jsnReltypeview = new jsn.jsnRelshipTypeView(typeview);
+        //   if (debug) console.log('1069 jsnReltypeview', jsnReltypeview);
+        //   modifiedRelTypeviews.push(jsnReltypeview);
+        //   modifiedRelTypeviews.map(mn => {
+        //     let data = mn;
+        //     data = JSON.parse(JSON.stringify(data));
+        //     props.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+        //   })
+        // }
       }
       if (data) {
         if (selObj.category === constants.gojs.C_RELSHIPTYPE || 
@@ -1104,14 +1118,12 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       }
       break;
     }
-
-    // Handle all the dispatches
-    modifiedObjTypeviews.map(mn => {
-      let data = mn;
-      data = JSON.parse(JSON.stringify(data));
-      props.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
-    })
   }
   if (!debug) console.log('1104 myMetis', myMetis);
-}
 
+  // Dispatch metis
+  const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+  let data = {metis: jsnMetis}
+  data = JSON.parse(JSON.stringify(data));
+  props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+}

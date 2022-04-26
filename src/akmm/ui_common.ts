@@ -2691,13 +2691,15 @@ function propIsColor(prop: string): boolean {
 
 export function setLinkProperties(link: any, relview: akm.cxRelationshipView, diagram: any) {
     const reltypeview = relview.typeview;
+    if (reltypeview) {
+        let strokewidth = reltypeview.strokewidth  * textscale;
+        relview.strokewidth = strokewidth < 1 ? 1 : parseInt(strokewidth);
+        diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
+    }
     const textscale = relview.textscale;
     relview.arrowscale = relview.textscale * 1.3;
-    let strokewidth = reltypeview.strokewidth  * textscale;
-    relview.strokewidth = strokewidth < 1 ? 1 : parseInt(strokewidth);
     diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
     diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
-    diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
     return relview;
 }
 

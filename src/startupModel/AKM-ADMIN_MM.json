@@ -2,30 +2,9 @@
   "id": "28362053-7550-453a-c580-5571b10780da",
   "name": "AKM-ADMIN_MM",
   "description": "",
-  "viewstyles": [
-    {
-      "id": "d645dcff-80f5-4834-fc92-8754f87c185c",
-      "name": "AKM-ADMIN_MM_Viewstyle",
-      "description": "",
-      "markedAsDeleted": false,
-      "modified": false
-    }
-  ],
+  "viewstyles": [],
   "geometries": [],
   "objecttypes": [
-    {
-      "id": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-      "name": "Container",
-      "description": "",
-      "abstract": false,
-      "viewkind": "Container",
-      "typename": "Object type",
-      "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
-      "properties": [],
-      "methods": [],
-      "markedAsDeleted": false,
-      "modified": true
-    },
     {
       "id": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
       "name": "Element",
@@ -53,19 +32,6 @@
       "modified": true
     },
     {
-      "id": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
-      "name": "Generic",
-      "description": "",
-      "abstract": false,
-      "viewkind": "Object",
-      "typename": "Object type",
-      "typeviewRef": "b42be04d-f9e5-4906-0459-80f43aada183",
-      "properties": [],
-      "methods": [],
-      "markedAsDeleted": false,
-      "modified": true
-    },
-    {
       "id": "0f0ad006-dd7a-449c-f85a-f2a6d5e0ce2c",
       "name": "Metamodel",
       "description": "",
@@ -77,34 +43,6 @@
         {
           "id": "c02c13dc-1c45-4f6a-7111-56d1ed7ce13e",
           "name": "metamodelId",
-          "description": "",
-          "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
-          "methodRef": "",
-          "unitCategoryRef": "",
-          "defaultValue": "",
-          "inputPattern": "",
-          "viewFormat": "",
-          "example": "",
-          "markedAsDeleted": false,
-          "modified": false
-        }
-      ],
-      "methods": [],
-      "markedAsDeleted": false,
-      "modified": true
-    },
-    {
-      "id": "4f1e3080-24b0-4e9f-f8cc-f13e469232a2",
-      "name": "Method",
-      "description": "",
-      "abstract": false,
-      "viewkind": "Object",
-      "typename": "Object type",
-      "typeviewRef": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
-      "properties": [
-        {
-          "id": "d836ad9a-00f6-4cf2-2986-9ca1b4e71498",
-          "name": "methodtype",
           "description": "",
           "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
           "methodRef": "",
@@ -1863,60 +1801,6 @@
       "template": "textOnly",
       "geometry": "",
       "fillcolor": "white",
-      "strokecolor": "black",
-      "strokecolor1": "black",
-      "strokewidth": "1",
-      "textcolor": "black",
-      "icon": "",
-      "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-      "id": "b42be04d-f9e5-4906-0459-80f43aada183",
-      "name": "b42be04d-f9e5-4906-0459-80f43aada183",
-      "description": "",
-      "typeRef": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
-      "viewkind": "Object",
-      "isGroup": false,
-      "template": "",
-      "geometry": "",
-      "fillcolor": "#96c5b9",
-      "strokecolor": "black",
-      "strokecolor1": "black",
-      "strokewidth": "1",
-      "textcolor": "black",
-      "icon": "./../images/default.png",
-      "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-      "id": "a3112875-e4fe-4100-b290-5634d8b8acfc",
-      "name": "a3112875-e4fe-4100-b290-5634d8b8acfc",
-      "description": "",
-      "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-      "viewkind": "Object",
-      "isGroup": false,
-      "template": "",
-      "geometry": "",
-      "fillcolor": "white",
-      "strokecolor": "black",
-      "strokecolor1": "black",
-      "strokewidth": "1",
-      "textcolor": "black",
-      "icon": "",
-      "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-      "id": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
-      "name": "35bdb5f9-49c9-4ce0-471d-efc648d41fc1",
-      "description": "",
-      "typeRef": "4f1e3080-24b0-4e9f-f8cc-f13e469232a2",
-      "viewkind": "Object",
-      "isGroup": false,
-      "template": "",
-      "geometry": "",
-      "fillcolor": "#ead6f0",
       "strokecolor": "black",
       "strokecolor1": "black",
       "strokewidth": "1",

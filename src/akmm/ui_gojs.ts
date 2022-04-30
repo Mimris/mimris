@@ -787,6 +787,7 @@ export class goRelshipLink extends goLink {
                             this[prop] = relview[prop];
                         } else {
                             this[prop] = viewdata[prop];
+                            // this[prop] = typeview[prop];
                         }
                     }        
                 }

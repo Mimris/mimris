@@ -998,7 +998,7 @@ export class cxMetis {
     }
     importRelshipView(item: any, modelview: cxModelView) {
         if (modelview) {
-            if (debug) console.log('921 relshipview', item);
+            if (debug) console.log('921 item (relshipview): ', item);
             const relview = this.findRelationshipView(item.id);
             if (relview) {
                 const relship = this.findRelationship(item.relshipRef);
@@ -1302,6 +1302,21 @@ export class cxMetis {
                 this.objecttypeviews = new Array();
             if (!this.findObjectTypeView(objtypeview.id))
                 this.objecttypeviews.push(objtypeview);
+            else {
+                const len = this.objecttypeviews.length;
+                for (let i=0; i<len; i++) {
+                    const otview = this.objecttypeviews[i];
+                    if (debug) console.log('1355 objview', otview);
+                    if (otview.id === objtypeview.id) {
+                        // Object view is already in list, copy values
+                        for (let prop in objtypeview) {
+                            otview[prop] = objtypeview[prop];
+                        }
+                        if (debug) console.log('1361 objview', otview);
+                        return;
+                    }
+                }
+            }
         }
     }
     addRelationshipTypeView(reltypeview: cxRelationshipTypeView) {
@@ -1311,6 +1326,22 @@ export class cxMetis {
                 this.relshiptypeviews = new Array();
             if (!this.findRelationshipTypeView(reltypeview.id))
                 this.relshiptypeviews.push(reltypeview);
+            else {
+                const len = this.relshiptypeviews.length;
+                for (let i=0; i<len; i++) {
+                    const rtview = this.relshiptypeviews[i];
+                    if (debug) console.log('1355 rtview', rtview);
+                    if (rtview.id === reltypeview.id) {
+                        // Relship typeview is already in list, copy values
+                        for (let prop in reltypeview) {
+                            rtview[prop] = reltypeview[prop];
+                            rtview.data[prop] = reltypeview[prop];
+                        }
+                        if (debug) console.log('1361 rtview', rtview);
+                        return;
+                    }
+                }
+            }
         }
     }
     addObjtypeGeo(objtypegeo: cxObjtypeGeo) {
@@ -1349,6 +1380,21 @@ export class cxMetis {
                 this.objectviews = new Array();
             if (!this.findObjectView(objview.id))
                 this.objectviews.push(objview);
+            else {
+                const len = this.objectviews.length;
+                for (let i=0; i<len; i++) {
+                    const oview = this.objectviews[i];
+                    if (debug) console.log('1355 objview', oview);
+                    if (oview.id === objview.id) {
+                        // Object view is already in list, copy values
+                        for (let prop in objview) {
+                            oview[prop] = objview[prop];
+                        }
+                        if (debug) console.log('1361 objview', oview);
+                        return;
+                    }
+                }
+            }
         }
     }
     addRelationshipView(relview: cxRelationshipView) {
@@ -5370,11 +5416,11 @@ export class cxObjectTypeView extends cxMetaObject {
         this.typeRef     = type?.id;
         this.template    = "";
         this.geometry    = "";
-        this.memberscale = "1";
-        this.fillcolor   = "lightyellow";
-        this.strokecolor = "black";
-        this.strokewidth = "2";
-        this.textcolor   = "black";
+        this.memberscale = "";
+        this.fillcolor   = "";
+        this.strokecolor = "";
+        this.strokewidth = "";
+        this.textcolor   = "";
         this.icon        = "";
         this.data        = new cxObjtypeviewData();
         if (type) {
@@ -5574,6 +5620,7 @@ export class cxReltypeviewData {
         this.relshipkind    = constants.relkinds.REL;
         this.strokecolor    = "black";
         this.strokewidth    = "1";
+        this.textcolor      = "black";
         this.dash           = "None";
         this.fromArrow      = "";
         this.toArrow        = "OpenTriangle";
@@ -7543,9 +7590,9 @@ export class cxRelationshipView extends cxMetaObject {
         this.toObjview = null;
         this.textscale = "1";
         this.arrowscale = "1.3";
-        this.strokecolor = "black";
-        this.strokewidth = "1";
-        this.textcolor = "black";
+        this.strokecolor = "";
+        this.strokewidth = "";
+        this.textcolor = "";
         this.dash = "";
         this.fromArrow = "";
         this.toArrow = "";

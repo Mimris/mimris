@@ -469,7 +469,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   const scaleFactor = toScale / fromScale;
                   // if (selcnt == 0) {
                   //   refloc = node.loc;
-                  //   if (!debug) console.log('466 node, refloc', node, refloc);
+                  //   if (debug) console.log('466 node, refloc', node, refloc);
                   // }
                   // if (selcnt > 0) {
                   //   const nodeloc = uic.scaleNodeLocation2(refloc, node, scaleFactor);
@@ -481,7 +481,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   // }
                   if (node.isGroup) {
                       node.scale1 = scale1;
-                      if (!debug) console.log('462 group, node', group, node);
+                      if (debug) console.log('462 group, node', group, node);
                       if (debug) console.log('485 context', context);
                       // uic.handleMembersInGroup(refloc, node, context);
                       // Handle members in group
@@ -570,7 +570,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     let relview = link.data.relshipview;
                     if (relview) {
                       // Handle relview scaling
-                      const textscale = group ? group.scale1 * group.memberscale : "1";
+                      const textscale = (group && group.scale1) ? group.scale1 * group.memberscale : "1";
                       relview.textscale = textscale;
                       uic.setLinkProperties(link, relview, myDiagram);
                       // Handle relview points
@@ -868,7 +868,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         const data = sel.data;
-        if (!debug) console.log('644 selected', data);
+        console.log('644 selected', data);
         this.state.selectedData = data;
         if (debug) console.log('646 GoJSApp :', data, data.name, data.object);
         if (sel) {

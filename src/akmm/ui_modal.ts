@@ -936,9 +936,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (selObj.category === constants.gojs.C_OBJECT || 
         selObj.category === constants.gojs.C_OBJECTTYPE) {
         // Do a fix
-        const oview = myMetis.findObjectView(selObj.objectview.id);
-        oview.group = selObj.objectview?.group;
-        myMetis.addObjectView(oview);
+        if (selObj.objectview) {
+          const oview = myMetis.findObjectView(selObj.objectview.id);
+          oview.group = selObj.objectview?.group;
+          myMetis.addObjectView(oview);
+        }
         // End fix
       }
       let data, typeview, objtypeview, reltypeview;

@@ -585,7 +585,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         for (let i = 0; i < relshiptypes.length; i++) {
           let includeReltype = false;
           let reltype = relshiptypes[i];
-          let strokecolor = reltype.typeview.strokecolor;
+          let strokecolor = reltype.typeview?.strokecolor;
           if (reltype.cardinality.length > 0) {
             reltype.cardinalityFrom = reltype.getCardinalityFrom(); 
             reltype.cardinalityTo = reltype.getCardinalityTo();
@@ -612,13 +612,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                 reltype.toObjtype = metamodel.findObjectType(reltype.toobjtypeRef);
             const key = utils.createGuid();
             const link = new gjs.goRelshipTypeLink(key, myGoMetamodel, reltype);
-            if (!debug) console.log('533 reltype, link', reltype, link);
+            if (debug) console.log('533 reltype, link', reltype, link);
             if (link.loadLinkContent()) {
               link.relshipkind = reltype.relshipkind;
               link.strokecolor = strokecolor;
               link.routing = metamodel.routing;
               link.curve = metamodel.linkcurve;
-              if (!debug) console.log('536 link', link);
+              if (debug) console.log('536 link', link);
               myGoMetamodel.addLink(link);
             }            
           }

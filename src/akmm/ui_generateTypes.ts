@@ -784,7 +784,7 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
     let objectviews = modelview.objectviews;
     for (let i=0; i<objectviews?.length; i++) {
         const objview = objectviews[i];
-        const obj = objview.object;
+        const obj = objview.object as akm.cxObject;
         if (obj) {
             objlist.push(obj);
             addToObjAndRelLists(model, obj, objlist, rellist);

@@ -251,7 +251,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         if (!debug) console.log('255 deepEntries', osduArray);
 
         // map through the osduArray and create objects and relationships between the objects
-        const osduObjects = osduArray.map( (osduObj, index) => {
+        const osduObjects = osduArray?.map( (osduObj, index) => {
             const [oId, oKey, oVal] = osduObj
             const oName = oKey?.split('|')?.slice(-1)[0] // objectName ; split and slice it, pick last element
             if (debug) console.log('261 :', oName, oKey)//, oVal);
@@ -294,16 +294,20 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the collection objects
                         if (debug) console.log('299  array Set', oId, oName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
-                    } else if ((oName.includes('ID') && oName !== 'MarkerID') ) { // is this working? when ID its not an array? -------------------------
-                       if (debug) console.log('275  array', oId, oName, oKey, jsonType, cNewVal);
-                        objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-                        let linkId = oName.replace('ID', '') // remove iD from the name
-                        const propLinkName = 'has' + oName
-                        cNewVal.linkId = oName
-                        if (debug) console.log('277  array', oName, linkId, cNewVal);
-                        createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the collection objects
-                        if (debug) console.log('309  array ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
-                        findOwnerandCreateRelationship(osduObj)
+                    } else if (oName.includes('ID') || oName.includes('IDs')) { // is this working? when ID its not an array? -------------------------
+                        if (oName === 'MarkerID' || oName === 'IntervalID')  {
+                            // do nothing
+                        } else {
+                            if (debug) console.log('275  array', oId, oName, oKey, jsonType, cNewVal);
+                            objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
+                            let linkId = oName.replace('ID', '') // remove iD from the name
+                            const propLinkName = 'has' + oName
+                            cNewVal.linkId = oName
+                            if (debug) console.log('277  array', oName, linkId, cNewVal);
+                            createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the collection objects
+                            if (debug) console.log('309  array ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
+                            findOwnerandCreateRelationship(osduObj)
+                        }
                     } else if (cNewVal['$ref']) { // if the value is a reference we create a EntityType object
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id
                         createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the reference objects
@@ -347,7 +351,9 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (cNewVal.linkId === 'SamplingDomainType') {cNewVal.linkId = 'WellLogSamplingDomainType'}
                         if (cNewVal.linkId === 'StartMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
                         if (cNewVal.linkId === 'StopMarkerSet') {cNewVal.linkId = 'WellboreMarkerSet'}
-                        if (cNewVal.linkId === 'StarBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
+                        if (cNewVal.linkId === 'StartMarker') {cNewVal.linkId = 'Marker'}
+                        if (cNewVal.linkId === 'StopMarker') {cNewVal.linkId = 'Marker'}
+                        if (cNewVal.linkId === 'StartBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
                         if (cNewVal.linkId === 'StopBoundaryInterpretation') {cNewVal.linkId = 'HorizonInterpretation'}
                         // if (cNewVal.linkId === 'GeologicUnitInterpretation') {cNewVal.linkId = 'GeologicUnitInterpretation'} // TODO: check if this is correct
 
@@ -397,7 +403,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
                     if (debug) console.log('349 Set', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
                     findOwnerandCreateRelationship(osduObj)
-                } else if (parentName === 'Markers' || parentName.contains('IDs') ){ // Special case for Markers or containing IDs   
+                } else if (parentName === 'Markers' || parentName === 'Intervals' || parentName?.includes('IDs') ){ // Special case for Markers, Intervals or containing IDs   
                     const oMName  = parentName.substring(0, parentName.length-1) // remove the last plural character s
                     objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'EntityType')?.id
                     reltypeRef = containsType?.id

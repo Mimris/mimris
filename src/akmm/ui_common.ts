@@ -951,7 +951,7 @@ export function scaleNodeLocation2(refloc: string, node: any, scaleFactor: any):
     return loc;
 }
 
-export function handleMembersInGroup(refloc: NodeStringDecoder, group: any, context: any): any {
+export function handleMembersInGroup(refloc: string, group: any, context: any): any {
     const myGoModel = context.myGoModel;
     const myModelview = context.myModelview;
     const myDiagram = context.myDiagram;
@@ -962,8 +962,9 @@ export function handleMembersInGroup(refloc: NodeStringDecoder, group: any, cont
         if (n) {
             n.group = group.key;
             const fromScale = group.scale1;
-            n.scale1 = group.scale1 * group.memberscale;
-            const toScale = n.scale1;
+            let scale = group.scale1 * group.memberscale;
+            n.scale1 = scale.toString();
+            const toScale = scale;
             const scaleFactor = toScale / fromScale;
             const nodeloc = scaleNodeLocation2(refloc, n, scaleFactor);
             const loc = nodeloc.x + " " + nodeloc.y;
@@ -1180,22 +1181,30 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     let relshipview: akm.cxRelationshipView;
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
-    if (debug) console.log('1091 data, reltypeview', data, reltypeview);
+    if (debug) console.log('1198 args, data, reltypeview', args, data, reltypeview);
     relshipview = createLink(data, context); 
-    if (debug) console.log('1093 data, relshipview', data, relshipview);
+    if (debug) console.log('1200 data, relshipview', data, relshipview);
     if (relshipview) {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
         relship.addRelationshipView(relshipview);
+        // for (let prop in  reltypeview?.data) {
+        //     relshipview[prop] = reltypeview[prop];
+        // }        
         updateLink(data, relshipview.typeview, myDiagram, myGoModel);
-        if (debug) console.log('1102 data', data);
+        if (debug) console.log('1209 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
         myDiagram.requestUpdate();
-
-        if (debug) console.log('1106 relshipview', relshipview);
+        if (debug) console.log('1212 relshipview', relshipview);
+        const id = relshipview.id;
+        const name = relshipview.name;  
+        relshipview = updateRelationshipView(relshipview);
+        relshipview.id = id;
+        relshipview.name = name;
+        if (debug) console.log('1214 relshipview', relshipview);
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1123 jsnRelview', jsnRelview);
+        if (debug) console.log('1217 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
@@ -1204,6 +1213,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })              
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
+        if (debug) console.log('1226 jsnRelship', jsnRelship);
         modifiedRelships.push(jsnRelship);
         modifiedRelships.map(mn => {
             let data = mn;
@@ -1211,7 +1221,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
         })      
     }        
-    if (debug) console.log('1124 relshipview', relshipview);
+    if (debug) console.log('1234 relshipview', relshipview);
 }
 
 export function pasteRelationship(data: any, nodes: any[], context: any) {
@@ -1514,6 +1524,21 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
     }
 }
 
+export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cxRelationshipView {
+    if (relview) {
+        const typeview = relview.typeview;
+        if (typeview) {
+            const viewdata = typeview.data;
+            for (let prop in viewdata) {
+                if (relview[prop] === viewdata[prop]) {
+                    relview[prop] = "";
+                }
+            }
+        }
+    }
+    return relview;
+}
+
 export function createLink(data: any, context: any): any {
     // Creates both relship and relship view
     if (debug) console.log('1431 createLink', data, context);
@@ -1577,8 +1602,11 @@ export function createLink(data: any, context: any): any {
                 }
                 if (debug) console.log('1484 relship', relship);
                 if (relship) {
-                    let typeview = reltype.getDefaultTypeView();
+                    let typeview = data.relshiptype.typeview;
+                    if (!typeview) typeview = reltype.getDefaultTypeView();
+                    if (debug) console.log('1487 typeview', typeview);
                     relshipview = new akm.cxRelationshipView(utils.createGuid(), relship.name, relship, "");
+                    if (debug) console.log('1609 relshipview', relshipview);
                     if (relshipview) {
                         const myModelview = context.myModelview;
                         const diagram = context.myDiagram;
@@ -1591,7 +1619,7 @@ export function createLink(data: any, context: any): any {
                         relshipview.setTextScale(scale);
                         myModelview.addRelationshipView(relshipview);
                         myMetis.addRelationshipView(relshipview);
-                        let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
+                        // let linkData = buildLinkFromRelview(myGoModel, relshipview, relship, data, diagram);
                     }
                     if (debug) console.log('1503 typeview, relshipview', typeview, relshipview);
                 }
@@ -2369,9 +2397,9 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     if (relships) { 
         for (let i=0; i<relships?.length; i++) {
             const rel = relships[i];
-            const fromObj  = rel.fromObject;
-            const toObj    = rel.toObject;
-            const rtype = rel.type;
+            const fromObj  = rel.fromObject as akm.cxObject;
+            const toObj    = rel.toObject as akm.cxObject;
+            const rtype = rel.type as akm.cxRelationshipType;
             const rels2 = [];
             if (rtype) {
                 const rels = model.findRelationships(fromObj, toObj, rtype);
@@ -2671,7 +2699,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
         }
     }
     const link = diagram.findLinkForKey(data.key);
-    if (debug) console.log('2545 link, relview', link, relview);
+    if (debug) console.log('2545 data, link, relview', data, link, relview);
     relview.arrowscale = relview.textscale * 1.3;
     diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
     diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
@@ -2692,12 +2720,17 @@ function propIsColor(prop: string): boolean {
 export function setLinkProperties(link: any, relview: akm.cxRelationshipView, diagram: any) {
     const reltypeview = relview.typeview;
     const textscale = relview.textscale;
-    relview.arrowscale = relview.textscale * 1.3;
-    let strokewidth = reltypeview.strokewidth  * textscale;
-    relview.strokewidth = strokewidth < 1 ? 1 : parseInt(strokewidth);
+    if (debug) console.log('2563 link, relview, reltypeview', link, relview, reltypeview);
+    if (reltypeview) {
+        let strokewidth = Number(reltypeview.strokewidth) * Number(textscale);
+        strokewidth = strokewidth < 1 ? 1 : strokewidth;
+        relview.strokewidth = strokewidth.toString();
+        diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
+    }
+    const arrowscale = Number(textscale) * 1.3;
+    relview.arrowscale = arrowscale.toString();
     diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
     diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
-    diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
     return relview;
 }
 

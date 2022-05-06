@@ -1674,26 +1674,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     {
       myDiagram.contextMenu =
         $(go.Adornment, "Vertical",
-          makeButton("Paste",
-            function (e: any, obj: any) {
-              myMetis.pasteViewsOnly = false;
-              const point1 = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
-              e.diagram.commandHandler.pasteSelection(point1);
-            },
-            function (o: any) { 
-              return o.diagram.commandHandler.canPasteSelection(); 
-            }),
-          makeButton("Paste View",
-            function (e: any, obj: any) {
-              myMetis.pasteViewsOnly = true;
-              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
-              e.diagram.commandHandler.pasteSelection(point);
-            },
-            function (o: any) { 
-              //return false;
-              return o.diagram.commandHandler.canPasteSelection(); 
-            }),
-          makeButton("----------",
+        makeButton("Paste",
+          function (e: any, obj: any) {
+            myMetis.pasteViewsOnly = false;
+            const mySelection = [];
+            e.diagram.selection.each(function(sel) {
+              mySelection.push(sel.data);
+            });
+            myMetis.currentSelection = mySelection;
+            if (!debug) console.log('1685 mySelection', mySelection);
+            const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+            e.diagram.commandHandler.pasteSelection(point);
+          },
+          function (o: any) { 
+            return o.diagram.commandHandler.canPasteSelection(); 
+          }),
+        makeButton("Paste View",
+          function (e: any, obj: any) {
+            myMetis.pasteViewsOnly = true;
+            const selection = [];
+            e.diagram.selection.each(function(sel) {
+              selection.push(sel.data);
+            });
+            myMetis.currentSelection = selection;
+            const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+            e.diagram.commandHandler.pasteSelection(point);
+          },
+          function (o: any) { 
+            return o.diagram.commandHandler.canPasteSelection(); 
+          }),
+        makeButton("----------",
           function (e: any, obj: any) {
           },
           function (o: any) { 

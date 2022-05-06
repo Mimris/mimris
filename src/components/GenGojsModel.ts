@@ -32,6 +32,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   if (metis != null) {
     console.log('30 GenGojsModel: phData, metis:', props.phData, props);
     const myMetis = new akm.cxMetis();
+    const tempMetis = myMetis
+    console.log('35 GenGojsModel: myMetis', tempMetis);
     myMetis.importData(metis, true);
     adminModel = buildAdminModel(myMetis);
     console.log('34 GenGojsModel: myMetis', myMetis);
@@ -514,6 +516,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })
     }
+    console.log('500 buildGoModel - myGoModel', myGoModel);
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
     if (debug) console.log('502 myGoModel.links', myGoModel.links);

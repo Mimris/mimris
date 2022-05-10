@@ -1556,7 +1556,7 @@ export function createLink(data: any, context: any): any {
         let scale = 1;
         if (!fromNode) {
             fromNode = myGoModel.findNode(data.from);
-            scale = fromNode.scale1;
+             = fromNode.scale1;
         }
         let toNode = data.toNode;
         if (!toNode) {

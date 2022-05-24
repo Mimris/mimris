@@ -1155,6 +1155,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const myMetis = args.context.myMetis; 
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = args.context.myModel;
+    const myModelview = myGoModel.modelView;
     const data = args.data;
     const typename = args.typename;
     const fromType = args.fromType;
@@ -1201,16 +1202,11 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview = updateRelationshipView(relshipview);
         relshipview.id = id;
         relshipview.name = name;
-        if (debug) console.log('1214 relshipview', relshipview);
-        const modifiedRelviews = new Array();
-        const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1217 jsnRelview', jsnRelview);
-        modifiedRelviews.push(jsnRelview);
-        modifiedRelviews.map(mn => {
-            let data = mn;
-            data = JSON.parse(JSON.stringify(data));
-            (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
-        })              
+        if (!debug) console.log('1214 myModelview, relshipview', myModelview, relshipview);
+        myModelview.addRelationshipView(relshipview);
+        myMetis.addRelationshipView(relshipview);
+        myModel.addRelationship(relship);
+        myMetis.addRelationship(relship);
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
         if (debug) console.log('1226 jsnRelship', jsnRelship);
@@ -1220,8 +1216,27 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
             data = JSON.parse(JSON.stringify(data));
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
         })      
+        const modifiedRelviews = new Array();
+        const jsnRelview = new jsn.jsnRelshipView(relshipview);
+        if (debug) console.log('1217 jsnRelview', jsnRelview);
+        modifiedRelviews.push(jsnRelview);
+        modifiedRelviews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            if (debug) console.log('1220 data', data, myModelview);
+            (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        })              
+        const modifiedModelviews = new Array();
+        const jsnModelview = new jsn.jsnModelView(myModelview);
+        modifiedModelviews.push(jsnModelview);
+        modifiedModelviews.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+        })
     }        
-    if (debug) console.log('1234 relshipview', relshipview);
+    if (debug) console.log('1234 relshipview, modelview', relshipview, myModelview);
+    return relshipview;
 }
 
 export function pasteRelationship(data: any, nodes: any[], context: any) {

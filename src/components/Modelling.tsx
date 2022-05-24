@@ -74,15 +74,15 @@ const page = (props:any) => {
 
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
-    useEffect(() => {
-      genGojsModel(props, dispatch);
-      //focusModel = props.phFocus?.focusModel
-      if (debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1);
-    }, [curmod])
+    // useEffect(() => {
+    //   genGojsModel(props, dispatch);
+    //   //focusModel = props.phFocus?.focusModel
+    //   if (debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
+    //   function refres() {
+    //     setRefresh(!refresh)
+    //   }
+    //   setTimeout(refres, 1);
+    // }, [curmod])
 
     useEffect(() => {
       if (debug) console.log('76 Modelling useEffect 2', props); 

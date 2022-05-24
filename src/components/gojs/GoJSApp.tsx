@@ -1127,8 +1127,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
           data.category = 'Relationship';
           context.handleOpenModal = this.handleOpenModal;
+          // Creation is done in a callback function (uic.createRelshipCallback)
           uic.createRelationship(data, context);
-          if (debug) console.log('1027 data', data);
        }
        myDiagram.requestUpdate();
       }

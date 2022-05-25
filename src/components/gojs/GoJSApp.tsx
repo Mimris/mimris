@@ -1191,7 +1191,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     // Dispatches
     if (true) {
-      this.state.phFocus.focusModelview = myMetis.currentModelview;
       if (debug) console.log('923 modifiedNodes', modifiedNodes);
       modifiedNodes.map(mn => {
         let data = mn
@@ -1259,33 +1258,33 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('945 data', data);
         this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       })
+      // This should be used to set several views  in focus
+      // if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
+      // selectedObjectViews?.map(mn => {
+      //   let data = (mn) && { id: mn.id, name: mn.name }
+      //   data = JSON.parse(JSON.stringify(data));
+      //   this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
+      // })
 
-      if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
-      selectedObjectViews?.map(mn => {
-        let data = (mn) && { id: mn.id, name: mn.name }
-        data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
-      })
+      // if (debug) console.log('988 selectedRelshipViews', selectedRelshipViews);
+      // selectedRelshipViews?.map(mn => {
+      //   let data = (mn) && { id: mn.id, name: mn.name }
+      //   data = JSON.parse(JSON.stringify(data));
+      //   this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
+      // })
 
-      if (debug) console.log('988 selectedRelshipViews', selectedRelshipViews);
-      selectedRelshipViews?.map(mn => {
-        let data = (mn) && { id: mn.id, name: mn.name }
-        data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
-      })
-
-      if (debug) console.log('994 selectedObjectTypes', selectedObjectTypes);
-      selectedObjectTypes?.map(mn => {
-        let data = (mn) && { id: mn.id, name: mn.name }
-        data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
-      })
-      if (debug) console.log('999 selectedRelationshipTypes', selectedRelationshipTypes);
-      selectedRelationshipTypes?.map(mn => {
-        let data = (mn) && { id: mn.id, name: mn.name }
-        data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
-      })
+      // if (debug) console.log('994 selectedObjectTypes', selectedObjectTypes);
+      // selectedObjectTypes?.map(mn => {
+      //   let data = (mn) && { id: mn.id, name: mn.name }
+      //   data = JSON.parse(JSON.stringify(data));
+      //   this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
+      // })
+      // if (debug) console.log('999 selectedRelationshipTypes', selectedRelationshipTypes);
+      // selectedRelationshipTypes?.map(mn => {
+      //   let data = (mn) && { id: mn.id, name: mn.name }
+      //   data = JSON.parse(JSON.stringify(data));
+      //   this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
+      // })
     }
     if (debug) console.log('1126 myMetis', myMetis);
   }

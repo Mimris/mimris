@@ -48,13 +48,13 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
         // SaveAllToFile(data, projectname, 'AKMM-Project')
       } 
       // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
-      function handleSaveAllToFileDate() {
-        const projectname = props.ph.phData.metis.name
-        console.log('37 LoadFile', data);
+      // function handleSaveAllToFileDate() {
+      //   const projectname = props.ph.phData.metis.name
+      //   console.log('37 LoadFile', data);
         
-        SaveAllToFileDate(data, projectname, 'Project')
-        // SaveAllToFileDate(data, projectname, 'AKMM-Project')
-      }
+      //   SaveAllToFileDate(data, projectname, 'Project')
+      //   // SaveAllToFileDate(data, projectname, 'AKMM-Project')
+      // }
       
     
       // Save current modelview (without instances) to a file in downloads foler 

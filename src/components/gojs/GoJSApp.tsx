@@ -1191,7 +1191,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     // Dispatches
     if (true) {
-      // this.state.phFocus.focusModelview = myMetis.currentModelview;
       if (debug) console.log('923 modifiedNodes', modifiedNodes);
       modifiedNodes.map(mn => {
         let data = mn
@@ -1259,12 +1258,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('945 data', data);
         this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       })
-
-      // if (!debug) console.log('982 selectedObjectViews', selectedObjectViews);
+      // This should be used to set several views  in focus
+      // if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
       // selectedObjectViews?.map(mn => {
       //   let data = (mn) && { id: mn.id, name: mn.name }
       //   data = JSON.parse(JSON.stringify(data));
-      //   if (!debug) console.log('1267', data)
       //   this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
       // })
 

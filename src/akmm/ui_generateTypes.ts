@@ -736,12 +736,15 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
     const args = {
         "metamodel":    myMetis.currentTargetMetamodel, 
         "modelview":    myMetis.currentModelview, 
+        "node":         myMetis.currentNode,
     }
     const context = {
         "myMetis":            myMetis,
         "myMetamodel":        myMetis.currentMetamodel,
         "myModel":            myMetis.currentModel,
+        "myGoModel":          myMetis.gojsModel,
         "myCurrentModelview": myMetis.currentModelview,
+        "myCurrentNode":      myMetis.currentNode,
         "myDiagram":          myDiagram,
         "case":               "Generate Target Metamodel",
         "title":              "Select Target Metamodel",
@@ -784,8 +787,10 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
     let objectviews = modelview.objectviews;
     for (let i=0; i<objectviews?.length; i++) {
         const objview = objectviews[i];
-        const obj = objview.object as akm.cxObject;
+        let obj = objview.object as akm.cxObject;
+        if (debug) console.log('788 model, obj, objview', model, obj, objview);
         if (obj) {
+            obj = model.findObject(obj.id);
             objlist.push(obj);
             addToObjAndRelLists(model, obj, objlist, rellist);
         }
@@ -840,7 +845,7 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
     return tempModelview;
 }
 
-function addToObjAndRelLists(model: akm.cxModel, obj: akm.cxObject, objlist, rellist) {
+function addToObjAndRelLists(model: akm.cxModel, obj: akm.cxObject, objlist: any, rellist:any) {
     const relships = obj.findOutputRelships(model, constants.relkinds.GEN);
     if (relships?.length) {
         for (let i=0; i<relships?.length; i++) {

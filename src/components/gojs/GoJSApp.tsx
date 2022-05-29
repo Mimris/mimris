@@ -333,6 +333,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       if (n) node = n;
                       myDiagram.model?.setDataProperty(node.data, "name", myNode.name);
                       const jsnObjview = new jsn.jsnObjectView(objview);
+                      jsnObjview.name = text;
                       jsnObjview.text = textvalue;
                       modifiedNodes.push(jsnObjview);
                       if (debug) console.log('337 jsnObjview', jsnObjview);
@@ -354,7 +355,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }
             }
           }
-          // Relationship or Relationship tpe
+          // Relationship or Relationship type
           if (sel instanceof go.Link) {
             const key = data.key;
             let text = data.name;
@@ -381,34 +382,25 @@ class GoJSApp extends React.Component<{}, AppState> {
             }             
             else { // Relationship
               if (debug) console.log('382 data', data);
-              const myLink = this.getLink(context.myGoModel, key);
-              if (myLink) {
+              let relview = data.relshipview;
+              if (relview) {
                 if (text === 'Edit name') {
                   text = prompt('Enter name');
                   data.name = text;
                 }
-                myLink.name = text;
-                if (debug) console.log('390 myLink', myLink);
-                const rel = uic.updateRelationship(myLink, field, text, context);
+                const rel = relview.relship;
                 if (rel) {
                   const relviews = rel.relshipviews;
-                  if (debug) console.log('394 relviews', relviews);
+                  if (debug) console.log('394 rel, relviews', rel, relviews);
                   for (let i=0; i<relviews.length; i++) {
                     const relview = relviews[i];
-                    relview.name = myLink.name;
-                    let link = myGoModel.findLinkByViewId(relview?.id);
-                    if (!link) link = myLink;
-                    if (link) {
-                      link = myDiagram.findLinkForKey(link.key)
-                      if (debug) console.log('402 link', link, relview);
-                      if (link) myDiagram.model?.setDataProperty(link.data, "name", myLink.name);
-                      const jsnRelview = new jsn.jsnRelshipView(relview);
-                      modifiedLinks.push(jsnRelview);
-                    } 
-                  }
-                  if (debug) console.log('408 rel, myLink', rel, myLink);
-                  if (myLink.relshipview) {
+                    relview.name = text;
+                    rel.name = text;
+                    const jsnRelview = new jsn.jsnRelshipView(relview);
+                    if (debug) console.log('407 jsnRelview', jsnRelview);
+                    modifiedLinks.push(jsnRelview);
                     const jsnRel = new jsn.jsnRelationship(rel);
+                    if (debug) console.log('418 jsnRel', jsnRel);
                     modifiedRelships.push(jsnRel);
                   }
                 }

@@ -70,7 +70,7 @@ export const SaveAllToFileDate = (model, name, type) => {
     document.body.removeChild(link);
 }
 
-export const ReadModelFromFile = async (props, dispatch, e) => {
+export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
     e.preventDefault()
     const reader = new FileReader()
     reader.fileName = (e.target.files[0].name)
@@ -81,16 +81,16 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
 
         //   alert(text)
         if (debug) console.log('46 SaveModelToFile', props.phFocus.focusModel.id);
-        if (debug) console.log('44 SaveModelToFile', props, modelff);
+        if (!debug) console.log('44 SaveModelToFile', props, modelff);
     
-        let  mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
+        let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
         if (mindex < 0) { mindex = mlength } // mindex = -1, i.e.  not fond, which means adding a new model
         
         let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
         // if (fmindex < 0) { fmindex = mlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
         
-        if (debug) console.log('49 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
+        if (!debug) console.log('49 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
         let mvindex, mvlength
         if (modelff.modelview) {
             mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
@@ -149,7 +149,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 }, 
             };
         }
-        if (debug) console.log('77 SaveModelToFile', data);      
+        if (!debug) console.log('77 SaveModelToFile', data);      
         if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })

@@ -85,20 +85,22 @@ const page = (props:any) => {
     // }, [curmod])
 
     useEffect(() => {
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 100);
       if (!debug) console.log('88 Modelling useEffect 2', props); 
       const data = {
         phData: props.phData,
         phFocus: props.phFocus,
         phUser: props.phUser,
-        phSource: 'INIT model'
+        phSource: props.phSource
       };
       // setTimeout(refres, 1);
-      if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
+      if (!debug) console.log('123 Modelling', props.phUser.focusUser, data);
       setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
       genGojsModel(props, dispatch);
-      function refres() {
-        setRefresh(!refresh)
-      }
+
       setTimeout(refres, 100);
     }, [focusModelview?.id, focusModel?.id])
 

@@ -1400,7 +1400,7 @@ export class cxMetis {
     }
     addRelationshipView(relview: cxRelationshipView) {
         if (relview.category === constants.gojs.C_RELSHIPVIEW) {
-            if (relshipview.fromObjview && relshipview.toObjview) {
+            if (relview.fromObjview && relview.toObjview) {
                     if (this.relshipviews == null)
                     this.relshipviews = new Array();
                 if (!this.findRelationshipView(relview.id))

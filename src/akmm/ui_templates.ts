@@ -765,6 +765,21 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     );
     // addNodeTemplateName('label');
 
+    nodeTemplateMap.add("Split",
+      $(go.Node, "Auto",
+        { locationSpot: go.Spot.Center },
+        $(go.Shape, "Diamond",
+          {
+            fill: "deepskyblue", stroke: null, strokeWidth: 0,
+            desiredSize: new go.Size(28, 28)
+          }),
+        $(go.TextBlock,
+          new go.Binding("name"))
+      ));
+    addNodeTemplateName('Split');
+
+
+
     if (false) {                    
         let nodeInput =               
             $(go.Node, 'Auto',  // the Shape will go around the TextBlock

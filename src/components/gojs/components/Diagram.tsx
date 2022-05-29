@@ -700,6 +700,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }),  
           makeButton("----------"),
+          makeButton("Generate Metamodel",
+          function (e: any, obj: any) { 
+            if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
+            const node = e.diagram.selection.first().data;
+            myMetis.currentNode = node;
+            gen.generateTargetMetamodel(obj, myMetis, myDiagram);
+          },
+          function (o: any) { 
+            if (debug) console.log('1991 myMetis', myMetis);
+            if (myMetis.modelType == 'Modelling') {
+              const obj = o.part.data.object;
+              const objtype = obj?.type;
+              if (objtype?.name === constants.types.AKM_CONTAINER)
+                  return true;              
+            } else 
+              return false;
+            return true; 
+          }),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
                 const context = {

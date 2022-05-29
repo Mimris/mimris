@@ -395,16 +395,17 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 if (!nameIsChanged) {
                     myDiagram.model.setDataProperty(data, "name", objtype.name);
                 }
+                // Apply local overrides
+                currentObjectView['template'] = data.template;
+                currentObjectView['fillcolor'] = data.fillcolor;
+                currentObjectView['strokecolor'] = data.strokecolor;
+                currentObjectView['strokewidth'] = data.strokewidth;
+                currentObjectView['icon'] = data.icon;
+                // Update data (node)
                 data.object.type = objtype;
                 data.objecttype = objtype;
                 data.typename = objtype.name;
                 data.typeview = objtypeview;
-                // Clear local overrides
-                currentObjectView['template'] = "";
-                currentObjectView['fillcolor'] = "";
-                currentObjectView['strokecolor'] = "";
-                currentObjectView['strokewidth'] = "";
-                currentObjectView['icon'] = "";
                 updateNode(data, objtypeview, myDiagram, myMetis.gojsModel);
                 if (debug) console.log('394 node', data);
                 // Dispatch
@@ -1189,9 +1190,9 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
         relship.addRelationshipView(relshipview);
-        // for (let prop in  reltypeview?.data) {
-        //     relshipview[prop] = reltypeview[prop];
-        // }        
+        for (let prop in  reltypeview?.data) {
+            relshipview[prop] = reltypeview[prop];
+        }        
         updateLink(data, relshipview.typeview, myDiagram, myGoModel);
         if (debug) console.log('1209 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
@@ -1202,14 +1203,14 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         relshipview = updateRelationshipView(relshipview);
         relshipview.id = id;
         relshipview.name = name;
-        if (!debug) console.log('1214 myModelview, relshipview', myModelview, relshipview);
+        if (debug) console.log('1214 myModelview, relshipview', myModelview, relshipview);
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
         myModel.addRelationship(relship);
         myMetis.addRelationship(relship);
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
-        if (debug) console.log('1226 jsnRelship', jsnRelship);
+        if (!debug) console.log('1226 jsnRelship', jsnRelship);
         modifiedRelships.push(jsnRelship);
         modifiedRelships.map(mn => {
             let data = mn;
@@ -1218,7 +1219,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })      
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1217 jsnRelview', jsnRelview);
+        if (!debug) console.log('1217 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
@@ -2382,6 +2383,11 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                 }
             }
             else if (!oview.object) { // Object view is deleted and has no object
+                if (!oview.name) {
+                    oview.markedAsDeleted = true;
+                    const jsnObjview = new jsn.jsnObjectView(oview);
+                    modifiedObjviews.push(jsnObjview);
+                }
                 msg = "\tVerifying objectview " + oview.name + " ( without object )\n";
                 msg += "\tDoing nothing";
                 report += printf(format, msg);
@@ -2713,12 +2719,14 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
             }
         }
     }
-    const link = diagram.findLinkForKey(data.key);
-    if (debug) console.log('2545 data, link, relview', data, link, relview);
-    relview.arrowscale = relview.textscale * 1.3;
-    diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
-    diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
-    diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
+    if (relview) {
+        const link = diagram.findLinkForKey(data.key);
+        if (debug) console.log('2545 data, link, relview', data, link, relview);
+        relview.arrowscale = relview.textscale * 1.3;
+        diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
+        diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
+        diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
+    }
 } 
 
 function propIsColor(prop: string): boolean {

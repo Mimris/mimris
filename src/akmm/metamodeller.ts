@@ -922,7 +922,7 @@ export class cxMetis {
                     model.addRelationship(rel);
                     if (debug) console.log('610 fromObj, toObj, rel', fromObj, toObj, rel);
                 }
-            } else {
+            } else if (rel) {
                 rel.typeName = item.typeName;
             } 
         }

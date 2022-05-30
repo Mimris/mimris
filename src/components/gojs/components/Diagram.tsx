@@ -1700,7 +1700,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               mySelection.push(sel.data);
             });
             myMetis.currentSelection = mySelection;
-            if (!debug) console.log('1685 mySelection', mySelection);
+            if (debug) console.log('1685 mySelection', mySelection);
             const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
             e.diagram.commandHandler.pasteSelection(point);
           },

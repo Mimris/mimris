@@ -1210,7 +1210,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         myMetis.addRelationship(relship);
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
-        if (!debug) console.log('1226 jsnRelship', jsnRelship);
+        if (debug) console.log('1226 jsnRelship', jsnRelship);
         modifiedRelships.push(jsnRelship);
         modifiedRelships.map(mn => {
             let data = mn;
@@ -1219,7 +1219,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })      
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (!debug) console.log('1217 jsnRelview', jsnRelview);
+        if (debug) console.log('1217 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;

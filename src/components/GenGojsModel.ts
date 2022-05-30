@@ -446,7 +446,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     // load relship views
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
-      if (!debug) console.log('388 modelview, relviews', modelview, relviews);
+      if (debug) console.log('388 modelview, relviews', modelview, relviews);
       const modifiedRelviews = [];
       let l = relviews.length;
       for (let i = 0; i < l; i++) {

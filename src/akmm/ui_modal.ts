@@ -151,9 +151,8 @@ export function handleSelectDropdownChange(selected, context) {
       const idata = icn.data;
       myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
       myMetis.myDiagram.requestUpdate();
-    }
     break;
-
+    } 
     case "Set Layout Scheme": {
       let item: akm.cxMetaModel | akm.cxModelView = myModelview; 
       const metamodelling = myMetis.modelType === 'Metamodelling';
@@ -745,18 +744,18 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (selectedData.category === constants.gojs.C_OBJECT) {
           const selObj = selectedData;
           const node = myDiagram.findNodeForKey(selObj.key);
-          if (debug) console.log('813 node', node);
+          if (!debug) console.log('747 node', node);
           const data = node.data;
           const objview = data.objectview;
           if (objview) {
             objview.icon = data.icon;
             const jsnObjview = new jsn.jsnObjectView(data.objectview);
-            if (debug) console.log('819 jsnObjview', data, jsnObjview);
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
               let data = mn;
-              if (debug) console.log('823 data', data);
+              if (debug) console.log('756 data', data);
               data = JSON.parse(JSON.stringify(data));
+              if (!debug) console.log('758 data, jsnObjview', data, jsnObjview);
               props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             })
             for (let prop in objview?.data) {
@@ -856,6 +855,23 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         context.args.method = mtd;
         modalContext.context.postOperation(context);        
         break;
+      }
+      else if (modalContext.case === 'Export Task Model') {
+
+        // selObj is a node representing a container
+        const selObj = selectedData;
+        const oview = myMetis.findObjectView(selObj.objectview.id);
+        if (!debug) console.log('864 selObj, oview', selObj, oview);
+        // 
+        const context = modalContext.context;
+        const selectedValue = modalContext.selected?.value;
+        const model = myMetis.findModelByName(selectedValue); 
+        if (!debug) console.log('869 selected, model: ', selectedValue, model);
+
+        context.args.object = oview;
+        context.args.model = model;
+        modalContext.context.postOperation(context);
+        break;        
       }
     }
     case "editRelshipview": {
@@ -1051,5 +1067,5 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
   let data = {metis: jsnMetis}
   data = JSON.parse(JSON.stringify(data));
-  props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+  // props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
 }

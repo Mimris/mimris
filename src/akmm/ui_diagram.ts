@@ -159,6 +159,30 @@ export function clearModel(myMetis: akm.cxMetis, myDiagram: any) {
     askForModel(context);
 }
 
+export function exportTaskModel(obj: akm.cxObject, myMetis: akm.cxMetis, myDiagram: any) {
+    // Select model among all models (except the current)
+    const args = {
+        "model":              "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentModel":     myMetis.currentModel,
+        "myDiagram":          myDiagram,
+        "case":               "Export Task Model",
+        "title":              "Select Model to Export to",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      exportTaskModelCallback,
+        "args":               args
+    }
+    askForModel(context);
+}
+
+function exportTaskModelCallback(node: any, context: any) {
+    const myDiagram = context.myDiagram;
+     
+
+}
+
 export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
     const model = myMetis.currentModel;
     const modelviewName = prompt("Enter Modelview name:", "");

@@ -177,6 +177,7 @@ const Palette = (props: any) => {
   const objectsNotDeleted = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
   
   // // filter out all objects of type Property
+  const roleTaskObj = objectsNotDeleted?.filter(node => node && (node.typename === 'Task' || node.typename === 'Role'))
   const noPropertyObj = objectsNotDeleted?.filter(node => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
   const noAbstractObj = objectsNotDeleted?.filter(node => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
   if (debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
@@ -188,16 +189,19 @@ const Palette = (props: any) => {
     toggleRefreshPalette()
   }
   
+  {/* <div style={{transform: "scale(0.9)" }}> */}
   const selectedObjDiv = (
-    <div>
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROPS</button>}
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABSTRACT</button>}
-      <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button>
+    <div >
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Tasks') }}>TASK</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROP</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABS</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button> }
     </div>
   )
 
   // // filter out all objects of type Property
   let ofilteredArr = objectsNotDeleted
+  if (ofilter === 'Tasks') ofilteredArr = roleTaskObj
   if (ofilter === '!Property') ofilteredArr = noPropertyObj
   if (ofilter === '!Abstract') ofilteredArr = noAbstractObj
   if (ofilter === 'All') ofilteredArr = objectsNotDeleted

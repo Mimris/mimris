@@ -91,7 +91,7 @@ const page = (props:any) => {
         phData: props.phData,
         phFocus: props.phFocus,
         phUser: props.phUser,
-        phSource: 'INIT model'
+        phSource: props.phSource
       };
       if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
       setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh

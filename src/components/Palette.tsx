@@ -192,7 +192,7 @@ const Palette = (props: any) => {
   {/* <div style={{transform: "scale(0.9)" }}> */}
   const selectedObjDiv = (
     <div >
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Tasks') }}>TASK</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Tasks') }}>Task</button>}
       { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROP</button>}
       { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABS</button>}
       { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button> }
@@ -265,7 +265,7 @@ const Palette = (props: any) => {
             {/* <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0"> */}
                 {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
-                <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mmnamediv}</div>
+                <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
                 {selectedMMDiv}
               < GoJSPaletteApp
                 nodeDataArray={gojstypes.nodeDataArray}

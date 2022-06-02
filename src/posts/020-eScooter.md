@@ -1,29 +1,34 @@
 ---
-title: 'A Solution Model case study'
+title: 'A Demo Solution Model'
 date: 'June 8, 2022'
-excerpt: 'Enhance and existing Model of rental service for eScooters and cars .'
+excerpt: 'The purpose of this tutorial is to make enhancement to an existing Consept Model of rental service for e-Scooters and cars .'
 cover_image: 'images/posts/modelling/image_model006.png'
 ---
 
-## Enhance an existing model
+## Enhance an existing concept model
 
-In this chapter we will use an example model as shown below. It has four different object types, "*Person*", "*House*", "*Apartment*" and "*Car*", with relationship types "*owns*" and "*rents*" as shown in the next model diagram.
+### Concept Model overall structure
 
-![alt text](/images/posts/modelling/image_model002.png)
+The demo model shown below is a concept model of a rental service for e-scooters and cars. In the "Type definition" container at the right you se currently defined Objecttypes Types: "*Person*", "*Company*", "*Fleet*", "*Location*", "*EScooter*" and "*Car*", with Relationship Types "*has*" and "*contains*".
+In the left container we have the Role and Tasks used for the rental service.
 
-Based on this metamodel the modelling window looks as shown here:
+![alt text](/images/posts/modelling/image_model020-1.png)
 
-![alt text](/images/posts/modelling/image_model003.png)
+### Property and relationship definition for the Car and EScooter Objecttypes
 
-The left pane contains the four object types defined in the metamodel above plus "*Generic*" and "*Container*", which are found in all metamodels used for modeling in AKMM. 
+To define more details of the model we add the properties and relationships in a new Modelview named "05-Vehicle" shown below. the *Car* and *EScooter* are defined with some common properties, and Vehicle has som special properties for the rental service, like vehicleId and price.
 
-Now we build our model by first dragging and dropping first "*Person*" and then "*Car*". We click on each of them to edit their names, and the result is:
+![alt text](/images/posts/modelling/image_model020-2.png)
 
-![alt text](/images/posts/modelling/image_model004.png)
+### Property and relationship definition for the Person and Vehicle Objecttype related to position with Coordnates property.
 
-Then when we draw a relationship between the two objects, we are asked to choose a relationship type:
 
-![alt text](/images/posts/modelling/image_model005.png)
+
+![alt text](/images/posts/modelling/image_model020-3.png)
+
+### Datatype definitions
+
+![alt text](/images/posts/modelling/image_model020-4.png)
 
 We choose "*owns*" in the modal dialog that pops up, clicks on "*Done*” and the relationship is created. (If you click on the “*x*” in the top right corner of the dialog, the operation is canceled.)
 

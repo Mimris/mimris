@@ -703,7 +703,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Export Task Model",
           function (e: any, obj: any) {
             const node = e.diagram.selection.first().data;
-            myMetis.currentNode = node;
             uid.exportTaskModel(node, myMetis, myDiagram);
 
           },

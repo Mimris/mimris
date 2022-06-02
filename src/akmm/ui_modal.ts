@@ -744,7 +744,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (selectedData.category === constants.gojs.C_OBJECT) {
           const selObj = selectedData;
           const node = myDiagram.findNodeForKey(selObj.key);
-          if (!debug) console.log('747 node', node);
+          if (debug) console.log('747 node', node);
           const data = node.data;
           const objview = data.objectview;
           if (objview) {
@@ -755,7 +755,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               let data = mn;
               if (debug) console.log('756 data', data);
               data = JSON.parse(JSON.stringify(data));
-              if (!debug) console.log('758 data, jsnObjview', data, jsnObjview);
+              if (debug) console.log('758 data, jsnObjview', data, jsnObjview);
               props.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             })
             for (let prop in objview?.data) {

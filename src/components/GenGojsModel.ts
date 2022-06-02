@@ -45,7 +45,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     const focusObjectview = (props.phFocus) && props.phFocus.focusObjectview
     const focusObject = (props.phFocus) && props.phFocus.focusObject
     const curmod = (models && focusModel?.id) && models.find((m: any) => m.id === focusModel.id)
-    if (debug) console.log('49 GenGojsModel: models, curmod', models, curmod, curmod.modelviews, focusModelview)
+    if (debug) console.log('49 models, curmod, curmod.modelviews, focusModelview: ', models, curmod, curmod.modelviews, focusModelview)
     const curmodview = (curmod && focusModelview?.id) && curmod.modelviews?.find((mv: any) => mv.id === focusModelview.id)
     const curmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.metamodel?.id)
     const curtargetmetamodel = (curmod) && metamodels.find(mm => mm?.id === curmod?.targetMetamodel?.id)
@@ -359,7 +359,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     //   model = metis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     //   modelview = model?.modelviews[0];
     // }
-
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
@@ -444,6 +443,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('383 nodes', nodes);
     }
     // load relship views
+    const relshipviews = [];
     let relviews = (modelview) && modelview.getRelationshipViews();
     if (relviews) {
       if (debug) console.log('388 modelview, relviews', modelview, relviews);
@@ -452,6 +452,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < l; i++) {
         let includeRelview = false;
         let relview = relviews[i];
+        let fromObjview = relview.fromObjview;
+        if (!modelview.findObjectView(fromObjview.id)) 
+          continue;
+        let toObjview = relview.toObjview;
+        if (!modelview.findObjectView(toObjview.id))
+          continue;
         const rel = relview.relship;
         if (rel) {
           if (rel.markedAsDeleted == undefined)
@@ -496,6 +502,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
           relview = uic.updateRelationshipView(relview);
+
+          relshipviews.push(relview);
           if (debug) console.log('490 rel, relview:', rel, relview);
           const jsnRelview = new jsn.jsnRelshipView(relview);
           modifiedRelviews.push(jsnRelview);
@@ -514,7 +522,9 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         let data = mn;
         props.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })
+      if (debug) console.log('523 modifiedRelviews', modifiedRelviews);
     }
+    modelview.relshipviews = relshipviews;
     console.log('500 buildGoModel - myGoModel', myGoModel);
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);

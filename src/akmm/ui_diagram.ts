@@ -160,7 +160,7 @@ export function clearModel(myMetis: akm.cxMetis, myDiagram: any) {
 }
 
 export function exportTaskModel(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    if (!debug) console.log('163 node', node);
+    if (debug) console.log('163 node', node);
     const objview = myMetis.findObjectView(node.objectview?.id);
     // Select model among all models (except the current)
     const args = {
@@ -183,7 +183,7 @@ export function exportTaskModel(node: any, myMetis: akm.cxMetis, myDiagram: any)
 function exportTaskModelCallback(context: any) {
     const myMetis = context.myMetis;
     const myDiagram = context.myDiagram;
-    if (!debug) console.log('183 context', context);
+    if (debug) console.log('183 context', context);
     let fromModel = context.myCurrentModel;
     fromModel = myMetis.findModel(fromModel.id);
     let toModel   = context.args.model;
@@ -197,7 +197,7 @@ function exportTaskModelCallback(context: any) {
         const typename = obj.type.name;
         if (typename === 'Task' || typename === 'Role') {
             toModel.addObject(obj);
-            if (!debug) console.log('197 obj', obj);
+            if (debug) console.log('197 obj', obj);
             const outrels = obj.outputrels;
             for (let j=0; j<outrels?.length; j++) {
                 const rel = outrels[j];
@@ -205,12 +205,13 @@ function exportTaskModelCallback(context: any) {
             }
         }
     }
-    if (!debug) console.log('208 toModel', toModel);
+    if (debug) console.log('208 toModel', toModel);
     let mdata = new jsn.jsnModel(toModel, true);
     mdata = JSON.parse(JSON.stringify(mdata));
     mdata.targetModelRef = toModel.id;
-    if (!debug) console.log('208 Diagram', mdata);        
+    if (debug) console.log('208 Diagram', mdata);        
     myDiagram.dispatch({ type: 'UPDATE_TARGETMODEL_PROPERTIES', data: mdata })
+    alert("The task model has been successfully exported!");
 }
 
 export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {

@@ -1750,11 +1750,13 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
       const objview = objviews[i];
       const obj = objview.object;
       const outrels = obj?.outputrels;
+      if (!debug) console.log('1753 obj, outrels', obj, outrels);
       for (let j=0; j<outrels?.length; j++) {
         const rel = outrels[j];
         if (rel.markedAsDeleted) continue;
         const rviews = rel.relshipviews;
         const mrelviews = modelview.relshipviews;
+        if (debug) console.log('1759 modelview, mrelviews', modelview, mrelviews);
         let found = false;
         if (rviews?.length > 0) {
           for (let i=0; i<rviews?.length; i++) {
@@ -1772,7 +1774,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
           if (found)
             continue;
         }
-        if (debug) console.log('1637 rviews', rel, rviews);
+        if (debug) console.log('1776 rviews', rel, rviews);
         // Check if from- and to-objects have views in this modelview
         const fromObj = rel.fromObject as akm.cxObject;
         const fromObjviews = fromObj.objectviews;
@@ -1780,14 +1782,14 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
           // From objview is NOT in modelview - do nothing
           continue;
         }
-        if (debug) console.log('1645 fromObjviews', fromObjviews);
+        if (debug) console.log('1784 fromObjviews', fromObjviews);
         const toObj = rel.toObject as akm.cxObject;
         const toObjviews = toObj.objectviews;
         if (toObjviews?.length == 0) {
           // To objview is NOT in modelview - do nothing
           continue;
         }
-        if (debug) console.log('1652 toObjviews', toObjviews);
+        if (debug) console.log('1791 toObjviews', toObjviews);
         // Relview(s) does not exist, but from and to objviews exist, create relview(s)
         const relview = new akm.cxRelationshipView(utils.createGuid(), rel.name, rel, rel.description);
         if (relview.markedAsDeleted) continue;

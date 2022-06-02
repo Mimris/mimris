@@ -618,7 +618,7 @@ function reducer(state = InitialStateStr, action) {
       // if (debug) console.log('472 UPDATE_TARGETMODEL_PROPERTIES', action);
       // const curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       let curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.targetModelRef) // target model index
-      // if (debug) console.log('464 reducer', state.phData.metis.models, curmindex12)
+      if (!debug) console.log('464 reducer', state.phData.metis.models, 'curmindex12: ', curmindex12, 'action: ', action , "END")
 
       if (curmindex12 < 0) {curmindex12 = state.phData.metis.models.length}
       // if (debug) console.log('466 reducer', curmindex12)

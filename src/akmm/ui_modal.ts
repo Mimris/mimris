@@ -859,16 +859,11 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       else if (modalContext.case === 'Export Task Model') {
 
         // selObj is a node representing a container
-        const selObj = selectedData;
-        const oview = myMetis.findObjectView(selObj.objectview.id);
-        if (!debug) console.log('864 selObj, oview', selObj, oview);
-        // 
         const context = modalContext.context;
         const selectedValue = modalContext.selected?.value;
         const model = myMetis.findModelByName(selectedValue); 
-        if (!debug) console.log('869 selected, model: ', selectedValue, model);
-
-        context.args.object = oview;
+        const fromObjview = context.args.objectview;
+        context.args.objectview = fromObjview;
         context.args.model = model;
         modalContext.context.postOperation(context);
         break;        

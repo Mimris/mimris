@@ -54,16 +54,16 @@ const Navbar = (props) => (
 							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} />
 							<span className="username"> {props?.user?.name}</span> </a>
 						<div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
-							<a className="dropdown-item" href="/login">Login</a>
+							{/* <a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
-							<a className="dropdown-item" href="/settings">Settings</a>
+							<a className="dropdown-item" href="/settings">Settings</a> */}
 						</div>
 					</li>
 					<li className="nav-item">
 						<Link href="/videos"><a className="nav-link">Videos</a></Link>
 					</li>
 					<li className="nav-item">
-						<Link href="/helpblog"><a className="nav-link">Help</a></Link> 
+						<Link href="/helpblog"><a className="nav-link" >Help</a></Link> 
 					</li>
 					<li className="nav-item">
 						<Link href="/about" ><a className="nav-link" >About</a></Link>

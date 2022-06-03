@@ -119,3 +119,5 @@ If we are not satisfied with the generated Metamodel, we can change the generate
 
 #### Other examples of use AKM Modeller.
 
+OSDU_Column_Model
+

@@ -2,7 +2,7 @@
 title: 'A Demo Solution Model'
 date: 'June 8, 2022'
 excerpt: 'The purpose of this tutorial is to make enhancement to an existing Consept Model of rental service for e-Scooters and cars .'
-cover_image: 'images/posts/modelling/image_model006.png'
+cover_image: 'images/posts/escooter/image_020-1.png'
 ---
 
 ## Task: To enhance an existing concept model of rental service for e-Scooters and cars.
@@ -108,6 +108,10 @@ We can now test the generated Metamodel by creating instances of the objecttypes
 
 ![alt text](/images/posts/escooter/image_020-31.png)
 
-#### 
+#### Test Solution Model
 
-![alt text](/images/posts/escooter/image_020-33.png)
+Below is a test solution model, where we use the generated metamodel to build an example model to test the Metamodel.
+
+If we are not satisfied with the generated Metamodel, we can change the generated Metamodel and rerun the generation.
+
+![alt text](/images/posts/escooter/image_020-36.png)

@@ -79,20 +79,22 @@ Then we add relationships to the Type definition model.
 
 ### The generated Metamodel.
 
-The result of the Metamodel generation is shown below in the Palette types at the left.
+The generated Metamodel vil be used as Metamodel for the Solution model.
+The Object types are shown below in the Palette types at the left.
 
 #### Generated objecttypes
-
+12
 ![alt text](/images/posts/escooter/image_020-32.png)
 
 #### Copied role and tasks objects
+
+The Rols and Tasks are copied from the Type definition model and can now be used in the solution model.
 
 ![alt text](/images/posts/escooter/image_020-31.png)
 
 #### Test of the generated Metamodel
 
 We can now test the generated Metamodel by creating instances of the objecttypes.
-
 
 
 <details><summary markdown="span">

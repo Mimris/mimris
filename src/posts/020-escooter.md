@@ -115,3 +115,7 @@ Below is a test solution model, where we use the generated metamodel to build an
 If we are not satisfied with the generated Metamodel, we can change the generated Metamodel and rerun the generation.
 
 ![alt text](/images/posts/escooter/image_020-36.png)
+
+
+#### Other examples of use AKM Modeller.
+

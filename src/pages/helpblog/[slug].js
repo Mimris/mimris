@@ -20,9 +20,9 @@ export default function PostPage({
     <>
     {/* <Layout> */}
       <div className="container">
-        <Link href='/helpblog/'>
+        {/* <Link href='/helpblog/'>
           <a className='btn btn-back'>Go Back</a>
-        </Link>
+        </Link> */}
         <div className='card card-page' >
           <h1 className='post-title'>{title}</h1>
           <img src={cover_image} alt='' max-width="200px"/>
@@ -30,9 +30,9 @@ export default function PostPage({
             <div dangerouslySetInnerHTML={{ __html: marked(content) }}></div>
           </div>
           <div className='post-date'>Posted on {date}</div>
-          <Link href='/helpblog/'>
+          {/* <Link href='/helpblog/'>
             <a className='btn btn-back'>Go Back</a>
-          </Link>
+          </Link> */}
         </div>
       </div>
       {/* </Layout> */}

@@ -7,7 +7,7 @@ export default function Post({ post }) {
     <>
     <div className='card'>
       <Link href={`/helpblog/${post.slug}`} >
-        <img src={post.frontmatter.cover_image} alt='' />
+        <a target="AKMM Help"><img src={post.frontmatter.cover_image} alt='' /></a> 
       </Link>
 
       <div className='post-date'>Posted on {post.frontmatter.date}</div>
@@ -16,8 +16,8 @@ export default function Post({ post }) {
 
       <p>{post.frontmatter.excerpt}</p>
 
-      <Link href={`/helpblog/${post.slug}`} >
-        <a className='btn'>Read More</a>
+      <Link href={`/helpblog/${post.slug}#AKMM Help`} >
+        <a className='btn' target="AKMM Help" >Read More</a>
       </Link>
     </div>
     <style jsx>{`

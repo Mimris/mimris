@@ -1565,6 +1565,9 @@ export class cxMetis {
     getObjtypeGeos(): cxObjtypeGeo[] | null {
         return this.objtypegeos;
     }
+    getRelshipTypes(): cxRelationshipType[] | null {
+        return this.relshiptypes;
+    }
     getRelationshipTypeViews(): cxRelationshipTypeView[] | null {
         return this.relshiptypeviews;
     }
@@ -2262,6 +2265,20 @@ export class cxMetis {
             }
         }
         return null;
+    }
+    findRelationshipTypesByName(name: string): cxRelationshipType[] | null {
+        let types = this.getRelshipTypes();
+        if (!types) return null;
+        let reltypes = new Array();
+        let i = 0;
+        let reltype = null;
+        for (i = 0; i < types.length; i++) {
+            reltype = types[i];
+            if (reltype.isDeleted()) continue;
+            if (reltype.getName() === name)
+                reltypes.push(reltype);
+        }
+        return reltypes;
     }
     findRelationshipTypeByName(name: string): cxRelationshipType | null {
         const types = this.getRelationshipTypes();
@@ -5969,6 +5986,17 @@ export class cxModel extends cxMetaObject {
         }
         return objects;
     }
+    getCopiedFromObject(fromId: string): cxObject {
+        console.log('5972 this.objects, fromId', this.objects, fromId);
+        for (let i=0; i<this.objects.length; i++) {
+            const obj = this.objects[i];
+            if (obj.copiedFromId === fromId) {
+                console.log('5977 obj, fromId', obj, fromId);
+                return obj;
+            }
+        }
+        return null;
+    }
     getRelationships(): cxRelationship[] | null {
         return this.relships;
     }
@@ -6329,6 +6357,7 @@ export class cxInstance extends cxMetaObject {
     outputrels: cxRelationship[] | null;
     parentModel: cxModel | null;
     allProperties: cxProperty[] | null;
+    copiedFromId: string;
     constructor(id: string, name: string, type: cxObjectType | cxRelationshipType | null, description: string) {
         super(id, name, description);
         this.id = id;
@@ -6347,6 +6376,7 @@ export class cxInstance extends cxMetaObject {
         this.outputrels = null;
         this.parentModel = null;
         this.allProperties = null;
+        this.copiedFromId = "";
         if (this.type) {
             this.relshipkind = this.getRelshipKind();
         }

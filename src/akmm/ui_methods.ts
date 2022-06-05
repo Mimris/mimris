@@ -109,7 +109,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                                 myDiagram.model.setDataProperty(goNode, prop, toTypeviewData[prop]);
                             }
                         }
-                        const diff = 100 // noLevels>0 ? 50 : 100;
+                        const diff = 100; // noLevels>0 ? 50 : 100;
                         const locx = useinp ? nx - 300 : nx + 300;
                         const locy = ny - diff + cnt * 100;
                         const loc = locx + " " + locy;

@@ -191,25 +191,45 @@ function exportTaskModelCallback(context: any) {
     const containerView = context.args.objectview;
     const modelView = containerView.getParentModelView(fromModel);
     const members = containerView.getGroupMembers(modelView);
+    const fromRelships = [];
     for (let i=0; i<members.length; i++) {
         const oview = members[i];
         const obj = oview.object;
         const typename = obj.type.name;
         if (typename === 'Task' || typename === 'Role') {
-            toModel.addObject(obj);
-            if (debug) console.log('197 obj', obj);
+            const copiedObj = uic.copyObject(obj)
+            toModel.addObject(copiedObj);
+            myMetis.addObject(copiedObj);
+            if (debug) console.log('197 copiedObj', copiedObj);
+        }
+    }
+    if (debug) console.log('205 toModel', toModel);
+    for (let i=0; i<members.length; i++) {
+        const oview = members[i];
+        const obj = oview.object;
+        const typename = obj.type.name;
+        if (typename === 'Task' || typename === 'Role') {
             const outrels = obj.outputrels;
             for (let j=0; j<outrels?.length; j++) {
                 const rel = outrels[j];
-                toModel.addRelationship(rel);
+                const fromObj = toModel.getCopiedFromObject(rel.fromObject.id);
+                const toObj = toModel.getCopiedFromObject(rel.toObject.id);
+                if (debug) console.log('215 rel, fromObj, toObj', rel, fromObj, toObj);
+                if (fromObj && toObj) {
+                    const copiedRel = uic.copyRelationship(rel, fromObj, toObj);
+                    fromObj.addOutputrel(copiedRel);
+                    toObj.addInputrel(copiedRel);
+                    toModel.addRelationship(copiedRel);
+                    myMetis.addRelationship(copiedRel);
+                }
             }
         }
     }
-    if (debug) console.log('208 toModel', toModel);
+    if (debug) console.log('220 toModel', toModel);
     let mdata = new jsn.jsnModel(toModel, true);
     mdata = JSON.parse(JSON.stringify(mdata));
     mdata.targetModelRef = toModel.id;
-    if (debug) console.log('208 Diagram', mdata);        
+    if (debug) console.log('224 Diagram', mdata);        
     myDiagram.dispatch({ type: 'UPDATE_TARGETMODEL_PROPERTIES', data: mdata })
     alert("The task model has been successfully exported!");
 }

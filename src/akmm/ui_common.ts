@@ -433,6 +433,45 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
     }
 }
 
+export function copyObject(fromObj: akm.cxObject,): akm.cxObject {
+    let toObj: akm.cxObject;
+    toObj = new akm.cxObject(utils.createGuid(), fromObj.name, fromObj.type, fromObj.description);
+    for (let prop in fromObj) {
+        if (prop === 'id') continue;
+        if (prop === 'name') continue;
+        if (prop === 'description') continue;
+        if (prop === 'inputrels') continue;
+        if (prop === 'outputrels') continue;
+        if (prop === 'objectviews') continue;
+        if (prop === 'relshipviews') continue;
+        if (prop === 'modified') continue;
+        if (prop === 'generatedTypeId') continue;
+        toObj[prop] = fromObj[prop];
+    }
+    toObj.copiedFromId = fromObj.id;
+    return toObj;
+}
+
+export function copyRelationship(fromRel: akm.cxRelationship, fromObj: akm.cxObject, toObj: akm.cxObject,): akm.cxRelationship {
+    if (debug) console.log('457 fromRel, fromObj, toObj', fromRel, fromObj, toObj);
+    let toRel = new akm.cxRelationship(utils.createGuid(), fromRel.type, fromObj, toObj, fromRel.name, fromRel.description);
+    if (debug) console.log('459 toRel', toRel);
+    toRel.fromObject = fromObj;                                
+    toRel.toObject = toObj;
+    for (let prop in fromRel) {
+        if (prop === 'id') continue;
+        if (prop === 'name') continue;
+        if (prop === 'description') continue;
+        if (prop === 'modified') continue;
+        if (prop === 'generatedTypeId') continue;
+        if (prop === 'fromObject') continue;
+        if (prop === 'toObject') continue;
+        if (prop === 'relshipviews') continue;
+        toRel[prop] = fromRel[prop];
+    }
+    return toRel;
+}
+
 export function deleteObjectType(data: any, context: any) {   
 }
 
@@ -1750,7 +1789,7 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
       const objview = objviews[i];
       const obj = objview.object;
       const outrels = obj?.outputrels;
-      if (!debug) console.log('1753 obj, outrels', obj, outrels);
+      if (debug) console.log('1753 obj, outrels', obj, outrels);
       for (let j=0; j<outrels?.length; j++) {
         const rel = outrels[j];
         if (rel.markedAsDeleted) continue;

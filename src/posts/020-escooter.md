@@ -116,8 +116,22 @@ If we are not satisfied with the generated Metamodel, we can change the generate
 
 ![alt text](/images/posts/escooter/image_020-36.png)
 
+---
 
-#### Other examples of use AKM Modeller.
+---
 
-OSDU_Column_Model
+## Other examples of use AKM Modeller.
 
+Object types imported from OSDU Repository.
+
+We can import type definitions from OSDU Repository.
+This is JSON Type definition stored as JSON files.
+
+![alt text](/images/posts/escooter/imagetmp5.png)
+
+Below is a model view of the imported type definitions.
+
+![alt text](/images/posts/escooter/imagetmp3.png)
+![alt text](/images/posts/escooter/imagetmp4.png)
+![alt text](/images/posts/escooter/imagetmp2.png)
+![alt text](/images/posts/escooter/imagetmp1.png)

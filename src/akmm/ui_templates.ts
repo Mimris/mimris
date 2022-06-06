@@ -160,7 +160,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         }    
     ),        
     $(go.Panel, "Table", // Panel for text 
-        { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
+        // { defaultAlignment: go.Spot.Left, margin: 2, cursor: "move" },
         $(go.RowColumnDefinition, { column: 1, width: 4 }),
         $(go.Panel, "Horizontal",
         {
@@ -455,8 +455,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
                 new go.Binding('stroke', 'strokecolor'), 
-                new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
-                .ofObject(),
+                new go.Binding("stroke", "isHighlighted", 
+                    function(h, shape) { 
+                        return h ? "lightblue" : shape.part.data.strokecolor || "black"; 
+                    }).ofObject(),
                 // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
                 { contextMenu: contextMenu },    
             ),

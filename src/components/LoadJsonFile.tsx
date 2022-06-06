@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
-import Draggable from "react-draggable";
+// import Draggable from "react-draggable";
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
@@ -150,7 +150,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       return (
         <>
           <button className="btn-context btn-success float-right mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
-        <Draggable handle=".handle">
+        {/* <Draggable handle=".handle"> */}
           <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
             <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import: </ModalHeader>
               {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
@@ -223,7 +223,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
               </Button>
             </ModalFooter>
           </Modal>
-          </Draggable>
+          {/* </Draggable> */}
           <style jsx>{`
                 .selectbox2 {
                     background-color: rgba(0, 0, 0, 0.3) ;

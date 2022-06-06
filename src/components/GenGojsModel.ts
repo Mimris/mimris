@@ -419,7 +419,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
           if (node.template === "")
-            node.template = 'textOnly';
+            node.template = 'textAndIcon';
           myGoModel.addNode(node);
           node.name = objview.name;
           if (node.fillcolor === "") {

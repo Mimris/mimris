@@ -74,36 +74,45 @@ const page = (props:any) => {
 
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
-    useEffect(() => {
-      genGojsModel(props, dispatch);
-      //focusModel = props.phFocus?.focusModel
-      if (debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1);
-    }, [curmod])
+    // useEffect(() => {
+    //   genGojsModel(props, dispatch);
+    //   //focusModel = props.phFocus?.focusModel
+    //   if (debug) console.log('68 Modelling useEffect 1 ', curmodview ); 
+    //   function refres() {
+    //     setRefresh(!refresh)
+    //   }
+    //   setTimeout(refres, 1);
+    // }, [curmod])
 
     useEffect(() => {
-      if (debug) console.log('76 Modelling useEffect 2', props); 
+      setTimeout(refres, 100);
+      if (debug) console.log('88 Modelling useEffect 2', props); 
+      const data = {
+        phData: props.phData,
+        phFocus: props.phFocus,
+        phUser: props.phUser,
+        phSource: props.phSource
+      };
+      if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
+      setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
       genGojsModel(props, dispatch);
       function refres() {
         setRefresh(!refresh)
       }
-      setTimeout(refres, 1);
+      setTimeout(refres, 100);
     }, [focusModelview?.id, focusModel?.id])
 
-    useEffect(() => {
-      if (debug) console.log('85 Modelling useEffect 3', props); 
-      genGojsModel(props, dispatch);
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1);
-    }, [props.phFocus?.focusRefresh?.id])
+    // useEffect(() => {
+    //   if (!debug) console.log('97 Modelling useEffect 3', props); 
+    //   genGojsModel(props, dispatch);
+    //   function refres() {
+    //     setRefresh(!refresh)
+    //   }
+    //   setTimeout(refres, 1);
+    // }, [props.phFocus?.focusRefresh?.id])
 
     // useEffect(() => {
-    //   if (debug) console.log('94 Modelling useEffect 4', props); 
+    //   if (debug) console.log('106 Modelling useEffect 4', props); 
     //   genGojsModel(props, dispatch);
     //   function refres() {
     //     setRefresh(!refresh)
@@ -111,20 +120,20 @@ const page = (props:any) => {
     //   setTimeout(refres, 1);
     // }, [props.metis])
 
-    useEffect(() => {
-      if (debug) console.log('103 Modelling useEffect 5', props); 
-      genGojsModel(props, dispatch)
-      setRefresh(!refresh)
-    }, [props.phSource])
+    // useEffect(() => {
+    //   if (!debug) console.log('115 Modelling useEffect 5', props); 
+    //   genGojsModel(props, dispatch)
+    //   setRefresh(!refresh)
+    // }, [props.phSource])
 
-    useEffect(() => {
-      if (debug) console.log('103 Modelling useEffect 5', props); 
-      genGojsModel(props, dispatch)
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1);
-    }, [props.phUser.focusUser])
+    // useEffect(() => {
+    //   if (!debug) console.log('121 Modelling useEffect 6', props); 
+    //   genGojsModel(props, dispatch)
+    //   function refres() {
+    //     setRefresh(!refresh)
+    //   }
+    //   setTimeout(refres, 1);
+    // }, [props.phUser.focusUser])
     
     const data = {
       phData:   props.phData,

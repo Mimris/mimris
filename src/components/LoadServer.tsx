@@ -87,7 +87,7 @@ const SelectSource = (props: any) => {
   const handleChange = (selectedOption) => {
     if (debug) console.log('111 LoadServer', selectedOption);
     const data = {id: selectedOption.value, name: selectedOption.label}
-    if (debug) console.log('114 LoadServer', data);
+    if (!debug) console.log('114 LoadServer', data);
     dispatch({ type: 'SET_FOCUS_MODEL', data }) ;  
   };
 

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
-import Draggable from "react-draggable";
+// import Draggable from "react-draggable";
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
@@ -48,13 +48,13 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
         // SaveAllToFile(data, projectname, 'AKMM-Project')
       } 
       // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
-      function handleSaveAllToFileDate() {
-        const projectname = props.ph.phData.metis.name
-        console.log('37 LoadFile', data);
+      // function handleSaveAllToFileDate() {
+      //   const projectname = props.ph.phData.metis.name
+      //   console.log('37 LoadFile', data);
         
-        SaveAllToFileDate(data, projectname, 'Project')
-        // SaveAllToFileDate(data, projectname, 'AKMM-Project')
-      }
+      //   SaveAllToFileDate(data, projectname, 'Project')
+      //   // SaveAllToFileDate(data, projectname, 'AKMM-Project')
+      // }
       
     
       // Save current modelview (without instances) to a file in downloads foler 
@@ -150,7 +150,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       return (
         <>
           <button className="btn-context btn-success float-right mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
-        <Draggable handle=".handle">
+        {/* <Draggable handle=".handle"> */}
           <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
             <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import: </ModalHeader>
               {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
@@ -223,7 +223,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
               </Button>
             </ModalFooter>
           </Modal>
-          </Draggable>
+          {/* </Draggable> */}
           <style jsx>{`
                 .selectbox2 {
                     background-color: rgba(0, 0, 0, 0.3) ;

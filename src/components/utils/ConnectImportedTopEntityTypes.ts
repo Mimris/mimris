@@ -30,6 +30,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
     const propertyType = curObjTypes.find((co: { name: string; }) => (co.name === 'Property') && co)
     const hasPartType = curRelTypes.find((co: { name: string; }) => (co.name === 'hasPart') && co)
     const hasMemberType = curRelTypes.find((co: { name: string; }) => (co.name === 'hasMember') && co)
+    const refersTo = curRelTypes.find((co: { name: string; }) => (co.name === 'refersTo') && co)
     const hasType = curRelTypes.find((co: { name: string; }) => (co.name === 'has') && co)
     const IsType = curRelTypes.find((co: { name: string; }) => (co.name === 'Is') && co)
  
@@ -75,6 +76,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
                 const fromObj = {id: linkId, markedAsDeleted: true}
                 dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
                 // TODO: delete propLink relationship ?
+            } else if (!toobjectId) {
+                dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: {id: linkId, markedAsDeleted: true} }); // for propLink object set mark as deleted
             }
         } else {
             const fromObj = {id: linkId, markedAsDeleted: true}
@@ -102,7 +105,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
     // ID ...... Find RelshipType objects with a name that includes the text 'ID' and and generate a relship between this top oject and the rest object
     const genrel = propLinks.forEach(o => {
         // use the linkId to find the top object
-       if (debug) console.log('101 ', o.name, o.title, o.id, o.linkId, o);
+        if (debug) console.log('101 ', o.name, o.title, o.id, o.linkId, o);
         if (debug) console.log('102 ', o.linkId);
         const targetObject = utils.findObjectByTitle(curModel.objects, {}, o.linkId)
         if (debug) console.log('104 ', o, o.linkId, targetObject);
@@ -110,8 +113,6 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
         let existRelship = utils.findRelshipByToIdAndType(curRelships, targetObject?.id, hasType?.id) // check if the relationship exists between the objects
         existRelship = utils.findRelshipByToIdAndType(curRelships, targetObject?.id, IsType?.id) // check if the relationship with is type exists between the objects
         if (debug) console.log('109 ', o.name, targetObject && targetObject.id, existRelship);
-    
-        
         if (!debug) console.log('112 ', o.name);
         
         // find top level object
@@ -134,7 +135,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
             const totypeName = curObjTypes.find((ot: { id: any; }) => ot.id === totypeRef)?.name
       
             relId = (existRelship) ? existRelship.id : utils.createGuid();
-            reltypeRef = hasType?.id
+            reltypeRef = refersTo?.id
+            // reltypeRef = hasType?.id
             if (o.title === 'ColumnStratigraphicHorizonTopID') {
                 reltypeName = hasType?.name+'Top'
                 relDescription = `${fromobjectName} has Top ${toobjectName}`;
@@ -142,8 +144,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
                 reltypeName = hasType?.name+'Base'
                 relDescription = `${fromobjectName} has Base ${toobjectName}`;
             } else {
-                reltypeName = hasType?.name
-                relDescription = `${fromobjectName} has ${toobjectName}`;
+                reltypeName = refersTo?.name
+                relDescription = `${fromobjectName} refersTo ${toobjectName}`;
             }    
 
             if (debug) console.log('127 ', relId, reltypeName, description, relTitle, reltypeRef, fromobjectId, fromobjectName, toobjectId, toobjectName);

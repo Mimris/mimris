@@ -922,7 +922,7 @@ export class cxMetis {
                     model.addRelationship(rel);
                     if (debug) console.log('610 fromObj, toObj, rel', fromObj, toObj, rel);
                 }
-            } else {
+            } else if (rel) {
                 rel.typeName = item.typeName;
             } 
         }
@@ -1399,11 +1399,12 @@ export class cxMetis {
     }
     addRelationshipView(relview: cxRelationshipView) {
         if (relview.category === constants.gojs.C_RELSHIPVIEW) {
-            //relview.setMetis(this);
-            if (this.relshipviews == null)
-                this.relshipviews = new Array();
-            if (!this.findRelationshipView(relview.id))
-                this.relshipviews.push(relview);
+            // if (relview.fromObjview && relview.toObjview) {
+                    if (this.relshipviews == null)
+                    this.relshipviews = new Array();
+                if (!this.findRelationshipView(relview.id))
+                    this.relshipviews.push(relview);
+            // }
         }
     }
     setGojsModel(model: gjs.goModel) {
@@ -1563,6 +1564,9 @@ export class cxMetis {
     }
     getObjtypeGeos(): cxObjtypeGeo[] | null {
         return this.objtypegeos;
+    }
+    getRelshipTypes(): cxRelationshipType[] | null {
+        return this.relshiptypes;
     }
     getRelationshipTypeViews(): cxRelationshipTypeView[] | null {
         return this.relshiptypeviews;
@@ -2261,6 +2265,20 @@ export class cxMetis {
             }
         }
         return null;
+    }
+    findRelationshipTypesByName(name: string): cxRelationshipType[] | null {
+        let types = this.getRelshipTypes();
+        if (!types) return null;
+        let reltypes = new Array();
+        let i = 0;
+        let reltype = null;
+        for (i = 0; i < types.length; i++) {
+            reltype = types[i];
+            if (reltype.isDeleted()) continue;
+            if (reltype.getName() === name)
+                reltypes.push(reltype);
+        }
+        return reltypes;
     }
     findRelationshipTypeByName(name: string): cxRelationshipType | null {
         const types = this.getRelationshipTypes();
@@ -5444,6 +5462,7 @@ export class cxObjectTypeView extends cxMetaObject {
             }
             if (debug) console.log('3740 data, objview', data, objview, this);
             for (prop in otypeview.data) {
+                if (prop === 'memberscale' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'template' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'geometry' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'fillcolor' && objview[prop] !== "") data[prop] = objview[prop];
@@ -5967,6 +5986,17 @@ export class cxModel extends cxMetaObject {
         }
         return objects;
     }
+    getCopiedFromObject(fromId: string): cxObject {
+        console.log('5972 this.objects, fromId', this.objects, fromId);
+        for (let i=0; i<this.objects.length; i++) {
+            const obj = this.objects[i];
+            if (obj.copiedFromId === fromId) {
+                console.log('5977 obj, fromId', obj, fromId);
+                return obj;
+            }
+        }
+        return null;
+    }
     getRelationships(): cxRelationship[] | null {
         return this.relships;
     }
@@ -6327,6 +6357,7 @@ export class cxInstance extends cxMetaObject {
     outputrels: cxRelationship[] | null;
     parentModel: cxModel | null;
     allProperties: cxProperty[] | null;
+    copiedFromId: string;
     constructor(id: string, name: string, type: cxObjectType | cxRelationshipType | null, description: string) {
         super(id, name, description);
         this.id = id;
@@ -6345,6 +6376,7 @@ export class cxInstance extends cxMetaObject {
         this.outputrels = null;
         this.parentModel = null;
         this.allProperties = null;
+        this.copiedFromId = "";
         if (this.type) {
             this.relshipkind = this.getRelshipKind();
         }
@@ -6924,8 +6956,11 @@ export class cxRelationship extends cxInstance {
         for (let i=0; i<len; i++) {
             const rview = this.relshipviews[i];
             if (rview.id === relview.id) {
-                // Relati onshipview is already in list
+                // Relationshipview is already in list
                 return;
+            } else {
+                if ((!rview.fromObjview) || (!rview.toObjview))
+                    return;
             }
         }
         this.relshipviews.push(relview);
@@ -7224,8 +7259,11 @@ export class cxModelView extends cxMetaObject {
         if (relshipview.category === constants.gojs.C_RELSHIPVIEW) {
             if (this.relshipviews == null)
                 this.relshipviews = new Array();
-            if (!this.findRelationshipView(relshipview.id))
+            if (!this.findRelationshipView(relshipview.id)) {
+                if ((!relshipview.fromObjview) || (!relshipview.toObjview))
+                    return;
                 this.relshipviews.push(relshipview);
+            }
         }
     }
     findObjectView(id: string): cxObjectView | null {

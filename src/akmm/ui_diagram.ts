@@ -159,6 +159,132 @@ export function clearModel(myMetis: akm.cxMetis, myDiagram: any) {
     askForModel(context);
 }
 
+export function exportTaskModel(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('163 node', node);
+    const objview = myMetis.findObjectView(node.objectview?.id);
+    // Select model among all models (except the current)
+    const args = {
+        "objectview":         objview,
+        "model":              "", 
+    }
+    const context = {
+        "myMetis":            myMetis,
+        "myCurrentModel":     myMetis.currentModel,
+        "myDiagram":          myDiagram,
+        "case":               "Export Task Model",
+        "title":              "Select Model to Export to",
+        "dispatch":           myDiagram.dispatch,
+        "postOperation":      exportTaskModelCallback,
+        "args":               args
+    }
+    askForModel(context);
+}
+
+function exportTaskObject(object: akm.cxObject, context: any) {
+    const myMetis = context.myMetis;
+    let toModel   = context.args.model;
+    toModel = myMetis.findModel(toModel.id);
+    const obj = toModel.findObjectByTypeAndName(object.type, object.name);
+    if (!obj) {
+        const copiedObj = uic.copyObject(object)
+        toModel.addObject(copiedObj);
+        myMetis.addObject(copiedObj);
+        if (debug) console.log('189 copiedObj', copiedObj);
+    }
+    const outrels = object.outputrels;
+    for (let j=0; j<outrels?.length; j++) {
+        const rel = outrels[j];
+        const fromObj = toModel.getCopiedFromObject(rel.fromObject.id);
+        const toObj = toModel.getCopiedFromObject(rel.toObject.id);
+        if (debug) console.log('196 rel, fromObj, toObj', rel, fromObj, toObj);
+        if (fromObj && toObj) {
+            const rels = toModel.findRelationships(fromObj, toObj,rel.type);
+            if (!rels) {
+                const copiedRel = uic.copyRelationship(rel, fromObj, toObj);
+                fromObj.addOutputrel(copiedRel);
+                toObj.addInputrel(copiedRel);
+                toModel.addRelationship(copiedRel);
+                myMetis.addRelationship(copiedRel);
+            }
+        }
+    }
+}
+
+function exportTaskContainer(contView: akm.cxObjectView, context: any) {
+    const myMetis = context.myMetis;
+    let fromModel = context.myCurrentModel;
+    fromModel = myMetis.findModel(fromModel.id);
+    let toModel   = context.args.model;
+    toModel = myMetis.findModel(toModel.id);
+    const modelView = contView.getParentModelView(fromModel);
+    const members = contView.getGroupMembers(modelView);
+    for (let i=0; i<members.length; i++) {
+        const oview = members[i];
+        const obj = oview.object;
+        const typename = obj.type.name;
+        if (typename === 'Container') {
+            exportTaskContainer(oview, context);
+        }
+        else if (typename === 'Task' || typename === 'Role') {
+            exportTaskObject(obj, context);
+        }
+    }
+}
+
+function exportTaskModelCallback(context: any) {
+    const myMetis = context.myMetis;
+    const myDiagram = context.myDiagram;
+    if (debug) console.log('183 context', context);
+    let fromModel = context.myCurrentModel;
+    fromModel = myMetis.findModel(fromModel.id);
+    let toModel   = context.args.model;
+    toModel = myMetis.findModel(toModel.id);
+    const containerView = context.args.objectview;
+    const modelView = containerView.getParentModelView(fromModel);
+    const members = containerView.getGroupMembers(modelView);
+    const fromRelships = [];
+    for (let i=0; i<members.length; i++) {
+        const oview = members[i];
+        const obj = oview.object;
+        const typename = obj.type.name;
+        if (typename === 'Container') {
+            exportTaskContainer(oview, context);
+        }
+        else if (typename === 'Task' || typename === 'Role') {
+            exportTaskObject(obj, context);
+        }
+    }
+    if (debug) console.log('205 toModel', toModel);
+    for (let i=0; i<members.length; i++) {
+        const oview = members[i];
+        const obj = oview.object;
+        const typename = obj.type.name;
+        if (typename === 'Task' || typename === 'Role') {
+            const outrels = obj.outputrels;
+            for (let j=0; j<outrels?.length; j++) {
+                const rel = outrels[j];
+                const fromObj = toModel.getCopiedFromObject(rel.fromObject.id);
+                const toObj = toModel.getCopiedFromObject(rel.toObject.id);
+                if (debug) console.log('215 rel, fromObj, toObj', rel, fromObj, toObj);
+                if (fromObj && toObj) {
+                    const copiedRel = uic.copyRelationship(rel, fromObj, toObj);
+                    fromObj.addOutputrel(copiedRel);
+                    toObj.addInputrel(copiedRel);
+                    toModel.addRelationship(copiedRel);
+                    myMetis.addRelationship(copiedRel);
+                }
+            }
+        }
+    }
+    if (debug) console.log('220 toModel', toModel);
+    let mdata = new jsn.jsnModel(toModel, true);
+    mdata = JSON.parse(JSON.stringify(mdata));
+    mdata.targetModelRef = toModel.id;
+    if (debug) console.log('224 Diagram', mdata);        
+    myDiagram.dispatch({ type: 'UPDATE_TARGETMODEL_PROPERTIES', data: mdata })
+    alert("The task model has been successfully exported!");
+}
+
 export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
     const model = myMetis.currentModel;
     const modelviewName = prompt("Enter Modelview name:", "");
@@ -461,8 +587,8 @@ function askForMetamodel(context: any) {
         const metaModel = allMetaModels[i];
         if (metaModel.markedAsDeleted)
             continue;
-        // if (metaModel.name === constants.admin.AKM_ADMIN_MM)
-        //     continue;
+        if (metaModel.name === constants.admin.AKM_ADMIN_MM)
+            continue;
         if (context.case === "Delete Metamodel") {
             if (metaModel.id === myMetamodel.id)
                 continue;

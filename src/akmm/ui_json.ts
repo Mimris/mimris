@@ -666,6 +666,7 @@ export class jsnObjectTypeView {
     strokecolor1:    string;
     strokewidth:     string;
     textcolor:       string;
+    memberscale:     string;
     icon:            string;
     markedAsDeleted: boolean;
     modified:        boolean;
@@ -673,7 +674,7 @@ export class jsnObjectTypeView {
         this.id              = objtypeview.id;
         this.name            = objtypeview.name;
         this.description     = "";
-        this.typeRef         = objtypeview.type?.id;
+        this.typeRef         = objtypeview.typeRef;
         this.isGroup         = objtypeview.getIsGroup();
         this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
@@ -684,6 +685,7 @@ export class jsnObjectTypeView {
         this.strokecolor1    = this.strokecolor;
         this.strokewidth     = objtypeview.getStrokewidth();
         this.textcolor       = objtypeview.getTextcolor();
+        this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
         this.markedAsDeleted = objtypeview.markedAsDeleted;
         this.modified        = objtypeview.modified;
@@ -733,7 +735,7 @@ export class jsnRelshipTypeView {
         this.id              = reltypeview.id;
         this.name            = reltypeview.name;
         this.description     = (reltypeview.description) ? reltypeview.description : "";
-        this.typeRef         = reltypeview.type?.id;
+        this.typeRef         = reltypeview.getTypeRef();
         this.strokecolor     = reltypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor1;
         this.strokewidth     = reltypeview.getStrokewidth();
@@ -1024,8 +1026,37 @@ export class jsnObject {
         this.modified        = object.modified;
 
         // Code
-        if (debug) console.log('876 this', this);
-        const objtype = object.type;
+        if (debug) console.log('876 this, object', this, object);
+
+        for (let k in object) {
+            switch (k) {
+                case 'id':
+                case 'name':
+                case 'description':
+                case 'abstract':
+                case 'viewkind':
+                case 'allProperties':
+                case 'fromObject':
+                case 'fs_collection':
+                case 'parentModel':
+                case 'propertyValues':
+                case 'toObject':
+                case 'type':
+                case 'typeview':
+                case 'typeName':
+                case 'typeRef':
+                case 'generatedTypeId':
+                case 'markedAsDeleted':
+                case 'modified':
+                case 'inputrels':
+                case 'outputrels':
+                case 'objectviews':
+                    continue;
+                break;
+            }
+            this[k] = object[k];
+        }
+
         const properties = object.allProperties;
         if (debug) console.log('879 object, properties', object, properties);
         for (let i=0; i<properties?.length; i++) {
@@ -1313,6 +1344,8 @@ export class jsnObjectView {
     isCollapsed:     boolean;
     loc:             string;
     size:            string;
+    scale:           string;
+    memberscale:     string;
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
@@ -1341,6 +1374,8 @@ export class jsnObjectView {
         this.textcolor       = objview?.textcolor;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
+        this.scale           = objview?.scale1;
+        this.memberscale     = objview?.memberscale;
         this.viewkind        = objview?.viewkind;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
@@ -1354,6 +1389,8 @@ export class jsnRelshipView {
     typeviewRef:     string;
     fromobjviewRef:  string;
     toobjviewRef:    string;
+    textscale:       string;
+    arrowscale:      string;
     strokecolor:     string;
     strokewidth:     string;
     textcolor:       string;
@@ -1371,6 +1408,8 @@ export class jsnRelshipView {
         this.description     = "";
         this.relshipRef      = "";
         this.typeviewRef     = "";
+        this.textscale       = relview.textscale;
+        this.arrowscale      = relview.arrowscale;
         this.strokecolor     = relview.strokecolor;
         this.strokewidth     = relview.strokewidth;
         this.textcolor       = relview?.textcolor;

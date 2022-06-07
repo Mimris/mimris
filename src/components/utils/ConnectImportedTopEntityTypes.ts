@@ -45,7 +45,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
         console.log('45 ', fromobjectId, fromobjectName,  toobjectId, toobjectName);
         // check if relship already exists
         const relship = curRelships.find((r: { id: any; }) => r.id === relId) // if exists, skip  
-        if (relship) return
+
         const rel = (fromobjectId) 
             ?   {
                     id: relId,
@@ -74,7 +74,11 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
                 dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data: rel }); // new relship
                 const fromObj = {id: linkId, markedAsDeleted: true}
                 dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
+                // TODO: delete propLink relationship ?
             }
+        } else {
+            const fromObj = {id: linkId, markedAsDeleted: true}
+            dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data: fromObj }); // for propLink object set mark as deleted
         }
     }
 
@@ -148,7 +152,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
                 console.log('137 ', fromtypeRef, fromtypeName, fromobjectName, totypeRef, totypeName, toobjectName);
                 if ((fromobjectId) !== (toobjectId)) {
                     console.log('139 ', fromtypeName, fromobjectName, totypeName, toobjectName);
-                    if (fromtypeName === 'Abstract' || totypeName === 'Abstract' || totypeName === 'ReferenceData') {
+                    if (fromtypeName === 'Abstract' || totypeName === 'Abstract') {
+                    // if (fromtypeName === 'Abstract' || totypeName === 'Abstract' || totypeName === 'ReferenceData') {
                         console.log('141 ', fromtypeName, fromobjectName, totypeName, toobjectName);
                         // do nothing
                     } else {
@@ -170,8 +175,8 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
         //remove the the ../abstract and .1.0.0.json and find another object with the rest name
        
         const lastElement = o['$ref'].split('/').pop()  // find last element in $ref path
-        const firstElement = lastElement.split('.')[0]   // find what is before the "."    
-        const removedAbstract = (firstElement !== 'AbstractWorkProductComponent') && firstElement.replace('Abstract', '')
+        const firstElement = lastElement.split('.')[0]   // find what is before the first "."    
+        const removedAbstract = (firstElement === 'AbstractWorkProductComponent') ? firstElement : firstElement.replace('Abstract', '')
         const targetObject = utils.findObjectByName(curModel.objects, {}, removedAbstract)
     
         if (debug) console.log('148 ', o, firstElement, targetObject);
@@ -216,6 +221,7 @@ export const ConnectImportedTopEntityTypes = async (modelType: string, inclProps
 
              if (curRelships.find((r: { fromobjectRef: any; toobjectRef: any; reltypeRef: any; }) => r.fromobjectRef === fromobjectId && r.toobjectRef === toobjectId && r.reltypeRef === reltype?.id)) {
                  // relship exists do nothing
+                 console.log('219 Relship exisit ', fromobjectName, toobjectName, reltype.name);
              } else {
                 if (debug) console.log('198 ', fromType?.id, reltype);
                 reltypeRef = reltype?.id

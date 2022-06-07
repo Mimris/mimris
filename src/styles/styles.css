@@ -679,7 +679,7 @@
   border: none;
   font: inherit;
   color: inherit;
-  background-color: #EB0037;
+  /* background-color: #EB0037; */
   background-color: #ddd;
   cursor: pointer;
 }

@@ -226,54 +226,58 @@ const Modeller = (props: any) => {
   // console.log('130 Modeller', focusModelview, props)
 
   return (
-    (props.modelType === 'model') ?
-    <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
-      <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
-        style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
-      </h5>
-      <div>
-        {selector}
-      </div><br />
-      <div className="mt-2">
-        {modelviewTabDiv} 
+    (props.modelType === 'model') 
+    ?
+      <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
+        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
+          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+        </h5>
+        <div>
+          {selector}
+        </div><br />
+        <div className="mt-2">
+          {modelviewTabDiv} 
+        </div>
+        <div className="diagram-buttons">
+          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram&#013;">Zoom All</button>
+          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing&#013;">Toggle relationship layout</button>
+          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name&#013;">Toggle relationships name</button>
+          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus&#013;">Zoom to Focus</button>
+          <button className="btn-sm  py-0" 
+            data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews&#013;" 
+            onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; toggleRefresh() } } > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
+            {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
+          </button>
+          {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
+        <span className="sourceName pl-1 pr-1 ml-1 mt-1 mr-1 float-right" style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#eee", fontSize: "small"}}>
+            Current source:  {props.phSource} 
+          </span> 
+        </div>
+        <style jsx>{`
+        // .diagram-component {
+        //   height: 80%;
+        // }
+        `}</style>
       </div>
-      <div className="diagram-buttons">
-        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram&#013;">Zoom All</button>
-        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing&#013;">Toggle relationship layout</button>
-        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name&#013;">Toggle relationships name</button>
-        <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus&#013;">Zoom to Focus</button>
-        <button className="btn-sm  py-0" 
-          data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews&#013;" 
-          onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; toggleRefresh() } } > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
-          {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
-        </button>
-        {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
-      </div>
-      <style jsx>{`
-      // .diagram-component {
-      //   height: 80%;
-      // }
-      `}</style>
-    </div>
     :
-    <div className="mt-2 mb-5" style={{backgroundColor: "#7ac"}}>
-      <h5 className="modeller-heading float-left text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
-      {/* <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-        title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
-        Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."
-        >i
-      </button> */}
+      <div className="mt-2 mb-5" style={{backgroundColor: "#7ac"}}>
+        <h5 className="modeller-heading float-left text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+        {/* <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+          title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
+          Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."
+          >i
+        </button> */}
 
-        {selector}
-      <div className="pt-5 mt-3">
-        {metamodelTabDiv} 
+          {selector}
+        <div className="pt-5 mt-3">
+          {metamodelTabDiv} 
+        </div>
+        <style jsx>{`
+        // .diagram-component {
+        //   height: 80%;
+        // }
+        `}</style>
       </div>
-      <style jsx>{`
-      // .diagram-component {
-      //   height: 80%;
-      // }
-      `}</style>
-    </div>
   )
 }
 

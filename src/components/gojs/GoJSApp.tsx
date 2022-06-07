@@ -41,6 +41,10 @@ const systemtypes = ['Element', 'Entity', 'Property', 'Datatype', 'Method', 'Uni
 interface AppState {
   nodeDataArray: Array<go.ObjectData>;
   linkDataArray: Array<go.ObjectData>;
+  modelData:    go.ObjectData;
+  selectedData: go.ObjectData | null;
+  editedData: go.ObjectData | null;
+  skipsDiagramUpdate: boolean;
   metis: any;
   myMetis: akm.cxMetis;
   myGoModel: gjs.goModel;
@@ -48,13 +52,9 @@ interface AppState {
   phFocus: any;
   dispatch: any;
   modelType: any;
-  // showModal: boolean;
-  // modalContext: any;
-  // selectedOption: any;
-  // modelData:    go.ObjectData;
-  // selectedData: go.ObjectData | null;
-  // editedData: go.ObjectData | null;
-  // skipsDiagramUpdate: boolean;
+  showModal: boolean;
+  modalContext: any;
+  selectedOption: any;
 }
 
 class GoJSApp extends React.Component<{}, AppState> {
@@ -78,7 +78,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       dispatch: this.props.dispatch,
       modelType: this.props.phFocus.focusTab,
     };
-
     if (debug) console.log('76 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
     this.handleOpenModal = this.handleOpenModal.bind(this);
@@ -268,7 +267,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
     if (debug) console.log('267 this', this);
-    if (debug) console.log('268 event name', name);
+    console.log('268 event name', name);
 
     switch (name) {
       case 'TextEdited': {
@@ -419,10 +418,15 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "SelectionMoved": {
+        if (debug) console.log('421 context', context);
         let selection = e.subject;
+        let selcnt = 0;
+        let refloc;
         for (let it = selection.iterator; it.next();) {
           const sel = it.value;
           const data = sel.data;
+          if (data.category === 'Relationship' || data.category === 'Relationship type') 
+            continue;
           const typename = data.type;
           if (debug) console.log('420 typename', typename, data.objecttype);
           if (typename === "Object type") {
@@ -446,41 +450,150 @@ class GoJSApp extends React.Component<{}, AppState> {
           {
             // Object moved
             const key = data.key;
-            if (debug) console.log('442 data', data);
-            let node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes);
-            if (debug) console.log('444 node', node);
+            if (debug) console.log('442 selcnt, data', selcnt, data);
+            // let node = myGoModel.findNodeByViewId(data.objectview.id);
+            let node = uic.changeNodeSizeAndPos(data, myGoModel, myDiagram, modifiedNodes) as gjs.goObjectNode;
+            if (debug) console.log('444 data, node, modifiedNodes', data, node, modifiedNodes);
+
             if (node) {
-              if (debug) console.log('444 node, data', node, data);
-              const group = node.group;
+              const objview = node.objectview;
+              const group = uic.getGroupByLocation(myGoModel, node.loc);
+              if (debug) console.log('458 selcnt, group, node', selcnt, group, node);
+              if (group) {
+                  const fromScale = node.scale1;
+                  node.group = group.key;
+                  group.memberscale = constants.params.MEMBERSCALE;
+                  let scale1 = group.scale1 * group.memberscale;
+                  node.scale1 = scale1;
+                  const toScale = node.scale1;
+                  const scaleFactor = toScale / fromScale;
+                  // if (selcnt == 0) {
+                  //   refloc = node.loc;
+                  //   if (debug) console.log('466 node, refloc', node, refloc);
+                  // }
+                  // if (selcnt > 0) {
+                  //   const nodeloc = uic.scaleNodeLocation2(refloc, node, scaleFactor);
+                  //   const loc = nodeloc.x + " " + nodeloc.y;
+                  //   objview.group = group.objectview.id;
+                  //   objview.scale1 = node.scale1;
+                  //   objview.loc = loc;
+                  //   node.loc = objview.loc;
+                  // }
+                  if (node.isGroup) {
+                      node.scale1 = scale1;
+                      if (debug) console.log('462 group, node', group, node);
+                      if (debug) console.log('485 context', context);
+                      // uic.handleMembersInGroup(refloc, node, context);
+                      // Handle members in group
+                      const nodes = uic.getNodesInGroup(node, myGoModel, myModelview);
+                      for (let i=0; i<nodes.length; i++) {
+                          const n = nodes[i];
+                          if (n) {
+                            n.group = node.key;
+                            // const fromScale = node.scale1;
+                            // n.scale1 = node.scale1 * node.memberscale;
+                            // const toScale = n.scale1;
+                            // const scaleFactor = toScale / fromScale;
+                            // const nodeloc = uic.scaleNodeLocation2(refloc, n, scaleFactor);
+                            // loc = nodeloc.x + " " + nodeloc.y;
+                            // n.loc = loc;
+                            // const oview = n.objectview;
+                            // oview.loc = loc;
+                            if (debug) console.log('474 oview', oview);
+                            myDiagram.model?.setDataProperty(n.data, "loc", loc);
+                        }
+                      }
+                  
+                      node.group = group.key;
+                      let loc = data.loc;
+                      // if (node.scale1 !== scale1) {
+                          // const nodeloc = uic.scaleNodeLocation2(refloc, node, scaleFactor);
+                          // loc = nodeloc.x + " " + nodeloc.y;
+                          // if (debug) console.log('460 loc, group, node', loc, group, node);
+                          // myDiagram.model?.setDataProperty(node.data, "loc", loc);
+                      // }
+                      objview.group = group.objectview.id;
+                      objview.scale1 = node.scale1;
+                      objview.loc = loc;
+                      node.loc = objview.loc;
+                    
+                      // const n = myDiagram.findNodeForKey(node.key);
+                      // myDiagram.model.setDataProperty(data, "group", node.group);
+                      // myDiagram.model.setDataProperty(data, "loc", node.loc);
+                      if (debug) console.log('463 loc, group, node, objview', loc, group, node, objview);
+                  }
+              } else {
+                  objview.group = "";
+                  node.group = "";
+                  const fromScale = node.scale1;
+                  node.memberscale = constants.params.MEMBERSCALE;
+                  node.scale = "1";
+                  node.scale1 = node.scale;
+                  const toScale = node.scale1;
+                  objview.scale1 = node.scale1;
+                  objview.memberscale = node.memberscale;
+                  myDiagram.model.setDataProperty(data, "group", node.group);
+                  if (debug) console.log('524 node, objview', node, objview);
+
+                  // if (selcnt == 0) {
+                  //   refloc = node.loc;
+                  //   if (debug) console.log('529 node, refloc', node, refloc);
+                  // }
+                  // if (selcnt > 0) {
+                  //   const scaleFactor = toScale / fromScale;
+                  //   const nodeloc = uic.scaleNodeLocation2(refloc, node, scaleFactor);
+                  //   const loc = nodeloc.x + " " + nodeloc.y;
+                  //   objview.scale1 = node.scale1;
+                  //   objview.loc = loc;
+                  //   node.loc = objview.loc;
+                  //   if (debug) console.log('538 node, refloc', node, nodeloc);
+                  // }
+                  // const nodeLoc = node.loc.split(" ");
+                  // let nx = parseInt(nodeLoc[0]);
+                  // let ny = parseInt(nodeLoc[1]);
+                  // if (debug) console.log('529 scale0, scale1, nx, ny: ', scale0, node.scale1, nx, ny);
+              }
+              const jsnObjview = new jsn.jsnObjectView(objview);
+              modifiedNodes.push(jsnObjview);
+
+              if (debug) console.log('534 node, group, objview', node, group, objview);
+              myGoModel.addNode(node);
               const n = myDiagram.findNodeForKey(node.key);
+
+              // Handle relviews
               if (n) {
-                node = n;
-                node.group = group;
-              }   
-              if (n) {
-                for (let lit = node?.findLinksConnected(); lit?.next(); ) {
+                for (let lit = n?.findLinksConnected(); lit?.next(); ) {
                   let link = lit?.value;  
                   if (debug) console.log('447 link', link);
                   if (link) {
                     if(debug) console.log('449 link', link);
-                    //handle relview points
-                    const relview = link.data.relshipview;
+                    let relview = link.data.relshipview;
                     if (relview) {
+                      // Handle relview scaling
+                      const textscale = (group && group.scale1) ? group.scale1 * group.memberscale : "1";
+                      relview.textscale = textscale;
+                      uic.setLinkProperties(link, relview, myDiagram);
+                      // Handle relview points
                       relview.points = link.points;
                       const jsnRelview = new jsn.jsnRelshipView(relview);
                       modifiedLinks.push(jsnRelview);
                     }
                   }
                 }     
-              }          
-              if (debug) console.log('459 node, modifiedNodes: ', node, modifiedNodes);
-              if (node) myDiagram.model.setDataProperty(data, "group", node.group);
-              if (debug) console.log('462 myGoModel', myGoModel);
-              if (debug) console.log('463 SelectionMoved', modifiedNodes);
+              }   
+              if (debug) console.log('559 group, node, objview, n', group, node, objview, n);
+              myDiagram.model.setDataProperty(n.data, "group", node.group);
+              myDiagram.model.setDataProperty(n.data, "loc", node.loc);
+              myDiagram.model.setDataProperty(n, "scale", node.scale1);
+              if (debug) console.log('563 myGoModel', myGoModel);
+              if (debug) console.log('564 SelectionMoved', modifiedNodes);
             }
+            selcnt++;
           }
         }
+        myDiagram.requestUpdate();
       }
+
       break;
       case "SelectionDeleting": {
         if (debug) console.log('459 myMetis', myMetis); 
@@ -670,6 +783,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         e.subject.each(function(n) {
           const node = myDiagram.findNodeForKey(n.data.key);
           let part = node.data;
+          part.scale = node.scale;
           const isLabel = (part.typename === 'Label');
           if (debug) console.log('683 found node', node);
           if (debug) console.log('684 myMetis', myMetis);
@@ -704,16 +818,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (!part.objecttype) {
               const obj = myMetis.findObject(part.id);
             }
-            if (part.objecttype?.viewkind === 'Container') {
-              part.isGroup = true;
-              part.viewkind = 'Container';
-              // -------
-              part.scale = 1;
-              part.memberscale = 0.75;
-              // -------
-            } else {
-              
-            }
             if (isLabel) part.text = 'label';
             if (debug) console.log('722 part', part);
             if (!part.parentModelRef)
@@ -721,7 +825,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('725 myMetis', myMetis);
             const objview = uic.createObject(part, context);
             if (debug) console.log('727 myMetis', myMetis);
-            if (debug) console.log('728 New object', part, objview);
+            if (debug) console.log('728 part, objview', part, objview);
             if (objview) {
               const object = objview.object;
               let otype = object.type;
@@ -764,7 +868,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         const data = sel.data;
-        if (debug) console.log('644 selected', sel.key);
+        console.log('644 selected', data);
         this.state.selectedData = data;
         if (debug) console.log('646 GoJSApp :', data, data.name, data.object);
         if (sel) {
@@ -867,28 +971,62 @@ class GoJSApp extends React.Component<{}, AppState> {
         break;
       case 'ClipboardPasted': {
         const selection = e.subject;
+        const fromSelection = myMetis.currentSelection;
         context.pasted  = true;
         const it = selection.iterator;
         const pastedNodes = new Array();
+        if (debug) console.log('974 fromSelection: ', fromSelection);
         // First handle the objects
+        let selcnt = 0;    // Count the number of selected objects
+        let refloc = null; // The location of the first selected object 
+        let indx = 0;
         while (it.next()) {
-          if (debug) console.log('776 it.value', it.value);
           const data = it.value.data;
+          if (debug) console.log('980 it.value.data', it.value.data);
           if (data.category === constants.gojs.C_OBJECT) {
+              const fromData  = fromSelection[indx];
+              const fromScale = fromData?.scale1 ? fromData.scale1 : 1;
+              let toScale   = data.scale1 ? data.scale1 : 1;
+              if (debug) console.log('987 indx, data, fromData, fromScale, toScale', indx, data, fromData, fromScale, toScale);
               context.pasted = true;
-              if (debug) console.log('780 ClipboardPasted', data, myGoModel);
+              if (debug) console.log('989 ClipboardPasted', data, myGoModel);
               const objview = uic.createObject(data, context);
-              if (debug) console.log('782 ClipboardPasted', data, objview);
+              if (debug) console.log('991 ClipboardPasted', data, objview);
               if (objview) {
                 const node = new gjs.goObjectNode(data.key, objview);
-                if (debug) console.log('785 node', node);
+                node.loc = data.loc;
+                if (debug) console.log('995 node', node);
                 const group = uic.getGroupByLocation(myGoModel, objview.loc);
-                if (debug) console.log('787 group', group)
+                if (debug) console.log('997 group, node', group, node)
                 if (group && node) {
+                  node.group = group.key;
+                  group.memberscale = constants.params.MEMBERSCALE;
+                  let scale1 = fromScale * group.memberscale;
+                  let loc = node.loc;
+                  node.scale1 = scale1;
+                  toScale = scale1;
+                  const scaleFactor = toScale / fromScale;
+                  if (debug) console.log('1002 selcnt', selcnt);
+                  if (selcnt == 0) {
+                    refloc = group.loc;
+                    if (debug) console.log('1004 fromData, node, scaleFactor', fromData, node, scaleFactor);
+                  }
+                  if (selcnt > 0) {
+                    if (debug) console.log('1007 refloc, scaleFactor, fromData, node', refloc, scaleFactor, fromData, node);
+                    const nodeloc = uic.scaleNodeLocation2(refloc, node, scaleFactor);
+                    if (debug) console.log('1009 nodeloc', nodeloc);
+                    if (nodeloc) loc = nodeloc.x + " " + nodeloc.y;
+                    objview.group = group.objectview.id;
+                    objview.scale1 = node.scale1;
+                    objview.loc = loc;
+                    node.loc = objview.loc;
+                  }
                   objview.group = group.objectview?.id;
                   node.group = group.key;
-                  const gjsNode = myDiagram.findNodeForKey(node.key);
-                  myDiagram.model?.setDataProperty(gjsNode, "group", group.key);
+                  const n = myDiagram.findNodeForKey(node.key);
+                  myDiagram.model?.setDataProperty(n.data, "group", group.key);
+                  myDiagram.model?.setDataProperty(n.data, "loc", loc);
+                  myDiagram.model?.setDataProperty(n, "scale", data.scale1);
                 }
                 if (debug) console.log('792 node', node);
                 pastedNodes.push(node);
@@ -901,7 +1039,9 @@ class GoJSApp extends React.Component<{}, AppState> {
                 modifiedObjects.push(jsnObj);
                 if (debug) console.log('801 ClipboardPasted', modifiedObjects);
               }
-          }
+              selcnt++;
+            }
+          indx++;
         }
         if (debug) console.log('805 pastedNodes', pastedNodes);
         if (debug) console.log('806 ClipboardPasted', context.myGoModel);
@@ -917,6 +1057,15 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (relview) {
               const relid = relview.relship?.id;
               relview.relship = myMetis.findRelationship(relid);
+              // Handle relview scaling
+              const fromObjview = relview.fromObjview;
+              const scaleFrom = fromObjview.scale1;
+              const toObjview = relview.toObjview;
+              const scaleTo = toObjview.scale1;
+              const textscale = scaleFrom > scaleTo ? scaleFrom : scaleTo;
+              relview.textscale = textscale;
+              const link = myDiagram.findLinkForKey(data.key);
+              uic.setLinkProperties(link, relview, myDiagram);
               const jsnRelview = new jsn.jsnRelshipView(relview);
               if (debug) console.log('820 ClipboardPasted', jsnRelview, relview);
               modifiedLinks.push(jsnRelview);
@@ -979,6 +1128,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           data.category = 'Relationship';
           context.handleOpenModal = this.handleOpenModal;
           uic.createRelationship(data, context);
+          if (debug) console.log('1027 data', data);
        }
        myDiagram.requestUpdate();
       }
@@ -1028,7 +1178,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "BackgroundSingleClicked": {
-        if (debug) console.log('790 myMetis', myMetis);
+        if (debug) console.log('1178 BackgroundSingleClicked', e, e.diagram);
       }
       break;
       case "BackgroundDoubleClicked": {

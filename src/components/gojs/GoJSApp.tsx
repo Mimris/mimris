@@ -1051,11 +1051,13 @@ class GoJSApp extends React.Component<{}, AppState> {
               relview.relship = myMetis.findRelationship(relid);
               // Handle relview scaling
               const fromObjview = relview.fromObjview;
-              const scaleFrom = fromObjview.scale1;
               const toObjview = relview.toObjview;
-              const scaleTo = toObjview.scale1;
-              const textscale = scaleFrom > scaleTo ? scaleFrom : scaleTo;
-              relview.textscale = textscale;
+              if (fromObjview && toObjview) {
+                const scaleFrom = fromObjview.scale1;
+                const scaleTo = toObjview.scale1;
+                const textscale = scaleFrom > scaleTo ? scaleFrom : scaleTo;
+                relview.textscale = textscale;
+              }
               const link = myDiagram.findLinkForKey(data.key);
               uic.setLinkProperties(link, relview, myDiagram);
               const jsnRelview = new jsn.jsnRelshipView(relview);

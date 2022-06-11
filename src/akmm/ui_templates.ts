@@ -778,7 +778,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         $(go.TextBlock,
           new go.Binding("name"))
       ));
-    addNodeTemplateName('Split');
+    // addNodeTemplateName('Split');
 
 
 

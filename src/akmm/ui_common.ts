@@ -19,6 +19,7 @@ const printf = require('printf');
 
 // functions to handle nodes
 export function createObject(data: any, context: any): akm.cxObjectView | null {
+    if (debug) console.log('22 context, data', context, data);
     if (data === null) {
         return null;
     } else {
@@ -76,6 +77,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
             const oviews = obj.objectviews;
             const oview0 = oviews?.length>0 ? oviews[0] : null;  
             objview = new akm.cxObjectView(utils.createGuid(), name, obj, "");
+            if (debug) console.log('79 objview', objview);
             if (objview) {
                 objview.setIsGroup(data.isGroup);
                 objview.setLoc(data.loc);
@@ -142,9 +144,10 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     const group = getGroupByLocation(myGoModel, objview.loc);
                     if (debug) console.log('143 group', group, node);
                     if (group) {
-                        group.memberscale = constants.params.MEMBERSCALE;
+                        group.memberscale = group.typeview.memberscale;
                         node.group = group.key;
-                        node.scale1 = group.scale1 * group.memberscale;
+                        const scale1 = Number(group.scale1) * Number(group.memberscale);
+                        node.scale1 = scale1.toString();
                         objview.group = group.objectview.id;
                         objview.scale1 = node.scale1;
                         data.scale1 = node.scale1;
@@ -309,8 +312,9 @@ export function updateObject(data: any, name: string, value: string, context: an
         //myDiagram.model.setDataProperty(data, "name", value);
 
         // const modNode = new jsn.jsnObjectView(myNode.objectview);
-        // modifiedNodes.push(modNode);
-        return currentObject;
+        // // modifiedNodes.push(modNode);
+        // addItemToList(modifiedNodes, modNode);
+return currentObject;
     }
 }
 
@@ -746,64 +750,6 @@ export function deleteRelshipTypeView(relview: akm.cxRelationshipView, deletedFl
     }
 }
 
-export function changeNodeSizeAndPos(sel: gjs.goObjectNode, goModel: gjs.goModel, myDiagram: any, modifiedNodes: any[]): gjs.goObjectNode {
-    if (sel.category === 'Object') {
-        const modelView = goModel?.modelView;
-        let node = goModel?.findNode(sel.key);
-        if (!node) node = sel;
-        if (node) {
-            if (debug) console.log('700 node', node);
-            node.loc = sel.loc;
-            node.size = sel.size;
-            const objview = node.objectview;
-            if (objview) {
-                objview.loc = sel.loc;
-                objview.size = sel.size;
-                objview.scale1 = sel.scale1;
-                objview.memberscale = sel.memberscale;
-                objview.modified = true;
-                if (debug) console.log('700 sel, objview', sel, objview);
-                const jsnObjview = new jsn.jsnObjectView(objview);
-                modifiedNodes.push(jsnObjview);
-                if (debug) console.log('752 jsnObjview, sel, node: ', jsnObjview, sel, node);
-            }
-            // return node;
-            // Trying to handle container 'grabbing' objects
-
-            if (objview.isGroup) {   // node / objview is a group
-                const group = node;
-                // Get potential members of the group
-                const nods = goModel?.nodes;
-                for (let i=0; i<nods.length; i++) {
-                    let nod = nods[i] as gjs.goObjectNode;
-                    // if nod is the group, do nothing
-                    if (nod.key === group.key)
-                        continue;
-                    const oview = nod.objectview;
-                    const grp = getGroupByLocation(goModel, oview.loc);
-                    if (grp) {
-                        if (debug) console.log('741 grp', grp);
-                        // This (grp) is the container
-                        oview.group = grp.objectview.id;
-                        nod.group = grp.key;
-                        // nod.scale1 = ;
-                        const loc = scaleNodeLocation(grp, nod);
-
-
-                        const n = myDiagram.findNodeForKey(nod.key);
-                        if (n?.data)
-                            myDiagram.model.setDataProperty(n.data, "group", grp.key);
-                        const jsnObjview = new jsn.jsnObjectView(oview);
-                        modifiedNodes.push(jsnObjview);
-                    }
-                }
-            }
-
-        }
-        return node;
-    }
-}
-
 export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObjectView) {
     const nodeArray = parent.nodeDataArray;
     const newArray  = new Array();
@@ -836,7 +782,7 @@ export function addNodeToDataArray(parent: any, node: any, objview: akm.cxObject
 export function onClipboardPasted(selection: any, context: any) {
     // First handle the objects
     let it = selection.iterator;
-    while (it.next()) {
+    while (it?.next()) {
         let selected = it.value.data;
         if (debug) console.log('795 onClipboardPasted', selected);
         if (selected.category === 'Object') {
@@ -846,7 +792,7 @@ export function onClipboardPasted(selection: any, context: any) {
     }
 
     // Then handle the relationships
-    while (it.next()) {
+    while (it?.next()) {
         let selected = it.value.data;
         if (debug) console.log('805 onClipboardPasted', selected);
         if (selected.category === 'Relationship') {
@@ -971,51 +917,32 @@ export function scaleNodeLocation(group: any, node: any): any  {
     return loc;
 }
 
-export function scaleNodeLocation2(refloc: string, node: any, scaleFactor: any): any  {
-    const refLoc = refloc?.split(" ");
-    if (debug) console.log('935 scaleFactor, node, refloc, refLoc', scaleFactor, node, refloc, refLoc);
-    if (!refLoc) return;
-    const rx = parseInt(refLoc[0]);
-    const ry = parseInt(refLoc[1]);
-    const nodeLoc = node.loc.split(" ");
-    let nx = parseInt(nodeLoc[0]);
-    let ny = parseInt(nodeLoc[1]);
-    let deltaNx = nx - rx;
-    let deltaNy = ny - ry;
-    deltaNx *= scaleFactor;
-    deltaNy *= scaleFactor;
-    nx = rx + deltaNx;
-    ny = ry + deltaNy;
-    const loc = { "x": nx, "y": ny };
-    if (debug) console.log('950 node, node.loc, loc', node, node.loc, loc);
-    return loc;
-}
-
-export function handleMembersInGroup(refloc: string, group: any, context: any): any {
-    const myGoModel = context.myGoModel;
-    const myModelview = context.myModelview;
-    const myDiagram = context.myDiagram;
-    // Handle members in group
-    const nodes = getNodesInGroup(group, myGoModel, myModelview);
-    for (let i=0; i<nodes.length; i++) {
-        const n = nodes[i];
-        if (n) {
-            n.group = group.key;
-            const fromScale = group.scale1;
-            let scale = group.scale1 * group.memberscale;
-            n.scale1 = scale.toString();
-            const toScale = scale;
-            const scaleFactor = toScale / fromScale;
-            const nodeloc = scaleNodeLocation2(refloc, n, scaleFactor);
-            const loc = nodeloc.x + " " + nodeloc.y;
-            n.loc = loc;
-            const oview = n.objectview;
-            oview.loc = loc;
-            if (debug) console.log('474 oview', oview);
-            myDiagram.model?.setDataProperty(n.data, "loc", loc);
-        }
-    }
-}
+// export function handleMembersInGroup(refloc: string, group: any, context: any): any {
+//     const myGoModel = context.myGoModel;
+//     const myModelview = context.myModelview;
+//     const myDiagram = context.myDiagram;
+//     const groupNode = myDiagram.findNodeForKey(group.key);
+//     // Handle members in group
+//     const nodes = getNodesInGroup(groupNode, myGoModel, myModelview.objectviews);
+//     for (let i=0; i<nodes.length; i++) {
+//         const n = nodes[i];
+//         if (n) {
+//             n.group = group.key;
+//             const fromScale = group.scale1;
+//             let scale = group.scale1 * group.memberscale;
+//             n.scale1 = scale.toString();
+//             const toScale = scale;
+//             const scaleFactor = toScale / fromScale;
+//             const nodeloc = scaleNodeLocation2(refloc, n, scaleFactor);
+//             const loc = nodeloc.x + " " + nodeloc.y;
+//             n.loc = loc;
+//             const oview = n.objectview;
+//             oview.loc = loc;
+//             if (debug) console.log('474 oview', oview);
+//             myDiagram.model?.setDataProperty(n.data, "loc", loc);
+//         }
+//     }
+// }
 
 export function connectNodeToGroup(node: gjs.goObjectNode, groupNode: gjs.goObjectNode, context: any) {
     const myMetis = context.myMetis;
@@ -1086,19 +1013,171 @@ export function disconnectNodeFromGroup(node: gjs.goObjectNode, groupNode: gjs.g
     }
 }
 
-export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myModelview: akm.cxModelView): gjs.goObjectNode[] {
+export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromnode: any, tonode:any, goModel: gjs.goModel, myDiagram: any, modifiedNodes: any[]): gjs.goObjectNode {
+    if (data.category === 'Object') {
+        const modelView = goModel?.modelView;
+        let node = goModel?.findNode(data.key);
+        if (!node) node = data;
+        if (node) {
+            if (debug) console.log('980 data, node, tonode', data, node, tonode);
+            node.loc = tonode;
+            node.size = data.size;
+            const scale = data.scale1;
+            node.scale1 = scale;
+            if (node.isGroup) {   // node is a group
+                const group = node;
+                // Get potential members of the group
+                const nods = goModel?.nodes;
+                for (let i=0; i<nods.length; i++) {
+                    let nod = nods[i] as gjs.goObjectNode;
+                    // if nod is the group, do nothing
+                    if (nod.key === group.key)
+                        continue;
+                    const grp = getGroupByLocation(goModel, nod.loc);
+                    if (grp) {
+                        if (debug) console.log('741 grp', grp);
+                        // This (grp) is the container
+                        nod.group = grp.key;
+                        const loc = scaleNodeLocation(grp, nod);
+                        const n = myDiagram.findNodeForKey(nod.key);
+                        if (n?.data)
+                            myDiagram.model.setDataProperty(n.data, "group", grp.key);
+                    }
+                }
+            }
+        }
+        return node;
+    }
+}
+
+export function getNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[]) : gjs.goObjectNode[] {
     const nodes = new Array();
-    const groupObject = groupNode.objectview;
-    const groupId = groupObject.id;
-    const objviews = myModelview.objectviews;
-    for (let i=0; i<objviews?.length; i++) {
-        const oview = objviews[i];
-        if (oview.group === groupId) {
+    if (debug) console.log('950 groupNode', groupNode);
+    const groupObjview = groupNode.objectview;
+    const groupId = groupObjview.id;
+    if (debug) console.log('1035 groupNode, groupId, myObjectviews', groupNode, groupId, myObjectviews);
+    for (let i=0; i<myObjectviews?.length; i++) {
+        const oview = myObjectviews[i];
+        if (debug) console.log('1038 oview', oview);
+        const loc = oview?.loc;
+        if (oview?.group === groupId) {
+            if (debug) console.log('1039 oview', oview);
             const node = myGoModel.findNodeByViewId(oview.id);
-            nodes.push(node);
+            if (node) {
+                node.objectview = oview;
+                node.loc = loc;
+                nodes.push(node);
+            }
         }
     }
+    if (debug) console.log('1063 nodes', nodes);
     return nodes;
+}
+
+export function scaleNodesInGroup(groupNode: gjs.goObjectNode, myGoModel: any, myObjectviews: akm.cxObjectView[], 
+                                  fromLocs: any, toLocs: any, myDiagram: any, modifiedNodes: any): any[] {
+    let fromScale = Number(groupNode.scale1);
+    let toScale = Number(groupNode.scale1) * Number(groupNode.typeview.memberscale);
+    let scaleFactor = toScale / fromScale;
+    if (debug) console.log('1082 myObjectviews, fromLocs, toLocs', myObjectviews, fromLocs, toLocs);
+    // First handle the group itself
+    const size = groupNode.size.split(" ");
+    const sx = parseInt(size[0]);
+    const sy = parseInt(size[1]);
+    const sizeX = sx * scaleFactor;
+    const sizeY = sy * scaleFactor;
+    const newSize = sizeX + " " + sizeY;
+    groupNode.size = newSize;
+    if (debug) console.log('1091 groupNode, newSize', groupNode, newSize);
+    const nodes = getNodesInGroup(groupNode, myGoModel, myObjectviews);
+    let refloc = groupNode.loc;
+    if (debug) console.log('1094 groupNode, nodes, scaleFactor, refloc', groupNode, nodes, scaleFactor, refloc);
+    // let fromScale, toScale;
+    for (let i=0; i<nodes.length; i++) {
+        const n = nodes[i];
+        if (n) {
+            // const oview = n.objectview;
+            let fromnode;
+            for (let j=0; j<fromLocs?.length; j++) {
+                const fromNode = fromLocs[j];
+                if (fromNode.key === n.key) {
+                    fromnode = fromNode.loc;
+                    fromScale = fromNode.scale;
+                    if (debug) console.log('1106 fromNode, fromnode, fromScale', fromNode, fromnode, fromScale);
+                    break;
+                }
+            }
+            let tonode, toNode;
+            for (let j=0; j<toLocs?.length; j++) {
+                toNode = toLocs[j];
+                if (toNode.key === n.key) {
+                    tonode = toNode.loc;
+                    // toScale = toNode.scale;
+                    if (debug) console.log('1116 toNode, tonode, toScale', toNode, tonode, toScale);
+                    break;
+                }
+            }
+            scaleFactor = toScale / fromScale;
+            if (debug) console.log('1121 n, refloc, tonode, scaleFactor', n, refloc, fromnode, tonode, scaleFactor);
+            // n.group = groupNode.key;
+            const nodeloc = scaleNodeLocation2(n, refloc, tonode, scaleFactor);
+            if (debug) console.log('1124 n, nodeloc', n, nodeloc);
+            if (nodeloc) {
+                let loc = nodeloc.x + " " + nodeloc.y;
+                n.loc = loc;
+                n.scale1 = toScale.toString();
+
+                const nod = myGoModel.findNodeByViewId(n.objectview.id);
+                if (nod) {
+                    nod.loc = loc;
+                    nod.scale1 = toScale.toString();
+                    toNode.loc = loc;
+                }
+                if (debug) console.log('1136 n, loc', n, loc);
+            }
+
+        }
+    }
+    if (debug) console.log('1141 myGoModel, toLocs', myGoModel, toLocs);
+    return nodes;
+}
+
+export function scaleNodeLocation2(node: any, refloc: string, toloc:any, scaleFactor: any): any  {
+    if (debug) console.log('1146 node, refloc, toloc, scaleFactor ', node, refloc, toloc, scaleFactor); 
+    const refLoc = refloc?.split(" ");
+    if (!refLoc) return;
+    const rx = parseInt(refLoc[0]);
+    const ry = parseInt(refLoc[1]);
+    const nodloc = toloc?.valueOf();
+    const nodeLoc = nodloc?.split(" ");
+    if (!nodeLoc) return;
+    if (debug) console.log('1154 nodloc, nodeLoc, refloc', nodloc, nodeLoc, refloc);
+    let nx = parseInt(nodeLoc[0]);
+    let ny = parseInt(nodeLoc[1]);
+    let deltaNx = (nx - rx) * scaleFactor;
+    let deltaNy = (ny - ry) * scaleFactor;
+    if (debug) console.log('1159 rx, ry, nx, ny, deltaNx, deltaNy', rx, ry, nx, ny, deltaNx, deltaNy);
+    nx = rx + deltaNx;
+    ny = ry + deltaNy;
+    const loc = { "x": nx, "y": ny };
+    if (debug) console.log('1163 node, node.loc, loc', node, node.loc, loc);
+    return loc;
+}
+
+export function scaleSubnodes(node: any, nodes: any[]): any[] {
+    let subnodes = [];
+    if (node.isGroup) {
+        for (let i=0; i<nodes?.length; i++) {
+          const n = nodes[i];
+          if (n.group === node.id) {
+            n.scale = node.scale * node.typeview.memberscale;
+            subnodes.push(n);
+            // const nods = scaleSubnodes(n, nodes);
+          }
+        }
+        return subnodes;
+    }
+    return null;
 }
 
 // functions to handle links
@@ -1303,7 +1382,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const toNodeRef   = data.to;
     const fromNode = myDiagram.findNodeForKey(fromNodeRef);
     const toNode = myDiagram.findNodeForKey(toNodeRef);
-    if (debug) console.log('1151 fromNode, toNode', fromNode, toNode);
+    if (debug) console.log('1151 fromNode, toNode, pasteViewsOnly', fromNode, toNode, pasteViewsOnly);
     const fromObjview = fromNode?.data.objectview;
     const toObjview   = toNode?.data.objectview;
     let   relship     = data.relshipview.relship;
@@ -1581,6 +1660,10 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
 
 export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cxRelationshipView {
     if (relview) {
+        if (!relview.textscale) 
+            relview.textscale = "1";
+        if (!relview.arrowscale)
+            relview.arrowscale = "1.3";
         const typeview = relview.typeview;
         if (typeview) {
             const viewdata = typeview.data;
@@ -1791,8 +1874,9 @@ export function addMissingRelationshipViews(modelview: akm.cxModelView, myMetis:
       const outrels = obj?.outputrels;
       if (debug) console.log('1753 obj, outrels', obj, outrels);
       for (let j=0; j<outrels?.length; j++) {
-        const rel = outrels[j];
+        let rel = outrels[j];
         if (rel.markedAsDeleted) continue;
+        rel = myMetis.findRelationship(rel.id);
         const rviews = rel.relshipviews;
         const mrelviews = modelview.relshipviews;
         if (debug) console.log('1759 modelview, mrelviews', modelview, mrelviews);
@@ -1988,6 +2072,17 @@ export function addRelationshipViewsToObjectView(modelview: akm.cxModelView, obj
 }
 
 // Other functions
+export function addItemToList(list: any, item: any) {
+    for (let i=0; i<list?.length; i++) {
+        const l = list[i];
+        if (l.id === item.id) {
+            list[i] = item;
+            return;
+        }
+    }
+    list?.push(item);
+}
+
 export function isPropIncluded(k: string, type: akm.cxType): boolean {
     let retVal = true;
     if (k === '__gohashid') retVal = false;

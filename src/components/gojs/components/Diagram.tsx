@@ -416,12 +416,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Copy",
           function (e: any, obj: any) { 
-            const selection = [];
+            let selection = e.diagram.selection
+            if (debug) console.log('420 selection', selection);
+            const myFromNodes  = [];
+            for (let it = selection.iterator; it?.next();) {
+                let n = it.value;
+                if (!(n instanceof go.Node)) continue;
+                if (n) {
+                  if (debug) console.log('425 n.data, n', n.data, n);
+                  addFromNode(myFromNodes, n);
+                }
+            }
+            if (debug) console.log('430 myFromNodes', myFromNodes);
+            myMetis.fromNodes = myFromNodes;
+
+            selection = [];
             e.diagram.selection.each(function(sel) {
               selection.push(sel.data);
             });
             myMetis.currentSelection = selection;
-            if (debug) console.log('424 selection', myMetis.currentSelection);
+            if (debug) console.log('438 selection', myMetis.currentSelection);
             e.diagram.commandHandler.copySelection(); 
           },
           function (o: any) { 
@@ -1124,7 +1138,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return o.diagram.commandHandler.canRedo(); 
             }),
-          // makeButton("Group",
+
+          makeButton("Get My Scale",
+            function (e: any, obj: any) { 
+              const myGoModel = myMetis.gojsModel;
+              const data = obj.part.data;
+              const node = myGoModel.findNode(data.key);
+              const myScale = node.getMyScale(myGoModel);
+              const msg = 'My Scale is: ' + myScale;
+              alert(msg);
+              // myDiagram.model?.setDataProperty(node, "scale", myScale);
+            }, 
+            function (o: any) {
+                const node = o.part.data;
+                if (node.category === constants.gojs.C_OBJECT)
+                  return true;
+                return false;
+            }),
+  
+            // makeButton("Group",
           //   function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
           //   function (o: any) { 
           //     return false;
@@ -2622,6 +2654,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ),
           )
         );
+    }
+
+    function addFromNode(myFromNodes: any, n: any) {
+      const myFromNode = { 
+        "key":     n.data.key, 
+        "name":    n.data.name,
+        "loc":     new String(n.data.loc),
+        "scale":   new String(n.scale)
+      }
+      myFromNodes.push(myFromNode);
+      if (n.data.isGroup) {
+        for (let it2 = n.memberParts.iterator; it2?.next();) {
+          let n2 = it2.value;
+          if (!(n2 instanceof go.Node)) continue;
+          if (n2) {
+            addFromNode(myFromNodes, n2);
+          }
+        }
+      }
     }
 
     function setLayout (myDiagram, layout) {

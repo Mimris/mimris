@@ -5389,6 +5389,7 @@ export class cxObjtypeviewData {
     abstract: boolean;
     isGroup: boolean;               // Container behaviour
     group: string;                  // Parent group
+    arrowscale: string;
     memberscale: string;
     viewkind: string;
     template: string;
@@ -5402,6 +5403,7 @@ export class cxObjtypeviewData {
         this.abstract = false;
         this.isGroup = false;              // Container behaviour
         this.group = "";                // Parent group
+        this.arrowscale = "1.3";
         this.memberscale = "1";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "";
@@ -5419,6 +5421,7 @@ export class cxObjectTypeView extends cxMetaObject {
     typeRef: string;
     data: cxObjtypeviewData;
     template: string;
+    arrowscale: string;
     memberscale: string;
     geometry: string;
     fillcolor: string;
@@ -5434,6 +5437,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.typeRef     = type?.id;
         this.template    = "";
         this.geometry    = "";
+        this.arrowscale  = "";
         this.memberscale = "";
         this.fillcolor   = "";
         this.strokecolor = "";
@@ -5462,6 +5466,7 @@ export class cxObjectTypeView extends cxMetaObject {
             }
             if (debug) console.log('3740 data, objview', data, objview, this);
             for (prop in otypeview.data) {
+                if (prop === 'arrowscale' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'memberscale' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'template' && objview[prop] !== "") data[prop] = objview[prop];
                 if (prop === 'geometry' && objview[prop] !== "") data[prop] = objview[prop];

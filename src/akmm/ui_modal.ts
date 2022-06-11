@@ -129,7 +129,6 @@ export function handleSelectDropdownChange(selected, context) {
   const selectedOption = selected.value;
   if (debug) console.log('97 selected, context:', selected, context);
   switch(modalContext.case) {
-
     case "Change Object type": {
       const typename = (selectedOption) && selectedOption;
       const node = myMetis.currentNode;
@@ -141,9 +140,8 @@ export function handleSelectDropdownChange(selected, context) {
       const data = n.data;
       myMetis.myDiagram.model.setDataProperty(data, "typename", typename);
       myMetis.myDiagram.requestUpdate();
+      break;
     }
-    break;
-
     case "Change Icon": {
       const icon = (selectedOption) && selectedOption;
       const inode = myMetis.currentNode;
@@ -162,7 +160,7 @@ export function handleSelectDropdownChange(selected, context) {
           let data = mn;
           if (debug) console.log('163 data', data);
           data = JSON.parse(JSON.stringify(data));
-          if (!debug) console.log('165 data, jsnObjview', data, jsnObjview);
+          if (debug) console.log('165 data, jsnObjview', data, jsnObjview);
           myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
         });
       }
@@ -233,9 +231,8 @@ export function handleSelectDropdownChange(selected, context) {
         })
         if (debug) console.log('183 jsnMetamodel', jsnMetamodel);
       }
-    }
     break;
-
+    }
     case "Set Link Curve": {  
       let item: akm.cxMetaModel | akm.cxModelView = myModelview; 
       const metamodelling = myMetis.modelType === 'Metamodelling';
@@ -268,24 +265,15 @@ export function handleSelectDropdownChange(selected, context) {
         })
         if (debug) console.log('216 jsnMetamodel', jsnMetamodel);
       }
+      break;
     }
-    break;
-
     case "New Model": {
       if (debug) console.log('222', selected);
       const refMetamodelName = (selectedOption) && selectedOption;
       const refMetamodel = myMetis.findMetamodelByName(refMetamodelName);
-      
-      // myMetis.currentTargetMetamodel = targetMetamodel
-      // myMetis.currentModel.targetMetamodelRef = targetMetamodel.id
       if (debug) console.log('228 Diagram', refMetamodel, myMetis);
-      // let mmdata = myMetis.currentModel;
-      // mmdata = JSON.parse(JSON.stringify(mmdata));
-      // if (debug) console.log('230 Diagram', mmdata);        
-      // myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: {mmdata} })
-      } 
-    break;
-
+      break;
+    } 
     case "Set Target Model": { 
       const modelName = (selectedOption) && selectedOption;
       const targetModel = myMetis.findModelByName(modelName);
@@ -296,9 +284,8 @@ export function handleSelectDropdownChange(selected, context) {
       mdata = JSON.parse(JSON.stringify(mdata));
       if (debug) console.log('242 Diagram', mdata);        
       myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mdata })
+      break;
     }
-    break;
-
     case "Set Target Metamodel":   
     case "Generate Target Metamodel": {
       const metamodelName = (selectedOption) && selectedOption;
@@ -310,9 +297,8 @@ export function handleSelectDropdownChange(selected, context) {
       mmdata = JSON.parse(JSON.stringify(mmdata));
       if (debug) console.log('255 Diagram', mmdata);        
       myMetis.myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data: mmdata });
+      break;
     }
-    break;
-
     case "Change Relationship type": { 
       const typename = (selectedOption) && selectedOption;
       const link = myMetis.currentLink;
@@ -348,9 +334,8 @@ export function handleSelectDropdownChange(selected, context) {
         const relview = (reltype) && uic.setRelationshipType(link, reltype, context);
         if (debug) console.log('274 relview', relview);
         myMetis.myDiagram.requestUpdate();
-      }
-      break;
-
+        break;
+    }
     case "Edit Attribute": {
       const propname = selected.value;
       if (debug) console.log('281 propname', propname);
@@ -420,9 +405,8 @@ export function handleSelectDropdownChange(selected, context) {
           }
         }
       }
+      break;
     }
-    break;
-
     case "Create Relationship": {
       if (debug) console.log('349 context', context);
       const myMetamodel = context.myMetamodel;
@@ -480,9 +464,8 @@ export function handleSelectDropdownChange(selected, context) {
       }
       if (debug) console.log('387 data, reltype', data, reltype);
       data.relshiptype = reltype;
+      break;
     }
-    break;
-
     default:
       break;
   }

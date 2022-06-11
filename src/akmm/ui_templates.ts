@@ -1155,8 +1155,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 // Groups containing Nodes lay out their members vertically
                 //layout: $(go.TreeLayout)
             },
-            // new go.Binding("isSubGraphExpanded", "isCollapsed").makeTwoWay(),
-            // new go.Binding("layout", "groupLayout"),
             new go.Binding("scale", "scale1").makeTwoWay(),
             new go.Binding("background", "isHighlighted",
             function (h) {
@@ -1179,9 +1177,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             {
                 cursor: "alias",
                 fill: "transparent", 
-                // stroke: "black", 
                 shadowVisible: true,
-                // strokeWidth: 1,
                 minSize: new go.Size(150,75),
                 portId: "", 
                 fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
@@ -1269,31 +1265,28 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
     groupTemplateMap.add("Container1", groupTemplate1);
     addGroupTemplateName('Container1');
 
-    if (false) {
-    const groupTemplate2 =
+    if (true) {
+        const groupTemplate2 =
         $(go.Group, "Auto",
         new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
         new go.Binding("visible"),
-
-        { // define the group's internal layout
-            // layout: $(go.TreeLayout,
-            //   { angle: 90, arrangement: go.TreeLayout.ArrangementHorizontal, isRealtime: false }),
-            // the group begins unexpanded;
-            // upon expansion, a Diagram Listener will generate contents for the group
-            isSubGraphExpanded: false,
-            // when a group is expanded, if it contains no parts, generate a subGraph inside of it
-            // subGraphExpandedChanged: function(group) {
-            //   if (group.memberParts.count === 0) {
-            //      randomGroup(group.data.key, myDiagram);
-            //   }
-            // }
-        },
-
         { contextMenu: contextMenu },
         {
             selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
             locationObjectName:  "SHAPE",
             resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
+            subGraphExpandedChanged: function (grp) {
+                var shp = grp.resizeObject;
+                if (grp.diagram.undoManager.isUndoingRedoing) return;
+                if (grp.isSubGraphExpanded) {
+                    // shp.height = grp._savedBreadth;
+                    shp.fill = "white";
+                } else {
+                    // grp._savedBreadth = shp.height;
+                    // shp.height = NaN;
+                    shp.fill = "transparent";
+                }
+            },
         },
         {
         background: "transparent",
@@ -1309,22 +1302,16 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         // Groups containing Nodes lay out their members vertically
         //layout: $(go.TreeLayout)
         },
-        //new go.Binding("layout", "groupLayout"),
+        new go.Binding("scale", "scale1").makeTwoWay(),
         new go.Binding("background", "isHighlighted", 
             function(h) { 
                 return h ? "rgba(255,0,0,0.2)" : "transparent"; 
             }).ofObject(),
         $(go.Shape, "RoundedRectangle", // surrounds everything
             { fill: "white", 
-              minSize: new go.Size(100, 50)
-            },
-            /*
-            { parameter1: 10, 
-              fill: "rgba(128,128,128,0.33)",
-            },
-            */
-            {
-            portId: "", cursor: "pointer",
+              minSize: new go.Size(150, 75),
+            cursor: "pointer",
+            portId: "", 
             fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
             toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
             }),
@@ -1347,11 +1334,15 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             ), // End Horizontal Panel
             
             $(go.Shape,  // using a Shape instead of a Placeholder
-              { name: "SHAPE", fill: "lightyellow", 
-                minSize: new go.Size(100, 50)
-              },
-              new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify)                                
-            )
+              { name: "SHAPE", 
+                fill: "lightyellow", 
+                minSize: new go.Size(150, 75),
+                margin: new go.Margin(0, 1, 1, 4),
+                cursor: "move",
+            },
+              new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+              new go.Binding("isSubGraphExpanded").makeTwoWay(),    
+              )
           )
         )
         groupTemplateMap.add("Container2", groupTemplate2);
@@ -1403,7 +1394,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         groupTemplateMap.add("Process", groupTemplate3);
         addGroupTemplateName('Process');
     }
-
     if (false) {
         const groupTemplate4 = 
             $(go.Group, "Vertical",
@@ -1441,6 +1431,57 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             );
             groupTemplateMap.add("Test", groupTemplate4);
             addGroupTemplateName('Test');
+    }
+    if (false) {
+        const groupTemplate5 =
+        $(go.Group, go.Panel.Auto,
+          {
+            background: "transparent",
+            // highlight when dragging into the Group
+            mouseDragEnter: (e, grp, prev) => highlightGroup(e, grp, true),
+            mouseDragLeave: (e, grp, next) => highlightGroup(e, grp, false),
+            // computesBoundsAfterDrag: true,
+            // when the selection is dropped into a Group, add the selected Parts into that Group;
+            // if it fails, cancel the tool, rolling back any changes
+            // mouseDrop: finishDrop,
+            // handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+            // Groups containing Groups lay out their members horizontally
+            // layout:
+            //   $(go.GridLayout,
+            //     {
+            //       wrappingWidth: Infinity, alignment: go.GridLayout.Position,
+            //       cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
+            //     })
+          },
+          new go.Binding("background", "isHighlighted", h => h ? "lightyellow" : "transparent").ofObject(),
+          $(go.Shape, "Rectangle",
+            { 
+                fill: null, 
+                stroke: "#E69900", 
+                strokeWidth: 2,
+            }),
+          $(go.Panel, go.Panel.Vertical,  // title above Placeholder
+            $(go.Panel, go.Panel.Horizontal,  // button next to TextBlock
+              { stretch: go.GraphObject.Horizontal, background: "#FFDD33", margin: 1 },
+              $("SubGraphExpanderButton",
+                { alignment: go.Spot.Right, margin: 5 }),
+            $(go.TextBlock,
+                {
+                  alignment: go.Spot.Left,
+                  editable: true,
+                  margin: 5,
+                  font: "bold 18px sans-serif",
+                  stroke: "#9A6600"
+                },
+                new go.Binding("text", "name").makeTwoWay())
+            ),  // end Horizontal Panel
+            $(go.Placeholder,
+                new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),                           
+                { padding: 5, alignment: go.Spot.TopLeft })
+          )  // end Vertical Panel
+        );  // end Group and call to add to template Map
+        groupTemplateMap.add("Container5", groupTemplate5);
+        addGroupTemplateName('Container5'); 
     }
 }
 

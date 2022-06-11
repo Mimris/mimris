@@ -486,6 +486,56 @@ export class goObjectNode extends goNode {
             }
         }
     }
+    getParentNode(model: goModel): goNode {
+        const groupId = this.group;
+        if (groupId !== "") {
+            const nodes = model.nodes;
+            for (let i = 0; i < nodes?.length; i++) {
+                const node = nodes[i] as goObjectNode;
+                if (node.key === groupId) {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
+    getTopNode(model: goModel): goNode {
+        const node = this.getParentNode(model);
+        if (node) {
+            if (node.key === this.key) {
+                return this;
+            } else {
+                const topNode = node.getTopNode(model);
+                if (topNode) {
+                    return topNode;
+                } else
+                    return this;
+            }
+        }
+        return this;
+    }
+    getMyScale(model: goModel): number {
+        // let scale = this.typeview.memberscale;
+        let scale = this.scale1;
+        const pnode = this.getParentNode(model);
+        if (pnode) {
+            scale = pnode.typeview.memberscale;
+            scale *= pnode.getMyScale(model);
+        } else 
+            scale = 1;
+        return scale;
+    }
+    getActualScale(model: goModel): number {
+        let scale1 = this.scale1;
+        const node = this.getParentNode(model);
+        if (debug) console.log('597 node', node);
+        if (node && node.key !== this.key) {
+            let scale = node.getActualScale(model);
+            scale1 *= scale;
+            if (debug) console.log('601 scale, scale1', scale, scale1);
+        }
+        return scale1;
+    }
     getGroupFromObjviewId(objviewId: string, model: goModel): string {
         // Loop through nodes to find object view
         const nodes = model.nodes;

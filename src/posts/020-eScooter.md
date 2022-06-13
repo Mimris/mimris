@@ -12,7 +12,8 @@ cover_image: 'images/posts/escooter/image_020-1.png'
 We start with the concept model of rental service for e-Scooters. The user can rent an e-Scooter for a period of time. The user will release the e-Scooter at the end of the period. 
 This part of the model is called the rental service and is already modeled in the Consept Model.
 
-The modelview (picture below) contains the object/information types needed in a rental service for E-scooters. In the "Type definition" container at the right you se currently defined Objecttypes Types: "**Person**", "**Company**", "**Fleet**", "**Location**", "**Vehicle**", "**EScooter**", with Relationship Types "**has**" and "**contains**".
+The modelview (picture below) contains the object/information types needed in a rental service for E-scooters. 
+In the "Type definition" container at the right you se currently defined Objecttypes Types: "**Person**", "**Company**", "**Fleet**", "**Location**", "**Vehicle**", "**EScooter**", with Relationship Types "**has**" and "**contains**".
 
 In the left container we have the predefined (from IRTV-metamodel ) objects **Role** and **Tasks** used for the rental service.
 
@@ -32,16 +33,29 @@ Below we see the definition of the properties and relationships for the **Person
 Vehicle also is related to **Position** that contains the GPS coordinates of the vehicle.
 On the right side of the modelview we see some of the datatype definition for the properties. The defualt datatype is "String".
 
+<details><summary markdown="span">
+    Property definition modelview
+    </summary>
 
 ![alt text](/images/posts/escooter/image_020-2.png)
+
+</details>
 
 ---
 
 ### Property and relationship definition for the Vehicle and E-Scooter Object Types.
 
-To define more details in the model, we make a new Modelview, where we add the properties and relationships shown below. The **Vehicle** and **E-Scooter**, is defined. The Vehicle has some special properties for the rental service, like **vehicleId** and **price**. Vehicle also is related to **Position** that contains the GPS coordinates of the vehicle.
+To define more details in the model, we make a new Modelview, where we add the properties and relationships shown below. The **Vehicle** and **E-Scooter**, is defined. 
+The Vehicle has some special properties for the rental service, like **vehicleId** and **price**. Vehicle also is related to **Position** that contains the GPS coordinates of the vehicle.
+
+<details><summary markdown="span">
+    Modelview for the Vehicle and E-Scooter Object Types
+    </summary>
+
 
 ![alt text](/images/posts/escooter/image_020-3.png)
+
+</details>
 
 ---
 
@@ -50,51 +64,87 @@ To define more details in the model, we make a new Modelview, where we add the p
 The datatype definition for the properties is shown below. A DataType can have list fo allowed values.
 The DataType can also have defined a InputPattern which is a regular expression that defines the allowed values for a property.
 
+<details><summary markdown="span">
+    Modelview for the datatype definition
+    </summary>
+
 ![alt text](/images/posts/escooter/image_020-4.png)
+
+</details>
 
 ---
 
-### Define a View (Modelview) for the Locate Tasks
+### Special views (Modelview) for detailing Tasks
 
 Vi can define a View for specific Tasks. The View can be used to define the properties that are used in that Task.
 Below you can se that the Locate Vehicle Task uses the GPS coordinates for the Person and the of the vehicles to find vehicles nearby.
 
+<details><summary markdown="span">
+    Modelview for the special views
+    </summary>
+
 ![alt text](/images/posts/escooter/image_020-5.png)
+
+</details>
 
 ---
 
 ### Generating a Metamodel from the Type definition model.
 
-From this Type definition model, we can now generate a Metamodel that apears in the as Types in the palette on left side in the Solution model. This Types are used to build the solution model and by creating instances of the types.
+From this Type definition model, we can now generate a Metamodel that apears in the as Types in the palette on left side in the Solution model. 
+This Types are used to build the solution test model by creating instances of the object and relationship types.
 
-![alt text](/images/posts/escooter/image_020-11.png)
+<details><summary markdown="span">
+    Generated metamodel
+    </summary>
+
+![alt text](/images/posts/escooter/image_020-6.png)
+
+</details>
+
+<details><summary markdown="span">
+    How to create instances from the objecttypes
+    </summary>
+    Drag and drop the objecttypes from the Palette to the Canvas (Modelling area).
+    Right click on the object and select "Edit Object" to open the property dialog to add attribute values.
+    
+    (See Help: Building models for more details on how to build a model)
+
+</details>
 
 ---
 
 ### Add Role and Tasks for maintenance and repair of e-scooters.
 
 We now want to add new Tasks for maintenance and repair of E-scooters.
-We start with copying the Type definition model from the 01-ConseptRental Modelview, and paste view into the 01.1-ConseptMaint modelview. Then we add a new Container "Task Model Maintenance" where we add the new Tasks and Roles.
+We start with copying the Type definition model from the 01-ConseptRental Modelview, and paste view into the 01.1-ConseptMaint modelview. 
+Then we add a new Container "Task Model Maintenance" where we add the new Tasks and Roles.
 Then we add relationships to the Type definition model.
 
-![alt text](/images/posts/escooter/image_020-20.png)
+<details><summary markdown="span">
+    Modelview for the Task and Role definition
+    </summary>
+
+![alt text](/images/posts/escooter/image_020-6b.png)
+
+</details>
 
 ---
 
-### The generated Metamodel.
+### The Solution Test model.
 
 The generated Metamodel vil be used as Metamodel for the Solution model.
 The Object types are shown below in the Palette types at the left.
 
 #### Generated objecttypes
-12
-![alt text](/images/posts/escooter/image_020-?.png)
+
+![alt text](/images/posts/escooter/image_020-7.png)
 
 #### Copied role and tasks objects
 
 The Rols and Tasks are copied from the Type definition model and can now be used in the solution model.
 
-![alt text](/images/posts/escooter/image_020-?.png)
+![alt text](/images/posts/escooter/image_020-8.png)
 
 #### Test of the generated Metamodel
 
@@ -123,19 +173,3 @@ If we are not satisfied with the generated Metamodel, we can change the Concept 
 ---
 
 ---
-
-## Other examples of use AKM Modeller.
-
-Object types imported from OSDU Repository.
-
-We can import type definitions from OSDU Repository.
-This is JSON Type definition stored as JSON files.
-
-![alt text](/images/posts/escooter/imagetmp5?.png)
-
-Below is a model view of the imported type definitions.
-
-![alt text](/images/posts/escooter/imagetmp3.pngg)
-![alt text](/images/posts/escooter/imagetmp4.pngg)
-![alt text](/images/posts/escooter/imagetmp2.pngg)
-![alt text](/images/posts/escooter/imagetmp1.pngg)

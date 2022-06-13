@@ -187,7 +187,7 @@ const page = (props) => {
                 style={{maxHeight: 'calc(100vh - 210px)', maxWidth: "40vh", overflowY: 'auto', scrollableElement:{ scrollbarColor: "red yellow"}, padding: "2px" }} 
                 // style={{'max-height': 'calc(130vh - 210px)', 'overflow-y': 'auto'}}
               >
-                  <CardHeader className="card-header " >AKMM releas log ... </CardHeader>
+                  <CardHeader className="card-header " >AKMM release log ... </CardHeader>
                   {/* <CardBody className="card-body" >  
                     <CardTitle className="card-title-bold" >Backlog ...</CardTitle>
                     <CardText >
@@ -197,7 +197,15 @@ const page = (props) => {
                     </CardText>
                   </CardBody> */}
                   <CardBody className="card-body" >
-                    <CardTitle className="card-title-bold" >Release 2022.03.??</CardTitle>
+                    <CardTitle className="card-title-bold" >Release 2022.06.13</CardTitle>
+                    <CardText >
+                          &bull; New "Choose File" and "Save" button in the model top-bar".<br />
+                          &bull; Enhancements! <br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.03.10</CardTitle>
                     <CardText >
                           &bull; Save Project with current date in the end of the filename.<br />
                           &bull; <br />

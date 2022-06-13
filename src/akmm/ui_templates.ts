@@ -1126,18 +1126,14 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             new go.Binding("visible"),
             { contextMenu: contextMenu },
             {
-                // selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
                 locationObjectName: "SHAPE",
                 resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 subGraphExpandedChanged: function (grp) {
                     var shp = grp.resizeObject;
                     if (grp.diagram.undoManager.isUndoingRedoing) return;
                     if (grp.isSubGraphExpanded) {
-                        // shp.height = grp._savedBreadth;
                         shp.fill = "white";
                     } else {
-                        // grp._savedBreadth = shp.height;
-                        // shp.height = NaN;
                         shp.fill = "transparent";
                     }
                 },
@@ -1273,7 +1269,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         new go.Binding("visible"),
         { contextMenu: contextMenu },
         {
-            selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
+            // selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
             locationObjectName:  "SHAPE",
             resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
             subGraphExpandedChanged: function (grp) {
@@ -1327,8 +1323,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             fill: "white", 
             minSize: new go.Size(150, 75),
             portId: "", 
-            fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-            toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+            fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+            toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
         }),
         $(go.Panel, "Vertical",  // position header above the subgraph
             { 

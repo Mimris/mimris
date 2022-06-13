@@ -782,6 +782,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
 
 
 
+
     if (false) {                    
         let nodeInput =               
             $(go.Node, 'Auto',  // the Shape will go around the TextBlock
@@ -1307,15 +1308,29 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             function(h) { 
                 return h ? "rgba(255,0,0,0.2)" : "transparent"; 
             }).ofObject(),
+            {
+                toolTip:
+                $(go.Adornment, "Auto",
+                    $(go.Shape, { fill: "lightyellow" }),
+                    $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                        new go.Binding("text", "", 
+                            function (d) { 
+                                return uid.nodeInfo(d, myMetis);                
+                            }
+                        )
+                    )
+                )
+            },
         $(go.Shape, "RoundedRectangle", // surrounds everything
-            { fill: "white", 
-              minSize: new go.Size(150, 75),
+        {
             cursor: "pointer",
+            fill: "white", 
+            minSize: new go.Size(150, 75),
             portId: "", 
             fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
             toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
-            }),
-          $(go.Panel, "Vertical",  // position header above the subgraph
+        }),
+        $(go.Panel, "Vertical",  // position header above the subgraph
             { 
               name: "HEADER", 
               defaultAlignment: go.Spot.TopLeft 
@@ -1483,6 +1498,60 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         groupTemplateMap.add("Container5", groupTemplate5);
         addGroupTemplateName('Container5'); 
     }
+    if (false) {
+        const groupTemplate6 =
+        $(go.Group, "Auto",
+        new go.Binding("location", "loc", go.Point.parse).makeTwoWay(go.Point.stringify),
+        new go.Binding("visible"),
+        { contextMenu: contextMenu },
+        {
+          background: "transparent",
+          // ungroupable: true,
+          // highlight when dragging into the Group
+          mouseDragEnter: function(e, grp, prev) { highlightGroup(e, grp, true); },
+          mouseDragLeave: function(e, grp, next) { highlightGroup(e, grp, false); },
+          computesBoundsAfterDrag: true,
+          // when the selection is dropped into a Group, add the selected Parts into that Group;
+          // if it fails, cancel the tool, rolling back any changes
+          // mouseDrop: finishDrop,
+          handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+          // Groups containing Groups lay out their members horizontally
+          // layout: makeLayout(false)
+        },
+        // new go.Binding("layout", "horiz", makeLayout),
+        new go.Binding("background", "isHighlighted", function(h) {
+          return h ? "rgba(255,0,0,0.2)" : "transparent";
+        }).ofObject(),
+        $(go.Shape, "Rectangle",
+          { fill: null, stroke: defaultColor(false), strokeWidth: 2 },
+          new go.Binding("stroke", "horiz", defaultColor),
+          new go.Binding("stroke", "color")),
+        $(go.Panel, "Vertical",  // title above Placeholder
+          $(go.Panel, "Horizontal",  // button next to TextBlock
+            { stretch: go.GraphObject.Horizontal, background: defaultColor(false) },
+            new go.Binding("background", "horiz", defaultColor),
+            new go.Binding("background", "color"),
+            $("SubGraphExpanderButton",
+              { alignment: go.Spot.Right, margin: 5 }),
+            $(go.TextBlock,
+              {
+                alignment: go.Spot.Left,
+                editable: true,
+                margin: 5,
+                font: defaultFont(false),
+                opacity: 0.75,  // allow some color to show through
+                stroke: "#404040"
+              },
+              new go.Binding("font", "horiz", defaultFont),
+              new go.Binding("text", "text").makeTwoWay())
+          ),  // end Horizontal Panel
+          $(go.Placeholder,
+            { padding: 5, alignment: go.Spot.TopLeft })
+        )  // end Vertical Panel
+    )
+    groupTemplateMap.add("Container6", groupTemplate6);
+    addGroupTemplateName('Container6'); 
+    }
 }
 
 // Function to identify images related to an image id
@@ -1561,6 +1630,39 @@ export function setDashed(d: string) {
     }
 }
 
+function makeLayout(horiz) {  // a Binding conversion function
+    if (horiz) {
+      return new go.GridLayout(
+        {
+          wrappingWidth: Infinity, alignment: go.GridLayout.Position,
+          cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
+        });
+    } else {
+      return new go.GridLayout(
+        {
+          wrappingColumn: 1, alignment: go.GridLayout.Position,
+          cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
+        });
+    }
+}
+
+function defaultColor(horiz) {  // a Binding conversion function
+return horiz ? "rgba(255, 221, 51, 0.55)" : "rgba(51,211,229, 0.5)";
+}
+
+function defaultFont(horiz) {  // a Binding conversion function
+return horiz ? "bold 20px sans-serif" : "bold 16px sans-serif";
+}
+
+// Upon a drop onto a Group, we try to add the selection as members of the Group.
+// Upon a drop onto the background, or onto a top-level Node, make selection top-level.
+// If this is OK, we're done; otherwise we cancel the operation to rollback everything.
+function finishDrop(e, grp) {
+    var ok = (grp !== null
+        ? grp.addMembers(grp.diagram.selection, true)
+        : e.diagram.commandHandler.addTopLevelParts(e.diagram.selection, true));
+    if (!ok) e.diagram.currentTool.doCancel();
+}
 
 // TESTING TESTING TESTING
 // if (false) {

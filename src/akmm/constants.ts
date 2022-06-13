@@ -133,7 +133,7 @@ export let types = {
          AKM_HAS_MEMBER        : "hasMember",
          AKM_HAS_PART          : "hasPart",
          AKM_HAS_PROPERTY      : "has",
-         AKM_HAS_PROPERTIES    : "hasProperties",
+         AKM_HAS_PROPERTIES    : "hasContent",
          AKM_IS                : "Is",
          AKM_IS_OF_DATATYPE    : "isOf",
          AKM_IS_DEFAULTVALUE   : "isDefault",

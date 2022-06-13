@@ -1126,7 +1126,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             new go.Binding("visible"),
             { contextMenu: contextMenu },
             {
-                selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
+                // selectionObjectName: "SHAPE",  // selecting a lane causes the body of the lane to be highlit, not the label
                 locationObjectName: "SHAPE",
                 resizable: true, resizeObjectName: "SHAPE",  // the custom resizeAdornmentTemplate only permits two kinds of resizing
                 subGraphExpandedChanged: function (grp) {
@@ -1181,8 +1181,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 shadowVisible: true,
                 minSize: new go.Size(150,75),
                 portId: "", 
-                fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+                fromLinkable: true, fromLinkableSelfNode: false, fromLinkableDuplicates: true,
+                toLinkable: true, toLinkableSelfNode: false, toLinkableDuplicates: true,
             },
             new go.Binding("fill", "fillcolor"),
             new go.Binding("stroke", "strokecolor"),
@@ -1522,7 +1522,20 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         new go.Binding("background", "isHighlighted", function(h) {
           return h ? "rgba(255,0,0,0.2)" : "transparent";
         }).ofObject(),
-        $(go.Shape, "Rectangle",
+        {
+            toolTip:
+            $(go.Adornment, "Auto",
+                $(go.Shape, { fill: "lightyellow" }),
+                $(go.TextBlock, { margin: 8 },  // the tooltip shows the result of calling nodeInfo(data)
+                    new go.Binding("text", "", 
+                        function (d) { 
+                            return uid.nodeInfo(d, myMetis);                
+                        }
+                    )
+                )
+            )
+        },
+            $(go.Shape, "Rectangle",
           { fill: null, stroke: defaultColor(false), strokeWidth: 2 },
           new go.Binding("stroke", "horiz", defaultColor),
           new go.Binding("stroke", "color")),

@@ -9,7 +9,7 @@ import useLocalStorage  from '../hooks/use-local-storage'
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 import genGojsModel from './GenGojsModel'
-import { SaveModelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
+import { SaveModelToFile, SaveMetamodelToFile, SaveAllToFile, SaveAllToFileDate, ReadModelFromFile, ReadMetamodelFromFile } from './utils/SaveModelToFile';
 import { ReadConvertJSONFromFile } from './utils/ConvertJSONToModel';
 import { WriteConvertModelToJSONFile } from './utils/ConvertModelToJSON';
 
@@ -79,7 +79,7 @@ const LoadFile = (props: any) => {
   function handleSaveMetamodelToFile() {
     const model = props.ph?.phData?.metis?.models?.find(m => m.id === props.ph?.phFocus?.focusModel?.id) 
     const metamodel = props.ph?.phData?.metis?.metamodels?.find(m => m.id === model?.metamodelRef) 
-    SaveModelToFile(metamodel, metamodel.name, 'MM')
+    SaveMetamodelToFile(metamodel, metamodel.name, 'MM')
     // SaveModelToFile(metamodel, metamodel.name, 'AKMM-Metamodel')
   }
   

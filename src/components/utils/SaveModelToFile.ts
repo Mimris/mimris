@@ -35,6 +35,22 @@ export const SaveModelToFile = (model, name, type) => {
     document.body.removeChild(link);
 }
 
+export const SaveMetamodelToFile = (metamodel, name, type) => {
+    const today = new Date().toISOString().slice(0, 19)
+    const fileName = (name.includes('_MM')) ? name : name+"_"+type //+'_'+today;
+  
+    const json = JSON.safeStringify(metamodel);
+    const blob = new Blob([json], {type:'application/json'});
+    const href = URL.createObjectURL(blob);
+    // const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 export const SaveAllToFile = (model, name, type) => {
     const fileName = name;
     if (debug) console.log('22 LoadLocal', model, fileName);
@@ -170,7 +186,7 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
         let  mmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
         const mmlength = props.phData?.metis?.metamodels.length
         if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-        if (debug) console.log('30 LoadLocal', metamodelff, mmindex, mmlength);
+        if (!debug) console.log('30 LoadLocal', metamodelff, mmindex, mmlength);
         
         const data = {
             phData: {

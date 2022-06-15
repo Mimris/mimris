@@ -182,11 +182,11 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
         const text = (e.target.result)
         const metamodelff = JSON.parse(text)
         //   alert(text)
-        if (debug) console.log('25 LoadLocal', props);
+        if (debug) console.log('155 LoadLocal', props);
         let  mmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
         const mmlength = props.phData?.metis?.metamodels.length
         if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-        if (!debug) console.log('30 LoadLocal', metamodelff, mmindex, mmlength);
+        if (!debug) console.log('189 LoadLocal', metamodelff, mmindex, mmlength);
         
         const data = {
             phData: {
@@ -202,7 +202,7 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
                 },
             }, 
         };
-        if (debug) console.log('46 LoadLocal', data);
+        if (!debug) console.log('205 LoadLocal', data);
         
         props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
     };

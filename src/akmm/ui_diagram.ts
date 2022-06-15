@@ -753,6 +753,15 @@ function clearMetamodel2(context: any) {
     let doClear = false;
     if (models.length > 0) {
         let msg = "There are models based on the metamodel '" + metamodel.name + "'.\n";
+        // let keepModels = false;
+        // msg += "Do you want to clear the models as well?"
+        // doClear = confirm(msg);
+        // if (!doClear) {
+        //     msg = "The models will be kept, but their metamodel will be cleared.\n"
+        //     keepModels = true;
+        // } else {
+        //     msg = "The models will be cleared!\n";
+        // }
         msg += "The models will be cleared!\n";
         msg += "Do you still want to continue?";
         doClear = confirm(msg);
@@ -762,22 +771,24 @@ function clearMetamodel2(context: any) {
     if (!doClear) {
             return;
     } else {
-        for (let i=0; i<models.length; i++) {
-            const model = models[i];
-            // deleteModel2(model, myMetis, myDiagram);
-            const modelview = model.modelviews[0];
-            modelview.clearContent();
-            model.clearContent();
-            model.addModelView(modelview);
-            const jsnModel = new jsn.jsnModel(model, true);
-            if (debug) console.log('644 jsnModel', jsnModel);
-            modifiedModels.push(jsnModel);
-            modifiedModels.map(mn => {
-              let data = mn;
-              data = JSON.parse(JSON.stringify(data));
-              myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
-            });
-        }        
+        if (!keepModels){
+            for (let i=0; i<models.length; i++) {
+                const model = models[i];
+                // deleteModel2(model, myMetis, myDiagram);
+                const modelview = model.modelviews[0];
+                modelview.clearContent();
+                model.clearContent();
+                model.addModelView(modelview);
+                const jsnModel = new jsn.jsnModel(model, true);
+                if (debug) console.log('644 jsnModel', jsnModel);
+                modifiedModels.push(jsnModel);
+                modifiedModels.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+                });
+            }   
+        }     
         metamodel.clearContent();
         const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
         if (debug) console.log('654 jsnMetamodel', jsnMetamodel);

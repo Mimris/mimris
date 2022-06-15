@@ -1,16 +1,31 @@
 ---
-title: 'A Demo Solution Model'
+title: 'An example test Solution Model'
 date: 'June 8, 2022'
-excerpt: 'The purpose of this tutorial is to make enhancement to an existing Consept Model of rental service for e-Scooters and cars .'
+excerpt: 'The purpose of this tutorial is to show how to make enhancement to an existing Consept Model of rental service for e-Scooters and .'
 cover_image: 'images/posts/escooter/image_020-1.png'
 ---
+<details><summary markdown="span">
+    Test Solution Model?
+    </summary>
 
-## Task: To enhance an existing concept model of rental service for E-Scooters.
+A test Solution Model is a model that is used to test the Concept Model and the generated Metamodel.
+The purpose of the test model is to "instanciate" the Concepts and create examples to test if the Concept Model is working as expected.
+If changes are needed, we go back to the Concept Model and make the changes necessary and regenerate the metamodel for a new test.
+
+If we are satisfied, we can export the type definitions to i.e. GraphQL typedefinition file and create Queries / Mutations from the Tasks.
+
+</details>
+
 ---
-### Concept Model overall structure
 
-We start with the concept model of rental service for e-Scooters. The user can rent an e-Scooter for a period of time. The user will release the e-Scooter at the end of the period. 
-This part of the model is called the rental service and is already modeled in the Consept Model.
+## This example will show how to expand and enhance an existing concept model of rental service for E-Scooters.
+
+
+### Concept Model overview
+
+We start with a current concept model of the rental service. The user can locate and rent an e-Scooter for a period of time. The user will release the e-Scooter for others to use at the end of the period. 
+A Model consists of a set of objects and relationships between these objects. This Model is a **Concept Model** wich consists of a set of objecttypess and relationshiptypes.
+The model can have several Modelviews. Each modelview is a set of objectviews and relationshipviews that is used to display sertain aspects of the model.
 
 The modelview (picture below) contains the object/information types needed in a rental service for E-scooters. 
 In the "Type definition" container at the right you se currently defined Objecttypes Types: "**Person**", "**Company**", "**Fleet**", "**Location**", "**Vehicle**", "**EScooter**", with Relationship Types "**has**" and "**contains**".
@@ -89,18 +104,37 @@ Below you can se that the Locate Vehicle Task uses the GPS coordinates for the P
 
 ---
 
-### Generating a Metamodel from the Type definition model.
+---
 
-From this Type definition model, we can now generate a Metamodel that apears in the as Types in the palette on left side in the Solution model. 
+
+## Generating a Metamodel from the Type definition model.
+
+From this Type definition model, we can now generate a Metamodel that appears in the as Types in the palette on left side in the Solution model. 
 This Types are used to build the solution test model by creating instances of the object and relationship types.
 
 <details><summary markdown="span">
-    Generated metamodel
+    The Generated metamodel
     </summary>
 
 ![alt text](/images/posts/escooter/image_020-6.png)
 
 </details>
+
+---
+
+### Export the Roles and Tasks
+
+The Roles and tasks are defined in the Consept Model, and can also be used in the Solution Model.
+
+<details><summary markdown="span">
+    Exported Roles and Tasks
+    </summary>
+
+
+![alt text](/images/posts/escooter/image_020-6b.png)
+
+</details>
+
 
 <details><summary markdown="span">
     How to create instances from the objecttypes
@@ -110,6 +144,44 @@ This Types are used to build the solution test model by creating instances of th
     
     (See Help: Building models for more details on how to build a model)
 
+</details>
+
+---
+
+
+### The Solution Test model.
+
+The generated Metamodel vil be used as Metamodel for the Solution model.
+The Object types are shown below in the Palette types at the left.
+
+#### Generated objecttypes
+
+<details><summary markdown="span">
+    Generated objecttypes
+    </summary>
+
+
+![alt text](/images/posts/escooter/image_020-7.png)
+ 
+ </details>
+
+#### Copied role and tasks objects
+
+The Rols and Tasks are copied from the Type definition model and can now be used in the solution model.
+
+
+![alt text](/images/posts/escooter/image_020-8.png)
+
+#### Test of the generated Metamodel
+
+We can now test the generated Metamodel by creating instances of the objecttypes.
+
+<details><summary markdown="span">
+    How to create instances from the objecttypes
+    </summary>
+    Drag and drop the objecttypes from the Palette to the Canvas (Modelling area).
+    Right click on the object and select "Edit Object" to open the property dialog to add attribute values.
+    <img src="/images/posts/escooter/image_020-35.png" alt="alt text" width="100%">
 </details>
 
 ---
@@ -130,36 +202,6 @@ Then we add relationships to the Type definition model.
 </details>
 
 ---
-
-### The Solution Test model.
-
-The generated Metamodel vil be used as Metamodel for the Solution model.
-The Object types are shown below in the Palette types at the left.
-
-#### Generated objecttypes
-
-![alt text](/images/posts/escooter/image_020-7.png)
-
-#### Copied role and tasks objects
-
-The Rols and Tasks are copied from the Type definition model and can now be used in the solution model.
-
-![alt text](/images/posts/escooter/image_020-8.png)
-
-#### Test of the generated Metamodel
-
-We can now test the generated Metamodel by creating instances of the objecttypes.
-
-<details><summary markdown="span">
-    How to create instances from the objecttypes
-    </summary>
-    Drag and drop the objecttypes from the Palette to the Canvas (Modelling area).
-    Right click on the object and select "Edit Object" to open the property dialog to add attribute values.
-    <img src="/images/posts/escooter/image_020-35.png" alt="alt text" width="100%">
-</details>
-
----
-
 ![alt text](/images/posts/escooter/image_020-?png)
 
 #### Test Solution Model

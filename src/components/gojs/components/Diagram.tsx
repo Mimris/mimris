@@ -416,6 +416,26 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Copy",
           function (e: any, obj: any) { 
+            let selection = e.diagram.selection
+            if (debug) console.log('420 selection', selection);
+            const myFromNodes  = [];
+            for (let it = selection.iterator; it?.next();) {
+                let n = it.value;
+                if (!(n instanceof go.Node)) continue;
+                if (n) {
+                  if (debug) console.log('425 n.data, n', n.data, n);
+                  addFromNode(myFromNodes, n);
+                }
+            }
+            if (debug) console.log('430 myFromNodes', myFromNodes);
+            myMetis.fromNodes = myFromNodes;
+
+            selection = [];
+            e.diagram.selection.each(function(sel) {
+              selection.push(sel.data);
+            });
+            myMetis.currentSelection = selection;
+            if (debug) console.log('438 selection', myMetis.currentSelection);
             e.diagram.commandHandler.copySelection(); 
           },
           function (o: any) { 
@@ -427,7 +447,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e: any, obj: any) {
               const currentModel = myMetis.currentModel;
               myMetis.pasteViewsOnly = false;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+              e.diagram.commandHandler.pasteSelection(point);
             },
             function (o: any) {
               return o.diagram.commandHandler.canPasteSelection(); 
@@ -442,7 +463,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               data = myDiagram.myGoModel;
               data = JSON.parse(JSON.stringify(data));
               e.diagram.dispatch({ type: 'SET_MY_GOMODEL', data });
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+              e.diagram.commandHandler.pasteSelection(point);
               if (debug) console.log('560 Paste View', myMetis);
             },
             function (o: any) { 
@@ -692,6 +714,43 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }),  
           makeButton("----------"),
+          makeButton("Export Task Model",
+          function (e: any, obj: any) {
+            const node = e.diagram.selection.first().data;
+            uid.exportTaskModel(node, myMetis, myDiagram);
+
+          },
+          function (o: any) { 
+            if (debug) console.log('1991 myMetis', myMetis);
+            if (myMetis.modelType == 'Modelling') {
+              const node = obj.part.data;
+              const obj = node.object;
+              const objtype = obj?.type;
+              if (objtype?.name === constants.types.AKM_CONTAINER) {
+                return true;                    
+              }
+              else 
+                return false;
+            }
+          }),
+          makeButton("Generate Metamodel",
+          function (e: any, obj: any) { 
+            if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
+            const node = e.diagram.selection.first().data;
+            myMetis.currentNode = node;
+            gen.generateTargetMetamodel(obj, myMetis, myDiagram);
+          },
+          function (o: any) { 
+            if (debug) console.log('1991 myMetis', myMetis);
+            if (myMetis.modelType == 'Modelling') {
+              const obj = o.part.data.object;
+              const objtype = obj?.type;
+              if (objtype?.name === constants.types.AKM_CONTAINER)
+                  return true;              
+            } else 
+              return false;
+            return true; 
+            }),
           makeButton("Generate Datatype",
             function(e: any, obj: any) { 
                 const context = {
@@ -1079,7 +1138,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return o.diagram.commandHandler.canRedo(); 
             }),
-          // makeButton("Group",
+
+          makeButton("Get My Scale",
+            function (e: any, obj: any) { 
+              const myGoModel = myMetis.gojsModel;
+              const data = obj.part.data;
+              const node = myGoModel.findNode(data.key);
+              const myScale = node.getMyScale(myGoModel);
+              const msg = 'My Scale is: ' + myScale;
+              alert(msg);
+              // myDiagram.model?.setDataProperty(node, "scale", myScale);
+            }, 
+            function (o: any) {
+                const node = o.part.data;
+                // if (node.category === constants.gojs.C_OBJECT)
+                //   return true;
+                return false;
+            }),
+  
+            // makeButton("Group",
           //   function (e: any, obj: any) { e.diagram.commandHandler.groupSelection(); },
           //   function (o: any) { 
           //     return false;
@@ -1669,7 +1746,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Paste",
             function (e: any, obj: any) {
               myMetis.pasteViewsOnly = false;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              const mySelection = [];
+              e.diagram.selection.each(function(sel) {
+                mySelection.push(sel.data);
+              });
+              myMetis.currentSelection = mySelection;
+              if (debug) console.log('1685 mySelection', mySelection);
+              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+              e.diagram.commandHandler.pasteSelection(point);
             },
             function (o: any) { 
               return o.diagram.commandHandler.canPasteSelection(); 
@@ -1677,20 +1761,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Paste View",
             function (e: any, obj: any) {
               myMetis.pasteViewsOnly = true;
-              e.diagram.commandHandler.pasteSelection(e.diagram.lastInput.documentPoint);
+              const selection = [];
+              e.diagram.selection.each(function(sel) {
+                selection.push(sel.data);
+              });
+              myMetis.currentSelection = selection;
+              const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
+              e.diagram.commandHandler.pasteSelection(point);
             },
             function (o: any) { 
-              //return false;
               return o.diagram.commandHandler.canPasteSelection(); 
             }),
           makeButton("----------",
-          function (e: any, obj: any) {
-          },
-          function (o: any) { 
-            if (myMetis.modelType === 'Metamodelling')
-              return false;
-            return true; 
-          }),
+            function (e: any, obj: any) {
+            },
+            function (o: any) { 
+              if (myMetis.modelType === 'Metamodelling')
+                return false;
+              return true; 
+            }),
           makeButton("New Model",
             function (e: any, obj: any) {
               uid.newModel(myMetis, myDiagram);
@@ -1988,7 +2077,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
-          }),
+            }),
           makeButton("Generate Metamodel",
           function (e: any, obj: any) { 
             if (debug) console.log('1958 obj, myMetis, myDiagram', obj, myMetis, myDiagram);
@@ -1999,7 +2088,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
-          }),
+            }),
           makeButton("Replace Current Metamodel",
             function (e: any, obj: any) {
               uid.replaceCurrentMetamodel(myMetis, myDiagram);
@@ -2086,7 +2175,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             if (myMetis.modelType === 'Metamodelling')
               return false;
             return true; 
-          }),
+            }),
           makeButton("Delete Invisible Objects",
             function (e: any, obj: any) { 
               uid.deleteInvisibleObjects(myMetis, myDiagram);
@@ -2565,6 +2654,25 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             ),
           )
         );
+    }
+
+    function addFromNode(myFromNodes: any, n: any) {
+      const myFromNode = { 
+        "key":     n.data.key, 
+        "name":    n.data.name,
+        "loc":     new String(n.data.loc),
+        "scale":   new String(n.scale)
+      }
+      myFromNodes.push(myFromNode);
+      if (n.data.isGroup) {
+        for (let it2 = n.memberParts.iterator; it2?.next();) {
+          let n2 = it2.value;
+          if (!(n2 instanceof go.Node)) continue;
+          if (n2) {
+            addFromNode(myFromNodes, n2);
+          }
+        }
+      }
     }
 
     function setLayout (myDiagram, layout) {

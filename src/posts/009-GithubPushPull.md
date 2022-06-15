@@ -16,9 +16,8 @@ If you are using a GitHub repository to store these models, you can Push the mod
 
 Modell and metamodel files are saved as a project (json file) in folders for each sub-project.
 
-
 Initial step: 
-1. Install VSCode editor
+1. Install VSCode editor (Optional)
 2. Go to the "Model" repository ( you need a GitHub account and access rights from the repository owner)
 3. Clone/dowload this repository to your local machine
    
@@ -34,15 +33,15 @@ Initial step:
 
 # To upload models
 
-1. In AKM Modeller click the "File" button then in "Export to file" the " Save Project (all) to File".
-2. Select the project folder in your local repository.
+1. In AKM Modeller click the "Save" button to save the project to a file" (More options under the blue "Model file" button).
+2. Select the project folder in your local repository (default= "Downloads" folder).
 
 To update the project (models) in GitHUb, type the following in the terminal window  :
 
-1. git pull ( to make sure you have the latest version from GitHub)
-2. git add .  (adds all changed files to local repository)
-3. git commit -m "change msg" (Commits the changed files with your message)
-3. git push (uploads the local repository (with changes) to GitHub)
+1. git pull ( this to make sure you have the latest version of the model from GitHub)
+2. git add .  (adds all changes files in current directory to the local repository)
+3. git commit -m "change msg" (Commits the changed files with your message about the change)
+3. git push (uploads the local repository (with changes) to GitHub remote repository)
 
 ---
 

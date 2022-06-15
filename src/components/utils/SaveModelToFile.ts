@@ -35,6 +35,22 @@ export const SaveModelToFile = (model, name, type) => {
     document.body.removeChild(link);
 }
 
+export const SaveMetamodelToFile = (metamodel, name, type) => {
+    const today = new Date().toISOString().slice(0, 19)
+    const fileName = (name.includes('_MM')) ? name : name+"_"+type //+'_'+today;
+  
+    const json = JSON.safeStringify(metamodel);
+    const blob = new Blob([json], {type:'application/json'});
+    const href = URL.createObjectURL(blob);
+    // const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = fileName + ".json";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 export const SaveAllToFile = (model, name, type) => {
     const fileName = name;
     if (debug) console.log('22 LoadLocal', model, fileName);
@@ -52,8 +68,10 @@ export const SaveAllToFile = (model, name, type) => {
 }
 
 export const SaveAllToFileDate = (model, name, type) => {
-    const today = new Date().toISOString().slice(0, 19)
-    const fileName = name+"_"+type //+'_'+today;
+ 
+    const today = new Date().toISOString().slice(0, 10)
+    // const today = new Date().toISOString().slice(0, 19)
+    const fileName = name+"_"+type+'_'+today;
     if (debug) console.log('22 LoadLocal', model, fileName);
   
     const json = JSON.safeStringify(model);
@@ -68,7 +86,7 @@ export const SaveAllToFileDate = (model, name, type) => {
     document.body.removeChild(link);
 }
 
-export const ReadModelFromFile = async (props, dispatch, e) => {
+export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
     e.preventDefault()
     const reader = new FileReader()
     reader.fileName = (e.target.files[0].name)
@@ -79,16 +97,16 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
 
         //   alert(text)
         if (debug) console.log('46 SaveModelToFile', props.phFocus.focusModel.id);
-        if (debug) console.log('44 SaveModelToFile', props, modelff);
+        if (!debug) console.log('44 SaveModelToFile', props, modelff);
     
-        let  mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
+        let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
         if (mindex < 0) { mindex = mlength } // mindex = -1, i.e.  not fond, which means adding a new model
         
         let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
         // if (fmindex < 0) { fmindex = mlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
         
-        if (debug) console.log('49 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
+        if (!debug) console.log('49 SaveModelToFile', props.phFocus.focusModel?.id, modelff, mindex, mlength, fmindex);
         let mvindex, mvlength
         if (modelff.modelview) {
             mvindex = props.phData?.metis?.models[fmindex]?.modelviews.findIndex(mv => mv.id === modelff.modelview?.id) // current modelview index
@@ -147,7 +165,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => {
                 }, 
             };
         }
-        if (debug) console.log('77 SaveModelToFile', data);      
+        if (!debug) console.log('77 SaveModelToFile', data);      
         if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
@@ -164,11 +182,11 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
         const text = (e.target.result)
         const metamodelff = JSON.parse(text)
         //   alert(text)
-        if (debug) console.log('25 LoadLocal', props);
+        if (debug) console.log('155 LoadLocal', props);
         let  mmindex = props.phData?.metis?.metamodels?.findIndex(m => m.id === metamodelff?.id) // current model index
         const mmlength = props.phData?.metis?.metamodels.length
         if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
-        if (debug) console.log('30 LoadLocal', metamodelff, mmindex, mmlength);
+        if (!debug) console.log('189 LoadLocal', metamodelff, mmindex, mmlength);
         
         const data = {
             phData: {
@@ -184,7 +202,7 @@ export const ReadMetamodelFromFile = async (props, dispatch, e) => {
                 },
             }, 
         };
-        if (debug) console.log('46 LoadLocal', data);
+        if (!debug) console.log('205 LoadLocal', data);
         
         props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
     };

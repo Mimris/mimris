@@ -19,70 +19,6 @@ const page = (props: any) => {
   const dispatch = useDispatch()
   const [mappedPosts, setMappedPosts] = useState([props.phBlog?.posts]);
   
-  // if (!props.phData) {
-  //   dispatch(loadData())
-  // }
-  // if (!props.phBlog) {
-  //   console.log('16 index', props);
-  //   dispatch(loadDataBlog())
-  // }
-
-  // let posts =  props?.phBlog?.posts || null
-
-
-  // useEffect(() => {
-  //   posts = props.phBlog?.posts
-  // }, [props?.phBlog]); 
-  
-  // useEffect(() => {
-  //   if (posts && posts.length) {
-  //     console.log('34 index', posts);
-  //     const imgBuilder = imageUrlBuilder({
-  //       projectId: 'qx699h4j',
-  //       dataset: 'production',
-  //     });
-  //     console.log('44 index', imgBuilder);
-      
-  //     setMappedPosts(
-  //       posts.map(p => {
-  //         console.log('48 p', p);
-  //         return {
-  //           ...p,
-  //           mainImage: imgBuilder.image(p.mainImage).width(500).height(250),
-  //         }
-  //       })
-  //       );
-  //       console.log('44 index', mappedPosts[0]);
-  //   } 
-  //   // else {
-  //   //   setMappedPosts([]);
-  //   // }
-  // }, [posts]);
-
-  // const postsDiv =   
-                // <div className={styles.main}>
-                //   <h1>Welcome To My Blog</h1>
-
-                //   <h3>Recent Posts: </h3>
-
-                //   <div className={styles.feed}>
-                //     {mappedPosts.length ? mappedPosts.map((p, index) => (p) && (
-                //       <div onClick={() => router.push(`/post/${p.slug.current}`)} key={index} className={styles.post}>
-                //         <h3>{p.title}</h3>
-                //         <img className={styles.mainImage} src={p.mainImage} />
-                //       </div>
-                //     )) : <>No Posts Yet</>}
-                //   </div>
-                // </div>
-
-
-
-  // const state = useSelector(state => state)
-  // const metis = (state.phData) && state.phData.metis
-  // const [visibleTasks, setVisibleTasks] = useState(true)
-  // function toggleTasks() {
-  //   setVisibleTasks(!visibleTasks);
-  // }
  // /**
 // * Set up the Context items and link to select Context modal,
 // */
@@ -193,3 +129,72 @@ const page = (props: any) => {
 // export default Page;
 export default Page(connect(state => state)(page));
 // export default authenticated(Page(connect(state => state)(page)));
+
+
+
+
+
+  // if (!props.phData) {
+  //   dispatch(loadData())
+  // }
+  // if (!props.phBlog) {
+  //   console.log('16 index', props);
+  //   dispatch(loadDataBlog())
+  // }
+
+  // let posts =  props?.phBlog?.posts || null
+
+
+  // useEffect(() => {
+  //   posts = props.phBlog?.posts
+  // }, [props?.phBlog]); 
+  
+  // useEffect(() => {
+  //   if (posts && posts.length) {
+  //     console.log('34 index', posts);
+  //     const imgBuilder = imageUrlBuilder({
+  //       projectId: 'qx699h4j',
+  //       dataset: 'production',
+  //     });
+  //     console.log('44 index', imgBuilder);
+      
+  //     setMappedPosts(
+  //       posts.map(p => {
+  //         console.log('48 p', p);
+  //         return {
+  //           ...p,
+  //           mainImage: imgBuilder.image(p.mainImage).width(500).height(250),
+  //         }
+  //       })
+  //       );
+  //       console.log('44 index', mappedPosts[0]);
+  //   } 
+  //   // else {
+  //   //   setMappedPosts([]);
+  //   // }
+  // }, [posts]);
+
+  // const postsDiv =   
+                // <div className={styles.main}>
+                //   <h1>Welcome To My Blog</h1>
+
+                //   <h3>Recent Posts: </h3>
+
+                //   <div className={styles.feed}>
+                //     {mappedPosts.length ? mappedPosts.map((p, index) => (p) && (
+                //       <div onClick={() => router.push(`/post/${p.slug.current}`)} key={index} className={styles.post}>
+                //         <h3>{p.title}</h3>
+                //         <img className={styles.mainImage} src={p.mainImage} />
+                //       </div>
+                //     )) : <>No Posts Yet</>}
+                //   </div>
+                // </div>
+
+
+
+  // const state = useSelector(state => state)
+  // const metis = (state.phData) && state.phData.metis
+  // const [visibleTasks, setVisibleTasks] = useState(true)
+  // function toggleTasks() {
+  //   setVisibleTasks(!visibleTasks);
+  // }

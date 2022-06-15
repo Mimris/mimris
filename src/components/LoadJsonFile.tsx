@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
+// import Draggable from "react-draggable";
 import { useDispatch } from 'react-redux'
 import Select from "react-select"
 // import { loadData } from '../actions/actions'
@@ -47,13 +48,13 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
         // SaveAllToFile(data, projectname, 'AKMM-Project')
       } 
       // Save all models and metamodels in current project to a file with date and time in the name to the downloads folder
-      function handleSaveAllToFileDate() {
-        const projectname = props.ph.phData.metis.name
-        console.log('37 LoadFile', data);
+      // function handleSaveAllToFileDate() {
+      //   const projectname = props.ph.phData.metis.name
+      //   console.log('37 LoadFile', data);
         
-        SaveAllToFileDate(data, projectname, 'Project')
-        // SaveAllToFileDate(data, projectname, 'AKMM-Project')
-      }
+      //   SaveAllToFileDate(data, projectname, 'Project')
+      //   // SaveAllToFileDate(data, projectname, 'AKMM-Project')
+      // }
       
     
       // Save current modelview (without instances) to a file in downloads foler 
@@ -149,8 +150,11 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       return (
         <>
           <button className="btn-context btn-success float-right mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
-          <Modal isOpen={modal} toggle={toggle} className={className} >
-            <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader>
+        {/* <Draggable handle=".handle"> */}
+          <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
+            <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import: </ModalHeader>
+              {/* <Modal isOpen={modal} toggle={toggle} className={{className}} > */}
+                {/* <ModalHeader toggle={() => { toggle(); toggleRefresh() }}>Export/Import: </ModalHeader> */}
             <ModalBody className="pt-0">
               Current Source: <strong> {props.ph.phSource}</strong>
               <div className="source bg-light p-2 "> Models: <strong> {modelNames}</strong></div>
@@ -184,7 +188,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
                     <h6>Connect imported EntityTypes</h6> 
                     <div className="selectbox3 mb-2 border">
                       <Button className="modal--footer m-0 py-1 px-2 w-100" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                        title="Click here when done!" onClick={() => { ConnectImportedTopEntityTypes("JSON", inclProps, props.ph, dispatch) }}>Generate Relationships between EntityTypes 
+                        title="Picking Propertylinks and convert to relatioships!" onClick={() => { ConnectImportedTopEntityTypes("JSON", inclProps, props.ph, dispatch) }}>Generate Relationships between EntityTypes 
                       </Button>
                     </div>
                 </div>
@@ -219,6 +223,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
               </Button>
             </ModalFooter>
           </Modal>
+          {/* </Draggable> */}
           <style jsx>{`
                 .selectbox2 {
                     background-color: rgba(0, 0, 0, 0.3) ;

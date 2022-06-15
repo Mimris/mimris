@@ -618,7 +618,7 @@ function reducer(state = InitialStateStr, action) {
       // if (debug) console.log('472 UPDATE_TARGETMODEL_PROPERTIES', action);
       // const curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       let curmindex12 = state.phData?.metis?.models?.findIndex(m => m.id === action.data?.targetModelRef) // target model index
-      // if (debug) console.log('464 reducer', state.phData.metis.models, curmindex12)
+      if (debug) console.log('464 reducer', state.phData.metis.models, 'curmindex12: ', curmindex12, 'action: ', action , "END")
 
       if (curmindex12 < 0) {curmindex12 = state.phData.metis.models.length}
       // if (debug) console.log('466 reducer', curmindex12)
@@ -678,7 +678,7 @@ function reducer(state = InitialStateStr, action) {
       const curmindexo = state.phData?.metis?.models?.findIndex(m => m.id === state.phFocus?.focusModel?.id) // current model index
       const curoo = (curmo) && curmo?.objects?.find(o => o.id === action.data.id) //current Object
       let curoindexo = (curmo) && curmo.objects?.findIndex(o => o.id === curoo?.id) // curretn objectindex
-      if (debug) console.log('593 UPDATE_OBJECT_PROPERTIES', curmindexo);
+      if (debug) console.log('593 UPDATE_OBJECT_PROPERTIES', action.data, curoo, curmindexo);
 
       const lengtho = curmo?.objects.length
       if (curoindexo < 0) { curoindexo = lengtho } // ovindex = -1, i.e.  not fond, which means adding a new objectview
@@ -686,55 +686,55 @@ function reducer(state = InitialStateStr, action) {
       // const { id, ...rest } = (action.data)
       // const propValues = (rest && rest.propertyValues) ? { ...rest } : curmo.objects[index]?.propertyValues
 
-    if (debug) console.log('725 UPDATE_OBJECT_PROPERTIES', state.phData.metis.models, {
-      ...state,
-      phData: {
-        ...state.phData,
-        metis: {
-          ...state.phData.metis,
-          models: [
-            ...state.phData.metis.models.slice(0, curmindexo),
-            {
-              ...state.phData.metis.models[curmindexo],
-              objects: [
-                ...curmo?.objects.slice(0, curoindexo),
-                {
-                  ...curmo.objects[curoindexo], 
-                  ...action.data, 
-                },
-                ...curmo?.objects.slice(curoindexo + 1, curmo?.objects.length)
-              ],
-            },
-            ...state.phData.metis.models.slice(curmindexo + 1, state.phData.metis.models.length),
-          ],
-        },
-      }
-    })
+      if (debug) console.log('725 UPDATE_OBJECT_PROPERTIES', state.phData.metis.models, {
+        ...state,
+        phData: {
+          ...state.phData,
+          metis: {
+            ...state.phData.metis,
+            models: [
+              ...state.phData.metis.models.slice(0, curmindexo),
+              {
+                ...state.phData.metis.models[curmindexo],
+                objects: [
+                  ...curmo?.objects.slice(0, curoindexo),
+                  {
+                    ...curmo.objects[curoindexo], 
+                    ...action.data, 
+                  },
+                  ...curmo?.objects.slice(curoindexo + 1, curmo?.objects.length)
+                ],
+              },
+              ...state.phData.metis.models.slice(curmindexo + 1, state.phData.metis.models.length),
+            ],
+          },
+        }
+      })
 
-    return {
-      ...state,
-      phData: {
-        ...state.phData,
-        metis: {
-          ...state.phData.metis,
-          models: [
-            ...state.phData.metis.models.slice(0, curmindexo),
-            {
-              ...state.phData.metis.models[curmindexo],
-              objects: [
-                ...curmo?.objects.slice(0, curoindexo),
-                {
-                  ...curmo.objects[curoindexo], 
-                  ...action.data,
-                },
-                ...curmo?.objects.slice(curoindexo + 1, curmo?.objects.length)
-              ],
-            },
-            ...state.phData.metis.models.slice(curmindexo + 1, state.phData.metis.models.length),
-          ],
-        },
+      return {
+        ...state,
+        phData: {
+          ...state.phData,
+          metis: {
+            ...state.phData.metis,
+            models: [
+              ...state.phData.metis.models.slice(0, curmindexo),
+              {
+                ...state.phData.metis.models[curmindexo],
+                objects: [
+                  ...curmo?.objects.slice(0, curoindexo),
+                  {
+                    ...curmo.objects[curoindexo], 
+                    ...action.data,
+                  },
+                  ...curmo?.objects.slice(curoindexo + 1, curmo?.objects.length)
+                ],
+              },
+              ...state.phData.metis.models.slice(curmindexo + 1, state.phData.metis.models.length),
+            ],
+          },
+        }
       }
-    }
     
     case UPDATE_OBJECTVIEW_PROPERTIES:
       if (debug) console.log('765 UPDATE_OBJECTVIEW_PROPERTIES', action);

@@ -177,6 +177,7 @@ const Palette = (props: any) => {
   const objectsNotDeleted = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
   
   // // filter out all objects of type Property
+  const roleTaskObj = objectsNotDeleted?.filter(node => node && (node.typename === 'Task' || node.typename === 'Role'))
   const noPropertyObj = objectsNotDeleted?.filter(node => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
   const noAbstractObj = objectsNotDeleted?.filter(node => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
   if (debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
@@ -188,16 +189,19 @@ const Palette = (props: any) => {
     toggleRefreshPalette()
   }
   
+  {/* <div style={{transform: "scale(0.9)" }}> */}
   const selectedObjDiv = (
-    <div>
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROPS</button>}
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABSTRACT</button>}
-      <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button>
+    <div >
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Tasks') }}>Task</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROP</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABS</button>}
+      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button> }
     </div>
   )
 
   // // filter out all objects of type Property
   let ofilteredArr = objectsNotDeleted
+  if (ofilter === 'Tasks') ofilteredArr = roleTaskObj
   if (ofilter === '!Property') ofilteredArr = noPropertyObj
   if (ofilter === '!Abstract') ofilteredArr = noAbstractObj
   if (ofilter === 'All') ofilteredArr = objectsNotDeleted
@@ -233,9 +237,8 @@ const Palette = (props: any) => {
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
-  
-  // const gojsapp = (gojstypes?.nodeDataArray && gojstypes?.nodeDataArray[0]?.typename) &&
-  const gojsappPalette = 
+
+  const gojsappPalette = // this is the palette with tabs for Types and Objects Todo: add posibility to select many types or objects to drag in (and also with links)
     <>
       <Nav tabs >
         <NavItem >
@@ -256,13 +259,13 @@ const Palette = (props: any) => {
         </NavItem>
       </Nav>
       <TabContent activeTab={activeTab} >
-        {/* TYPES */}
+        {/* TYPES this is the tab for Objecttypes */}
         <TabPane tabId="1">
           <div className="workpad p-1 pt-2 bg-white" >
             {/* <Row >
               <Col xs="auto ml-3 mr-0 pr-0 pl-0"> */}
                 {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
-                <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mmnamediv}</div>
+                <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
                 {selectedMMDiv}
               < GoJSPaletteApp
                 nodeDataArray={gojstypes.nodeDataArray}
@@ -279,7 +282,7 @@ const Palette = (props: any) => {
             </Row> */}
           {/* </div> */}
         </TabPane>
-        {/* OBJECTS */}
+        {/* OBJECTS  this is the tab for Object instances*/}
         <TabPane tabId="2">
           <div className="workpad p-1 pt-2 bg-white">
             {/* <Row >
@@ -305,7 +308,7 @@ const Palette = (props: any) => {
       </TabContent>
     </>
     
-   const palette =
+   const palette = // this is the left pane with the palette and toggle for refreshing
       <> 
         <button className="btn-sm px-0 m-0" style={{ backgroundColor: "#7ac", outline: "0", borderStyle: "none"}}
           onClick={togglePalette}> {visiblePalette ? <span> &lt;- Palette </span> : <span>&gt;</span>} 
@@ -326,9 +329,7 @@ const Palette = (props: any) => {
     <>
       {palette} 
       {/* {refreshPalette ? <> {palette} </> : <> {palette} </>} */}
-        {/* <style jsx>{`
-
-       `}</style> */}
+      {/* <style jsx>{``}</style> */}
     </>
   )
 }

@@ -2516,7 +2516,14 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     msg = "\tVerifying objectview " + oview.name + " ( with object deleted)\n";
                     msg += "\tObject has been undeleted";
                     report += printf(format, msg);
-                }
+                } else if (!oview.object) {
+                    oview.markedAsDeleted = true;
+                    const jsnObjview = new jsn.jsnObjectView(oview);
+                    modifiedObjviews.push(jsnObjview);
+                    msg = "\tVerifying objectview " + oview.name + " ( without object )\n";
+                    msg += "\tObjectview has been deleted";
+                    report += printf(format, msg);
+                    }
             }
             else if (!oview.object) { // Object view is deleted and has no object
                 if (!oview.name) {

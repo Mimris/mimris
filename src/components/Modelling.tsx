@@ -86,7 +86,7 @@ const page = (props:any) => {
 
     useEffect(() => {
       setTimeout(refres, 100);
-      if (debug) console.log('88 Modelling useEffect 2', props); 
+      if (!debug) console.log('88 Modelling useEffect 2', props); 
       const data = {
         phData: props.phData,
         phFocus: props.phFocus,

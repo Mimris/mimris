@@ -763,6 +763,7 @@ export class cxMetis {
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setType(type);
             objtypeview.setTemplate(item.template);
+            objtypeview.setViewKind(item.viewkind);
             objtypeview.setMemberscale(item.memberscale);
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFillcolor(item.fillcolor);
@@ -5406,7 +5407,7 @@ export class cxObjtypeviewData {
         this.arrowscale = "1.3";
         this.memberscale = "1";
         this.viewkind = constants.viewkinds.OBJ;
-        this.template = "";
+        this.template = "textAndIcon";
         this.geometry = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";
@@ -5428,6 +5429,7 @@ export class cxObjectTypeView extends cxMetaObject {
     strokecolor: string;
     strokewidth: string;
     textcolor: string;
+    viewkind: string;
     icon: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
         super(id, name, description);
@@ -5443,6 +5445,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.strokecolor = "";
         this.strokewidth = "";
         this.textcolor   = "";
+        this.viewkind    = "";
         this.icon        = "";
         this.data        = new cxObjtypeviewData();
         if (type) {

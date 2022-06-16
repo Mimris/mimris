@@ -639,10 +639,10 @@ function replaceCurrentMetamodel2(context: any) {
     for (let i=0; i<relships?.length; i++) {
         const relship = relships[i];
         if (!relship) continue;
-        const toObjName = relship.toObject?.type?.name;
-        const fromObjName = relship.fromObject?.type?.name;
+        const toObjtypeName = relship.toObject?.type?.name;
+        const fromObjtypeName = relship.fromObject?.type?.name;
         const rtypeName = relship.type?.name;
-        let reltype = metamodel.findRelationshipTypeByNames(rtypeName, toObjName, fromObjName);
+        let reltype = metamodel.findRelationshipTypeByNames(rtypeName, toObjtypeName, fromObjtypeName);
         if (reltype) {
             relship.type = reltype;
             relship.typeRef = reltype.id;

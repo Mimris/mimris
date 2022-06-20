@@ -7,6 +7,7 @@ const debug = false;
 import * as akm from '../akmm/metamodeller';
 import * as jsn from './ui_json';
 import * as uic from './ui_common';
+import * as uid from './ui_diagram';
 import * as ui_mtd from './ui_methods';
 const utils = require('./utilities');
 import * as constants from './constants';
@@ -130,40 +131,56 @@ export function handleSelectDropdownChange(selected, context) {
   if (debug) console.log('97 selected, context:', selected, context);
   switch(modalContext.case) {
     case "Change Object type": {
+      if (debug) console.log('133 selection', myDiagram.selection);
       const typename = (selectedOption) && selectedOption;
-      const node = myMetis.currentNode;
       const objtype = myMetis.findObjectTypeByName(typename);
-      if (debug) console.log('104 objtype', objtype);
-      const objview = (objtype) && uic.setObjectType(node, objtype, context);
-      if (debug) console.log('106 objview', objview, node, myMetis);
-      const n = myMetis.myDiagram.findNodeForKey(node.key);
-      const data = n.data;
-      myMetis.myDiagram.model.setDataProperty(data, "typename", typename);
-      myMetis.myDiagram.requestUpdate();
+      if (debug) console.log('136 objtype', objtype);
+      let node;
+      myDiagram.selection.each(function(sel) {
+        const inst = sel.data;
+        if (inst.category === constants.gojs.C_OBJECT) {
+          node = myGoModel.findNode(inst.key);
+          if (debug) console.log('142 node', node);
+          const objview = (objtype) && uic.setObjectType(node, objtype, context);
+          if (debug) console.log('144 objview', objview, node, myMetis);
+          const n = myMetis.myDiagram.findNodeForKey(node.key);
+          const data = n.data;
+          myMetis.myDiagram.model.setDataProperty(data, "typename", typename);
+          myMetis.myDiagram.requestUpdate();
+        }
+      });
       break;
     }
     case "Change Icon": {
       const icon = (selectedOption) && selectedOption;
-      const inode = myMetis.currentNode;
-      const icn = myMetis.myDiagram.findNodeForKey(inode.key);
-      const idata = icn.data;
-      myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
-      myMetis.myDiagram.requestUpdate();
-      let objview = inode.objectview;
-      if (objview) {
-        objview = myMetis.findObjectView(objview.id);
-        objview.icon = icon;
-        const jsnObjview = new jsn.jsnObjectView(objview);
-        const modifiedObjviews = [];
-        modifiedObjviews.push(jsnObjview);
-        modifiedObjviews.map(mn => {
-          let data = mn;
-          if (debug) console.log('163 data', data);
-          data = JSON.parse(JSON.stringify(data));
-          if (debug) console.log('165 data, jsnObjview', data, jsnObjview);
-          myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-        });
-      }
+      let node;
+      myDiagram.selection.each(function(sel) {
+        const inst = sel.data;
+        if (inst.category === constants.gojs.C_OBJECT) {
+          node = myGoModel.findNode(inst.key);
+          if (debug) console.log('162 node', node);
+          let objview = node.objectview;
+          if (debug) console.log('164 objview', objview, node, myMetis);
+          const icn = myMetis.myDiagram.findNodeForKey(node.key);
+          const idata = icn.data;
+          myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
+          myMetis.myDiagram.requestUpdate();
+          if (objview) {
+            objview = myMetis.findObjectView(objview.id);
+            objview.icon = icon;
+            const jsnObjview = new jsn.jsnObjectView(objview);
+            const modifiedObjviews = [];
+            modifiedObjviews.push(jsnObjview);
+            modifiedObjviews.map(mn => {
+              let data = mn;
+              if (debug) console.log('177 data', data);
+              data = JSON.parse(JSON.stringify(data));
+              if (debug) console.log('179 data, jsnObjview', data, jsnObjview);
+              myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+            });
+          }
+        }
+      });
       break;
     } 
     case "Set Layout Scheme": {
@@ -801,10 +818,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         modalContext.context.postOperation(context);        
       } 
       else if (modalContext.case === 'Replace Metamodel') {
-        const selectedValue = modalContext.selected?.value;
-        const metamodel = myMetis.findMetamodelByName(selectedValue); 
-        if (debug) console.log('872 metamodel, modalContext: ', metamodel, modalContext);
+        if (debug) console.log('821 modalContext', modalContext);
         const context = modalContext.context;
+        const selectedValue = modalContext.selected?.value;
+        let metamodel = myMetis.findMetamodelByName(selectedValue); ;
+        const metamodels = context.args.metamodels;
+        for (let i=0; i<metamodels?.length; i++) {
+          const mm = metamodels[i];
+          if (mm.name === selectedValue)
+              metamodel = mm;
+        }
+        if (debug) console.log('872 metamodel, modalContext: ', metamodel, modalContext);
         context.args.metamodel = metamodel;
         modalContext.context.postOperation(context);        
         break;

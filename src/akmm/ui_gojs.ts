@@ -429,8 +429,8 @@ export class goObjectNode extends goNode {
 
             }
             this.typeview = objview.getTypeView();
-            this.template = this.typeview.template;
-            this.geometry = this.typeview.geometry;
+            this.template = this.typeview?.template;
+            this.geometry = this.typeview?.geometry;
         }
     }
     // Methods

@@ -14,7 +14,7 @@ const constants = require('../akmm/constants');
 // Parameters to configure loads
 // const includeNoObject = false;
 // const includeInstancesOnly = true 
-const includeNoType = false;
+let includeNoType = false;
 
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
@@ -351,14 +351,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) console.log('352 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
-    // const admModel = metis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    // const admModelview = admModel?.modelviews[0];
-    // model.addModelView(admModelview.id)
-    
-    // if (utils.getShowAdminModel()) {
-    //   model = metis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    //   modelview = model?.modelviews[0];
-    // }
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
@@ -366,48 +358,56 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
+        let objtype;
         const obj = objview.object;
-        const objtype = obj?.type;
-        if (obj && obj?.markedAsDeleted == undefined)
-          obj.markedAsDeleted = false;
-        if (obj?.markedAsDeleted)
-          objview.markedAsDeleted = obj?.markedAsDeleted;
-        objview.name = obj?.name;
-        if (obj?.type?.name === 'Label')
-          objview.name = obj.text;
-        // objview.visible = obj?.visible
-        if (includeDeleted) {
-          if (objview.markedAsDeleted) {
-            if (objview.object?.markedAsDeleted) {
-              objview.strokecolor = "orange";
-              includeObjview = true;
-            } else {
-              objview.strokecolor = "pink";
+        objtype = obj?.type;
+        if (debug) console.log('363 obj, objview', obj, objview);
+        if (!objtype) {
+          includeObjview = true;
+          includeNoType = true;
+          if (debug) console.log('366 includeObjview, includeNoType', includeObjview, includeNoType);
+        } else {
+          if (obj && obj?.markedAsDeleted == undefined)
+            obj.markedAsDeleted = false;
+          if (obj?.markedAsDeleted)
+            objview.markedAsDeleted = obj?.markedAsDeleted;
+          objview.name = obj?.name;
+          if (obj?.type?.name === 'Label')
+            objview.name = obj.text;
+          // objview.visible = obj?.visible
+          if (includeDeleted) {
+            if (objview.markedAsDeleted) {
+              if (objview.object?.markedAsDeleted) {
+                objview.strokecolor = "orange";
+                includeObjview = true;
+              } else {
+                objview.strokecolor = "pink";
+                includeObjview = true;
+              }
+            }
+          }
+          if (includeNoObject) {
+            if (!objview.object) {
+              objview.strokecolor = "blue";
+              if (!objview.fillcolor) objview.fillcolor = "lightgrey";
               includeObjview = true;
             }
           }
-        }
-        if (includeNoObject) {
-          if (!objview.object) {
-            objview.strokecolor = "blue";
-            if (!objview.fillcolor) objview.fillcolor = "lightgrey";
+          if (includeNoType) {
+            if (!objview.object?.type) {
+              if (debug) console.log('401 objview', objview);
+              objview.strokecolor = "green"; 
+              if (objview.fillcolor) objview.fillcolor = "lightgrey";
+              includeObjview = true;
+            }
+          }
+          if (!objview.markedAsDeleted && objview.object) {
             includeObjview = true;
           }
-        }
-        if (includeNoType) {
-          if (!objview.object?.type) {
-            if (debug) console.log('401 objview', objview);
-            objview.strokecolor = "green"; 
-            if (objview.fillcolor) objview.fillcolor = "lightgrey";
-            includeObjview = true;
-          }
-        }
-        if (!objview.markedAsDeleted && objview.object) {
-          includeObjview = true;
         }
         // if (!objview.visible) includeObjview = false;
         if (includeObjview) {
-          if (debug) console.log('412 includeNoObject, objview:', includeNoObject, objview);
+          if (debug) console.log('412 objview:', objview);
           if (objtype?.viewkind === 'Container') {
             objview.viewkind = 'Container';
           }
@@ -418,6 +418,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           if (!includeNoType && !objview.object?.type)
             continue;
           const node = new gjs.goObjectNode(utils.createGuid(), objview);
+          if (debug) console.log('419 node', node);
           if (node.template === "")
             node.template = 'textAndIcon';
           myGoModel.addNode(node);
@@ -429,16 +430,19 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
       const nodes = myGoModel.nodes;
+      if (debug) console.log('433 buildGoModel - nodes', nodes);
       for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i] as gjs.goObjectNode;
           const objview = node.objectview;
           const obj = objview.object;
           const objtype = obj.type;
-          if (objtype.name === 'Label') {
+          if (objtype?.name === 'Label') {
             node.text = objview.name;
           }
           node.name = objview.name;
           node.loadNodeContent(myGoModel);
+          node.name = objview.name;
+          myGoModel.addNode(node);
       }
       if (debug) console.log('445 nodes', nodes);
     }
@@ -524,7 +528,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('523 modifiedRelviews', modifiedRelviews);
     }
     modelview.relshipviews = relshipviews;
-    console.log('500 buildGoModel - myGoModel', myGoModel);
+    if (debug) console.log('500 buildGoModel - myGoModel', myGoModel);
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
     if (debug) console.log('522 myGoModel.links', myGoModel.links);

@@ -171,7 +171,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           properties = chosenType.getProperties(false);
           if (debug) console.log('172 chosenType, properties', chosenType, properties);
         } 
-        else if (type.name === 'Method') {
+        else if (type?.name === 'Method') {
           inst = myMetis.findObject(inst.id);
           properties = inst.setAndGetAllProperties(myMetis);
         } else {
@@ -218,7 +218,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editObject":
         item = inst;
-        if (type.name === 'Label')
+        if (type?.name === 'Label')
           isLabel = true;
         break;
       case "editRelationshipType":
@@ -231,14 +231,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       case "editRelshipview":
       case "editTypeview":
         if (selObj.category === constants.gojs.C_RELATIONSHIP) {
-          item = reltypeview.data;
+          item = reltypeview?.data;
         } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
-          item = reltypeview.data;
+          item = reltypeview?.data;
         } else if (selObj.category === constants.gojs.C_OBJECT) {
-          item = objtypeview.data;
+          item = objtypeview?.data;
         } else if (selObj.category === constants.gojs.C_OBJECTTYPE) {
-          item = objtypeview.data;
+          item = objtypeview?.data;
         }
+        if (!item) item = inst;
         hideNameAndDescr = true;
         if (debug) console.log('219 inst, item', inst, item);
         if (what === "editObjectview")

@@ -1222,7 +1222,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         data.category = 'Relationship';
         context.handleOpenModal = this.handleOpenModal;
         uic.createRelationship(data, context);
-        if (debug) console.log('1225 data', data);
+        if (!debug) console.log('1225 data', data);
       }
       myDiagram.requestUpdate();
     }

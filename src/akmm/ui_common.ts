@@ -2450,7 +2450,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             if (debug) console.log('2172 Type of object not found:', obj);
             objtype = metamodel.findObjectTypeByName(typeName);
             if (!objtype) {
-                objtype = metamodel.findObjectTypeByName(defObjTypename);
+                objtype = myMetis.findObjectTypeByName(defObjTypename);
             }        
             obj.type = objtype;
             obj.typeRef = objtype.id;
@@ -2466,7 +2466,6 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
             for (let i=0; i<objviews?.length; i++) {
                 const oview = objviews[i];
                 oview.name = obj.name;
-                if (objChanged) oview['fillcolor'] = 'red';
                 if (obj.markedAsDeleted && !oview.markedAsDeleted) {
                     oview.markedAsDeleted = true;
                     msg = "\tVerifying object " + obj.name + " that is deleted, but objectview is not.\n";
@@ -2480,6 +2479,8 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
                     report += printf(format, msg);
                     const jsnObjview = new jsn.jsnObjectView(oview);
                     modifiedObjectviews.push(jsnObjview);
+                } else if (objChanged) {
+                    oview['fillcolor'] = 'red';
                 }
                 const myNode = myGoModel.findNodeByViewId(oview.id);
                 if (myNode) {
@@ -2780,7 +2781,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg += "End Verification";
     if (debug) console.log('2463 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (debug) console.log(report);
+    if (!debug) console.log(report);
     myDiagram.requestUpdate();    
 } 
 

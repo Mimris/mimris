@@ -3415,6 +3415,25 @@ export class cxMetaModel extends cxMetaObject {
             }
         }
     }
+    addObjectTypeByName(objType: cxObjectType) {
+        // Check if input is of correct category and not already in list (TBD)
+        if (objType.category === constants.gojs.C_OBJECTTYPE) {
+            if (this.objecttypes == null)
+                this.objecttypes = new Array();
+            if (!this.findObjectTypeByName(objType.name))
+                this.objecttypes.push(objType);
+            else {
+                const types = this.objecttypes;
+                for (let i = 0; i < types.length; i++) {
+                    const type = types[i];
+                    if (type.name === objType.name) {
+                        types[i] = objType;
+                        break;
+                    }
+                }
+            }
+        }
+    }
     addObjectType0(objType: cxObjectType) {
         // Check if input is of correct category and not already in list (TBD)
         if (objType.category === constants.gojs.C_OBJECTTYPE) {
@@ -6476,7 +6495,7 @@ export class cxInstance extends cxMetaObject {
         const typelist = [];
         const type = this.getType();
         const types = type?.getSupertypes();
-        for (let i=0; i<types.length; i++) {
+        for (let i=0; i<types?.length; i++) {
             const tname = types[i]?.name;
             if (tname !== 'Element') 
                 typelist.push(types[i]);
@@ -6488,7 +6507,7 @@ export class cxInstance extends cxMetaObject {
         const namelist = [];
         const type = this.getType();
         const types = type?.getSupertypes();
-        for (let i=0; i<types.length; i++) {
+        for (let i=0; i<types?.length; i++) {
             const tname = types[i]?.name;
             if (tname !== 'Element') 
                 namelist.push(tname);
@@ -6834,8 +6853,8 @@ export class cxObject extends cxInstance {
         }
         // Then handle the type itself
         const type = this.type;
-        const supertypes = type.getSupertypes();
-        for (let i=0; i<supertypes.length; i++) {
+        const supertypes = type?.getSupertypes();
+        for (let i=0; i<supertypes?.length; i++) {
             const stype = supertypes[i];
             typelist.push(stype);
         }
@@ -7009,8 +7028,10 @@ export class cxRelationship extends cxInstance {
         if (!retval) retval = "";
         if (retval.length == 0) {
             const reltype = this.type as cxRelationshipType;
-            retval = reltype.getCardinalityFrom();
-            this.cardinalityFrom = retval;
+            if (reltype) {
+                retval = reltype.getCardinalityFrom();
+                this.cardinalityFrom = retval;
+            }
         }
         return retval;
     }
@@ -7019,8 +7040,10 @@ export class cxRelationship extends cxInstance {
         if (!retval) retval = "";
         if (retval.length == 0) {
             const reltype = this.type as cxRelationshipType;
-            retval = reltype.getCardinalityTo();
-            this.cardinalityTo = retval;
+            if (reltype) {
+                retval = reltype.getCardinalityTo();
+                this.cardinalityTo = retval;
+            }
         }
         return retval;
     }

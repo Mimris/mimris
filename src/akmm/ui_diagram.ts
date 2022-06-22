@@ -52,6 +52,7 @@ export function replaceCurrentMetamodel(myMetis: akm.cxMetis, myDiagram: any) {
     // Select metamodel among all metamodels (except the current)
     const args = {
         "metamodel":          "", 
+        "metamodels":         "",
     }
     const context = {
         "myMetis":            myMetis,
@@ -436,6 +437,26 @@ export function editTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myDiagram.handleOpenModal(node, modalContext);
 }    
 
+export function resetToTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const n = myDiagram.findNodeForKey(node.key);
+    const oview = myMetis.findObjectView(node.objectview.id);
+    const otview = oview.typeview;
+    const otdata = otview.data;
+    for (let prop in otdata) {
+            oview[prop] = otdata[prop];
+            myDiagram.model.setDataProperty(n.data, prop, oview[prop]);
+    }
+    // Dispatch
+    const jsnObjview = new jsn.jsnObjectView(oview);
+    const modifiedObjectViews = new Array();
+    modifiedObjectViews.push(jsnObjview);
+    modifiedObjectViews.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+    })
+}
+
 export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myMetis.myDiagram = myDiagram;
     let modelview = myMetis.currentModelview;
@@ -569,52 +590,63 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
     if (debug) console.log('362 myMetis, data', myMetis, data);
 } 
 
+export function connectToSelected(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any) {
+
+}
+
 function askForMetamodel(context: any) {
     if (debug) console.log('223 context', context);
     const myMetis = context.myMetis;
     let myMetamodel = context.myCurrentMetamodel;
     const myDiagram = context.myDiagram;
-    const modalContext = {
-        what:           "selectDropdown",
-        title:          context.title,
-        case:           context.case,
-        myDiagram:      myDiagram,
-        context:        context,
-      } 
-      const metaModels = new Array();
-      const allMetaModels = myMetis.metamodels;
-      for (let i=0; i<allMetaModels.length; i++) {
+    const metaModels = [];
+    const allMetaModels = myMetis.metamodels;
+    for (let i=0; i<allMetaModels.length; i++) {
         const metaModel = allMetaModels[i];
         if (metaModel.markedAsDeleted)
             continue;
         if (metaModel.name === constants.admin.AKM_ADMIN_MM)
             continue;
-        if (context.case === "Delete Metamodel") {
-            if (metaModel.id === myMetamodel.id)
-                continue;
+        if (metaModel.id === myMetamodel.id)
+            continue;
+        switch (context.case) {
+            case "Delete Metamodel":
+            case "Clear Metamodel":
+            case "Replace Metamodel":
+            case "Generate Target Metamodel":
+                if (metaModel.id === myMetamodel.id)
+                    continue;
         }
         metaModels.push(metaModel);
       }
+      context.args.metamodels = metaModels;
+      const modalContext = {
+        what:           "selectDropdown",
+        title:          context.title,
+        case:           context.case,
+        myDiagram:      myDiagram,
+        context:        context,
+      }
       const mmNameIds = metaModels.map(mm => mm && mm.nameId);
-      if (debug) console.log('238', mmNameIds, modalContext, context);
       myDiagram.handleOpenModal(mmNameIds, modalContext);
 }
 
 function replaceCurrentMetamodel2(context: any) {
-    const metamodel = context.args.metamodel;
+    const oldMetamodel = context.myCurrentMetamodel;
+    const newMetamodel = context.args.metamodel;
     const myMetis = context.myMetis;
     const myModel = context.myCurrentModel;
     const myDiagram = context.myDiagram;
     const otypeDefault = myMetis.findObjectTypeByName('Generic');
     const rtypeDefault = myMetis.findRelationshipTypeByName('isRelatedTo');
-    if (debug) console.log('287 metamodel, myMetis', metamodel, myMetis);
-    myModel.metamodel = metamodel;
+    if (debug) console.log('634 context', context);
+    myModel.metamodel = newMetamodel;
     const objects = myModel.objects;
     for (let i=0; i<objects?.length; i++) {
         const object = objects[i];
         if (!object) continue;
         const otypeName = object.type?.name;
-        const objtype = metamodel.findObjectTypeByName(otypeName);
+        const objtype = newMetamodel.findObjectTypeByName(otypeName);
         if (objtype) {
             object.type = objtype;
             object.typeRef = objtype.id;
@@ -642,7 +674,7 @@ function replaceCurrentMetamodel2(context: any) {
         const toObjtypeName = relship.toObject?.type?.name;
         const fromObjtypeName = relship.fromObject?.type?.name;
         const rtypeName = relship.type?.name;
-        let reltype = metamodel.findRelationshipTypeByNames(rtypeName, toObjtypeName, fromObjtypeName);
+        let reltype = newMetamodel.findRelationshipTypeByNames(rtypeName, toObjtypeName, fromObjtypeName);
         if (reltype) {
             relship.type = reltype;
             relship.typeRef = reltype.id;
@@ -658,15 +690,26 @@ function replaceCurrentMetamodel2(context: any) {
             rview.typeview = typeview;
         }    
     }
+    if (debug) console.log('685 newMetamodel', newMetamodel);
+    const modifiedMetamodels = []
+    const jsnMetamodel = new jsn.jsnMetaModel(newMetamodel, true);
+    if (debug) console.log('688 jsnMetaModel', jsnMetamodel);
+    modifiedMetamodels.push(jsnMetamodel);
+    modifiedMetamodels.map(mn => {
+        let data = mn;
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'UPDATE_METAMODEL_PROPERTIES', data });
+    });
     const modifiedModels = []
     const jsnModel = new jsn.jsnModel(myModel, true);
-    if (debug) console.log('376 jsnModel', jsnModel);
+    if (debug) console.log('697 jsnModel', jsnModel);
     modifiedModels.push(jsnModel);
     modifiedModels.map(mn => {
         let data = mn;
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
     });
+    if (debug) console.log('703 myMetis', myMetis);
 }
 
 function deleteMetamodel2(context: any) {
@@ -753,40 +796,71 @@ function clearMetamodel2(context: any) {
     let doClear = false;
     if (models.length > 0) {
         let msg = "There are models based on the metamodel '" + metamodel.name + "'.\n";
-        // let keepModels = false;
-        // msg += "Do you want to clear the models as well?"
-        // doClear = confirm(msg);
-        // if (!doClear) {
-        //     msg = "The models will be kept, but their metamodel will be cleared.\n"
-        //     keepModels = true;
-        // } else {
-        //     msg = "The models will be cleared!\n";
-        // }
-        msg += "The models will be cleared!\n";
-        msg += "Do you still want to continue?";
-        doClear = confirm(msg);
-    } else {
+        doClear = confirm("Do you really want to clear the metamodel '" + metamodel.name + "'?");
+        if (doClear) {
+            let keepModels = false;
+            msg += "Do you want to clear the models as well?"
+            doClear = confirm(msg);
+            if (!doClear) {
+                msg = "The models will be kept, but their metamodel will be cleared.\n"
+                keepModels = true;
+            } else {
+                msg = "The models will be cleared!\n";
+            }
+            msg += "Do you still want to continue?";
+            doClear = confirm(msg);
+        }
+    } 
+    else {
         doClear = confirm("Do you really want to clear the metamodel '" + metamodel.name + "'?");
     }
     if (!doClear) {
             return;
     } else {
-        if (!keepModels){
+        let keepModels = true;
+        if (keepModels) {
+            // const model = models[i];
+            // for (let j=0; j<modelviews.length; j++) {
+            //     const modelview = model.modelviews[j];
+            //     const objviews = modelview.objectviews;
+            //     for (k=0; k<objviews.length; k++) {
+            //         const objview = objviews[k];
+            //         const typeview = objview.typeview;
+            //         if (typeview) {
+            //             let viewdata: any = typeview.data;
+            //             let prop: string;
+            //             for (prop in viewdata) {
+            //                 if (prop === 'abstract') continue;
+            //                 if (prop === 'class') continue;
+            //                 if (prop === 'group') continue;
+            //                 if (prop === 'isGroup') continue;
+            //                 if (prop === 'viewkind') continue;
+            //                 if (viewdata[prop] != null) {
+            //                     objview[prop] = viewdata[prop];
+            //                 }
+            //             }
+            //         }
+            //     }
+            // }
+        } else {
             for (let i=0; i<models.length; i++) {
                 const model = models[i];
-                // deleteModel2(model, myMetis, myDiagram);
-                const modelview = model.modelviews[0];
-                modelview.clearContent();
-                model.clearContent();
-                model.addModelView(modelview);
-                const jsnModel = new jsn.jsnModel(model, true);
-                if (debug) console.log('644 jsnModel', jsnModel);
-                modifiedModels.push(jsnModel);
-                modifiedModels.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
-                });
+                const modelviews = model.modelviews;
+                for (let j=0; j<modelviews.length; j++) {
+                    const modelview = model.modelviews[j];
+                    modelview.clearContent();
+                    model.clearContent();
+                    model.addModelView(modelview);
+                    const jsnModel = new jsn.jsnModel(model, true);
+                    if (debug) console.log('644 jsnModel', jsnModel);
+                    modifiedModels.push(jsnModel);
+                    modifiedModels.map(mn => {
+                    let data = mn;
+                    data = JSON.parse(JSON.stringify(data));
+                    myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data });
+                    });
+                }   
+                uic.verifyAndRepairModel(modelview, model, metamodel, myDiagram, myMetis);
             }   
         }     
         metamodel.clearContent();

@@ -757,6 +757,7 @@ export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagra
 
 export function askForTargetMetamodel(context: any) {
     const myMetis = context.myMetis;
+    const myMetamodel = context.myMetamodel;
     const myModelview = context.myMetis.currentModelview;
     const myDiagram = context.myDiagram;
     const modalContext = {
@@ -772,6 +773,8 @@ export function askForTargetMetamodel(context: any) {
       for (let i=0; i<metamodels.length; i++) {
         const mm = metamodels[i];
         if (mm.name === constants.admin.AKM_ADMIN_MM)
+            continue;
+        if (mm.id === myMetamodel.id)
             continue;
         mmlist.push(mm.nameId);
     }
@@ -908,7 +911,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     if (!metamodel)
         return null;
-        
+      
     model.targetMetamodelRef = metamodel.id;
     metamodel.generatedFromModelRef = model.id;
     const mmname = metamodel.name;
@@ -1026,7 +1029,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         const objtype = myMetamodel.findObjectTypeByName(typename);
         if (debug) console.log('939 typename, objtype', typename, objtype);
         if (objtype) {
-            metamodel.addObjectType(objtype);
+            metamodel.addObjectTypeByName(objtype);
             metamodel.addObjectTypeView(objtype.typeview as akm.cxObjectTypeView);
             let geo = new akm.cxObjtypeGeo(utils.createGuid(), metamodel, objtype, "", "");
             metamodel.addObjtypeGeo(geo);
@@ -1035,8 +1038,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             modifiedGeos.push(jsnObjTypegeo);
         }
     }
-    if (debug) console.log('1039 system object types completed', objtypes, myMetis);
-
+    if (debug) console.log('1039 objtypes, metamodel', objtypes, metamodel);
     // Add system relationship types
     let rsystemtypes = ['relationshipType', 'isRelatedTo', 'Is', 'has', 'contains', 'hasLabel', 
                         'isOf', 'hasAllowed', 'isDefault'];
@@ -1117,8 +1119,13 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             (obj.isOfSystemType(metaObject))
                         ) {
                             if (debug) console.log('953 obj', obj.name, obj);
-                            if (debug) console.log('956 obj, objview', obj, objview);                       
-                            objtype = generateObjectType(obj, objview, context);
+                            if (debug) console.log('956 obj, objview', obj, objview);   
+                            
+                            let otype = metamodel.findObjectTypeByName(obj.name);
+                            if (otype) 
+                                objtype = otype;
+                            else
+                                objtype = generateObjectType(obj, objview, context);
                             if (debug) console.log('958 objtype', objtype);   
                             if (objtype) metamodel.addObjectType(objtype);
                             if (objtype) metamodel.addObjectType0(objtype);

@@ -192,11 +192,25 @@ export class jsnMetaModel {
         }
         const reltypes = metamodel.getRelshipTypes();
         if (reltypes) {
+            if (debug) console.log('195 reltypes', reltypes);
             const cnt = reltypes.length;
             for (let i = 0; i < cnt; i++) {
                 const reltype = reltypes[i];
+                if (!reltype.fromObjtype) {
+                    if (reltype.fromobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.fromobjtypeRef);
+                        reltype.fromObjtype = objtype;
+                    }
+                }
+                if (!reltype.toObjtype) {
+                    if (reltype.toobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.toobjtypeRef);
+                        reltype.toObjtype = objtype;
+                    }
+                }
                 this.addRelationshipType(reltype, includeViews);
             }
+            if (debug) console.log('200 jsnMetaModel', this);
         }
         const datatypes = metamodel.getDatatypes();
         if (datatypes) {
@@ -1625,7 +1639,7 @@ export class jsnImportMetis {
         }
         jsnMetis.addRelationshipType(reltype);
         if (reltype) metamodel.addRelationshipType(reltype);
-        if (debug) console.log("Importing relshiptype: " + item.id + ", " + item.name);
+        if (debug) console.log("1628 Importing reltype: " + item.id + ", " + item.name);
         const properties = item.properties;
         if (utils.objExists(properties) && (properties.length > 0)) {
             properties.forEach(function (this: jsnImportMetis, prop: akm.cxProperty) {

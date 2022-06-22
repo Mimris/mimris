@@ -299,6 +299,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           {
             initialContentAlignment: go.Spot.Center,       // center the content
             initialAutoScale: go.Diagram.Uniform,
+            "contextMenuTool.standardMouseSelect": function() {
+              this.diagram.lastInput.shift = true;
+              go.ContextMenuTool.prototype.standardMouseSelect.call(this);
+            },
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
             "initialAutoScale": go.Diagram.UniformToFill,
@@ -526,7 +530,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (debug) console.log('566 node', node);
+              if (!debug) console.log('529 node', node);
               uid.editObject(node, myMetis, myDiagram); 
             },
             function (o: any) { 
@@ -539,12 +543,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Objectview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
+              if (!debug) console.log('542 node', node);
               uid.editObjectview(node, myMetis, myDiagram); 
             }, 
             function (o: any) { 
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 return true;
+              }
+              return false; 
+            }),
+          makeButton("Connect to Selected",
+            function (e: any, obj: any) { 
+              const node = obj.part.data;
+              if (!debug) console.log('559 node', node);
+              if (!debug) console.log('560 selection', myDiagram.selection);
+              uid.connectToSelected(node, selection, myMetis, myDiagram);
+            },
+            function (o: any) { 
+              const node = o.part.data;
+              if (node.category === constants.gojs.C_OBJECT) {
+                return false;
               }
               return false; 
             }),
@@ -913,7 +932,24 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }
             return false;
             }),
-          makeButton("Change Icon",
+          makeButton("Reset to Typeview",
+            function (e: any, obj: any) { 
+
+              const myGoModel = myMetis.gojsModel;
+              myDiagram.selection.each(function(sel) {
+                const inst = sel.data;
+                if (inst.category === constants.gojs.C_OBJECT) {
+                  let node = myGoModel.findNode(inst.key);
+                  uid.resetToTypeview(node, myMetis, myDiagram); 
+                }
+              })
+            }, 
+            function (o: any) {
+                const node = o.part.data;
+                if (node.category === constants.gojs.C_OBJECT)
+                  return true;
+            }),
+            makeButton("Change Icon",
             function (e: any, obj: any) {
               const node = e.diagram.selection.first().data;
               if (debug) console.log('1503 node', node);

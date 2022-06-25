@@ -125,7 +125,7 @@ const Palette = (props: any) => {
   const hasOsdu = ndarr?.find(i => i?.typename === 'JsonObject')
   
   const [selectedIrtvMM, setSelectedIrtvMM] = useState(false)
-  const [otfilter, setOtfilter] = useState('All')
+  const [otfilter, setOtfilter] = useState('!INIT')
   const [ofilter, setOfilter] = useState('All')
   const [refreshPalette, setRefreshPalette] = useState(true)
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }

@@ -7425,15 +7425,7 @@
       "id": null,
       "name": ""
     },
-    "focusRole": {
-      "id": "1801e4fe-d436-4a6c-05e3-e7480d8f4b1d",
-      "name": "Role B"
-    },
-    "focusCollection": null,
-    "focusTask": {
-      "id": "8690c5b7-6a44-4353-a046-aa14c1437c04",
-      "name": "Task 2"
-    },
+ 
     "focusSource": {
       "id": null,
       "name": ""

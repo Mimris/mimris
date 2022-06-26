@@ -74,7 +74,7 @@ const Modeller = (props: any) => {
       ? <>
           {/* <div className="modeller-selection" > */}
             {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
-            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+            <Selector className="w-25 float-right" type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
             {/* </div>  */}
             <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
                 title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'. The text 'Project_<currentdate>' will be added to the filename.'" 

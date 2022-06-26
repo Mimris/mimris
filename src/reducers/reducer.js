@@ -131,6 +131,7 @@ let focusRole
 let focusCollection
 
 
+
 function reducer(state = InitialStateStr, action) {
   
   switch (action.type) {
@@ -141,7 +142,6 @@ function reducer(state = InitialStateStr, action) {
         ...state,
         ...{ error: action.error }
       }
-
     case LOAD_DATA_SUCCESS:
       // if (debug) console.log('160 LOAD_DATA_SUCCESS', action);
       return {
@@ -410,7 +410,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_TASK:
-      // if (debug) console.log('367 task', action);   
+      if (!debug) console.log('367 task', action);   
       // if (debug) console.log('104', action.data);
 
       // focusTask = action.data.focusTask

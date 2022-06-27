@@ -412,6 +412,7 @@ export function editObjectType(node: any, myMetis: akm.cxMetis, myDiagram: any) 
 }
 
 export function editObjectview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
+    if (debug) console.log('415 selection', myDiagram.selection);
     const icon = uit.findImage(node.icon);
     const modalContext = {
       what:       "editObjectview",
@@ -590,8 +591,71 @@ export function updateProjectFromAdminmodel(myMetis: akm.cxMetis, myDiagram: any
     if (debug) console.log('362 myMetis, data', myMetis, data);
 } 
 
-export function connectToSelected(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any) {
+export function getConnectToSelectedTypes(node: any, selection: any, myMetis: akm.cxMetis, myDiagram: any): string[] {
+    let linktypeNames = [];
+    let n = myDiagram.findNodeForKey(node.key);
+    let links = n.findLinksOutOf();
+    if (debug) console.log('596 links', links);
+    for (let it = links?.iterator; it?.next();) {
+        let l = it.value;
+        const ltypename = l.data.name;
+        linktypeNames.push(ltypename);
+    }
+    if (debug) console.log('603 linktypeNames', linktypeNames);
+    let uniqueSet = utils.removeArrayDuplicates(linktypeNames);
+    linktypeNames = uniqueSet;
+    let reltypeNames = [];
+    const myMetamodel = myMetis.currentMetamodel;
+    if (debug) console.log('608 myMetamodel', myMetamodel);
+    let objtypenames = [];
+    let objtypes = [];
+    let fromType = node.objecttype;
+    fromType = myMetis.findObjectType(fromType.id);
+    for (let it = selection.iterator; it?.next();) {
+        let n = it.value;
+        if (n.data.key === node.key) 
+            continue;
+        // Check if a link of this type already exists
+        // If so, continue
+        objtypes.push(n.data.objecttype);
+        objtypenames.push(n.data.objecttype.name);
+    }
+    uniqueSet = utils.removeArrayDuplicates(objtypenames);
+    objtypenames = uniqueSet;
+    uniqueSet = utils.removeArrayDuplicates(objtypes);
+    objtypes = uniqueSet;
+    if (debug) console.log('626 objtypes', objtypes);
+    let reltypes = [];
+    // Walk through selected object's types (objtypes)
+    for (let i=0; i<objtypes.length; i++) {
+        let toType = objtypes[i];
+        toType = myMetis.findObjectType(toType.id);
+        if (debug) console.log('632 fromType, toType', fromType, toType);
+        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
+        if (i == 0) {
+            // First time
+            reltypes = rtypes;
+            if (debug) console.log('637 reltypes', reltypes);
+        } else {
+            // The other times
+            const types = utils.getIntersection(reltypes, rtypes);
+            if (debug) console.log('641 reltypes, rtypes, types', reltypes, rtypes, types);
+            reltypes = types;
+        }
+        for (let i=0; i<reltypes.length; i++) {
+            const rtname = reltypes[i].name;
+            reltypeNames.push(rtname);
+        }
+    }
+    uniqueSet = utils.removeArrayDuplicates(reltypeNames);
+    reltypeNames = uniqueSet;
 
+    let difference = reltypeNames.filter(x => !linktypeNames.includes(x));
+    reltypeNames = difference;
+    if (debug) console.log('653 reltypeNames, linktypeNames, difference', reltypeNames, linktypeNames, difference);
+    reltypeNames.sort();
+    if (debug) console.log('655 reltypeNames', reltypeNames);
+    return reltypeNames;
 }
 
 function askForMetamodel(context: any) {

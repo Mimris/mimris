@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // Application code
 const debug = false;
 

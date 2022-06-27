@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 // /**
 // * Generate GoJS model and metamodel from the metisobject in the store,

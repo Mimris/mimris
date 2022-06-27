@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 import * as utils from './utilities';
@@ -10,7 +10,7 @@ import { FaObjectUngroup } from 'react-icons/fa';
 import { createRelationshipType } from './ui_common';
 const constants = require('./constants');
 
-export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
+export function askForMetamodel(context: any, create: boolean) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const metamodels = myMetis.metamodels;

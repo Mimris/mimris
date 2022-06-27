@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts -nocheck
 const debug = false;
 
 // this Kernel code
@@ -74,6 +74,11 @@ export class cxMetis {
     deleteViewsOnly:    boolean = false;
     pasted:             boolean = false;
     modelType:          string = "";
+    adminModel:         cxModel;
+    showAdminModel:     boolean;
+    dispatch:           any;
+    fromNodes:          any;
+    currentSelection:   any;
     // Constructor
     constructor() {
         this.id = utils.createGuid();
@@ -5636,6 +5641,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.memberscale;
         return "1"; // Default  1
     }
+    setArrowscale(arrowscale: string) {
+        this.arrowscale = arrowscale;
+        this.data.arrowscale = arrowscale;
+    }
+    getArrowscale(): string {
+        if (this.data.arrowscale)
+            return this.data.arrowscale;
+        else if (this.arrowscale)
+            return this.arrowscale;
+        return "1.3"; // Default  1
+    }
     setIcon(icon: string) { 
         this.data.icon = icon;
         this.icon = icon;
@@ -7440,6 +7456,7 @@ export class cxObjectView extends cxMetaObject {
     size: string;
     scale1: string;
     memberscale: string;
+    arrowscale: string;
     viewkind: string;
     template: string;
     geometry: string;
@@ -7468,6 +7485,7 @@ export class cxObjectView extends cxMetaObject {
         this.size = "";
         this.scale1 = "1";
         this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
+        this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
         this.template = "";
         this.geometry = "";
         this.fillcolor = "";
@@ -7600,15 +7618,25 @@ export class cxObjectView extends cxMetaObject {
             return "1";
         return this.scale1;
     }
-    setMemberScale(memberscale: string) {
+    setMemberscale(memberscale: string) {
         if (memberscale == undefined)
             this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
         this.memberscale = memberscale;
     }
-    getMemberScale(): string {
+    getMemberscale(): string {
         if (this.memberscale == undefined)
             return this.typeview?.memberscale ? this.typeview.memberscale : "1";
         return this.memberscale;
+    }
+    setArrowscale(arrowscale: string) {
+        if (arrowscale == undefined)
+            this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
+        this.arrowscale = arrowscale;
+    }
+    getArrowscale(): string {
+        if (this.arrowscale == undefined)
+            return this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
+        return this.arrowscale;
     }
     setLoc(loc: string) {
         this.loc = loc;

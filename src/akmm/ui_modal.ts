@@ -1132,6 +1132,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         })
         return;
       }
+      break;
     }
     case "connectToSelected": {
       if (debug) console.log('1131 modalContext', modalContext);

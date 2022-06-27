@@ -1114,8 +1114,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             continue;
                         // Check if obj inherits one of the specified types - otherwise do not generate type
                         let objtype;
-                        if (obj.type.inherits(type, type.allRelationshiptypes)
-                            ||
+                        if (
+                            // obj.type.inherits(type, type.allRelationshiptypes)
+                            // ||
                             (obj.isOfSystemType(metaObject))
                         ) {
                             if (debug) console.log('953 obj', obj.name, obj);

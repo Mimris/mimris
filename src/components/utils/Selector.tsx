@@ -27,10 +27,27 @@ const Selector = ( props: any ) => {
     // setRefresh(!refresh)
   }
   // console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
-  const focus = (props.selName === 'Model') ? props.focusModel?.name : props.focusModelview?.name
+
+  let focus = 'Model' 
+    switch (props.selName) {
+      case 'Model':
+        focus = props.focusModel?.name
+        break;
+      case 'Modelview':
+        focus = props.focusModelview?.name
+        break;
+      case 'Task':
+        focus = props.focusTask?.name
+        break;
+      default:
+        focus = ''
+        break;
+    }
+
+        
   
   const options = selArray && ( //sf TODO:  modelview is mapped 2 times
-    (focus) 
+    (focus !== '') 
       ? [
         <option  key={focus}  value={`${focus}...`} > {selArray[0]?.name} </option>,
         selArray.map((m: any, index) => (m) && (m.name !== 'Select '+props.selName+'...') &&

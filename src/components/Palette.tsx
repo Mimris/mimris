@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState , useEffect} from "react";
+import React, { useState , useEffect } from "react";
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
@@ -11,36 +11,58 @@ const debug = false;
 
 const Palette = (props: any) => {
   const dispatch = useDispatch();
-  if (debug) console.log('13 Palette ',  props );
+  // break if no model
+  if (!props.gojsModel) return null;
+  if (!props.gojsMetamodel) return null;
+  if (!debug) console.log('13 Palette ',  props );
+
 
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
-  // console.log('16', props, mmodel.name, model.metamodelRef);
+  console.log('16', props, mmodel?.name, model?.metamodelRef);
   const focusTask = props.phFocus?.focusTask
   const focusRole = props.phFocus?.focusRole
   
-  const unsorted = props.gojsMetamodel
-  if (!debug) console.log('25 propsMetamodel', unsorted);
 
-  //rearrange sequence
-  let ndarr = unsorted?.nodeDataArray
-  let ldarr = unsorted?.linkDataArray
-  let filteredArr = ndarr
+
+  // const unsorted = props.gojsMetamodel?.nodeDataArray
   
-  let gojstypes = {nodeDataArray: filteredArr, linkDataArray: []}
-
-  let tasksNodeDataArray: any[] 
+  //rearrange sequence
+  let ndarr = props.gojsMetamodel?.nodeDataArray
+  let filteredArr = ndarr.filter((n: any) => n)
+  let ldarr = props.gojsMetamodel?.linkDataArray
+  if (!debug) console.log('25 propsMetamodel', model?.name, mmodel?.name, ndarr);
   
   const hasIrtv = ndarr?.find(i => i?.typename === 'Role')
   const hasOsdu = ndarr?.find(i => i?.typename === 'JsonObject')
 
-  const [otfilter, setOtfilter] = useState('All')
+  // const [otfilter, setOtfilter] = useState('All')
   const [ofilter, setOfilter] = useState('All')
   const [refreshPalette, setRefreshPalette] = useState(true)
+  const [gojstypes, setGojstypes] = useState(null)
+  // let gojstypes = ndarr
+
+  
+  console.log('49 ', gojstypes);    
+
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
+
+  let taskNodeDataArray: any[] 
+
+  useEffect(() => {
+    setGojstypes(ndarr)
+
+    function refres() {      
+      console.log('57 useEffect', gojstypes, ndarr);    
+      toggleRefreshPalette()
+      console.log('59 useEffect', gojstypes);
+    }
+    setTimeout(refres, 1000);
+
+  }, [!gojstypes])
 
   // const handleSetFilter = (filter: React.SetStateAction<string>) => {
   //   // if (!debug) console.log('148 Palette handleSetFilter', filter, focusTask.workOnTypes[1]);
@@ -50,8 +72,9 @@ const Palette = (props: any) => {
   // }
 
   let seltasks = focusRole?.tasks?.map(t => t)
+
   
-  console.log('54 Palette', focusRole, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
+  console.log('54 Palette', props.phFocus?.focusRole, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
 
   const selectTaskDiv = (seltasks)
     ?
@@ -61,61 +84,37 @@ const Palette = (props: any) => {
     :
       <div className="seltask w-100"></div>
 
-    let GoJSPaletteAppDiv = < GoJSPaletteApp
-      nodeDataArray={gojstypes.nodeDataArray}
-      linkDataArray={[]}
-      // linkDataArray={gojstypes.linkDataArray}
-      metis={props.metis}
-      myMetis={props.myMetis}
-      myGoModel={props.myGoModel}
-      phFocus={props.phFocus}
-      dispatch={props.dispatch}
-    />
   // -----------------------------------------------------
   useEffect(() => {
-
     console.log('66 useEffect', focusTask);
-
-    setOtfilter(focusTask?.workOnTypes)
-    
-    const tasksNodeDataArray = focusTask?.workOnTypes?.map(wot => 
-      filteredArr?.find(i => {
+    // setOtfilter(focusTask?.workOnTypes)
+    taskNodeDataArray = focusTask?.workOnTypes?.map(wot => 
+      ndarr?.find(i => {
         // console.log('72 Palette', i?.typename, wot)
         // console.log('74 Palette', (i?.typename === wot) && i)
-        return (i?.typename === wot) && i
+        return (i?.typename === wot) && i 
       })
     )
-    console.log('77 useEffect', otfilter, tasksNodeDataArray);
-    gojstypes = {nodeDataArray: tasksNodeDataArray, linkDataArray: []} 
+    // console.log('79 useEffect', otfilter, taskNodeDataArray);
+    setGojstypes(taskNodeDataArray)
+    // console.log('82 useEffect', otfilter, gojstypes);
 
-    console.log('79 useEffect', gojstypes);
-    
-    function refres() {
-      
-      console.log('95 useEffect', gojstypes);
-      GoJSPaletteAppDiv = < GoJSPaletteApp
-        nodeDataArray={tasksNodeDataArray}
-        linkDataArray={[]}
-        // linkDataArray={gojstypes.linkDataArray}
-        metis={props.metis}
-        myMetis={props.myMetis}
-        myGoModel={props.myGoModel}
-        phFocus={props.phFocus}
-        dispatch={props.dispatch}
-      />
-      setRefreshPalette(!refreshPalette)
+    function refres() {      
+      console.log('86 useEffect', gojstypes);    
+      toggleRefreshPalette()
+      console.log('89 useEffect', gojstypes);
     }
-    setTimeout(refres, 10000);
-
+    setTimeout(refres, 1000);
+    console.log('92 useEffect', gojstypes);
   }, [focusTask])
  
+  const filteredOtNodeDataArray = (!gojstypes) ?  ndarr : gojstypes
 
-
-  console.log('182 Palette filteredArr', filteredArr, tasksNodeDataArray);
+  (gojstypes) && console.log('99 Palette filteredArr', gojstypes, taskNodeDataArray, filteredOtNodeDataArray);
 
   // set nodeDataArray = fileredArr and linkDataArray = ldarr
 
-  // gojstypes = {nodeDataArray: {filteredArr: nodeDataArray}, linkDataArray: ldarr} 
+
   
 
   
@@ -170,6 +169,8 @@ const Palette = (props: any) => {
 
 
 
+
+
   // /** Toggle divs **/
   const [visiblePalette, setVisiblePalette] = useState(true)
   function togglePalette() { setVisiblePalette(!visiblePalette); }
@@ -187,11 +188,6 @@ const Palette = (props: any) => {
   const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const toggleTip = () => setTooltipOpen(!tooltipOpen);
-  /**  * Get the state and metie from the store,  */
-  // const gojstypes = props.phFocus.gojsMetamodel
-  if (debug) console.log('233 Palette', gojstypes.nodeDataArray );
-  // if (debug) console.log('49 Palette', gojstypes.nodeDataArray);
-  // if (debug) console.log('50 Palette', gojstypes.linkDataArray);
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
@@ -226,9 +222,8 @@ const Palette = (props: any) => {
                 <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
                 <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div>
                 {/* {selectedMMDiv} */}
-                {GoJSPaletteAppDiv}
-                {/* < GoJSPaletteApp
-                  nodeDataArray={gojstypes.nodeDataArray}
+                < GoJSPaletteApp
+                  nodeDataArray={filteredOtNodeDataArray}
                   linkDataArray={[]}
                   // linkDataArray={gojstypes.linkDataArray}
                   metis={props.metis}
@@ -236,7 +231,7 @@ const Palette = (props: any) => {
                   myGoModel={props.myGoModel}
                   phFocus={props.phFocus}
                   dispatch={props.dispatch}
-                /> */}
+                />
               {/* </Col>
             </Row> */}
             </div>
@@ -251,7 +246,7 @@ const Palette = (props: any) => {
                  {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mnamediv}</div> */}
                   {selectedObjDiv}
                   < GoJSPaletteApp
-                    nodeDataArray={gojsobjects.nodeDataArray}
+                    nodeDataArray={gojsobjects?.nodeDataArray}
                     linkDataArray={[]}
                     // linkDataArray={gojstypes.linkDataArray}
                     metis={props.metis}

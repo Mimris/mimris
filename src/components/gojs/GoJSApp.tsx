@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -96,6 +96,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   } 
 
   public handleSelectDropdownChange = (selected: any) => {
+    if (debug) console.log('99 handleCloseModal');
     const myMetis = this.state.myMetis;
     const context = {
       "myMetis":      myMetis,
@@ -110,6 +111,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public handleCloseModal(e) {
+    if (debug) console.log('113 handleCloseModal');
     const props = this.props;
     const modalContext = this.state.modalContext;
     let typename = modalContext.selected?.value;
@@ -117,6 +119,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('113 typename: ', typename);
     const myDiagram = modalContext.context?.myDiagram;
     const data = modalContext.data;
+    if (debug) console.log('122 modalContext', modalContext);
     if (e === 'x') {
       if (myDiagram)
         myDiagram.model.removeLinkData(data);
@@ -199,8 +202,6 @@ class GoJSApp extends React.Component<{}, AppState> {
    * @param e a GoJS DiagramEvent
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
-    if (debug) console.log('202 this.state', this.state);
-    this.state.selectedData = e.subject?.part?.data;
     const dispatch = this.state.dispatch;
     const name = e.name;
     const myDiagram = e.diagram;
@@ -1003,6 +1004,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       }
       break;
+      case "ObjectContextClicked": {
+        const sel = e.subject.part;
+        const data = sel.data;
+        // console.log('1009 selected', data, sel);
+      }
+      break;
       case "PartResized": {
         const part = e.subject.part;
         const data = e.subject.part.data;
@@ -1222,7 +1229,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         data.category = 'Relationship';
         context.handleOpenModal = this.handleOpenModal;
         uic.createRelationship(data, context);
-        if (!debug) console.log('1225 data', data);
+        if (debug) console.log('1225 data, context', data, context);
       }
       myDiagram.requestUpdate();
     }

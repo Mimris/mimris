@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false; 
 
 import * as utils from './utilities';
@@ -83,7 +83,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
                 objview.setScale(data.scale);
-                objview.setMemberScale(data.memberscale);
+                objview.setMemberscale(data.memberscale);
                 data.objectview = objview;
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
@@ -309,12 +309,7 @@ export function updateObject(data: any, name: string, value: string, context: an
         currentObjectView.setName(value);
         currentObjectView.setModified();
         currentObject.addObjectView(currentObjectView);
-        //myDiagram.model.setDataProperty(data, "name", value);
-
-        // const modNode = new jsn.jsnObjectView(myNode.objectview);
-        // // modifiedNodes.push(modNode);
-        // addItemToList(modifiedNodes, modNode);
-return currentObject;
+        return currentObject;
     }
 }
 
@@ -1234,7 +1229,6 @@ export function createRelationship(data: any, context: any) {
                 choices2 = [...new Set(choices2)];
                 choices2.sort();
                 const choices = choices1.concat(choices2);
-                // if (choices.length == 1) defText = choices[0];
                 // Calling routine to select reltype from list
                 const args = {
                     data: data,
@@ -1629,11 +1623,11 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                     myDiagram.model.setDataProperty(data, "name", reltype.name);
                 data.relshiptype = reltype;
                 // Clear local overrides
-                currentRelshipView['strokecolor'] = "";
-                currentRelshipView['strokewidth'] = "";
-                currentRelshipView['dash']        = "";
-                currentRelshipView['fromArrow']   = "None";
-                currentRelshipView['toArrow']     = "None";
+                currentRelshipView['strokecolor'] = reltypeview['strokecolor'];
+                currentRelshipView['strokewidth'] = reltypeview['strokewidth'];
+                currentRelshipView['dash']        = reltypeview['dash'];
+                currentRelshipView['fromArrow']   = reltypeview['fromArrow'];
+                currentRelshipView['toArrow']     = reltypeview['toArrow'];
                 updateLink(data, reltypeview, myDiagram, myGoMetamodel);
 
                 const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
@@ -2781,7 +2775,7 @@ export function verifyAndRepairModel(modelview: akm.cxModelView, model: akm.cxMo
     msg += "End Verification";
     if (debug) console.log('2463 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (!debug) console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 } 
 
@@ -2826,7 +2820,7 @@ function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, 
 export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram: any, goModel: gjs.goModel) {
     let relview;
     if (reltypeView) {
-        if (debug) console.log('2508 diagram', diagram);
+        if (!debug) console.log('2823 data', data);
         let viewdata: any = reltypeView.getData();
         relview = data.relshipview;
         for (let prop in viewdata) {
@@ -2839,37 +2833,31 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 if (relview && relview[prop] && relview[prop] !== "") {
                     diagram.model.setDataProperty(data, prop, relview[prop]);
                 }
-                if (debug) console.log('2521 updateLink', prop, viewdata[prop], relview[prop]);
-            } else {
-                if (viewdata[prop] != null) {
-                    if (prop === 'fromArrow' || prop === 'toArrow') {
-                        if (viewdata[prop] === 'None')
-                            viewdata[prop] = "";
-                    }
-                    diagram.model.setDataProperty(data, prop, new String(viewdata[prop]).valueOf());
-                }
-                if (relview) {
-                    let value = relview[prop];
-                    if (value && value !== "") {
-                        if (prop === 'fromArrow' || prop === 'toArrow') {
-                            if (value === 'None')
-                                value = "";
-                        }
-    
-                        diagram.model.setDataProperty(data, prop, new String(value).valueOf());
-                    }
-                    if (debug) console.log('2540 updateLink', prop, viewdata[prop], relview[prop]);
-                }
+                if (!debug) console.log('2836 updateLink', prop, viewdata[prop], relview[prop]);
             }
+            if (prop === 'toArrow') {
+                if (relview[prop] === "")
+                    viewdata[prop] = "OpenTriangle";
+                else if (relview[prop] === "None")
+                    viewdata[prop] = "";
+            } else if (prop === 'fromArrow') {
+                if (viewdata[prop] === 'None')
+                    viewdata[prop] = "";
+            }
+            diagram.model.setDataProperty(data, prop, viewdata[prop]);
+            if (debug) console.log('2848 updateLink', prop, viewdata[prop], relview[prop]);
         }
     }
     if (relview) {
         const link = diagram.findLinkForKey(data.key);
-        if (debug) console.log('2545 data, link, relview', data, link, relview);
-        relview.arrowscale = relview.textscale * 1.3;
-        diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
-        diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
-        diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
+        if (link) {
+            if (!debug) console.log('2854 data, link, relview', data, link, relview);
+            relview.arrowscale = relview.textscale * 1.3;
+            diagram.model.setDataProperty(link.data, 'name', relview.name);
+            diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);
+            diagram.model.setDataProperty(link.data, 'arrowscale', relview.arrowscale);
+            diagram.model.setDataProperty(link.data, "strokewidth", relview.strokewidth);
+        }
     }
 } 
 

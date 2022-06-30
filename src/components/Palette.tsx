@@ -23,7 +23,7 @@ const Palette = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   if (debug) console.log('16', props, mmodel?.name, model?.metamodelRef);
-  const focusTask = props.phFocus?.focusTask
+  let focusTask = props.phFocus?.focusTask
   const focusRole = props.phFocus?.focusRole
   
 
@@ -34,11 +34,11 @@ const Palette = (props: any) => {
   let ndarr = props.gojsMetamodel?.nodeDataArray
   let filteredArr = ndarr.filter((n: any) => n)
   let ldarr = props.gojsMetamodel?.linkDataArray
-  let seltasks = focusRole?.tasks?.map(t => t)
+  let seltasks = focusRole?.tasks?.map((t: any) => t)
   if (debug) console.log('25 propsMetamodel', model?.name, mmodel?.name, ndarr);
   
-  const hasIrtv = ndarr?.find(i => i?.typename === 'Role')
-  const hasOsdu = ndarr?.find(i => i?.typename === 'JsonObject')
+  const hasIrtv = ndarr?.find((i: { typename: string; }) => i?.typename === 'Role')
+  const hasOsdu = ndarr?.find((i: { typename: string; }) => i?.typename === 'JsonObject')
 
   // const [otfilter, setOtfilter] = useState('All')
   const [ofilter, setOfilter] = useState('All')
@@ -50,8 +50,16 @@ const Palette = (props: any) => {
   
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
   
-  let taskNodeDataArray: any[] 
-  // if (gojstypes) console.log('49 ', gojstypes, taskNodeDataArray);    
+  // let taskNodeDataArray: any[] = ndarr 
+  let taskNodeDataArray: any[] = (props.phFocus.focusTask?.workOnTypes) 
+    ? props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
+        ndarr?.find((i: { typename: any; }) => {
+          return (i?.typename === wot) && i 
+        })
+      )
+    : ndarr
+
+ console.log('49 ', taskNodeDataArray);    
 
   // useEffect(() => {
   //   (taskNodeDataArray) ? setGojstypes(taskNodeDataArray) : setGojstypes(ndarr)
@@ -76,24 +84,34 @@ const Palette = (props: any) => {
   // -----------------------------------------------------
   useEffect(() => {
     console.log('89 useEffect', focusTask);
-    taskNodeDataArray = focusTask?.workOnTypes?.map(wot => 
-      ndarr?.find(i => {
+    taskNodeDataArray = focusTask?.workOnTypes?.map((wot: any) => 
+      ndarr?.find((i: { typename: any; }) => {
         return (i?.typename === wot) && i 
       })
     )
+    // console.log('100 useEffect', taskNodeDataArray);
+    // function refres() {        
+    //   toggleRefreshPalette() 
+    // }
+    // setTimeout(refres, 1000);
+    // filteredOtNodeDataArray = taskNodeDataArray?.filter(i => i)
+    // seltasks = focusRole?.tasks?.map((t: any) => t)
+    focusTask = focusRole?.tasks?.find((t: { id: any; }) => t?.id === focusTask?.id)
+
     console.log('100 useEffect', taskNodeDataArray);
     function refres() {        
       toggleRefreshPalette() 
     }
     setTimeout(refres, 1000);
-    seltasks = focusRole?.tasks?.map(t => t)
   }, [props.phFocus.focusTask])
 
-  console.log('111 useEffect', taskNodeDataArray);
+  console.log('111 ', taskNodeDataArray);
 
 
  
-  const filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : taskNodeDataArray    
+  let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr :taskNodeDataArray    
+
+
   // const filteredOtNodeDataArray = (gojstypes === null) ? ndarr : (!taskNodeDataArray) ? ndarr : gojstypes    
 
   // if (gojstypes) console.log('99 Palette filteredArr', ndarr,  gojstypes, taskNodeDataArray, filteredOtNodeDataArray);
@@ -118,15 +136,15 @@ const Palette = (props: any) => {
   const nodeArray_all = objArr 
   if (debug) console.log('178 nodeArray_all', nodeArray_all);
   // filter out the objects that are marked as deleted
-  const objectsNotDeleted = nodeArray_all?.filter(node => node && node.markedAsDeleted === false)
+  const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   
   // // filter out all objects of type Property
-  const roleTaskObj = objectsNotDeleted?.filter(node => node && (node.typename === 'Task' || node.typename === 'Role'))
-  const noPropertyObj = objectsNotDeleted?.filter(node => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
-  const noAbstractObj = objectsNotDeleted?.filter(node => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
+  const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'Task' || node.typename === 'Role'))
+  const noPropertyObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
+  const noAbstractObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
   if (debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
 
-  const handleSetObjFilter = (filter) => {
+  const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
     if (debug) console.log('Palette handleSetOfilter', filter);
     setOfilter(filter)
     // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
@@ -172,7 +190,7 @@ const Palette = (props: any) => {
   }, [])
 
   const [activeTab, setActiveTab] = useState('1');
-  const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab); }
+  const toggleTab = (tab: React.SetStateAction<string>) => { if (activeTab !== tab) setActiveTab(tab); }
   const [tooltipOpen, setTooltipOpen] = useState(false);
   const toggleTip = () => setTooltipOpen(!tooltipOpen);
 
@@ -188,10 +206,10 @@ const Palette = (props: any) => {
 
 
 
-  const selectTaskDiv = (seltasks)
+  let selectTaskDiv = (seltasks)
     ?
       <div className="seltask w-100">
-        <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={props.phFocus.focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
+        <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
       </div>
     :
       <div className="seltask w-100"></div>

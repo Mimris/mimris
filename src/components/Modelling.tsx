@@ -86,7 +86,7 @@ const page = (props:any) => {
 
     useEffect(() => {
       setTimeout(refres, 100);
-      if (!debug) console.log('88 Modelling useEffect 2', props); 
+      if (debug) console.log('88 Modelling useEffect 2', props); 
       const data = {
         phData: props.phData,
         phFocus: props.phFocus,
@@ -103,7 +103,7 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id, curmod])
 
     // useEffect(() => {
-    //   if (!debug) console.log('97 Modelling useEffect 3', props); 
+    //   if (debug) console.log('97 Modelling useEffect 3', props); 
     //   genGojsModel(props, dispatch);
     //   function refres() {
     //     setRefresh(!refresh)
@@ -121,13 +121,13 @@ const page = (props:any) => {
     // }, [props.metis])
 
     // useEffect(() => {
-    //   if (!debug) console.log('115 Modelling useEffect 5', props); 
+    //   if (debug) console.log('115 Modelling useEffect 5', props); 
     //   genGojsModel(props, dispatch)
     //   setRefresh(!refresh)
     // }, [props.phSource])
 
     // useEffect(() => {
-    //   if (!debug) console.log('121 Modelling useEffect 6', props); 
+    //   if (debug) console.log('121 Modelling useEffect 6', props); 
     //   genGojsModel(props, dispatch)
     //   function refres() {
     //     setRefresh(!refresh)

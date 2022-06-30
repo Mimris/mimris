@@ -2820,7 +2820,7 @@ function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, 
 export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram: any, goModel: gjs.goModel) {
     let relview;
     if (reltypeView) {
-        if (!debug) console.log('2823 data', data);
+        if (debug) console.log('2823 data', data);
         let viewdata: any = reltypeView.getData();
         relview = data.relshipview;
         for (let prop in viewdata) {
@@ -2833,7 +2833,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 if (relview && relview[prop] && relview[prop] !== "") {
                     diagram.model.setDataProperty(data, prop, relview[prop]);
                 }
-                if (!debug) console.log('2836 updateLink', prop, viewdata[prop], relview[prop]);
+                if (debug) console.log('2836 updateLink', prop, viewdata[prop], relview[prop]);
             }
             if (prop === 'toArrow') {
                 if (relview[prop] === "")
@@ -2851,7 +2851,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
     if (relview) {
         const link = diagram.findLinkForKey(data.key);
         if (link) {
-            if (!debug) console.log('2854 data, link, relview', data, link, relview);
+            if (debug) console.log('2854 data, link, relview', data, link, relview);
             relview.arrowscale = relview.textscale * 1.3;
             diagram.model.setDataProperty(link.data, 'name', relview.name);
             diagram.model.setDataProperty(link.data, 'textscale', relview.textscale);

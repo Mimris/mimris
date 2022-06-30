@@ -2,7 +2,7 @@ import { useDispatch } from 'react-redux'
 const debug = false
 const Selector = ( props: any ) => {
 
-  console.log('8 selector', props); 
+  if (debug) console.log('8 selector', props); 
   const dispatch = useDispatch()
 
   const refresh = props.refresh
@@ -15,14 +15,14 @@ const Selector = ( props: any ) => {
   
   // if (selArray.length === 1) selArray = [...selArray,...selArray]g
   const handleChange = (event: any) => {
-    if (!debug) console.log('18 Selector', event);
+    if (debug) console.log('18 Selector', event);
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const selObj = selArray.find( (obj: any) => obj.id === id ) 
     // const workOnTypes = selObj.workOnTypes
     // const focustype = { id: id, name: name, workOnTypes: workOnTypes }
     const data = (selObj) ? { id: id, name: name, selObj } : { id: id, name: name, selObj }
-    console.log('22 selector', JSON.parse(event.value), data, type);
+    if (debug) console.log('22 selector', JSON.parse(event.value), data, type);
     dispatch({ type: type, data: selObj })
     // setRefresh(!refresh)
   }

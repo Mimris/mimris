@@ -410,7 +410,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_TASK:
-      if (!debug) console.log('367 task', action);   
+      if (debug) console.log('367 task', action);   
       // if (debug) console.log('104', action.data);
 
       // focusTask = action.data.focusTask

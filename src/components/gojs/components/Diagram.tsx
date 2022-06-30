@@ -206,7 +206,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleCloseModal(e) {
     const modalContext = this.state.modalContext;
-    if (!debug) console.log('218 modalContext:', modalContext);
+    if (debug) console.log('218 modalContext:', modalContext);
     const myDiagram = modalContext.myDiagram;
     const data = modalContext.data;
     if (debug) console.log('221 state', data);
@@ -221,7 +221,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       return;
     }
     const props = this.props;
-    if (!debug) console.log('233 state', this.state);
+    if (debug) console.log('233 state', this.state);
     if (modalContext.case === 'Connect to Selected')
       modalContext.what = "connectToSelected";
     uim.handleCloseModal(this.state.selectedData, props, modalContext);

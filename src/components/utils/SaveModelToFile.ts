@@ -89,7 +89,7 @@ export const SaveAllToFileDate = (model, name, type) => {
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
     e.preventDefault()
     const reader = new FileReader()
-    reader.fileName = (e.target.files[0].name)
+    reader.fileName = (e.target.files[0]?.name)
     reader.onload = async (e) => { 
         const text = (e.target.result)
         const modelff = JSON.parse(text)

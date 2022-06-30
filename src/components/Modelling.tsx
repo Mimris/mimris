@@ -100,7 +100,7 @@ const page = (props:any) => {
         setRefresh(!refresh)
       }
       setTimeout(refres, 100);
-    }, [focusModelview?.id, focusModel?.id])
+    }, [focusModelview?.id, focusModel?.id, curmod])
 
     // useEffect(() => {
     //   if (!debug) console.log('97 Modelling useEffect 3', props); 

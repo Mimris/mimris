@@ -1,11 +1,11 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
 const debug = false;
 const linkToLink = false;
 
-// import * as go from 'gojs';
+import * as go from 'gojs';
 
 <script src="../release/go-debug.js"></script>
 
@@ -64,6 +64,7 @@ interface DiagramProps {
 }
 
 interface DiagramState {
+  myMetis: akm.cxMetis,
   showModal: boolean;
   selectedData: any;
   modalContext: any;
@@ -135,6 +136,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.addDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.addDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
+      diagram.addDiagramListener('ObjectContextClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
       diagram.addDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
@@ -163,6 +165,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       diagram.removeDiagramListener('ClipboardPasted', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ObjectSingleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('ObjectDoubleClicked', this.props.onDiagramEvent);
+      diagram.removeDiagramListener('ObjectContextClicked', this.props.onDiagramEvent);      
       diagram.removeDiagramListener('PartResized', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundDoubleClicked', this.props.onDiagramEvent);
       diagram.removeDiagramListener('BackgroundSingleClicked', this.props.onDiagramEvent);
@@ -195,18 +198,32 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       "modalContext": this.state.modalContext
     }
     if (debug) console.log('196 selected, context', selected, context);
+    // Handle the links
     uim.handleSelectDropdownChange(selected, context);
+    // Handle the relationships
+    console.log('203 context', context);;
   }
 
   public handleCloseModal(e) {
+    const modalContext = this.state.modalContext;
+    if (!debug) console.log('218 modalContext:', modalContext);
+    const myDiagram = modalContext.myDiagram;
+    const data = modalContext.data;
+    if (debug) console.log('221 state', data);
     if (e === 'x') {
-      if (debug) console.log('202 x:', e);
+      if (debug) console.log('223 x:', e);
+      const links = modalContext.links;
+      for (let i=0; i<links?.length; i++) {
+        const link = links[i];
+        myDiagram.model.removeLinkData(link);
+      }
       this.setState({ showModal: false, selectedData: null, modalContext: null });
       return;
     }
     const props = this.props;
-    const modalContext = this.state.modalContext;
-    if (debug) console.log('208 state', this.state);
+    if (!debug) console.log('233 state', this.state);
+    if (modalContext.case === 'Connect to Selected')
+      modalContext.what = "connectToSelected";
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
     this.setState({ showModal: false });
   }
@@ -305,7 +322,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
             "scrollMode": go.Diagram.InfiniteScroll,
-            "initialAutoScale": go.Diagram.UniformToFill,
+            // "initialAutoScale": go.Diagram.UniformToFill,
             // "undoManager.isEnabled": true,  // must be set to allow for model change listening
             // "undoManager.maxHistoryLength": 100,  // uncomment disable undo/redo functionality
 
@@ -530,7 +547,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (!debug) console.log('529 node', node);
+              if (debug) console.log('529 node', node);
               uid.editObject(node, myMetis, myDiagram); 
             },
             function (o: any) { 
@@ -543,7 +560,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Objectview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (!debug) console.log('542 node', node);
+              if (debug) console.log('542 node', node);
               uid.editObjectview(node, myMetis, myDiagram); 
             }, 
             function (o: any) { 
@@ -556,13 +573,42 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Connect to Selected",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (!debug) console.log('559 node', node);
-              if (!debug) console.log('560 selection', myDiagram.selection);
-              uid.connectToSelected(node, selection, myMetis, myDiagram);
+              let fromType = node.objecttype;
+              fromType = myMetis.findObjectType(fromType.id);
+              const nodes = [];
+              const selection = myDiagram.selection;
+              for (let it = selection.iterator; it?.next();) {
+                let n = it.value;
+                if (n.data.key === node.key) 
+                    continue;
+                nodes.push(n.data);
+              }
+              if (debug) console.log('559 node', node);
+              if (debug) console.log('560 selection', selection);
+              const choices = uid.getConnectToSelectedTypes(node, selection, myMetis, myDiagram);
+              const args = {
+                fromType:   fromType,
+                nodeFrom:   node,
+                nodesTo:    nodes,
+                typeNames:  choices,
+              }
+              const modalContext = {
+                  what:       "selectDropdown",
+                  title:      "Select Relationship Type",
+                  case:       "Connect to Selected",          
+                  myDiagram:  myDiagram,
+                  args:       args
+              }
+              myMetis.currentNode = node;
+              myMetis.myDiagram = myDiagram;
+              myDiagram.handleOpenModal(choices, modalContext);       
             },
             function (o: any) { 
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
+                const selection = myDiagram.selection;
+                if (selection.count > 1)
+                  return true;
                 return false;
               }
               return false; 
@@ -687,18 +733,20 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                       const groupMembers = node.getGroupMembers(myGoModel);
                       for (let i=0; i<groupMembers?.length; i++) {
                         const member = groupMembers[i];
-                        const gjsNode = myDiagram.findNodeForKey(member?.key);
+                        const n = myDiagram.findNodeForKey(member?.key);
                       }                    
                     }
-                    node = myDiagram.findNodeForKey(node?.key);
-                    if (node)
-                      node.findLinksConnected().each(function(l) {
+                    const n = myDiagram.findNodeForKey(node?.key);
+                    if (n)
+                      n.findLinksConnected().each(function(l) {
                          l.isSelected = true;
                       });                    
                   }
                   if (inst.category === constants.gojs.C_OBJECTTYPE) {
                     const node = myDiagram.findNodeForKey(inst.key);
-                    node.findLinksConnected().each(function(l) { l.isSelected = true; });                    
+                    node.findLinksConnected().each(function(l) { 
+                      l.isSelected = true; 
+                    });                    
                   }
                 })
                 e.diagram.commandHandler.deleteSelection();      
@@ -742,7 +790,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           function (o: any) { 
             if (debug) console.log('1991 myMetis', myMetis);
             if (myMetis.modelType == 'Modelling') {
-              const node = obj.part.data;
+              const node = o.part.data;
               const obj = node.object;
               const objtype = obj?.type;
               if (objtype?.name === constants.types.AKM_CONTAINER) {
@@ -786,7 +834,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const contextmenu = obj.part;  
                 const part = contextmenu.adornedPart; 
                 const currentObj = part.data.object;
-                context.myTargetMetamodel = gen.askForMetamodel(context);
+                context.myTargetMetamodel = gen.askForMetamodel(context, true);
                 myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel.id;
                 if (debug) console.log('369 Diagram', myMetis.currentModel.targetMetamodelRef);
                 
@@ -818,40 +866,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (objtype?.name === constants.types.AKM_DATATYPE)
                   return true;              
               return false;
-            }),
-          makeButton("Generate Unit",
-            function(e: any, obj: any) { 
-              const context = {
-                "myMetis":            myMetis,
-                "myMetamodel":        myMetis.currentMetamodel,
-                "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-                "myModel":            myMetis.currentModel,
-                "myModelview":        myMetis.currentModelview,
-                "myDiagram":          e.diagram,
-                "dispatch":           e.diagram.dispatch
-              }
-              const contextmenu = obj.part;  
-              const part       = contextmenu.adornedPart; 
-              const currentObj = part.data.object;
-              context.myTargetMetamodel = gen.askForTargetMetamodel(context);
-              const unit = gen.generateUnit(currentObj, context);
-              const jsnUnit = new jsn.jsnUnit(unit);
-              const modifiedUnits = new Array();
-              modifiedUnits.push(jsnUnit);
-              modifiedUnits.map(mn => {
-                let data = mn;
-                data = JSON.parse(JSON.stringify(data));
-                e.diagram.dispatch({ type: 'UPDATE_UNIT_PROPERTIES', data })
-              })
-            },
-            function(o: any) { 
-              return false;
-              let obj = o.part.data.object;
-              let objtype = obj.type;
-              if (objtype.name === constants.types.AKM_UNIT)
-                  return true;
-              else
-                  return false;
             }),
           makeButton("Edit Object Type",
             function (e: any, obj: any) { 
@@ -890,9 +904,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 for (let i=0; i<objtypes.length; i++) {
                   const otype = objtypes[i];
                   if (!otype.markedAsDeleted && !otype.abstract) {
-                    node.choices.push(otype.name); 
                     if (otype.name === 'Generic')
                       continue;
+                    node.choices.push(otype.name); 
                   }  
                 }
               }
@@ -907,7 +921,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               myDiagram.handleOpenModal(node.choices, modalContext);
               if (debug) console.log('511 myMetis', node.choices, myMetis);
             },
-              function (o: any) {
+            function (o: any) {
                 const node = o.part.data;
                 if (node.category === constants.gojs.C_OBJECT) {
                   return true;
@@ -976,37 +990,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
             }),
           makeButton("----------"),
-          makeButton("Generate Metamodel",
-          function (e: any, obj: any) { 
-            // node is a container (group)
-            const node = obj.part.data;
-            const context = {
-              "myMetis":            myMetis,
-              "myMetamodel":        myMetis.currentMetamodel,
-              "myTargetMetamodel":  myMetis.currentTargetMetamodel,
-              "myModel":            myMetis.currentModel,
-              "myCurrentModelview": myMetis.currentModelview,
-              "myGoModel":          myMetis.gojsModel,
-              "myCurrentNode":      node,    
-              "myDiagram":          e.diagram,
-              "dispatch":           e.diagram.dispatch
-            }
-            context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-            if (context.myTargetMetamodel == undefined) { // sf
-                context.myTargetMetamodel = null;
-            }
-            myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-            const targetMetamodel = myMetis.currentTargetMetamodel;
-            const sourceModelview = myMetis.currentModelview;
-            gen.generateTargetMetamodel(targetMetamodel, sourceModelview, context);
-          },
-          function (o: any) { 
-            const node = o.part.data;
-            if (node.isGroup)
-              return false;
-            else
-              return false;
-          }),
           makeButton("Generate Target Object Type",
           function(e: any, obj: any) { 
               const context = {
@@ -1024,34 +1007,35 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const currentObj = part.data.object;
               context.myTargetMetamodel = myMetis.currentTargetMetamodel;
               if (debug) console.log('446 context', context);
-                context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-              if (context.myTargetMetamodel == undefined) { // sf
-                  context.myTargetMetamodel = null;
-              }    
-              myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-              if (debug) console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
-              if (context.myTargetMetamodel) {  
-                myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-                if (debug) console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
-                const jsnModel = new jsn.jsnModel(context.myModel, true);
-                const modifiedModels = new Array();
-                modifiedModels.push(jsnModel);
-                modifiedModels.map(mn => {
-                  let data = (mn) && mn;
-                  data = JSON.parse(JSON.stringify(data));
-                  myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-                })
-                if (debug) console.log('467 jsnModel', jsnModel);
-                const currentObjview = part.data.objectview;
-                const objtype = gen.generateObjectType(currentObj, currentObjview, context);
-                if (debug) console.log('470 Generate Object Type', objtype, myMetis);
-              }
+              gen.askForTargetMetamodel(context);
+              // context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
+              // if (context.myTargetMetamodel == undefined) { // sf
+              //     context.myTargetMetamodel = null;
+              // }    
+              // myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+              // if (debug) console.log('456 Generate Object Type', context.myTargetMetamodel, myMetis);
+              // if (context.myTargetMetamodel) {  
+              //   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
+              //   if (debug) console.log('459 Generate Object Type', context, myMetis.currentModel.targetMetamodelRef);
+              //   const jsnModel = new jsn.jsnModel(context.myModel, true);
+              //   const modifiedModels = new Array();
+              //   modifiedModels.push(jsnModel);
+              //   modifiedModels.map(mn => {
+              //     let data = (mn) && mn;
+              //     data = JSON.parse(JSON.stringify(data));
+              //     myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+              //   })
+              //   if (debug) console.log('467 jsnModel', jsnModel);
+              //   const currentObjview = part.data.objectview;
+              //   const objtype = gen.generateObjectType(currentObj, currentObjview, context);
+              //   if (debug) console.log('470 Generate Object Type', objtype, myMetis);
+              // }
           },  
           function(o: any) { 
                let obj = o.part.data.object;
                let objtype = obj.type;
                if (objtype.name === constants.types.AKM_INFORMATION)
-                   return true;
+                   return false;
                else
                    return false;
           }),
@@ -1346,9 +1330,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 const currentRelshipView = myMetis.findRelationshipView(link.relshipview?.id);
                 if (currentRelship && currentRelshipView) {                   
                   const myMetamodel = myMetis.currentMetamodel;
-                  const reltype  = currentRelship.type;
-                  let typeview = currentRelshipView.typeview;
-                  const defaultTypeview = reltype.typeview;
+                  const reltype  = currentRelship.type as akm.cxRelationshipType;
+                  let typeview = currentRelshipView.typeview as akm.cxRelationshipTypeView;
+                  const defaultTypeview = reltype.typeview as akm.cxRelationshipTypeView;;
                   if (debug) console.log('701 link', reltype, defaultTypeview, typeview);
                   if (!typeview || (typeview.id === defaultTypeview.id)) {
                       const id = utils.createGuid();
@@ -1460,9 +1444,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {
                       const rtype = reltypes[i];
-                      link.choices.push(rtype.name);  
                       if (rtype.name === 'isRelatedTo')
                           continue;
+                      link.choices.push(rtype.name);  
                   }
               }
               const context = {
@@ -1524,7 +1508,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   const myMetamodel = myMetis.currentMetamodel;
                   const reltype  = currentRelship.type;
                   let typeview = currentRelshipView.typeview;
-                  const defaultTypeview = reltype.typeview;
+                  const defaultTypeview = reltype.typeview as akm.cxRelationshipTypeView;
                   currentRelshipView.typeview = defaultTypeview;
                   if (debug) console.log('856 viewdata', typeview.data);
                   const viewdata = defaultTypeview.data;
@@ -1651,50 +1635,50 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             const currentRel = part.data.relship;
             context.myTargetMetamodel = myMetis.currentTargetMetamodel;
             if (debug) console.log('940 context', currentRel, context);
-            context.myTargetMetamodel = gen.askForTargetMetamodel(context, false);
-            if (context.myTargetMetamodel == undefined)  // sf
-              context.myTargetMetamodel = null;
-            myMetis.currentTargetMetamodel = context.myTargetMetamodel;
-            if (debug) console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
-            if (context.myTargetMetamodel) {  
-              myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
-              if (debug) console.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
-              const jsnModel = new jsn.jsnModel(context.myModel, true);
-              const modifiedModels = new Array();
-              modifiedModels.push(jsnModel);
-              modifiedModels.map(mn => {
-                let data = (mn) && mn;
-                data = JSON.parse(JSON.stringify(data));
-                myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
-              })
-              const currentRelview = part.data.relshipview;
-              if (debug) console.log('962 currentRelview', currentRelview);
-              const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
-              if (debug) console.log('964 Generate Relationship Type', reltype, myMetis);
-              if (reltype) {
-                const reltypeview = reltype.typeview;
-                if (debug) console.log('976 reltype', reltype);
-                const jsnRelshipType = new jsn.jsnRelationshipType(reltype);
-                if (debug) console.log('979 Generate Relationship Type', reltype,jsnRelshipType);
-                const modifiedTypeLinks = new Array();
-                modifiedTypeLinks.push(jsnRelshipType);
-                modifiedTypeLinks.map(mn => {
-                  let data = (mn) && mn;
-                  data = JSON.parse(JSON.stringify(data));
-                  myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-                });
-                const jsnRelTypeview = new jsn.jsnRelshipTypeView(reltypeview);
-                if (debug) console.log('987 Generate Relationship Type', jsnRelTypeview);
-                const modifiedTypeViews = new Array();
-                modifiedTypeViews.push(jsnRelTypeview);
-                modifiedTypeViews?.map(mn => {
-                  let data = (mn) && mn;
-                  data = JSON.parse(JSON.stringify(data));
-                  myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
-                })
-                if (debug) console.log('994 myMetis', myMetis);
-              }
-            }
+            gen.askForTargetMetamodel(context);
+            // if (context.myTargetMetamodel == undefined)  // sf
+            //   context.myTargetMetamodel = null;
+            // myMetis.currentTargetMetamodel = context.myTargetMetamodel;
+            // if (debug) console.log('950 Generate Relationship Type', context.myTargetMetamodel, myMetis);
+            // if (context.myTargetMetamodel) {  
+            //   myMetis.currentModel.targetMetamodelRef = context.myTargetMetamodel?.id;
+            //   if (debug) console.log('953 Generate Relationship Type', context, myMetis.currentModel.targetMetamodelRef);
+            //   const jsnModel = new jsn.jsnModel(context.myModel, true);
+            //   const modifiedModels = new Array();
+            //   modifiedModels.push(jsnModel);
+            //   modifiedModels.map(mn => {
+            //     let data = (mn) && mn;
+            //     data = JSON.parse(JSON.stringify(data));
+            //     myDiagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+            //   })
+            //   const currentRelview = part.data.relshipview;
+            //   if (debug) console.log('962 currentRelview', currentRelview);
+            //   const reltype = gen.generateRelshipType(currentRel, currentRelview, context);
+            //   if (debug) console.log('964 Generate Relationship Type', reltype, myMetis);
+            //   if (reltype) {
+            //     const reltypeview = reltype.typeview;
+            //     if (debug) console.log('976 reltype', reltype);
+            //     const jsnRelshipType = new jsn.jsnRelationshipType(reltype);
+            //     if (debug) console.log('979 Generate Relationship Type', reltype,jsnRelshipType);
+            //     const modifiedTypeLinks = new Array();
+            //     modifiedTypeLinks.push(jsnRelshipType);
+            //     modifiedTypeLinks.map(mn => {
+            //       let data = (mn) && mn;
+            //       data = JSON.parse(JSON.stringify(data));
+            //       myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
+            //     });
+            //     const jsnRelTypeview = new jsn.jsnRelshipTypeView(reltypeview);
+            //     if (debug) console.log('987 Generate Relationship Type', jsnRelTypeview);
+            //     const modifiedTypeViews = new Array();
+            //     modifiedTypeViews.push(jsnRelTypeview);
+            //     modifiedTypeViews?.map(mn => {
+            //       let data = (mn) && mn;
+            //       data = JSON.parse(JSON.stringify(data));
+            //       myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
+            //     })
+            //     if (debug) console.log('994 myMetis', myMetis);
+            //   }
+            // }
           },
           function(o: any) { 
             const rel = o.part.data.relship;
@@ -2914,9 +2898,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectview':
         header = modalContext.title;
         category = this.state.selectedData.category;
-        // typename = (modalContext.typename) ? '('+modalContext.typename+')' : '('+this.state.selectedData.object?.typeName+')'
-        // typename = '('+this.state.selectedData.object?.typeName+')'
-        // if (debug) console.log('2599 Diagram ', typename, modalContext, this.state.selectedData);
         if (this.state.selectedData !== null && this.myMetis != null) {
           if (debug) console.log('2692 selectedData, modalContext: ', this.state.selectedData, modalContext);
           modalContent = 

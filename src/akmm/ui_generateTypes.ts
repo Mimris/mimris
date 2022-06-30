@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 import * as utils from './utilities';
@@ -10,7 +10,7 @@ import { FaObjectUngroup } from 'react-icons/fa';
 import { createRelationshipType } from './ui_common';
 const constants = require('./constants');
 
-export function askForMetamodel(context: any, create: boolean, hideEKA: boolean) {
+export function askForMetamodel(context: any, create: boolean) {
     const myMetis = context.myMetis;
     const myMetamodel = context.myMetamodel;
     const metamodels = myMetis.metamodels;
@@ -1114,8 +1114,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                             continue;
                         // Check if obj inherits one of the specified types - otherwise do not generate type
                         let objtype;
-                        if (obj.type.inherits(type, type.allRelationshiptypes)
-                            ||
+                        if (
+                            // obj.type.inherits(type, type.allRelationshiptypes)
+                            // ||
                             (obj.isOfSystemType(metaObject))
                         ) {
                             if (debug) console.log('953 obj', obj.name, obj);

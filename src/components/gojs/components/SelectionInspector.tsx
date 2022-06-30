@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -9,6 +9,7 @@ const toHex = require('colornames');
 const convert = require('color-convert');
 const printf = require('printf');
 // import './Inspector.css';
+import * as akm from '../../../akmm/metamodeller';
 import * as uic from '../../../akmm/ui_common';
 import * as ui_mtd from '../../../akmm/ui_methods';
 import * as uit from '../../../akmm/ui_templates';
@@ -511,12 +512,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               break;
             case 'fromArrow':
-            case 'toArrow': {
               values = arrowheads;
               defValue = 'None';
               fieldType = 'select';
-            }
-            break;
+              break;
+            case 'toArrow': 
+              values = arrowheads;
+              defValue = 'OpenTriangle';
+              fieldType = 'select';
+              break;
             case 'fillcolor':
               if (!useFillColor) {
                 values = colornames;

@@ -76,11 +76,21 @@ const Modeller = (props: any) => {
             {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
             <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
             {/* </div>  */}
-            <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'. The text 'Project_<currentdate>' will be added to the filename.'" 
+            <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" 
                 style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
                 <div className="w-100 float-left" >
-                  <label className="m-0 p-0 w-100" > Project :  
+                  <label className="m-0 p-0 w-100"   
+                    data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                    title =  {
+`Description : ${props.metis.description} 
+
+To change Project Name : 
+Edit this field and click on the Save button.
+
+or Right-click the background below and select 'Edit Project Name'. 
+
+The text 'Project_<currentdate>' will be added to the filename.`
+                    }> Project :  
                     <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
                   </label>
                   {/* <label for="projName">Project :</label> 

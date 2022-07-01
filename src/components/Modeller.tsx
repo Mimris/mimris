@@ -69,12 +69,28 @@ const Modeller = (props: any) => {
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } });
   }
 
+  // const handleMVDoubleClick = (e) => {
+  //   <input type="text" value={e.value} onChange={handleMVChange} />
+  // }
+
+  // const handleMVChange = (e) => {
+  //   if (debug) console.log('69 Modeller: handleMVChange', e);
+  //   dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: e.value } });
+  // }
+
 
     const selector = (props.modelType === 'model' || props.modelType === 'modelview' ) 
       ? <>
           {/* <div className="modeller-selection" > */}
             {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
+            <span className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title={
+`Description: ${model?.description}
+
+To change Model name, rigth click the background below and select 'Edit Model'.`
+              }>
             <Selector className="w-25 float-right" type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+            </span>
             {/* </div>  */}
             <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" 
                 style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
@@ -137,11 +153,11 @@ The text 'Project_<currentdate>' will be added to the filename.`
     if (debug) console.log('89 Modeller useEffect 1', activeTab); 
   }, [focusModel])
   
-  useEffect(() => {
-    setActiveTab(activetabindex)
-    if (debug) console.log('94 Modeller useEffect 2', activeTab); 
-    // genGojsModel(props, dispatch);
-  }, [activeTab])
+  // useEffect(() => {
+  //   setActiveTab(activetabindex)
+  //   if (debug) console.log('94 Modeller useEffect 2', activeTab); 
+  //   // genGojsModel(props, dispatch);
+  // }, [activeTab])
 
   useEffect(() => {
     if (debug) console.log('99 Modeller useEffect 3', props); 
@@ -160,11 +176,12 @@ The text 'Project_<currentdate>' will be added to the filename.`
           setTimeout(refres, 10);
         }
       }
+      setActiveTab(activetabindex)
     }
   }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('125 Modeller useEffect 5', props); 
+    if (!debug) console.log('125 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
 
@@ -187,11 +204,16 @@ The text 'Project_<currentdate>' will be added to the filename.`
         // genGojsModel(props, dispatch);
         // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
         return (
-          <NavItem key={strindex}>
+          <NavItem key={strindex} className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title={
+`Description: ${modelview?.description}
+
+To change Modelview name, rigth click the background below and select 'Edit Modelview'.`
+              }>
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab == strindex })}
               onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
-              // onClick={() => { toggleTab(strindex); dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefresh() }}
+              // onDoubleClick={() => {handleMVDoubleClick({ value: data })}}
             >
               {mv.name}
             </NavLink>

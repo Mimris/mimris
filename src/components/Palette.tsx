@@ -96,7 +96,7 @@ const Palette = (props: any) => {
     // setTimeout(refres, 1000);
     // filteredOtNodeDataArray = taskNodeDataArray?.filter(i => i)
     // seltasks = focusRole?.tasks?.map((t: any) => t)
-    focusTask = focusRole?.tasks?.find((t: { id: any; }) => t?.id === focusTask?.id)
+    // focusTask = focusRole?.tasks?.find((t: { id: any; }) => t?.id === focusTask?.id)
 
     console.log('100 useEffect', taskNodeDataArray);
     function refres() {        
@@ -197,23 +197,17 @@ const Palette = (props: any) => {
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
 
- 
-
-  
-
   if (debug) console.log('54 Palette', props.phFocus?.focusRole, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
-
-
-
 
   let selectTaskDiv = (seltasks)
     ?
       <div className="seltask w-100">
-        <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
+        <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Select Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
+        <div>{focusTask.name}</div>
       </div>
+
     :
       <div className="seltask w-100"></div>
-
 
   const gojsappPalette =  // this is the palette with tabs for Types and Objects Todo: add posibility to select many types or objects to drag in (and also with links)
       <>

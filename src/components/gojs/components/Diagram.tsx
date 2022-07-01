@@ -206,7 +206,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public handleCloseModal(e) {
     const modalContext = this.state.modalContext;
-    if (!debug) console.log('218 modalContext:', modalContext);
+    if (debug) console.log('218 modalContext:', modalContext);
     const myDiagram = modalContext.myDiagram;
     const data = modalContext.data;
     if (debug) console.log('221 state', data);
@@ -221,7 +221,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       return;
     }
     const props = this.props;
-    if (!debug) console.log('233 state', this.state);
+    if (debug) console.log('233 state', this.state);
     if (modalContext.case === 'Connect to Selected')
       modalContext.what = "connectToSelected";
     uim.handleCloseModal(this.state.selectedData, props, modalContext);
@@ -935,16 +935,13 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             uid.editTypeview(node, myMetis, myDiagram); 
           }, 
           function (o: any) {
-            if (false)
-              return false;
-            else {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT)
                 return true;
-              if (node.category === constants.gojs.C_OBJECTTYPE)
+              else if (node.category === constants.gojs.C_OBJECTTYPE)
                 return true;
-            }
-            return false;
+              else 
+                return false;
             }),
           makeButton("Reset to Typeview",
             function (e: any, obj: any) { 
@@ -1737,7 +1734,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const link = obj.part.data;
               if (debug) console.log('984 link', link);
               const currentRelship = myMetis.findRelationship(link.relship.id)
-              const currentType = currentRelship?.type;
+              const currentType = currentRelship?.type as akm.cxRelationshipType;
               const myModel = myMetis.currentModel;
               const myGoModel = myMetis.gojsModel;
               const relships = myModel.getRelationshipsByType(currentType, false);
@@ -1941,10 +1938,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                   alert("New operation was cancelled");
                 } else {
                   const curmodel = myMetis.currentModel;
-                  const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, curmodel);
+                  const modelView = new akm.cxModelView(utils.createGuid(), modelviewName, curmodel, "");
                   model.addModelView(modelView);
                   myMetis.addModelView(modelView);
-                  const data = new jsn.jsnModel(model, true);
+                  let data = new jsn.jsnModel(model, true);
                   if (debug) console.log('593 Diagram', data);
                   data = JSON.parse(JSON.stringify(data));
                   e.diagram.dispatch({ type: 'LOAD_TOSTORE_NEWMODELVIEW', data });
@@ -2100,7 +2097,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               else
                 return true;
             }),
-
           makeButton("Update Project from AdminModel",
           function (e: any, obj: any) {
             let adminModel = myMetis.adminModel;
@@ -2118,8 +2114,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return true; 
             else
               return false;
-          }),
-
+            }),
           makeButton("----------",
             function (e: any, obj: any) {
             },
@@ -2583,20 +2578,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               return true; 
             }),
           makeButton("Verify and Repair Model",
-            function (e: any, obj: any) {
-              if (debug) console.log('2340 myMetis', myMetis);
-              const myModel = myMetis.currentModel;
-              const myModelview = myMetis.currentModelview;
-              const myMetamodel = myMetis.currentMetamodel;
-              const myGoModel = myMetis.gojsModel;
-              if (debug) console.log('2346 myMetis', myMetis);
-              myDiagram.myGoModel = myGoModel;
-              if (debug) console.log('2345 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
-              uic.verifyAndRepairModel(myModelview, myModel, myMetamodel, myDiagram, myMetis);
-              if (debug) console.log('2348 myMetis', myMetis);
-              alert("The current model has been repaired");
-            },
-            function (o: any) { 
+          function (e: any, obj: any) {
+            if (debug) console.log('2340 myMetis', myMetis);
+            const myModel = myMetis.currentModel;
+            const modelviews = myModel.modelviews;
+            const myModelview = myMetis.currentModelview;
+            const myMetamodel = myMetis.currentMetamodel;
+            const myGoModel = myMetis.gojsModel;
+            if (debug) console.log('2346 myMetis', myMetis);
+            myDiagram.myGoModel = myGoModel;
+            if (debug) console.log('2345 model, metamodel', myModelview, myModel, myMetamodel, myDiagram.myGoModel);
+            uic.verifyAndRepairModel(myModel, myMetamodel, modelviews, myDiagram, myMetis);
+            if (debug) console.log('2348 myMetis', myMetis);
+            alert("The current model has been repaired");
+          },
+      function (o: any) { 
               if (myMetis.modelType === 'Metamodelling')
                 return false;
               return true; 
@@ -2817,8 +2813,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     }
     switch (modalContext?.what) {      
       case 'selectDropdown': 
-        let options =  '' 
-        let comps = ''
+        let options =  '';
+        let comps;
         const { Option } = components
         const CustomSelectOption = props => 
         (
@@ -2996,9 +2992,9 @@ return (
           initDiagram={this.initDiagram}
           nodeDataArray={this.props.nodeDataArray}
           linkDataArray={this.props.linkDataArray}
-          myMetis={this.props.myMetis}
           modelData={this.props.modelData}
-          modelType={this.props.modelType}
+          // myMetis={this.props.myMetis}
+          // modelType={this.props.modelType}
           onModelChange={this.props.onModelChange}
           skipsDiagramUpdate={this.props.skipsDiagramUpdate}
         />

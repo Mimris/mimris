@@ -671,8 +671,10 @@ function askForMetamodel(context: any) {
             continue;
         if (metaModel.name === constants.admin.AKM_ADMIN_MM)
             continue;
-        if (metaModel.id === myMetamodel.id)
+        if (metaModel.id === myMetamodel.id) {
+            if (context.case !== 'New Model')
             continue;
+        }
         switch (context.case) {
             case "Delete Metamodel":
             case "Clear Metamodel":
@@ -680,6 +682,7 @@ function askForMetamodel(context: any) {
             case "Generate Target Metamodel":
                 if (metaModel.id === myMetamodel.id)
                     continue;
+                break;
         }
         metaModels.push(metaModel);
       }

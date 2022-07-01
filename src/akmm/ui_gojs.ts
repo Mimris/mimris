@@ -336,6 +336,7 @@ export class goNode extends goMetaObject {
     memberscale:     string;
     strokecolor:     string;
     fillcolor:       string;
+    viewkind:        string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
@@ -348,6 +349,7 @@ export class goNode extends goMetaObject {
         this.memberscale = "";
         this.strokecolor = "";
         this.fillcolor = "";
+        this.viewkind = "";
         this.markedAsDeleted = false;
     }
     // Methods
@@ -368,6 +370,12 @@ export class goNode extends goMetaObject {
     }
     getScale(): string {
         return this.scale1;
+    }
+    setViewkind(kind: string) {
+        this.viewkind = kind;
+    }
+    getViewkind(): string {
+        return this.viewkind;
     }
 }
 
@@ -514,7 +522,7 @@ export class goObjectNode extends goNode {
         }
         return this;
     }
-    getMyScale(model: goModel): number {
+    getMyScale(model: goModel): any {
         // let scale = this.typeview.memberscale;
         let scale = this.scale1;
         const pnode = this.getParentNode(model);
@@ -525,7 +533,7 @@ export class goObjectNode extends goNode {
             scale = 1;
         return scale;
     }
-    getActualScale(model: goModel): number {
+    getActualScale(model: goModel): any {
         let scale1 = this.scale1;
         const node = this.getParentNode(model);
         if (debug) console.log('597 node', node);
@@ -652,10 +660,7 @@ export class goObjectTypeNode extends goNode {
                 this.addData(data);
                 this.setName(objtype.getName());
                 this.setType(constants.gojs.C_OBJECTTYPE);
-                // if (!metamodel) {
-                //     let model = this.parentModel;
-                //     metamodel = model ? model.metamodel : null;
-                // }
+                this.setViewkind(objtype.getViewKind());
                 if (metamodel) {
                     let loc = objtype.getLoc(metamodel)
                     this.setLoc(loc);
@@ -663,7 +668,7 @@ export class goObjectTypeNode extends goNode {
                     this.setSize(size);
                 }
             }
-            if (debug) console.log('455 loadNodeContent', this);
+            if (debug) console.log('671 loadNodeContent', this);
             return true;
         }
         return false;
@@ -896,6 +901,9 @@ export class goRelshipTypeLink extends goLink {
     cardinalityTo: string;
     nameFrom:   string;
     nameTo:     string;
+    strokecolor: string;
+    routing:    string;
+    curve:      string;
     points:     any;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);

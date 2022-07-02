@@ -1,5 +1,11 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false;
+
+const clog = console.log.bind(console, '%c %s', // green colored cosole log
+    'background: green; color: white');
+const ctrace = console.trace.bind(console, '%c %s',
+    'background: green; color: white');
+
 // /**
 // * Generate GoJS model and metamodel from the metisobject in the store,
 // */
@@ -30,13 +36,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   let adminModel;
 
   if (metis != null) {
-    console.log('33 GenGojsModel: phData, metis:', props.phData, props);
+    clog('33 GenGojsModel:', props.phData, props);
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
-    console.log('36 GenGojsModel: myMetis', tempMetis);
+    if (debug) console.log('36 GenGojsModel: myMetis', tempMetis);
     myMetis.importData(metis, true);
     adminModel = buildAdminModel(myMetis);
-    console.log('39 GenGojsModel: myMetis', myMetis);
+    if (debug) console.log('39 GenGojsModel: myMetis', myMetis);
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     if (debug) console.log('43 focusModel, focusModelview', focusModel, focusModelview)

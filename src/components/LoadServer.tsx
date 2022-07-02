@@ -141,11 +141,8 @@ const SelectSource = (props: any) => {
           <div style={{ fontSize: "smaller" }}>
             NB! Clicking "Load a model from Server" will add the model to current store (redux memory).
           </div>
-          {/* <Button color="primary" onClick={toggle}>Set</Button>{' '} */}
           <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle()  }}>Done</Button>
-          {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle();  dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} }) }}>Done</Button> */}
-          {/* <Button className="modal-footer m-0 py-1 px-2" color="link" onClick={() => { toggle(); toggleRefresh(); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} }) }}>Done</Button> */}
-        </ModalFooter>
+       </ModalFooter>
       </Modal>
       <style jsx>{`
             .list-obj {

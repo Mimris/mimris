@@ -22,7 +22,7 @@ const Selector = ( props: any ) => {
     // const workOnTypes = selObj.workOnTypes
     // const focustype = { id: id, name: name, workOnTypes: workOnTypes }
     const data = (selObj) ? { id: id, name: name, selObj } : { id: id, name: name, selObj }
-    if (debug) console.log('22 selector', JSON.parse(event.value), data, type);
+    if (!debug) console.log('22 selector', JSON.parse(event.value), data, type);
     dispatch({ type: type, data: selObj })
     // setRefresh(!refresh)
   }
@@ -61,7 +61,7 @@ const Selector = ( props: any ) => {
         <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)]
     )
 
-  if (debug) console.log('38 selector', focus, options);
+  if (!debug) console.log('38 selector', focus, options);
   const selectDiv = 
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
     ? (props.selName === 'Model') 

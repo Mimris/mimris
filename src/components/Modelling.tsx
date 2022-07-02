@@ -3,7 +3,7 @@
 const debug = false;
 
 // import React from "react";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { connect, useSelector, useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
@@ -30,14 +30,22 @@ import EditFocusModal from '../components/EditFocusModal'
 
 const page = (props:any) => {
 
-  if (debug) console.log('28 Modelling', props, props.phUser.focusUser.diagram);
   const dispatch = useDispatch();
+  const [mount, setMount] = useState(false)
   const [refresh, setRefresh] = useState(true);
+
+  useEffect(() => {
+    setMount(true)
+  }, [])
+
+  let isRendered = useRef(false);
+
+  if (debug) console.log('33 Modelling', props, props.phUser.focusUser.diagram);
 
   // const refresh = props.refresh
   // const setRefresh = props.setRefresh
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
-  if (!memoryLocState) {setMemoryLocState(props)}
+  if (!memoryLocState && (typeof window != 'undefined')) {setMemoryLocState(props)}
 
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
@@ -72,6 +80,8 @@ const page = (props:any) => {
   let phData = props.phData
   let phUser = props.phUser
 
+
+
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
     // useEffect(() => {
@@ -85,31 +95,36 @@ const page = (props:any) => {
     // }, [curmod])
 
     useEffect(() => {
-      setTimeout(refres, 100);
-      if (debug) console.log('88 Modelling useEffect 2', props); 
-      const data = {
-        phData: props.phData,
-        phFocus: props.phFocus,
-        phUser: props.phUser,
-        phSource: props.phSource
-      };
-      if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
-      setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
-      genGojsModel(props, dispatch);
+      isRendered = true;
+      if (isRendered) {
+        // setTimeout(refres, 100);
+        if (!debug) console.log('89 Modelling useEffect', props); 
+        const data = {
+          phData: props.phData,
+          phFocus: props.phFocus,
+          phUser: props.phUser,
+          phSource: props.phSource
+        };
+        if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
+        setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+
+        genGojsModel(props, dispatch);
+      }
       function refres() {
         setRefresh(!refresh)
       }
       setTimeout(refres, 100);
+      return () => { isRendered = false; }
     }, [focusModelview?.id, focusModel?.id, curmod])
 
-    useEffect(() => {
-      if (debug) console.log('97 Modelling useEffect 3', props); 
-      genGojsModel(props, dispatch);
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1);
-    }, [props.phFocus?.focusRefresh?.id])
+    // useEffect(() => {
+    //   if (!debug) console.log('106 Modelling useEffect', props); 
+    //   genGojsModel(props, dispatch);
+    //   function refres() {
+    //     setRefresh(!refresh)
+    //   }
+    //   setTimeout(refres, 1);
+    // }, [props.phFocus?.focusRefresh?.id])
 
     // useEffect(() => {
     //   if (debug) console.log('106 Modelling useEffect 4', props); 
@@ -149,7 +164,7 @@ const page = (props:any) => {
     }
 
   function toggleRefresh() {
-    if (debug) console.log('116 Modelling',  props.phUser.focusUser.diagram);
+    if (!debug) console.log('152 Modelling',  props.phUser.focusUser.diagram);
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,
@@ -158,7 +173,7 @@ const page = (props:any) => {
     };
     // setTimeout(refres, 1);
     if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
-    setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+    (typeof window !== 'undefined') && setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
     function refres() {
       setRefresh(!refresh)
@@ -181,7 +196,7 @@ const page = (props:any) => {
       setVisibleTasks(!visibleTasks);
     }
 
-  const modellingtabs = (<>
+  const modellingtabs =  (<>
       <Nav tabs >
         {/* <NavItem className="text-danger" >
           <NavLink style={{ paddingTop: "0px", paddingBottom: "0px" }}
@@ -424,38 +439,38 @@ const page = (props:any) => {
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // if (debug) console.log('177 Modelling', EditFocusModalDiv);
 
-  return (
+  return  mount && (
     <>
       <div className="diagramtabs pl-1 pb-0">
-      {/* <div className="diagramtabs pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "100px" , whitespace: "nowrap"}}> */}
-          <span className="btn-link btn-sm float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
-          <div className="buttonrow m-0 d-inline-flex float-right" style={{transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
-            {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-              <span className="pt-1 pb-1 m-0 pr-2 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
- 
-              <span className="pt-1 pr-1" > </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" > {loadfile} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
-              {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
-              <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-              Project: 
-              <span className="sourceName p-0 ml-2 mb-1 " style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#fff"}}>
-               <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
-              </span>
-              <span >
-                <button 
-                  className="btn-secondary ml-2 mr-2 mb-3 " 
-                  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                  title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-                  onClick={handleSaveAllToFileDate}>Save
-                </button >
-              </span> 
-            {/* </div>  */}
-          </div> 
+        {/* <div className="diagramtabs pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "100px" , whitespace: "nowrap"}}> */}
+        <span className="btn-link btn-sm float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+        <div className="buttonrow m-0 d-inline-flex float-right" style={{transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
+          {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
+            <span className="pt-1 pb-1 m-0 pr-2 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
+
+            <span className="pt-1 pr-1" > </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" > {loadfile} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
+            {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
+            Project: 
+            <span className="sourceName p-0 ml-2 mb-1 " style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#fff"}}>
+              <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
+            </span>
+            <span >
+              <button 
+                className="btn-secondary ml-2 mr-2 mb-3 " 
+                data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                onClick={handleSaveAllToFileDate}>Save
+              </button >
+            </span> 
+          {/* </div>  */}
+        </div> 
         <div className="modellingContent pt-3 pr-2"  >
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>

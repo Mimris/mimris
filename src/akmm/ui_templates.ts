@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts-nocheck
 const debug = false; 
 import * as go from 'gojs';
 // import * as figures from 'gojs/extensions/Figures';

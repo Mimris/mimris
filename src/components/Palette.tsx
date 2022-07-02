@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState , useEffect } from "react";
+import React, { useState , useEffect, useRef } from "react";
 import { useDispatch } from 'react-redux';
 import { TabContent, TabPane, Nav, NavItem, NavLink, Row, Col, Tooltip } from 'reactstrap';
 import classnames from 'classnames';
@@ -9,13 +9,27 @@ import Selector from './utils/Selector'
 
 const debug = false;
 
+const clog = console.log.bind(console, '%c %s',
+    'background: green; color: white');
+const ctrace = console.trace.bind(console, '%c %s',
+    'background: green; color: white');
+
 const Palette = (props: any) => {
   const dispatch = useDispatch();
-  // break if no model
-  if (!props.gojsModel) return null;
-  if (!props.gojsMetamodel) return null;
-  if (debug) console.log('13 Palette ',  props );
 
+  let isRendered = useRef(false);
+
+  // /** Toggle divs **/
+  const [visiblePalette, setVisiblePalette] = useState(true)
+  const [ofilter, setOfilter] = useState('All')
+  const [refreshPalette, setRefreshPalette] = useState(true)
+  
+  const [refresh, setRefresh] = useState(true)
+  function toggleRefresh() { setRefresh(!refresh); }
+  
+  
+  const [activeTab, setActiveTab] = useState('1');
+  
 
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
@@ -25,104 +39,76 @@ const Palette = (props: any) => {
   if (debug) console.log('16', props, mmodel?.name, model?.metamodelRef);
   let focusTask = props.phFocus?.focusTask
   const focusRole = props.phFocus?.focusRole
+    
+  // const [isOpen, setIsOpen] = useState(false);
+  // const toggle = () => setIsOpen(!isOpen); 
   
+  const toggleTab = (tab: React.SetStateAction<string>) => { if (activeTab !== tab) setActiveTab(tab); }
+  function togglePalette() { setVisiblePalette(!visiblePalette); } 
+  function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
 
+  // useEffect(() => { // toggle refresh when loading
+  //   console.log('51 Palette useEffect');
+  //   isRendered = true;
+  //   if (isRendered) {
+  //    toggleRefreshPalette()
+  //   }
+  //   return () => { isRendered = true; }
+  // }, [])
 
+  // const [tooltipOpen, setTooltipOpen] = useState(false);
+  // const toggleTip = () => setTooltipOpen(!tooltipOpen);
+  
   // const unsorted = props.gojsMetamodel?.nodeDataArray
   
   //rearrange sequence
   let ndarr = props.gojsMetamodel?.nodeDataArray
-  let filteredArr = ndarr.filter((n: any) => n)
-  let ldarr = props.gojsMetamodel?.linkDataArray
+  // let filteredArr = ndarr.filter((n: any) => n)
+  // let ldarr = props.gojsMetamodel?.linkDataArray
   let seltasks = focusRole?.tasks?.map((t: any) => t)
   if (debug) console.log('25 propsMetamodel', model?.name, mmodel?.name, ndarr);
   
-  const hasIrtv = ndarr?.find((i: { typename: string; }) => i?.typename === 'Role')
-  const hasOsdu = ndarr?.find((i: { typename: string; }) => i?.typename === 'JsonObject')
-
   // const [otfilter, setOtfilter] = useState('All')
-  const [ofilter, setOfilter] = useState('All')
-  const [refreshPalette, setRefreshPalette] = useState(true)
   // const [gojstypes, setGojstypes] = useState(ndarr)
   // let gojstypes = ndarr
 
+
   
-  
-  function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
-  
-  // let taskNodeDataArray: any[] = ndarr 
-  let taskNodeDataArray: any[] = (props.phFocus.focusTask?.workOnTypes) 
-    ? props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
-        ndarr?.find((i: { typename: any; }) => {
-          return (i?.typename === wot) && i 
-        })
-      )
-    : ndarr
+  let taskNodeDataArray: any[] 
 
- console.log('49 ', taskNodeDataArray);    
-
-  // useEffect(() => {
-  //   (taskNodeDataArray) ? setGojstypes(taskNodeDataArray) : setGojstypes(ndarr)
-
-  //   function refres() {      
-  //     // console.log('57 useEffect', gojstypes, ndarr);    
-  //     toggleRefreshPalette()
-  //     // console.log('59 useEffect', gojstypes);
-  //   }
-  //   setTimeout(refres, 1000);
-
-  // }, [!gojstypes])
-
-  // const handleSetFilter = (filter: React.SetStateAction<string>) => {
-  //   // if (debug) console.log('148 Palette handleSetFilter', filter, focusTask.workOnTypes[1]);
-  //   setOtfilter(filter)
-  //   gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
-  //   toggleRefreshPalette()
-  // }
-
-
-  // -----------------------------------------------------
-  useEffect(() => {
-    console.log('89 useEffect', focusTask);
-    taskNodeDataArray = focusTask?.workOnTypes?.map((wot: any) => 
+  if (focusTask)  taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
       ndarr?.find((i: { typename: any; }) => {
         return (i?.typename === wot) && i 
       })
     )
-    // console.log('100 useEffect', taskNodeDataArray);
-    // function refres() {        
-    //   toggleRefreshPalette() 
+
+
+  useEffect(() => { // -----------------------------------------------------------------------------
+    console.log('82 Palette useEffect 2', focusTask);
+    // isRendered = true;
+    // if (isRendered) {
+      taskNodeDataArray = focusTask?.workOnTypes?.map((wot: any) => 
+        ndarr?.find((i: { typename: any; }) => {
+          return (i?.typename === wot) && i 
+        })
+      )
+      function refres() {        
+        toggleRefreshPalette() 
+      }
+      setTimeout(refres, 1000);
     // }
-    // setTimeout(refres, 1000);
-    // filteredOtNodeDataArray = taskNodeDataArray?.filter(i => i)
-    // seltasks = focusRole?.tasks?.map((t: any) => t)
-    // focusTask = focusRole?.tasks?.find((t: { id: any; }) => t?.id === focusTask?.id)
+    // return () => { isRendered = true; }
+  }, [props.phFocus.focusTask?.id])
 
-    console.log('100 useEffect', taskNodeDataArray);
-    function refres() {        
-      toggleRefreshPalette() 
-    }
-    setTimeout(refres, 1000);
-  }, [props.phFocus.focusTask])
+  // break if no model
+  if (!props.gojsModel) return null;
+  if (!props.gojsMetamodel) return null;
+  if (!debug) clog('22 Palette', props);
+  
 
-  console.log('111 ', taskNodeDataArray);
-
-
- 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr :taskNodeDataArray    
 
-
-  // const filteredOtNodeDataArray = (gojstypes === null) ? ndarr : (!taskNodeDataArray) ? ndarr : gojstypes    
-
-  // if (gojstypes) console.log('99 Palette filteredArr', ndarr,  gojstypes, taskNodeDataArray, filteredOtNodeDataArray);
-
-  // set nodeDataArray = fileredArr and linkDataArray = ldarr
   // ================================================================================================
-
-
-  
-
-  
   // ================================================================================================
   // Show all the objects in this model
   const gojsmodelObjects = props.gojsModelObjects
@@ -173,26 +159,6 @@ const Palette = (props: any) => {
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
 
 
-
-
-
-  // /** Toggle divs **/
-  const [visiblePalette, setVisiblePalette] = useState(true)
-  function togglePalette() { setVisiblePalette(!visiblePalette); }
-  const [isOpen, setIsOpen] = useState(false);
-  const toggle = () => setIsOpen(!isOpen); 
-
-  const [refresh, setRefresh] = useState(true)
-  function toggleRefresh() { setRefresh(!refresh); }
-
-  useEffect(() => { // toggle refresh when loading
-    toggleRefreshPalette()
-  }, [])
-
-  const [activeTab, setActiveTab] = useState('1');
-  const toggleTab = (tab: React.SetStateAction<string>) => { if (activeTab !== tab) setActiveTab(tab); }
-  const [tooltipOpen, setTooltipOpen] = useState(false);
-  const toggleTip = () => setTooltipOpen(!tooltipOpen);
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
@@ -300,7 +266,7 @@ const Palette = (props: any) => {
       </>  
   
 
-  return (
+  return  isRendered && (
     <>
       {palette} 
       {/* {refreshPalette ? <> {palette} </> : <> {palette} </>} */}

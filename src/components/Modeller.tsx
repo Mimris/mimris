@@ -181,7 +181,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
   }, [activeTab])
 
   useEffect(() => {
-    if (!debug) console.log('125 Modeller useEffect 5', props); 
+    if (debug) console.log('125 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
 
@@ -285,11 +285,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             Current source:  {props.phSource} 
           </span> 
         </div>
-        <style jsx>{`
-        // .diagram-component {
-        //   height: 80%;
-        // }
-        `}</style>
+
       </div>
     :
       <div className="mt-2 mb-5" style={{backgroundColor: "#7ac"}}>

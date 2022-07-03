@@ -1990,7 +1990,7 @@ export class cxMetis {
         }
         return null;
     }
-    findModelByMetamodelAndName(metamodel: cxMetamodel, name: string): cxModel | null {
+    findModelByMetamodelAndName(metamodel: cxMetaModel, name: string): cxModel | null {
         const models = this.getModels();
         if (!models) {
             return null;
@@ -3019,7 +3019,7 @@ export class cxMetaModel extends cxMetaObject {
         this.clearContent();
     }
     // Methods
-    clearContent(onlyUsedInCurrent: boolean) {
+    clearContent() {
             this.metamodels = null;
             this.viewstyle  = null; // Current viewstyle
             this.viewstyles = [];
@@ -5056,7 +5056,7 @@ export class cxObjectType extends cxType {
             return null;
         }
     }
-    numberOfMetamodelsUsage(metis: cxMetis): integer {
+    numberOfMetamodelsUsage(metis: cxMetis): number {
         let count = 0;
         const metamodels = metis.metamodels;
         for (let i=0; i<metamodels.length; i++) {
@@ -5234,7 +5234,7 @@ export class cxRelationshipType extends cxObjectType {
     setToObjectType(objtype: cxObjectType) {
         this.toObjtype = objtype;
     }
-    numberOfMetamodelsUsage(metis: cxMetis): integer {
+    numberOfMetamodelsUsage(metis: cxMetis): number {
         let count = 0;
         const metamodels = metis.metamodels;
         for (let i=0; i<metamodels.length; i++) {
@@ -5741,6 +5741,7 @@ export class cxRelationshipTypeView extends cxMetaObject {
     }
     setType(type: cxRelationshipType) {
         this.typeRef = type?.id;
+        // this.type = type;
     }
     // getType(): cxRelationshipType | null {
     //     if (this.type)
@@ -5768,15 +5769,15 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.setFromArrow2(kind);
         this.setToArrow2(kind);
     }
-    getRelshipKind(): string {
-        let retval = this.data.relshipkind;
-        if (!retval) {
-            let type = this.getType();
-            if (type)
-                retval = type.getRelshipKind();
-        }
-        return retval;
-    }
+    // getRelshipKind(): string {
+    //     let retval = this.data.relshipkind;
+    //     if (!retval) {
+    //         let type = this.getTypeRef();
+    //         if (type)
+    //             retval = type.getRelshipKind();
+    //     }
+    //     return retval;
+    // }
     setStrokecolor(strokecolor: string) {
         this.data.strokecolor = strokecolor;
         this.strokecolor = strokecolor;
@@ -7597,6 +7598,16 @@ export class cxObjectView extends cxMetaObject {
         if (utils.objExists(this.parent))
             return this.parent;
         return "";
+    }
+    setTemplate(template: string) {
+        if (template == undefined)
+        template = "";
+        this.template = template;
+    }
+    getTemplate(): string {
+        if (this.template == undefined)
+            return "";
+        return this.template;
     }
     setSize(size: string) {
         if (size == undefined)

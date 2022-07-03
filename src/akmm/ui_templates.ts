@@ -1638,21 +1638,21 @@ export function setDashed(d: string) {
     }
 }
 
-function makeLayout(horiz) {  // a Binding conversion function
-    if (horiz) {
-      return new go.GridLayout(
-        {
-          wrappingWidth: Infinity, alignment: go.GridLayout.Position,
-          cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
-        });
-    } else {
-      return new go.GridLayout(
-        {
-          wrappingColumn: 1, alignment: go.GridLayout.Position,
-          cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
-        });
-    }
-}
+// function makeLayout(horiz) {  // a Binding conversion function
+//     if (horiz) {
+//       return new go.GridLayout(
+//         {
+//           wrappingWidth: Infinity, alignment: go.GridLayout.Position,
+//           cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
+//         });
+//     } else {
+//       return new go.GridLayout(
+//         {
+//           wrappingColumn: 1, alignment: go.GridLayout.Position,
+//           cellSize: new go.Size(1, 1), spacing: new go.Size(4, 4)
+//         });
+//     }
+// }
 
 function defaultColor(horiz) {  // a Binding conversion function
 return horiz ? "rgba(255, 221, 51, 0.55)" : "rgba(51,211,229, 0.5)";

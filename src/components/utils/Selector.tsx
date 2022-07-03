@@ -1,4 +1,5 @@
 import { useDispatch } from 'react-redux'
+import { CLOSING } from 'ws';
 const debug = false
 const Selector = ( props: any ) => {
 
@@ -27,41 +28,20 @@ const Selector = ( props: any ) => {
     // setRefresh(!refresh)
   }
   // console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );
-
-  let focus = 'Model' 
-    switch (props.selName) {
-      case 'Model':
-        focus = props.focusModel?.name
-        break;
-      case 'Modelview':
-        focus = props.focusModelview?.name
-        break;
-      case 'Task':
-        focus = props.focusTask?.name
-        break;
-      default:
-        focus = ''
-        break;
-    }
-
-        
   
-  const options = selArray && ( //sf TODO:  modelview is mapped 2 times
-    (focus !== '') 
-      ? [
-        <option  key={focus}  value={`${focus}...`} > {selArray[0]?.name} </option>,
-        selArray.map((m: any, index) => (m) && (m.name !== 'Select '+props.selName+'...') &&
-        // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
-        <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})} > {m.name} </option>)]
-      : [
-        <option key={focus+1} value={`${focus}...`} >{selArray[0]?.name}</option>,
-        // <option key={focus+1} value={`${focus}...`} >Select {props.selName}... </option>,
-        selArray.map((m: any) => (m) && (m.name !== 'Select '+props.selName+'...') &&
-        // selArray.map((m: any) => (m.name !== focus && m.name !== 'Select '+ props.selName+'...') &&
-        <option key={m.id} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)]
-    )
+  let options, optionss, focusItem
+  
+  // if (props.selName === 'Model' || 'Modelview') 
+  //   {
+  (props.selName === 'Model') ? focusItem = props.focusModel?.name : focusItem = props.focusModelview?.name
+  console.log('37 selector', props, focusItem);
+  [options = selArray && ( //sf TODO:  modelview is mapped 2 times 
+    selArray.map((m: any, index) => (m) && (m.name !== 'Select '+props.selName+'...') &&
+    <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)
+  )]
 
-  if (!debug) console.log('38 selector', focus, options);
+
+
   const selectDiv = 
     ((props.selName === 'Model') || (props.selName === 'Modelviews'))
     ? (props.selName === 'Model') 
@@ -69,7 +49,7 @@ const Selector = ( props: any ) => {
       <div className="mod-modview w-25 float-right">
         <div key={props.type} className="select w-100" >
             <span className="title mx-0 float-left ">{props.selName} :</span>
-            <select key={focus} className="list-obj mx-2 w-75" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+            <select key={focusItem} className="list-obj mx-2 w-75" defaultValue={`Select ${props.selName} ...`} //style={{ width: "70%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
               onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
               {options}
             </select>
@@ -86,9 +66,10 @@ const Selector = ( props: any ) => {
     :
     <div className="mod-modview">
       <div key={props.type} className="select" >
-        <div  className="title float-left mr-1 "> {props.selName}:</div>
-        <select key={focus} className="list-obj w-100" defaultValue={`Select ${props.selName} ...`} style={{ width: "68%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
+        {/* <div  className="title float-left mr-1 "> {props.selName}:</div> */}
+        <select key={focusItem} className="list-obj w-100" defaultValue={`Select ${props.selName} ...`} style={{ width: "68%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
           onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
+          <option disabled selected > -- select an option -- </option>
           {options}
         </select>
       </div>

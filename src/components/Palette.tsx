@@ -72,8 +72,6 @@ const Palette = (props: any) => {
   // const [gojstypes, setGojstypes] = useState(ndarr)
   // let gojstypes = ndarr
 
-
-  
   let taskNodeDataArray: any[] 
 
   if (focusTask)  taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
@@ -82,11 +80,10 @@ const Palette = (props: any) => {
       })
     )
 
-
   useEffect(() => { // -----------------------------------------------------------------------------
-    console.log('82 Palette useEffect 2', focusTask);
     // isRendered = true;
     // if (isRendered) {
+      console.log('82 Palette useEffect 2', props.phFocus.focusTask);
       taskNodeDataArray = focusTask?.workOnTypes?.map((wot: any) => 
         ndarr?.find((i: { typename: any; }) => {
           return (i?.typename === wot) && i 
@@ -97,13 +94,13 @@ const Palette = (props: any) => {
       }
       setTimeout(refres, 1000);
     // }
-    // return () => { isRendered = true; }
-  }, [props.phFocus.focusTask?.id])
+    // return () => { isRendered = false; }
+  }, [props.phFocus.focusTask?.workOnTypes])
 
   // break if no model
   if (!props.gojsModel) return null;
   if (!props.gojsMetamodel) return null;
-  if (!debug) clog('22 Palette', props);
+  if (debug) clog('22 Palette', props);
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr :taskNodeDataArray    
@@ -163,15 +160,19 @@ const Palette = (props: any) => {
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
 
-  if (debug) console.log('54 Palette', props.phFocus?.focusRole, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
+  if (!debug) console.log('163 Palette', props.phFocus?.focusRole, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
 
   let selectTaskDiv = (seltasks)
     ?
+    <>
+    {/* <details><summary markdown="span">Task <code>(Typefilter)</code></summary> */}
+    <details><summary markdown="span">Task</summary>
       <div className="seltask w-100">
-        <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Select Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
-        <div>{focusTask.name}</div>
+        <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
       </div>
-
+      </details>
+    <div>{focusTask.name}</div>
+    </>
     :
       <div className="seltask w-100"></div>
 
@@ -265,8 +266,9 @@ const Palette = (props: any) => {
         </div>
       </>  
   
-
-  return  isRendered && (
+  if (!debug) clog('265 Palette', isRendered, props);
+  // return  isRendered && (
+  return (
     <>
       {palette} 
       {/* {refreshPalette ? <> {palette} </> : <> {palette} </>} */}

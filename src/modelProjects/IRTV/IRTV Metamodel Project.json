@@ -24,7 +24,7 @@
               "name": "Container",
               "description": "",
               "abstract": false,
-              "viewkind": "",
+              "viewkind": "Container",
               "typename": "Object type",
               "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
               "properties": [],
@@ -1763,9 +1763,9 @@
               "name": "a3112875-e4fe-4100-b290-5634d8b8acfc",
               "description": "",
               "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-              "viewkind": "Object",
+              "viewkind": "Container",
               "isGroup": false,
-              "template": "textOnly",
+              "template": "Container1",
               "geometry": "",
               "fillcolor": "white",
               "strokecolor": "black",
@@ -4113,7 +4113,7 @@
               "name": "Container",
               "description": "",
               "abstract": false,
-              "viewkind": "",
+              "viewkind": "Container",
               "typename": "Object type",
               "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
               "properties": [],
@@ -4490,7 +4490,7 @@
               "id": "5718b4c7-3aa1-4ee3-0a9d-5e7cdcd18a24",
               "name": "Is",
               "description": "",
-              "typeviewRef": "27eb5fd1-c46e-4edd-79fa-cf61f0ccc1f2",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4502,13 +4502,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "5c58ee46-38af-49e3-c2e0-cb58166cf9c7",
               "name": "Is",
               "description": "",
-              "typeviewRef": "69ed8cdc-61e9-45fa-a774-a1985b4dd76d",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4520,31 +4520,31 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "69a15677-c416-46c1-f1a6-ba51c6819d30",
               "name": "isRelatedTo",
               "description": "",
-              "typeviewRef": "c4190b47-3a82-4032-f6e1-8cd7259e93b6",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
               "toobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
               "cardinality": "",
-              "cardinalityFrom": "n",
-              "cardinalityTo": "n",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "32f941fb-51df-431b-ffbb-5a3a75218862",
               "name": "Is",
               "description": "",
-              "typeviewRef": "c2a8a6fe-14d7-42f3-8c45-08e2b3a2db07",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4556,31 +4556,31 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "22f50fa8-90be-4738-8f71-670a19668fe0",
               "name": "has",
               "description": "",
-              "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
               "toobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
-              "cardinality": "0-n",
-              "cardinalityFrom": "0",
-              "cardinalityTo": "n",
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "1839b2e5-4b21-434d-8ee1-f88745d396da",
               "name": "Is",
               "description": "",
-              "typeviewRef": "f43c5769-bd6a-455f-669f-d39e5d299935",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4592,139 +4592,139 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "c1716ead-9945-44d8-b7a8-f699ccaae48b",
               "name": "has",
               "description": "",
-              "typeviewRef": "f9c14c3a-cf70-43c3-28cd-f8933e17e1a4",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
               "toobjtypeRef": "91c27596-9910-49c3-9088-44da75085f14",
-              "cardinality": "0-1",
-              "cardinalityFrom": "0",
-              "cardinalityTo": "1",
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "b1706580-fc46-41b2-2339-7fea9eba9634",
               "name": "isOf",
               "description": "",
-              "typeviewRef": "54c8e777-6f6c-4250-3e0c-cfe6e406bcc3",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
               "toobjtypeRef": "c30f6e2c-d04b-4360-fc17-002d1c4162f8",
-              "cardinality": "0-1",
-              "cardinalityFrom": "0",
-              "cardinalityTo": "1",
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "443a5498-5f4b-4870-aae7-367445e4cd1b",
               "name": "has",
               "description": "",
-              "typeviewRef": "892b29c0-6e9c-429b-d6f9-1c31d22d9031",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "c30f6e2c-d04b-4360-fc17-002d1c4162f8",
               "toobjtypeRef": "e07dbd76-f1ec-492e-cfce-c8cb5a2fab3c",
-              "cardinality": "0-1",
-              "cardinalityFrom": "0",
-              "cardinalityTo": "1",
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "89116b67-d68e-4d41-b69e-6f679e3a5ec2",
               "name": "has",
               "description": "",
-              "typeviewRef": "e1b136c7-018d-4dd8-33bd-82e075b322b2",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "c30f6e2c-d04b-4360-fc17-002d1c4162f8",
               "toobjtypeRef": "1b6ba1b5-f716-4777-deab-cf91b0f53218",
-              "cardinality": "0-1",
-              "cardinalityFrom": "0",
-              "cardinalityTo": "1",
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "dd48d94f-bfd9-4785-14a4-540f9334a85e",
               "name": "has",
               "description": "",
-              "typeviewRef": "b48b2cb8-0d9c-4bc8-baae-61c5d916b2d0",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "c30f6e2c-d04b-4360-fc17-002d1c4162f8",
               "toobjtypeRef": "b5cd30a2-6213-402a-a64a-85c6eff312f5",
-              "cardinality": "0-1",
-              "cardinalityFrom": "0",
-              "cardinalityTo": "1",
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "2898265c-33b9-4a5b-87b7-a913805f58bf",
               "name": "hasAllowed",
               "description": "",
-              "typeviewRef": "3e1ac72c-1a2e-40dd-b673-d78ca0777dd8",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "c30f6e2c-d04b-4360-fc17-002d1c4162f8",
               "toobjtypeRef": "91c27596-9910-49c3-9088-44da75085f14",
-              "cardinality": "0-n",
-              "cardinalityFrom": "0",
-              "cardinalityTo": "n",
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "54e8e8e8-5138-45ec-9ef9-93b6b391235f",
               "name": "isDefault",
               "description": "",
-              "typeviewRef": "1ca7851f-f1d9-4965-ab51-72ba7ea3ec56",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
               "fromobjtypeRef": "c30f6e2c-d04b-4360-fc17-002d1c4162f8",
               "toobjtypeRef": "91c27596-9910-49c3-9088-44da75085f14",
-              "cardinality": "0-1",
-              "cardinalityFrom": "0",
-              "cardinalityTo": "1",
+              "cardinality": "",
+              "cardinalityFrom": "",
+              "cardinalityTo": "",
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "6e8fa497-32c2-4d0f-91b6-25c4b2dee58b",
               "name": "Is",
               "description": "",
-              "typeviewRef": "874f7c58-c613-4da9-56b7-035d02e28dc3",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4736,13 +4736,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "0192a5a5-8e40-49d3-8bad-e4daeb785e81",
               "name": "Is",
               "description": "",
-              "typeviewRef": "e7c6f03b-d5a7-42c9-171e-e78e658c5fe2",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4754,13 +4754,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "3e1bc24d-7b52-4de1-258f-64e2f6dfe697",
               "name": "Is",
               "description": "",
-              "typeviewRef": "2ad24973-bae9-4781-092f-dbe6aba5388e",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4772,13 +4772,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "8397f4a4-f8f5-4958-cf78-e99f506e0792",
               "name": "has",
               "description": "",
-              "typeviewRef": "063bfe99-b439-4ffa-f1cd-a4438cb8c29e",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4790,13 +4790,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "6200a1f1-90e4-4e40-5215-56a277780666",
               "name": "Is",
               "description": "",
-              "typeviewRef": "fbbc7e02-134c-4057-1286-0b829ed25c63",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4808,13 +4808,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "1ef01bf6-c3d6-4a6e-1354-d4d833199052",
               "name": "isOf",
               "description": "",
-              "typeviewRef": "399fbde1-1c9f-4c32-769d-fca04daf2159",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4826,13 +4826,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "f91bc898-4d25-4617-8ed6-bb9d071c468c",
               "name": "isOf",
               "description": "",
-              "typeviewRef": "be59cc7b-5c00-41d4-c48d-834202171b45",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4844,13 +4844,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "01529391-f452-40b0-9b0a-965171169881",
               "name": "Is",
               "description": "",
-              "typeviewRef": "ec3d7b4b-f489-4343-6265-baf947077b22",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4862,13 +4862,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "2c019c92-ca60-47fb-c5c2-daaeed8e9c03",
               "name": "has",
               "description": "",
-              "typeviewRef": "e9911cf7-3271-4ef7-35f7-9fdafa8dfe67",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4880,13 +4880,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "c441a883-b9df-4f08-e447-20a1ff13cbab",
               "name": "hasContent",
               "description": "",
-              "typeviewRef": "c6580e05-bf60-4420-bbe3-38d359c0a366",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4898,13 +4898,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "3f739100-23e2-4582-1bb4-f55a1ae0b286",
               "name": "hasLabel",
               "description": "",
-              "typeviewRef": "87fc3b22-6947-4182-2ba2-4279a24e76d4",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4916,13 +4916,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
               "name": "relationshipType",
               "description": "",
-              "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4934,13 +4934,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "a4fbd9fa-a018-487d-0d9f-3c7787a507f9",
               "name": "Is",
               "description": "",
-              "typeviewRef": "aef9ce27-8080-4408-0d54-1e1959d5b15f",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Generalization",
               "viewkind": "",
@@ -4952,13 +4952,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "ffba4fe9-bace-4bd3-0734-619f1c6e5c7a",
               "name": "from",
               "description": "",
-              "typeviewRef": "da0c182a-72c2-4d2b-f052-410de1e80762",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4970,13 +4970,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "38be5614-3a23-4193-0aec-311c45f1f6a3",
               "name": "to",
               "description": "",
-              "typeviewRef": "b8c49fd7-65af-42c6-c895-5f7ad9d247f4",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -4988,13 +4988,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "1165d437-5ae7-4af4-8afb-37ae3430fd93",
               "name": "has",
               "description": "",
-              "typeviewRef": "f87bf8cc-f2e2-4fd6-a7d9-198e9af39dff",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -5006,13 +5006,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "4e15d68d-8e3f-4de0-cf51-51ebfd363cb7",
               "name": "hasContent",
               "description": "",
-              "typeviewRef": "e0848d44-15b1-43fa-6b04-aadf4608666b",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -5024,13 +5024,13 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "4d07da8b-ecc6-4920-15e8-b0905d0a9cd0",
               "name": "contains",
               "description": "",
-              "typeviewRef": "3e83cfab-251c-4251-9280-f94d7cbed30a",
+              "typeviewRef": "",
               "properties": [],
               "relshipkind": "Association",
               "viewkind": "",
@@ -5042,7 +5042,7 @@
               "nameFrom": "",
               "nameTo": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "313e813b-a1fb-4180-0d64-ee8c5ec0e0b8",
@@ -5477,7 +5477,7 @@
               "name": "Container",
               "description": "",
               "abstract": false,
-              "viewkind": "",
+              "viewkind": "Container",
               "typename": "Object type",
               "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
               "properties": [],
@@ -5488,7 +5488,78 @@
             }
           ],
           "relshiptypes0": [],
-          "properties": [],
+          "properties": [
+            {
+              "id": "d210b11b-84eb-471d-aa93-15cb25b9f5db",
+              "name": "fieldType",
+              "description": "",
+              "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
+              "methodRef": "",
+              "unitCategoryRef": "",
+              "defaultValue": "",
+              "inputPattern": "",
+              "viewFormat": "",
+              "example": "",
+              "markedAsDeleted": false,
+              "modified": false
+            },
+            {
+              "id": "95292049-811b-46d0-c202-bba9466fde50",
+              "name": "pattern",
+              "description": "",
+              "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
+              "methodRef": "",
+              "unitCategoryRef": "",
+              "defaultValue": "",
+              "inputPattern": "",
+              "viewFormat": "",
+              "example": "",
+              "markedAsDeleted": false,
+              "modified": false
+            },
+            {
+              "id": "f2a07c3b-025f-483c-327a-7e6a8f6b283b",
+              "name": "text",
+              "description": "",
+              "datatypeRef": "7c4672a0-c6ee-48a2-0bc5-e344d1564cbb",
+              "methodRef": "",
+              "unitCategoryRef": "",
+              "defaultValue": "",
+              "inputPattern": "",
+              "viewFormat": "",
+              "example": "",
+              "markedAsDeleted": false,
+              "modified": false
+            },
+            {
+              "id": "d836ad9a-00f6-4cf2-2986-9ca1b4e71498",
+              "name": "methodtype",
+              "description": "",
+              "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
+              "methodRef": "",
+              "unitCategoryRef": "",
+              "defaultValue": "",
+              "inputPattern": "",
+              "viewFormat": "",
+              "example": "",
+              "markedAsDeleted": false,
+              "modified": false
+            },
+            {
+              "id": "ed7f1d92-88ed-46bc-7dc9-0e5c55f83bdb",
+              "name": "viewFormat",
+              "description": "",
+              "datatypeRef": "160e8cac-4003-4b00-175f-2b720ba088e0",
+              "methodRef": "",
+              "unitCategoryRef": "",
+              "defaultValue": "",
+              "inputPattern": "",
+              "viewFormat": "",
+              "example": "",
+              "markedAsDeleted": false,
+              "modified": false
+            }
+          ],
           "methods": [],
           "methodtypes": [
             {
@@ -6230,9 +6301,9 @@
               "name": "a3112875-e4fe-4100-b290-5634d8b8acfc",
               "description": "",
               "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-              "viewkind": "Object",
+              "viewkind": "Container",
               "isGroup": false,
-              "template": "textOnly",
+              "template": "Container1",
               "geometry": "",
               "fillcolor": "white",
               "strokecolor": "black",
@@ -6598,7 +6669,7 @@
               "loc": "-430 230",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "857c999b-3577-4253-fd0c-6ef7b8f01d4f",
@@ -6609,7 +6680,7 @@
               "loc": "380 -160",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "bb2c3570-fa17-49b7-9f19-3237528d14ac",
@@ -6620,7 +6691,7 @@
               "loc": "50 240",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "badab530-8b33-4d44-b3b0-e7a68131d779",
@@ -6631,7 +6702,7 @@
               "loc": "50 -80",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "5f7e5066-799b-4d9d-4b48-e27609673b70",
@@ -6642,7 +6713,7 @@
               "loc": "670 -160",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "dc51d966-55ed-4f09-143b-28cd3b620102",
@@ -6653,7 +6724,7 @@
               "loc": "300 310",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "0f7ac47c-1674-4d2c-dfa1-ed2a2c193432",
@@ -6664,7 +6735,7 @@
               "loc": "640 -320",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "862cb280-4e9e-4d02-2ffb-ff14379fe5e1",
@@ -6675,7 +6746,7 @@
               "loc": "120 -330",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "a5361a05-2909-4c39-fee9-a9a9996910ce",
@@ -6686,7 +6757,7 @@
               "loc": "600 110",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "ea04767a-2d4c-436b-07ea-165f98aebf14",
@@ -6697,7 +6768,7 @@
               "loc": "600 280",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "ef93e8c5-0eb9-41d8-2af2-8eff19de220c",
@@ -6708,7 +6779,7 @@
               "loc": "170 90",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "20fac88c-0e6b-4594-24aa-d51fb4191425",
@@ -6719,7 +6790,7 @@
               "loc": "-140 150",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "1a4d8c5c-39a8-400f-96ff-3f820de446b8",
@@ -6730,7 +6801,7 @@
               "loc": "30 390",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "b4815db5-fa24-451d-eba2-37bc7bd7d313",
@@ -6741,7 +6812,7 @@
               "loc": "600 -30",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "3dbac648-1a54-4f18-ef1f-8d4b40cd3f05",
@@ -6752,7 +6823,7 @@
               "loc": "400 -330",
               "size": "",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "bbae3705-42cd-4352-0382-f2e65dd88551",
@@ -6763,7 +6834,7 @@
               "loc": "-180 -310",
               "size": "100 50",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "f5433e8e-0bc7-4b71-6371-2e616eda5dc4",
@@ -6774,7 +6845,7 @@
               "loc": "-410 -230",
               "size": "100 50",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "25dd96b4-5a95-46ab-2312-1e6e396bc674",
@@ -6785,7 +6856,7 @@
               "loc": "-350 -60",
               "size": "100 50",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             },
             {
               "id": "3b80731c-1c82-4815-5c4e-fd00110c0496",
@@ -6796,7 +6867,7 @@
               "loc": "-540 110",
               "size": "100 50",
               "markedAsDeleted": false,
-              "modified": true
+              "modified": false
             }
           ],
           "relshiptypeviews": [
@@ -7068,7 +7139,7 @@
               "name": "Container",
               "description": "",
               "abstract": false,
-              "viewkind": "",
+              "viewkind": "Container",
               "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
               "typeName": "EntityType",
               "propertyValues": [],
@@ -7630,7 +7701,6 @@
                   "description": "",
                   "objectRef": "113a0a6c-3f97-4d8d-647d-2b3860243883",
                   "typeviewRef": "2970b95c-f760-42c4-2c70-40723a79d921",
-                  "group": "",
                   "viewkind": "Container",
                   "isGroup": false,
                   "isCollapsed": false,
@@ -7640,7 +7710,7 @@
                   "memberscale": "1",
                   "markedAsDeleted": false,
                   "modified": true,
-                  "template": "textOnly",
+                  "template": "Container1",
                   "geometry": "",
                   "fillcolor": "white",
                   "strokecolor": "black",
@@ -7668,45 +7738,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 1619239,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": -289,
-                        "y": -244,
-                        "s": true
-                      },
-                      {
-                        "x": -299,
-                        "y": -244,
-                        "s": true
-                      },
-                      {
-                        "x": -474,
-                        "y": -244,
-                        "s": true
-                      },
-                      {
-                        "x": -474,
-                        "y": -104,
-                        "s": true
-                      },
-                      {
-                        "x": -649,
-                        "y": -104,
-                        "s": true
-                      },
-                      {
-                        "x": -659,
-                        "y": -104,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 7,
-                    "Ha": null,
-                    "gh": null
-                  },
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -7728,20 +7759,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": [
-                    -209,
-                    -209,
-                    -209,
-                    -199,
-                    -209,
-                    -138.94387889590416,
-                    -89,
-                    -138.94387889590416,
-                    -89,
-                    91,
-                    -89,
-                    101
-                  ],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -7785,20 +7802,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": [
-                    -129,
-                    -244,
-                    -119,
-                    -244,
-                    59.33984375,
-                    -244,
-                    59.33984375,
-                    16,
-                    141,
-                    16,
-                    151,
-                    16
-                  ],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -7842,45 +7845,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 1619247,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": -169,
-                        "y": 136,
-                        "s": true
-                      },
-                      {
-                        "x": -179,
-                        "y": 136,
-                        "s": true
-                      },
-                      {
-                        "x": -414,
-                        "y": 136,
-                        "s": true
-                      },
-                      {
-                        "x": -414,
-                        "y": -104,
-                        "s": true
-                      },
-                      {
-                        "x": -649,
-                        "y": -104,
-                        "s": true
-                      },
-                      {
-                        "x": -659,
-                        "y": -104,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 7,
-                    "Ha": null,
-                    "gh": null
-                  },
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -7902,20 +7866,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": [
-                    151,
-                    16,
-                    141,
-                    16,
-                    -160.66015625,
-                    16,
-                    -160.66015625,
-                    -104,
-                    -649,
-                    -104,
-                    -659,
-                    -104
-                  ],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -7937,20 +7887,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": [
-                    151,
-                    16,
-                    141,
-                    16,
-                    -221.66015625,
-                    16,
-                    -221.66015625,
-                    -104,
-                    -649,
-                    -104,
-                    -659,
-                    -104
-                  ],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -7972,20 +7908,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": [
-                    151,
-                    16,
-                    141,
-                    16,
-                    -273.66015625,
-                    16,
-                    -273.66015625,
-                    -104,
-                    -649,
-                    -104,
-                    -659,
-                    -104
-                  ],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -8007,20 +7929,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": [
-                    151,
-                    16,
-                    141,
-                    16,
-                    -352.66015625,
-                    16,
-                    -352.66015625,
-                    -104,
-                    -649,
-                    -104,
-                    -659,
-                    -104
-                  ],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -8040,20 +7948,6 @@
                   "dash": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": [
-                    -659,
-                    -104,
-                    -649,
-                    -104,
-                    -532.66015625,
-                    -104,
-                    -532.66015625,
-                    -244,
-                    -299,
-                    -244,
-                    -289,
-                    -244
-                  ],
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -8075,45 +7969,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 3350019,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 231,
-                        "y": -19,
-                        "s": true
-                      },
-                      {
-                        "x": 231,
-                        "y": -29,
-                        "s": true
-                      },
-                      {
-                        "x": 231,
-                        "y": -87,
-                        "s": true
-                      },
-                      {
-                        "x": 261,
-                        "y": -87,
-                        "s": true
-                      },
-                      {
-                        "x": 261,
-                        "y": -159,
-                        "s": true
-                      },
-                      {
-                        "x": 261,
-                        "y": -169,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 7,
-                    "Ha": null,
-                    "gh": null
-                  },
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -8135,25 +7990,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 335232,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 231,
-                        "y": 51,
-                        "s": true
-                      },
-                      {
-                        "x": 231,
-                        "y": 181,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 3,
-                    "Ha": null,
-                    "gh": null
-                  },
                   "markedAsDeleted": false,
                   "modified": false
                 },
@@ -8175,25 +8011,6 @@
                   "toArrow": "",
                   "fromArrowColor": "",
                   "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 3350027,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 235.77147684109696,
-                        "y": -18.990830168044297,
-                        "s": true
-                      },
-                      {
-                        "x": 256.22852315890304,
-                        "y": -169.00916983195572,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 3,
-                    "Ha": null,
-                    "gh": null
-                  },
                   "markedAsDeleted": false,
                   "modified": false
                 },

@@ -1018,6 +1018,7 @@ export class jsnObject {
     id:              string;
     name:            string;
     description:     string;
+    text:            string;
     abstract:        boolean;
     viewkind:        string;
     typeRef:         string;
@@ -1350,6 +1351,7 @@ export class jsnObjectView {
     id:              string;
     name:            string;
     description:     string;
+    text:            string;
     objectRef:       string;
     typeviewRef:     string;
     group:           string;
@@ -1390,7 +1392,6 @@ export class jsnObjectView {
         this.size            = objview?.size;
         this.scale           = objview?.scale1;
         this.memberscale     = objview?.memberscale;
-        this.viewkind        = objview?.viewkind;
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
     }

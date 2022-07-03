@@ -1046,8 +1046,18 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           typeview[prop] = selObj[prop];
           typeview.data[prop] = selObj[prop];
           objtypeview[prop] = selObj[prop];
+          objtypeview.data[prop] = selObj[prop];
           myDiagram.model.setDataProperty(data, prop, selObj[prop]);
         }
+        if (debug) console.log('1051 typeview, objtypeview', typeview, objtypeview);        
+        const jsnObjtypeview = new jsn.jsnObjectTypeView(typeview);
+        if (debug) console.log('1049 jsnObjtypeview', jsnObjtypeview);
+        modifiedObjTypeviews.push(jsnObjtypeview);
+        modifiedObjTypeviews.map(mn => {
+          let data = mn;
+          data = JSON.parse(JSON.stringify(data));
+          myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+        })
       }
       if (selObj.category === constants.gojs.C_OBJECT) {
         const node = myDiagram.findNodeForKey(selObj.key);

@@ -688,11 +688,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                     let relview = link.data.relshipview;
                     if (relview) {
                       // Handle relview scaling
-                      const grpScale = group.scale1 as any;
-                      const grpMemberscale = group.memberscale as any;
-                      const textscale = (group && grpScale) ? grpScale * grpMemberscale : "1";
-                      relview.textscale = textscale;
-                      uic.setLinkProperties(link, relview, myDiagram);
+                      if (group) {
+                        const grpScale = group.scale1 as any;
+                        const grpMemberscale = group.memberscale as any;
+                        const textscale = (group && grpScale) ? grpScale * grpMemberscale : "1";
+                        relview.textscale = textscale;
+                        uic.setLinkProperties(link, relview, myDiagram);
+                      }
                       // Handle relview points
                       relview.points = link.points;
                       const jsnRelview = new jsn.jsnRelshipView(relview);

@@ -16,21 +16,15 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Palette = (props: any) => {
   const dispatch = useDispatch();
+  // let isRendered = useRef(false);
 
-  let isRendered = useRef(false);
-
-  // /** Toggle divs **/
   const [visiblePalette, setVisiblePalette] = useState(true)
   const [ofilter, setOfilter] = useState('All')
   const [refreshPalette, setRefreshPalette] = useState(true)
-  
   const [refresh, setRefresh] = useState(true)
-  function toggleRefresh() { setRefresh(!refresh); }
-  
-  
+  function toggleRefresh() { setRefresh(!refresh); } 
   const [activeTab, setActiveTab] = useState('1');
   
-
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
@@ -46,31 +40,11 @@ const Palette = (props: any) => {
   const toggleTab = (tab: React.SetStateAction<string>) => { if (activeTab !== tab) setActiveTab(tab); }
   function togglePalette() { setVisiblePalette(!visiblePalette); } 
   function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
-
-  // useEffect(() => { // toggle refresh when loading
-  //   console.log('51 Palette useEffect');
-  //   isRendered = true;
-  //   if (isRendered) {
-  //    toggleRefreshPalette()
-  //   }
-  //   return () => { isRendered = true; }
-  // }, [])
-
-  // const [tooltipOpen, setTooltipOpen] = useState(false);
-  // const toggleTip = () => setTooltipOpen(!tooltipOpen);
-  
-  // const unsorted = props.gojsMetamodel?.nodeDataArray
   
   //rearrange sequence
   let ndarr = props.gojsMetamodel?.nodeDataArray
-  // let filteredArr = ndarr.filter((n: any) => n)
-  // let ldarr = props.gojsMetamodel?.linkDataArray
   let seltasks = focusRole?.tasks?.map((t: any) => t)
   if (debug) console.log('25 propsMetamodel', model?.name, mmodel?.name, ndarr);
-  
-  // const [otfilter, setOtfilter] = useState('All')
-  // const [gojstypes, setGojstypes] = useState(ndarr)
-  // let gojstypes = ndarr
 
   let taskNodeDataArray: any[] 
 
@@ -83,7 +57,7 @@ const Palette = (props: any) => {
   useEffect(() => { // -----------------------------------------------------------------------------
     // isRendered = true;
     // if (isRendered) {
-      console.log('82 Palette useEffect 2', props.phFocus.focusTask);
+      if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
       taskNodeDataArray = focusTask?.workOnTypes?.map((wot: any) => 
         ndarr?.find((i: { typename: any; }) => {
           return (i?.typename === wot) && i 
@@ -100,7 +74,7 @@ const Palette = (props: any) => {
   // break if no model
   if (!props.gojsModel) return null;
   if (!props.gojsMetamodel) return null;
-  if (debug) clog('22 Palette', props);
+  if (debug) clog('103 Palette', props);
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr :taskNodeDataArray    
@@ -111,13 +85,13 @@ const Palette = (props: any) => {
   const gojsmodelObjects = props.gojsModelObjects
 
   let unsortedObj = gojsmodelObjects
-  if (debug) console.log('172 unsorted gojsModelobjects', props, gojsmodelObjects, unsortedObj);
+  if (debug) console.log('114 unsorted gojsModelobjects', props, gojsmodelObjects, unsortedObj);
 
   //rearrange sequence
   let objArr = unsortedObj?.nodeDataArray
 
   const nodeArray_all = objArr 
-  if (debug) console.log('178 nodeArray_all', nodeArray_all);
+  if (debug) console.log('120 nodeArray_all', nodeArray_all);
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   
@@ -155,23 +129,21 @@ const Palette = (props: any) => {
   // const oNodeDataArray = ofilteredArr
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
 
-
-
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
 
-  if (!debug) console.log('163 Palette', props.phFocus?.focusRole, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
+  if (debug) console.log('163 Palette', props.phFocus?.focusRole, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
 
-  let selectTaskDiv = (seltasks)
+  let selectTaskDiv = (seltasks && mmodel.name === 'IRTV_MM') 
     ?
     <>
-    {/* <details><summary markdown="span">Task <code>(Typefilter)</code></summary> */}
-    <details><summary markdown="span">Task</summary>
-      <div className="seltask w-100">
-        <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
-      </div>
-      </details>
-    <div>{focusTask.name}</div>
+      {/* <details><summary markdown="span">Task <code>(Typefilter)</code></summary> */}
+      <details><summary markdown="span">Task</summary>
+        <div className="seltask w-100">
+          <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
+        </div>
+        </details>
+      <div>{focusTask.name}</div>
     </>
     :
       <div className="seltask w-100"></div>
@@ -266,7 +238,7 @@ const Palette = (props: any) => {
         </div>
       </>  
   
-  if (!debug) clog('265 Palette', isRendered, props);
+  if (debug) clog('265 Palette', props);
   // return  isRendered && (
   return (
     <>

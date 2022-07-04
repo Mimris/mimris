@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 // import { setGojsModelObjects } from "../actions/actions";
 import Selector from './utils/Selector'
+import genRoleTasks from "./utils/SetRoleTaskFilter";
 
 const debug = false;
 
@@ -16,7 +17,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Palette = (props: any) => {
   const dispatch = useDispatch();
-  // let isRendered = useRef(false);
+  let isRendered = useRef(false);
 
   const [visiblePalette, setVisiblePalette] = useState(true)
   const [ofilter, setOfilter] = useState('All')
@@ -31,7 +32,24 @@ const Palette = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   if (debug) console.log('16', props, mmodel?.name, model?.metamodelRef);
+
+  // hardcoded for now
   let focusTask = props.phFocus?.focusTask
+  let seltasks = props.phFocus?.focusRole?.tasks || []
+  console.log('38 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
+
+  
+
+// useEffect(() => {
+//   seltasks = props.phFocus.focusRole?.tasks?.map((t: any) => t)
+// }, [props.phFocus.focusRole?.tasks])
+
+  // if (mmodel?.name === 'IRTV_MM') {
+  //   focusTask = props.phFocus?.focusTask
+  // } 
+
+
+  focusTask = props.phFocus?.focusTask
   const focusRole = props.phFocus?.focusRole
     
   // const [isOpen, setIsOpen] = useState(false);
@@ -43,41 +61,52 @@ const Palette = (props: any) => {
   
   //rearrange sequence
   let ndarr = props.gojsMetamodel?.nodeDataArray
-  let seltasks = focusRole?.tasks?.map((t: any) => t)
-  if (debug) console.log('25 propsMetamodel', model?.name, mmodel?.name, ndarr);
 
-  let taskNodeDataArray: any[] 
+  if (debug) console.log('119 propsMetamodel', model?.name, mmodel?.name, ndarr);
 
-  if (focusTask)  taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
+  let taskNodeDataArray: any[] = ndarr
+
+  if (focusTask) {
+     taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
       ndarr?.find((i: { typename: any; }) => {
         return (i?.typename === wot) && i 
       })
     )
+  } 
 
+  useEffect(() => {
+    genRoleTasks(mmodel, dispatch)
+  }, [])
+
+  // if (mmodel?.name !== 'IRTV_MM')  taskNodeDataArray = ndarr
+  
   useEffect(() => { // -----------------------------------------------------------------------------
     // isRendered = true;
     // if (isRendered) {
-      if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
-      taskNodeDataArray = focusTask?.workOnTypes?.map((wot: any) => 
+      if (!debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
+      taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
         ndarr?.find((i: { typename: any; }) => {
           return (i?.typename === wot) && i 
         })
       )
+      seltasks = props.phFocus.focusRole?.tasks
+      if (!debug) console.log('151 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
+      
       function refres() {        
         toggleRefreshPalette() 
       }
-      setTimeout(refres, 1000);
+      setTimeout(refres, 1);
     // }
     // return () => { isRendered = false; }
-  }, [props.phFocus.focusTask?.workOnTypes])
+  }, [props.phFocus.focusTask])
 
   // break if no model
   if (!props.gojsModel) return null;
   if (!props.gojsMetamodel) return null;
-  if (debug) clog('103 Palette', props);
+  if (!debug) clog('103 Palette', props , seltasks, taskNodeDataArray);
   
 
-  let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr :taskNodeDataArray    
+  let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
 
   // ================================================================================================
   // ================================================================================================
@@ -131,22 +160,23 @@ const Palette = (props: any) => {
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
+  seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
 
-  if (debug) console.log('163 Palette', props.phFocus?.focusRole, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
-
-  let selectTaskDiv = (seltasks && mmodel.name === 'IRTV_MM') 
-    ?
+  if (!debug) console.log('163 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
+  
+  // let selectTaskDiv = (seltasks && mmodel.name === 'IRTV_MM') 
+  let selectTaskDiv = 
     <>
+      {/* <span onClick={genroletasks} className="btn btn-sm btn-primary">Set Role Task filter</span> */}
       {/* <details><summary markdown="span">Task <code>(Typefilter)</code></summary> */}
-      <details><summary markdown="span">Task</summary>
+      <details><summary markdown="span"  >Modelling Task : </summary>
         <div className="seltask w-100">
           <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
         </div>
         </details>
-      <div>{focusTask.name}</div>
+      <div>{focusTask?.name}</div>
     </>
-    :
-      <div className="seltask w-100"></div>
+ 
 
   const gojsappPalette =  // this is the palette with tabs for Types and Objects Todo: add posibility to select many types or objects to drag in (and also with links)
       <>

@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import GoJSApp from "./gojs/GoJSApp";
 import Selector from './utils/Selector'
 import genGojsModel from './GenGojsModel'
+import genRoleTasks from "./utils/SetRoleTaskFilter";
 
 const debug = false;
 
@@ -33,6 +34,8 @@ const Modeller = (props: any) => {
   const modelviews = model?.modelviews
   const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
+  const metamodels = props.metis?.metamodels
+  const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
@@ -45,7 +48,7 @@ const Modeller = (props: any) => {
   ]
   const selmodviews = modelviews
   
-  if (debug) console.log('36 Modeller', focusModelview, selmods, selmodviews);
+  if (!debug) console.log('36 Modeller', mmodel, focusModelview, selmods, selmodviews);
   let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
@@ -92,6 +95,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
             <Selector className="w-25 float-right" type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
             </span>
             {/* </div>  */}
+            {/* <button className="btn btn-primary btn-sm float-right" onClick={() => {genRoleTasks(mmodel, dispatch); toggleRefresh()}}>Set Role Task Filter</button> */}
             <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" 
                 style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
                 <div className="w-100 float-left" >

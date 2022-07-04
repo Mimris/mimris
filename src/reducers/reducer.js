@@ -393,7 +393,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_ROLE:
-      // if (debug) console.log('350 role', action);   
+      if (!debug) console.log('350 role', action);   
       return {
         ...state,
         phFocus: {

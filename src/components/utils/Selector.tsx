@@ -69,7 +69,7 @@ const Selector = ( props: any ) => {
         {/* <div  className="title float-left mr-1 "> {props.selName}:</div> */}
         <select key={focusItem} className="list-obj w-100" defaultValue={`Select ${props.selName} ...`} style={{ width: "68%" }} //style={{ whiteSpace: "wrap", minWidth: "100%" }}
           onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
-          <option disabled selected > -- select an option -- </option>
+          <option defaultValue={'selectatask'} > -- select a task -- </option>
           {options}
         </select>
       </div>

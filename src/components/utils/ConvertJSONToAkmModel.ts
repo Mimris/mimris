@@ -155,7 +155,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
 
         const osduMod = JSON.parse(jsonFile.toString()) // importert JSON file
-        if (!debug) console.log('121 osduMod', osduMod)
+        if (debug) console.log('121 osduMod', osduMod)
     
         let parentId = null //topModel.id || osduMod["$id"]
         let mainArray = []
@@ -299,7 +299,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
         }
     
         const osduArray = deepEntries(topModel) // find all the objects in the topModel and down the tree
-        if (!debug) console.log('255 deepEntries', osduArray);
+        if (debug) console.log('255 deepEntries', osduArray);
 
         // map through the osduArray and create objects and relationships between the objects
         const osduObjects = osduArray?.map( (osduObj, index) => {
@@ -335,12 +335,12 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                 // console.log('215 topObject', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
 
             } else if (parentName === 'properties') { // this is property and proplink objectsƒ    
-                if (!debug) console.log('340 ', oName, oVal);
+                if (debug) console.log('340 ', oName, oVal);
                 if (oVal['x-osdu-relationship']) { // if the value is a relationship (this can replace all if statements for proplink below)
                     // loop through the childarray and create the relationship objects
                     oVal['x-osdu-relationship'].map((rel: { type: string; }) => {
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
-                        if (!debug) console.log('324  relationship', rel, objecttypeRef);
+                        if (debug) console.log('324  relationship', rel, objecttypeRef);
  
                         // objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
 
@@ -382,7 +382,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
 
                         
                         createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the relationship objects
-                        if (!debug) console.log('383 not ID ', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
+                        if (debug) console.log('383 not ID ', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     });
                   
@@ -424,14 +424,14 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         findOwnerandCreateRelationship(osduObj)
                     }
                 } else if (oVal.type === 'string' || oVal.type === 'nunber' || oVal === 'integer' ) { // || oVal === 'integer' || oVal === 'number' || oVal === 'boolean' || oVal === 'array' || oVal === 'object') { // if the value is a primitive type    
-                    if (!debug) console.log('321  primitive', oId, oName, oKey, jsonType, cNewVal);              
+                    if (debug) console.log('321  primitive', oId, oName, oKey, jsonType, cNewVal);              
                     if (oName.includes('IDs') || oName.includes('ID')) { // if the name contains ID, its a link to another object "ObjectName"-ID
                         const propLinkName = 'has'+oName
 
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
                         cNewVal.linkId = oName.replace('IDs', '') // remove IDs from the name
                         cNewVal.linkId = oName.replace('ID', '') // remove ID from the name
-                        if (!debug) console.log('322 ', oName, cNewVal);
+                        if (debug) console.log('322 ', oName, cNewVal);
 
                         // hardcoded transformation of the name
                         // i.e. if o.linkId is = 'Company' then transform to 'Organisation'   
@@ -462,19 +462,19 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                         if (debug) console.log('346  ', cNewVal);
 
                         createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
-                        if (!debug) console.log('352 ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
+                        if (debug) console.log('352 ID', oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     } else if (oName.substring(oName.length- 4) === 'Type'){ // check if last part of the oName is the characters "Type", its a link to another object "ObjectName"with TYPE included
                         cNewVal.linkId = oName
                         const propLinkName = 'has'+oName
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'PropLink')?.id
                         createObject(oId, propLinkName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
-                        if (!debug) console.log('359 TYPE', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
+                        if (debug) console.log('359 TYPE', oId, propLinkName, objecttypeRef,oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     } else { // if the name does not contain ID or Type, we create a property object
                         objecttypeRef = curObjTypes.find((ot: { name: string; }) => ot.name === 'Property')?.id
                         createObject(oId, oName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
-                        if (!debug) console.log('464 not ID ', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
+                        if (debug) console.log('464 not ID ', oId, oName, objecttypeRef,oKey, jsonType, cNewVal);
                         findOwnerandCreateRelationship(osduObj)
                     }
                 } else {
@@ -512,7 +512,7 @@ export const ReadConvertJSONFromFileToAkm = async (modelType: string, inclProps:
                     reltypeName = containsType?.name
                     relshipKind = 'Association'
                     createObject(oId, oMName, objecttypeRef, oKey, jsonType, cNewVal) // create the property objects
-                    if (!debug) console.log('398 Markers', oId, oMName, objecttypeRef,oKey, jsonType, cNewVal);
+                    if (debug) console.log('398 Markers', oId, oMName, objecttypeRef,oKey, jsonType, cNewVal);
                     findOwnerandCreateRelationship(osduObj)
                 } else if (oVal.allOf) { // 
                     gchildKeyNameId = Object.keys(oVal?.allOf[0]?.properties).find(k => k.includes('ID')) 

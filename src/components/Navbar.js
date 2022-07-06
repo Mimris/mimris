@@ -50,9 +50,10 @@ const Navbar = (props) => (
 					</li> */}
 					<li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
 						<a className="nav-link nav-login dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="false">
+							aria-haspopup="true" aria-expanded="false" href="mailto:snorres@gmail.com?subject=More info about how to progress with AKM Modeller and access to more templates and examples. & body=Hi, Please send me more info about: xxxxxx.   My Name is: xxxxxx, Email: xxxxx, Phone: 99999999.   ">
 							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} />
-							<span className="username"> {props?.user?.name}</span> </a>
+							{/* <span className="username"> {props?.user?.name}</span> </a> */}
+							<span className="username"> More access</span> </a>
 						<div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
 							{/* <a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>

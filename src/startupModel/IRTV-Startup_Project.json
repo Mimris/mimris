@@ -5209,12 +5209,55 @@
     },
     "focusRole": {
       "id": "1801e4fe-d436-4a6c-05e3-e7480d8f4b1d",
-      "name": "Role B"
+      "name": "Role B",
+      "tasks": [
+        {
+        "id": "task1",
+        "name": "Entity Modelling",
+        "description": "Create New Entity using objecttype: EntityType",
+        "workOnTypes": [
+          "Container",
+          "EntityType",
+          "Property",
+          "Datatype",
+          "Value",
+          "Method",
+          "ViewFormat",
+          "InputPattern",
+          "FieldType",
+          "Unittype"
+        ]
+        },
+        {
+          "id": "task2",
+          "name": "Property Modelling",
+          "description": "Add property to EtityType definitions",
+          "workOnTypes": [
+            "Container",
+            "EntityType",
+            "Property",
+            "Datatype"
+          ]
+        },
+        {
+          "id": "task3",
+          "name": "Task Modelling",
+          "description": "Add property to EtityType definitions",
+          "workOnTypes": [
+            "Container",
+            "EntityType",
+            "Information",
+            "Role",
+            "Task",
+            "View"
+          ]
+        }
+    ]
     },
     "focusCollection": null,
     "focusTask": {
       "id": "8690c5b7-6a44-4353-a046-aa14c1437c04",
-      "name": "Task 2"
+      "name": "All"
     },
     "focusSource": {
       "id": null,

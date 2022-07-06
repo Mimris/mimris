@@ -1360,8 +1360,8 @@ export class jsnObjectView {
     isCollapsed:     boolean;
     loc:             string;
     size:            string;
-    scale:           string;
-    memberscale:     string;
+    scale:           number;
+    memberscale:     number;
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
@@ -1390,8 +1390,8 @@ export class jsnObjectView {
         this.textcolor       = objview?.textcolor;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
-        this.scale           = objview?.scale1;
-        this.memberscale     = objview?.memberscale;
+        this.scale           = Number(objview?.scale1);
+        this.memberscale     = Number(objview?.memberscale);
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
     }

@@ -100,6 +100,8 @@ const LoadFile = (props: any) => {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
+  
+
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
   const buttonSaveAllToFileDiv = 

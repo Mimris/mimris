@@ -98,7 +98,7 @@ const page = (props:any) => {
       isRendered = true;
       if (isRendered) {
         // setTimeout(refres, 100);
-        if (!debug) console.log('89 Modelling useEffect', props); 
+        if (debug) console.log('89 Modelling useEffect', props); 
         const data = {
           phData: props.phData,
           phFocus: props.phFocus,
@@ -107,24 +107,23 @@ const page = (props:any) => {
         };
         if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
         setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
-
         genGojsModel(props, dispatch);
       }
       function refres() {
         setRefresh(!refresh)
       }
-      setTimeout(refres, 100);
+      setTimeout(refres, 1000);
       return () => { isRendered = false; }
     }, [focusModelview?.id, focusModel?.id, curmod])
 
-    // useEffect(() => {
-    //   if (!debug) console.log('106 Modelling useEffect', props); 
-    //   genGojsModel(props, dispatch);
-    //   function refres() {
-    //     setRefresh(!refresh)
-    //   }
-    //   setTimeout(refres, 1);
-    // }, [props.phFocus?.focusRefresh?.id])
+    useEffect(() => {
+      if (debug) console.log('106 Modelling useEffect', props); 
+      genGojsModel(props, dispatch);
+      function refres() {
+        setRefresh(!refresh)
+      }
+      setTimeout(refres, 1);
+    }, [props.phFocus?.focusRefresh?.id])
 
     // useEffect(() => {
     //   if (debug) console.log('106 Modelling useEffect 4', props); 
@@ -164,7 +163,7 @@ const page = (props:any) => {
     }
 
   function toggleRefresh() {
-    if (!debug) console.log('152 Modelling',  props.phUser.focusUser.diagram);
+    if (debug) console.log('152 Modelling',  props.phUser.focusUser.diagram);
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,

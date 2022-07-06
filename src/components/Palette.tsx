@@ -36,7 +36,7 @@ const Palette = (props: any) => {
   // hardcoded for now
   let focusTask = props.phFocus?.focusTask
   let seltasks = props.phFocus?.focusRole?.tasks || []
-  console.log('38 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
+  if (debug) console.log('38 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
 
   
 
@@ -75,35 +75,39 @@ const Palette = (props: any) => {
   } 
 
   useEffect(() => {
+    isRendered = true;
+    if (isRendered) {
     genRoleTasks(mmodel, dispatch)
+  }
+  return () => { isRendered = false; }
   }, [])
 
   // if (mmodel?.name !== 'IRTV_MM')  taskNodeDataArray = ndarr
   
   useEffect(() => { // -----------------------------------------------------------------------------
-    // isRendered = true;
-    // if (isRendered) {
-      if (!debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
+    isRendered = true;
+    if (isRendered) {
+      if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
       taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
         ndarr?.find((i: { typename: any; }) => {
           return (i?.typename === wot) && i 
         })
       )
       seltasks = props.phFocus.focusRole?.tasks
-      if (!debug) console.log('151 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
+      if (debug) console.log('151 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
       
       function refres() {        
         toggleRefreshPalette() 
       }
-      setTimeout(refres, 1);
-    // }
-    // return () => { isRendered = false; }
-  }, [props.phFocus.focusTask])
+      setTimeout(refres, 100);
+    }
+    return () => { isRendered = false; }
+  }, [props.phFocus.focusTask?.id])
 
   // break if no model
   if (!props.gojsModel) return null;
   if (!props.gojsMetamodel) return null;
-  if (!debug) clog('103 Palette', props , seltasks, taskNodeDataArray);
+  if (debug) clog('103 Palette', props , seltasks, taskNodeDataArray);
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
@@ -162,7 +166,7 @@ const Palette = (props: any) => {
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
   seltasks = (props.phFocus.focusRole?.tasks) && props.phFocus.focusRole?.tasks?.map((t: any) => t)
 
-  if (!debug) console.log('163 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
+  if (debug) console.log('163 Palette', props.phFocus?.focusRole,'tasks:', props.phFocus?.focusRole?.tasks, 'task: ', props.phFocus?.focusTask, 'seltasks :', seltasks);
   
   // let selectTaskDiv = (seltasks && mmodel.name === 'IRTV_MM') 
   let selectTaskDiv = 

@@ -2790,7 +2790,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg += "End Verification";
     if (debug) console.log('2761 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (!debug) console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 } 
 

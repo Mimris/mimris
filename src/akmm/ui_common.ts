@@ -152,19 +152,15 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                         node.scale1 = scale1.toString();
                         objview.group = group.objectview.id;
                         objview.scale1 = node.scale1;
-                        // data.scale1 = node.scale1;
                         const n = myDiagram.findNodeForKey(data.key);
                         myDiagram.model.setDataProperty(n.data, "group", node.group);
                         myDiagram.model.setDataProperty(n.data, "memberscale", Number(data.memberscale));
-                        myDiagram.model.setDataProperty(n.data, "scale", scale1);
-                        myDiagram.model.setDataProperty(n.data, 'scale1', scale1);
                         if (debug) console.log('150 group, node, data', group, node, data)
                         if (debug) console.log('162 n.data', n.data);
                     }
                     const n = myDiagram.findNodeForKey(node.key);
                     myDiagram.model.setDataProperty(n.data, "memberscale", Number(data.memberscale));
-                    myDiagram.model.setDataProperty(n.data, "scale", Number(data.scale1));
-                    myDiagram.model.setDataProperty(n.data, "scale1", Number(data.scale1));
+                    myDiagram.model.setDataProperty(n, "scale", Number(data.scale1));
                     if (debug) console.log('167 n.data', n.data);
                     myGoModel.addNode(node);
 

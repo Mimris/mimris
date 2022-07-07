@@ -458,6 +458,12 @@ export class goObjectNode extends goNode {
                     if (objview[prop] && objview[prop] !== "") {
                         this[prop] = objview[prop];
                     }
+                    if (prop === 'scale1') {
+                        if (objview.scale1 === "") {
+                            this[prop] = "1";
+                        }
+                        this[prop] = Number(this[prop]);
+                    }
                 }
                 // Handle groups
                 // If objectview refers to a group, 
@@ -522,7 +528,7 @@ export class goObjectNode extends goNode {
         }
         return this;
     }
-    getMyScale(model: goModel): any {
+    getMyScale(model: goModel): number {
         // let scale = this.typeview.memberscale;
         let scale = this.scale1;
         const pnode = this.getParentNode(model);
@@ -533,7 +539,7 @@ export class goObjectNode extends goNode {
             scale = 1;
         return scale;
     }
-    getActualScale(model: goModel): any {
+    getActualScale(model: goModel): number {
         let scale1 = this.scale1;
         const node = this.getParentNode(model);
         if (debug) console.log('597 node', node);

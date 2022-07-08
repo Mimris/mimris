@@ -1067,6 +1067,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         // First remember the from locs
         const myFromNodes = myMetis.fromNodes;
         if (debug) console.log('1043 myFromNodes', myFromNodes);
+        if (!myFromNodes) {
+          alert('No From nodes defined - cancelling the paste operation!');
+          break;
+        }
         // Then do the paste
         const selection = e.subject;
         context.pasted  = true;

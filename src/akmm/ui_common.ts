@@ -2816,7 +2816,7 @@ function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, 
             if (prop === 'viewkind') continue;
             if (viewdata[prop] != null)
                 diagram?.model.setDataProperty(node, prop, viewdata[prop]);
-            if (debug) console.log('2483 updateNode', prop, node[prop], diagram);
+            if (debug) console.log('2483 prop, node[prop]', prop, node[prop]);
         }
         const objview = node.objectview;
         if (objview) {

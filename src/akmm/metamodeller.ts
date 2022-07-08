@@ -5412,8 +5412,6 @@ export class cxViewStyle extends cxMetaObject {
 
 export class cxObjtypeviewData {
     abstract: boolean;
-    isGroup: boolean;               // Container behaviour
-    group: string;                  // Parent group
     arrowscale: string;
     memberscale: string;
     viewkind: string;
@@ -5426,8 +5424,6 @@ export class cxObjtypeviewData {
     icon: string;
     constructor() {
         this.abstract = false;
-        this.isGroup = false;              // Container behaviour
-        this.group = "";                // Parent group
         this.arrowscale = "1.3";
         this.memberscale = "1";
         this.viewkind = constants.viewkinds.OBJ;
@@ -7621,7 +7617,7 @@ export class cxObjectView extends cxMetaObject {
     }
     setScale(scale: string) {
         if (scale == undefined)
-        scale = "";
+        scale = "1";
         this.scale1 = scale;
     }
     getScale(): string {

@@ -1275,11 +1275,8 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 var shp = grp.resizeObject;
                 if (grp.diagram.undoManager.isUndoingRedoing) return;
                 if (grp.isSubGraphExpanded) {
-                    // shp.height = grp._savedBreadth;
-                    shp.fill = "white";
+                    shp.fill = "lightyellow";
                 } else {
-                    // grp._savedBreadth = shp.height;
-                    // shp.height = NaN;
                     shp.fill = "transparent";
                 }
             },

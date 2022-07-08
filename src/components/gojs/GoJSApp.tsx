@@ -603,6 +603,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       node.scale1 = 1;
                       node.group = "";
                       node.memberscale = node.typeview.memberscale;
+                      myDiagram.model.setDataProperty(node, "scale", Number(node.scale1));
                       const nodes = uic.getNodesInGroup(node, myGoModel, myObjectviews);
                       let refloc = node.loc;
                       if (debug) console.log('593 node, nodes, scaleFactor, refloc', node, nodes, scaleFactor, refloc);

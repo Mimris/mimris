@@ -526,8 +526,10 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
         if (debug) console.log('469 delete node', node);
         if (node) {
             node.markedAsDeleted = deletedFlag;
+            node.group = "";
             const objview = node.objectview;
             objview.markedAsDeleted = deletedFlag;
+            objview.group = "";
             const object = objview.object;
             const jsnObjview = new jsn.jsnObjectView(objview);
             deletedObjviews.push(jsnObjview);
@@ -1033,14 +1035,14 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc);
                     if (grp) {
-                        if (debug) console.log('1034 grp, nod', grp, nod);
+                        if (!debug) console.log('1034 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;
                         const loc = scaleNodeLocation(grp, nod);
                         const n = myDiagram.findNodeForKey(nod.key);
                         if (n?.data) {
                             myDiagram.model.setDataProperty(n.data, "group", nod.group);
-                            if (debug) console.log('1041 n.data', n.data);
+                            if (!debug) console.log('1041 n.data', n.data);
                         }
                     } else {
                         nod.group = "";

@@ -35,7 +35,8 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
           phData:   props.ph.phData,
           phFocus:  props.ph.phFocus,
           phUser:   props.ph.phUser,
-          phSource: 'localFile'
+          phSource: props.phSource,
+          lastUpdate: new Date().toISOString()
         }
     
     

@@ -16,6 +16,7 @@ import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
+import LoadRecovery from '../components/LoadRecovery'
 import LoadFile from '../components/LoadFile'
 import LoadJsonFile from '../components/LoadJsonFile'
 import { ReadModelFromFile, SaveAllToFileDate } from './utils/SaveModelToFile';
@@ -45,7 +46,7 @@ const page = (props:any) => {
   // const refresh = props.refresh
   // const setRefresh = props.setRefresh
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
-  if (!memoryLocState && (typeof window != 'undefined')) {setMemoryLocState(props)}
+  if (!memoryLocState && (typeof window != 'undefined')) {setMemoryLocState([props])}
 
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
@@ -98,15 +99,15 @@ const page = (props:any) => {
       isRendered = true;
       if (isRendered) {
         // setTimeout(refres, 100);
-        if (debug) console.log('89 Modelling useEffect', props); 
+        if (debug) console.log('102 Modelling useEffect', props); 
         const data = {
           phData: props.phData,
           phFocus: props.phFocus,
           phUser: props.phUser,
-          phSource: props.phSource
+          phSource: props.phSource,
+          lastUpdate: new Date().toISOString()
         };
-        if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
-        setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+        if (debug) console.log('110 Modelling', props.phUser.focusUser, data);
         genGojsModel(props, dispatch);
       }
       function refres() {
@@ -117,14 +118,58 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id, curmod])
 
     useEffect(() => {
-      if (debug) console.log('106 Modelling useEffect', props); 
+      if (!debug) console.log('121 Modelling useEffect', props, memoryLocState); 
+      const currentdata = {
+        phData: props.phData,
+        phFocus: props.phFocus,
+        phUser: props.phUser,
+        phSource: props.phSource,
+        lastUpdate: new Date().toISOString()
+      };
+      console.log('129 Modelling', memoryLocState, currentdata);
+
+
+      
       genGojsModel(props, dispatch);
+      
       function refres() {
         setRefresh(!refresh)
       }
       setTimeout(refres, 1);
+
     }, [props.phFocus?.focusRefresh?.id])
 
+
+  function toggleRefresh() {
+
+    const currentdata = {
+      phData: props.phData,
+      phFocus: props.phFocus,
+      phUser: props.phUser,
+      phSource: (phSource === "") && phData.metis.name  || phSource,
+      lastUpdate: new Date().toISOString()
+    };
+    if (!debug) console.log('152 Modelling', currentdata, memoryLocState, (Array.isArray(memoryLocState)));
+    let data = (Array.isArray(memoryLocState)) ? [currentdata, ...memoryLocState] : [currentdata];
+    // put currentdata in the first position of the array data
+
+    if (data.length > 9) { data.shift() }
+    if (!debug) console.log('161 Modelling', data);
+
+
+    // setTimeout(refres, 1);
+    (typeof window !== 'undefined') && setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+
+    genGojsModel(props, dispatch)
+
+    function refres() {
+      setRefresh(!refresh)
+    }
+    setTimeout(refres, 100);
+
+    setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+
+  }
     // useEffect(() => {
     //   if (debug) console.log('106 Modelling useEffect 4', props); 
     //   genGojsModel(props, dispatch);
@@ -153,8 +198,11 @@ const page = (props:any) => {
       phData:   props.phData,
       phFocus:  props.phFocus,
       phUser:   props.phUser,
-      phSource: 'INIT model'
+      phSource: props.phSource,
+      lastUpdate: new Date().toISOString()
     }
+
+
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name
       // console.log('37 LoadFile', data);
@@ -162,23 +210,14 @@ const page = (props:any) => {
       SaveAllToFileDate(data, projectname, 'Project')
     }
 
-  function toggleRefresh() {
-    if (debug) console.log('152 Modelling',  props.phUser.focusUser.diagram);
-    const data = {
-      phData: props.phData,
-      phFocus: props.phFocus,
-      phUser: props.phUser,
-      phSource: 'INIT model'
-    };
-    // setTimeout(refres, 1);
-    if (debug) console.log('123 Modelling', props.phUser.focusUser, data);
-    (typeof window !== 'undefined') && setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
-    genGojsModel(props, dispatch)
-    function refres() {
-      setRefresh(!refresh)
+    let recoveryDiv = <></>;
+    function HandleRecoveryFile() {
+      recoveryDiv =
+        <div>
+         
+        </div>
     }
-    setTimeout(refres, 100);
-  }
+
     
     const [activeTab, setActiveTab] = useState('2');
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
@@ -427,6 +466,7 @@ const page = (props:any) => {
   const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  const loadrecovery =  (process.browser) && <LoadRecovery  buttonLabel='Recovery'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
   const loadfile =  (process.browser) && <LoadFile  buttonLabel='Model file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
   const loadjsonfile =  (process.browser) && <LoadJsonFile  buttonLabel='OSDU'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
 
@@ -468,6 +508,7 @@ const page = (props:any) => {
                 onClick={handleSaveAllToFileDate}>Save
               </button >
             </span> 
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
           {/* </div>  */}
         </div> 
         <div className="modellingContent pt-3 pr-2"  >

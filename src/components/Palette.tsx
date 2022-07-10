@@ -111,7 +111,6 @@ const Palette = (props: any) => {
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
-
   // ================================================================================================
   // ================================================================================================
   // Show all the objects in this model

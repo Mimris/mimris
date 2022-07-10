@@ -34,7 +34,8 @@ const LoadFile = (props: any) => {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
-      phSource: 'localFile'
+      phSource: props.phSource,
+      lastUpdate: new Date().toISOString()
     }
 
 

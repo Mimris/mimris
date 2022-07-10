@@ -498,6 +498,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           else // Object
           {
+            if (debug) console.log('501 data', data);
             const myModelview = context.myModelview;
             const myObjectviews = [];
             for (let i=0; i<myModelview.objectviews.length; i++) {
@@ -596,12 +597,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   let fromScale = fromNode.scale; 
                   let toScale  =  1;
                   let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
-                  myDiagram.model.setDataProperty(data, "group", node.group);
+                  myDiagram.model.setDataProperty(node.data, "group", node.group);
                   if (node.isGroup) {
                       // The node itself is a group, do not scale the group members
-                      node.scale1 = "1";
+                      node.scale1 = 1;
                       node.group = "";
                       node.memberscale = node.typeview.memberscale;
+                      myDiagram.model.setDataProperty(node, "scale", Number(node.scale1));
                       const nodes = uic.getNodesInGroup(node, myGoModel, myObjectviews);
                       let refloc = node.loc;
                       if (debug) console.log('593 node, nodes, scaleFactor, refloc', node, nodes, scaleFactor, refloc);
@@ -636,12 +638,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                                   let loc = nodeloc.x + " " + nodeloc.y;
                                   n.loc = loc;
                                   toNode.loc = new String(loc);
-                                  n.scale1 = toScale.valueOf() as any;                  
+                                  n.scale1 = Number(toScale.valueOf());                  
                                   let nod = myGoModel.findNodeByViewId(n.objectview.id) as any;
                                   if (nod) {
                                       nod = myDiagram.findNodeForKey(nod.key);
                                       nod.loc = loc;
-                                      nod.scale1 = toScale.valueOf() as any;
+                                      nod.scale1 = Number(toScale.valueOf());
                                       myDiagram.model.setDataProperty(nod.data, "loc", loc);
                                     }
                                   if (debug) console.log('633 nod, loc', nod, loc);
@@ -651,15 +653,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   } else {
                       // The node moved is NOT a group
                       if (debug) console.log('639 node, group', node, group);
-                      if (count<0) {
+                      let n = myDiagram.findNodeForKey(node.key);
+                      if (count<0) { // The reference node
                           count++;
                           rloc = node.loc;
-                          node.scale1 = toScale.valueOf() as any;
-                          myDiagram.model.setDataProperty(node, "scale", node.scale1);
                           node.objectview.loc = node.loc;
                       } else {
                         if (debug) console.log('647 fromScale, toScale', fromScale, toScale);
-                        node.scale1 = toScale.valueOf() as any;
                         if (debug) console.log('649 node, rloc, toloc, scaleFactor', node, rloc, toloc, scaleFactor);
                         const nodeloc = uic.scaleNodeLocation2(node, rloc, toloc, scaleFactor);
                         if (nodeloc) {
@@ -668,16 +668,19 @@ class GoJSApp extends React.Component<{}, AppState> {
                           node.loc = loc;
                           node.objectview.loc = toloc.valueOf();
                           if (debug) console.log('656 loc, scaleFactor, node', loc, scaleFactor, node);
-                          myDiagram.model.setDataProperty(node, "loc", loc);
-                          myDiagram.model.setDataProperty(node, "scale", node.scale1);
+                          myDiagram.model.setDataProperty(n.data, "loc", loc);
                         }
                         node.objectview.group = "";
                         if (debug) console.log('661 objectview, loc', node.objectview, node.loc);
                       }
-                  }
+                      node.scale1 = Number(toScale.valueOf());
+                      data.scale1 = node.scale1;
+                      myDiagram.model.setDataProperty(n, "scale", data.scale1);
+                      myDiagram.model.setDataProperty(n.data, "scale", data.scale1);
+                    }
               }            
-              if (debug) console.log('665 node, group,', node, group);
-              // Handle relviews
+              if (debug) console.log('665 node, data,', node, data);
+              // Handle relview scaling
               let n = myDiagram.findNodeForKey(node.key);
               if (n) {
                 for (let lit = n?.findLinksConnected(); lit?.next(); ) {
@@ -689,8 +692,8 @@ class GoJSApp extends React.Component<{}, AppState> {
                     if (relview) {
                       // Handle relview scaling
                       if (group) {
-                        const grpScale = group.scale1 as any;
-                        const grpMemberscale = group.memberscale as any;
+                        const grpScale = group.scale1;
+                        const grpMemberscale = group.memberscale;
                         const textscale = (group && grpScale) ? grpScale * grpMemberscale : "1";
                         relview.textscale = textscale;
                         uic.setLinkProperties(link, relview, myDiagram);
@@ -707,7 +710,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               if (n && n.data && n.data.group !== node.group)
                   myDiagram.model.setDataProperty(n.data, "group", node.group);
               myDiagram.model.setDataProperty(n.data, "loc", node.loc);
-              myDiagram.model.setDataProperty(n, "scale", node.scale1);
+              myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
               if (debug) console.log('693 myGoModel', myGoModel);
             }
 
@@ -1064,6 +1067,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         // First remember the from locs
         const myFromNodes = myMetis.fromNodes;
         if (debug) console.log('1043 myFromNodes', myFromNodes);
+        if (!myFromNodes) {
+          alert('No From nodes defined - cancelling the paste operation!');
+          break;
+        }
         // Then do the paste
         const selection = e.subject;
         context.pasted  = true;

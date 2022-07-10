@@ -152,19 +152,15 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                         node.scale1 = scale1.toString();
                         objview.group = group.objectview.id;
                         objview.scale1 = node.scale1;
-                        // data.scale1 = node.scale1;
                         const n = myDiagram.findNodeForKey(data.key);
                         myDiagram.model.setDataProperty(n.data, "group", node.group);
                         myDiagram.model.setDataProperty(n.data, "memberscale", Number(data.memberscale));
-                        myDiagram.model.setDataProperty(n.data, "scale", scale1);
-                        myDiagram.model.setDataProperty(n.data, 'scale1', scale1);
                         if (debug) console.log('150 group, node, data', group, node, data)
                         if (debug) console.log('162 n.data', n.data);
                     }
                     const n = myDiagram.findNodeForKey(node.key);
                     myDiagram.model.setDataProperty(n.data, "memberscale", Number(data.memberscale));
-                    myDiagram.model.setDataProperty(n.data, "scale", Number(data.scale1));
-                    myDiagram.model.setDataProperty(n.data, "scale1", Number(data.scale1));
+                    myDiagram.model.setDataProperty(n, "scale", Number(data.scale1));
                     if (debug) console.log('167 n.data', n.data);
                     myGoModel.addNode(node);
 
@@ -530,8 +526,10 @@ export function deleteNode(data: any, deletedFlag: boolean, deletedObjviews: any
         if (debug) console.log('469 delete node', node);
         if (node) {
             node.markedAsDeleted = deletedFlag;
+            node.group = "";
             const objview = node.objectview;
             objview.markedAsDeleted = deletedFlag;
+            objview.group = "";
             const object = objview.object;
             const jsnObjview = new jsn.jsnObjectView(objview);
             deletedObjviews.push(jsnObjview);
@@ -1037,14 +1035,14 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc);
                     if (grp) {
-                        if (debug) console.log('1034 grp, nod', grp, nod);
+                        if (!debug) console.log('1034 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;
                         const loc = scaleNodeLocation(grp, nod);
                         const n = myDiagram.findNodeForKey(nod.key);
                         if (n?.data) {
                             myDiagram.model.setDataProperty(n.data, "group", nod.group);
-                            if (debug) console.log('1041 n.data', n.data);
+                            if (!debug) console.log('1041 n.data', n.data);
                         }
                     } else {
                         nod.group = "";
@@ -2818,7 +2816,7 @@ function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, 
             if (prop === 'viewkind') continue;
             if (viewdata[prop] != null)
                 diagram?.model.setDataProperty(node, prop, viewdata[prop]);
-            if (debug) console.log('2483 updateNode', prop, node[prop], diagram);
+            if (debug) console.log('2483 prop, node[prop]', prop, node[prop]);
         }
         const objview = node.objectview;
         if (objview) {

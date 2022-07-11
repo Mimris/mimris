@@ -1277,7 +1277,7 @@ export function createRelationship(data: any, context: any) {
                     nodeFrom: nodeFrom,
                     nodeTo: nodeTo,
                 } 
-                if (debug) console.log('1050 myDiagram, args', myDiagram, args);
+                if (!debug) console.log('1050 myDiagram, args', myDiagram, args);
                 // myDiagram.model.setDataProperty(data, "name", typename);
                 context.handleOpenModal(choices, modalContext);
                 if (debug) console.log('1053 modalContext', modalContext);                

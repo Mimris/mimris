@@ -278,6 +278,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (!isLabel)
             continue;
         }
+        if (k === 'copiedFromId') {
+          continue;
+        }
       }
       if (chosenType) {
         // Filter attributes to show in a given tab

@@ -201,7 +201,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Handle the links
     uim.handleSelectDropdownChange(selected, context);
     // Handle the relationships
-    console.log('203 context', context);;
+    console.log('203 selected', selected);
   }
 
   public handleCloseModal(e) {
@@ -444,7 +444,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let n = it.value;
                 if (!(n instanceof go.Node)) continue;
                 if (n) {
-                  if (debug) console.log('425 n.data, n', n.data, n);
+                  if (debug) console.log('425 n.data', n.data);
                   addFromNode(myFromNodes, n);
                 }
             }
@@ -453,6 +453,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
             selection = [];
             e.diagram.selection.each(function(sel) {
+              const key = sel.data.key;
+              sel.data.fromNode = getFromNode(myFromNodes, key);
+              if (debug) console.log('457 sel.data', sel.data);
               selection.push(sel.data);
             });
             myMetis.currentSelection = selection;
@@ -583,7 +586,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     continue;
                 nodes.push(n.data);
               }
-              if (debug) console.log('559 node', node);
+              if (debug) console.log('559 node. nodes', node, nodes);
               if (debug) console.log('560 selection', selection);
               const choices = uid.getConnectToSelectedTypes(node, selection, myMetis, myDiagram);
               const args = {
@@ -601,7 +604,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               }
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
-              myDiagram.handleOpenModal(choices, modalContext);       
+              if (debug) console.log('607 modalContext', modalContext);
+              myDiagram.handleOpenModal(node, modalContext);       
             },
             function (o: any) { 
               const node = o.part.data;
@@ -2729,6 +2733,14 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         }
       }
     }
+    function getFromNode(myFromNodes: any, key: string) {
+      for (let i = 0; i < myFromNodes.length; i++) {
+        if (myFromNodes[i].key === key) {
+          return myFromNodes[i];
+        }
+      }
+      return null;
+    }
 
     function setLayout (myDiagram, layout) {
       switch (layout) {
@@ -2785,8 +2797,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     const myModel = this.myMetis.currentModel;
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
-    const icon = modalContext?.icon;
-
+    if (debug) console.log('2800 modalContext ', modalContext);
     let selpropgroup = [  {tabName: 'Default'} ];
     if (modalContext?.what === 'editObject') {
       let obj = this.state.selectedData?.object;
@@ -2865,6 +2876,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             })
             comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
         } 
+        else if (modalContext?.title === 'Select Relationship Type') {
+            if (debug) console.log('2882 choices', this.state.modalContext.choices);
+            const choices = this.state.modalContext.args.typeNames;
+            let img;
+            options = choices.map(tpname => {
+                img = './../images/default.png';
+                return {value: tpname, label: tpname}
+            })
+            comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
+        }
         else {
             options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
             comps = null

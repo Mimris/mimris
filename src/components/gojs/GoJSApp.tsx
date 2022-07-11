@@ -1066,13 +1066,14 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ClipboardPasted': {
         // First remember the from locs
         const myFromNodes = myMetis.fromNodes;
-        if (debug) console.log('1043 myFromNodes', myFromNodes);
+        if (debug) console.log('1069 myMetis', myMetis);
         if (!myFromNodes) {
           alert('No From nodes defined - cancelling the paste operation!');
           break;
         }
         // Then do the paste
         const selection = e.subject;
+        if (debug) console.log('1076 selection', selection);
         context.pasted  = true;
         const it = selection.iterator;
         const pastedNodes = new Array();
@@ -1081,14 +1082,8 @@ class GoJSApp extends React.Component<{}, AppState> {
         let refloc, cnt = 0;
         while (it.next()) {
           const data = it.value.data;
-          let fromNode;
-          for (let i=0; i<myFromNodes.length; i++) {
-            const myNode = myFromNodes[i];
-            if (myNode.key.substr(0,36) === data.key.substr(0,36)) {
-              fromNode = myNode;
-              break;
-            }
-          }
+          if (debug) console.log('1084 data', data);
+          let fromNode = data.fromNode;
           if (debug) console.log('1062 fromNode, data.key', fromNode, data.key);
           if (debug) console.log('1063 fromNode, it.value.data', fromNode, data);
           if (data.category === constants.gojs.C_OBJECT) {
@@ -1420,7 +1415,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
     if (debug) console.log('1115 modalContext ', modalContext);
-    const context = modalContext?.context;
     if (modalContext?.what === 'selectDropdown') {      
       let options =  '' 
       let comps = ''
@@ -1447,8 +1441,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
       const value = (selectedOption)  ? selectedOption.value : options[0];
       const label = (selectedOption)  ? selectedOption.label : options[0];
-      if (debug) console.log('1142 context', context);
-      if (debug) console.log('1143 selectedOption, value ', selectedOption, value);
+      if (debug) console.log('1143 selectedOption, value, label ', selectedOption, value, label);
       header = modalContext.title;
       modalContent = 
         <div className="modal-selection d-flex justify-content-center">

@@ -498,11 +498,11 @@ const page = (props:any) => {
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
             Project: 
             <span className="sourceName p-0 ml-2 mb-1 " style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#fff"}}>
-              <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
+              <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)}  />
             </span>
             <span >
               <button 
-                className="btn-secondary ml-2 mr-2 mb-3 " 
+                className="btn-primary ml-2 mr-2 mb-3 " 
                 data-toggle="tooltip" data-placement="top" data-bs-html="true" 
                 title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
                 onClick={handleSaveAllToFileDate}>Save

@@ -196,6 +196,14 @@ const page = (props) => {
                     </CardText>
                   </CardBody> */}
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.07.11</CardTitle>
+                    <CardText >
+                          &bull; New <Recovery></Recovery> button in the model top-bar".<br />
+                          &bull; Enhancements! <br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.06.13</CardTitle>
                     <CardText >
                           &bull; New "Choose File" and "Save" button in the model top-bar".<br />

@@ -75,14 +75,18 @@ const Palette = (props: any) => {
   } 
 
   useEffect(() => {
+    isRendered = true;
+    if (isRendered) {
     genRoleTasks(mmodel, dispatch)
+  }
+  return () => { isRendered = false; }
   }, [])
 
   // if (mmodel?.name !== 'IRTV_MM')  taskNodeDataArray = ndarr
   
   useEffect(() => { // -----------------------------------------------------------------------------
-    // isRendered = true;
-    // if (isRendered) {
+    isRendered = true;
+    if (isRendered) {
       if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
       taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
         ndarr?.find((i: { typename: any; }) => {
@@ -95,10 +99,10 @@ const Palette = (props: any) => {
       function refres() {        
         toggleRefreshPalette() 
       }
-      setTimeout(refres, 1);
-    // }
-    // return () => { isRendered = false; }
-  }, [props.phFocus.focusTask])
+      setTimeout(refres, 100);
+    }
+    return () => { isRendered = false; }
+  }, [props.phFocus.focusTask?.id])
 
   // break if no model
   if (!props.gojsModel) return null;
@@ -107,7 +111,6 @@ const Palette = (props: any) => {
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
-
   // ================================================================================================
   // ================================================================================================
   // Show all the objects in this model

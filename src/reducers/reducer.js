@@ -105,15 +105,15 @@ const InitState =  JSON.parse(JSON.stringify(InitStateJson))
 
 export const InitialState = {
   phData: InitState.phData,
-  phList: null, // list of models from AMMServer (firebase)
+  // phList: null, // list of models from AMMServer (firebase)
   phFocus: InitState.phFocus,
-  phGojs: null,
-  phMymetis: null,
-  phMyGoModel: null,
-  phMyGoMetamodel: null,
+  // phGojs: null,
+  // phMymetis: null,
+  // phMyGoModel: null,
+  // phMyGoMetamodel: null,
   phUser: InitState.phUser,
-  phSource: InitState.phSource
-
+  phSource: InitState.phSource,
+  lastUpdate: new Date().toISOString()
 }
 
 let focusTask

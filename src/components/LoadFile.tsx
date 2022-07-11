@@ -34,7 +34,8 @@ const LoadFile = (props: any) => {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
-      phSource: 'localFile'
+      phSource: props.phSource,
+      lastUpdate: new Date().toISOString()
     }
 
 
@@ -99,6 +100,8 @@ const LoadFile = (props: any) => {
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+
+  
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 

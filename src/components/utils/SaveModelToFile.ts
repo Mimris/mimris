@@ -51,11 +51,11 @@ export const SaveMetamodelToFile = (metamodel, name, type) => {
     document.body.removeChild(link);
 }
 
-export const SaveAllToFile = (model, name, type) => {
+export const SaveAllToFile = (data, name, type) => {
     const fileName = name;
-    if (debug) console.log('22 LoadLocal', model, fileName);
+    if (debug) console.log('22 LoadLocal', data, fileName);
   
-    const json = JSON.safeStringify(model);
+    const json = JSON.safeStringify(data);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
     // const href = await URL.createObjectURL(blob);
@@ -67,14 +67,13 @@ export const SaveAllToFile = (model, name, type) => {
     document.body.removeChild(link);
 }
 
-export const SaveAllToFileDate = (model, name, type) => {
+export const SaveAllToFileDate = (data, name, type) => {
  
     const today = new Date().toISOString().slice(0, 10)
     // const today = new Date().toISOString().slice(0, 19)
     const fileName = name+"_"+type+'_'+today;
-    if (debug) console.log('22 LoadLocal', model, fileName);
-  
-    const json = JSON.safeStringify(model);
+    if (debug) console.log('22 LoadLocal', data, fileName);
+    const json = JSON.safeStringify(data);
     const blob = new Blob([json],{type:'application/json'});
     const href = URL.createObjectURL(blob);
     // const href = await URL.createObjectURL(blob);

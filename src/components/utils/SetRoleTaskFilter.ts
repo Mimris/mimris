@@ -21,12 +21,12 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
     
       const datarole = {
         focusRole: {
-          id: "Modeller2",
-          name: "Modeller 2",
+          id: "Modeller1",
+          name: "Modeller 1",
           tasks: [
             {
                 id: "Task0",
-                name: "Solution Modelling",
+                name: "Modelling",
                 workOnTypes:  
                 oTypes0.map((t: { name: any; }) => t.name)
             },
@@ -35,6 +35,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                 name: "Entity Modelling",
                 description: "Create New Entity using objecttype: EntityType",
                 workOnTypes: [
+                    "Container",   
                     "EntityType",
                     "Property",
                     "Datatype",
@@ -51,7 +52,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                 name: "Property Modelling",
                 description: "Add property to EtityType definitions",
                 workOnTypes: [
-
+                "Container",   
                 "EntityType",
                 "Property",
                 "Datatype"
@@ -62,6 +63,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                 name: "Task Modelling",
                 description: "Add property to EtityType definitions",
                 workOnTypes: [
+                "Container",    
                 "EntityType",
                 "Information",
                 "Role",
@@ -72,7 +74,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
             {
                 id: "task4",
                 name: "All types",
-                description: "All types",
+                description: "All types modelling",
                 workOnTypes: [
                     oTypes.map((t: { name: any; }) => t.name)
                 ]
@@ -80,22 +82,25 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
         ]
       }
     }
+    
       dispatch({ type: 'SET_FOCUS_ROLE', data: datarole.focusRole })
 
       let datatask = (oTypes0.length > 0) ? {
             focusTask: {
-            id: "Task2",  
-            name: "Solution Modelling",
+            id: "Task4",  
+            name: "Modelling",
+            description: "Modelling",
             workOnTypes:
             ["Container"].concat(...oTypes0.map((t: { name: any; }) => t.name))
             }
         } : 
         {
             focusTask: {
-                id: "Task2",
-                name: "Solution Modelling",
+                id: "Task4",
+                name: "All types",
+                description: "All types modelling",
                 workOnTypes: [
-                    oTypes.map((t: { name: any; }) => t.name)
+                    ["Container"].concat(...oTypes.map((t: { name: any; }) => t.name))
                 ]
             }
         }

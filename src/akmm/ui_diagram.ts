@@ -617,8 +617,10 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
             continue;
         // Check if a link of this type already exists
         // If so, continue
-        objtypes.push(n.data.objecttype);
-        objtypenames.push(n.data.objecttype.name);
+        if (n.data.objecttype) {
+            objtypes.push(n.data.objecttype);
+            objtypenames.push(n.data.objecttype.name);
+        }
     }
     uniqueSet = utils.removeArrayDuplicates(objtypenames);
     objtypenames = uniqueSet;

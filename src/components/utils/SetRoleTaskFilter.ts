@@ -1,3 +1,5 @@
+const debug = false;
+
 import { useDispatch } from "react-redux";
 import { Dispatch } from "redux";
 
@@ -5,7 +7,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
 
-    console.log("7 genRoleTasks",  mmodel.objecttypes0, mmodel.objecttypes, dispatch);
+    if (debug) console.log("7 genRoleTasks",  mmodel.objecttypes0, mmodel.objecttypes, dispatch);
     
     const  oTypes0 = mmodel?.objecttypes0?.map((ot: { id: any; name: any; description: any; icon: any; color: any; type: any; }) => {
       return {id: ot.id, name: ot.name, description: ot.description, icon: ot.icon, color: ot.color, type: ot.type}
@@ -98,7 +100,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
             }
         }
 
-    console.log("105 genRoleTasks", datatask);
+    if (debug) console.log("105 genRoleTasks", datatask);
     dispatch({ type: 'SET_FOCUS_TASK', data: datatask.focusTask })
  }
 export default genRoleTasks;

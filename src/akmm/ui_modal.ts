@@ -164,18 +164,12 @@ export function handleSelectDropdownChange(selected, context) {
           let fromType = nodeFrom.objecttype;
           fromType = myMetis.findObjectType(fromType.id);
           let toType   = nodeTo.objecttype;
+          if (!toType)
+            continue;
           toType = myMetis.findObjectType(toType.id);
           const typename = (selectedOption) && selectedOption;
           const reltype  = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
           if (debug) console.log('166 fromType, toType, reltype', fromType, toType, reltype);
-          const args = {
-            typename: typename,
-            fromType: modalContext.args.fromType,
-            toType:   nodeTo.objecttype,
-            nodeFrom: nodeFrom,
-            nodeTo:   nodeTo,
-            context:  context
-          }
           // create a link data between the actual nodes
           let linkdata = {
             key:    utils.createGuid(),
@@ -197,8 +191,9 @@ export function handleSelectDropdownChange(selected, context) {
           myDiagram.model.addLinkData(linkdata);
         }
       }
-      if (debug) console.log('200 links', links);
+      if (debug) console.log('193 links', links);
       modalContext.links = links;
+      break;
     }
     case "Change Icon": {
       const icon = (selectedOption) && selectedOption;
@@ -297,7 +292,7 @@ export function handleSelectDropdownChange(selected, context) {
         })
         if (debug) console.log('183 jsnMetamodel', jsnMetamodel);
       }
-    break;
+      break;
     }
     case "Set Link Curve": {  
       let item: akm.cxMetaModel | akm.cxModelView = myModelview; 
@@ -678,10 +673,9 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           continue;
         const dtypeRef = prop.datatypeRef;
         const dtype = myMetis.findDatatype(dtypeRef);
-        if (dtype) {
+        if (dtype && dtype.name !== 'boolean') {
           const pattern = dtype.inputPattern;
           const value = obj[prop.name];
-          if (debug) console.log('640 value', pattern, value);
           if (pattern && value) {
               const regex = new RegexParser(pattern);
             if (debug) console.log('643 regex:', regex);
@@ -1153,7 +1147,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('1135 links', links);
       const objFrom = nodeFrom.data.object;
       const objfromView = nodeFrom.data.objectview;
-      const fromType = nodeFrom.data.objecttype;
+      let fromType = nodeFrom.data.objecttype;
+      fromType = myMetis.findObjectType(fromType.id);
       const nodesTo  = modalContext.args.nodesTo;
       if (debug) console.log('1138 objFrom, objfromView: ', objFrom, objfromView);
 
@@ -1164,7 +1159,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         const objtoView = nodeTo.data.objectview;
         // Create the corresponding relship and relship view
         const objTo = nodeTo.data.object;
-        const toType = nodeTo.data.objecttype;
+        let toType = nodeTo.data.objecttype;
+        toType = myMetis.findObjectType(toType.id);
         const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
         const rel = new akm.cxRelationship(utils.createGuid(), reltype, objFrom, objTo, typename, "");
         myModel.addRelationship(rel); 
@@ -1183,6 +1179,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         gjslink.loadLinkContent(myGoModel);
         if (debug) console.log('1160 gjslink', gjslink);
       }
+      break;
     }
   }
   if (debug) console.log('1046 myMetis', myMetis);

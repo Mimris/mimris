@@ -48,7 +48,7 @@ const Modeller = (props: any) => {
   ]
   const selmodviews = modelviews
   
-  if (!debug) console.log('36 Modeller', mmodel, focusModelview, selmods, selmodviews);
+  if (debug) console.log('36 Modeller', mmodel, focusModelview, selmods, selmodviews);
   let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);

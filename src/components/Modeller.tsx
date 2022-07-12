@@ -21,8 +21,9 @@ const Modeller = (props: any) => {
   const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
 
-  function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
-   }
+  // function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
+  //  }
+
 
    if (debug) console.log('27 Modeller: props, refresh', props, refresh);
 
@@ -185,7 +186,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
   }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('125 Modeller useEffect 5', props); 
+    if (!debug) console.log('195 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
 
@@ -281,7 +282,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
           <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus&#013;">Zoom to Focus</button>
           <button className="btn-sm  py-0" 
             data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews&#013;" 
-            onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; toggleRefresh() } } > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
+            onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
             {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
           </button>
           {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}

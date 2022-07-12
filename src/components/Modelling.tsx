@@ -67,7 +67,7 @@ const page = (props:any) => {
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
 
-  if (debug) console.log('57 Modelling: gojsmodel', props.phGojs);
+  if (!debug) console.log('57 Modelling: gojsmodel', props.phGojs);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -99,7 +99,7 @@ const page = (props:any) => {
       isRendered = true;
       if (isRendered) {
         // setTimeout(refres, 100);
-        if (debug) console.log('102 Modelling useEffect', props); 
+        if (!debug) console.log('102 Modelling useEffect', props); 
         const data = {
           phData: props.phData,
           phFocus: props.phFocus,
@@ -118,7 +118,7 @@ const page = (props:any) => {
     }, [focusModelview?.id, focusModel?.id, curmod])
 
     useEffect(() => {
-      if (!debug) console.log('121 Modelling useEffect', props, memoryLocState); 
+      if (debug) console.log('121 Modelling useEffect', props, memoryLocState); 
       const currentdata = {
         phData: props.phData,
         phFocus: props.phFocus,

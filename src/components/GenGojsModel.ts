@@ -368,8 +368,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           continue;
         if (objview.name === objview.id)
           continue;
-        if (!objview.typeview && !objview.object) 
+        if (!objview.typeview && !objview.object) {
           objview.markedAsDeleted = true;
+          if (!objview.textcolor)
+            objview.textcolor = "black";
+        }
         let objtype;
         const obj = objview.object;
         objtype = obj?.type;

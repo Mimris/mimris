@@ -15,7 +15,7 @@ const Navbar = (props) => {
 
 	return (
 	<nav className="navbar navbar-expand-sm bg-white py-0"
-			variant="pils" defaultActiveKey="/"
+			// variant="pils" defaultactiveKey="/"
 		>
 		<div className="container mx-0 ">
 			<a className="navbar-brand nabar-left mr-4" href="#">

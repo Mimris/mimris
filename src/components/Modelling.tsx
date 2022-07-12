@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 // Diagram.tsx
 const debug = false;
 
@@ -10,8 +10,8 @@ import classnames from 'classnames';
 import Page from './page';
 import Palette from "./Palette";
 import Modeller from "./Modeller";
-// import TargetModeller from "./TargetModeller";
-// import TargetMeta from "./TargetMeta";
+import TargetModeller from "./TargetModeller";
+import TargetMeta from "./TargetMeta";
 import genGojsModel from './GenGojsModel'
 import LoadServer from '../components/LoadServer'
 import LoginServer from '../components/LoginServer'
@@ -31,9 +31,13 @@ import EditFocusModal from '../components/EditFocusModal'
 
 const page = (props:any) => {
 
+  if (typeof window === 'undefined') return <></>
+
   const dispatch = useDispatch();
   const [mount, setMount] = useState(false)
   const [refresh, setRefresh] = useState(true);
+
+
 
   useEffect(() => {
     setMount(true)
@@ -45,8 +49,10 @@ const page = (props:any) => {
 
   // const refresh = props.refresh
   // const setRefresh = props.setRefresh
+ 
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   if (!memoryLocState && (typeof window != 'undefined')) {setMemoryLocState([props])}
+  
 
   /**  * Get the state from the store  */
   // const state = useSelector((state: any) => state) // Selecting the whole redux store
@@ -62,7 +68,7 @@ const page = (props:any) => {
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
   let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
-  // let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
+  let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
@@ -96,25 +102,21 @@ const page = (props:any) => {
     // }, [curmod])
 
     useEffect(() => {
-      isRendered = true;
-      if (isRendered) {
-        // setTimeout(refres, 100);
-        if (!debug) console.log('102 Modelling useEffect', props); 
-        const data = {
-          phData: props.phData,
-          phFocus: props.phFocus,
-          phUser: props.phUser,
-          phSource: props.phSource,
-          lastUpdate: new Date().toISOString()
-        };
-        if (debug) console.log('110 Modelling', props.phUser.focusUser, data);
-        genGojsModel(props, dispatch);
-      }
+      if (debug) console.log('99 Modelling useEffect', props); 
+      const data = {
+        phData: props.phData,
+        phFocus: props.phFocus,
+        phUser: props.phUser,
+        phSource: props.phSource,
+        lastUpdate: new Date().toISOString()
+      };
+      if (debug) console.log('107 Modelling useEffect', props.phUser.focusUser, data);
+      genGojsModel(props, dispatch);
+
       function refres() {
         setRefresh(!refresh)
       }
       setTimeout(refres, 1000);
-      return () => { isRendered = false; }
     }, [focusModelview?.id, focusModel?.id, curmod])
 
     useEffect(() => {
@@ -399,7 +401,7 @@ const page = (props:any) => {
                   />
                 </div>
               </Col>
-              {/* <Col className="col3 m-0 p-0 pr-0" xs="auto">
+              <Col className="col3 m-0 p-0 pr-0" xs="auto">
                 <div className="myTargetMeta pl-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "4px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                   <TargetMeta
                     gojsModel={gojsmodel}
@@ -414,7 +416,7 @@ const page = (props:any) => {
                     modelType='model'
                   />
                 </div>
-              </Col> */}
+              </Col>
             </Row>
           </div>         
         </TabPane>
@@ -474,7 +476,7 @@ const page = (props:any) => {
   const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
   const EditFocusModalODiv = (focusObjectview?.name || focusObjecttype?.name ) && <EditFocusModal buttonLabel='Object' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
-  const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="m-0 p-0" buttonLabel='Relship' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
+  const EditFocusModalRDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal className="ContextModal m-0 p-0" buttonLabel='Relship' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
     // : (focusObjectview.name) && <EditFocusMetamodel buttonLabel='Edit' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} />
   // if (debug) console.log('177 Modelling', EditFocusModalDiv);
 

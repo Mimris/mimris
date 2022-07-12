@@ -85,8 +85,7 @@ const Palette = (props: any) => {
   // if (mmodel?.name !== 'IRTV_MM')  taskNodeDataArray = ndarr
   
   useEffect(() => { // -----------------------------------------------------------------------------
-    isRendered = true;
-    if (isRendered) {
+
       if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
       taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
         ndarr?.find((i: { typename: any; }) => {
@@ -96,12 +95,11 @@ const Palette = (props: any) => {
       seltasks = props.phFocus.focusRole?.tasks
       if (debug) console.log('151 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
       
-      function refres() {        
+      const timer = setTimeout(() => {
         toggleRefreshPalette() 
-      }
-      setTimeout(refres, 100);
-    }
-    return () => { isRendered = false; }
+      }, 1000);
+      return () => clearTimeout(timer);
+      
   }, [props.phFocus.focusTask?.id])
 
   // break if no model

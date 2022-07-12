@@ -7,18 +7,22 @@ import GoJSApp from "./gojs/GoJSApp";
 import Selector from './utils/Selector'
 import genGojsModel from './GenGojsModel'
 import genRoleTasks from "./utils/SetRoleTaskFilter";
+import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
 
 const Modeller = (props: any) => {
+
   const dispatch = useDispatch();
   if (debug) console.log('13 Modeller: props', props);
 
+  // if (!props.gojsModel)  return <></>
+
   const gojsmodel = props.gojsModel;
   let myMetis = props.myMetis;
-  let activetabindex = '0'
+  let activetabindex = 0
   const [refresh, setRefresh] = useState(false)
-  const [activeTab, setActiveTab] = useState();
+  const [activeTab, setActiveTab] = useState(0);
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
 
   // function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
@@ -174,11 +178,11 @@ The text 'Project_<currentdate>' will be added to the filename.`
         if (debug) console.log('111 model', model);
         if (activeTab === 0) {
           const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
-          dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-          function refres() {
+          dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;   
+          const timer = setTimeout(() => {
             setRefresh(!refresh)
-          }
-          setTimeout(refres, 10);
+          }, 1000);
+          return () => clearTimeout(timer);
         }
       }
       setActiveTab(activetabindex)
@@ -267,7 +271,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     ?
       <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
         <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
-          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: 99, position: "relative", overflow: "hidden" }}>Modeller
         </h5>
         <div>
           {selector}
@@ -294,7 +298,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>
     :
       <div className="mt-2 mb-5" style={{backgroundColor: "#7ac"}}>
-        <h5 className="modeller-heading float-left text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+        <h5 className="modeller-heading float-left text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
         {/* <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
           Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."

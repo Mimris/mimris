@@ -511,8 +511,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             if (debug) console.log('501 myObjectviews', myObjectviews);    
             // The object moved
-            const myNode = myGoModel.findNode(data.key);
-            myNode.loc = data.loc;
             let fromloc, fromNode;
             for (let j=0; j<myFromNodes.length; j++) {
                 const fnode = myFromNodes[j];
@@ -531,7 +529,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   break;
                 }
             }
-            if (debug) console.log('523 myNode, fromloc, toloc, toNode', data, fromloc, toloc, toNode);
+            if (debug) console.log('523 data, fromloc, toloc, toNode', data, fromloc, toloc, toNode);
             // Object moved
             const key = data.key;
             if (debug) console.log('527 selcnt, data', selcnt, data);

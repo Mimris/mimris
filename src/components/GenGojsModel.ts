@@ -364,6 +364,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
+        if (!objview.id) 
+          continue;
+        if (objview.name === objview.id)
+          continue;
+        if (!objview.typeview && !objview.object) 
+          objview.markedAsDeleted = true;
         let objtype;
         const obj = objview.object;
         objtype = obj?.type;

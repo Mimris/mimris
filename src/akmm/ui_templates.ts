@@ -756,7 +756,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                                 overflow: go.TextBlock.OverflowClip,
                                 margin: 10,
                                 text: "label",
-                            },        
+                            },  
                             new go.Binding("text", "text").makeTwoWay()
                         ),
                     ),

@@ -1035,14 +1035,14 @@ export function changeNodeSizeAndPos(data: gjs.goObjectNode, fromloc: any, toloc
                         continue;
                     const grp = getGroupByLocation(goModel, nod.loc);
                     if (grp) {
-                        if (!debug) console.log('1034 grp, nod', grp, nod);
+                        if (debug) console.log('1034 grp, nod', grp, nod);
                         // This (grp) is the container
                         nod.group = grp.key;
                         const loc = scaleNodeLocation(grp, nod);
                         const n = myDiagram.findNodeForKey(nod.key);
                         if (n?.data) {
                             myDiagram.model.setDataProperty(n.data, "group", nod.group);
-                            if (!debug) console.log('1041 n.data', n.data);
+                            if (debug) console.log('1041 n.data', n.data);
                         }
                     } else {
                         nod.group = "";
@@ -1277,7 +1277,7 @@ export function createRelationship(data: any, context: any) {
                     nodeFrom: nodeFrom,
                     nodeTo: nodeTo,
                 } 
-                if (!debug) console.log('1050 myDiagram, args', myDiagram, args);
+                if (debug) console.log('1050 myDiagram, args', myDiagram, args);
                 // myDiagram.model.setDataProperty(data, "name", typename);
                 context.handleOpenModal(choices, modalContext);
                 if (debug) console.log('1053 modalContext', modalContext);                
@@ -2550,6 +2550,21 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             objectviews = objectviews?.concat(oviews);
         }
     }
+    const objviews = [];
+    if (debug) console.log('2515 objectviews', objectviews);
+    for (let i=0; i<objectviews?.length; i++) {
+        const oview = objectviews[i];
+        if (oview) {
+            if (!oview.id)
+                continue;
+            if (!oview.name)
+                continue;
+            if (!oview.typeview) 
+                continue;
+            objviews.push(oview);
+        }
+    }
+    objectviews = objviews;
     if (debug) console.log('2515 objectviews', objectviews);
     for (let i=0; i<objectviews?.length; i++) {
         const oview = objectviews[i];
@@ -2558,9 +2573,6 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
                 if (debug) console.log('2520 oview, object:', oview, oview.object);
                 if (oview.object?.markedAsDeleted) {
                     oview.object.markedAsDeleted = false;
-                    const jsnObject = new jsn.jsnObject(oview.object);
-                    if (debug) console.log('2236 jsnObject', jsnObject);
-                    modifiedObjects.push(jsnObject);
                     msg = "\tVerifying objectview " + oview.name + " ( with object deleted)\n";
                     msg += "\tObject has been undeleted";
                     report += printf(format, msg);
@@ -2581,6 +2593,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             }
         }
     }
+    myMetis.objectviews = objectviews;
     msg = "Verifying object views is completed\n";
     report += printf(format, msg);
   
@@ -2798,7 +2811,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     msg += "End Verification";
     if (debug) console.log('2761 myGoModel', myGoModel);
     report += printf(format, msg);
-    if (degug) console.log(report);
+    if (debug) console.log(report);
     myDiagram.requestUpdate();    
 } 
 

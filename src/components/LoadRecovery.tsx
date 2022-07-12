@@ -19,11 +19,11 @@ const LoadRecovery = (props: any) => {
   if (typeof window === 'undefined') return
 
   const [memoryState] = useLocalStorage('memorystate', null);
-  if (!debug) console.log('22 LoadRecovery', memoryState);
+  if (debug) console.log('22 LoadRecovery', memoryState);
 
 
   const optionsMemory = memoryState?.map((o, idx) => o && {value: idx, label: o.lastUpdate+' | '+o.phSource});
-  if (!debug) console.log('25 LoadRecovery', optionsMemory);
+  if (debug) console.log('25 LoadRecovery', optionsMemory);
 
   const [selected, setSelected] = useState(optionsMemory[0].value);
 
@@ -33,8 +33,8 @@ const LoadRecovery = (props: any) => {
   function handleChange(e: any) {  
     // memoryStatus = true
 
-    if (!debug) console.log('35 LoadRecovery', e, memoryState[e.target.value]);
-    if (!debug) console.log('36 LoadRecovery', props, );
+    if (debug) console.log('35 LoadRecovery', e, memoryState[e.target.value]);
+    if (debug) console.log('36 LoadRecovery', props, );
 
     if (memoryState) {
   

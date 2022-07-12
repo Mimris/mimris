@@ -195,7 +195,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
       typenames = [...new Set(mmtypenames)];
-      if (!debug) console.log('193 MM objecttypes', typenames);
+      if (debug) console.log('193 MM objecttypes', typenames);
     }
     if (model) {
       const mmodel = model.metamodel;
@@ -210,7 +210,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
       inheritedTypenames = [...new Set(objtypenames)];
-      if (!debug) console.log('208 objecttypes', inheritedTypenames);
+      if (debug) console.log('208 objecttypes', inheritedTypenames);
     }
     const myGoPaletteModel = new gjs.goModel(utils.createGuid(), "myPaletteModel", null);
     let objecttypes: akm.cxObjectType[] | null = metamodel?.objecttypes;
@@ -354,13 +354,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    if (!debug) console.log('357 GenGojsModel', metis, model, modelview);
+    if (debug) console.log('357 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {
-      if (!debug) console.log('363 modelview, objviews:', modelview, objviews);
+      if (debug) console.log('363 modelview, objviews:', modelview, objviews);
       for (let i = 0; i < objviews.length; i++) {
         let includeObjview = false;
         let objview = objviews[i];
@@ -438,7 +438,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         }
       }
       const nodes = myGoModel.nodes;
-      if (!debug) console.log('441 buildGoModel - nodes', nodes);
+      if (debug) console.log('441 buildGoModel - nodes', nodes);
       for (let i = 0; i < nodes.length; i++) {
           const node = nodes[i] as gjs.goObjectNode;
           if (!node.object) continue;
@@ -453,7 +453,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           node.name = objview.name;
           myGoModel.addNode(node);
       }
-      if (!debug) console.log('456 myGoModel', myGoModel);
+      if (debug) console.log('456 myGoModel', myGoModel);
     }
     // load relship views
     const relshipviews = [];
@@ -510,14 +510,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!includeDeleted && !includeNoObject && !includeNoType)
           relcolor = relview.strokecolor;
         if (!relcolor) relcolor = 'black';
-        if (debug) console.log('512 rel, relview:', rel, relview);
+        if (debug) console.log('512 rel, relview, relcolor:', rel, relview, relcolor);
         if (includeRelview) {
+          if (relview.strokewidth === "NaN") relview.strokewidth = "1";
           relview.setFromArrow2(rel?.relshipkind);
           relview.setToArrow2(rel?.relshipkind);
           relview = uic.updateRelationshipView(relview);
-
+          relview.strokecolor = relcolor;
           relshipviews.push(relview);
-          if (debug) console.log('519 rel, relview:', rel, relview);
+          if (debug) console.log('519 rel, relview, relcolor:', rel, relview, relcolor);
           const jsnRelview = new jsn.jsnRelshipView(relview);
           modifiedRelviews.push(jsnRelview);
     
@@ -537,7 +538,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('536 modifiedRelviews', modifiedRelviews);
     }
     modelview.relshipviews = relshipviews;
-    if (!debug) console.log('539 buildGoModel - myGoModel', myGoModel);
+    if (debug) console.log('539 buildGoModel - myGoModel', myGoModel);
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
     if (debug) console.log('542 myGoModel.links', myGoModel.links);

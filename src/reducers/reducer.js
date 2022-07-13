@@ -17,6 +17,7 @@ import {
   SET_FOCUS_TAB,
   SET_FOCUS_MODEL,
   SET_FOCUS_MODELVIEW,
+  SET_FOCUS_TARGETMETAMODEL,
   SET_FOCUS_TARGETMODEL,
   SET_FOCUS_TARGETMODELVIEW,
   SET_FOCUS_OBJECT,
@@ -263,6 +264,15 @@ function reducer(state = InitialStateStr, action) {
         phFocus: {
           ...state.phFocus,
           focusModelview: action.data
+        }
+      }
+    case SET_FOCUS_TARGETMETAMODEL:
+      if (!debug) console.log('121 red', state, action.data); 
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusTargetMetamodel: action.data
         }
       }
     case SET_FOCUS_TARGETMODEL:

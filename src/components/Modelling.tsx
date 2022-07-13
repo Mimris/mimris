@@ -73,7 +73,7 @@ const page = (props:any) => {
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
 
-  if (!debug) console.log('57 Modelling: gojsmodel', props.phGojs);
+  if (!debug) console.log('57 Modelling: gojsmodel', props);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -87,8 +87,6 @@ const page = (props:any) => {
   let phData = props.phData
   let phUser = props.phUser
 
-
-
   // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
 
     // useEffect(() => {
@@ -101,45 +99,45 @@ const page = (props:any) => {
     //   setTimeout(refres, 1);
     // }, [curmod])
 
-    useEffect(() => {
-      if (debug) console.log('99 Modelling useEffect', props); 
-      const data = {
-        phData: props.phData,
-        phFocus: props.phFocus,
-        phUser: props.phUser,
-        phSource: props.phSource,
-        lastUpdate: new Date().toISOString()
-      };
-      if (debug) console.log('107 Modelling useEffect', props.phUser.focusUser, data);
+  useEffect(() => {
+    if (!debug) console.log('99 Modelling useEffect', props); 
+    const data = {
+      phData: props.phData,
+      phFocus: props.phFocus,
+      phUser: props.phUser,
+      phSource: props.phSource,
+      lastUpdate: new Date().toISOString()
+    };
+    if (debug) console.log('107 Modelling useEffect', data);
+    genGojsModel(props, dispatch);
+    
+    const timer = setTimeout(() => {
       genGojsModel(props, dispatch);
+      setRefresh(!refresh)
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [focusModelview?.id, focusModel?.id, props.phFocus.focusTargetMetamodel?.id, curmod])
 
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1000);
-    }, [focusModelview?.id, focusModel?.id, curmod])
+  useEffect(() => {
+    if (debug) console.log('121 Modelling useEffect', props, memoryLocState); 
+    const currentdata = {
+      phData: props.phData,
+      phFocus: props.phFocus,
+      phUser: props.phUser,
+      phSource: props.phSource,
+      lastUpdate: new Date().toISOString()
+    };
+    console.log('129 Modelling', memoryLocState, currentdata);
 
-    useEffect(() => {
-      if (debug) console.log('121 Modelling useEffect', props, memoryLocState); 
-      const currentdata = {
-        phData: props.phData,
-        phFocus: props.phFocus,
-        phUser: props.phUser,
-        phSource: props.phSource,
-        lastUpdate: new Date().toISOString()
-      };
-      console.log('129 Modelling', memoryLocState, currentdata);
+    genGojsModel(props, dispatch);
+    
+    function refres() {
+      setRefresh(!refresh)
+    }
+    setTimeout(refres, 1);
 
-
-      
-      genGojsModel(props, dispatch);
-      
-      function refres() {
-        setRefresh(!refresh)
-      }
-      setTimeout(refres, 1);
-
-    }, [props.phFocus?.focusRefresh?.id])
+  }, [props.phFocus?.focusRefresh?.id])
 
 
   function toggleRefresh() {
@@ -401,8 +399,8 @@ const page = (props:any) => {
                   />
                 </div>
               </Col>
-              <Col className="col3 m-0 p-0 pr-0" xs="auto">
-                <div className="myTargetMeta pl-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "4px", backgroundColor: "#8ce", border: "solid 1px black" }}>
+              <Col className="col3 mr-0 p-0 " xs="auto">
+                <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                   <TargetMeta
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}

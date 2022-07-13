@@ -1,4 +1,4 @@
-// @ts- nocheck
+// @ts- git add nocheck
 const debug = false;
 
 import * as utils from './utilities';
@@ -1256,7 +1256,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }        
         }
     }
-    if (!debug) console.log('1262 relshipviews completed', myMetis);
+    if (debug) console.log('1262 relshipviews completed', myMetis);
     // Prepare dispatch of the metamodel and the current model
     const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
     jsnMetamodel.updateMethods(metamodel);
@@ -1302,7 +1302,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
     })
-    if (!debug) console.log('1308 model', model, myMetis);
+    if (debug) console.log('1308 model', model, myMetis);
     return metamodel;
 }
 

@@ -63,6 +63,9 @@ export class cxMetis {
     currentTargetMetamodel:     cxMetaModel | null = null;
     currentTargetModel:         cxModel | null = null;
     currentTargetModelview:     cxModelView | null = null;
+    currentTargetMetamodelRef:     string;
+    currentTargetModelRef:         string;
+    currentTargetModelviewRef:     string;
     currentTemplateMetamodel:   cxMetaModel | null = null;
     currentTemplateModel:       cxModel | null = null;
     currentTemplateModelview:   cxModelView | null = null;
@@ -175,25 +178,46 @@ export class cxMetis {
         }
         if (importedData.currentMetamodelRef) {
             const metamodel = this.findMetamodel(importedData.currentMetamodelRef);
-            if (metamodel)
+            if (metamodel) {
                 this.currentMetamodel = metamodel;
+                this.currentMetamodelRef = metamodel.id;
+            }
         }
         if (importedData.currentModelRef) {
             const model = this.findModel(importedData.currentModelRef);
-            if (model)
+            if (model) {
                 this.currentModel = model;
+                this.currentModelRef = model.id;
+            }
         }
         if (importedData.currentModelviewRef) {
             const modelview = this.findModelView(importedData.currentModelviewRef);
-            if (modelview)
+            if (modelview) {
                 this.currentModelview = modelview;
+                this.currentModelviewRef = modelview.id;
+            }
         }
         if (importedData.currentTemplateModelRef) {
             const model = this.findModel(importedData.currentTemplateModelRef);
             if (model)
                 this.currentTemplateModel = model;
         }
-        if (debug) console.log('162 this', this);
+        if (importedData.currentTargetMetamodelRef) {
+            const metamodel = this.findMetamodel(importedData.currentTargetMetamodelRef);
+            if (metamodel)
+                this.currentTargetMetamodel = metamodel;
+        }
+        if (importedData.currentTargetModelRef) {
+            const model = this.findModel(importedData.currentTargetModelRef);
+            if (model)
+                this.currentTargetModel = model;
+        }
+        if (importedData.currentModelviewRef) {
+            const modelview = this.findModelView(importedData.currentTargetModelviewRef);
+            if (modelview)
+                this.currentTargetModelview = modelview;
+        }
+        if (debug) console.log('211 this', this);
 
         // Postprocess objecttypes
         const objtypes = this.objecttypes;
@@ -206,6 +230,7 @@ export class cxMetis {
             }
             if (debug) console.log('184 otype, stypes', otype, stypes);
         }
+        if (debug) console.log('224 this', this);
     }
     initImport(importedData: any, includeDeleted: boolean) {
         // Import metamodels
@@ -2767,6 +2792,8 @@ export class cxDatatype extends cxMetaObject {
     inputPattern:       string;
     viewFormat:         string;
     fieldType:          string;
+    pointerType:        cxObjectType;
+    pointerCriteria:    string;
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_DATATYPES;  // Firestore collection
@@ -2778,6 +2805,8 @@ export class cxDatatype extends cxMetaObject {
         this.allowedValues = null;
         this.defaultValue  = "";
         this.value         = "";
+        this.pointerType   = null;
+        this.PointerCriteria = "";
 
         if (debug) console.log('1915 datatype: ', this);
     }
@@ -2832,6 +2861,18 @@ export class cxDatatype extends cxMetaObject {
     }
     getFieldType(): string {
         return this.fieldType;
+    }
+    setPointerType(val: cxObjectType) {
+        this.pointerType = val;
+    }
+    getPointerType(): cxObjectType {
+        return this.pointerType;
+    }
+    setPointerCriteria(val: string) {
+        this.PointerCriteria = val;
+    }
+    getPointerCriteria(): string {
+        return this.PointerCriteria;
     }
 }
 
@@ -4596,6 +4637,21 @@ export class cxType extends cxMetaObject {
         else
             return true;
     }
+    getPointerProperties(includeInherited: boolean): cxProperty[] | null  {
+        let props = this.getProperties(includeInherited);
+        if (!props)
+            return props;
+        let props2: cxProperty[] = [];
+        for (let i=0; i<props.length; i++) {
+            const prop = props[i];
+            if (prop) {
+                if (prop.isPointerProperty())
+                    props2.push(prop);
+            }
+        }
+        return props2;
+    }
+
     getAttributes() {
         return this.attributes;
     }
@@ -5315,6 +5371,13 @@ export class cxProperty extends cxMetaObject {
             return this.defaultValue;
         else
             return "";
+    }
+    isPointerProperty(): boolean {
+        const dtype = this.getDatatype();
+        if (dtype?.getPointerType())
+            return true;
+        else
+            return false;
     }
 }
 

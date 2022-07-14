@@ -513,27 +513,28 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
     }
     if (debug) console.log('475 datatype', datatype, myTargetMetamodel);
     if (datatype) {
-        // Check if it has a parent datatype
+        // Handle all aspects of the datatype
         const rels = object.findOutputRelships(myModel, constants.relkinds.REL);
         if (rels) {
             if (debug) console.log('480 rels', rels);
             let values  = new Array();
+            // Check if it has a parent datatype
             for (let i=0; i < rels.length; i++) {
-                const rel = rels[i];
-                const parentObj = rel.toObject;
-                if (debug) console.log('485 parentObj', parentObj);
-                const parentType = parentObj.type;
-                if (debug) console.log('487 parentType', parentType);
-                if (parentType.name === constants.types.AKM_DATATYPE) {
-                    if (debug) console.log('489 rel', rel);
-                    let parentDtype = myMetis.findDatatypeByName(parentObj.name);
-                    if (debug) console.log('491 dtype', parentDtype);
-                    datatype.setIsOfDatatype(parentDtype);
-                    // Copy default values from parentDtype
-                    datatype.setInputPattern(parentDtype?.inputPattern);
-                    datatype.setViewFormat(parentDtype?.viewFormat);
-                    datatype.setFieldType(parentDtype?.fieldType);
-                }
+                    const rel = rels[i];
+                    const parentObj = rel.toObject;
+                    if (debug) console.log('485 parentObj', parentObj);
+                    const parentType = parentObj.type;
+                    if (debug) console.log('487 parentType', parentType);
+                    if (parentType.name === constants.types.AKM_DATATYPE) {
+                        if (debug) console.log('489 rel', rel);
+                        let parentDtype = myMetis.findDatatypeByName(parentObj.name);
+                        if (debug) console.log('491 dtype', parentDtype);
+                        datatype.setIsOfDatatype(parentDtype);
+                        // Copy default values from parentDtype
+                        datatype.setInputPattern(parentDtype?.inputPattern);
+                        datatype.setViewFormat(parentDtype?.viewFormat);
+                        datatype.setFieldType(parentDtype?.fieldType);
+                    }
             }  
             // Find allowed values if any
             if (debug) console.log('500 rels', rels);
@@ -553,6 +554,7 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                     let valueObj = rel.toObject;
                     datatype.setDefaultValue(valueObj.name);
                     if (debug) console.log('516 defaultValue', valueObj.name);
+                    values.push(valueObj.getName());
                 }
                 for (let i=0; i< values.length; i++) {
                     datatype.addAllowedValue(values[i]);
@@ -563,10 +565,10 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                         datatype.setFieldType('radio');
                 }
             }
-
             for (let i=0; i < rels.length; i++) {
                 let rel = rels[i];
-                if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
+            // Handle input pattern
+            if (rel.getName() === constants.types.AKM_HAS_INPUTPATTERN) {
                     const toObj = rel.getToObject();
                     if (toObj.type.name === constants.types.AKM_INPUTPATTERN) {
                         let valueObj = toObj;
@@ -574,24 +576,25 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
                             datatype.setInputPattern(valueObj.pattern);
                     }
                 }
-                if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
-                    const toObj = rel.getToObject();
-                    if (toObj.type.name === constants.types.AKM_VIEWFORMAT) {
-                        let valueObj = toObj;
-                        if (valueObj.viewFormat)
-                            datatype.setViewFormat(valueObj.viewFormat);
-                    }
-                }
-                if (rel.getName() === constants.types.AKM_HAS_FIELDTYPE) {
-                    const toObj = rel.getToObject();
-                    if (toObj.type.name === constants.types.AKM_FIELDTYPE) {
-                        let valueObj = toObj;
-                        if (valueObj.fieldType)
-                            datatype.setFieldType(valueObj.fieldType);
-                    }
+            // Handle view format
+            if (rel.getName() === constants.types.AKM_HAS_VIEWFORMAT) {
+                const toObj = rel.getToObject();
+                if (toObj.type.name === constants.types.AKM_VIEWFORMAT) {
+                    let valueObj = toObj;
+                    if (valueObj.viewFormat)
+                        datatype.setViewFormat(valueObj.viewFormat);
                 }
             }
-
+            // Handle field type
+            if (rel.getName() === constants.types.AKM_HAS_FIELDTYPE) {
+                const toObj = rel.getToObject();
+                if (toObj.type.name === constants.types.AKM_FIELDTYPE) {
+                    let valueObj = toObj;
+                    if (valueObj.fieldType)
+                        datatype.setFieldType(valueObj.fieldType);
+                }
+            }
+            // Add the datatype
             if (debug) console.log('551 datatype', datatype);
             myTargetMetamodel.addDatatype(datatype);
             // Update phData
@@ -607,9 +610,29 @@ export function generateDatatype(obj: akm.cxObject, context: any) {
 
             if (debug) console.log('564 generateDatatype', datatype, myMetis);
             return datatype;
+            }
         }
     }
 }
+
+// export function generatePointerDatatype(object: akm.cxObject, context: any) {
+//     // object is a pointer datatype
+//     const myMetis  = context.myMetis;
+//     const myModel  = context.myModel;
+//     const myTargetMetamodel = context.myTargetMetamodel;
+//     const rels = object.findOutputRelships(myModel, constants.relkinds.REL);
+//     for (let i=0; i<rels?.length; i++) {
+//         let rel = rels[i];
+//         if (rel.getName() === constants.types.AKM_POINTS_TO) {
+//             const toObj = rel.getToObject();
+//             if (toObj.type.name === constants.types.AKM_ENTITY_TYPE) {
+//                 const datatype = new akm.cxDatatype(utils.createGuid(), object.name, "");
+//                 datatype.setPointerType(toObj.type);
+//                 myTargetMetamodel.addDatatype(datatype);
+//             }
+//         }
+//     }
+// }
 
 export function generateMethodType(obj: akm.cxObject, context: any) {
     const myMetis  = context.myMetis;
@@ -1193,7 +1216,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         }
                     }
                 }
-
             }
         }
     }
@@ -1243,7 +1265,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         modifiedRelTypeViews.push(jsnRelTypeview);
                     }
                 }
-            } else 
+            }  
             { // Handle properties
                 const proptypes = new Array();
                 getAllPropertytypes(obj, proptypes, model);
@@ -1256,53 +1278,26 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }        
         }
     }
-    if (debug) console.log('1262 relshipviews completed', myMetis);
-    // Prepare dispatch of the metamodel and the current model
-    const jsnMetamodel = new jsn.jsnMetaModel(metamodel, true);
-    jsnMetamodel.updateMethods(metamodel);
-    modifiedMetamodels.push(jsnMetamodel);
-    if (debug) console.log('1267 Target metamodel', metamodel, jsnMetamodel);
-    modifiedMetamodels.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1146 jsnMetamodel', data);
-        myDiagram.dispatch({ type: 'UPDATE_TARGETMETAMODEL_PROPERTIES', data });
-        });
-    modifiedMethods.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_METHOD_PROPERTIES', data })
-        if (debug) console.log('1153 data', data);
-    });
-    modifiedTypeNodes.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        if (debug) console.log('1158 data', data); 
-        myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
-    });
-    modifiedObjTypeViews?.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEVIEW_PROPERTIES', data })
-    })
-    if (debug) console.log('1291 modifiedObjTypeViews', modifiedObjTypeViews); 
-    modifiedGeos?.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPEGEOS_PROPERTIES', data })
-    })
-    if (debug) console.log('1297 modifiedGeos, myMetis', modifiedGeos, myMetis);
-    modifiedTypeLinks.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPE_PROPERTIES', data })
-    });
-    modifiedRelTypeViews?.map(mn => {
-        let data = (mn) && mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_TARGETRELSHIPTYPEVIEW_PROPERTIES', data })
-    })
-    if (debug) console.log('1308 model', model, myMetis);
+    // Finally, handle pointer datatypes
+    // objects = model?.getObjectsByTypename('Datatype', false);
+    // if (objects) {
+    //     // For each pointer Datatype object call generatePointerDatatype
+    //     for (let i=0; i<objects.length; i++) {
+    //         let obj = objects[i];
+    //         if (obj && !obj.markedAsDeleted)
+    //             generatePointerDatatype(obj, context);
+    //     }
+    // }
+
+    myMetis.currentTargetMetamodel = metamodel;
+    myMetis.currentTargetModel = model;
+    if (!debug) console.log('1262 myMetis', myMetis);
+
+    // Dispatch metis
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    let data = {metis: jsnMetis}
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     return metamodel;
 }
 

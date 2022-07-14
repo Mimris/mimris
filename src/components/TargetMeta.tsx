@@ -46,7 +46,7 @@ const TargetMeta = (props) => {
   // const gojstypes = props.phFocus.gojsMetamodel
   // console.log('18 Palette', gojstypes, props);
   // console.log('24 TargetMeta', gojstypes);
-  console.log('33 TargetMeta', props, gojstypes, gojstypes.nodeDataArray);
+  if (debug) console.log('33 TargetMeta', props, gojstypes, gojstypes.nodeDataArray);
   // console.log('13 Palette', gojstypes.linkDataArray);
   
   // const toglRefreshid = () => {

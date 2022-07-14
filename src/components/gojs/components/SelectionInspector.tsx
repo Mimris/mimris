@@ -71,7 +71,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
-    let item, chosenType, description, currentType, properties;
+    let item, chosenType, description, currentType, properties, pointerProps;
     if (myMetis.isAdminType(selObj?.type)) {
       inst = selObj;
       type = inst.type;
@@ -170,7 +170,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('167 chosenType', chosenType);
         if (chosenType) {
           properties = chosenType.getProperties(false);
-          if (debug) console.log('172 chosenType, properties', chosenType, properties);
+          // if (debug) console.log('172 chosenType, properties', chosenType, properties);
+          // pointerProps = chosenType.getPointerProperties(false);
         } 
         else if (type?.name === 'Method') {
           inst = myMetis.findObject(inst.id);
@@ -254,6 +255,25 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     }
     if (debug) console.log('253 myMetis', myMetis);
     if (debug) console.log('249 inst, selObj, type', inst, selObj, type);
+
+    // // Check if item has pointer properties
+    // const pvalues = [];
+    // for (let j= 0; j<pointerProps?.length; j++) {
+    //   const prop = pointerProps[j];
+    //   const dtype = prop.getDatatype() as akm.cxDatatype;
+    //   if (dtype) {
+    //     const ptype = dtype.getPointerType();
+    //     const pcrit = dtype.getPointerCriteria();
+    //     // Search for the instances of the pointer type
+    //     const pinstances = myModel.getObjectsByType(ptype, true);
+    //     for (let k=0; k<pinstances?.length; k++) {
+    //       const pinst = pinstances[k];
+    //       pvalues.push(pinst.getName());
+    //     }
+    //   }
+    // }
+    // if (debug) console.log('278 pvalues', pvalues);
+    
     for (let k in item) {
       // Filter some system attributes
       {
@@ -552,7 +572,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
           }
         }
-        // Handle fieldtypes and viewformats
+          // Handle fieldtypes and viewformats
         {
           if (fieldType === 'checkbox') {
             checked = val;

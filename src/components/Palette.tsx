@@ -16,6 +16,7 @@ const ctrace = console.trace.bind(console, '%c %s',
     'background: green; color: white');
 
 const Palette = (props: any) => {
+
   const dispatch = useDispatch();
   let isRendered = useRef(false);
 
@@ -37,17 +38,6 @@ const Palette = (props: any) => {
   let focusTask = props.phFocus?.focusTask
   let seltasks = props.phFocus?.focusRole?.tasks || []
   if (debug) console.log('38 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
-
-  
-
-// useEffect(() => {
-//   seltasks = props.phFocus.focusRole?.tasks?.map((t: any) => t)
-// }, [props.phFocus.focusRole?.tasks])
-
-  // if (mmodel?.name === 'IRTV_MM') {
-  //   focusTask = props.phFocus?.focusTask
-  // } 
-
 
   focusTask = props.phFocus?.focusTask
   const focusRole = props.phFocus?.focusRole
@@ -99,7 +89,7 @@ const Palette = (props: any) => {
         toggleRefreshPalette() 
       }, 1000);
       return () => clearTimeout(timer);
-      
+
   }, [props.phFocus.focusTask?.id])
 
   // break if no model

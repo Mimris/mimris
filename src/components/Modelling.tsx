@@ -67,7 +67,7 @@ const page = (props:any) => {
 
   let gojsmetamodelpalette =  props.phGojs?.gojsMetamodelPalette 
   let gojsmetamodelmodel =  props.phGojs?.gojsMetamodelModel 
-  let gojsmodelobjects = props.phGojs?.gojsModelObjects || []
+  let debugdelobjects = props.phGojs?.gojsModelObjects || []
   let gojstargetmetamodel = props.phGojs?.gojsTargetMetamodel || [] // this is the generated target metamodel
   let gojsmodel =  props.phGojs?.gojsModel 
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
@@ -98,7 +98,7 @@ const page = (props:any) => {
     //     setRefresh(!refresh)
     //   }
     //   setTimeout(refres, 1);
-    // }, [curmod])
+    // }, [cdebug)
 
   useEffect(() => {
     if (debug) console.log('99 Modelling useEffect', props); 
@@ -148,12 +148,12 @@ const page = (props:any) => {
       phFocus: props.phFocus,
       phUser: props.phUser,
       phSource: (phSource === "") && phData.metis.name  || phSource,
-      lastUpdate: new Date().toISOString()
+      ladebugte: new Date().toISOString()
     };
-
+    if (debug) console.log('152 Modelling', currentdata, memoryLocState, (Array.isArray(memoryLocState)));
     let data = (Array.isArray(memoryLocState)) ? [currentdata, ...memoryLocState] : [currentdata];
     // put currentdata in the first position of the array data
-
+debug
     if (data.length > 9) { data.shift() }
     if (debug) console.log('161 Modelling', data);
 
@@ -405,7 +405,7 @@ const page = (props:any) => {
                   <Palette
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
-                    gojsModelObjects={gojsmodelobjects}
+                    // gojsModelObjects={gojsmodelobjects}
                     myMetis={myMetis}
                     myGoModel={myGoModel}
                     myGoMetamodel={myGoMetamodel}

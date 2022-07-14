@@ -22,9 +22,9 @@ const Selector = ( props: any ) => {
     const selObj = selArray.find( (obj: any) => obj.id === id ) 
     // const workOnTypes = selObj.workOnTypes
     // const focustype = { id: id, name: name, workOnTypes: workOnTypes }
-    const data = (selObj) ? { id: id, name: name, selObj } : { id: id, name: name, selObj }
+    const data = (selObj) ? { id: id, name: name} : { id: id, name: name }
     if (debug) console.log('26 selector', JSON.parse(event.value), data, type);
-    dispatch({ type: type, data: selObj })
+    dispatch({ type: type, data: data })
     // setRefresh(!refresh)
   }
   // console.log('25 selector', selArray, props.selName, props.focusModel?.name, props.focusModelview?.name );

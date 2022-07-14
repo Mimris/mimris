@@ -118,7 +118,7 @@ const LoadLocal = (props: any) => {
   //
   function handleDispatchToStoreFromMemory() {  
     // memoryStatus = true
-    if (!debug) console.log('63 LoadLocal', memoryState);
+    if (debug) console.log('63 LoadLocal', memoryState);
     const phData = memoryState[0].phData
     const phFocus = memoryState[0].phFocus
     const phUser = memoryState[0].phUser

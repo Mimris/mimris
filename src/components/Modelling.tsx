@@ -73,7 +73,7 @@ const page = (props:any) => {
   let gojstargetmodel =  props.phGojs?.gojsTargetModel 
   let gojsmetamodel =  props.phGojs?.gojsMetamodel 
 
-  if (!debug) console.log('57 Modelling: gojsmodel', props);
+  if (debug) console.log('57 Modelling: gojsmodel', props);
   
   let metis = props.phData?.metis
   let myMetis = props.phMymetis?.myMetis
@@ -82,12 +82,13 @@ const page = (props:any) => {
   const curmod = metis.models.find(m => m.i === focusModel?.id)
   const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
   const curobjviews = curmodview?.objectviews
+
   //let myGoMetamodel = props.phGojs?.gojsMetamodel
   let phFocus = props.phFocus;
   let phData = props.phData
   let phUser = props.phUser
 
-  // if (debug) console.log('54 Modelling', props.phGojs, gojsmodelobjects);
+  if (!debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
 
     // useEffect(() => {
     //   genGojsModel(props, dispatch);
@@ -100,7 +101,7 @@ const page = (props:any) => {
     // }, [curmod])
 
   useEffect(() => {
-    if (!debug) console.log('99 Modelling useEffect', props); 
+    if (debug) console.log('99 Modelling useEffect', props); 
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,
@@ -128,7 +129,7 @@ const page = (props:any) => {
       phSource: props.phSource,
       lastUpdate: new Date().toISOString()
     };
-    console.log('129 Modelling', memoryLocState, currentdata);
+    if (!debug) console.log('129 Modelling useEffect', memoryLocState, currentdata);
 
     genGojsModel(props, dispatch);
     
@@ -149,12 +150,12 @@ const page = (props:any) => {
       phSource: (phSource === "") && phData.metis.name  || phSource,
       lastUpdate: new Date().toISOString()
     };
-    if (!debug) console.log('152 Modelling', currentdata, memoryLocState, (Array.isArray(memoryLocState)));
+
     let data = (Array.isArray(memoryLocState)) ? [currentdata, ...memoryLocState] : [currentdata];
     // put currentdata in the first position of the array data
 
     if (data.length > 9) { data.shift() }
-    if (!debug) console.log('161 Modelling', data);
+    if (debug) console.log('161 Modelling', data);
 
 
     // setTimeout(refres, 1);
@@ -170,6 +171,8 @@ const page = (props:any) => {
     setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
 
   }
+
+  if (debug) console.log('174 Modelling', curmod, curmodview);
     // useEffect(() => {
     //   if (debug) console.log('106 Modelling useEffect 4', props); 
     //   genGojsModel(props, dispatch);
@@ -233,6 +236,40 @@ const page = (props:any) => {
     function toggleTasks() {
       setVisibleTasks(!visibleTasks);
     }
+
+  // ===================================================================
+  // Divs
+
+  const paletteDiv = (gojsmetamodelmodel) 
+    ?
+      <Palette
+        gojsModel={gojsmetamodelmodel}
+        gojsMetamodel={gojsmetamodelpalette}
+        myMetis={myMetis}
+        myGoModel={myGoModel}
+        myGoMetamodel={myGoMetamodel}
+        metis={metis}
+        phFocus={phFocus}
+        dispatch={dispatch}
+        modelType='metamodel'
+      /> 
+    : <></>;
+
+  const targetmetamodelDiv = (curmod?.targetMetamodelRef !== "")
+    ?
+      <TargetMeta
+        gojsModel={gojsmodel}
+        gojsMetamodel={gojsmetamodel}
+        gojsTargetMetamodel={gojstargetmetamodel}
+        myMetis={myMetis}
+        myGoModel={myGoModel}
+        myGoMetamodel={myGoMetamodel}
+        phFocus={phFocus}
+        metis={metis}
+        dispatch={dispatch}
+        modelType='model'
+      />
+    : <></>;
 
   const modellingtabs =  (<>
       <Nav tabs >
@@ -321,7 +358,8 @@ const page = (props:any) => {
               <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                {/* <div className="myPalette pl-1 mb-2 pt-0" style={{ minHeight: "vh", height: "96%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}> */}
                   {/* <div className="myPalette pl-1 text-white bg-secondary" id="lighten" style={{ maxWidth: "100px", minHeight: "10vh", height: "100%", marginRight: "2px", backgroundColor: "whitesmoke", border: "solid 1px black" }}> */}
-                  <Palette
+                  {paletteDiv}
+                  {/* <Palette
                     gojsModel={gojsmetamodelmodel}
                     gojsMetamodel={gojsmetamodelpalette}
                     myMetis={myMetis}
@@ -331,7 +369,7 @@ const page = (props:any) => {
                     phFocus={phFocus}
                     dispatch={dispatch}
                     modelType='metamodel'
-                    />
+                    /> */}
                 </div>
               </Col>
               <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
@@ -401,7 +439,8 @@ const page = (props:any) => {
               </Col>
               <Col className="col3 mr-0 p-0 " xs="auto">
                 <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
-                  <TargetMeta
+                  {targetmetamodelDiv}
+                  {/* <TargetMeta
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     gojsTargetMetamodel={gojstargetmetamodel}
@@ -412,7 +451,7 @@ const page = (props:any) => {
                     metis={metis}
                     dispatch={dispatch}
                     modelType='model'
-                  />
+                  /> */}
                 </div>
               </Col>
             </Row>

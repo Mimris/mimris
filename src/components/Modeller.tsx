@@ -190,7 +190,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
   }, [activeTab])
 
   useEffect(() => {
-    if (!debug) console.log('195 Modeller useEffect 5', props); 
+    if (debug) console.log('195 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
 

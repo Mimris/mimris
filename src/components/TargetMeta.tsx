@@ -32,7 +32,7 @@ const TargetMeta = (props) => {
   function toggleRefresh() { setRefresh(!refresh); }
 
   useEffect(() => { 
-    console.log('30 TargetMeta useEffect', model.targetMetamodelRef, gojstypes, targetmetamodel);
+    console.log('30 TargetMeta useEffect', model.targetMetamodelRef, targetmetamodel);
     // genGojsModel(props, dispatch);
     // targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
     dispatch({ type: 'SET_FOCUS_TARGETMETAMODEL', data: {id: targetmetamodel?.id, name: targetmetamodel?.name} })
@@ -40,7 +40,6 @@ const TargetMeta = (props) => {
     //   setRefresh(!refresh)
     // }, 3000);
     // return () => clearTimeout(timer);
-
   }, []);
 
   /**  * Get the state and metie from the store,  */

@@ -8,32 +8,32 @@ import * as akm from './metamodeller';
 let jsnMetis = null;
 
 export class jsnExportMetis {
-    name:                   string;
-    description:            string;
-    metamodels:             jsnMetaModel[];
-    models:                 jsnModel[];
-    //modelviews:             jsnModelView[];
-    //datatypes:              jsnDatatype[];
-    //enumerations:           jsnEnumeration[];
-    pasteViewsOnly:         boolean;
-    deleteViewsOnly:        boolean;
-    currentMetamodelRef:    string;
-    currentModelRef:        string;
-    currentModelviewRef:    string;
-    currentTemplateModelRef: string;
+    name:                       string;
+    description:                string;
+    metamodels:                 jsnMetaModel[];
+    models:                     jsnModel[];
+    pasteViewsOnly:             boolean;
+    deleteViewsOnly:            boolean;
+    currentMetamodelRef:        string;
+    currentModelRef:            string;
+    currentModelviewRef:        string;
+    currentTemplateModelRef:    string;
+    currentTargetMetamodelRef:  string;
+    currentTargetModelRef:      string;
+    currentTargetModelviewRef:  string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
-        this.name         = metis.name;
-        this.description  = metis.description;
-        this.metamodels   = [];
-        this.models       = [];
-        //this.modelviews   = [];
-        //this.datatypes    = [];
-        //this.enumerations = [];
-        this.currentMetamodelRef     = "";
-        this.currentModelRef         = "";
-        this.currentModelviewRef     = "";
-        this.currentTemplateModelRef = "";
+        this.name                       = metis.name;
+        this.description                = metis.description;
+        this.metamodels                 = [];
+        this.models                     = [];
+        this.currentMetamodelRef        = "";
+        this.currentModelRef            = "";
+        this.currentModelviewRef        = "";
+        this.currentTemplateModelRef    = "";
+        this.currentTargetMetamodelRef  = "";
+        this.currentTargetModelRef      = "";
+        this.currentTargetModelviewRef  = "";
         // Code
         if (metis) {
             jsnMetis = metis;
@@ -59,9 +59,14 @@ export class jsnExportMetis {
                 this.currentModelRef = metis.currentModel.id;
             if (metis.currentModelview)
                 this.currentModelviewRef = metis.currentModelview.id;
+            if (metis.currentTargetMetamodel)
+                this.currentTargetMetamodelRef = metis.currentTargetMetamodel.id;
+            if (metis.currentTargetModel)
+                this.currentTargetModelRef = metis.currentTargetModel.id;
+            if (metis.currentTargetModelview)
+                this.currentTargetModelviewRef = metis.currentTargetModelview.id;
             if (metis.currentTemplateModel)
-                this.currentTemplateModelRef = metis.currentTemplateModel.id;
-            
+                this.currentTemplateModelRef = metis.currentTemplateModel.id;            
         }
     }
     // Functions

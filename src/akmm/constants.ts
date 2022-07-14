@@ -111,6 +111,7 @@ export let types = {
     // AKM types
          AKM_COLLECTION        : "Collection",
          AKM_CONTAINER         : "Container",
+         AKM_ENTITY_TYPE       : "EntityType",
          AKM_INFORMATION       : "Information",
          AKM_ROLE              : "Role",
          AKM_TASK              : "Task",
@@ -127,6 +128,7 @@ export let types = {
          AKM_INPUTPATTERN      : "InputPattern",
          AKM_VIEWFORMAT        : "ViewFormat",
          AKM_FIELDTYPE         : "FieldType",
+         AKM_POINTS_TO         : "pointsTo",
          AKM_UNIT              : "Unit",
          AKM_CONTAINS          : "contains",
          AKM_HAS_COLLECTION    : "has",

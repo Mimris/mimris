@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts -nocheck
 const debug = false; 
 
 import * as utils from './utilities';
@@ -456,7 +456,8 @@ export function copyObject(fromObj: akm.cxObject,): akm.cxObject {
 
 export function copyRelationship(fromRel: akm.cxRelationship, fromObj: akm.cxObject, toObj: akm.cxObject,): akm.cxRelationship {
     if (debug) console.log('457 fromRel, fromObj, toObj', fromRel, fromObj, toObj);
-    let toRel = new akm.cxRelationship(utils.createGuid(), fromRel.type, fromObj, toObj, fromRel.name, fromRel.description);
+    const rtype = fromRel.type as akm.cxRelationshipType;
+    let toRel = new akm.cxRelationship(utils.createGuid(), rtype, fromObj, toObj, fromRel.name, fromRel.description);
     if (debug) console.log('459 toRel', toRel);
     toRel.fromObject = fromObj;                                
     toRel.toObject = toObj;
@@ -2859,29 +2860,31 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
         if (debug) console.log('2823 data', data);
         let viewdata: any = reltypeView.getData();
         relview = data.relshipview;
-        for (let prop in viewdata) {
-            if (prop === 'abstract') continue;
-            if (prop === 'relshipkind') continue;
-            if (prop === 'class') continue;
-            if (propIsColor(prop)) {
-                if (viewdata[prop] != null)
-                    diagram.model.setDataProperty(data, prop, viewdata[prop]);
-                if (relview && relview[prop] && relview[prop] !== "") {
-                    diagram.model.setDataProperty(data, prop, relview[prop]);
+        if (relview) {
+            for (let prop in viewdata) {
+                if (prop === 'abstract') continue;
+                if (prop === 'relshipkind') continue;
+                if (prop === 'class') continue;
+                if (propIsColor(prop)) {
+                    if (viewdata[prop] != null)
+                        diagram.model.setDataProperty(data, prop, viewdata[prop]);
+                    if (relview && relview[prop] && relview[prop] !== "") {
+                        diagram.model.setDataProperty(data, prop, relview[prop]);
+                    }
+                    if (debug) console.log('2836 updateLink', prop, viewdata[prop], relview[prop]);
                 }
-                if (debug) console.log('2836 updateLink', prop, viewdata[prop], relview[prop]);
+                if (prop === 'toArrow') {
+                    if (relview[prop] === "")
+                        viewdata[prop] = "OpenTriangle";
+                    else if (relview[prop] === "None")
+                        viewdata[prop] = "";
+                } else if (prop === 'fromArrow') {
+                    if (viewdata[prop] === 'None')
+                        viewdata[prop] = "";
+                }
+                diagram.model.setDataProperty(data, prop, viewdata[prop]);
+                if (debug) console.log('2848 updateLink', prop, viewdata[prop], relview[prop]);
             }
-            if (prop === 'toArrow') {
-                if (relview[prop] === "")
-                    viewdata[prop] = "OpenTriangle";
-                else if (relview[prop] === "None")
-                    viewdata[prop] = "";
-            } else if (prop === 'fromArrow') {
-                if (viewdata[prop] === 'None')
-                    viewdata[prop] = "";
-            }
-            diagram.model.setDataProperty(data, prop, viewdata[prop]);
-            if (debug) console.log('2848 updateLink', prop, viewdata[prop], relview[prop]);
         }
     }
     if (relview) {

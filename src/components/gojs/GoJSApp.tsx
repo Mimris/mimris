@@ -146,7 +146,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     /**
      * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
-     * This method should iterates over those changes and update state to keep in sync with the GoJS model.
+     * This method should iterate over those changes and update state to keep in sync with the GoJS model.
      * This can be done via setState in React or another preferred state management method.
      * @param obj a JSON-formatted string
      */
@@ -785,7 +785,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     rel.markedAsDeleted = deletedFlag;
                     const jsnRel = new jsn.jsnRelationship(rel);
                     modifiedRelships.push(jsnRel);
-                    if (debug) console.log('769 jsnRel', jsnRel);
                   }
                 }
               }
@@ -922,8 +921,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          if (debug) console.log('906 myMetis', myMetis); 
         }
+        if (debug) console.log('906 myMetis', myMetis); 
       }
       break;
       case 'ExternalObjectsDropped': {
@@ -1064,14 +1063,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       case 'ClipboardPasted': {
         // First remember the from locs
         const myFromNodes = myMetis.fromNodes;
-        if (debug) console.log('1069 myMetis', myMetis);
-        if (!myFromNodes) {
-          alert('No From nodes defined - cancelling the paste operation!');
-          break;
-        }
+        if (debug) console.log('1043 myFromNodes', myFromNodes);
         // Then do the paste
         const selection = e.subject;
-        if (debug) console.log('1076 selection', selection);
         context.pasted  = true;
         const it = selection.iterator;
         const pastedNodes = new Array();
@@ -1080,8 +1074,14 @@ class GoJSApp extends React.Component<{}, AppState> {
         let refloc, cnt = 0;
         while (it.next()) {
           const data = it.value.data;
-          if (debug) console.log('1084 data', data);
-          let fromNode = data.fromNode;
+          let fromNode = 0;
+          for (let i=0; i<myFromNodes.length; i++) {
+            const myNode = myFromNodes[i];
+            if (myNode.key.substr(0,36) === data.key.substr(0,36)) {
+              fromNode = myNode;
+              break;
+            }
+          }
           if (debug) console.log('1062 fromNode, data.key', fromNode, data.key);
           if (debug) console.log('1063 fromNode, it.value.data', fromNode, data);
           if (data.category === constants.gojs.C_OBJECT) {
@@ -1119,7 +1119,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                 if (debug) console.log('1096 fromNode, myToNodes', fromNode, myToNodes);
                 node.loc = myToNode.loc.valueOf();
                 const scale0 = fromNode.scale.valueOf();
-                const scale1 = myToNode.scale.valueOf() as any;
+                const scale1 = myToNode.scale.valueOf();
                 let scaleFactor = scale1 / scale0;
                 if (debug) console.log('1101 scale0, scale1, scaleFactor', scale0, scale1, scaleFactor);
                 if (debug) console.log('1102 myToNode, node, refloc', myToNode, node, refloc);
@@ -1376,33 +1376,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         if (debug) console.log('945 data', data);
         context.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       })
-      // This should be used to set several views  in focus
-      // if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
-      // selectedObjectViews?.map(mn => {
-      //   let data = (mn) && { id: mn.id, name: mn.name }
-      //   data = JSON.parse(JSON.stringify(data));
-      //   context.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
-      // })
-
-      // if (debug) console.log('988 selectedRelshipViews', selectedRelshipViews);
-      // selectedRelshipViews?.map(mn => {
-      //   let data = (mn) && { id: mn.id, name: mn.name }
-      //   data = JSON.parse(JSON.stringify(data));
-      //   context.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
-      // })
-
-      // if (debug) console.log('994 selectedObjectTypes', selectedObjectTypes);
-      // selectedObjectTypes?.map(mn => {
-      //   let data = (mn) && { id: mn.id, name: mn.name }
-      //   data = JSON.parse(JSON.stringify(data));
-      //   context.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
-      // })
-      // if (debug) console.log('999 selectedRelationshipTypes', selectedRelationshipTypes);
-      // selectedRelationshipTypes?.map(mn => {
-      //   let data = (mn) && { id: mn.id, name: mn.name }
-      //   data = JSON.parse(JSON.stringify(data));
-      //   context.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
-      // })
+    } else {
+      const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+      let data = {metis: jsnMetis}
+      data = JSON.parse(JSON.stringify(data));
+      myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })       
     }
     if (debug) console.log('1383 myMetis', myMetis);
   }

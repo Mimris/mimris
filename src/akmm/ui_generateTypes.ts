@@ -1076,11 +1076,13 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let rtype = rtypes[i];
             rtype = myMetis.findRelationshipType(rtype.id);
             const typename = rtype.name;
+            if (debug) console.log('1079 reltypes', reltypes);
             // Filter types not to be generated
             if (utils.nameExistsInNames(rsystemtypes, typename))
                 continue;
             const type = myMetamodel.findRelationshipTypeByName(typename);
             reltypes.push(type);
+            if (debug) console.log('1084 reltypes', reltypes);
         }
     }
     for (let i=0; i<reltypes.length;i++) {
@@ -1197,7 +1199,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 if (debug) console.log('1168 relview', relview);
                 if (fromObj?.isOfSystemType(metaObject) && 
                     toObj?.isOfSystemType(metaObject)) {
-                    if (debug) console.log('1171 rel', rel);
+                    if (debug) console.log('1171 rel, relview, context', rel, relview, context);
                     const reltype = generateRelshipType(rel, relview, context);
                     if (debug) console.log('1173 reltype', reltype);
                     // Prepare dispatches
@@ -1291,7 +1293,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
 
     myMetis.currentTargetMetamodel = metamodel;
     myMetis.currentTargetModel = model;
-    if (!debug) console.log('1262 myMetis', myMetis);
+    if (debug) console.log('1262 myMetis', myMetis);
 
     // Dispatch metis
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);

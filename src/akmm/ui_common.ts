@@ -1290,19 +1290,19 @@ export function createRelationship(data: any, context: any) {
 export function createRelshipCallback(args:any): akm.cxRelationshipView {
     const myDiagram = args.context.myDiagram;
     const myGoModel = args.context.myGoModel;
-    const myMetis = args.context.myMetis; 
+    const myMetis   = args.context.myMetis; 
     const myMetamodel = myMetis.currentMetamodel;
-    const myModel = args.context.myModel;
+    const myModel  = args.context.myModel;
     const myModelview = myGoModel.modelView;
-    const data = args.data;
+    const data     = args.data;
     const typename = args.typename;
     const fromType = args.fromType;
     const toType   = args.toType;
     const nodeFrom = args.nodeFrom;
-    const objFrom = nodeFrom.data.object;
-    const nodeTo  = args.nodeTo;
-    const objTo   = nodeTo.data.object;
-    const context = args.context;
+    const objFrom  = nodeFrom.data.object;
+    const nodeTo   = args.nodeTo;
+    const objTo    = nodeTo.data.object;
+    const context  = args.context;
     const reltype = myMetamodel.findRelationshipTypeByName2(typename, fromType, toType);
     if (debug) console.log('1075 reltype', reltype);
     if (!reltype) {
@@ -1345,6 +1345,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         myMetis.addRelationshipView(relshipview);
         myModel.addRelationship(relship);
         myMetis.addRelationship(relship);
+        // Dispatch
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
         if (debug) console.log('1226 jsnRelship', jsnRelship);

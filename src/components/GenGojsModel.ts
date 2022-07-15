@@ -711,6 +711,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         adminModel.addObject(project);
         myMetis.addObject(project);
         projectview = new akm.cxObjectView(utils.createGuid(), project.name, project, '');
+        projectview.fillcolor = "lightgrey";
         project.addObjectView(projectview);
         adminModelview.addObjectView(projectview);
         myMetis.addObjectView(projectview);
@@ -734,6 +735,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
             myMetis.addRelationship(mmRel);
             // Create objectview of metamodel object
             const mmObjview = new akm.cxObjectView(utils.createGuid(), mmObj.name, mmObj, '');
+            mmObjview.fillcolor = "lightblue";
             mmObj.addObjectView(mmObjview);
             adminModelview.addObjectView(mmObjview);
             myMetis.addObjectView(mmObjview);
@@ -762,6 +764,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
                   
                   // Create objectview
                   const mObjview = new akm.cxObjectView(utils.createGuid(), mObj.name, mObj, '');
+                  mObjview.fillcolor = "lightgreen";
                   mObj.addObjectView(mObjview);
                   adminModelview.addObjectView(mObjview);
                   myMetis.addObjectView(mObjview);
@@ -812,6 +815,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
 
                         // Create objectview of Modelview object
                         const mvObjview = new akm.cxObjectView(utils.createGuid(), mvObj.name, mvObj, '');
+                        mvObjview.fillcolor = "pink";
                         mvObj.addObjectView(mvObjview);
                         adminModelview.addObjectView(mvObjview);
                         myMetis.addObjectView(mvObjview);

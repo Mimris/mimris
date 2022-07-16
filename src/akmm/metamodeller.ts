@@ -7123,15 +7123,33 @@ export class cxRelationship extends cxInstance {
         }
         return retval;
     }
-    isHasProperty(): boolean {
+    isSystemRel(): boolean {
         let retval = false;
         const reltype = this.type as cxRelationshipType;
-        if (reltype) {
-            if (reltype.name === constants.types.AKM_HAS_PROPERTY) {
-                if (reltype.toObjtype) {
-                    if (reltype.toObjtype.name === constants.types.AKM_PROPERTY) {
-                        retval = true;
-                    }
+        if (reltype && reltype.toObjtype) {
+            if (reltype.toObjtype.name === constants.types.AKM_PROPERTY) {
+                if (reltype.name === constants.types.AKM_HAS_PROPERTY) {
+                    retval = true;
+                }
+            } else if (reltype.toObjtype.name === constants.types.AKM_METHOD) {
+                if (reltype.name === constants.types.AKM_HAS_METHOD) {
+                    retval = true;                    
+                }
+            } else if (reltype.toObjtype.name === constants.types.AKM_INPUTPATTERN) {
+                if (reltype.name === constants.types.AKM_HAS_INPUTPATTERN) {
+                    retval = true;                    
+                }
+            } else if (reltype.toObjtype.name === constants.types.AKM_VIEWFORMAT) {
+                if (reltype.name === constants.types.AKM_HAS_VIEWFORMAT) {
+                    retval = true;                    
+                }
+            } else if (reltype.toObjtype.name === constants.types.AKM_FIELDTYPE) {
+                if (reltype.name === constants.types.AKM_HAS_FIELDTYPE) {
+                    retval = true;                    
+                }
+            } else if (reltype.toObjtype.name === constants.types.AKM_COLLECTION) {
+                if (reltype.name === constants.types.AKM_HAS_COLLECTION) {
+                    retval = true;                    
                 }
             }
         }

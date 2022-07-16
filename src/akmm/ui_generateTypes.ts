@@ -912,7 +912,8 @@ export function generateTargetMetamodel2(context: any) {
     if (debug) console.log('749 objviews, relviews', objectviews, relshipviews, context);
     generateMetamodel(objectviews, relshipviews, context);
     if (debug) console.log('785 myMetis', myMetis);
-    alert("Target metamodel has been successfully generated!");
+    // alert("Target metamodel has been successfully generated!");
+    
     // Check if there already exists models based on the generated metamodel
     // const models = myMetis.getModelsByMetamodel()
     return true;

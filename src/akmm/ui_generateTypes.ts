@@ -751,10 +751,10 @@ export function generateUnit(object: akm.cxObject, context: any) {
 
 export function generateTargetMetamodel(obj: any, myMetis: akm.cxMetis, myDiagram: any) {
 
-    if (confirm('Do you want to include system types?')) {
-        myMetis.currentModel.includeSystemtypes = true;
-    } else {
+    if (confirm('Do you want to EXCLUDE system types?')) {
         myMetis.currentModel.includeSystemtypes = false;
+    } else {
+        myMetis.currentModel.includeSystemtypes = true;
     }
 
     const args = {

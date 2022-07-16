@@ -7123,6 +7123,20 @@ export class cxRelationship extends cxInstance {
         }
         return retval;
     }
+    isHasProperty(): boolean {
+        let retval = false;
+        const reltype = this.type as cxRelationshipType;
+        if (reltype) {
+            if (reltype.name === constants.types.AKM_HAS_PROPERTY) {
+                if (reltype.toObjtype) {
+                    if (reltype.toObjtype.name === constants.types.AKM_PROPERTY) {
+                        retval = true;
+                    }
+                }
+            }
+        }
+        return retval;
+    }
 }
 
 export class cxPropertyValue {

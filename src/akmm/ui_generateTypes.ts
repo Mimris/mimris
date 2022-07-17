@@ -913,14 +913,14 @@ export function generateTargetMetamodel2(context: any) {
     generateMetamodel(objectviews, relshipviews, context);
     if (debug) console.log('785 myMetis', myMetis);
     // alert("Target metamodel has been successfully generated!");
-    
+
     // Check if there already exists models based on the generated metamodel
     // const models = myMetis.getModelsByMetamodel()
     return true;
 }
 
 export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews: akm.cxRelationshipView[], context: any): akm.cxMetaModel {
-    if (debug) console.log('895 objectviews, relshipviews, context', objectviews, relshipviews, context);
+    if (debug) console.log('923 objectviews, relshipviews, context', objectviews, relshipviews, context);
     const myMetis     = context.myMetis as akm.cxMetis;
     const myMetamodel = context.myMetamodel as akm.cxMetaModel;
     const model       = context.myModel as akm.cxModel;
@@ -980,18 +980,18 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     // For each Method object call generateMethod
     objects = model?.getObjectsByTypename('Method', false);
     if (objects) {
-        if (debug) console.log('821 methods', objects);
+        if (debug) console.log('983 methods', objects);
         for (let i=0; i<objects.length; i++) {
             let obj = objects[i];
             if (obj && !obj.markedAsDeleted) {
                 const mtd = generateMethod(obj, context);
                 const jsnMethod = new jsn.jsnMethod(mtd);
                 modifiedMethods.push(jsnMethod);
-                if (debug) console.log('828 methods', jsnMethod);
+                if (debug) console.log('990 methods', jsnMethod);
             }
         }
     }
-    if (debug) console.log('968 methods, myMetis', objects, myMetis);
+    if (debug) console.log('994 methods, myMetis', objects, myMetis);
 
     // Add system datatypes
     let systemdtypes = ['cardinality', 'viewkind', 'relshipkind', 'fieldtype', 
@@ -1033,10 +1033,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             // Filter types not to be generated
             if (utils.nameExistsInNames(dsystemtypes, typename))
                 continue;
-            if (typename !== 'Property') {
-                if (otype.isOfType('Property'))
-                    continue;
-            }
+            if (otype.isOfType('Property'))
+                continue;
             if (otype.isOfType('Method'))
                 continue;
             if (otype.isOfType('MethodType'))
@@ -1048,6 +1046,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             objtypes.push(type);
         }
     }
+    if (debug) console.log('1051 objecttypes', objtypes);
     for (let i=0; i<objtypes.length; i++) {
         // if (!objtypes[i]) continue; 
         const typename = objtypes[i]?.name;
@@ -1065,8 +1064,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     }
     if (debug) console.log('1039 objtypes, metamodel', objtypes, metamodel);
     // Add system relationship types
-    let rsystemtypes = ['relationshipType', 'isRelatedTo', 'Is', 'has', 'contains', 'hasLabel', 
-                        'isOf', 'hasAllowed', 'isDefault'];
+    // let rsystemtypes = ['relationshipType', 'isRelatedTo', 'Is', 'has', 'contains', 'hasLabel', 
+    //                     'isOf', 'hasAllowed', 'isDefault'];
     let reltypes;
     if (model.includeSystemtypes) {
         reltypes = myMetamodel.relshiptypes;
@@ -1079,14 +1078,17 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let rtype = rtypes[i];
             rtype = myMetis.findRelationshipType(rtype.id);
             const typename = rtype.name;
-            if (debug) console.log('1079 reltypes', reltypes);
+
             // Filter types not to be generated
-            if (utils.nameExistsInNames(rsystemtypes, typename))
+            const objtypes = metamodel.objecttypes;
+            const fromtype = rtype.fromObjtype;
+            const totype = rtype.toObjtype;
+            if (utils.getIntersection(objtypes, [fromtype, totype]).length === 0)
                 continue;
-            const type = myMetamodel.findRelationshipTypeByName(typename);
+            const type = myMetamodel.findRelationshipTypeByName1(typename, fromtype, totype);
             reltypes.push(type);
-            if (debug) console.log('1084 reltype', type);
         }
+        if (debug) console.log('1084 reltypes', reltypes);
     }
     for (let i=0; i<reltypes.length;i++) {
         const reltype = reltypes[i];

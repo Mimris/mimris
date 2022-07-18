@@ -201,7 +201,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     // Handle the links
     uim.handleSelectDropdownChange(selected, context);
     // Handle the relationships
-    console.log('203 selected', selected);
+    if (debug) console.log('203 selected', selected);
   }
 
   public handleCloseModal(e) {

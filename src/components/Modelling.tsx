@@ -88,7 +88,7 @@ const page = (props:any) => {
   let phData = props.phData
   let phUser = props.phUser
 
-  if (!debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
+  if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
 
     // useEffect(() => {
     //   genGojsModel(props, dispatch);
@@ -213,13 +213,14 @@ debug
       SaveAllToFileDate(data, projectname, 'Project')
     }
 
-    let recoveryDiv = <></>;
-    function HandleRecoveryFile() {
-      recoveryDiv =
-        <div>
+    // let recoveryDiv = <></>;
+
+    // function HandleRecoveryFile() {
+    //   recoveryDiv =
+    //     <div>
          
-        </div>
-    }
+    //     </div>
+    // }
 
     
     const [activeTab, setActiveTab] = useState('2');

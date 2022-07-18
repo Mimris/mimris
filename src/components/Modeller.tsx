@@ -22,7 +22,7 @@ const Modeller = (props: any) => {
   let myMetis = props.myMetis;
   let activetabindex = 0
   const [refresh, setRefresh] = useState(false)
-  const [activeTab, setActiveTab] = useState(0);
+  const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
 
   // function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
@@ -169,7 +169,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
   // }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('99 Modeller useEffect 3', props); 
+    if (!debug) console.log('99 Modeller useEffect 3', props, activeTab); 
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel?.id)
     if (model) {
@@ -185,8 +185,9 @@ The text 'Project_<currentdate>' will be added to the filename.`
           return () => clearTimeout(timer);
         }
       }
+      console.log('188 ', activeTab, activetabindex)
       setActiveTab(activetabindex)
-    }debug
+    }
   }, [activeTab])
 
   useEffect(() => {

@@ -129,7 +129,7 @@ const page = (props:any) => {
       phSource: props.phSource,
       lastUpdate: new Date().toISOString()
     };
-    if (!debug) console.log('129 Modelling useEffect', memoryLocState, currentdata);
+    if (debug) console.log('129 Modelling useEffect', memoryLocState, currentdata);
 
     genGojsModel(props, dispatch);
     
@@ -153,7 +153,7 @@ const page = (props:any) => {
     if (debug) console.log('152 Modelling', currentdata, memoryLocState, (Array.isArray(memoryLocState)));
     let data = (Array.isArray(memoryLocState)) ? [currentdata, ...memoryLocState] : [currentdata];
     // put currentdata in the first position of the array data
-debug
+
     if (data.length > 9) { data.shift() }
     if (debug) console.log('161 Modelling', data);
 

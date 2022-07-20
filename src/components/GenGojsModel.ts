@@ -36,7 +36,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   let adminModel;
 
   if (metis != null) {
-    if (debug) clog('33 GenGojsModel:', props.phData, props);
+    if (!debug) clog('33 GenGojsModel:', props);
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: myMetis', tempMetis);
@@ -75,8 +75,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('70 myMetamodel :', curmod.metamodel, curmetamodel);
       if (debug) console.log('71 myTargetMetamodel :', curmod, curmod.targetMetamodelRef, curtargetmodel);
       let myTargetMetamodel = myMetis.findMetamodel(curmod.targetMetamodelRef) || null;
-      if (myTargetMetamodel !== null)
-        myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);
+      // if (myTargetMetamodel !== null)
+      //   myTargetMetamodel = myMetis?.findMetamodel(myTargetMetamodel.id);
       if (debug) console.log('75 myTargetMetamodel :', myTargetMetamodel);
 
       const myMetamodelPalette = (myMetamodel) && buildGoMetaPalette(myMetamodel);
@@ -94,13 +94,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myGoModel = buildGoModel(myMetis, myModel, myModelview);
       const myGoTargetModel = buildGoModel(myMetis, myTargetModel, myTargetModelview);
       if (debug) console.log('91 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);
-      if (debug) console.log('92 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
+      if (!debug) console.log('92 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
       myMetis?.setCurrentModelview(myModelview);
-      myMetis?.setCurrentTargetModel(myTargetModel);
-      myMetis?.setCurrentTargetModelview(myTargetModelview);
+      (myTargetModel) && myMetis?.setCurrentTargetModel(myTargetModel);
+      (myTargetModelview) && myMetis?.setCurrentTargetModelview(myTargetModelview);
       if (debug) console.log('99 GenGojsModel  myMetis', myMetis);
       if (debug) console.log('100 focusTab', props.phFocus.focusTab);
       // const nodedataarray = await (curmodview)

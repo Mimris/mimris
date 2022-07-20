@@ -31,15 +31,23 @@ const TargetMeta = (props) => {
   // function toggleRefresh() { setRefresh(!refresh); }
   
   useEffect(() => { 
-    console.log('35 TargetMeta useEffect', model.targetMetamodelRef, targetmetamodel);
+    if (debug) console.log('35 TargetMeta useEffect', model?.targetMetamodelRef, 'targetmm', targetmetamodel?.id, targetmetamodel?.name);
     // genGojsModel(props, dispatch);
     // targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
-    (model?.targetMetamodelRef && targetmetamodel) && dispatch({ type: 'SET_FOCUS_TARGETMETAMODEL', data: {id: targetmetamodel?.id, name: targetmetamodel?.name} })
+    // (model?.targetMetamodelRef && targetmetamodel) && 
+    if (targetmetamodel?.id === undefined) {
+      console.log('39 TargetMeta useEffect', targetmetamodel?.id, targetmetamodel?.name);
+    } else if (targetmetamodel?.id === "") {
+      console.log('41 TargetMeta useEffect', targetmetamodel?.id, targetmetamodel?.name);
+    } else {
+      console.log('43 TargetMeta useEffect', targetmetamodel?.id, targetmetamodel?.name);
+      dispatch({ type: 'SET_FOCUS_TARGETMETAMODEL', data: {id: targetmetamodel?.id, name: targetmetamodel?.name} })
+    }
     // const timer = setTimeout(() => {
       //   setRefresh(!refresh)
       // }, 3000);
       // return () => clearTimeout(timer);
-    }, []);
+    }, [(targetmetamodel !== undefined && targetmetamodel.id !== "")]);
     
 
   /**  * Get the state and metie from the store,  */
@@ -56,6 +64,7 @@ const TargetMeta = (props) => {
   // }
 
   if (!model?.targetMetamodelRef) return <></>
+
 
   const gojsapp = (gojstypes) &&
     < GoJSPaletteTargetApp

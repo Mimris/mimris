@@ -101,7 +101,7 @@ const page = (props:any) => {
     // }, [cdebug)
 
   useEffect(() => {
-    if (debug) console.log('99 Modelling useEffect', props); 
+    if (!debug) console.log('99 Modelling useEffect', props); 
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,
@@ -121,7 +121,7 @@ const page = (props:any) => {
   }, [focusModelview?.id, focusModel?.id, props.phFocus.focusTargetMetamodel?.id, curmod])
 
   useEffect(() => {
-    if (debug) console.log('121 Modelling useEffect', props, memoryLocState); 
+    if (!debug) console.log('121 Modelling useEffect', props, memoryLocState); 
     const currentdata = {
       phData: props.phData,
       phFocus: props.phFocus,

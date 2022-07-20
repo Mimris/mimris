@@ -186,7 +186,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
           return () => clearTimeout(timer);
         }
       }
-      console.log('188 ', activeTab, activetabindex)
+      if (debug) console.log('188 ', activeTab, activetabindex)
       setActiveTab(activetabindex)
     }
   }, [activeTab && (activeTab) && (activeTab !== activetabindex)])

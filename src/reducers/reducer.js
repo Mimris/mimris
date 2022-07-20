@@ -267,7 +267,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_TARGETMETAMODEL:
-      if (debug) console.log('121 red', state, action.data); 
+      if (debug) console.log('121 reducer targetmetamodel', state, action.data); 
       return {
         ...state,
         phFocus: {

@@ -79,6 +79,16 @@ export let removeElementFromArray = (arr: any[], id: string) => {
     }
 }
 
+export function getIntersection(a, b) {
+    const set1 = new Set(a);
+    const set2 = new Set(b);
+  
+    const intersection = [...set1].filter(
+      element => set2.has(element)
+    );
+    return intersection;
+  }
+
 export function camelize(str: string): string {
     return str?.replace(/\W+(.)/g, function(match, chr) {
         return chr.toUpperCase();

@@ -79,7 +79,7 @@ class GoJSPaletteApp extends React.Component<{}, AppState> {
   private refreshNodeIndex(nodeArr: Array<go.ObjectData>) {
     this.mapNodeKeyIdx.clear();
     nodeArr?.forEach((n: go.ObjectData, idx: number) => {
-      this.mapNodeKeyIdx.set(n.key, idx);
+      this.mapNodeKeyIdx.set(n?.key, idx);
     });
   }
 

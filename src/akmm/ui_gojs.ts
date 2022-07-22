@@ -336,6 +336,7 @@ export class goNode extends goMetaObject {
     memberscale:     string;
     strokecolor:     string;
     fillcolor:       string;
+    viewkind:        string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
@@ -348,6 +349,7 @@ export class goNode extends goMetaObject {
         this.memberscale = "";
         this.strokecolor = "";
         this.fillcolor = "";
+        this.viewkind = "";
         this.markedAsDeleted = false;
     }
     // Methods
@@ -368,6 +370,12 @@ export class goNode extends goMetaObject {
     }
     getScale(): string {
         return this.scale1;
+    }
+    setViewkind(kind: string) {
+        this.viewkind = kind;
+    }
+    getViewkind(): string {
+        return this.viewkind;
     }
 }
 
@@ -429,8 +437,8 @@ export class goObjectNode extends goNode {
 
             }
             this.typeview = objview.getTypeView();
-            this.template = this.typeview.template;
-            this.geometry = this.typeview.geometry;
+            this.template = this.typeview?.template;
+            this.geometry = this.typeview?.geometry;
         }
     }
     // Methods
@@ -449,6 +457,12 @@ export class goObjectNode extends goNode {
                 for (let prop in viewdata) {
                     if (objview[prop] && objview[prop] !== "") {
                         this[prop] = objview[prop];
+                    }
+                    if (prop === 'scale1') {
+                        if (objview.scale1 === "") {
+                            this[prop] = "1";
+                        }
+                        this[prop] = Number(this[prop]);
                     }
                 }
                 // Handle groups
@@ -485,6 +499,56 @@ export class goObjectNode extends goNode {
                     diagram.model.setDataProperty(data, prop, data[prop]);
             }
         }
+    }
+    getParentNode(model: goModel): goNode {
+        const groupId = this.group;
+        if (groupId !== "") {
+            const nodes = model.nodes;
+            for (let i = 0; i < nodes?.length; i++) {
+                const node = nodes[i] as goObjectNode;
+                if (node.key === groupId) {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
+    getTopNode(model: goModel): goNode {
+        const node = this.getParentNode(model);
+        if (node) {
+            if (node.key === this.key) {
+                return this;
+            } else {
+                const topNode = node.getTopNode(model);
+                if (topNode) {
+                    return topNode;
+                } else
+                    return this;
+            }
+        }
+        return this;
+    }
+    getMyScale(model: goModel): number {
+        // let scale = this.typeview.memberscale;
+        let scale = this.scale1;
+        const pnode = this.getParentNode(model);
+        if (pnode) {
+            scale = pnode.typeview.memberscale;
+            scale *= pnode.getMyScale(model);
+        } else 
+            scale = 1;
+        return scale;
+    }
+    getActualScale(model: goModel): number {
+        let scale1 = this.scale1;
+        const node = this.getParentNode(model);
+        if (debug) console.log('597 node', node);
+        if (node && node.key !== this.key) {
+            let scale = node.getActualScale(model);
+            scale1 *= scale;
+            if (debug) console.log('601 scale, scale1', scale, scale1);
+        }
+        return scale1;
     }
     getGroupFromObjviewId(objviewId: string, model: goModel): string {
         // Loop through nodes to find object view
@@ -602,10 +666,7 @@ export class goObjectTypeNode extends goNode {
                 this.addData(data);
                 this.setName(objtype.getName());
                 this.setType(constants.gojs.C_OBJECTTYPE);
-                // if (!metamodel) {
-                //     let model = this.parentModel;
-                //     metamodel = model ? model.metamodel : null;
-                // }
+                this.setViewkind(objtype.getViewKind());
                 if (metamodel) {
                     let loc = objtype.getLoc(metamodel)
                     this.setLoc(loc);
@@ -613,7 +674,7 @@ export class goObjectTypeNode extends goNode {
                     this.setSize(size);
                 }
             }
-            if (debug) console.log('455 loadNodeContent', this);
+            if (debug) console.log('671 loadNodeContent', this);
             return true;
         }
         return false;
@@ -846,6 +907,9 @@ export class goRelshipTypeLink extends goLink {
     cardinalityTo: string;
     nameFrom:   string;
     nameTo:     string;
+    strokecolor: string;
+    routing:    string;
+    curve:      string;
     points:     any;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);

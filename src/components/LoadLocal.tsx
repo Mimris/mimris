@@ -34,12 +34,13 @@ const LoadLocal = (props: any) => {
   function handleDispatchToStoreFromLocal() {  // load redux store from the whole LocalStore, i.e. the total project
     // locStatus = true
     // console.log('43 LoadLocal', locState);
-    let data;
+    let data: string;
     if (locState) {
       const phData = locState.phData
       const phFocus = locState.phFocus
       const phUser = locState.phUser
-      const phSource = 'localStore' //locState.sourceFlag
+      const phSource = (locState.phSource === "") ? phData.metis.name : locState.phSource 
+
       if (locState) {
         // console.log('91 SelectSource', locState);
         data = phData
@@ -86,31 +87,31 @@ const LoadLocal = (props: any) => {
   if (debug) console.log('61 LoadLocal', options);
   
   let loadSelectedFromLocalStoreDiv = <></>
-  if (options) 
-    loadSelectedFromLocalStoreDiv = 
-      <div className="loadstore selection d-flex justify-content-center border border-dark  pt-3 px-2">
-        <p>Model to import</p>
-        <Select className="modal-select"
-          options={options}
-          onChange={value => handleSelectLocalModelDropdownChange(value)}
-          // value={value}
-        />
-      </div>
+  // if (options) 
+  //   loadSelectedFromLocalStoreDiv = 
+  //     <div className="loadstore selection d-flex justify-content-center border border-dark  pt-3 px-2">
+  //       <p>Model to import</p>
+  //       <Select className="modal-select"
+  //         options={options}
+  //         onChange={value => handleSelectLocalModelDropdownChange(value)}
+  //         // value={value}
+  //       />
+  //     </div>
 
-  const optionsMemory = memoryState?.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});
+  const optionsMemory = memoryState[0]?.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});
   if (debug) console.log('61 LoadLocal', optionsMemory);
   
   let loadSelectedFromMemoryStoreDiv = <></>
-  if (optionsMemory) 
-    loadSelectedFromMemoryStoreDiv = 
-      <div className="loadstore selection d-flex justify-content-center border border-dark  pt-3 px-2">
-        <p>Select Recovery Model to import</p>
-        <Select className="modal-select"
-          options={optionsMemory}
-          onChange={value => handleSelectMemoryModelDropdownChange(value)}
-          // value={value}
-        />
-      </div>
+  // if (optionsMemory) 
+  //   loadSelectedFromMemoryStoreDiv = 
+  //     <div className="loadstore selection d-flex justify-content-center border border-dark  pt-3 px-2">
+  //       <p>Select Recovery Model to import</p>
+  //       <Select className="modal-select"
+  //         options={optionsMemory}
+  //         onChange={value => handleSelectMemoryModelDropdownChange(value)}
+  //         // value={value}
+  //       />
+  //     </div>
     
   //
   // load to Redux-store from memoryState in localStorage. This is save for every refresh)
@@ -118,10 +119,10 @@ const LoadLocal = (props: any) => {
   function handleDispatchToStoreFromMemory() {  
     // memoryStatus = true
     if (debug) console.log('63 LoadLocal', memoryState);
-    const phData = memoryState.phData
-    const phFocus = memoryState.phFocus
-    const phUser = memoryState.phUser
-    const phSource = 'localStore' //locState.sourceFlag
+    const phData = memoryState[0].phData
+    const phFocus = memoryState[0].phFocus
+    const phUser = memoryState[0].phUser
+    const phSource = memoryState[0].phSource //locState.sourceFlag
     if (memoryState) {
       // console.log('91 SelectSource', locState);
       let data = phData
@@ -148,7 +149,8 @@ const LoadLocal = (props: any) => {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
-      phSource: 'localStore'
+      phSource: props.ph.phSource,
+      lastUpdate: new Date().toISOString()
     }
     if (debug) console.log('90 LoadLocal', data);
     setLocState(data)
@@ -161,7 +163,8 @@ const LoadLocal = (props: any) => {
         phData:   props.ph.phData,
         phFocus:  props.ph.phFocus,
         phUser:   props.ph.phUser,
-        phSource: 'localStore'
+        phSource: props.ph.phSource,
+        lastUpdate: new Date().toISOString()
       }
       if (debug) console.log('104 LoadLocal', data);
       setLocState(data)
@@ -279,17 +282,15 @@ const LoadLocal = (props: any) => {
                   {buttonSaveCurrentToLocalStoreDiv} 
                 </div>
               </div>
-              <div className="loadsave--momoryStore select  mb-1 p-2  border border-dark">
-                {/* <hr style={{ borderTop: "4px solid #8c8b8", backgroundColor: "#9cf", padding: "2px",  marginTop: "3px" , marginBottom: "3px" }} /> */}
-                <h6>Crash Recovery </h6>
+              {/* <div className="loadsave--momoryStore select  mb-1 p-2  border border-dark">
+                 <h6>Crash Recovery </h6>
                 <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
                   If the browser hang or crash, or you made a mistake, you can go back to an earlier version
                   by clicking on the button below!
                   <br />(This version is updated each time you select a new modelview tab or clicked on refresh)
                 </div>
                 {buttonLoadMemoryStoreDiv}
-                {/* {loadSelectedFromMemoryStoreDiv} */}
-              </div>
+              </div> */}
             </div>
           </div>
         </ModalBody>

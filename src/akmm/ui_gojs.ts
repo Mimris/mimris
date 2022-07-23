@@ -387,6 +387,7 @@ export class goObjectNode extends goNode {
     typename: string;
     typeview: akm.cxObjectTypeView | null;
     template: string;
+    figure: string;
     geometry: string;
     fillcolor: string;
     strokecolor: string;
@@ -406,6 +407,7 @@ export class goObjectNode extends goNode {
         this.objecttype     = null;
         this.typename       = "";
         this.template       = objview.template;
+        this.figure         = objview.figure;
         this.geometry       = objview.geometry;
         this.fillcolor      = objview.fillcolor;
         this.strokecolor    = objview.strokecolor;
@@ -434,11 +436,14 @@ export class goObjectNode extends goNode {
                     this.typename = "";
                     //this.type = "";
                 }
-
             }
             this.typeview = objview.getTypeView();
-            this.template = this.typeview?.template;
-            this.geometry = this.typeview?.geometry;
+            if (!this.template)
+                this.template = this.typeview?.template;
+                if (!this.geometry)
+                this.geometry = this.typeview?.geometry;
+            if (!this.figure)
+                this.figure = this.typeview?.figure;
         }
     }
     // Methods
@@ -745,7 +750,7 @@ export class goRelshipLink extends goLink {
         this.toNode          = null;
         this.from            = "";
         this.to              = "";
-        this.template        = "";
+        this.template        = relview?.template;
         this.textscale       = relview?.textscale;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
@@ -1016,6 +1021,7 @@ export class paletteNode {
     description: string;
     isGroup: boolean;
     template: string;
+    figure: string;
     geometry: string;
     fillcolor: string;
     strokecolor: string;
@@ -1031,6 +1037,7 @@ export class paletteNode {
         this.description = description;
         this.isGroup = false;
         this.template = "";
+        this.figure = "";
         this.geometry = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";

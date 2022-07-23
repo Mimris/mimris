@@ -679,6 +679,7 @@ export class jsnObjectTypeView {
     isGroup:         boolean;
     group:           string;
     template:        string;
+    figure:          string;
     geometry:        string;
     fillcolor:       string;
     strokecolor:     string;
@@ -698,6 +699,7 @@ export class jsnObjectTypeView {
         this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
+        this.figure          = objtypeview.getFigure();
         this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
         this.strokecolor     = objtypeview.getStrokecolor();
@@ -739,6 +741,7 @@ export class jsnRelshipTypeView {
     name:            string;
     description:     string;
     typeRef:         string;
+    template:        string;
     strokecolor:     string;
     strokecolor1:    string;
     strokewidth:     string;
@@ -755,6 +758,7 @@ export class jsnRelshipTypeView {
         this.name            = reltypeview.name;
         this.description     = (reltypeview.description) ? reltypeview.description : "";
         this.typeRef         = reltypeview.getTypeRef();
+        this.template        = reltypeview.getTemplate();
         this.strokecolor     = reltypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor1;
         this.strokewidth     = reltypeview.getStrokewidth();
@@ -1370,6 +1374,7 @@ export class jsnObjectView {
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
+    figure:          string;
     geometry:        string;
     fillcolor:       string;
     strokecolor:     string;
@@ -1388,6 +1393,7 @@ export class jsnObjectView {
         this.isCollapsed     = objview?.isCollapsed;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
+        this.figure          = objview?.figure;
         this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
         this.strokecolor     = objview?.strokecolor;
@@ -1409,6 +1415,7 @@ export class jsnRelshipView {
     typeviewRef:     string;
     fromobjviewRef:  string;
     toobjviewRef:    string;
+    template:        string;
     textscale:       string;
     arrowscale:      string;
     strokecolor:     string;
@@ -1423,32 +1430,33 @@ export class jsnRelshipView {
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(relview: akm.cxRelationshipView) {
-        this.id              = relview.id;
-        this.name            = relview.name;
+        this.id              = relview?.id;
+        this.name            = relview?.name;
         this.description     = "";
         this.relshipRef      = "";
         this.typeviewRef     = "";
-        this.textscale       = relview.textscale;
-        this.arrowscale      = relview.arrowscale;
-        this.strokecolor     = relview.strokecolor;
-        this.strokewidth     = relview.strokewidth;
+        this.template        = relview?.template;
+        this.textscale       = relview?.textscale;
+        this.arrowscale      = relview?.arrowscale;
+        this.strokecolor     = relview?.strokecolor;
+        this.strokewidth     = relview?.strokewidth;
         this.textcolor       = relview?.textcolor;
-        this.dash            = relview.dash;
-        this.fromArrow       = relview.fromArrow;
-        this.toArrow         = relview.toArrow;
-        this.fromArrowColor  = relview.fromArrowColor;
-        this.toArrowColor    = relview.toArrowColor;
+        this.dash            = relview?.dash;
+        this.fromArrow       = relview?.fromArrow;
+        this.toArrow         = relview?.toArrow;
+        this.fromArrowColor  = relview?.fromArrowColor;
+        this.toArrowColor    = relview?.toArrowColor;
         this.fromobjviewRef  = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef    = relview && relview.toObjview ? relview.toObjview.id : "";
-        this.points          = relview.points;
-        this.markedAsDeleted = relview.markedAsDeleted;
-        this.modified        = relview.modified;
+        this.points          = relview?.points;
+        this.markedAsDeleted = relview?.markedAsDeleted;
+        this.modified        = relview?.modified;
         // Code
-        if (relview.description)
+        if (relview?.description)
             this.description = relview.description;
-        if (relview.relship)
+        if (relview?.relship)
             this.relshipRef = relview.relship.id;
-        if (relview.typeview)
+        if (relview?.typeview)
             this.typeviewRef = relview.typeview.id;
     }
 }
@@ -1660,6 +1668,7 @@ export class jsnImportMetis {
         if (utils.objExists(type))
             objtypeview.setType(type);
         objtypeview.setTemplate(item.template);
+        objtypeview.setFigure(item.figure);
         objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setStrokecolor(item.strokecolor);

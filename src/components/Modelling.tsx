@@ -129,7 +129,7 @@ const page = (props:any) => {
       phSource: props.phSource,
       lastUpdate: new Date().toISOString()
     };
-    if (!debug) console.log('129 Modelling useEffect', memoryLocState, currentdata);
+    if (debug) console.log('129 Modelling useEffect', memoryLocState, currentdata);
 
     genGojsModel(props, dispatch);
     

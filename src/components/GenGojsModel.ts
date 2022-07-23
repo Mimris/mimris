@@ -25,6 +25,7 @@ let includeNoType = false;
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
+  if (debug) console.log('28 GenGojsModel started');
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -34,7 +35,6 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   // const modelviews = (metis) && metis.modelviews
   const metamodels = (metis) && metis.metamodels
   let adminModel;
-
   if (metis != null) {
     clog('33 GenGojsModel:', props.phData, props);
     const myMetis = new akm.cxMetis();

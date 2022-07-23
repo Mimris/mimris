@@ -267,7 +267,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_TARGETMETAMODEL:
-      if (debug) console.log('121 red', state, action.data); 
+      if (debug) console.log('121 reducer targetmetamodel', state, action.data); 
       return {
         ...state,
         phFocus: {
@@ -854,7 +854,7 @@ function reducer(state = InitialStateStr, action) {
       }
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
-      if (debug) console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
+      if (debug) console.log('857 UPDATE_RELSHIPVIEW_PROPERTIES', action);
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === curmrv?.id) // current model index
       const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -875,7 +875,7 @@ function reducer(state = InitialStateStr, action) {
                 {
                   ...state.phData.metis.models[curmindexrv],
                   modelviews: [
-                    ...curmrv?.modelviews.slice(0, curmindexvrv),
+                    ...curmrv?.modelviews?.slice(0, curmindexvrv),
                     {
                       ...curmrv?.modelviews[curmindexvrv],
                       relshipviews: [

@@ -156,7 +156,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
       if (activeTab != undefined || 0) {
         const data = {id: selmodviews[0].id, name: selmodviews[0].name}
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-        setActiveTab(0)
+        // setActiveTab(0)
         genGojsModel(props, dispatch);
     }
     if (debug) console.log('89 Modeller useEffect 1', activeTab); 
@@ -178,7 +178,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
         if (debug) console.log('178 model', model);
         if (activeTab === 0) {
           const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
-          if (debug) console.log('181 data', data);
+          if (debug) console.log('181 modelview', data);
           dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;   
           if (debug) console.log('183 after dispatch');
           const timer = setTimeout(() => {
@@ -191,7 +191,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
       if (debug) console.log('191 ', activeTab, activetabindex)
       setActiveTab(activetabindex)
     }
-  }, [activeTab])
+  }, [activeTab && (activeTab) && (activeTab !== activetabindex)])
 
   useEffect(() => {
     if (debug) console.log('195 Modeller useEffect 5', props); 

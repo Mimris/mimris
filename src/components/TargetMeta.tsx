@@ -9,45 +9,52 @@ import GoJSApp from "./gojs/GoJSApp";
 import GoJSPaletteTargetApp from "./gojs/GoJSPaletteTargetApp";
 
 const TargetMeta = (props) => {
-  // const page = (props) => {
-
   const dispatch = useDispatch();
   if (debug) console.log('10 TargetMeta', props);
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
   const metamodels = props.metis?.metamodels
   const model = models?.find((m: any) => m?.id === focusModel?.id)
+
   let targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
   const targetmodel = models?.find((m: any) => m?.id === model?.targetModelRef)
   // console.log('16', props, targetmodel?.name, model.targetModelRef);
   
   
   const gojstypes = props.gojsTargetMetamodel
-
+  
   // /** Toggle divs */
   const [visiblePalette, setVisiblePalette] = useState(false)
   function togglePalette() { setVisiblePalette(!visiblePalette); }
-
-  const [refresh, setRefresh] = useState(true)
-  function toggleRefresh() { setRefresh(!refresh); }
-
+  
+  // const [refresh, setRefresh] = useState(true)
+  // function toggleRefresh() { setRefresh(!refresh); }
+  
   useEffect(() => { 
-    console.log('30 TargetMeta useEffect', model.targetMetamodelRef, targetmetamodel);
+    if (debug) console.log('35 TargetMeta useEffect', model?.targetMetamodelRef, 'targetmm', targetmetamodel?.id, targetmetamodel?.name);
     // genGojsModel(props, dispatch);
     // targetmetamodel = metamodels?.find((m: any) => m?.id === model?.targetMetamodelRef)
-    dispatch({ type: 'SET_FOCUS_TARGETMETAMODEL', data: {id: targetmetamodel?.id, name: targetmetamodel?.name} })
+    // (model?.targetMetamodelRef && targetmetamodel) && 
+    if (targetmetamodel?.id === undefined) {
+      console.log('39 TargetMeta useEffect', targetmetamodel?.id, targetmetamodel?.name);
+    } else if (targetmetamodel?.id === "") {
+      console.log('41 TargetMeta useEffect', targetmetamodel?.id, targetmetamodel?.name);
+    } else {
+      console.log('43 TargetMeta useEffect', targetmetamodel?.id, targetmetamodel?.name);
+      dispatch({ type: 'SET_FOCUS_TARGETMETAMODEL', data: {id: targetmetamodel?.id, name: targetmetamodel?.name} })
+    }
     // const timer = setTimeout(() => {
-    //   setRefresh(!refresh)
-    // }, 3000);
-    // return () => clearTimeout(timer);
-  }, []);
+      //   setRefresh(!refresh)
+      // }, 3000);
+      // return () => clearTimeout(timer);
+    }, [(targetmetamodel !== undefined && targetmetamodel.id !== "")]);
+    
 
   /**  * Get the state and metie from the store,  */
   // const gojstypes = props.phFocus.gojsMetamodel
   // console.log('18 Palette', gojstypes, props);
   // console.log('24 TargetMeta', gojstypes);
   if (debug) console.log('33 TargetMeta', props, gojstypes, gojstypes.nodeDataArray);
-  // console.log('13 Palette', gojstypes.linkDataArray);
   
   // const toglRefreshid = () => {
   //   console.log('53 togRefreshid', props);
@@ -55,6 +62,9 @@ const TargetMeta = (props) => {
   //     dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
   //   }
   // }
+
+  if (!model?.targetMetamodelRef) return <></>
+
 
   const gojsapp = (gojstypes) &&
     < GoJSPaletteTargetApp
@@ -69,7 +79,8 @@ const TargetMeta = (props) => {
     />
 
   const targetmmnamediv = (targetmetamodel) ? <span>{targetmetamodel?.name}</span> : <span>No target metamodel</span> 
-  const targetmnamediv = (targetmodel) ? <span>Target model: {targetmodel?.name}</span> : <span>No target model</span> 
+  const targetmnamediv = (targetmodel) ? <span>Target model: {targetmodel?.name}</span> : <span>No target model</span>
+
   const palette =
     <>
       <button className="btn-sm pt-2 pr-1 b-0 mt-0 mb-0 mr-2 " style={{ textAlign: "left",  backgroundColor: "#8ce", outline: "0", borderStyle: "none" }}
@@ -85,15 +96,14 @@ const TargetMeta = (props) => {
             <div className="m-1"> {gojsapp} </div>
             <div className="mmname bg-light mx-1 px-1" style={{fontSize: "8px"}}>{targetmnamediv}</div>
           </>
-        // ? <div> {gojsapp} <div style={{ minWidth: "292px", height: "100%" }}></div></div>
-        // : <div className="btn-vertical m-0 pl-1 p-0" style={{ maxWidth: "4px", padding: "0px" }}><span> P a l e t t e - T a r g e t - M e t a m o d e l</span> </div>
         : <div className="btn-vertical m-0 pl-1 p-0" style={{ textAlign: "center", verticalAlign: "baseline", maxWidth: "3px", padding: "0px" }}><span> T a r g e t </span></div>
       }
     </>
 
   return (
     <>
-      {refresh ? <> {palette} </> : <>{palette}</>}
+      {/* {refresh ? <> {palette} </> : <>{palette}</>} */}
+      {palette} 
       <style jsx>{`
         .diagram-component {
           height: 101%;

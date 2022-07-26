@@ -3,9 +3,9 @@ import Select from './utils/Select';
 
 
 const Search = (props) => {
-  const { model, models, searchText, onSearchTextChange, onModelChange } = props;
+  const { model, searchText, onSearchTextChange, onModelChange } = props;
 
-  const modeloptions = [{value: '', label: 'All'}, ...models]
+  // const modeloptions = [{value: '', label: 'All'}, ...models]
   return (
     <div>
       <TextInput
@@ -14,12 +14,12 @@ const Search = (props) => {
         onChange={(value) => onSearchTextChange(value)}
         placeholder="Search for a repo"
       />
-      <Select
+      {/* <Select
         label="model"
         value={model}
         options={modeloptions}
         onChange={(value) => onModelChange(value)}
-      />
+      /> */}
     </div>
   );
 };

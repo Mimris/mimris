@@ -8,7 +8,7 @@ import { searchRepos } from './services/githubService';
 
 const LoadGitHub = (props: any) => {
 
-  console.log('11', props)
+  // console.log('11', props)
   // const models = props.ph.phData.mtis
 
   const [searchText, setSearchText] = useState('');
@@ -21,17 +21,24 @@ const LoadGitHub = (props: any) => {
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
+  const username = 'SnorreFossland'
+  const url = `https://api.github.com/users/${username}/repos`
+  console.log('26 url', url)
+
   const fetchData = async () => {
     setLoading(true);
     setError(false);
     try {
-      const response = await fetch(`https://api.github.com/users/${props.username}/repos`);
+      const response = await fetch(url);
       const data = await response.json();
       setRepos(data);
       setModel(data[0]);
+      console.log('32 data', await data)
     } catch (error) {
+      console.log('38 error', error)
       setError(true);
     }
+    console.log('41 ', repos)
     setLoading(false);
   }
 
@@ -50,6 +57,7 @@ const LoadGitHub = (props: any) => {
     const res = await searchRepos(searchText, model);
     setLoading(false);
     setRepos(res.data.items);
+    console.log('58', res.data.items.name)
   };
 
   return  (
@@ -62,9 +70,9 @@ const LoadGitHub = (props: any) => {
         <div>
           <Search
             searchText={searchText}
-            language={model}
+            // model={model}
             onSearchTextChange={onSearchTextChange}
-            onLanguageChange={onModelChange}
+            // onModelChange={onModelChange}
           />
           {loading ? 'Loading...' : <div>{JSON.stringify(repos, null, 2)}</div>}
         </div>

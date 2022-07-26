@@ -17,6 +17,7 @@ import {
   SET_FOCUS_TAB,
   SET_FOCUS_MODEL,
   SET_FOCUS_MODELVIEW,
+  SET_FOCUS_TARGETMETAMODEL,
   SET_FOCUS_TARGETMODEL,
   SET_FOCUS_TARGETMODELVIEW,
   SET_FOCUS_OBJECT,
@@ -105,15 +106,15 @@ const InitState =  JSON.parse(JSON.stringify(InitStateJson))
 
 export const InitialState = {
   phData: InitState.phData,
-  phList: null, // list of models from AMMServer (firebase)
+  // phList: null, // list of models from AMMServer (firebase)
   phFocus: InitState.phFocus,
-  phGojs: null,
-  phMymetis: null,
-  phMyGoModel: null,
-  phMyGoMetamodel: null,
+  // phGojs: null,
+  // phMymetis: null,
+  // phMyGoModel: null,
+  // phMyGoMetamodel: null,
   phUser: InitState.phUser,
-  phSource: InitState.phSource
-
+  phSource: InitState.phSource,
+  lastUpdate: new Date().toISOString()
 }
 
 let focusTask
@@ -131,6 +132,7 @@ let focusRole
 let focusCollection
 
 
+
 function reducer(state = InitialStateStr, action) {
   
   switch (action.type) {
@@ -141,7 +143,6 @@ function reducer(state = InitialStateStr, action) {
         ...state,
         ...{ error: action.error }
       }
-
     case LOAD_DATA_SUCCESS:
       // if (debug) console.log('160 LOAD_DATA_SUCCESS', action);
       return {
@@ -263,6 +264,15 @@ function reducer(state = InitialStateStr, action) {
         phFocus: {
           ...state.phFocus,
           focusModelview: action.data
+        }
+      }
+    case SET_FOCUS_TARGETMETAMODEL:
+      if (debug) console.log('121 reducer targetmetamodel', state, action.data); 
+      return {
+        ...state,
+        phFocus: {
+          ...state.phFocus,
+          focusTargetMetamodel: action.data
         }
       }
     case SET_FOCUS_TARGETMODEL:
@@ -393,7 +403,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_ROLE:
-      // if (debug) console.log('350 role', action);   
+      if (debug) console.log('350 role', action);   
       return {
         ...state,
         phFocus: {
@@ -410,7 +420,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_TASK:
-      // if (debug) console.log('367 task', action);   
+      if (debug) console.log('367 task', action);   
       // if (debug) console.log('104', action.data);
 
       // focusTask = action.data.focusTask
@@ -844,7 +854,7 @@ function reducer(state = InitialStateStr, action) {
       }
 
     case UPDATE_RELSHIPVIEW_PROPERTIES:
-      if (debug) console.log('504 UPDATE_RELSHIPVIEW_PROPERTIES', action);
+      if (debug) console.log('857 UPDATE_RELSHIPVIEW_PROPERTIES', action);
       const curmrv = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) //current model
       const curmindexrv = state.phData?.metis?.models?.findIndex(m => m.id === curmrv?.id) // current model index
       const curmvrv = curmrv?.modelviews?.find(mv => mv.id === state.phFocus?.focusModelview?.id) //current modelview
@@ -865,7 +875,7 @@ function reducer(state = InitialStateStr, action) {
                 {
                   ...state.phData.metis.models[curmindexrv],
                   modelviews: [
-                    ...curmrv?.modelviews.slice(0, curmindexvrv),
+                    ...curmrv?.modelviews?.slice(0, curmindexvrv),
                     {
                       ...curmrv?.modelviews[curmindexvrv],
                       relshipviews: [

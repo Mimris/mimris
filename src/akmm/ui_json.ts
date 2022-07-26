@@ -8,32 +8,32 @@ import * as akm from './metamodeller';
 let jsnMetis = null;
 
 export class jsnExportMetis {
-    name:                   string;
-    description:            string;
-    metamodels:             jsnMetaModel[];
-    models:                 jsnModel[];
-    //modelviews:             jsnModelView[];
-    //datatypes:              jsnDatatype[];
-    //enumerations:           jsnEnumeration[];
-    pasteViewsOnly:         boolean;
-    deleteViewsOnly:        boolean;
-    currentMetamodelRef:    string;
-    currentModelRef:        string;
-    currentModelviewRef:    string;
-    currentTemplateModelRef: string;
+    name:                       string;
+    description:                string;
+    metamodels:                 jsnMetaModel[];
+    models:                     jsnModel[];
+    pasteViewsOnly:             boolean;
+    deleteViewsOnly:            boolean;
+    currentMetamodelRef:        string;
+    currentModelRef:            string;
+    currentModelviewRef:        string;
+    currentTemplateModelRef:    string;
+    currentTargetMetamodelRef:  string;
+    currentTargetModelRef:      string;
+    currentTargetModelviewRef:  string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
-        this.name         = metis.name;
-        this.description  = metis.description;
-        this.metamodels   = [];
-        this.models       = [];
-        //this.modelviews   = [];
-        //this.datatypes    = [];
-        //this.enumerations = [];
-        this.currentMetamodelRef     = "";
-        this.currentModelRef         = "";
-        this.currentModelviewRef     = "";
-        this.currentTemplateModelRef = "";
+        this.name                       = metis.name;
+        this.description                = metis.description;
+        this.metamodels                 = [];
+        this.models                     = [];
+        this.currentMetamodelRef        = "";
+        this.currentModelRef            = "";
+        this.currentModelviewRef        = "";
+        this.currentTemplateModelRef    = "";
+        this.currentTargetMetamodelRef  = "";
+        this.currentTargetModelRef      = "";
+        this.currentTargetModelviewRef  = "";
         // Code
         if (metis) {
             jsnMetis = metis;
@@ -59,9 +59,14 @@ export class jsnExportMetis {
                 this.currentModelRef = metis.currentModel.id;
             if (metis.currentModelview)
                 this.currentModelviewRef = metis.currentModelview.id;
+            if (metis.currentTargetMetamodel)
+                this.currentTargetMetamodelRef = metis.currentTargetMetamodel.id;
+            if (metis.currentTargetModel)
+                this.currentTargetModelRef = metis.currentTargetModel.id;
+            if (metis.currentTargetModelview)
+                this.currentTargetModelviewRef = metis.currentTargetModelview.id;
             if (metis.currentTemplateModel)
-                this.currentTemplateModelRef = metis.currentTemplateModel.id;
-            
+                this.currentTemplateModelRef = metis.currentTemplateModel.id;            
         }
     }
     // Functions
@@ -192,11 +197,25 @@ export class jsnMetaModel {
         }
         const reltypes = metamodel.getRelshipTypes();
         if (reltypes) {
+            if (debug) console.log('195 reltypes', reltypes);
             const cnt = reltypes.length;
             for (let i = 0; i < cnt; i++) {
                 const reltype = reltypes[i];
+                if (!reltype.fromObjtype) {
+                    if (reltype.fromobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.fromobjtypeRef);
+                        reltype.fromObjtype = objtype;
+                    }
+                }
+                if (!reltype.toObjtype) {
+                    if (reltype.toobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.toobjtypeRef);
+                        reltype.toObjtype = objtype;
+                    }
+                }
                 this.addRelationshipType(reltype, includeViews);
             }
+            if (debug) console.log('200 jsnMetaModel', this);
         }
         const datatypes = metamodel.getDatatypes();
         if (datatypes) {
@@ -1004,6 +1023,7 @@ export class jsnObject {
     id:              string;
     name:            string;
     description:     string;
+    text:            string;
     abstract:        boolean;
     viewkind:        string;
     typeRef:         string;
@@ -1336,6 +1356,7 @@ export class jsnObjectView {
     id:              string;
     name:            string;
     description:     string;
+    text:            string;
     objectRef:       string;
     typeviewRef:     string;
     group:           string;
@@ -1344,8 +1365,8 @@ export class jsnObjectView {
     isCollapsed:     boolean;
     loc:             string;
     size:            string;
-    scale:           string;
-    memberscale:     string;
+    scale:           number;
+    memberscale:     number;
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
@@ -1374,9 +1395,8 @@ export class jsnObjectView {
         this.textcolor       = objview?.textcolor;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
-        this.scale           = objview?.scale1;
-        this.memberscale     = objview?.memberscale;
-        this.viewkind        = objview?.viewkind;
+        this.scale           = Number(objview?.scale1);
+        this.memberscale     = Number(objview?.memberscale);
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
     }
@@ -1625,7 +1645,7 @@ export class jsnImportMetis {
         }
         jsnMetis.addRelationshipType(reltype);
         if (reltype) metamodel.addRelationshipType(reltype);
-        if (debug) console.log("Importing relshiptype: " + item.id + ", " + item.name);
+        if (debug) console.log("1628 Importing reltype: " + item.id + ", " + item.name);
         const properties = item.properties;
         if (utils.objExists(properties) && (properties.length > 0)) {
             properties.forEach(function (this: jsnImportMetis, prop: akm.cxProperty) {

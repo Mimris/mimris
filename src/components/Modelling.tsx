@@ -148,7 +148,7 @@ const page = (props:any) => {
       phFocus: props.phFocus,
       phUser: props.phUser,
       phSource: (phSource === "") && phData.metis.name  || phSource,
-      ladebugte: new Date().toISOString()
+      lastUpdate: new Date().toISOString()
     };
     if (debug) console.log('152 Modelling', currentdata, memoryLocState, (Array.isArray(memoryLocState)));
     let data = (Array.isArray(memoryLocState)) ? [currentdata, ...memoryLocState] : [currentdata];
@@ -544,7 +544,7 @@ const page = (props:any) => {
               <button 
                 className="btn-primary ml-2 mr-2 mb-3 " 
                 data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+                title="Click here to Save the Project&#013;(all models and metamodels) to a file &#013;(in Downloads folder)"
                 onClick={handleSaveAllToFileDate}>Save
               </button >
             </span> 

@@ -14,16 +14,23 @@ const LoadRecovery = (props: any) => {
   const debug = false
   const refresh = props.refresh
   const setRefresh = props.setRefresh
+  const today = new Date().toISOString()
+  // today as year, month and day
+  // const dd = String(today.getDate()).padStart(2, '0')
   function toggleRefresh() { setRefresh(!refresh); }
   
   if (typeof window === 'undefined') return
 
   const [memoryState] = useLocalStorage('memorystate', null);
-  if (debug) console.log('22 LoadRecovery', memoryState);
+  if (!Array.isArray(memoryState)) return
 
+  // if memoryState is not an array then make it one
+  let memoryStateTmp
+  if (debug) console.log('22 LoadRecovery', memoryState, memoryStateTmp);
 
-  const optionsMemory = memoryState?.map((o, idx) => o && {value: idx, label: o.lastUpdate+' | '+o.phSource});
+  let optionsMemory = memoryState?.map((o, idx) => o && {value: idx, label: o.lastUpdate  +' | '+o.phSource});
   if (debug) console.log('25 LoadRecovery', optionsMemory);
+  if (optionsMemory === undefined || optionsMemory?.length === 0) optionsMemory = [{value: 0, label: 'No recovery model'}]
 
   const [selected, setSelected] = useState(optionsMemory[0].value);
 
@@ -103,7 +110,7 @@ const LoadRecovery = (props: any) => {
                 <div className="footer--text mb-2" style={{ fontSize: "smaller" }}>
                   If the browser hang or crash, or you made a mistake, you can go back to an earlier version
                   by select a recovery version below!
-                  <br />(The recovery version is updated each time you select a new modelview tab or clicked on refresh)
+                  <br />(The recovery version is updated each time you select a new modelview tab or click refresh)
                 </div>
                 {/* {buttonLoadMemoryStoreDiv} */}
                 {loadSelectedFromMemoryStoreDiv}

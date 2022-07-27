@@ -310,6 +310,12 @@ export default GoJSPaletteApp;
 
 
 {/* <p>
+ gio.
+  <input type="text" value={this.state.modelData.title} onChange={this.handleInputChange} />  
+
+
+
+  
           Try moving around nodes, editing text, relinking, undoing (Ctrl-Z), etc. within the diagram
           and you'll notice the changes are reflected in the inspector area. You'll also notice that changes
           made in the inspector are reflected in the diagram. If you use the React dev tools,

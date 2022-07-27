@@ -169,24 +169,26 @@ The text 'Project_<currentdate>' will be added to the filename.`
   // }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('99 Modeller useEffect 3', props, activeTab); 
+    if (debug) console.log('172 Modeller useEffect 3', props, activeTab); 
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel?.id)
     if (model) {
       const modelviews = model.modelviews;
       if (modelviews?.length > 0) {
-        if (debug) console.log('111 model', model);
+        if (debug) console.log('178 model', model);
         if (activeTab === 0) {
           const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
           if (debug) console.log('181 modelview', data);
           dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;   
+          if (debug) console.log('183 after dispatch');
           const timer = setTimeout(() => {
             setRefresh(!refresh)
           }, 1000);
-          return () => clearTimeout(timer);
+          if (debug) console.log('187 after refresh: data', data);
+          return;
         }
       }
-      if (debug) console.log('188 ', activeTab, activetabindex)
+      if (debug) console.log('191 ', activeTab, activetabindex)
       setActiveTab(activetabindex)
     }
   }, [activeTab && (activeTab) && (activeTab !== activetabindex)])
@@ -228,7 +230,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             >
               {mv.name}
             </NavLink>
- 
           </NavItem>
         )
     }

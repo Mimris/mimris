@@ -85,6 +85,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setScale(data.scale);
                 objview.setMemberscale(data.memberscale);
                 objview.setTemplate(data.template);
+                objview.setFigure(data.figure);
                 data.objectview = objview;
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
@@ -128,6 +129,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                     objview.setTypeView(objtypeView);
                     const otdata = objtypeView.data;
                     if (data['template'] !== otdata['template']) objview['template'] = data['template'];
+                    if (data['figure'] !== otdata['figure']) objview['figure'] = data['figure'];
                     if (data['fillcolor'] !== otdata['fillcolor']) objview['fillcolor'] = data['fillcolor'];
                     if (data['strokecolor'] !== otdata['strokecolor']) objview['strokecolor'] = data['strokecolor'];
                     if (data['strokewidth'] !== otdata['strokewidth']) objview['strokewidth'] = data['strokewidth'];
@@ -399,6 +401,7 @@ export function setObjectType(data: any, objtype: akm.cxObjectType, context: any
                 }
                 // Apply local overrides
                 currentObjectView['template'] = data.template;
+                currentObjectView['figure'] = data.figure;
                 currentObjectView['fillcolor'] = data.fillcolor;
                 currentObjectView['strokecolor'] = data.strokecolor;
                 currentObjectView['strokewidth'] = data.strokewidth;

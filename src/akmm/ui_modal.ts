@@ -112,7 +112,8 @@ export function handleInputChange(myMetis: akm.cxMetis, props: any, value: strin
           myItem = myInst?.type?.typeview?.data;
       } else
           myItem = myInst;
-      myItem[propname] = value;
+      if (myItem) 
+          myItem[propname] = value;
       if (debug) console.log('120 myItem', myItem);    
   }
   if (debug) console.log('122 myMetis', myMetis);
@@ -783,15 +784,13 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               if (debug) console.log('803 prop, objview', prop, objview);
               myMetis.addObjectView(objview);
             }
+            const obj = objview.object;
+            obj.viewkind = objview.viewkind;
           }
           const node = myDiagram.findNodeForKey(sel.data.key);
-          if (debug) console.log('772 node', node, sel.data);
           const data = node.data;
-          if (debug) console.log('789 data', data);
+          if (debug) console.log('789 data, node', data, node);
           for (let prop in objtypeview?.data) {
-            if (prop === 'template' && objview[prop] !== "") 
-              myDiagram.model.setDataProperty(data, prop, objview[prop]);
-            if (prop === 'geometry' && objview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, objview[prop]);
             if (prop === 'fillcolor' && objview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, objview[prop]);
@@ -801,10 +800,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               myDiagram.model.setDataProperty(data, prop, objview[prop]);
             if (prop === 'textcolor' && objview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, objview[prop]);
-            if (prop === 'icon' && objview[prop] !== "") 
-              myDiagram.model.setDataProperty(data, prop, objview[prop]);
           }
-      })
+          if (debug) console.log('806 data', data);
+          myDiagram.requestUpdate;
+        })
       break;
     }
     case "selectDropdown": {
@@ -868,6 +867,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         context.myTargetMetamodel = metamodel;
         context.myCurrentModelview = myMetis.currentModelview;
         myMetis.currentModel.targetMetamodelRef = metamodel.id;
+        if (debug) console.log('874 context', context);
         modalContext.context.postOperation(context);        
       } 
       else if (modalContext.case === 'Replace Metamodel') {
@@ -968,32 +968,34 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         }
         const link = myDiagram.findLinkForKey(sel.data.key);
         if (debug) console.log('977 link', link, sel.data);
-        const data = link.data;
-        if (debug) console.log('979 relview', relview);
-        for (let prop in reltypeview?.data) {
-          if (prop === 'strokecolor' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'strokewidth' && relview[prop] !== "")
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'textcolor' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'dash' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'fromArrow') {
-            let fromArrow = relview[prop];
-            if (relview[prop] === 'None') fromArrow = "";
-            myDiagram.model.setDataProperty(data, prop, fromArrow);           
-          }          
-          if (prop === 'fromArrowColor' && relview[prop] !== "") 
+        if (link) {         
+          const data = link.data;
+          if (debug) console.log('979 relview', relview);
+          for (let prop in reltypeview?.data) {
+            if (prop === 'strokecolor' && relview[prop] !== "") 
               myDiagram.model.setDataProperty(data, prop, relview[prop]);
-          if (prop === 'toArrow') {
-              let toArrow = relview[prop];
-              if (relview[prop] === "") toArrow = reltypeview.data[prop];
-              if (relview[prop] === 'None') toArrow = "";
-              myDiagram.model.setDataProperty(data, prop, toArrow);           
+            if (prop === 'strokewidth' && relview[prop] !== "")
+              myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            if (prop === 'textcolor' && relview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            if (prop === 'dash' && relview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            if (prop === 'fromArrow') {
+              let fromArrow = relview[prop];
+              if (relview[prop] === 'None') fromArrow = "";
+              myDiagram.model.setDataProperty(data, prop, fromArrow);           
             }          
-            if (prop === 'toArrowColor' && relview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            if (prop === 'fromArrowColor' && relview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, relview[prop]);
+            if (prop === 'toArrow') {
+                let toArrow = relview[prop];
+                if (relview[prop] === "") toArrow = reltypeview.data[prop];
+                if (relview[prop] === 'None') toArrow = "";
+                myDiagram.model.setDataProperty(data, prop, toArrow);           
+              }          
+              if (prop === 'toArrowColor' && relview[prop] !== "") 
+              myDiagram.model.setDataProperty(data, prop, relview[prop]);
+          }
         }
         const jsnRelview = new jsn.jsnRelshipView(relview);
         if (debug) console.log('1006 data, jsnRelview', link, data, relview, jsnRelview);
@@ -1182,7 +1184,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
   }
-  if (debug) console.log('1046 myMetis', myMetis);
+  if (!debug) console.log('1046 myMetis', myMetis);
 
   // Dispatch metis
   const jsnMetis = new jsn.jsnExportMetis(myMetis, true);

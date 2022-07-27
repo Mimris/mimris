@@ -282,8 +282,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 continue;
         }      
         if (k === 'viewkind') {
-          if (what !== 'editObject' && what !== 'editObjectType' && 
-              what !== 'editObjectview' && what !== 'editTypeview')
+          if (what !== 'editObjectview' && what !== 'editTypeview')
             continue;
           if (isLabel)
             continue;
@@ -523,17 +522,24 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   values = uit.getGroupTemplateNames();
                   defValue = '';
                   fieldType = 'radio';                
+                } else if (selObj.category === 'Relationship') {
+                  values = uit.getLinkTemplateNames();
+                  defValue = '';
+                  fieldType = 'radio';
                 } else {             
                   values = uit.getNodeTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
                 }
-              } else {
-                values = uit.getGroupTemplateNames();
-                defValue = '';
-                fieldType = 'radio';
               }
               break;
+            case 'figure':
+                if (selObj.category === 'Object') {
+                  values = uit.getFigureNames();
+                  defValue = '';
+                  fieldType = 'radio';
+                }
+                break;                
             case 'fromArrow':
               values = arrowheads;
               defValue = 'None';

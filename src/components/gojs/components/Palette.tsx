@@ -81,21 +81,21 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           $(go.Palette,       // must name or refer to the DIV HTML element
             {
               initialContentAlignment: go.Spot.Top,       // center the content
-              // initialAutoScale: go.Diagram.Uniform,
-              maxSelectionCount: 1,
+              initialAutoScale: go.Diagram.Uniform,
+              maxSelectionCount: 6,
               layout: $(go.GridLayout,
                 {
-                  // sorting: go.GridLayout.Ascending,
-                  sorting: go.GridLayout.Forward,
+                  sorting: go.GridLayout.Ascending,
+                  //sorting: go.GridLayout.Forward,
                   wrappingColumn: 1
                 }),
 
               draggingTool: new GuidedDraggingTool(),  // defined in GuidedDraggingTool.ts
               grid: $(go.Panel, "Grid",
-                    $(go.Shape, "LineH", { stroke: "lightgray", strokeWidth: 0.5 }),
-                    $(go.Shape, "LineH", { stroke: "gray", strokeWidth: 0.5, interval: 10 }),
-                    $(go.Shape, "LineV", { stroke: "lightgray", strokeWidth: 0.5 }),
-                    $(go.Shape, "LineV", { stroke: "gray", strokeWidth: 0.5, interval: 10 })
+                    $(go.Shape, "LineH", { stroke: "lightblue", strokeWidth: 0.5 }),
+                    $(go.Shape, "LineH", { stroke: "blue", strokeWidth: 0.5, interval: 10 }),
+                    $(go.Shape, "LineV", { stroke: "lightblue", strokeWidth: 0.5 }),
+                    $(go.Shape, "LineV", { stroke: "blue", strokeWidth: 0.5, interval: 10 })
                   ),
               model: $(go.GraphLinksModel,
                 {

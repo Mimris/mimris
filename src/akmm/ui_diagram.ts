@@ -1089,7 +1089,7 @@ const breakString = (str, limit) => {
 }
 
 export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a node data object
-    if (debug) console.log('506 nodeInfo', d, d.object);
+    if (debug) console.log('1092 nodeInfo', d, d.object);
 
     const format1 = "%s\n";
     const format2 = "%-10s: %s\n";
@@ -1097,26 +1097,27 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     let msg = "";
     // let msg = "Object Type props:\n";
     // msg += "-------------------\n";
-    // msg += printf(format2, "-Type", d.object.type.name);
+    msg += printf(format2, "-Type", d.object.type.name);
     // msg += printf(format2, "-Title", d.object.type.title);
-    // msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
+    msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
     // // msg += printf(format2, "-Descr", d.object.type.description);
     // msg += "\n";
     msg += "Attributes :\n";
     msg += "---------------------\n";
     msg += printf(format2, "-Name", d.name);
-    msg += printf(format2, "-Title", d.object.title);
+    // msg += printf(format2, "-Title", d.object.title);
     msg += printf(format2, "-Description", breakString(d.object.description, 64));
-    msg += printf(format2, "-ViewFormat", d.object.viewFormat);
-    msg += printf(format2, "-FieldType", d.object.fieldType);
-    msg += printf(format2, "-Inputpattern", d.object.inputPattern);
-    msg += printf(format2, "-InputExample", d.object.inputExample);
-    msg += printf(format2, "-Value", d.object.value);
+    // msg += printf(format2, "-ViewFormat", d.object.viewFormat);
+    // msg += printf(format2, "-FieldType", d.object.fieldType);
+    // msg += printf(format2, "-Inputpattern", d.object.inputPattern);
+    // msg += printf(format2, "-InputExample", d.object.inputExample);
+    // msg += printf(format2, "-Value", d.object.value);
+    if (debug) console.log('1115 msg', msg);
     if (d.group) {
       const group = myMetis.gojsModel.findNode(d.group);
       msg += printf(format2, "member of", group.name);
     }
-    if (debug) console.log('991 msg', msg);
+    if (debug) console.log('1119 msg', msg);
     // let str = "Attributes:"; 
     // msg += printf(format1, str);      
     // const obj = d.object;
@@ -1129,7 +1130,7 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     //   console.log('1001 prop, value', prop, value);
     //   msg += printf(format2, prop.name, value);
     // }
-    if (debug) console.log('605 nodeInfo', msg);
+    if (debug) console.log('1133 nodeInfo', msg);
     return msg;
 }
 

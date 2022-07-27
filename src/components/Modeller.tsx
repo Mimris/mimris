@@ -228,7 +228,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             >
               {mv.name}
             </NavLink>
- 
           </NavItem>
         )
     }

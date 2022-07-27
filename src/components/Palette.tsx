@@ -11,11 +11,13 @@ import genRoleTasks from "./utils/SetRoleTaskFilter";
 const debug = false;
 
 const clog = console.log.bind(console, '%c %s',
-    'background: green; color: white');
+    'background: blue; color: white');
 const ctrace = console.trace.bind(console, '%c %s',
-    'background: green; color: white');
+    'background: blue; color: white');
 
 const Palette = (props: any) => {
+
+  if (!debug) clog('20 Palette', props);
 
   const dispatch = useDispatch();
   let isRendered = useRef(false);
@@ -24,8 +26,8 @@ const Palette = (props: any) => {
   const [ofilter, setOfilter] = useState('All')
   const [refreshPalette, setRefreshPalette] = useState(true)
   const [refresh, setRefresh] = useState(true)
-  function toggleRefresh() { setRefresh(!refresh); } 
   const [activeTab, setActiveTab] = useState('1');
+
   
   let focusModel = props.phFocus?.focusModel
   const models = props.metis?.models
@@ -33,21 +35,29 @@ const Palette = (props: any) => {
   const model = models?.find((m: any) => m?.id === focusModel?.id)
   const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
   if (debug) console.log('16', props, mmodel?.name, model?.metamodelRef);
-
+  
   // hardcoded for now
   let focusTask = props.phFocus?.focusTask
   let seltasks = props.phFocus?.focusRole?.tasks || []
   if (debug) console.log('38 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
-
-  focusTask = props.phFocus?.focusTask
-  const focusRole = props.phFocus?.focusRole
-    
-  // const [isOpen, setIsOpen] = useState(false);
-  // const toggle = () => setIsOpen(!isOpen); 
   
-  const toggleTab = (tab: React.SetStateAction<string>) => { if (activeTab !== tab) setActiveTab(tab); }
+  function toggleRefresh() { setRefresh(!refresh); } 
+
+  // const focusRole = props.phFocus?.focusRole
+  
+  const toggleTab = (tab: React.SetStateAction<string>) => { 
+    if (activeTab !== tab)  setActiveTab(tab); 
+    // setOfilter('All')
+    const timer = setTimeout(() => {
+      toggleRefreshPalette() 
+    }, 100);
+    return () => clearTimeout(timer);
+  }
   function togglePalette() { setVisiblePalette(!visiblePalette); } 
-  function toggleRefreshPalette() { setRefreshPalette(!refreshPalette); }
+
+  function toggleRefreshPalette() { 
+    setRefreshPalette(!refreshPalette);
+  }
   
   //rearrange sequence
   let ndarr = props.gojsMetamodel?.nodeDataArray
@@ -68,6 +78,7 @@ const Palette = (props: any) => {
     isRendered = true;
     if (isRendered) {
     genRoleTasks(mmodel, dispatch)
+
   }
   return () => { isRendered = false; }
   }, [])
@@ -95,23 +106,24 @@ const Palette = (props: any) => {
   // break if no model
   if (!props.gojsModel) return null;
   if (!props.gojsMetamodel) return null;
-  if (debug) clog('103 Palette', props , seltasks, taskNodeDataArray);
+  
+  if (!debug) clog('103 Palette', props , seltasks, taskNodeDataArray);
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
   // ================================================================================================
   // ================================================================================================
   // Show all the objects in this model
-  const gojsmodelObjects = props.gojsModelObjects
-
-  let unsortedObj = gojsmodelObjects
-  if (debug) console.log('114 unsorted gojsModelobjects', props, gojsmodelObjects, unsortedObj);
+  // const gojsmodelObjects = props.gojsModelObjects
 
   //rearrange sequence
-  let objArr = unsortedObj?.nodeDataArray
+  let objArr = props.gojsModelObjects?.nodeDataArray
+
+
+  // let objArr = props.myMetis.gojsModel?.model.objects
 
   const nodeArray_all = objArr 
-  if (debug) console.log('120 nodeArray_all', nodeArray_all);
+  if (!debug) console.log('120 nodeArray_all', nodeArray_all, objArr);
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   
@@ -119,7 +131,7 @@ const Palette = (props: any) => {
   const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'Task' || node.typename === 'Role'))
   const noPropertyObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
   const noAbstractObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
-  if (debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
+  if (!debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
 
   const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
     if (debug) console.log('Palette handleSetOfilter', filter);
@@ -148,6 +160,7 @@ const Palette = (props: any) => {
   // const oNodeDataArray = nodeArray_all
   // const oNodeDataArray = ofilteredArr
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
+  if (!debug) console.log('151 Palette gojsobjects', gojsobjects);
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 

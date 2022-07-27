@@ -380,6 +380,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             model: $(go.GraphLinksModel,
               {
                 nodeCategoryProperty: "template",
+                linkCategoryProperty: "template",
                 // Uncomment the next line to turn ON linkToLink
                 linkLabelKeysProperty: "labelKeys", 
                 linkKeyProperty: 'key'
@@ -2627,8 +2628,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
     {
       // Define link template map
       let linkTemplateMap = new go.Map<string, go.Link>();
-      let linkTemplate = uit.getLinkTemplate("", linkContextMenu, myMetis);
-      linkTemplateMap.add("", linkTemplate);
+      uit.addLinkTemplates(linkTemplateMap, linkContextMenu, myMetis);
 
       // This template shows links connecting with label nodes as green and arrow-less.
       if (linkToLink) {

@@ -101,7 +101,7 @@ const Palette = (props: any) => {
       }, 1000);
       return () => clearTimeout(timer);
 
-  }, [props.phFocus.focusTask?.id])
+  }, [props.phFocus.focusTask?.id, ofilter])
 
   // break if no model
   if (!props.gojsModel) return null;
@@ -111,6 +111,8 @@ const Palette = (props: any) => {
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
+  
+  
   // ================================================================================================
   // ================================================================================================
   // Show all the objects in this model
@@ -160,7 +162,8 @@ const Palette = (props: any) => {
   // const oNodeDataArray = nodeArray_all
   // const oNodeDataArray = ofilteredArr
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
-  if (!debug) console.log('151 Palette gojsobjects', gojsobjects);
+  
+  if (!debug) console.log('165 Palette gojsobjects', filteredOtNodeDataArray, gojsobjects.nodeDataArray);
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 

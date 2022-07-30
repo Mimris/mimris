@@ -19,6 +19,8 @@ const Modeller = (props: any) => {
   // if (!props.gojsModel)  return <></>
 
   const gojsmodel = props.gojsModel;
+  if (debug) console.log('22 Modeller: gojsmodel', gojsmodel);
+  
   let myMetis = props.myMetis;
   let activetabindex = 0
   const [refresh, setRefresh] = useState(false)

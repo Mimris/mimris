@@ -83,10 +83,8 @@ const Palette = (props: any) => {
   return () => { isRendered = false; }
   }, [])
 
-  // if (mmodel?.name !== 'IRTV_MM')  taskNodeDataArray = ndarr
   
   useEffect(() => { // -----------------------------------------------------------------------------
-
       if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask);
       taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
         ndarr?.find((i: { typename: any; }) => {
@@ -95,13 +93,11 @@ const Palette = (props: any) => {
       )
       seltasks = props.phFocus.focusRole?.tasks
       if (debug) console.log('151 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
-      
       const timer = setTimeout(() => {
         toggleRefreshPalette() 
       }, 1000);
       return () => clearTimeout(timer);
-
-  }, [props.phFocus.focusTask?.id, ofilter])
+  }, [props.phFocus.focusTask?.id])
 
   // break if no model
   if (!props.gojsModel) return null;
@@ -166,7 +162,7 @@ const Palette = (props: any) => {
   // const oNodeDataArray = nodeArray_all
   // const oNodeDataArray = ofilteredArr
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
-  
+
   if (!debug) console.log('165 Palette gojsobjects', filteredOtNodeDataArray, gojsobjects.nodeDataArray);
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
@@ -178,8 +174,6 @@ const Palette = (props: any) => {
   // let selectTaskDiv = (seltasks && mmodel.name === 'IRTV_MM') 
   let selectTaskDiv = 
     <>
-      {/* <span onClick={genroletasks} className="btn btn-sm btn-primary">Set Role Task filter</span> */}
-      {/* <details><summary markdown="span">Task <code>(Typefilter)</code></summary> */}
       <details><summary markdown="span"  >Modelling Task : </summary>
         <div className="seltask w-100">
           <Selector type='SET_FOCUS_TASK' selArray={seltasks} selName='Task' focusTask={focusTask} focustype='focusTask'  refresh={refresh} setRefresh={setRefresh} />
@@ -213,54 +207,37 @@ const Palette = (props: any) => {
           {/* TYPES this is the tab for Objecttypes */}
           <TabPane tabId="1">
             <div className="workpad p-1 pt-2 bg-white" >
-              {/* <Row >
-                <Col xs="auto ml-3 mr-0 pr-0 pl-0"> */}
-                  {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
-                  <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
-                  <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div>
-                  {/* {selectedMMDiv} */}
-                  < GoJSPaletteApp
-                    // nodeDataArray={ndarr}
-                    nodeDataArray={filteredOtNodeDataArray}
-                    linkDataArray={[]}
-                    // linkDataArray={gojstypes.linkDataArray}
-                    metis={props.metis}
-                    myMetis={props.myMetis}
-                    myGoModel={props.myGoModel}
-                    phFocus={props.phFocus}
-                    dispatch={props.dispatch}
-                  />
-                {/* </Col>
-              </Row> */}
+                <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{mmnamediv}</div>
+                <div className="mmtask mx-0 px-1 mb-1 " style={{fontSize: "16px", minWidth: "212px", maxWidth: "212px"}}>{selectTaskDiv}</div>
+                {/* {selectedMMDiv} */}
+                < GoJSPaletteApp
+                  nodeDataArray={filteredOtNodeDataArray}
+                  linkDataArray={[]}
+                  metis={props.metis}
+                  myMetis={props.myMetis}
+                  myGoModel={props.myGoModel}
+                  phFocus={props.phFocus}
+                  dispatch={props.dispatch}
+                />
               </div>
-            {/* </div> */}
           </TabPane>
           {/* OBJECTS  this is the tab for Object instances*/}
           <TabPane tabId="2">
             <div className="workpad p-1 pt-2 bg-white">
-              {/* <Row >
-                <Col xs="auto m-0 p-0 pl-3"> */}
-                  {/* <div className="myPalette pl-1 mb-1 pt-2 text-white" style={{ maxWidth: "150px", minHeight: "8vh", height: "100%", marginRight: "2px", backgroundColor: "#999", border: "solid 1px black" }}> */}
-                  {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "11px", minWidth: "156px", maxWidth: "160px"}}>{mnamediv}</div> */}
-                    {selectedObjDiv}
-                    < GoJSPaletteApp
-                      nodeDataArray={gojsobjects?.nodeDataArray}
-                      linkDataArray={[]}
-                      // linkDataArray={gojstypes.linkDataArray}
-                      metis={props.metis}
-                      myMetis={props.myMetis}
-                      myGoModel={props.myGoModel}
-                      phFocus={props.phFocus}
-                      dispatch={props.dispatch}
-                    />
-                  {/* </div> */}
-                {/* </Col>
-              </Row> */}
+              {selectedObjDiv}
+              < GoJSPaletteApp
+                nodeDataArray={gojsobjects?.nodeDataArray}
+                linkDataArray={[]}
+                metis={props.metis}
+                myMetis={props.myMetis}
+                myGoModel={props.myGoModel}
+                phFocus={props.phFocus}
+                dispatch={props.dispatch}
+              />
             </div>
           </TabPane>
         </TabContent>
       </>
-  
 
    const palette = // this is the left pane with the palette and toggle for refreshing
       <> 

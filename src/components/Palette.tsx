@@ -62,7 +62,7 @@ const Palette = (props: any) => {
   //rearrange sequence
   let ndarr = props.gojsMetamodel?.nodeDataArray
 
-  if (debug) console.log('119 propsMetamodel', model?.name, mmodel?.name, ndarr);
+  if (!debug) console.log('65 propsMetamodel', model?.name, mmodel?.name, ndarr);
 
   let taskNodeDataArray: any[] = ndarr
 
@@ -107,7 +107,7 @@ const Palette = (props: any) => {
   if (!props.gojsModel) return null;
   if (!props.gojsMetamodel) return null;
   
-  if (!debug) clog('103 Palette', props , seltasks, taskNodeDataArray);
+  if (debug) clog('103 Palette', props , seltasks, taskNodeDataArray, ndarr);
   
 
   let filteredOtNodeDataArray = (!taskNodeDataArray) ? ndarr : (!taskNodeDataArray[0]) ? ndarr : taskNodeDataArray    
@@ -118,9 +118,13 @@ const Palette = (props: any) => {
   // Show all the objects in this model
   // const gojsmodelObjects = props.gojsModelObjects
 
-  //rearrange sequence
+  // Hack: if viewkind === 'Container' then set isGroup to true
   let objArr = props.gojsModelObjects?.nodeDataArray
-
+  for (let i = 0; i < objArr?.length; i++) {
+    if (objArr[i]?.viewkind === 'Container') {
+      objArr[i].isGroup = true;
+    }
+  }
 
   // let objArr = props.myMetis.gojsModel?.model.objects
 

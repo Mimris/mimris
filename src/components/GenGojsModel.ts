@@ -339,7 +339,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         //   console.log('206 Container', obj, objview, objtype);
         // }
         const node = new gjs.goObjectNode(utils.createGuid(), objview);
-        if (debug) console.log('337 node, objview:', node, objview);
+        if (!debug) console.log('337 node, objview, objtype:', node, objview, objtype);
         node.isGroup = objtype?.isContainer();
         node.category = constants.gojs.C_OBJECT;
         const viewdata: any = typeview?.data;

@@ -72,7 +72,7 @@ const Navbar = (props) => {
 							href="mailto:snorre.fossland@kavca.no?cc=frank.lillehagen@kavca.no&subject=More info about how to progress with AKM Modeller and access to more templates and examples.&body=Hi, Please send me more info about: xxxxxx.     My Name is: xxxxxx, Email: xxxxx, Phone: 99999999. "
 							target="_blank"
 						> 
-							E-mail for more info<FaEnvelope style={{ width: "30px",  verticalAlign: "middle" }} />
+							<FaEnvelope style={{ width: "30px",  verticalAlign: "middle" }} />More info
 						</a>
 					</li>
 					{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>

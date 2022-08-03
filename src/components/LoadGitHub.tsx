@@ -3,7 +3,7 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'rea
 import { useDispatch } from 'react-redux'
 import base64 from 'base-64';
 
-import  Search  from './Search';
+// import  Search  from './Search';
 import TextInput from './utils/TextInput';
 import Select from './utils/Select';
 import { searchRepos, searchModels, searchModel } from './services/githubService';
@@ -16,9 +16,11 @@ const LoadGitHub = (props: any) => {
   // console.log('11', props)
   // const models = props.ph.phData.mtis
   const username = 'SnorreFossland'
-  const url = `https://api.github.com/users/${username}/repos/akm-start-models`
-  const repository = 'akm-start-models'
-  const path = 'StartupModels'
+  const url = `https://api.github.com/users/${username}/repos`
+  const repository = 'akmmclient'
+  // const repository = 'akm-start-models'
+  const path = 'src/startupModels'
+  // const path = 'StartupModels'
   // console.log('26 url', url)
 
   const [searchText, setSearchText] = useState('');
@@ -85,11 +87,11 @@ const LoadGitHub = (props: any) => {
 
   const loadRepos = async (repository, pathText) => {
     setLoading(true);
-    if (debug) console.log('76 loadRepos', repository, pathText)
+    if (!debug) console.log('76 loadRepos', repository, repositoryText, pathText)
     const res = await searchRepos(repositoryText, model);
     setLoading(false);
     setRepos(res.data.items);
-    // console.log('58', res.data.items)
+    console.log('58', res.data.items, res)
     if (debug) console.log('80', urlText, pathText, repositoryText, res.data, res.data.items, res)
     // loadModels(repository, pathText);
   };
@@ -129,12 +131,12 @@ const LoadGitHub = (props: any) => {
         label: mod.name
       }
     })
-    const modeloptions = [{value: '', label: 'Select Repp...'}, ...modeloptionss]
+    const modeloptions = [{value: '', label: 'Select Model...'}, ...modeloptionss]
 
 
   return  (
     <>
-      <span><button className="btn-context btn-secondary" onClick={toggle}>{buttonLabel}</button>
+      <span><button className="btn btn-success text-white m-0 p-1" onClick={toggle}>{buttonLabel}</button>
       </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}>GitHub repo</ModalHeader>
@@ -142,7 +144,7 @@ const LoadGitHub = (props: any) => {
         <div>
           {/* Repository url: <strong> {url} </strong> */}
           <TextInput
-            label="Repo url"
+            label="Repository URL:"
             value={urlText}
             onChange={(value) => onUrlChange(value)}
             placeholder="Repository Url:"
@@ -153,14 +155,19 @@ const LoadGitHub = (props: any) => {
                 <li key={repo.id} >{repo.name}</li>
               ))} </div> 
               : 'No repos found!'}
-            <hr />
+            <hr className="bg-primary" />
           <TextInput 
             label="Model path"
             value={pathText}
             onChange={(value) => onPathChange(value)}
             placeholder="Path to models"
           />
-          <button onClick = {() => loadModels(repositoryText, pathText)}>Load Models</button>
+            <hr className="bg-primary" />
+          <Button className="btn-primary text-black border-primary w-75 float-right mb-2 pb-0" onClick = {() => loadModels(repositoryText, pathText)}>Load Models</Button>
+            <div>Models found!</div>
+            <hr className="bg-primary" />
+
+          
           <Select
             label="Select model "
             value={(models) ? modeloptions[0] : 'no models'}
@@ -168,7 +175,7 @@ const LoadGitHub = (props: any) => {
             onChange={(value) => onModelChange(value)}
           />
           {loading ? 'Loading...' : (models?.length > 0) 
-            ? <div>Models found: 
+            ? <div>
               {models?.map((mod) => (
                 <li key={mod.id} >{mod.name}</li>
               ))} </div> 

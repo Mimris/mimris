@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
+import base64 from 'base-64';
 
 import  Search  from './Search';
 import TextInput from './utils/TextInput';
@@ -8,9 +9,10 @@ import Select from './utils/Select';
 import { searchRepos, searchModels, searchModel } from './services/githubService';
 import { loadDataModel } from '../actions/actions';
 
+const debug = false
 
 const LoadGitHub = (props: any) => {
-
+  const dispatch = useDispatch();
   // console.log('11', props)
   // const models = props.ph.phData.mtis
   const username = 'SnorreFossland'
@@ -38,6 +40,7 @@ const LoadGitHub = (props: any) => {
     setUrlText(text);
     loadRepos(text, model);
   };
+
   const onPathChange = (text) => {
     setPathText(text);
     // loadRepos(text, model);
@@ -46,32 +49,34 @@ const LoadGitHub = (props: any) => {
 
   const onModelChange = (modelName) => {
     const rep = `repos/${username}/${repository}/contents/${pathText}`;
-    const path = `${pathText}/${modelName}/content`;
+    const path = `/${modelName}`;
     loadModel(rep, path);
-    console.log('52', rep, path, )
+    if (debug) console.log('52', rep, path, )
   }
 
   const loadModel = async (rep, path) => {
     setLoading(true);
-    const res = await searchModel(rep, path)
+    const searchtext = `${rep}${path}`;
+    const res = await searchModel(searchtext, '')
+    const content = res.data.content
+    const model = JSON.parse(base64.decode(content));
+    if (debug) console.log('60', model)
     setLoading(false);
 
-    // const onModelChange = (modelName) => {
-    //   const model = ;
-    //   console.log('53 onModelChange', modelName, model)
+    if (debug) console.log('53 onModelChange', model)
       
-    //   const data = {
-    //     phData:   model.phData,
-    //     phFocus:  model.phFocus,
-    //     phUser:   model.phUser,
-    //     phSource: model.phSource,
-    //   }
+      const data = {
+        phData:   model.phData,
+        phFocus:  model.phFocus,
+        phUser:   model.phUser,
+        phSource: model.phSource,
+      }
 
-    //   if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-    //   if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-    //   if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-    //   if (data.phSource)  props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
-    // };
+      if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+      if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+      if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+      if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+   
   }
   const onRepoChange = (model) => {
     setModel(model);
@@ -80,12 +85,12 @@ const LoadGitHub = (props: any) => {
 
   const loadRepos = async (repository, pathText) => {
     setLoading(true);
-    console.log('76 loadRepos', repository, pathText)
+    if (debug) console.log('76 loadRepos', repository, pathText)
     const res = await searchRepos(repositoryText, model);
     setLoading(false);
     setRepos(res.data.items);
     // console.log('58', res.data.items)
-    console.log('80', urlText, pathText, repositoryText, res.data, res.data.items, res)
+    if (debug) console.log('80', urlText, pathText, repositoryText, res.data, res.data.items, res)
     // loadModels(repository, pathText);
   };
 
@@ -93,23 +98,24 @@ const LoadGitHub = (props: any) => {
     setLoading(true);
     const rep = `repos/${username}/${repository}/contents/${pathText}`;
     const path = `${pathText}`
-    console.log('72', repository, path, rep )
+    if (debug) console.log('72', repository, path, rep )
     const res = await searchModels(rep, path);
-    console.log('74',  res.data, res)
+    if (debug) console.log('74',  res.data, res)
     // console.log('58', urlText, pathText, res.data, res.data.items, res)
     setLoading(false);
     setModels(res.data);
   };
 
-  
-
   useEffect(() => {
     setUrlText(url);
     setPathText(path);
     setRepositoryText(repository);
-    loadRepos(repositoryText, '');
+    // const timer = setTimeout(() => {
+      loadRepos(repositoryText, pathText);
+    // }, 1000);
+    // return () => clearTimeout(timer);
     // loadModels(repository, pathText);
-  }, []);
+  }, [(modal)]);
 
   // useEffect(() => {
   //   setModels()

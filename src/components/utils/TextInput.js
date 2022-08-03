@@ -3,7 +3,7 @@ const TextInput = ({ label, value, onChange, placeholder }) => {
   return (
     <div>
       {label}
-      <input
+      <input className="w-100"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

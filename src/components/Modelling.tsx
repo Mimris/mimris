@@ -38,7 +38,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 const page = (props:any) => {
 
   if (typeof window === 'undefined') return <></>
-  if (!debug) clog('40 Modelling:', props);
+  if (debug) clog('40 Modelling:', props);
 
   const dispatch = useDispatch();
   const [mount, setMount] = useState(false)
@@ -98,7 +98,7 @@ const page = (props:any) => {
   if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
 
   useEffect(() => {
-    if (!debug) console.log('99 Modelling useEffect', props); 
+    if (debug) console.log('99 Modelling useEffect', props); 
     const data = {
       phData: props.phData,
       phFocus: props.phFocus,
@@ -118,7 +118,7 @@ const page = (props:any) => {
   }, [focusModelview?.id, focusModel?.id, props.phFocus.focusTargetMetamodel?.id, curmod])
 
   useEffect(() => {
-    if (!debug) console.log('121 Modelling useEffect', props, memoryLocState); 
+    if (debug) console.log('121 Modelling useEffect', props, memoryLocState); 
     const currentdata = {
       phData: props.phData,
       phFocus: props.phFocus,
@@ -193,7 +193,7 @@ const page = (props:any) => {
 
   // ===================================================================
   // Divs
-  console.log('Modelling: gojsmodel', gojsmodelobjects);
+  if (debug) console.log('Modelling: gojsmodel', gojsmodelobjects);
   const paletteDiv = (gojsmetamodelmodel) // this is the div for the palette with the types tab and the objects tab
     ?
       <Palette

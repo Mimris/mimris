@@ -3,16 +3,22 @@ import Select from './utils/Select';
 
 
 const Search = (props) => {
-  const { model, searchText, onSearchTextChange, onModelChange } = props;
+  const { path, searchText, onSearchTextChange, onPathChange } = props;
 
   // const modeloptions = [{value: '', label: 'All'}, ...models]
   return (
     <div>
+      <TextInput 
+        label="Repo uri"
+        value={path}
+        onChange={(value) => onPathChange(value)}
+        placeholder="Search for a repo"
+      />
       <TextInput
-        label="Repo Search"
+        label="Repo path"
         value={searchText}
         onChange={(value) => onSearchTextChange(value)}
-        placeholder="Search for a repo"
+        placeholder="Path to a repo"
       />
       {/* <Select
         label="model"

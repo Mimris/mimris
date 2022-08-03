@@ -187,7 +187,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
             setRefresh(!refresh)
           }, 1000);
           if (debug) console.log('187 after refresh: data', data);
-          return;
+          return () => clearTimeout(timer);
         }
       }
       if (debug) console.log('191 ', activeTab, activetabindex)

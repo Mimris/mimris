@@ -45,29 +45,34 @@ const LoadGitHub = (props: any) => {
 
 
   const onModelChange = (modelName) => {
-    setLoading(true);
     const rep = `repos/${username}/${repository}/contents/${pathText}`;
     const path = `${pathText}/${modelName}/content`;
-    const res = searchModel(rep, path);
-    console.log('52', rep, path, res)
+    loadModel(rep, path);
+    console.log('52', rep, path, )
   }
-  // const onModelChange = (modelName) => {
-  //   const model = ;
-  //   console.log('53 onModelChange', modelName, model)
-    
-  //   const data = {
-  //     phData:   model.phData,
-  //     phFocus:  model.phFocus,
-  //     phUser:   model.phUser,
-  //     phSource: model.phSource,
-  //   }
 
-  //   if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-  //   if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-  //   if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-  //   if (data.phSource)  props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
-  // };
+  const loadModel = async (rep, path) => {
+    setLoading(true);
+    const res = await searchModel(rep, path)
+    setLoading(false);
 
+    // const onModelChange = (modelName) => {
+    //   const model = ;
+    //   console.log('53 onModelChange', modelName, model)
+      
+    //   const data = {
+    //     phData:   model.phData,
+    //     phFocus:  model.phFocus,
+    //     phUser:   model.phUser,
+    //     phSource: model.phSource,
+    //   }
+
+    //   if (data.phData)    props.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+    //   if (data.phFocus)   props.dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+    //   if (data.phUser)    props.dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+    //   if (data.phSource)  props.dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+    // };
+  }
   const onRepoChange = (model) => {
     setModel(model);
     loadRepos(searchText, model);

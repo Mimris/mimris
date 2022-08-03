@@ -16,9 +16,12 @@ async function axiosGetCancellable(url, config) {
 
   try {
     const res = await axios.get(url, cancelConfig);
+    console.log('19 axiosGetCancellable: res:', res);
     return res;
   } catch (error) {
-    if (error.message !== 'canceled') {
+    console.log('22 axiosGetCancellable: error:', error);
+    // if (error.message !== 'canceled') {
+    if (error.message) {
       throw error;
     }
   }

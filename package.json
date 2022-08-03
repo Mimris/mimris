@@ -33,6 +33,7 @@
     "async-file": "^2.0.2",
     "aws-sdk": "^2.683.0",
     "axios": "^0.27.2",
+    "base-64": "^1.0.0",
     "bcryptjs": "^2.4.3",
     "bootstrap-icons": "^1.4.0",
     "cheerio": "^1.0.0-rc.5",
@@ -50,6 +51,7 @@
     "immer": "^6.0.8",
     "install": "^0.12.2",
     "isomorphic-unfetch": "^3.0.0",
+    "js-base64": "^3.7.2",
     "jsonwebtoken": "8.5.1",
     "marked": "^3.0.7",
     "matter": "^0.2.0",
@@ -83,6 +85,7 @@
     "rgb-hex": "^3.0.0",
     "save": "^2.4.0",
     "sqlite3": "^5.0.8",
+    "utf8": "^3.0.0",
     "webpack": "^4.0.0",
     "ws": "^7.3.0"
   },

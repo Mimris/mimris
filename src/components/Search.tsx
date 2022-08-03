@@ -5,7 +5,6 @@ import Select from './utils/Select';
 const Search = (props) => {
   const { path, searchText, onSearchTextChange, onPathChange } = props;
 
-  // const modeloptions = [{value: '', label: 'All'}, ...models]
   return (
     <div>
       <TextInput 
@@ -20,12 +19,12 @@ const Search = (props) => {
         onChange={(value) => onSearchTextChange(value)}
         placeholder="Path to a repo"
       />
-      {/* <Select
-        label="model"
-        value={model}
+      <Select
+        label="Model Select"
+        value={searchText}
         options={modeloptions}
         onChange={(value) => onModelChange(value)}
-      /> */}
+      />
     </div>
   );
 };

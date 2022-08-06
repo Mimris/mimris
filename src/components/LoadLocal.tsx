@@ -98,11 +98,7 @@ const LoadLocal = (props: any) => {
   //       />
   //     </div>
 
-<<<<<<< Updated upstream
   const optionsMemory = memoryState[0]?.phData.metis.models.map(o => o && {'label': o.name, 'value': o.id});
-=======
-  const optionsMemory = memoryState?.phData?.metis.models.map(o => o && {'label': o.name, 'value': o.id});
->>>>>>> Stashed changes
   if (debug) console.log('61 LoadLocal', optionsMemory);
   
   let loadSelectedFromMemoryStoreDiv = <></>

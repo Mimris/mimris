@@ -9,6 +9,7 @@ const toHex = require('colornames');
 const convert = require('color-convert');
 const printf = require('printf');
 // import './Inspector.css';
+import * as akm from '../../../akmm/metamodeller';
 import * as uic from '../../../akmm/ui_common';
 import * as ui_mtd from '../../../akmm/ui_methods';
 import * as uit from '../../../akmm/ui_templates';
@@ -70,7 +71,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     } 
     let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
     let inst, inst1, instview, type, type1, typeview, objtypeview, reltypeview;
-    let item, chosenType, description, currentType, properties;
+    let item, chosenType, description, currentType, properties, pointerProps;
     if (myMetis.isAdminType(selObj?.type)) {
       inst = selObj;
       type = inst.type;
@@ -169,9 +170,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('167 chosenType', chosenType);
         if (chosenType) {
           properties = chosenType.getProperties(false);
-          if (debug) console.log('172 chosenType, properties', chosenType, properties);
+          // if (debug) console.log('172 chosenType, properties', chosenType, properties);
+          // pointerProps = chosenType.getPointerProperties(false);
         } 
-        else if (type.name === 'Method') {
+        else if (type?.name === 'Method') {
           inst = myMetis.findObject(inst.id);
           properties = inst.setAndGetAllProperties(myMetis);
         } else {
@@ -218,7 +220,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
       case "editObject":
         item = inst;
-        if (type.name === 'Label')
+        if (type?.name === 'Label')
           isLabel = true;
         break;
       case "editRelationshipType":
@@ -231,14 +233,15 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       case "editRelshipview":
       case "editTypeview":
         if (selObj.category === constants.gojs.C_RELATIONSHIP) {
-          item = reltypeview.data;
+          item = reltypeview?.data;
         } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
-          item = reltypeview.data;
+          item = reltypeview?.data;
         } else if (selObj.category === constants.gojs.C_OBJECT) {
-          item = objtypeview.data;
+          item = objtypeview?.data;
         } else if (selObj.category === constants.gojs.C_OBJECTTYPE) {
-          item = objtypeview.data;
+          item = objtypeview?.data;
         }
+        if (!item) item = inst;
         hideNameAndDescr = true;
         if (debug) console.log('219 inst, item', inst, item);
         if (what === "editObjectview")
@@ -252,6 +255,25 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     }
     if (debug) console.log('253 myMetis', myMetis);
     if (debug) console.log('249 inst, selObj, type', inst, selObj, type);
+
+    // // Check if item has pointer properties
+    // const pvalues = [];
+    // for (let j= 0; j<pointerProps?.length; j++) {
+    //   const prop = pointerProps[j];
+    //   const dtype = prop.getDatatype() as akm.cxDatatype;
+    //   if (dtype) {
+    //     const ptype = dtype.getPointerType();
+    //     const pcrit = dtype.getPointerCriteria();
+    //     // Search for the instances of the pointer type
+    //     const pinstances = myModel.getObjectsByType(ptype, true);
+    //     for (let k=0; k<pinstances?.length; k++) {
+    //       const pinst = pinstances[k];
+    //       pvalues.push(pinst.getName());
+    //     }
+    //   }
+    // }
+    // if (debug) console.log('278 pvalues', pvalues);
+    
     for (let k in item) {
       // Filter some system attributes
       {
@@ -260,8 +282,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 continue;
         }      
         if (k === 'viewkind') {
-          if (what !== 'editObject' && what !== 'editObjectType' && 
-              what !== 'editObjectview' && what !== 'editTypeview')
+          if (what !== 'editObjectview' && what !== 'editTypeview')
             continue;
           if (isLabel)
             continue;
@@ -275,6 +296,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (k === 'text') {
           if (!isLabel)
             continue;
+        }
+        if (k === 'copiedFromId') {
+          continue;
         }
       }
       if (chosenType) {
@@ -498,24 +522,34 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   values = uit.getGroupTemplateNames();
                   defValue = '';
                   fieldType = 'radio';                
+                } else if (selObj.category === 'Relationship') {
+                  values = uit.getLinkTemplateNames();
+                  defValue = '';
+                  fieldType = 'radio';
                 } else {             
                   values = uit.getNodeTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
                 }
-              } else {
-                values = uit.getGroupTemplateNames();
-                defValue = '';
-                fieldType = 'radio';
               }
               break;
+            case 'figure':
+                if (selObj.category === 'Object') {
+                  values = uit.getFigureNames();
+                  defValue = '';
+                  fieldType = 'radio';
+                }
+                break;                
             case 'fromArrow':
-            case 'toArrow': {
               values = arrowheads;
               defValue = 'None';
               fieldType = 'select';
-            }
-            break;
+              break;
+            case 'toArrow': 
+              values = arrowheads;
+              defValue = 'OpenTriangle';
+              fieldType = 'select';
+              break;
             case 'fillcolor':
               if (!useFillColor) {
                 values = colornames;
@@ -544,7 +578,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
           }
         }
-        // Handle fieldtypes and viewformats
+          // Handle fieldtypes and viewformats
         {
           if (fieldType === 'checkbox') {
             checked = val;

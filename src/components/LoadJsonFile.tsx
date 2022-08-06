@@ -35,7 +35,8 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
           phData:   props.ph.phData,
           phFocus:  props.ph.phFocus,
           phUser:   props.ph.phUser,
-          phSource: 'localFile'
+          phSource: props.phSource,
+          lastUpdate: new Date().toISOString()
         }
     
     
@@ -218,7 +219,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
             </ModalBody>
             {/* <div className="ml-2">{emailDivMailto}</div> */}
             <ModalFooter>
-              <Button className="modal--footer m-0 py-1 px-2" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              <Button className="modal--footer m-0 py-0 px-2" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
                 title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
               </Button>
             </ModalFooter>

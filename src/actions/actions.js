@@ -15,6 +15,7 @@ import {
   SET_FOCUS_TAB,
   SET_FOCUS_MODEL, 
   SET_FOCUS_MODELVIEW,
+  SET_FOCUS_TARGETMETAMODEL,
   SET_FOCUS_TARGETMODEL, 
   SET_FOCUS_TARGETMODELVIEW,
   SET_FOCUS_OBJECT, 
@@ -186,6 +187,13 @@ export const setFocusModelview = (data) => {
   // console.log('21---', data.value);
   return {
     type: SET_FOCUS_MODELVIEW,
+    data: JSON.parse(data.value)
+  }
+}
+export const setFocusTargetMetamodel = (data) => {
+  // console.log('21---', data);
+  return {
+    type: SET_FOCUS_TARGETMETAMODEL,
     data: JSON.parse(data.value)
   }
 }

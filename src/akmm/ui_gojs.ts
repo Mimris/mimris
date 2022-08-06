@@ -336,6 +336,7 @@ export class goNode extends goMetaObject {
     memberscale:     string;
     strokecolor:     string;
     fillcolor:       string;
+    viewkind:        string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
         super(key);
@@ -348,6 +349,7 @@ export class goNode extends goMetaObject {
         this.memberscale = "";
         this.strokecolor = "";
         this.fillcolor = "";
+        this.viewkind = "";
         this.markedAsDeleted = false;
     }
     // Methods
@@ -369,6 +371,12 @@ export class goNode extends goMetaObject {
     getScale(): string {
         return this.scale1;
     }
+    setViewkind(kind: string) {
+        this.viewkind = kind;
+    }
+    getViewkind(): string {
+        return this.viewkind;
+    }
 }
 
 export class goObjectNode extends goNode {
@@ -379,6 +387,7 @@ export class goObjectNode extends goNode {
     typename: string;
     typeview: akm.cxObjectTypeView | null;
     template: string;
+    figure: string;
     geometry: string;
     fillcolor: string;
     strokecolor: string;
@@ -398,6 +407,7 @@ export class goObjectNode extends goNode {
         this.objecttype     = null;
         this.typename       = "";
         this.template       = objview.template;
+        this.figure         = objview.figure;
         this.geometry       = objview.geometry;
         this.fillcolor      = objview.fillcolor;
         this.strokecolor    = objview.strokecolor;
@@ -426,11 +436,14 @@ export class goObjectNode extends goNode {
                     this.typename = "";
                     //this.type = "";
                 }
-
             }
             this.typeview = objview.getTypeView();
-            this.template = this.typeview.template;
-            this.geometry = this.typeview.geometry;
+            if (!this.template)
+                this.template = this.typeview?.template;
+                if (!this.geometry)
+                this.geometry = this.typeview?.geometry;
+            if (!this.figure)
+                this.figure = this.typeview?.figure;
         }
     }
     // Methods
@@ -449,6 +462,12 @@ export class goObjectNode extends goNode {
                 for (let prop in viewdata) {
                     if (objview[prop] && objview[prop] !== "") {
                         this[prop] = objview[prop];
+                    }
+                    if (prop === 'scale1') {
+                        if (objview.scale1 === "") {
+                            this[prop] = "1";
+                        }
+                        this[prop] = Number(this[prop]);
                     }
                 }
                 // Handle groups
@@ -652,10 +671,7 @@ export class goObjectTypeNode extends goNode {
                 this.addData(data);
                 this.setName(objtype.getName());
                 this.setType(constants.gojs.C_OBJECTTYPE);
-                // if (!metamodel) {
-                //     let model = this.parentModel;
-                //     metamodel = model ? model.metamodel : null;
-                // }
+                this.setViewkind(objtype.getViewKind());
                 if (metamodel) {
                     let loc = objtype.getLoc(metamodel)
                     this.setLoc(loc);
@@ -663,7 +679,7 @@ export class goObjectTypeNode extends goNode {
                     this.setSize(size);
                 }
             }
-            if (debug) console.log('455 loadNodeContent', this);
+            if (debug) console.log('671 loadNodeContent', this);
             return true;
         }
         return false;
@@ -734,7 +750,7 @@ export class goRelshipLink extends goLink {
         this.toNode          = null;
         this.from            = "";
         this.to              = "";
-        this.template        = "";
+        this.template        = relview?.template;
         this.textscale       = relview?.textscale;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
@@ -896,6 +912,9 @@ export class goRelshipTypeLink extends goLink {
     cardinalityTo: string;
     nameFrom:   string;
     nameTo:     string;
+    strokecolor: string;
+    routing:    string;
+    curve:      string;
     points:     any;
     constructor(key: string, model: goModel, reltype: akm.cxRelationshipType | null) {
         super(key, model);
@@ -1002,6 +1021,7 @@ export class paletteNode {
     description: string;
     isGroup: boolean;
     template: string;
+    figure: string;
     geometry: string;
     fillcolor: string;
     strokecolor: string;
@@ -1017,6 +1037,7 @@ export class paletteNode {
         this.description = description;
         this.isGroup = false;
         this.template = "";
+        this.figure = "";
         this.geometry = "";
         this.fillcolor = "lightyellow";
         this.strokecolor = "black";

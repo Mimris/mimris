@@ -77,6 +77,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       phFocus: this.props.phFocus,
       dispatch: this.props.dispatch,
       modelType: this.props.phFocus.focusTab,
+      showModal: false,
+      modalContext: null,
+      selectedOption: null
     };
     if (debug) console.log('76 this.state.linkDataArray: ',this.state.linkDataArray);
     this.handleDiagramEvent = this.handleDiagramEvent.bind(this);
@@ -96,6 +99,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   } 
 
   public handleSelectDropdownChange = (selected: any) => {
+    if (debug) console.log('99 handleCloseModal');
     const myMetis = this.state.myMetis;
     const context = {
       "myMetis":      myMetis,
@@ -110,6 +114,7 @@ class GoJSApp extends React.Component<{}, AppState> {
   }
 
   public handleCloseModal(e) {
+    if (debug) console.log('113 handleCloseModal');
     const props = this.props;
     const modalContext = this.state.modalContext;
     let typename = modalContext.selected?.value;
@@ -117,6 +122,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('113 typename: ', typename);
     const myDiagram = modalContext.context?.myDiagram;
     const data = modalContext.data;
+    if (debug) console.log('122 modalContext', modalContext);
     if (e === 'x') {
       if (myDiagram)
         myDiagram.model.removeLinkData(data);
@@ -140,7 +146,7 @@ class GoJSApp extends React.Component<{}, AppState> {
 
     /**
      * Handle GoJS model changes, which output an object of data changes via Model.toIncrementalData.
-     * This method should iterates over those changes and update state to keep in sync with the GoJS model.
+     * This method should iterate over those changes and update state to keep in sync with the GoJS model.
      * This can be done via setState in React or another preferred state management method.
      * @param obj a JSON-formatted string
      */
@@ -199,8 +205,6 @@ class GoJSApp extends React.Component<{}, AppState> {
    * @param e a GoJS DiagramEvent
    */
   public handleDiagramEvent(e: go.DiagramEvent) {
-    if (debug) console.log('202 this.state', this.state);
-    this.state.selectedData = e.subject?.part?.data;
     const dispatch = this.state.dispatch;
     const name = e.name;
     const myDiagram = e.diagram;
@@ -220,7 +224,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     const nodes = new Array();
     const nods = myGoMetamodel?.nodes;
     for (let i=0; i<nods?.length; i++) {
-      const node = nods[i];
+      const node = nods[i] as gjs.goObjectTypeNode;
       const objtype = node.objecttype;
       if (objtype.abstract) continue;
       if (objtype.markedAsDeleted)  continue;
@@ -260,7 +264,12 @@ class GoJSApp extends React.Component<{}, AppState> {
       "myDiagram":        myDiagram,
       "dispatch":         dispatch,
       "pasted":           pasted,
-      "done":             done
+      "done":             done,
+      "handleOpenModal":  this.handleOpenModal,
+      "modifiedLinks":    null,
+      "modifiedRelships": null,
+      "modifiedTypeLinks": null,
+      "modifiedLinkTypeViews": null,
     }
     if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
@@ -328,7 +337,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                     let node = myGoModel.findNodeByViewId(objview?.id);
                     if (node) {
                       if (debug) console.log('330 node', node);
-                      const n = myDiagram.findNodeForKey(node.key)
+                      const n = myDiagram.findNodeForKey(node.key) as any;
                       if (n) node = n;
                       myDiagram.model?.setDataProperty(node.data, "name", myNode.name);
                       const jsnObjview = new jsn.jsnObjectView(objview);
@@ -439,9 +448,10 @@ class GoJSApp extends React.Component<{}, AppState> {
         const myToNodes  = [];
         for (let it = selection.iterator; it?.next();) {
             let n = it.value;
+            const key = n.key;
             const myLoc = new String(n.data.loc);
             if (!(n instanceof go.Node)) continue;
-            const nod = myGoModel.findNode(n.key);
+            const nod = myGoModel.findNode(key);
             if (nod) {
               let newScale = new String(n.data.scale1);
               if (debug) console.log('447 n.data, nod, myScale', n.data, nod, newScale);
@@ -488,6 +498,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           }
           else // Object
           {
+            if (debug) console.log('501 data', data);
             const myModelview = context.myModelview;
             const myObjectviews = [];
             for (let i=0; i<myModelview.objectviews.length; i++) {
@@ -500,8 +511,6 @@ class GoJSApp extends React.Component<{}, AppState> {
             }
             if (debug) console.log('501 myObjectviews', myObjectviews);    
             // The object moved
-            const myNode = myGoModel.findNode(data.key);
-            myNode.loc = data.loc;
             let fromloc, fromNode;
             for (let j=0; j<myFromNodes.length; j++) {
                 const fnode = myFromNodes[j];
@@ -520,14 +529,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                   break;
                 }
             }
-            if (debug) console.log('523 myNode, fromloc, toloc, toNode', data, fromloc, toloc, toNode);
-            let node;
+            if (debug) console.log('523 data, fromloc, toloc, toNode', data, fromloc, toloc, toNode);
+            // Object moved
+            const key = data.key;
+            if (debug) console.log('527 selcnt, data', selcnt, data);
+            let node = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedNodes) as gjs.goObjectNode;
             node = goModel?.findNode(data.key);
             if (node) {
               node.scale1 = node.getMyScale(myGoModel);
-              if (debug) console.log('528 node, node.scale1', node, node.scale1);
+              if (debug) console.log('532 node, node.scale1', node, node.scale1);
               const group = uic.getGroupByLocation(myGoModel, node.loc);
-              if (debug) console.log('530 selcnt, group, node', selcnt, group, node);
+              if (debug) console.log('534 selcnt, group, node', selcnt, group, node);
               if (group) { // node IS moved into a group or moved INSIDE a group
                   const parentgroup = group;
                   node.group = parentgroup.key;
@@ -579,15 +591,17 @@ class GoJSApp extends React.Component<{}, AppState> {
                       // if (debug) console.log('463 parentgroup, node, subNodes', parentgroup, node, subNodes);
                   }
               } else { // node is NOT moved into a group, possibly out of a group
+                  node.group = "";
                   let fromScale = fromNode.scale; 
-                  let toScale  =  new String("1");
+                  let toScale  =  1;
                   let scaleFactor = fromScale > toScale ? fromScale / toScale : toScale / fromScale;
-                  myDiagram.model.setDataProperty(data, "group", node.group);
+                  myDiagram.model.setDataProperty(node.data, "group", node.group);
                   if (node.isGroup) {
                       // The node itself is a group, do not scale the group members
                       node.scale1 = 1;
                       node.group = "";
                       node.memberscale = node.typeview.memberscale;
+                      myDiagram.model.setDataProperty(node, "scale", Number(node.scale1));
                       const nodes = uic.getNodesInGroup(node, myGoModel, myObjectviews);
                       let refloc = node.loc;
                       if (debug) console.log('593 node, nodes, scaleFactor, refloc', node, nodes, scaleFactor, refloc);
@@ -622,12 +636,12 @@ class GoJSApp extends React.Component<{}, AppState> {
                                   let loc = nodeloc.x + " " + nodeloc.y;
                                   n.loc = loc;
                                   toNode.loc = new String(loc);
-                                  n.scale1 = toScale.valueOf();                  
-                                  let nod = myGoModel.findNodeByViewId(n.objectview.id);
+                                  n.scale1 = Number(toScale.valueOf());                  
+                                  let nod = myGoModel.findNodeByViewId(n.objectview.id) as any;
                                   if (nod) {
                                       nod = myDiagram.findNodeForKey(nod.key);
                                       nod.loc = loc;
-                                      nod.scale1 = toScale.valueOf();
+                                      nod.scale1 = Number(toScale.valueOf());
                                       myDiagram.model.setDataProperty(nod.data, "loc", loc);
                                     }
                                   if (debug) console.log('633 nod, loc', nod, loc);
@@ -637,15 +651,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                   } else {
                       // The node moved is NOT a group
                       if (debug) console.log('639 node, group', node, group);
-                      if (count<0) {
+                      let n = myDiagram.findNodeForKey(node.key);
+                      if (count<0) { // The reference node
                           count++;
                           rloc = node.loc;
-                          node.scale1 = toScale.valueOf();
-                          myDiagram.model.setDataProperty(node, "scale", node.scale1);
                           node.objectview.loc = node.loc;
                       } else {
                         if (debug) console.log('647 fromScale, toScale', fromScale, toScale);
-                        node.scale1 = toScale.valueOf();
                         if (debug) console.log('649 node, rloc, toloc, scaleFactor', node, rloc, toloc, scaleFactor);
                         const nodeloc = uic.scaleNodeLocation2(node, rloc, toloc, scaleFactor);
                         if (nodeloc) {
@@ -654,16 +666,19 @@ class GoJSApp extends React.Component<{}, AppState> {
                           node.loc = loc;
                           node.objectview.loc = toloc.valueOf();
                           if (debug) console.log('656 loc, scaleFactor, node', loc, scaleFactor, node);
-                          myDiagram.model.setDataProperty(node, "loc", loc);
-                          myDiagram.model.setDataProperty(node, "scale", node.scale1);
+                          myDiagram.model.setDataProperty(n.data, "loc", loc);
                         }
                         node.objectview.group = "";
                         if (debug) console.log('661 objectview, loc', node.objectview, node.loc);
                       }
-                  }
+                      node.scale1 = Number(toScale.valueOf());
+                      data.scale1 = node.scale1;
+                      myDiagram.model.setDataProperty(n, "scale", data.scale1);
+                      myDiagram.model.setDataProperty(n.data, "scale", data.scale1);
+                    }
               }            
-              if (debug) console.log('665 node, group,', node, group);
-              // Handle relviews
+              if (debug) console.log('665 node, data,', node, data);
+              // Handle relview scaling
               let n = myDiagram.findNodeForKey(node.key);
               if (n) {
                 for (let lit = n?.findLinksConnected(); lit?.next(); ) {
@@ -674,9 +689,13 @@ class GoJSApp extends React.Component<{}, AppState> {
                     let relview = link.data.relshipview;
                     if (relview) {
                       // Handle relview scaling
-                      const textscale = (group && group.scale1) ? group.scale1 * group.memberscale : "1";
-                      relview.textscale = textscale;
-                      uic.setLinkProperties(link, relview, myDiagram);
+                      if (group) {
+                        const grpScale = group.scale1;
+                        const grpMemberscale = group.memberscale;
+                        const textscale = (group && grpScale) ? grpScale * grpMemberscale : "1";
+                        relview.textscale = textscale;
+                        uic.setLinkProperties(link, relview, myDiagram);
+                      }
                       // Handle relview points
                       relview.points = link.points;
                       const jsnRelview = new jsn.jsnRelshipView(relview);
@@ -686,10 +705,10 @@ class GoJSApp extends React.Component<{}, AppState> {
                 }  
               }   
               if (debug) console.log('688 group, node, n', group, node, n);
-              if (n.data.group !== node.group)
+              if (n && n.data && n.data.group !== node.group)
                   myDiagram.model.setDataProperty(n.data, "group", node.group);
               myDiagram.model.setDataProperty(n.data, "loc", node.loc);
-              myDiagram.model.setDataProperty(n, "scale", node.scale1);
+              myDiagram.model.setDataProperty(n, "scale", Number(node.scale1));
               if (debug) console.log('693 myGoModel', myGoModel);
             }
 
@@ -749,7 +768,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('749 reltype', reltype);
             if (reltype) {
               // Check if reltype instances exist
-              const rels = myMetis.getRelationshipsByType(reltype);
+              const rels = myMetis.getRelationshipsByType(reltype, false);
               if (debug) console.log('753 reltype, rels, myMetis', reltype, rels, myMetis);
               if (rels.length > 0) {
                 if (renameTypes) {
@@ -766,7 +785,6 @@ class GoJSApp extends React.Component<{}, AppState> {
                     rel.markedAsDeleted = deletedFlag;
                     const jsnRel = new jsn.jsnRelationship(rel);
                     modifiedRelships.push(jsnRel);
-                    if (debug) console.log('769 jsnRel', jsnRel);
                   }
                 }
               }
@@ -788,7 +806,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const jsnReltype = new jsn.jsnRelationshipType(reltype, true);
               modifiedTypeLinks.push(jsnReltype);
               if (debug) console.log('790 modifiedTypeLinks', modifiedTypeLinks);
-              let reltypeview = reltype.typeview;
+              let reltypeview = reltype.typeview as akm.cxRelationshipTypeView;
               if (reltypeview) {
                   // reltypeview.markedAsDeleted = deletedFlag;
                   const jsnReltypeView = new jsn.jsnRelshipTypeView(reltypeview);
@@ -840,7 +858,7 @@ class GoJSApp extends React.Component<{}, AppState> {
               const jsnObjtype = new jsn.jsnObjectType(objtype, true);
               modifiedTypeNodes.push(jsnObjtype);
               if (debug) console.log('842 modifiedTypeNodes', modifiedTypeNodes);
-              let objtypeview = objtype.typeview;
+              let objtypeview = objtype.typeview as akm.cxObjectTypeView;
               if (objtypeview) {
                   objtypeview.markedAsDeleted = deletedFlag;
                   const jsnObjtypeView = new jsn.jsnObjectTypeView(objtypeview);
@@ -903,8 +921,8 @@ class GoJSApp extends React.Component<{}, AppState> {
               }
             }
           }
-          if (debug) console.log('906 myMetis', myMetis); 
         }
+        if (debug) console.log('906 myMetis', myMetis); 
       }
       break;
       case 'ExternalObjectsDropped': {
@@ -976,7 +994,6 @@ class GoJSApp extends React.Component<{}, AppState> {
       break;
       case "ObjectDoubleClicked": {
         let sel = e.subject.part;
-        this.state.selectedData = sel.data;
         const node = sel.data;
         if (debug) console.log('981 node', node);
         const category = node.category;
@@ -1003,6 +1020,12 @@ class GoJSApp extends React.Component<{}, AppState> {
         }
       }
       break;
+      case "ObjectContextClicked": {
+        const sel = e.subject.part;
+        const data = sel.data;
+        // console.log('1009 selected', data, sel);
+      }
+      break;
       case "PartResized": {
         const part = e.subject.part;
         const data = e.subject.part.data;
@@ -1021,7 +1044,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const toloc = myLoc.loc;
         if (debug) console.log('1022 data, myNode, fromNode, toNode', data, myNode, myLoc, myLoc);
          let node = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedNodes) as gjs.goObjectNode;
-         if (debug) console.log('1024 fromNode, toNode, node, modifiedNodes', myFromNode, myToNode, node, modifiedNodes);
+         if (debug) console.log('1024 node, modifiedNodes', node, modifiedNodes);
          const objview = node.objectview;
          if (objview) {
            objview.loc = data.loc;
@@ -1222,7 +1245,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         data.category = 'Relationship';
         context.handleOpenModal = this.handleOpenModal;
         uic.createRelationship(data, context);
-        if (debug) console.log('1225 data', data);
+        if (debug) console.log('1225 data, context', data, context);
       }
       myDiagram.requestUpdate();
     }
@@ -1249,8 +1272,9 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "LinkReshaped": {
-        const link = e.subject; 
-        const data = myDiagram.model?.findLinkDataForKey(link.key);
+        let link = e.subject; 
+        link = myDiagram.findLinkForKey(link.key);
+        const data = link.data;
         if (debug) console.log('996 data', data);
         let relview = data.relshipview;
         relview = myModelview.findRelationshipView(relview?.id);
@@ -1290,7 +1314,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = mn
         data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('877 UPDATE_OBJECTVIEW_PROPERTIES', data)
-        this.props?.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
       })
 
       if (debug) console.log('1296 modifiedTypeNodes', modifiedTypeNodes);
@@ -1298,14 +1322,14 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('900 UPDATE_OBJECTTYPE_PROPERTIES', data)
-        this.props?.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
 
       if (debug) console.log('1304 modifiedTypeViews', modifiedTypeViews);
       modifiedTypeViews?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
         if (debug) console.log('892 data', data);
       })
 
@@ -1313,28 +1337,28 @@ class GoJSApp extends React.Component<{}, AppState> {
       modifiedTypeGeos?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_OBJECTTYPEGEOS_PROPERTIES', data })
       })
 
       if (debug) console.log('1319 modifiedLinks', modifiedLinks);
       modifiedLinks.map(mn => {
         let data = mn
         data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })
 
       if (debug) console.log('1326 modifiedLinkTypes', modifiedLinkTypes);
       modifiedTypeLinks?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
 
       // if (debug) console.log('1333 modifiedLinkTypeViews', modifiedLinkTypeViews);
       modifiedLinkTypeViews?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
-        this.props?.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_RELSHIPTYPEVIEW_PROPERTIES', data })
       })
 
       if (debug) console.log('968 modifiedObjects', modifiedObjects);
@@ -1342,7 +1366,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('938 UPDATE_OBJECT_PROPERTIES', data)
-        this.props?.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_OBJECT_PROPERTIES', data })
       })
 
       if (debug) console.log('1348 modifiedRelships', modifiedRelships);
@@ -1350,35 +1374,13 @@ class GoJSApp extends React.Component<{}, AppState> {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
         if (debug) console.log('945 data', data);
-        this.props?.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
+        context.dispatch({ type: 'UPDATE_RELSHIP_PROPERTIES', data })
       })
-      // This should be used to set several views  in focus
-      // if (debug) console.log('982 selectedObjectViews', selectedObjectViews);
-      // selectedObjectViews?.map(mn => {
-      //   let data = (mn) && { id: mn.id, name: mn.name }
-      //   data = JSON.parse(JSON.stringify(data));
-      //   this.props?.dispatch({ type: 'SET_FOCUS_OBJECTVIEW', data })
-      // })
-
-      // if (debug) console.log('988 selectedRelshipViews', selectedRelshipViews);
-      // selectedRelshipViews?.map(mn => {
-      //   let data = (mn) && { id: mn.id, name: mn.name }
-      //   data = JSON.parse(JSON.stringify(data));
-      //   this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPVIEW', data })
-      // })
-
-      // if (debug) console.log('994 selectedObjectTypes', selectedObjectTypes);
-      // selectedObjectTypes?.map(mn => {
-      //   let data = (mn) && { id: mn.id, name: mn.name }
-      //   data = JSON.parse(JSON.stringify(data));
-      //   this.props?.dispatch({ type: 'SET_FOCUS_OBJECTTYPE', data })
-      // })
-      // if (debug) console.log('999 selectedRelationshipTypes', selectedRelationshipTypes);
-      // selectedRelationshipTypes?.map(mn => {
-      //   let data = (mn) && { id: mn.id, name: mn.name }
-      //   data = JSON.parse(JSON.stringify(data));
-      //   this.props?.dispatch({ type: 'SET_FOCUS_RELSHIPTYPE', data })
-      // })
+    } else {
+      const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+      let data = {metis: jsnMetis}
+      data = JSON.parse(JSON.stringify(data));
+      myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })       
     }
     if (debug) console.log('1383 myMetis', myMetis);
   }
@@ -1389,7 +1391,6 @@ class GoJSApp extends React.Component<{}, AppState> {
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
     if (debug) console.log('1115 modalContext ', modalContext);
-    const context = modalContext?.context;
     if (modalContext?.what === 'selectDropdown') {      
       let options =  '' 
       let comps = ''
@@ -1416,15 +1417,14 @@ class GoJSApp extends React.Component<{}, AppState> {
 
       const value = (selectedOption)  ? selectedOption.value : options[0];
       const label = (selectedOption)  ? selectedOption.label : options[0];
-      if (debug) console.log('1142 context', context);
-      if (debug) console.log('1143 selectedOption, value ', selectedOption, value);
+      if (debug) console.log('1143 selectedOption, value, label ', selectedOption, value, label);
       header = modalContext.title;
       modalContent = 
         <div className="modal-selection d-flex justify-content-center">
           <Select className="modal-select"              
             options={options}
             components={comps}
-            onChange={value => this.handleSelectDropdownChange(value, context)}
+            onChange={value => this.handleSelectDropdownChange(value)}
           /> 
         </div>
         {/* <option value={option.value}>{label: option.label, option.value}</option>

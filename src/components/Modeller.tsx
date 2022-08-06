@@ -6,22 +6,30 @@ import classnames from 'classnames';
 import GoJSApp from "./gojs/GoJSApp";
 import Selector from './utils/Selector'
 import genGojsModel from './GenGojsModel'
+import genRoleTasks from "./utils/SetRoleTaskFilter";
+import { addNodeToDataArray } from "../akmm/ui_common";
 
 const debug = false;
 
 const Modeller = (props: any) => {
+
   const dispatch = useDispatch();
   if (debug) console.log('13 Modeller: props', props);
 
+  // if (!props.gojsModel)  return <></>
+
   const gojsmodel = props.gojsModel;
+  if (debug) console.log('22 Modeller: gojsmodel', gojsmodel);
+  
   let myMetis = props.myMetis;
-  let activetabindex = '0'
+  let activetabindex = 0
   const [refresh, setRefresh] = useState(false)
   const [activeTab, setActiveTab] = useState();
   const showDeleted = props.phUser?.focusUser?.diagram?.showDeleted
 
-  function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
-   }
+  // function toggleRefresh() { setRefresh(!refresh); console.log('25', refresh);
+  //  }
+
 
    if (debug) console.log('27 Modeller: props, refresh', props, refresh);
 
@@ -33,6 +41,8 @@ const Modeller = (props: any) => {
   const modelviews = model?.modelviews
   const modelview = modelviews?.find((m: any) => m?.id === focusModelview?.id)
   const modelviewindex = modelviews?.findIndex((m: any, index) => index && (m?.id === focusModelview?.id))
+  const metamodels = props.metis?.metamodels
+  const mmodel = metamodels?.find((m: any) => m?.id === model?.metamodelRef)
 
   // const selmods = {models, model}//(models) && { models: [ ...models?.slice(0, modelindex), ...models?.slice(modelindex+1) ] }
   // const selmodviews = {modelviews, modelview}//(modelviews) && { modelviews: [ ...modelviews?.slice(0, modelviewindex), ...modelviews?.slice(modelviewindex+1) ] }
@@ -45,7 +55,7 @@ const Modeller = (props: any) => {
   ]
   const selmodviews = modelviews
   
-  if (debug) console.log('36 Modeller', focusModelview, selmods, selmodviews);
+  if (debug) console.log('36 Modeller', mmodel, focusModelview, selmods, selmodviews);
   let selmodels = selmods?.filter((m: any) => m && (!m.markedAsDeleted))
   // let selmodelviews = selmodviews?.map((mv: any) => mv && (!mv.markedAsDeleted))
   // if (debug) console.log('48 Modeller', focusModel.name, focusModelview.name);
@@ -69,18 +79,45 @@ const Modeller = (props: any) => {
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } });
   }
 
+  // const handleMVDoubleClick = (e) => {
+  //   <input type="text" value={e.value} onChange={handleMVChange} />
+  // }
+
+  // const handleMVChange = (e) => {
+  //   if (debug) console.log('69 Modeller: handleMVChange', e);
+  //   dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: e.value } });
+  // }
+
 
     const selector = (props.modelType === 'model' || props.modelType === 'modelview' ) 
       ? <>
           {/* <div className="modeller-selection" > */}
             {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
-            <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+            <span className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title={
+`Description: ${model?.description}
+
+To change Model name, rigth click the background below and select 'Edit Model'.`
+              }>
+            <Selector className="w-25 float-right" type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+            </span>
             {/* </div>  */}
-            <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'. The text 'Project_<currentdate>' will be added to the filename.'" 
+            {/* <button className="btn btn-primary btn-sm float-right" onClick={() => {genRoleTasks(mmodel, dispatch); toggleRefresh()}}>Set Role Task Filter</button> */}
+            <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" 
                 style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
                 <div className="w-100 float-left" >
-                  <label className="m-0 p-0 w-100" > Project :  
+                  <label className="m-0 p-0 w-100"   
+                    data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                    title =  {
+`Description : ${props.metis.description} 
+
+To change Project Name : 
+Edit this field and click on the Save button.
+
+or Right-click the background below and select 'Edit Project Name'. 
+
+The text 'Project_<currentdate>' will be added to the filename.`
+                    }> Project :  
                     <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
                   </label>
                   {/* <label for="projName">Project :</label> 
@@ -121,40 +158,45 @@ const Modeller = (props: any) => {
       if (activeTab != undefined || 0) {
         const data = {id: selmodviews[0].id, name: selmodviews[0].name}
         dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-        setActiveTab(0)
+        // setActiveTab(0)
         genGojsModel(props, dispatch);
     }
     if (debug) console.log('89 Modeller useEffect 1', activeTab); 
   }, [focusModel])
   
-  useEffect(() => {
-    setActiveTab(activetabindex)
-    if (debug) console.log('94 Modeller useEffect 2', activeTab); 
-    // genGojsModel(props, dispatch);
-  }, [activeTab])
+  // useEffect(() => {
+  //   setActiveTab(activetabindex)
+  //   if (debug) console.log('94 Modeller useEffect 2', activeTab); 
+  //   // genGojsModel(props, dispatch);
+  // }, [activeTab])
 
   useEffect(() => {
-    if (debug) console.log('99 Modeller useEffect 3', props); 
+    if (debug) console.log('172 Modeller useEffect 3', props, activeTab); 
     // genGojsModel(props, dispatch);
     const model = models.find(m => m.id === focusModel?.id)
     if (model) {
       const modelviews = model.modelviews;
       if (modelviews?.length > 0) {
-        if (debug) console.log('111 model', model);
+        if (debug) console.log('178 model', model);
         if (activeTab === 0) {
           const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
-          dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
-          function refres() {
+          if (debug) console.log('181 modelview', data);
+          dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;   
+          if (debug) console.log('183 after dispatch');
+          const timer = setTimeout(() => {
             setRefresh(!refresh)
-          }
-          setTimeout(refres, 10);
+          }, 1000);
+          if (debug) console.log('187 after refresh: data', data);
+          return () => clearTimeout(timer);
         }
       }
+      if (debug) console.log('191 ', activeTab, activetabindex)
+      setActiveTab(activetabindex)
     }
-  }, [activeTab])
+  }, [activeTab && (activeTab) && (activeTab !== activetabindex)])
 
   useEffect(() => {
-    if (debug) console.log('125 Modeller useEffect 5', props); 
+    if (debug) console.log('195 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
 
@@ -177,15 +219,19 @@ const Modeller = (props: any) => {
         // genGojsModel(props, dispatch);
         // if (debug) console.log('90 Modeller', activeTab, activetabindex , index, strindex, data)
         return (
-          <NavItem key={strindex}>
+          <NavItem key={strindex} className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title={
+`Description: ${modelview?.description}
+
+To change Modelview name, rigth click the background below and select 'Edit Modelview'.`
+              }>
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", border: "solid 1px", borderBottom: "none", borderColor: "#eee gray white #eee", color: "black" }}
               className={classnames({ active: activeTab == strindex })}
               onClick={() => { dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: strindex+'name'} }) }}
-              // onClick={() => { toggleTab(strindex); dispatch({ type: 'SET_FOCUS_MODELVIEW', data }); toggleRefresh() }}
+              // onDoubleClick={() => {handleMVDoubleClick({ value: data })}}
             >
               {mv.name}
             </NavLink>
- 
           </NavItem>
         )
     }
@@ -230,7 +276,7 @@ const Modeller = (props: any) => {
     ?
       <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
         <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
-          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: "99", position: "relative", overflow: "hidden" }}>Modeller
+          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: 99, position: "relative", overflow: "hidden" }}>Modeller
         </h5>
         <div>
           {selector}
@@ -245,7 +291,7 @@ const Modeller = (props: any) => {
           <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus&#013;">Zoom to Focus</button>
           <button className="btn-sm  py-0" 
             data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews&#013;" 
-            onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; toggleRefresh() } } > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
+            onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
             {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
           </button>
           {/* <button className="btn-sm text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="&#013;"></button> */}
@@ -253,15 +299,11 @@ const Modeller = (props: any) => {
             Current source:  {props.phSource} 
           </span> 
         </div>
-        <style jsx>{`
-        // .diagram-component {
-        //   height: 80%;
-        // }
-        `}</style>
+
       </div>
     :
       <div className="mt-2 mb-5" style={{backgroundColor: "#7ac"}}>
-        <h5 className="modeller-heading float-left text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", zIndex: "99", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
+        <h5 className="modeller-heading float-left text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
         {/* <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
           title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
           Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."

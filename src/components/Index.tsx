@@ -66,7 +66,7 @@ const page = (props) => {
                   <CardTitle className="card-title-bold">Start modelling:</CardTitle>
                   <CardText className="card-text"> 
                     Select, drag and drop objecttypes from the left palette to the modelling area to the right. <br /> 
-                    We recomment to start with a container and then drop objects into the container. You can resize the the container by draging the corners.
+                    We recommend to start with a container and then drop objects into the container. You can resize the container by draging the corners.
                   </CardText>
                   <CardTitle className="card-title-bold">Save your model:</CardTitle>
                   <CardText className="card-text"> 
@@ -97,7 +97,7 @@ const page = (props) => {
                   <CardTitle className="card-title-bold" >IRTV</CardTitle>
                   <CardText className="card-text "> 
                     <strong> IRTV stands for: Information, Role, Task, View</strong>
-                    <br />We start with an built in IRTV-Metamodel, wich contain the basic building blocks for AKM Models <br />(shown in the left Palette in the modelling page). 
+                    <br />AKM modelling start with a generic IRTV-Metamodel, wich contain the basic building blocks for AKM Models. <br />(shown in the left Palette in the modelling page). 
                     <br /><br />We use these building blocks to build an Active Knowledge Model, which in turn can be use to generate Solution models for interactive Role and Task oriented Workplaces for all Roles in enterprise projects . 
 
                   </CardText>
@@ -156,15 +156,14 @@ const page = (props) => {
                 <CardBody className="card-body" >
                   {/* <CardTitle style={{ fontWeight: "bolder" }}>AKM</CardTitle> */}
                   <CardText className="card-text">
-                    Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and learning.
-                    AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
+                    Active Knowledge Modelling (AKM) is an innovative way to capture and use enterprise knowledge from practical work. AKM models have positive effects on cyclic design and operations, productivity, safety, reuse, collaboration and innovation and learning. AKM has matured for more than a decade. Modern open-source web technology has now reached a technical level that enables cost efficient large scale usage.
                     <br /><br />
-                    The AKM novelty comes from how relationships between roles, tasks and information are captured and presented to the users in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment.
+                    The AKM novelty comes from how relationships between roles, tasks, properties and knowledge and data are captured and presented in the form of interactive and visual workspaces that support collaboration between roles in a distributed work environment. 
                     <br /><br />
-                    The effects from deploying AKM based solutions are many.
-                    Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. I.e. supporting design parameter balancing, and that task execution is in line with applicable regulations and policies.
-                    Secondly, task execution might create new tasks for other roles, and as such AKM makes collaboration more transparent, effective and precise, with direct impact on safety and security.
+                    An enterprise development and innovation team can model new Concepts and Capabilities. These Concept models may be used to enhance the meta-models of innovation projects, which again design new POPS components and solutions.
                     <br /><br />
+                    The effects from deploying AKM based solutions are many. Firstly roles and their workspaces can be designed to share critical views securing a shared situational awareness. Shared views supporting design parameter balancing are modelled, and task execution can be in line with applicable regulations and policies. Role-specific task execution may create new tasks and services for other roles, and as such AKM makes collaboration and alignment more transparent, effective and precise, with direct impact on design quality, safety and security.
+                    <br /><br />  
                     <br /><br />
                     (more in the About page ....)
                     <br /><br />           
@@ -196,6 +195,14 @@ const page = (props) => {
                         &bull; GraphQL shema reporting from Solution models!<br />
                     </CardText>
                   </CardBody> */}
+                  <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.07.11</CardTitle>
+                    <CardText >
+                          &bull; New Recovery button in the model top-bar".<br />
+                          &bull; Enhancements! <br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
                   <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.06.13</CardTitle>
                     <CardText >

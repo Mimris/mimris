@@ -1,13 +1,22 @@
 // should  be refractor to react-bootstrap
 import Link from 'next/link';
-import { FaUser } from 'react-icons/fa';
+import { useRouter } from 'next/router'
+import { FaUser, FaEnvelope } from 'react-icons/fa';
 
-const Navbar = (props) => (
+
+const Navbar = (props) => {
 	
-	// <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
-	// <nav className="navbar sticky-top navbar-expand-md bg-white py-1">
-	// navbar-expand{-sm|-md|-lg|-xl}
-	<nav className="navbar navbar-expand-sm bg-white py-0">
+	const router = useRouter();
+	const currentRoute = router.pathname;
+	
+// <nav className="navbar sticky-top navbar-expand-sm navbar-dark bg-dark mb-1 width-90%">
+// <nav className="navbar sticky-top navbar-expand-md bg-white py-1">
+// navbar-expand{-sm|-md|-lg|-xl}
+
+	return (
+	<nav className="navbar navbar-expand-sm bg-white py-0"
+			// variant="pils" defaultactiveKey="/"
+		>
 		<div className="container mx-0 ">
 			<a className="navbar-brand nabar-left mr-4" href="#">
 				<img src="images/equinor-logo.svg" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/>
@@ -21,10 +30,10 @@ const Navbar = (props) => (
 			<div className="collapse navbar-collapse " id="nav-toggler-metis">
 				<ul className="navbar-nav ml-auto mr-3 ">
 					<li className="nav-item">
-						<Link href="/"><a className="nav-link active">Home</a></Link>
+						<Link href="/"><a className={currentRoute === "/" ? "active" : "non-active"}>Home</a></Link>
 					</li>			
-					<li className="nav-item color-white">
-						<Link href="/modelling"><a className="nav-link">Modelling</a></Link>
+					<li className="nav-item ">
+						<Link href="/modelling"><a className={currentRoute === "/modelling" ? "active" : "non-active"}>Modelling</a></Link>
 					</li>
 					{/* <li className="nav-item">
 						<Link href="/table"><a className="nav-link">Tables</a></Link>
@@ -32,7 +41,7 @@ const Navbar = (props) => (
 					{/* <li className="nav-item dropdown">
 						<a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							More
-            </a>
+            			</a>
 						<div className="dropdown-menu" aria-labelledby="navbarDropdown">
 							<a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
@@ -48,26 +57,36 @@ const Navbar = (props) => (
 							</form>
 						</div>
 					</li> */}
-					<li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
+
+					<li className="nav-item">
+						<Link href="/videos"><a className={currentRoute === "/videos" ? "active" : "non-active"}>Videos</a></Link>
+					</li>
+					<li className="nav-item">
+						<Link href="/helpblog"><a className={currentRoute === "/helpblog" ? "active" : "non-active"} >Help</a></Link> 
+					</li>
+					<li className="nav-item">
+						<Link href="/about" ><a className={currentRoute === "/about" ? "active" : "non-active"}>About</a></Link>
+					</li>
+					<li className="nav-item">				
+						<a className={currentRoute === "/Modelling" ? "active" : "non-active"} 
+							href="mailto:snorre.fossland@kavca.no?cc=frank.lillehagen@kavca.no&subject=More info about how to progress with AKM Modeller and access to more templates and examples.&body=Hi, Please send me more info about: xxxxxx.     My Name is: xxxxxx, Email: xxxxx, Phone: 99999999. "
+							target="_blank"
+						> 
+							<FaEnvelope style={{ width: "30px",  verticalAlign: "middle" }} />More info
+						</a>
+					</li>
+					{/* <li className="nav-item dropdown bg-white" style={{borderRadius: "6px"}}>
 						<a className="nav-link nav-login dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
-							aria-haspopup="true" aria-expanded="false">
-							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} />
-							<span className="username"> {props?.user?.name}</span> </a>
-						<div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
+							aria-haspopup="true" aria-expanded="false" href="mailto:snorres@gmail.com?subject=More info about how to progress with AKM Modeller and access to more templates and examples. & body=Hi, Please send me more info about: xxxxxx.   My Name is: xxxxxx, Email: xxxxx, Phone: 99999999.   ">
+							<FaUser style={{ paddingRigth: "1px", verticalAlign: "baseline" }} /> */}
+							{/* <span className="username"> {props?.user?.name}</span> </a> */}
+							{/* <span className="username"> E-mail us</span> </a> */}
+						{/* <div className="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4"> */}
 							{/* <a className="dropdown-item" href="/login">Login</a>
 							<a className="dropdown-item" href="/signup">Sign-up</a>
 							<a className="dropdown-item" href="/settings">Settings</a> */}
-						</div>
-					</li>
-					<li className="nav-item">
-						<Link href="/videos"><a className="nav-link">Videos</a></Link>
-					</li>
-					<li className="nav-item">
-						<Link href="/helpblog"><a className="nav-link" >Help</a></Link> 
-					</li>
-					<li className="nav-item">
-						<Link href="/about" ><a className="nav-link" >About</a></Link>
-					</li>
+						{/* </div> */}
+					{/* </li> */}
 				</ul>
 			</div>
 			<div className='buttons' aria-expanded="false">
@@ -91,8 +110,41 @@ const Navbar = (props) => (
 				{/* <img src="https://www.equinor.com/etc.clientlibs/statoil/clientlibs/clientlib/resources/images/page/equinor-logo.png" width="100" height="40" className="d-inline-block align-top" alt="Equinor logo"/> */}
 				{/* <img src="/static/spider-1.gif" width="40" height="40" alt="spider" /> */}
 			</a>
+			<style jsx>{`
+                nav {
+					height: 35px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background: red;
+                    // background: #e91e63;
+                    box-shadow: 0 0px 10px #aaa ;
+                  }
+                  
+                  /* Basic styles for nav links */
+                  nav a {
+                    display: flex;
+                    align-items: center;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                    height: 100%;
+					margin-bottom: 10;
+                    text-decoration: none;
+                  }
+                  
+                  /* Specific styles for non-active links */
+                  .non-active {
+                    color: blue;
+                  }
+                  
+                  /* Specific styles for active links */
+                  .active {
+                    color: black;
+                    background: #ddd;
+                  }
+            `}</style>
 	</nav>
-);
+)};
 
 export default Navbar;
 

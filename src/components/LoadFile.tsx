@@ -23,15 +23,19 @@ const LoadFile = (props: any) => {
 
   const modelNames = props.ph.phData?.metis?.models.map(mn => <span key={mn.id}>{mn.name} | </span>)
   const metamodelNames = props.ph.phData?.metis?.metamodels.map(mn => (mn) && <span key={mn.id}>{mn.name} | </span>)
-  if (debug) console.log('20 LoadLocal', props.ph.phData, modelNames, metamodelNames);
+
+  if (debug) console.log('26 LoadLocal', props, typeof(window));
   
-  if (typeof window === 'undefined') return
+  if (typeof window === 'undefined') return null
+  
+  if (debug) console.log('28 LoadLocal', props.ph.phData, modelNames, metamodelNames);
 
   const data = {
       phData:   props.ph.phData,
       phFocus:  props.ph.phFocus,
       phUser:   props.ph.phUser,
-      phSource: 'localFile'
+      phSource: props.phSource,
+      lastUpdate: new Date().toISOString()
     }
 
 
@@ -96,6 +100,8 @@ const LoadFile = (props: any) => {
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
+
+  
 
   // const buttonrefresh = <button className="btn-context btn-primary float-right mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
 
@@ -209,7 +215,7 @@ const LoadFile = (props: any) => {
         </ModalFooter>
       </Modal>
       <style jsx>{`
-      .list-obj {
+            .list-obj {
               min-Width: 90px;
             }
             /*******************************
@@ -286,6 +292,7 @@ const LoadFile = (props: any) => {
               // font-size: 80%;
               font-weight: bold;
             }
+          }
             `}</style>
     </>
   )

@@ -8,32 +8,32 @@ import * as akm from './metamodeller';
 let jsnMetis = null;
 
 export class jsnExportMetis {
-    name:                   string;
-    description:            string;
-    metamodels:             jsnMetaModel[];
-    models:                 jsnModel[];
-    //modelviews:             jsnModelView[];
-    //datatypes:              jsnDatatype[];
-    //enumerations:           jsnEnumeration[];
-    pasteViewsOnly:         boolean;
-    deleteViewsOnly:        boolean;
-    currentMetamodelRef:    string;
-    currentModelRef:        string;
-    currentModelviewRef:    string;
-    currentTemplateModelRef: string;
+    name:                       string;
+    description:                string;
+    metamodels:                 jsnMetaModel[];
+    models:                     jsnModel[];
+    pasteViewsOnly:             boolean;
+    deleteViewsOnly:            boolean;
+    currentMetamodelRef:        string;
+    currentModelRef:            string;
+    currentModelviewRef:        string;
+    currentTemplateModelRef:    string;
+    currentTargetMetamodelRef:  string;
+    currentTargetModelRef:      string;
+    currentTargetModelviewRef:  string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
-        this.name         = metis.name;
-        this.description  = metis.description;
-        this.metamodels   = [];
-        this.models       = [];
-        //this.modelviews   = [];
-        //this.datatypes    = [];
-        //this.enumerations = [];
-        this.currentMetamodelRef     = "";
-        this.currentModelRef         = "";
-        this.currentModelviewRef     = "";
-        this.currentTemplateModelRef = "";
+        this.name                       = metis.name;
+        this.description                = metis.description;
+        this.metamodels                 = [];
+        this.models                     = [];
+        this.currentMetamodelRef        = "";
+        this.currentModelRef            = "";
+        this.currentModelviewRef        = "";
+        this.currentTemplateModelRef    = "";
+        this.currentTargetMetamodelRef  = "";
+        this.currentTargetModelRef      = "";
+        this.currentTargetModelviewRef  = "";
         // Code
         if (metis) {
             jsnMetis = metis;
@@ -59,9 +59,14 @@ export class jsnExportMetis {
                 this.currentModelRef = metis.currentModel.id;
             if (metis.currentModelview)
                 this.currentModelviewRef = metis.currentModelview.id;
+            if (metis.currentTargetMetamodel)
+                this.currentTargetMetamodelRef = metis.currentTargetMetamodel.id;
+            if (metis.currentTargetModel)
+                this.currentTargetModelRef = metis.currentTargetModel.id;
+            if (metis.currentTargetModelview)
+                this.currentTargetModelviewRef = metis.currentTargetModelview.id;
             if (metis.currentTemplateModel)
-                this.currentTemplateModelRef = metis.currentTemplateModel.id;
-            
+                this.currentTemplateModelRef = metis.currentTemplateModel.id;            
         }
     }
     // Functions
@@ -192,11 +197,25 @@ export class jsnMetaModel {
         }
         const reltypes = metamodel.getRelshipTypes();
         if (reltypes) {
+            if (debug) console.log('195 reltypes', reltypes);
             const cnt = reltypes.length;
             for (let i = 0; i < cnt; i++) {
                 const reltype = reltypes[i];
+                if (!reltype.fromObjtype) {
+                    if (reltype.fromobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.fromobjtypeRef);
+                        reltype.fromObjtype = objtype;
+                    }
+                }
+                if (!reltype.toObjtype) {
+                    if (reltype.toobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.toobjtypeRef);
+                        reltype.toObjtype = objtype;
+                    }
+                }
                 this.addRelationshipType(reltype, includeViews);
             }
+            if (debug) console.log('200 jsnMetaModel', this);
         }
         const datatypes = metamodel.getDatatypes();
         if (datatypes) {
@@ -660,6 +679,7 @@ export class jsnObjectTypeView {
     isGroup:         boolean;
     group:           string;
     template:        string;
+    figure:          string;
     geometry:        string;
     fillcolor:       string;
     strokecolor:     string;
@@ -679,6 +699,7 @@ export class jsnObjectTypeView {
         this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
+        this.figure          = objtypeview.getFigure();
         this.geometry        = objtypeview.getGeometry();
         this.fillcolor       = objtypeview.getFillcolor();
         this.strokecolor     = objtypeview.getStrokecolor();
@@ -720,6 +741,7 @@ export class jsnRelshipTypeView {
     name:            string;
     description:     string;
     typeRef:         string;
+    template:        string;
     strokecolor:     string;
     strokecolor1:    string;
     strokewidth:     string;
@@ -736,6 +758,7 @@ export class jsnRelshipTypeView {
         this.name            = reltypeview.name;
         this.description     = (reltypeview.description) ? reltypeview.description : "";
         this.typeRef         = reltypeview.getTypeRef();
+        this.template        = reltypeview.getTemplate();
         this.strokecolor     = reltypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor1;
         this.strokewidth     = reltypeview.getStrokewidth();
@@ -1004,6 +1027,7 @@ export class jsnObject {
     id:              string;
     name:            string;
     description:     string;
+    text:            string;
     abstract:        boolean;
     viewkind:        string;
     typeRef:         string;
@@ -1336,6 +1360,7 @@ export class jsnObjectView {
     id:              string;
     name:            string;
     description:     string;
+    text:            string;
     objectRef:       string;
     typeviewRef:     string;
     group:           string;
@@ -1344,11 +1369,12 @@ export class jsnObjectView {
     isCollapsed:     boolean;
     loc:             string;
     size:            string;
-    scale:           string;
-    memberscale:     string;
+    scale:           number;
+    memberscale:     number;
     markedAsDeleted: boolean;
     modified:        boolean;
     template:        string;
+    figure:          string;
     geometry:        string;
     fillcolor:       string;
     strokecolor:     string;
@@ -1367,6 +1393,7 @@ export class jsnObjectView {
         this.isCollapsed     = objview?.isCollapsed;
         this.loc             = objview?.loc;
         this.template        = objview?.template;
+        this.figure          = objview?.figure;
         this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
         this.strokecolor     = objview?.strokecolor;
@@ -1374,9 +1401,8 @@ export class jsnObjectView {
         this.textcolor       = objview?.textcolor;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
-        this.scale           = objview?.scale1;
-        this.memberscale     = objview?.memberscale;
-        this.viewkind        = objview?.viewkind;
+        this.scale           = Number(objview?.scale1);
+        this.memberscale     = Number(objview?.memberscale);
         this.markedAsDeleted = objview?.markedAsDeleted;
         this.modified        = objview?.modified;
     }
@@ -1389,6 +1415,7 @@ export class jsnRelshipView {
     typeviewRef:     string;
     fromobjviewRef:  string;
     toobjviewRef:    string;
+    template:        string;
     textscale:       string;
     arrowscale:      string;
     strokecolor:     string;
@@ -1403,32 +1430,33 @@ export class jsnRelshipView {
     markedAsDeleted: boolean;
     modified:        boolean;
     constructor(relview: akm.cxRelationshipView) {
-        this.id              = relview.id;
-        this.name            = relview.name;
+        this.id              = relview?.id;
+        this.name            = relview?.name;
         this.description     = "";
         this.relshipRef      = "";
         this.typeviewRef     = "";
-        this.textscale       = relview.textscale;
-        this.arrowscale      = relview.arrowscale;
-        this.strokecolor     = relview.strokecolor;
-        this.strokewidth     = relview.strokewidth;
+        this.template        = relview?.template;
+        this.textscale       = relview?.textscale;
+        this.arrowscale      = relview?.arrowscale;
+        this.strokecolor     = relview?.strokecolor;
+        this.strokewidth     = relview?.strokewidth;
         this.textcolor       = relview?.textcolor;
-        this.dash            = relview.dash;
-        this.fromArrow       = relview.fromArrow;
-        this.toArrow         = relview.toArrow;
-        this.fromArrowColor  = relview.fromArrowColor;
-        this.toArrowColor    = relview.toArrowColor;
+        this.dash            = relview?.dash;
+        this.fromArrow       = relview?.fromArrow;
+        this.toArrow         = relview?.toArrow;
+        this.fromArrowColor  = relview?.fromArrowColor;
+        this.toArrowColor    = relview?.toArrowColor;
         this.fromobjviewRef  = relview && relview.fromObjview ? relview.fromObjview.id : "";
         this.toobjviewRef    = relview && relview.toObjview ? relview.toObjview.id : "";
-        this.points          = relview.points;
-        this.markedAsDeleted = relview.markedAsDeleted;
-        this.modified        = relview.modified;
+        this.points          = relview?.points;
+        this.markedAsDeleted = relview?.markedAsDeleted;
+        this.modified        = relview?.modified;
         // Code
-        if (relview.description)
+        if (relview?.description)
             this.description = relview.description;
-        if (relview.relship)
+        if (relview?.relship)
             this.relshipRef = relview.relship.id;
-        if (relview.typeview)
+        if (relview?.typeview)
             this.typeviewRef = relview.typeview.id;
     }
 }
@@ -1625,7 +1653,7 @@ export class jsnImportMetis {
         }
         jsnMetis.addRelationshipType(reltype);
         if (reltype) metamodel.addRelationshipType(reltype);
-        if (debug) console.log("Importing relshiptype: " + item.id + ", " + item.name);
+        if (debug) console.log("1628 Importing reltype: " + item.id + ", " + item.name);
         const properties = item.properties;
         if (utils.objExists(properties) && (properties.length > 0)) {
             properties.forEach(function (this: jsnImportMetis, prop: akm.cxProperty) {
@@ -1640,6 +1668,7 @@ export class jsnImportMetis {
         if (utils.objExists(type))
             objtypeview.setType(type);
         objtypeview.setTemplate(item.template);
+        objtypeview.setFigure(item.figure);
         objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
         objtypeview.setStrokecolor(item.strokecolor);

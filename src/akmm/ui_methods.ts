@@ -148,6 +148,7 @@ export function addConnectedObjects(modelview: akm.cxModelView, objview: akm.cxO
                 }
             }
         }
+        myDiagram.requestUpdate();
     }
     modifiedObjectViews.map(mn => {
         let data = mn;

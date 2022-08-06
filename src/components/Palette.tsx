@@ -17,7 +17,7 @@ const ctrace = console.trace.bind(console, '%c %s',
 
 const Palette = (props: any) => {
 
-  if (!debug) clog('20 Palette', props);
+  if (debug) clog('20 Palette', props);
 
   const dispatch = useDispatch();
   let isRendered = useRef(false);
@@ -62,7 +62,7 @@ const Palette = (props: any) => {
   //rearrange sequence
   let ndarr = props.gojsMetamodel?.nodeDataArray
 
-  if (!debug) console.log('65 propsMetamodel', model?.name, mmodel?.name, ndarr);
+  if (debug) console.log('65 propsMetamodel', model?.name, mmodel?.name, ndarr);
 
   let taskNodeDataArray: any[] = ndarr
 
@@ -125,7 +125,7 @@ const Palette = (props: any) => {
   // let objArr = props.myMetis.gojsModel?.model.objects
 
   const nodeArray_all = objArr 
-  if (!debug) console.log('120 nodeArray_all', nodeArray_all, objArr);
+  if (debug) console.log('120 nodeArray_all', nodeArray_all, objArr);
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   
@@ -133,7 +133,7 @@ const Palette = (props: any) => {
   const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'Task' || node.typename === 'Role'))
   const noPropertyObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
   const noAbstractObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
-  if (!debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
+  if (debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
 
   const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
     if (debug) console.log('Palette handleSetOfilter', filter);
@@ -163,7 +163,7 @@ const Palette = (props: any) => {
   // const oNodeDataArray = ofilteredArr
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
 
-  if (!debug) console.log('165 Palette gojsobjects', filteredOtNodeDataArray, gojsobjects.nodeDataArray);
+  if (debug) console.log('165 Palette gojsobjects', filteredOtNodeDataArray, gojsobjects.nodeDataArray);
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 

@@ -1184,7 +1184,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       break;
     }
   }
-  if (!debug) console.log('1046 myMetis', myMetis);
+  if (debug) console.log('1046 myMetis', myMetis);
 
   // Dispatch metis
   const jsnMetis = new jsn.jsnExportMetis(myMetis, true);

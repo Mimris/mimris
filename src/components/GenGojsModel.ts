@@ -36,7 +36,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
-    if (!debug) clog('33 GenGojsModel:', props);
+    if (debug) clog('33 GenGojsModel:', props);
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: myMetis', tempMetis);
@@ -94,7 +94,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myGoModel = buildGoModel(myMetis, myModel, myModelview);
       const myGoTargetModel = buildGoModel(myMetis, myTargetModel, myTargetModelview);
       if (debug) console.log('91 GenGojsModel myGoModel', myMetis, myGoModel, myModel, myModelview);
-      if (!debug) console.log('92 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
+      if (debug) console.log('92 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
       myMetis?.setGojsModel(myGoModel);
       myMetis?.setCurrentMetamodel(myMetamodel);
       myMetis?.setCurrentModel(myModel);
@@ -339,7 +339,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         //   console.log('206 Container', obj, objview, objtype);
         // }
         const node = new gjs.goObjectNode(utils.createGuid(), objview);
-        if (!debug) console.log('337 node, objview, objtype:', node, objview, objtype);
+        if (debug) console.log('337 node, objview, objtype:', node, objview, objtype);
         node.isGroup = objtype?.isContainer();
         node.category = constants.gojs.C_OBJECT;
         const viewdata: any = typeview?.data;

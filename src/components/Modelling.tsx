@@ -434,7 +434,8 @@ const page = (props:any) => {
   const loadgithub =  (process.browser) && <LoadGitHub  buttonLabel='GitHUb'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
   const loadfile =  (process.browser) && <LoadFile  buttonLabel='Model file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
   const loadjsonfile =  (process.browser) && <LoadJsonFile  buttonLabel='OSDU'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-
+  const loadrecovery =  (process.browser) && <LoadRecovery  buttonLabel='Recovery'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
   const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -474,6 +475,7 @@ const page = (props:any) => {
               </button >
             </span> 
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
           </div> 
         </div> 
         <div className="modellingContent pt-3 " >

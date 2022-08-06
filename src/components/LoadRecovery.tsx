@@ -70,7 +70,7 @@ const LoadRecovery = (props: any) => {
 
 
   let loadSelectedFromMemoryStoreDiv = <></>
-  if (optionsMemory) 
+  if (optionsMemory) {
     loadSelectedFromMemoryStoreDiv = 
       <div className="loadstore selection d-flex justify-content-center border border-dark  ">
         {/* <p className='py-2 pr-4'>Select Model to recover:</p> */}
@@ -87,6 +87,9 @@ const LoadRecovery = (props: any) => {
                 </option>))}
         </select>
       </div>
+  } else {
+    loadSelectedFromMemoryStoreDiv = <></>  
+  }
  
   const { buttonLabel, className } = props;
   const [modal, setModal] = useState(false);
@@ -94,7 +97,7 @@ const LoadRecovery = (props: any) => {
 
   return (
     <>
-      <button className="btn-context btn-warning float-right mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+      <button className="btn-dark float-right ml-2 mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader className="bg-warning pl-2" toggle={() => { toggle(); toggleRefresh() }}> Recover from last refresh: </ModalHeader>
         <ModalBody className="pt-0 bg-warning">

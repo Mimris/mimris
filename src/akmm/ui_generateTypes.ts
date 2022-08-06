@@ -1,4 +1,4 @@
-// @ts- git add nocheck
+// @ts-nocheck
 const debug = false;
 
 import * as utils from './utilities';

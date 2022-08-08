@@ -199,7 +199,6 @@ const page = (props) => {
                     <CardTitle className="card-title-bold" >Release 2022.08.06</CardTitle>
                     <CardText >
                           &bull; New button in the model top-bar for loading startmodels from GitHub".<br />
-                          &bull; Enhancements! <br />
                           &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>

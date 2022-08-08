@@ -216,7 +216,7 @@ const EditProperties = (props) => {
         <form onSubmit={handleSubmit(onSubmit)}>
           {fieldsDiv}
           <span  className="img float-left">{previewIcon}</span>
-          <button className="btn-primary" type="submit">Save</button>
+          <button className="btn-primary bg-secondary" type="submit">Save</button>
         </form>
       </div>
       <style jsx>{`

@@ -22,12 +22,15 @@ const LoadRecovery = (props: any) => {
   if (typeof window === 'undefined') return
 
   const [memoryState] = useLocalStorage('memorystate', null);
-
+  let memoryTmp = memoryState
 
   // if memoryState is not an array then make it one
 
+  // if memorytState is an object
+  if (typeof memoryTmp === 'object') memoryTmp = [memoryState]
+  
   let optionsMemory = []
-  if (Array.isArray(memoryState))  {optionsMemory = memoryState?.map((o, idx) => o && {value: idx, label: o.lastUpdate  +' | '+o.phSource}) } else {optionsMemory = []};
+  if (Array.isArray(memoryTmp))  {optionsMemory = memoryTmp?.map((o, idx) => o && {value: idx, label: o.lastUpdate  +' | '+o.phSource}) } else {optionsMemory = []};
   if (debug) console.log('25 LoadRecovery', optionsMemory);
   if (optionsMemory == undefined || optionsMemory?.length === 0) optionsMemory = [{value: 0, label: 'No recovery model'}]
 

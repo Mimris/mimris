@@ -90,6 +90,7 @@ export class cxMetis {
         this.viewstyles = [];
         this.geometries = [];
         this.category = 'Metis';
+        this.fromNodes = [];
     }
     importData(importedData: any, includeDeleted: boolean) {
         if (debug) console.log('79 importedData', importedData);
@@ -97,7 +98,6 @@ export class cxMetis {
         this.description = importedData.description
         this.initImport(importedData, includeDeleted);
         if (debug) console.log('83 this', this);
-
         // Handle projects
         const projects = (importedData) && importedData.projects;
         if (projects && projects.length) {
@@ -116,11 +116,13 @@ export class cxMetis {
                 const metamodel = metamodels[i];
                 if (metamodel) 
                     this.importMetamodel(metamodel);
-                this.addMetamodel(metamodel);
-                if (debug) console.log('55 importData', this);
+                // this.addMetamodel(metamodel);
+                if (debug) console.log('121 metamodel', metamodel, this);
             }
         }
-        if (debug) console.log('104 Imported metamodel type', this);
+        if (debug) console.log('124 relshiptypes', this.relshiptypes);
+        if (debug) console.log('125relshiptypeviews', this.relshiptypeviews);
+        if (debug) console.log('126 Imported metamodel', this);
 
         // Handle viewstyles
         const viewstyles: any[] = (importedData) && importedData.viewstyles;
@@ -169,7 +171,7 @@ export class cxMetis {
                 this.importRelship(rel, null);
             })
         }
-
+        if (debug) console.log('174 relshiptypes', this.relshiptypes);
         // Handle current variables
         if (importedData.currentProjectRef) {
             const project = this.findProject(importedData.currentProjectRef);
@@ -445,6 +447,7 @@ export class cxMetis {
                                         mv.routing = item.routing;
                                         mv.linkcurve = item.linkcurve;
                                         mv.showCardinality = item.showCardinality;
+                                        mv.askForRelshipName = item.askForRelshipName;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
                                         mv.setModel(model);
@@ -609,6 +612,7 @@ export class cxMetis {
         }
 
         let relshiptypes: any[] = item.relshiptypes;
+        if (debug) console.log('361 relshiptypes', relshiptypes);
         if (relshiptypes && relshiptypes.length) {
             relshiptypes.forEach(reltype => {
                 if (debug) console.log('371 reltype', reltype);
@@ -630,30 +634,30 @@ export class cxMetis {
                 }
             });
         }
-        if (debug) console.log('389 this', this, metamodel);
-        let relshiptypeviews: any[] = item.relshiptypeviews;
-        if (relshiptypeviews && relshiptypeviews.length) {
-            relshiptypeviews.forEach(reltypeview => {
-                if (reltypeview)
-                    this.importRelshipTypeView(reltypeview, metamodel);
-            });
-        }
-        if (debug) console.log('396 this', this, metamodel);
-        relshiptypes = item.relshiptypes;
-        if (relshiptypes && relshiptypes.length) {
-            relshiptypes.forEach(reltype => {
-                if (reltype)
-                    this.importRelshipType(reltype, metamodel);
-            });
-        }
-        relshiptypeviews = item.relshiptypeviews;
+        if (debug) console.log('636 metamodel', metamodel);
+        let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
                 if (reltypeview)
                     this.importRelshipTypeView(reltypeview, metamodel);
             });
         }        
-        if (debug) console.log('496 metamodel', metamodel);
+        // if (debug) console.log('396 this', this, metamodel);
+        // relshiptypes = item.relshiptypes;
+        // if (relshiptypes && relshiptypes.length) {
+        //     relshiptypes.forEach(reltype => {
+        //         if (reltype)
+        //             this.importRelshipType(reltype, metamodel);
+        //     });
+        // }
+        // relshiptypeviews = item.relshiptypeviews;
+        // if (relshiptypeviews && relshiptypeviews.length) {
+        //     relshiptypeviews.forEach(reltypeview => {
+        //         if (reltypeview)
+        //             this.importRelshipTypeView(reltypeview, metamodel);
+        //     });
+        // }        
+        if (debug) console.log('644 metamodel', metamodel);
     }
     importDatatype(item: any, metamodel: cxMetaModel) {
         let dtyperef = item.id;
@@ -765,10 +769,11 @@ export class cxMetis {
                         const id = item.typeviewRef;
                         const reltypeview = new cxRelationshipTypeView(id, id, reltype, "");
                         this.addRelationshipTypeView(reltypeview);
+                        metamodel.addRelationshipTypeView(reltypeview);
                         reltype.typeview = reltypeview;    
                     }
                 }
-                if (debug) console.log('472 reltype', reltype);
+                if (debug) console.log('472 item, reltype', item, reltype);
                 if (debug) console.log("Importing relshiptype: " + item.id + ", " + item.name);
                 // Import properties
                 const properties: any[] = item.properties;
@@ -796,8 +801,10 @@ export class cxMetis {
             objtypeview.setViewKind(item.viewkind);
             objtypeview.setMemberscale(item.memberscale);
             objtypeview.setGeometry(item.geometry);
+            objtypeview.setFigure(item.figure);
             objtypeview.setFillcolor(item.fillcolor);
             objtypeview.setTextcolor(item.textcolor);
+            objtypeview.setTextscale(item.textscale);
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
@@ -841,6 +848,7 @@ export class cxMetis {
             reltypeview.setToArrowColor(item.toArrowColor);
             parent.addRelationshipTypeView(reltypeview);
             if (debug) console.log("Importing reltypeview: " + item.id + ", " + item.name);
+            type.setDefaultTypeView(reltypeview);
         }
     }
     importProperty(item: any, metamodel: cxMetaModel) {
@@ -911,6 +919,7 @@ export class cxMetis {
                 model.targetMetamodelRef = item.targetMetamodelRef;
                 model.sourceModelRef = item.sourceModelRef;
                 model.targetModelRef = item.targetModelRef;
+                model.args1 = item.args1;
             }
             if (debug) console.log('863 item, model', item, model);
         }
@@ -966,6 +975,7 @@ export class cxMetis {
             if (modelview) {
                 modelview.layout = item.layout;
                 modelview.showCardinality = item.showCardinality;
+                modelview.askForRelshipName = item.askForRelshipName;
                 modelview.viewstyle = this.findViewStyle(item.viewstyleRef);
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
@@ -999,6 +1009,7 @@ export class cxMetis {
                     // objview.setLoc(item.loc);
                     objview.setSize(item.size);
                     objview.setScale(item.scale);
+                    objview.setTextscale(item.textscale);
                     objview.setGroup(item.group);
                     // objview.isGroup = true;
                     objview.setIsGroup(item.isGroup);
@@ -1360,20 +1371,23 @@ export class cxMetis {
             //reltypeview.setMetis(this);
             if (this.relshiptypeviews == null)
                 this.relshiptypeviews = new Array();
-            if (!this.findRelationshipTypeView(reltypeview.id))
+            if (!this.findRelationshipTypeView(reltypeview.id)) {
                 this.relshiptypeviews.push(reltypeview);
-            else {
+                if (debug) console.log('1373 reltypeview', reltypeview);
+            } else {
                 const len = this.relshiptypeviews.length;
                 for (let i=0; i<len; i++) {
                     const rtview = this.relshiptypeviews[i];
-                    if (debug) console.log('1355 rtview', rtview);
+                    if (debug) console.log('1378 rtview', rtview);
                     if (rtview.id === reltypeview.id) {
                         // Relship typeview is already in list, copy values
                         for (let prop in reltypeview) {
+                            if (prop === 'id') continue;
+                            if (prop === 'name') continue;
                             rtview[prop] = reltypeview[prop];
                             rtview.data[prop] = reltypeview[prop];
                         }
-                        if (debug) console.log('1361 rtview', rtview);
+                        if (debug) console.log('1387 rtview', rtview);
                         return;
                     }
                 }
@@ -2358,9 +2372,8 @@ export class cxMetis {
         if (!types) {
             return null;
         } else {
-            let i = 0;
             let reltype: cxRelationshipType | null = null;
-            while (i < types.length) {
+            for (let i=0; i<types.length; i++) {
                 reltype = types[i];
                 if (debug) console.log('2178 reltype', reltype, fromObjType, toObjType);
                 if (reltype.isDeleted()) continue;
@@ -2374,7 +2387,6 @@ export class cxMetis {
                         }
                     }
                 }
-                i++;
             }
         }
         return null;
@@ -3663,25 +3675,35 @@ export class cxMetaModel extends cxMetaObject {
             }                
         }
     }
-    addRelationshipTypeView(reltypeView: cxRelationshipTypeView) {
-        // Check if input is of correct category and not already in list (TBD)
-        if (reltypeView.category === constants.gojs.C_RELSHIPTYPEVIEW) {
+    addRelationshipTypeView(reltypeview: cxRelationshipTypeView) {
+        if (reltypeview.category === constants.gojs.C_RELSHIPTYPEVIEW) {
+            //reltypeview.setMetis(this);
             if (this.relshiptypeviews == null)
                 this.relshiptypeviews = new Array();
-            if (!this.findRelationshipTypeView(reltypeView.id))
-                this.relshiptypeviews.push(reltypeView);
-            else {
-                const typeviews = this.relshiptypeviews;
-                for (let i = 0; i < typeviews.length; i++) {
-                    const typeview = typeviews[i];
-                    if (typeview.id === reltypeView.id) {
-                        typeviews[i] = typeview;
-                        break;
+            if (!this.findRelationshipTypeView(reltypeview.id)) {
+                this.relshiptypeviews.push(reltypeview);
+                if (debug) console.log('3682 reltypeview', reltypeview);
+            } else {
+                const len = this.relshiptypeviews.length;
+                for (let i=0; i<len; i++) {
+                    const rtview = this.relshiptypeviews[i];
+                    if (debug) console.log('3687 rtview', rtview);
+                    if (rtview.id === reltypeview.id) {
+                        // Relship typeview is already in list, copy values
+                        for (let prop in reltypeview) {
+                            if (prop === 'id') continue;
+                            if (prop === 'data') continue;
+                            rtview[prop] = reltypeview[prop];
+                            rtview.data[prop] = reltypeview[prop];
+                        }
+                        if (debug) console.log('3694 rtview', rtview);
+                        return;
                     }
                 }
-            }                
+            }
         }
     }
+
     addSubMetamodel(metamodel: cxMetaModel) {
         // Check if input is of correct category and not already in list (TBD)
         if (metamodel.category === constants.gojs.C_METAMODEL) {
@@ -4972,7 +4994,8 @@ export class cxObjectType extends cxType {
         }
         return objtypes;
     }
-    findSupertypes(): cxObjectType[] | null {
+    findSupertypes(level: int): cxObjectType[] | null {
+        if (!level) level = 0;
         const supertypes = new Array();
         const rtypes = this.outputreltypes;
         if (rtypes) {
@@ -4982,8 +5005,10 @@ export class cxObjectType extends cxType {
                     const stype = rtype.toObjtype;
                     if (stype) {
                         supertypes.push(stype);
+                        if (level > 5) 
+                            return supertypes;
                         if (debug) console.log('3805 this, supertype', this, supertypes);
-                        const stypes = stype.findSupertypes();
+                        const stypes = stype.findSupertypes(++level);
                         if (stypes) {
                             for (let j=0; j<stypes.length; j++) {
                                 const stype = stypes[j];
@@ -5480,7 +5505,6 @@ export class cxViewStyle extends cxMetaObject {
 
 export class cxObjtypeviewData {
     abstract: boolean;
-    arrowscale: string;
     memberscale: string;
     viewkind: string;
     template: string;
@@ -5490,19 +5514,20 @@ export class cxObjtypeviewData {
     strokecolor: string;
     strokewidth: string;
     textcolor: string;
+    textscale: string;
     icon: string;
     constructor() {
         this.abstract = false;
-        this.arrowscale = "1.3";
         this.memberscale = "1";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
         this.figure = "";
         this.geometry = "";
-        this.fillcolor = "lightyellow";
+        this.fillcolor = "";
         this.strokecolor = "black";
         this.strokewidth = "1";
         this.textcolor = "black";
+        this.textscale = "1";
         this.icon = "";
     }
 }
@@ -5520,6 +5545,7 @@ export class cxObjectTypeView extends cxMetaObject {
     strokecolor: string;
     strokewidth: string;
     textcolor: string;
+    textscale: string;
     viewkind: string;
     icon: string;
     constructor(id: string, name: string, type: cxObjectType | null, description: string) {
@@ -5537,6 +5563,7 @@ export class cxObjectTypeView extends cxMetaObject {
         this.strokecolor = "";
         this.strokewidth = "";
         this.textcolor   = "";
+        this.textscale   = "";
         this.viewkind    = "";
         this.icon        = "";
         this.data        = new cxObjtypeviewData();
@@ -5548,29 +5575,25 @@ export class cxObjectTypeView extends cxMetaObject {
     // Methods
     applyObjectViewParameters(objview: cxObjectView) {
         if (objview) {
-            if (debug) console.log('3730 objview', objview);
             let prop: any;
             let data: any = this.data;
-            let otypeview = objview.typeview;
-            if (otypeview) {
-                let otvdata: any = otypeview.data;
-                for (prop in otypeview.data) {
-                    data[prop] = otvdata[prop];
-                    this[prop] = objview[prop];
-                }
+            for (prop in data) {
+                if (objview[prop] == undefined || objview[prop] === "") continue;
+                if (prop === 'arrowscale')      data[prop] = objview[prop];
+                if (prop === 'memberscale')     data[prop] = objview[prop];
+                if (prop === 'template')        data[prop] = objview[prop];
+                if (prop === 'geometry')        data[prop] = objview[prop];
+                if (prop === 'figure')          data[prop] = objview[prop];
+                if (prop === 'fillcolor')       data[prop] = objview[prop];
+                if (prop === 'strokecolor')     data[prop] = objview[prop];
+                if (prop === 'strokewidth')     data[prop] = objview[prop];
+                if (prop === 'icon')            data[prop] = objview[prop];
             }
-            if (debug) console.log('3740 data, objview', data, objview, this);
-            for (prop in otypeview.data) {
-                if (prop === 'arrowscale' && objview[prop] !== "") data[prop] = objview[prop];
-                if (prop === 'memberscale' && objview[prop] !== "") data[prop] = objview[prop];
-                if (prop === 'template' && objview[prop] !== "") data[prop] = objview[prop];
-                if (prop === 'geometry' && objview[prop] !== "") data[prop] = objview[prop];
-                if (prop === 'fillcolor' && objview[prop] !== "") data[prop] = objview[prop];
-                if (prop === 'strokecolor' && objview[prop] !== "") data[prop] = objview[prop];
-                if (prop === 'strokewidth' && objview[prop] !== "") data[prop] = objview[prop];
-                if (prop === 'icon' && objview[prop] !== "") data[prop] = objview[prop];
+            if (debug) console.log('5580 data', data,);
+            for (prop in data) {
+                this[prop] = data[prop];
             }
-            if (debug) console.log('3748 data, objview', data, objview, this);
+            if (debug) console.log('5584 this', this);           
         }
     }
     setType(type: cxObjectType) {
@@ -5687,6 +5710,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.textcolor;
         return "black";
     }
+    setTextscale(scale: string) {
+        this.data.textscale = scale;
+        this.textscale = scale;
+    }
+    getTextscale(): string {
+        if (this.data.textscale)
+            return this.data.textscale;
+        else if (this.textscale)
+            return this.textscale;
+        return "1";
+    }
     setStrokecolor(strokecolor: string) {
         this.data.strokecolor = strokecolor;
         this.strokecolor = strokecolor;
@@ -5720,6 +5754,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.memberscale;
         return "1"; // Default  1
     }
+    // setTextscale(textscale: string) {
+    //     this.textscale = textscale;
+    //     this.data.textscale = textscale;
+    // }
+    // getTextscale(): string {
+    //     if (this.data.textscale)
+    //         return this.data.textscale;
+    //     else if (this.textscale)
+    //         return this.textscale;
+    //     return "1"; // Default  1
+    // }
     setArrowscale(arrowscale: string) {
         this.arrowscale = arrowscale;
         this.data.arrowscale = arrowscale;
@@ -5752,6 +5797,8 @@ export class cxReltypeviewData {
     strokecolor:    string;
     strokewidth:    string;
     textcolor:      string;
+    arrowscale:     string;
+    textscale:      string;
     dash:           string;
     fromArrow:      string;
     toArrow:        string;
@@ -5764,6 +5811,8 @@ export class cxReltypeviewData {
         this.strokecolor    = "black";
         this.strokewidth    = "1";
         this.textcolor      = "black";
+        this.arrowscale     = "1.3";
+        this.textscale      = "1";
         this.dash           = "None";
         this.fromArrow      = "";
         this.toArrow        = "OpenTriangle";
@@ -5781,6 +5830,8 @@ export class cxRelationshipTypeView extends cxMetaObject {
     strokewidth:    string;
     textcolor:      string;
     dash:           string;
+    textscale:      string;
+    arrowscale:     string;
     fromArrow:      string;
     toArrow:        string;
     fromArrowColor: string;
@@ -5792,7 +5843,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         // this.type     = type;
         this.typeRef  = type?.id;
         this.data     = new cxReltypeviewData();
-        this.template = "";
+        for (let prop in this.data) {
+            this[prop] = this.data[prop];
+        }
+        // this.template = "linkTemplate1";
         this.setFromArrow2(type?.relshipkind);
         this.setToArrow2(type?.relshipkind);
     }
@@ -5801,26 +5855,24 @@ export class cxRelationshipTypeView extends cxMetaObject {
         if (relview) {
             let prop: any;
             let data: any = this.data;
-            let rview = relview.typeview;
-            if (rview) {
-                let tvdata: any = rview.data;
-                if (debug) console.log('5313 relview, rview, tvdata', relview, rview, tvdata);
-                for (prop in rview.data) {
-                    data[prop] = tvdata[prop];
-                }
-                for (prop in tvdata) {
-                    if (relview[prop] == undefined || relview[prop] === "") continue;
-                    if (prop === 'template')       data[prop] = relview[prop];
-                    if (prop === 'strokecolor')    data[prop] = relview[prop];
-                    if (prop === 'strokewidth')    data[prop] = relview[prop];
-                    if (prop === 'textcolor')      data[prop] = relview[prop];
-                    if (prop === 'dash')           data[prop] = relview[prop];
-                    if (prop === 'fromArrow')      data[prop] = relview[prop];
-                    if (prop === 'toArrow')        data[prop] = relview[prop];
-                    if (prop === 'fromArrowColor') data[prop] = relview[prop];
-                    if (prop === 'toArrowColor')   data[prop] = relview[prop];
-                }
+            for (prop in data) {
+                if (relview[prop] == undefined || relview[prop] === "") continue;
+                if (prop === 'template')       data[prop] = relview[prop];
+                if (prop === 'strokecolor')    data[prop] = relview[prop];
+                if (prop === 'strokewidth')    data[prop] = relview[prop];
+                if (prop === 'textcolor')      data[prop] = relview[prop];
+                if (prop === 'textscale')      data[prop] = relview[prop];
+                if (prop === 'dash')           data[prop] = relview[prop];
+                if (prop === 'fromArrow')      data[prop] = relview[prop];
+                if (prop === 'toArrow')        data[prop] = relview[prop];
+                if (prop === 'fromArrowColor') data[prop] = relview[prop];
+                if (prop === 'toArrowColor')   data[prop] = relview[prop];
             }
+            if (debug) console.log('5883 data', data);
+            for (prop in data) {
+                this[prop] = data[prop];
+            }
+            if (debug) console.log('5887 this', this);           
         }
     }
     setType(type: cxRelationshipType) {
@@ -5867,10 +5919,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.template = template;
     }
     getTemplate(): string {
-        if (this.data.template)
-            return this.data.template;
-        else if (this.template)
+        if (this.template)
             return this.template;
+        else if (this.data.template)
+            return this.data.template;
         else
             return "linkTemplate1";
     }
@@ -5879,10 +5931,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.strokecolor = strokecolor;
     }
     getStrokecolor(): string {
-        if (this.data.strokecolor)
-            return this.data.strokecolor;
-        else if (this.strokecolor)
+        if (this.strokecolor)
             return this.strokecolor;
+        else if (this.data.strokecolor)
+            return this.data.strokecolor;
         else
             return "black";
     }
@@ -5891,22 +5943,34 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.textcolor = color;
     }
     getTextcolor(): string {
-        if (this.data.textcolor)
-            return this.data.textcolor;
-        else if (this.textcolor)
+        if (this.textcolor)
             return this.textcolor;
+        else if (this.data.textcolor)
+            return this.data.textcolor;
         else
             return "black";
+    }
+    setTextscale(scale: string) {
+        this.data.textscale = scale;
+        this.textscale = scale;
+    }
+    getTextscale(): string {
+        if (this.textscale)
+            return this.textscale;
+        else if (this.data.textscale)
+            return this.data.textscale;
+        else
+            return "1";
     }
     setStrokewidth(strokewidth: string) {
         this.data.strokewidth = strokewidth;
         this.strokewidth = strokewidth;
     }
     getStrokewidth(): string {
-        if (this.data.strokewidth)
-            return this.data.strokewidth;
-        else if (this.strokewidth)
+        if (this.strokewidth)
             return this.strokewidth;
+        else if (this.data.strokewidth)
+            return this.data.strokewidth;
         return "1";
     }
     setDash(dash: string) {
@@ -5914,10 +5978,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.dash = dash;
     }
     getDash(): string {
-        if (this.data.dash)
-            return this.data.dash;
-        else if (this.dash)
+        if (this.dash)
             return this.dash;
+        else if (this.data.dash)
+            return this.data.dash;
         else
             return "";
     }
@@ -5926,10 +5990,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.fromArrow = fromArrow;
     }
     getFromArrow(): string {
-        if (this.data.fromArrow)
-            return this.data.fromArrow;
-        else if (this.fromArrow)
+        if (this.fromArrow)
             return this.fromArrow;
+        else if (this.data.fromArrow)
+            return this.data.fromArrow;
         return "";
     }
     setToArrow(toArrow: string) {
@@ -5966,10 +6030,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         }
     }
     getToArrow(): string {
-        if (this.data.toArrow)
-            return this.data.toArrow;
-        else if (this.toArrow)
+        if (this.toArrow)
             return this.toArrow;
+        else if (this.data.toArrow)
+            return this.data.toArrow;
         return "";
     }
     setFromArrowColor(color: string) {
@@ -5977,10 +6041,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.fromArrowColor = color;
     }
     getFromArrowColor(): string {
-        if (this.data.fromArrowColor)
-            return this.data.fromArrowColor;
-        else if (this.fromArrowColor)
+        if (this.fromArrowColor)
             return this.fromArrowColor;
+        else if (this.data.fromArrowColor)
+            return this.data.fromArrowColor;
         return "";
     }
     setToArrowColor(color: string) {
@@ -5988,10 +6052,10 @@ export class cxRelationshipTypeView extends cxMetaObject {
         this.toArrowColor = color;
     }
     getToArrowColor(): string {
-        if (this.data.toArrowColor)
-            return this.data.toArrowColor;
-        else if (this.toArrowColor)
+        if (this.toArrowColor)
             return this.toArrowColor;
+        else if (this.data.toArrowColor)
+            return this.data.toArrowColor;
         return "";
     }
 }
@@ -6014,6 +6078,7 @@ export class cxModel extends cxMetaObject {
     objects: cxObject[] | null;
     relships: cxRelationship[] | null;
     modelviews: cxModelView[] | null;
+    args1: any[];
     constructor(id: string, name: string, metamodel: cxMetaModel | null, description: string) {
         super(id, name, description);
         this.fs_collection = constants.fs.FS_C_MODELS;  // Firestore collection
@@ -6037,6 +6102,7 @@ export class cxModel extends cxMetaObject {
         this.objects = null;
         this.relships = null;
         this.modelviews = null;
+        this.args1 = [];
     }
     // setModelType(modeltype: string) {
     //     this.modeltype = modeltype;
@@ -7060,8 +7126,8 @@ export class cxRelationship extends cxInstance {
         super(id, name, type, description);
         this.fs_collection = constants.fs.FS_C_RELATIONSHIPS;  // Firestore collection
         this.category = constants.gojs.C_RELATIONSHIP;
-        this.fromObject = fromObj;
-        this.toObject = toObj;
+        this.fromObject = fromObj as cxObject;
+        this.toObject = toObj as cxObject;
         this.cardinality = "";
         this.cardinalityFrom = "";
         this.cardinalityTo = "";
@@ -7188,6 +7254,10 @@ export class cxRelationship extends cxInstance {
                 if (reltype.name === constants.types.AKM_HAS_COLLECTION) {
                     retval = true;                    
                 }
+            } else if (reltype.fromObjtype.name === constants.types.AKM_LABEL) {
+                if (reltype.name === constants.types.AKM_ANNOTATES) {
+                    retval = true;                    
+                }
             }
         }
         return retval;
@@ -7276,6 +7346,7 @@ export class cxModelView extends cxMetaObject {
     routing: string;
     linkcurve: string;
     showCardinality: boolean;
+    askForRelshipName: boolean;
     template: any;
     isTemplate: boolean;
     diagrams: cxDiagram[] | null;
@@ -7296,6 +7367,7 @@ export class cxModelView extends cxMetaObject {
         this.routing = "Normal";
         this.linkcurve = "None";
         this.showCardinality = false;
+        this.askForRelshipName = false;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;
@@ -7396,6 +7468,7 @@ export class cxModelView extends cxMetaObject {
             if (this.relshiptypeviews == null)
                 this.relshiptypeviews = new Array();
             this.relshiptypeviews.push(reltypeView);
+            if (debug) console.log('7461 reltypeView', reltypeView);
         }
     }
     addObjectView(objview: cxObjectView) {
@@ -7586,6 +7659,7 @@ export class cxObjectView extends cxMetaObject {
     scale1: string;
     memberscale: string;
     arrowscale: string;
+    textscale: string;
     viewkind: string;
     template: string;
     figure: string;
@@ -7616,6 +7690,7 @@ export class cxObjectView extends cxMetaObject {
         this.scale1 = "1";
         this.memberscale = this.typeview?.memberscale ? this.typeview.memberscale : "1";
         this.arrowscale = this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
+        this.textscale = this.typeview?.textscale ? this.typeview.textscale : "1";
         this.template = "";
         this.figure = "";
         this.geometry = "";
@@ -7789,6 +7864,16 @@ export class cxObjectView extends cxMetaObject {
             return this.typeview?.arrowscale ? this.typeview.arrowscale : "1.3";
         return this.arrowscale;
     }
+    setTextscale(scale: string) {
+        if (scale == undefined)
+        scale = "1";
+        this.textscale = scale;
+    }
+    getTextscale(): string {
+        if (this.textscale == undefined)
+            return "1";
+        return this.textscale;
+    }
     setLoc(loc: string) {
         this.loc = loc;
     }
@@ -7838,8 +7923,8 @@ export class cxRelationshipView extends cxMetaObject {
         this.fromObjview = null;
         this.toObjview = null;
         this.template  = "";
-        this.textscale = "1";
-        this.arrowscale = "1.3";
+        this.textscale = "";
+        this.arrowscale = "";
         this.strokecolor = "";
         this.strokewidth = "";
         this.textcolor = "";
@@ -7849,7 +7934,7 @@ export class cxRelationshipView extends cxMetaObject {
         this.fromArrowColor = "";
         this.toArrowColor = "";
         this.points = null;
-        }
+    }
     // Methods
     getRelationship(): cxRelationship | null {
         return this.relship;

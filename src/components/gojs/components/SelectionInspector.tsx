@@ -107,6 +107,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           if (type1) type = type1;
           reltypeview = type?.typeview;
           reltypeview = myMetis.findRelationshipTypeView(reltypeview?.id);
+          if (debug) console.log('119 inst, instview, type, reltypeview', inst, instview, type, reltypeview);
           break;
         case constants.gojs.C_RELSHIPTYPE:
           type = selObj.reltype;
@@ -192,6 +193,9 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         const typeProps = type?.getProperties(flag);
         properties = typeProps;
       }
+      else if (category === constants.gojs.C_RELSHIPTYPE) {
+
+      }
       if (debug) console.log('184 type, properties', type, properties);
 
       // Handle property values that are undefined
@@ -254,7 +258,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         break;
     }
     if (debug) console.log('253 myMetis', myMetis);
-    if (debug) console.log('249 inst, selObj, type', inst, selObj, type);
+    if (debug) console.log('249 item, inst, selObj, type', item, inst, selObj, type);
 
     // // Check if item has pointer properties
     // const pvalues = [];
@@ -517,12 +521,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'radio';
               break;
             case 'template':
-              if (!selObj.isGroup) {
+              if (selObj.isGroup) {
                 if (selObj.viewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
                   defValue = '';
                   fieldType = 'radio';                
-                } else if (selObj.category === 'Relationship') {
+                } else if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+                  values = uit.getLinkTemplateNames();
+                  defValue = '';
+                  fieldType = 'radio';
+                } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';

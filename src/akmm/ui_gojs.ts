@@ -32,6 +32,7 @@ export class goModel {
     layout: string;
     layer: string;
     visible: boolean;
+    args1: any[];
     constructor(key: string, name: string, modelView: akm.cxModelView) {
         this.key = key;
         this.name = name;
@@ -45,6 +46,7 @@ export class goModel {
         this.layout = "";
         this.layer = this.model?.layer;
         this.visible = this.layer !== 'Admin';
+        this.args1 = this.model?.args1;
         if (debug) console.log('41 constants', constants, this);
     }
     // Methods
@@ -67,7 +69,8 @@ export class goModel {
         let oldNodes: goObjectNode[] = new Array();
         for (let i = 0; i < this.nodes?.length; i++) {
             let n = this.nodes[i] as goObjectNode;
-            oldNodes.push(n);
+            if (n.key !== node.key)
+                oldNodes.push(n);
         }
         oldNodes.push(node as goObjectNode);
         this.nodes = oldNodes;
@@ -132,7 +135,7 @@ export class goModel {
             let i = 0;
             while (i < this.nodes?.length) {
                 const node: goObjectTypeNode = this.nodes[i] as goObjectTypeNode;
-                if (node.getObjectTypeId() === objtypeId) {
+                if (node.objecttype.id === objtypeId) {
                     retval = node;
                     break;
                 }
@@ -393,6 +396,7 @@ export class goObjectNode extends goNode {
     strokecolor: string;
     strokewidth: string;
     textcolor: string;
+    textscale: string;
     icon: string;
     isGroup: boolean | "";
     isCollapsed: boolean | "";
@@ -413,6 +417,7 @@ export class goObjectNode extends goNode {
         this.strokecolor    = objview.strokecolor;
         this.strokewidth    = objview.strokewidth;
         this.textcolor      = objview.textcolor;
+        this.textscale      = objview.textscale;
         this.icon           = objview.icon;
         this.isGroup        = objview.isGroup;
         this.scale1         = objview.scale1;
@@ -721,10 +726,11 @@ export class goRelshipLink extends goLink {
     toNode:             goNode | null;
     from:               string;
     to:                 string;
-    textscale:          string;
     arrowscale:         string;
     strokecolor:        string;
+    strokewidth:        string;
     textcolor:          string;
+    textscale:          string;
     fromArrow:          string;
     toArrow:            string;
     fromArrowColor:     string;
@@ -751,10 +757,11 @@ export class goRelshipLink extends goLink {
         this.from            = "";
         this.to              = "";
         this.template        = relview?.template;
-        this.textscale       = relview?.textscale;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
+        this.strokewidth     = relview?.strokewidth;
         this.textcolor       = relview?.textcolor;
+        this.textscale       = relview?.textscale;
         this.fromArrow       = relview?.fromArrow;
         this.fromArrowColor  = relview?.fromArrowColor;
         this.toArrow         = relview?.toArrow;
@@ -787,6 +794,8 @@ export class goRelshipLink extends goLink {
             }
             this.typeview = relview.getTypeView();
             this.relshipkind = this.relshiptype?.getRelshipKind();
+            if (!this.template)
+                this.template = this.typeview?.template;
             const fromObjview = relview.getFromObjectView();
             if (fromObjview) {
                 let node: goNode | null = model?.findNodeByViewId(fromObjview.id);
@@ -844,10 +853,13 @@ export class goRelshipLink extends goLink {
                 if (this.toNode && this.fromNode) {
                     const viewdata: any = typeview.data;
                     const data: any = typeview.data;
-                    this.addData(data);
+                    // this.addData(data);
                     this.setName(relview.name);
                     this.points = relview.points;
                     for (let prop in viewdata) {
+                        if (prop === 'abstract') continue;
+                        if (prop === 'class') continue;
+                        if (prop === 'category') continue;
                         // this[prop] = typeview[prop];
                         if (relview[prop] && relview[prop] !== "" && relview[prop] != undefined) {
                             this[prop] = relview[prop];
@@ -858,22 +870,23 @@ export class goRelshipLink extends goLink {
                     }        
                 }
             }
-            if (debug) console.log('744 typeview, relview: ', typeview, relview);
-        } else if (relview) {
-            const relship: akm.cxRelationship | null = relview.relship;
-            if (relship && (relship.category === constants.gojs.C_RELATIONSHIP)) {
-                if (relship.viewkind === constants.viewkinds.REL) {
-                    const reltype = relship.type;
-                    if (reltype) {
-                        if (reltype.typeview) {
-                            const data: any = reltype.typeview.data;
-                            this.addData(data);
-                            this.setName(relview.name);
-                        }
-                    }
-                }
-            }
-        }
+            if (debug) console.log('744 goRelshipLink, typeview, relview: ', this, typeview, relview);
+        } 
+        // else if (relview) {
+        //     const relship: akm.cxRelationship | null = relview.relship;
+        //     if (relship && (relship.category === constants.gojs.C_RELATIONSHIP)) {
+        //         if (relship.viewkind === constants.viewkinds.REL) {
+        //             const reltype = relship.type;
+        //             if (reltype) {
+        //                 if (reltype.typeview) {
+        //                     const data: any = reltype.typeview.data;
+        //                     this.addData(data);
+        //                     this.setName(relview.name);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         this.routing = modelview.routing;
         this.curve = modelview.linkcurve;
         if (modelview.showCardinality) {
@@ -885,7 +898,9 @@ export class goRelshipLink extends goLink {
         }
         if (!this.fromArrow && !this.toArrow)
         this.toArrow = 'OpenTriangle';
+        if (debug) console.log('764 goRelshipLink, this: ', this);
     }
+    
     updateLink(data: any, diagram: any) {
         if (this.typeview) {
             const viewdata = this.typeview.getData();
@@ -906,6 +921,7 @@ export class goRelshipTypeLink extends goLink {
     toNode:     goNode | null;
     from:       string | undefined;
     to:         string | undefined;
+    template:   string;
     relshipkind: string;
     cardinality: string;
     cardinalityFrom: string;
@@ -913,6 +929,11 @@ export class goRelshipTypeLink extends goLink {
     nameFrom:   string;
     nameTo:     string;
     strokecolor: string;
+    strokewidth: string;
+    textcolor:      string;
+    arrowscale:     string;
+    textscale:      string;
+    dash:           string;
     routing:    string;
     curve:      string;
     points:     any;
@@ -925,6 +946,7 @@ export class goRelshipTypeLink extends goLink {
         this.toNode     = null;
         this.from       = "";
         this.to         = "";
+        this.template   = "";
         this.relshipkind = "";
         this.cardinality = "";
         this.cardinalityFrom = "";
@@ -949,11 +971,11 @@ export class goRelshipTypeLink extends goLink {
                 this.addData(data);
                 const fromObjtype: akm.cxObjectType | null = reltype.getFromObjType();
                 if (fromObjtype) {
-                    this.fromNode = model.findTypeNode(fromObjtype.getId());
+                    this.fromNode = model.findTypeNode(fromObjtype.id);
                     this.from = this.fromNode?.key;
                     const toObjtype: akm.cxObjectType | null = reltype.getToObjType();
                     if (toObjtype) {
-                        this.toNode = model.findTypeNode(toObjtype.getId());
+                        this.toNode = model.findTypeNode(toObjtype.id);
                         this.to = this.toNode?.key;
                     }
                 }

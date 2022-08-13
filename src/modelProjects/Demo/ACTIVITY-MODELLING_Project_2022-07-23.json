@@ -7931,7 +7931,7 @@
       "models": [
         {
           "id": "05d5b929-b985-49ac-cf92-cc095a03889d",
-          "name": "INIT_MODEL",
+          "name": "TYPE_DEFINITION_MODEL",
           "description": "",
           "metamodelRef": "82e6ec62-e66e-4dc7-9780-32f4b1aa69b3",
           "sourceMetamodelRef": "",
@@ -8706,796 +8706,6 @@
                   "points": null,
                   "markedAsDeleted": false,
                   "modified": false
-                },
-                {
-                  "id": "1f372c48-0a97-4407-1f52-f81cec27590e",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "19a02442-787e-47cf-0057-0e7c2d547ccc",
-                  "typeviewRef": "510d4aa2-4b9a-43c5-2d5b-c657dd43dbbd",
-                  "fromobjviewRef": "e8961acc-eeb4-4dfd-32f8-f1e6bcb50357",
-                  "toobjviewRef": "ba90da0d-487b-4f3d-5037-a3f9c1814212",
-                  "template": "",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 336711,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": -498.005859375,
-                        "y": -63,
-                        "s": true
-                      },
-                      {
-                        "x": -488.005859375,
-                        "y": -63,
-                        "s": true
-                      },
-                      {
-                        "x": -420,
-                        "y": -54.5,
-                        "s": true
-                      },
-                      {
-                        "x": -410,
-                        "y": -54.5,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 5,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "f76df974-cd2a-4dc1-c367-fd4abc6cc598",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "169f93a5-1cf2-4ccd-37e7-22cca022d9cf",
-                  "typeviewRef": "191e9a42-0ebb-45c7-0a5e-608a94c5d009",
-                  "fromobjviewRef": "ba90da0d-487b-4f3d-5037-a3f9c1814212",
-                  "toobjviewRef": "c416b440-f2c3-4f00-eb68-f617daffa9ed",
-                  "template": "",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "dab1571b-8e90-4035-b186-a411bf80b401",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "d2e83db0-49eb-4f22-f755-432c3e05977b",
-                  "typeviewRef": "e4068b27-d0dd-451f-fabd-7b2e4c45f7b2",
-                  "fromobjviewRef": "c416b440-f2c3-4f00-eb68-f617daffa9ed",
-                  "toobjviewRef": "d4c74bd8-1743-4c02-620a-5210d9e31dc5",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "260a2dff-c9cf-4d65-c6ee-64f361947db3",
-                  "name": "Normal post",
-                  "description": "",
-                  "relshipRef": "48651540-7536-425f-93a6-56c9654f1db0",
-                  "typeviewRef": "191e9a42-0ebb-45c7-0a5e-608a94c5d009",
-                  "fromobjviewRef": "d4c74bd8-1743-4c02-620a-5210d9e31dc5",
-                  "toobjviewRef": "dbeded6f-f8c3-4833-531b-f90f4d64797d",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 391206,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": -4.470703125,
-                        "y": -90,
-                        "s": true
-                      },
-                      {
-                        "x": -4.470703125,
-                        "y": -100,
-                        "s": true
-                      },
-                      {
-                        "x": -4.470703125,
-                        "y": -200,
-                        "s": true
-                      },
-                      {
-                        "x": 17.7646484375,
-                        "y": -200,
-                        "s": true
-                      },
-                      {
-                        "x": 40,
-                        "y": -200,
-                        "s": true
-                      },
-                      {
-                        "x": 60,
-                        "y": -200,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 8,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "bfd3d804-c1d6-4d0a-24a5-440d91c36876",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "7e77db07-a953-4340-3fab-0964aad2da26",
-                  "typeviewRef": "e4068b27-d0dd-451f-fabd-7b2e4c45f7b2",
-                  "fromobjviewRef": "dbeded6f-f8c3-4833-531b-f90f4d64797d",
-                  "toobjviewRef": "56529bb3-5c12-4098-f3ce-594b80d5beb6",
-                  "template": "",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "58cbd686-7acf-427d-3a19-eace8e0b9f5e",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "6e34c960-1396-49ed-8dd6-4c7d41231d69",
-                  "typeviewRef": "191e9a42-0ebb-45c7-0a5e-608a94c5d009",
-                  "fromobjviewRef": "56529bb3-5c12-4098-f3ce-594b80d5beb6",
-                  "toobjviewRef": "d2b5dfd3-6e5b-4180-d2c1-4fbcd6a77ff7",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "7d9d9e1a-0e6e-4ded-c329-b3ad8f3516be",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "ee86a3e7-3bdd-4794-08fb-b71a681523ba",
-                  "typeviewRef": "e4068b27-d0dd-451f-fabd-7b2e4c45f7b2",
-                  "fromobjviewRef": "d2b5dfd3-6e5b-4180-d2c1-4fbcd6a77ff7",
-                  "toobjviewRef": "8b7e95d4-86ae-4656-d1c1-049d3c1bb8d0",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "9a0f5d93-9977-4a44-7563-534f1f4f49ab",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "a5de98f5-7cdc-48ba-ee42-895bc9a7a230",
-                  "typeviewRef": "191e9a42-0ebb-45c7-0a5e-608a94c5d009",
-                  "fromobjviewRef": "d4c74bd8-1743-4c02-620a-5210d9e31dc5",
-                  "toobjviewRef": "144ce1fc-92ae-4ec8-ae55-4878c33ff10b",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "439cf041-14f7-45c5-3b3f-31628bc5ff39",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "6071b5cc-126f-4ca3-9a05-d7dfbb9fbd20",
-                  "typeviewRef": "48d2677c-dff1-47bc-38dc-f25592f9c453",
-                  "fromobjviewRef": "144ce1fc-92ae-4ec8-ae55-4878c33ff10b",
-                  "toobjviewRef": "754cd145-2e31-452b-d5cd-078612a4057e",
-                  "template": "",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 395428,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 290,
-                        "y": -50,
-                        "s": true
-                      },
-                      {
-                        "x": 300,
-                        "y": -50,
-                        "s": true
-                      },
-                      {
-                        "x": 345,
-                        "y": -50,
-                        "s": true
-                      },
-                      {
-                        "x": 345,
-                        "y": -50,
-                        "s": true
-                      },
-                      {
-                        "x": 390,
-                        "y": -50,
-                        "s": true
-                      },
-                      {
-                        "x": 410,
-                        "y": -50,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 8,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "ad18e115-79ba-4434-678f-aa8338f4f67d",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "730f9c3a-8243-4a11-207e-e2fda53441e4",
-                  "typeviewRef": "74acd82c-3dfa-43f9-e30a-6cf18f61f407",
-                  "fromobjviewRef": "8b7e95d4-86ae-4656-d1c1-049d3c1bb8d0",
-                  "toobjviewRef": "8ad0740f-c99a-4767-7634-0d89dd8955aa",
-                  "template": "",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 400431,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 665.3896484375,
-                        "y": -159,
-                        "s": true
-                      },
-                      {
-                        "x": 665.3896484375,
-                        "y": -149,
-                        "s": true
-                      },
-                      {
-                        "x": 666.4296875,
-                        "y": -100,
-                        "s": true
-                      },
-                      {
-                        "x": 666.4296875,
-                        "y": -90,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 5,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "108ab215-efd4-41f6-7875-efa591bbad96",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "42dc1af7-114c-4542-2d15-2aac0f9ad7c1",
-                  "typeviewRef": "e4068b27-d0dd-451f-fabd-7b2e4c45f7b2",
-                  "fromobjviewRef": "754cd145-2e31-452b-d5cd-078612a4057e",
-                  "toobjviewRef": "8ad0740f-c99a-4767-7634-0d89dd8955aa",
-                  "template": "",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 400437,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 530,
-                        "y": -50,
-                        "s": true
-                      },
-                      {
-                        "x": 540,
-                        "y": -50,
-                        "s": true
-                      },
-                      {
-                        "x": 575.46484375,
-                        "y": -50,
-                        "s": true
-                      },
-                      {
-                        "x": 575.46484375,
-                        "y": -54.5,
-                        "s": true
-                      },
-                      {
-                        "x": 610.9296875,
-                        "y": -54.5,
-                        "s": true
-                      },
-                      {
-                        "x": 630.9296875,
-                        "y": -54.5,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 8,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "f3817dff-635c-4f31-7100-e201d6fd6ef5",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "478a7ba9-f42b-447b-34c4-e0f1e211a01f",
-                  "typeviewRef": "191e9a42-0ebb-45c7-0a5e-608a94c5d009",
-                  "fromobjviewRef": "ba90da0d-487b-4f3d-5037-a3f9c1814212",
-                  "toobjviewRef": "ac75bd47-5426-4c51-9c44-0da507d4b258",
-                  "template": "",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "e13298dc-a532-4703-95ef-40854f34a868",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "321590ed-3831-4f51-2c47-8facbdf27085",
-                  "typeviewRef": "e4068b27-d0dd-451f-fabd-7b2e4c45f7b2",
-                  "fromobjviewRef": "ac75bd47-5426-4c51-9c44-0da507d4b258",
-                  "toobjviewRef": "66795c60-64d2-488b-9ed8-523bc1b2679c",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 400253,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 70,
-                        "y": 170,
-                        "s": true
-                      },
-                      {
-                        "x": 80,
-                        "y": 170,
-                        "s": true
-                      },
-                      {
-                        "x": 347.91748046875,
-                        "y": 170,
-                        "s": true
-                      },
-                      {
-                        "x": 347.91748046875,
-                        "y": 155.5,
-                        "s": true
-                      },
-                      {
-                        "x": 615.8349609375,
-                        "y": 155.5,
-                        "s": true
-                      },
-                      {
-                        "x": 635.8349609375,
-                        "y": 155.5,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 8,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "bdd27351-56cc-49ed-c590-8ab0e162cfa0",
-                  "name": "isRelatedTo",
-                  "description": "",
-                  "relshipRef": "804201c6-814b-494c-bf2c-c6a538043ddf",
-                  "typeviewRef": "f0356958-bc04-4187-16a8-6d531e77c42c",
-                  "fromobjviewRef": "8ad0740f-c99a-4767-7634-0d89dd8955aa",
-                  "toobjviewRef": "66795c60-64d2-488b-9ed8-523bc1b2679c",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 400445,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 666.4296875,
-                        "y": -19,
-                        "s": true
-                      },
-                      {
-                        "x": 666.4296875,
-                        "y": -9,
-                        "s": true
-                      },
-                      {
-                        "x": 671.3349609375,
-                        "y": 110,
-                        "s": true
-                      },
-                      {
-                        "x": 671.3349609375,
-                        "y": 120,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 5,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "99ba33f6-06b5-4593-1b84-bbde5c7a1aee",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "6876e0ec-ae9c-4312-c00d-ec0ce0be03cf",
-                  "typeviewRef": "191e9a42-0ebb-45c7-0a5e-608a94c5d009",
-                  "fromobjviewRef": "66795c60-64d2-488b-9ed8-523bc1b2679c",
-                  "toobjviewRef": "97574b45-fd09-4ac8-2135-677c91c0ed95",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 400267,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 706.8349609375,
-                        "y": 155.5,
-                        "s": true
-                      },
-                      {
-                        "x": 716.8349609375,
-                        "y": 155.5,
-                        "s": true
-                      },
-                      {
-                        "x": 716.8349609375,
-                        "y": 155.5,
-                        "s": true
-                      },
-                      {
-                        "x": 716.8349609375,
-                        "y": 150,
-                        "s": true
-                      },
-                      {
-                        "x": 760,
-                        "y": 150,
-                        "s": true
-                      },
-                      {
-                        "x": 780,
-                        "y": 150,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 8,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "389b730a-0fb6-4e5e-7355-68abc157b95c",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "468e1d6c-b651-4c4f-9cdd-e3cbe8f24d78",
-                  "typeviewRef": "555bbf39-a024-4363-ce3c-32c2b286d6d3",
-                  "fromobjviewRef": "97574b45-fd09-4ac8-2135-677c91c0ed95",
-                  "toobjviewRef": "bd9e3823-b8ef-40b2-c837-eb36c08f308d",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 336652,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 900,
-                        "y": 150,
-                        "s": true
-                      },
-                      {
-                        "x": 910,
-                        "y": 150,
-                        "s": true
-                      },
-                      {
-                        "x": 980,
-                        "y": 147,
-                        "s": true
-                      },
-                      {
-                        "x": 990,
-                        "y": 147,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 5,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "77a8e7f7-2671-4c5d-1693-62c520a46575",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "5ec2534f-52cc-4dd0-0159-219cc69982e9",
-                  "typeviewRef": "191e9a42-0ebb-45c7-0a5e-608a94c5d009",
-                  "fromobjviewRef": "56529bb3-5c12-4098-f3ce-594b80d5beb6",
-                  "toobjviewRef": "cfa346a1-6fc8-44ba-64bc-6e27a26e080f",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 402084,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 315.3896484375,
-                        "y": -230,
-                        "s": true
-                      },
-                      {
-                        "x": 315.3896484375,
-                        "y": -240,
-                        "s": true
-                      },
-                      {
-                        "x": 315.3896484375,
-                        "y": -330,
-                        "s": true
-                      },
-                      {
-                        "x": 372.69482421875,
-                        "y": -330,
-                        "s": true
-                      },
-                      {
-                        "x": 430,
-                        "y": -330,
-                        "s": true
-                      },
-                      {
-                        "x": 450,
-                        "y": -330,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 8,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "92ad96ff-961e-4bfd-9283-601e025a8ba7",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "d06a4031-df96-4443-6c00-e0e492f8f43f",
-                  "typeviewRef": "e4068b27-d0dd-451f-fabd-7b2e4c45f7b2",
-                  "fromobjviewRef": "cfa346a1-6fc8-44ba-64bc-6e27a26e080f",
-                  "toobjviewRef": "8b7e95d4-86ae-4656-d1c1-049d3c1bb8d0",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": {
-                    "__gohashid": 402090,
-                    "s": true,
-                    "j": [
-                      {
-                        "x": 570,
-                        "y": -330,
-                        "s": true
-                      },
-                      {
-                        "x": 580,
-                        "y": -330,
-                        "s": true
-                      },
-                      {
-                        "x": 594.94482421875,
-                        "y": -330,
-                        "s": true
-                      },
-                      {
-                        "x": 594.94482421875,
-                        "y": -206.33333333333331,
-                        "s": true
-                      },
-                      {
-                        "x": 609.8896484375,
-                        "y": -206.33333333333331,
-                        "s": true
-                      },
-                      {
-                        "x": 629.8896484375,
-                        "y": -206.33333333333331,
-                        "s": true
-                      }
-                    ],
-                    "Aa": 8,
-                    "Ha": null,
-                    "gh": null
-                  },
-                  "markedAsDeleted": false,
-                  "modified": false
                 }
               ],
               "objecttypeviews": [],
@@ -10243,7 +9453,7 @@
         },
         {
           "id": "4a0c1f4a-677c-4256-5723-7320c44a8839",
-          "name": "TEST_MODEL",
+          "name": "EXAMPLE_MODEL",
           "description": "",
           "metamodelRef": "76d1a443-db97-4de4-be71-e7862d697c56",
           "sourceMetamodelRef": "",
@@ -10255,25 +9465,6 @@
           "includeRelshipkind": false,
           "templates": [],
           "objects": [
-            {
-              "id": "95ef263a-2450-47f9-d786-d90a1a12ac29",
-              "name": "Goods to ship",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typeRef": "3a5071ca-3773-4b64-2821-1e4f939be307",
-              "typeName": "Start",
-              "propertyValues": [],
-              "markedAsDeleted": false,
-              "generatedTypeId": "",
-              "modified": false,
-              "nameId": "Start",
-              "category": "Object",
-              "sourceUri": "",
-              "relshipkind": "Association",
-              "valueset": null,
-              "copiedFromId": ""
-            },
             {
               "id": "0b9381fb-c9de-497c-9fc9-c7138a01c5a5",
               "name": "",
@@ -10294,122 +9485,8 @@
               "copiedFromId": ""
             },
             {
-              "id": "d3c65e89-ca42-4985-f7c7-c00c61ab3cbd",
-              "name": "Decide if \nnormal post or\nspecial\nshipment",
-              "description": "",
-              "abstract": false,
-              "viewkind": "",
-              "typeRef": "5800e823-e207-478a-c336-57ca0d73d32c",
-              "typeName": "Activity",
-              "propertyValues": [],
-              "markedAsDeleted": false,
-              "generatedTypeId": "",
-              "modified": false,
-              "nameId": "Activity",
-              "category": "Object",
-              "sourceUri": "",
-              "relshipkind": "Association",
-              "valueset": null,
-              "copiedFromId": ""
-            },
-            {
-              "id": "a6beac7d-bef6-4902-3544-375433a8486c",
-              "name": "Mode of Delivery",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typeRef": "268d733a-193d-4a8b-a179-079320ab62e3",
-              "typeName": "ExclusiveGate",
-              "propertyValues": [],
-              "markedAsDeleted": false,
-              "generatedTypeId": "",
-              "modified": false,
-              "nameId": "ExclusiveGate",
-              "category": "Object",
-              "sourceUri": "",
-              "relshipkind": "Association",
-              "valueset": null,
-              "copiedFromId": ""
-            },
-            {
-              "id": "db264d01-ff66-48f2-cda0-14cddc63e00c",
-              "name": "Check if extra \ninsurance is \nnecessary",
-              "description": "",
-              "abstract": false,
-              "viewkind": "",
-              "typeRef": "5800e823-e207-478a-c336-57ca0d73d32c",
-              "typeName": "Activity",
-              "propertyValues": [],
-              "markedAsDeleted": false,
-              "generatedTypeId": "",
-              "modified": false,
-              "nameId": "Activity",
-              "category": "Object",
-              "sourceUri": "",
-              "relshipkind": "Association",
-              "valueset": null,
-              "copiedFromId": ""
-            },
-            {
-              "id": "98ab18dc-1325-45f5-bb5b-283979f498d2",
-              "name": "InclusiveGate",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typeRef": "0b53bc0d-ea00-473e-ce18-bca12eafecaa",
-              "typeName": "InclusiveGate",
-              "propertyValues": [],
-              "markedAsDeleted": false,
-              "generatedTypeId": "",
-              "modified": false,
-              "nameId": "InclusiveGate",
-              "category": "Object",
-              "sourceUri": "",
-              "relshipkind": "Association",
-              "valueset": null,
-              "copiedFromId": ""
-            },
-            {
-              "id": "91deab37-74ad-47b2-acc5-75f84d68b851",
-              "name": "Fill in \nPost Label",
-              "description": "",
-              "abstract": false,
-              "viewkind": "",
-              "typeRef": "5800e823-e207-478a-c336-57ca0d73d32c",
-              "typeName": "Activity",
-              "propertyValues": [],
-              "markedAsDeleted": false,
-              "generatedTypeId": "",
-              "modified": false,
-              "nameId": "Activity",
-              "category": "Object",
-              "sourceUri": "",
-              "relshipkind": "Association",
-              "valueset": null,
-              "copiedFromId": ""
-            },
-            {
-              "id": "27c2b7d1-4e8b-4643-b4af-3d91cbcf9c5f",
-              "name": "InclusiveGate",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typeRef": "0b53bc0d-ea00-473e-ce18-bca12eafecaa",
-              "typeName": "InclusiveGate",
-              "propertyValues": [],
-              "markedAsDeleted": false,
-              "generatedTypeId": "",
-              "modified": false,
-              "nameId": "InclusiveGate",
-              "category": "Object",
-              "sourceUri": "",
-              "relshipkind": "Association",
-              "valueset": null,
-              "copiedFromId": ""
-            },
-            {
-              "id": "4fc0d0ac-9154-4472-3412-f882e5c0bcf6",
-              "name": "Request Quotes \nfrom carriers",
+              "id": "c3b312f3-22c0-4381-49a5-4941e510e06a",
+              "name": "Add paperwork\nand move\npackage to\npick area",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -10446,11 +9523,163 @@
               "copiedFromId": ""
             },
             {
+              "id": "db264d01-ff66-48f2-cda0-14cddc63e00c",
+              "name": "Check if extra \ninsurance is \nnecessary",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "5800e823-e207-478a-c336-57ca0d73d32c",
+              "typeName": "Activity",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "Activity",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
+              "id": "d3c65e89-ca42-4985-f7c7-c00c61ab3cbd",
+              "name": "Decide if \nnormal post or\nspecial\nshipment",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "5800e823-e207-478a-c336-57ca0d73d32c",
+              "typeName": "Activity",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "Activity",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
+              "id": "9732b12a-b346-4422-8b47-a19563fd3cf6",
+              "name": "End",
+              "description": "",
+              "abstract": false,
+              "viewkind": "Object",
+              "typeRef": "d2ee7479-69b6-4ac8-3adb-5a96d694249a",
+              "typeName": "End",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "End",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
               "id": "7795b15d-6971-44b3-b121-6503e67ffa15",
               "name": "ExclusiveGate",
               "description": "",
               "abstract": false,
               "viewkind": "",
+              "typeRef": "268d733a-193d-4a8b-a179-079320ab62e3",
+              "typeName": "ExclusiveGate",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "ExclusiveGate",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
+              "id": "91deab37-74ad-47b2-acc5-75f84d68b851",
+              "name": "Fill in \nPost Label",
+              "description": "",
+              "abstract": false,
+              "viewkind": "",
+              "typeRef": "5800e823-e207-478a-c336-57ca0d73d32c",
+              "typeName": "Activity",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "Activity",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
+              "id": "95ef263a-2450-47f9-d786-d90a1a12ac29",
+              "name": "Goods to ship",
+              "description": "",
+              "abstract": false,
+              "viewkind": "Object",
+              "typeRef": "3a5071ca-3773-4b64-2821-1e4f939be307",
+              "typeName": "Start",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "Start",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
+              "id": "98ab18dc-1325-45f5-bb5b-283979f498d2",
+              "name": "InclusiveGate",
+              "description": "",
+              "abstract": false,
+              "viewkind": "Object",
+              "typeRef": "0b53bc0d-ea00-473e-ce18-bca12eafecaa",
+              "typeName": "InclusiveGate",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "InclusiveGate",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
+              "id": "27c2b7d1-4e8b-4643-b4af-3d91cbcf9c5f",
+              "name": "InclusiveGate",
+              "description": "",
+              "abstract": false,
+              "viewkind": "Object",
+              "typeRef": "0b53bc0d-ea00-473e-ce18-bca12eafecaa",
+              "typeName": "InclusiveGate",
+              "propertyValues": [],
+              "markedAsDeleted": false,
+              "generatedTypeId": "",
+              "modified": false,
+              "nameId": "InclusiveGate",
+              "category": "Object",
+              "sourceUri": "",
+              "relshipkind": "Association",
+              "valueset": null,
+              "copiedFromId": ""
+            },
+            {
+              "id": "a6beac7d-bef6-4902-3544-375433a8486c",
+              "name": "Mode of Delivery",
+              "description": "",
+              "abstract": false,
+              "viewkind": "Object",
               "typeRef": "268d733a-193d-4a8b-a179-079320ab62e3",
               "typeName": "ExclusiveGate",
               "propertyValues": [],
@@ -10503,8 +9732,8 @@
               "copiedFromId": ""
             },
             {
-              "id": "c3b312f3-22c0-4381-49a5-4941e510e06a",
-              "name": "Add paperwork\nand move\npackage to\npick area",
+              "id": "4fc0d0ac-9154-4472-3412-f882e5c0bcf6",
+              "name": "Request Quotes \nfrom carriers",
               "description": "",
               "abstract": false,
               "viewkind": "",
@@ -10515,25 +9744,6 @@
               "generatedTypeId": "",
               "modified": false,
               "nameId": "Activity",
-              "category": "Object",
-              "sourceUri": "",
-              "relshipkind": "Association",
-              "valueset": null,
-              "copiedFromId": ""
-            },
-            {
-              "id": "9732b12a-b346-4422-8b47-a19563fd3cf6",
-              "name": "End",
-              "description": "",
-              "abstract": false,
-              "viewkind": "Object",
-              "typeRef": "d2ee7479-69b6-4ac8-3adb-5a96d694249a",
-              "typeName": "End",
-              "propertyValues": [],
-              "markedAsDeleted": false,
-              "generatedTypeId": "",
-              "modified": false,
-              "nameId": "End",
               "category": "Object",
               "sourceUri": "",
               "relshipkind": "Association",
@@ -11721,228 +10931,6 @@
                   "toArrowColor": "",
                   "markedAsDeleted": false,
                   "modified": false
-                },
-                {
-                  "id": "91498fb3-2f5a-4532-9b45-042e7d875612",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "752309d8-e1dd-4f79-c92e-336df8d2072a",
-                  "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
-                  "fromobjviewRef": "f984e0bc-a536-4b98-27f7-6b86a11b9555",
-                  "toobjviewRef": "564434de-37fc-4985-8864-c2e882a50960",
-                  "template": "linkTemplate2",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "6e7af7c9-6881-4aee-a826-1c5f782d6ffc",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "8015e205-7104-4dc4-0c10-86580315df8d",
-                  "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
-                  "fromobjviewRef": "ad4ebaa8-f638-47af-64c2-94cf0ad319d5",
-                  "toobjviewRef": "564434de-37fc-4985-8864-c2e882a50960",
-                  "template": "linkTemplate2",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "7f052f72-660c-4495-d210-e7bb1d5f034d",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "e9308435-2927-4371-6d03-a168e6376f92",
-                  "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
-                  "fromobjviewRef": "564434de-37fc-4985-8864-c2e882a50960",
-                  "toobjviewRef": "893cab17-f3ef-486f-0191-d89240e45385",
-                  "template": "linkTemplate2",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "7984a10d-4d49-42b7-6223-439c3408b61c",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "aacd3370-47c0-45ca-5bc3-4a893070c711",
-                  "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
-                  "fromobjviewRef": "564434de-37fc-4985-8864-c2e882a50960",
-                  "toobjviewRef": "ad4ebaa8-f638-47af-64c2-94cf0ad319d5",
-                  "template": "linkTemplate2",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "37cddcd3-b46e-4c12-e330-71909a155afd",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "557437e6-5045-418d-8023-a04552fd8dd4",
-                  "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
-                  "fromobjviewRef": "564434de-37fc-4985-8864-c2e882a50960",
-                  "toobjviewRef": "564434de-37fc-4985-8864-c2e882a50960",
-                  "template": "linkTemplate2",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "be9ea406-d587-48b3-7a98-510286f72956",
-                  "name": "Is",
-                  "description": "",
-                  "relshipRef": "069aee93-340b-4fd7-8cdf-3af5a6b46409",
-                  "typeviewRef": "df761109-ea29-4637-f07f-258d07eea2fe",
-                  "fromobjviewRef": "5ccdbcfa-ea65-4b33-6d00-4365bbc5b5ad",
-                  "toobjviewRef": "ad4ebaa8-f638-47af-64c2-94cf0ad319d5",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "1b7b5f7c-32f9-4eaa-a3f5-7f265b8ce3ea",
-                  "name": "Is",
-                  "description": "",
-                  "relshipRef": "9ba22a49-42d7-4026-43ce-e491c18dec00",
-                  "typeviewRef": "df761109-ea29-4637-f07f-258d07eea2fe",
-                  "fromobjviewRef": "c9c9dbb9-6e2a-4ae5-5291-6f7296c539bb",
-                  "toobjviewRef": "ad4ebaa8-f638-47af-64c2-94cf0ad319d5",
-                  "template": "",
-                  "textscale": "1",
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "40d12e12-5490-4af3-f2ee-dc2ed4a235b1",
-                  "name": "Is",
-                  "description": "",
-                  "relshipRef": "10540837-e0b8-4936-ac67-ba51a684e0e8",
-                  "typeviewRef": "df761109-ea29-4637-f07f-258d07eea2fe",
-                  "fromobjviewRef": "658618d5-8b45-4ecc-1f17-ef4adc3a3775",
-                  "toobjviewRef": "ad4ebaa8-f638-47af-64c2-94cf0ad319d5",
-                  "template": "",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "5e0bd28a-8f81-4062-5ca9-1da17bd702ba",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "b8cc111e-9488-4339-d84d-3e0caad53ce0",
-                  "typeviewRef": "ccf4a54d-82ed-4f9d-84fe-588f5b9653d4",
-                  "fromobjviewRef": "f984e0bc-a536-4b98-27f7-6b86a11b9555",
-                  "toobjviewRef": "ad4ebaa8-f638-47af-64c2-94cf0ad319d5",
-                  "template": "linkTemplate2",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "markedAsDeleted": false,
-                  "modified": false
-                },
-                {
-                  "id": "8fca021d-4120-4336-825f-767373861254",
-                  "name": "flowsTo",
-                  "description": "",
-                  "relshipRef": "6482b84f-45b0-4e70-2e14-3455d5685d94",
-                  "typeviewRef": "406e0ced-6ba4-40ab-76ad-f8a825a9e716",
-                  "fromobjviewRef": "ad4ebaa8-f638-47af-64c2-94cf0ad319d5",
-                  "toobjviewRef": "ad4ebaa8-f638-47af-64c2-94cf0ad319d5",
-                  "template": "linkTemplate2",
-                  "textscale": 1,
-                  "arrowscale": 1.3,
-                  "strokecolor": "black",
-                  "strokewidth": "",
-                  "textcolor": "",
-                  "dash": "",
-                  "fromArrow": "",
-                  "toArrow": "",
-                  "fromArrowColor": "",
-                  "toArrowColor": "",
-                  "points": null,
-                  "markedAsDeleted": false,
-                  "modified": false
                 }
               ],
               "objecttypeviews": [],
@@ -11971,11 +10959,11 @@
     "focusTargetModel": null,
     "focusTargetModelview": null,
     "focusModel": {
-      "id": "05d5b929-b985-49ac-cf92-cc095a03889d",
-      "name": "INIT_MODEL"
+      "id": "4a0c1f4a-677c-4256-5723-7320c44a8839",
+      "name": "TEST_MODEL"
     },
     "focusModelview": {
-      "id": "25369779-7e2d-4731-3d54-415f3c10da5d",
+      "id": "871180bf-8008-469d-152a-450061cfe2ac",
       "name": "Main"
     },
     "focusObject": {
@@ -12033,7 +11021,15 @@
         {
           "id": "Task0",
           "name": "Modelling",
-          "workOnTypes": []
+          "workOnTypes": [
+            "Activity",
+            "Start",
+            "Gateway",
+            "End",
+            "ParallelGate",
+            "InclusiveGate",
+            "ExclusiveGate"
+          ]
         },
         {
           "id": "task1",
@@ -12082,21 +11078,19 @@
           "description": "All types modelling",
           "workOnTypes": [
             [
+              "Activity",
               "Container",
-              "Datatype",
               "Element",
+              "End",
               "EntityType",
-              "FieldType",
+              "ExclusiveGate",
+              "Gateway",
               "Generic",
-              "InputPattern",
+              "InclusiveGate",
               "Label",
-              "Method",
-              "MethodType",
-              "Property",
-              "RelshipType",
-              "Unittype",
-              "Value",
-              "ViewFormat"
+              "ParallelGate",
+              "Start",
+              "Unittype"
             ]
           ]
         }
@@ -12104,27 +11098,17 @@
     },
     "focusTask": {
       "id": "Task4",
-      "name": "All types",
-      "description": "All types modelling",
+      "name": "Modelling",
+      "description": "Modelling",
       "workOnTypes": [
-        [
-          "Container",
-          "Container",
-          "Datatype",
-          "Element",
-          "EntityType",
-          "FieldType",
-          "Generic",
-          "InputPattern",
-          "Label",
-          "Method",
-          "MethodType",
-          "Property",
-          "RelshipType",
-          "Unittype",
-          "Value",
-          "ViewFormat"
-        ]
+        "Container",
+        "Activity",
+        "Start",
+        "Gateway",
+        "End",
+        "ParallelGate",
+        "InclusiveGate",
+        "ExclusiveGate"
       ]
     },
     "focusTargetMetamodel": {
@@ -12144,6 +11128,6 @@
       }
     }
   },
-  "phSource": "ACTIVITY-MODELLING_Project_2022-07-23 (4).json",
-  "lastUpdate": "2022-07-23T12:06:36.126Z"
+  "phSource": "ACTIVITY-MODELLING_Project_2022-07-23.json",
+  "lastUpdate": "2022-07-23T13:38:14.960Z"
 }

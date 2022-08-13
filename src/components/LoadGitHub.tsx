@@ -36,9 +36,9 @@ const LoadGitHub = (props: any) => {
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [modal, setModal] = useState(false);
 
   const { buttonLabel, className } = props;
-  const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
 

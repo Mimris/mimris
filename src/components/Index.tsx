@@ -196,6 +196,13 @@ const page = (props) => {
                     </CardText>
                   </CardBody> */}
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.08.06</CardTitle>
+                    <CardText >
+                          &bull; New button in the model top-bar for loading startmodels from GitHub".<br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.07.11</CardTitle>
                     <CardText >
                           &bull; New Recovery button in the model top-bar".<br />

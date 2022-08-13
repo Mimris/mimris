@@ -28,7 +28,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                 id: "Task0",
                 name: "Modelling",
                 workOnTypes:  
-                oTypes0.map((t: { name: any; }) => t.name)
+                oTypes0?.map((t: { name: any; }) => t.name)
             },
             {
                 id: "task1",
@@ -85,13 +85,13 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
     
       dispatch({ type: 'SET_FOCUS_ROLE', data: datarole.focusRole })
 
-      let datatask = (oTypes0.length > 0) ? {
+      let datatask = (oTypes0?.length > 0) ? {
             focusTask: {
             id: "Task4",  
             name: "Modelling",
             description: "Modelling",
             workOnTypes:
-            ["Container"].concat(...oTypes0.map((t: { name: any; }) => t.name))
+            ["Container"].concat(...oTypes0?.map((t: { name: any; }) => t.name))
             }
         } : 
         {
@@ -100,7 +100,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                 name: "All types",
                 description: "All types modelling",
                 workOnTypes: [
-                    ["Container"].concat(...oTypes.map((t: { name: any; }) => t.name))
+                    ["Container"].concat(...oTypes?.map((t: { name: any; }) => t.name))
                 ]
             }
         }

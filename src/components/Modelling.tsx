@@ -18,6 +18,7 @@ import LoginServer from '../components/LoginServer'
 import LoadLocal from '../components/LoadLocal'
 import LoadRecovery from '../components/LoadRecovery'
 import LoadFile from '../components/LoadFile'
+import LoadGitHub from '../components/LoadGitHub'
 import LoadJsonFile from '../components/LoadJsonFile'
 import { ReadModelFromFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 
@@ -430,10 +431,11 @@ const page = (props:any) => {
   const loginserver = (process.browser) && <LoginServer buttonLabel='Login to Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadserver = (process.browser) && <LoadServer buttonLabel='Server' className='ContextModal' ph={props} refresh={refresh} setRefresh={setRefresh} /> 
   const loadlocal =  (process.browser) && <LoadLocal  buttonLabel='Local'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-  const loadrecovery =  (process.browser) && <LoadRecovery  buttonLabel='Recovery'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  const loadgithub =  (process.browser) && <LoadGitHub  buttonLabel='GitHUb'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
   const loadfile =  (process.browser) && <LoadFile  buttonLabel='Model file'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
   const loadjsonfile =  (process.browser) && <LoadJsonFile  buttonLabel='OSDU'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
-
+  const loadrecovery =  (process.browser) && <LoadRecovery  buttonLabel='Recovery'  className='ContextModal' ph={props} refresh={refresh} setRefresh = {setRefresh} /> 
+  
   const modelType = (activeTab === '1') ? 'metamodel' : 'model'
   const EditFocusModalMDiv = (focusRelshipview?.name || focusRelshiptype?.name) && <EditFocusModal buttonLabel='Model' className='ContextModal' modelType={'modelview'} ph={props} refresh={refresh} setRefresh={setRefresh} />
   // const EditFocusModalDiv = <EditFocusModal buttonLabel='Edit' className='ContextModal' modelType={modelType} ph={props} refresh={refresh} setRefresh={setRefresh} />
@@ -445,37 +447,38 @@ const page = (props:any) => {
   return  mount && (
     <>
       <div className="diagramtabs pl-1 pb-0">
-        {/* <div className="diagramtabs pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "100px" , whitespace: "nowrap"}}> */}
-        <span className="btn-link btn-sm float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
-        <div className="buttonrow m-0 d-inline-flex float-right" style={{transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
-          {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
-            <span className="pt-1 pb-1 m-0 pr-2 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span>
+        <div className="header-buttons pl-1 pb-1 " style={{  backgroundColor: "#ddd", minWidth: "100px" }}>
+          <span className="btn-link btn-sm float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
+          <div className="buttonrow m-0 d-inline-flex float-right" style={{transform: "scale(0.6)", position: "relative", top: 0, right: 0 }}>
+            {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
+            <span className=" m-0 px-0 bg-secondary " style={{ minWidth: "125px", maxHeight: "28px", backgroundColor: "#fff"}} > Edit selected :  </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Relationship and click to edit properties" > {EditFocusModalRDiv} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Select an Object and click to edit properties" > {EditFocusModalODiv} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Click to edit Model and Modelview properties" > {EditFocusModalMDiv} </span>
 
-            <span className="pt-1 pr-1" > </span>
+            {/* <span className="pt-1 pr-1" > </span> */}
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from file" > {loadfile} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from OSDU Json file" > {loadjsonfile} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from localStore or download/upload file" > {loadlocal} </span>
             {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Login to the model repository server (Firebase)" > {loginserver} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models from the model repository server (Firebase)" > {loadserver} </span> */}
-            Project: 
-            <span className="sourceName p-0 ml-2 mb-1 " style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#fff"}}>
-              <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)}  />
+            <span className="m-0 p-0" style={{transform: "scale(0.9)"}} >Project files:</span>
+            <span className="  " style={{ minWidth: "130px", maxHeight: "22px", backgroundColor: "#fff"}}>
+              <input className="select-input" type="file" accept=".json" onChange={(e) => ReadModelFromFile(props, dispatch, e)} />
             </span>
             <span >
               <button 
-                className="btn-primary ml-2 mr-2 mb-3 " 
+                className="btn-secondary ml-2 mr-2 mb-3 " 
                 data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                title="Click here to Save the Project&#013;(all models and metamodels) to a file &#013;(in Downloads folder)"
+                title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
                 onClick={handleSaveAllToFileDate}>Save
               </button >
             </span> 
+            <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from GitHub" > {loadgithub} </span>
             <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
-          {/* </div>  */}
+          </div> 
         </div> 
-        <div className="modellingContent pt-3 pr-2"  >
+        <div className="modellingContent pt-3 " >
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>
       </div>

@@ -157,7 +157,7 @@ const LoadGitHub = (props: any) => {
             placeholder="Repos Url:"
           />          
           {loading ? 'Loading...' : (repos.length > 0) 
-            ? <div>Repos foun: 
+            ? <div>Repos found: 
               {repos.map((repo) => (
                 <li key={repo.id} >{repo.name}</li>
               ))} 

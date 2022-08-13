@@ -16,6 +16,16 @@ const $ = go.GraphObject.make;
 
 require('gojs/extensions/Figures.js');
 
+go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
+    var len = Math.min(w, 10);
+    return new go.Geometry()
+      .add(new go.PathFigure(len, 0)
+           .add(new go.PathSegment(go.PathSegment.Line, 0, 0))
+           .add(new go.PathSegment(go.PathSegment.Line, 0, h))
+           .add(new go.PathSegment(go.PathSegment.Line, len, h)));
+  });
+
+
 export function getRouting(r: string): any {
     switch(r) {
     case 'Normal':
@@ -167,6 +177,9 @@ export function getGroupTemplateNames() {
 
 const UnselectedBrush = "lightgray";  // item appearance, if not "selected"
 const SelectedBrush   = "dodgerblue";   // item appearance, if "selected"
+const GradientYellow = $(go.Brush, 'Linear', { 0: 'LightGoldenRodYellow', 1: '#FFFF66' });
+const GradientLightGreen = $(go.Brush, 'Linear', { 0: '#E0FEE0', 1: 'PaleGreen' });
+const GradientLightGray = $(go.Brush, 'Linear', { 0: 'White', 1: '#DADADA' });
 
 // Define a function for creating a "port" that is normally transparent.
 // The "name" is used as the GraphObject.portId, the "spot" is used to control how links connect
@@ -852,6 +865,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            { contextMenu: contextMenu },    
             {
                 selectionObjectName: "SHAPE",
                 resizable: true, resizeObjectName: "SHAPE"
@@ -873,9 +887,6 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
                 new go.Binding('stroke', 'strokecolor'), 
-                new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
-                .ofObject(),
-                { contextMenu: contextMenu },    
             ),
             $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
                 {
@@ -924,6 +935,45 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
         )
     );
     // addNodeTemplateName('label');
+
+    nodeTemplateMap.add("Annotation",
+        $(go.Node, 'Auto',
+            new go.Binding("layerName", "layer"),
+            new go.Binding("deletable"),
+            { contextMenu: contextMenu },  
+            { 
+                background: GradientLightGray, 
+                locationSpot: go.Spot.Center, 
+            },            
+            new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
+            $(go.Shape, 'Annotation', // A left bracket shape
+                {
+                    portId: '', 
+                    fromLinkable: true, 
+                    toLinkable: true, 
+                    toLinkableSelfNode: false, 
+                    toLinkableDuplicates: false,
+                    cursor: 'alias', 
+                    fromSpot: go.Spot.Left,
+                    strokeWidth: 2, 
+                    stroke: 'gray', 
+                    fill: 'transparent',
+                },
+            ),  
+            $(go.TextBlock,
+                { 
+                    margin: 5, 
+                    editable: true, 
+                    text: 'Annotation',
+                    alignment: go.Spot.Left,
+                    scale: 1,
+                },
+                new go.Binding('text', 'text').makeTwoWay(),
+                new go.Binding('scale', 'textscale').makeTwoWay()
+            ),
+        )
+    );
+    addNodeTemplateName('Annotation');
 
     nodeTemplateMap.add("ActivityNode",
     $(go.Node, 'Spot',
@@ -990,7 +1040,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
           },
           new go.Binding("text", "name").makeTwoWay())
       )  // end Auto Panel
-    );  // end go.Node, which is a Spot Panel with bound itemArray
+    );
     addNodeTemplateName('ActivityNode');
 
     nodeTemplateMap.add("EventNode",
@@ -1519,33 +1569,49 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             },  
             new go.Binding("points").makeTwoWay(),
             // link shape
-            $(go.Shape, { 
-                stroke: 'black', 
-                strokeWidth: 1 
-            }),
-            $(go.Shape, { 
-                toArrow: 'Triangle', 
-                scale: 1.2, 
-                fill: 'black', 
-                stroke: null 
-            }),
-            $(go.Shape, { 
-                fromArrow: '', 
-                scale: 1.5, 
-                stroke: 'black', 
-                fill: 'white' 
-            },
-              new go.Binding('fromArrow', 'isDefault', function (s) {
-                if (s === null) return '';
-                return s ? 'BackSlash' : 'StretchedDiamond';
-              }),
+            $(go.Shape, { stroke: "black", strokeWidth: 1, strokeDashArray: null, shadowVisible: true, },
+            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("strokeWidth", "strokewidth"),
+            new go.Binding("strokeDashArray", "dash", 
+                function(d) { return setDashed(d); }),
+            ),
+            // the "from" arrowhead
+            $(go.Shape, { fromArrow: ""},
+            { scale: 1.3, fill: "" },
+            new go.Binding("fromArrow", "fromArrow"),
+            new go.Binding("fill", "fromArrowColor"),
+            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("scale", "arrowscale").makeTwoWay(),
+            ),
+            // the "to" arrowhead
+            $(go.Shape, { toArrow: ""},  
+            { scale: 1.3, fill: "white" },
+            new go.Binding("toArrow", "toArrow"),
+            new go.Binding("fill", "toArrowColor"),
+            new go.Binding("stroke", "strokecolor"),
+            new go.Binding("scale", "arrowscale").makeTwoWay(),
+            ),
+            // cardinality from
+            $(go.TextBlock, "",
+                { segmentIndex: NaN, segmentFraction: 0.15},
+                { segmentOffset: new go.Point(0, 10) },
+                new go.Binding("text", "cardinalityFrom"),
+                new go.Binding("scale", "textscale").makeTwoWay(),
+                ),
+            // cardinality to
+            $(go.TextBlock, "",
+            { segmentIndex: NaN, segmentFraction: 0.85},
+                { segmentOffset: new go.Point(0, -10) },
+                new go.Binding("text", "cardinalityTo"),
+                new go.Binding("scale", "textscale").makeTwoWay(),
+                ),
               new go.Binding('segmentOffset', 'isDefault', function (s) {
                 return s ? new go.Point(5, 0) : new go.Point(0, 0);
-              })),
+              }),
             // link label
             $(go.TextBlock,  "",
                 {
-                    isMultiline: false,  // don't allow newlines in text
+                    isMultiline: true,  // allow newlines in text
                     editable: true,  // allow in-place editing by user
                 },
                 { segmentOffset: new go.Point(-10, -10) },
@@ -1571,6 +1637,33 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
             
     linkTemplateMap.add("linkTemplate2", linkTemplate2);
     addLinkTemplateName('linkTemplate2');
+
+    const annotationLinkTemplate =
+        $(go.Link,
+        {
+            reshapable: true, 
+            relinkableFrom: true, relinkableTo: true,
+            toSpot: go.Spot.AllSides,
+            toEndSegmentLength: 20, fromEndSegmentLength: 40
+        },
+        { contextMenu: contextMenu },    
+        new go.Binding('points').makeTwoWay(),
+        $(go.Shape, { stroke: 'black', strokeWidth: 1, strokeDashArray: [1, 3] }),
+        $(go.Shape, { toArrow: 'OpenTriangle', scale: 1, stroke: 'black' }),
+        $(go.TextBlock,  "",
+        {
+            isMultiline: true,  // allow newlines in text
+            editable: true,  // allow in-place editing by user
+        }),
+        { segmentOffset: new go.Point(-10, -10) },
+        new go.Binding("text", "name").makeTwoWay(),
+        new go.Binding("stroke", "textcolor").makeTwoWay(),
+        new go.Binding("scale", "textscale").makeTwoWay(),
+    );
+
+    linkTemplateMap.add("AnnotationLink", annotationLinkTemplate);
+    addLinkTemplateName('AnnotationLink');
+    
     if (debug) console.log('1514 linkTemplateMap, linkTemplateNames', linkTemplateMap, linkTemplateNames);
 }
 

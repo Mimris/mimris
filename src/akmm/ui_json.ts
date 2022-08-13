@@ -66,7 +66,7 @@ export class jsnExportMetis {
             if (metis.currentTargetModelview)
                 this.currentTargetModelviewRef = metis.currentTargetModelview.id;
             if (metis.currentTemplateModel)
-                this.currentTemplateModelRef = metis.currentTemplateModel.id;            
+                this.currentTemplateModelRef = metis.currentTemplateModel.id;  
         }
     }
     // Functions
@@ -686,6 +686,7 @@ export class jsnObjectTypeView {
     strokecolor1:    string;
     strokewidth:     string;
     textcolor:       string;
+    textscale:       string;
     memberscale:     string;
     icon:            string;
     markedAsDeleted: boolean;
@@ -706,6 +707,7 @@ export class jsnObjectTypeView {
         this.strokecolor1    = this.strokecolor;
         this.strokewidth     = objtypeview.getStrokewidth();
         this.textcolor       = objtypeview.getTextcolor();
+        this.textscale       = objtypeview.getTextscale();
         this.memberscale     = objtypeview.getMemberscale();
         this.icon            = objtypeview.getIcon();
         this.markedAsDeleted = objtypeview.markedAsDeleted;
@@ -746,6 +748,7 @@ export class jsnRelshipTypeView {
     strokecolor1:    string;
     strokewidth:     string;
     textcolor:       string;
+    textscale:       string;
     dash:            string;
     fromArrow:       string;
     toArrow:         string;
@@ -763,6 +766,7 @@ export class jsnRelshipTypeView {
         this.strokecolor1    = this.strokecolor1;
         this.strokewidth     = reltypeview.getStrokewidth();
         this.textcolor       = reltypeview.getTextcolor();
+        this.textscale       = reltypeview.getTextscale();
         this.dash            = reltypeview.getDash();
         this.fromArrow       = reltypeview.getFromArrow();
         this.toArrow         = reltypeview.getToArrow();
@@ -881,6 +885,7 @@ export class jsnModel {
     modelviews:             jsnModelView[];
     markedAsDeleted:        boolean;
     modified:               boolean;
+    args1:                  any[];
     constructor(model: akm.cxModel, includeViews: boolean) {
         this.id              = model.id;
         this.name            = model.name;
@@ -899,6 +904,7 @@ export class jsnModel {
         this.modelviews      = [];
         this.markedAsDeleted = model.markedAsDeleted;
         this.modified        = model.modified;
+        this.args1           = model.args1;
         // Code
         if (model.description)
             this.description = model.description;
@@ -1269,6 +1275,7 @@ export class jsnModelView {
     routing:            string;
     linkcurve:          string;
     showCardinality:    boolean;
+    askForRelshipName:  boolean;
     modelRef:           string;
     viewstyleRef:       string;
     objectviews:        jsnObjectView[];
@@ -1286,6 +1293,7 @@ export class jsnModelView {
         this.linkcurve          = mv?.linkcurve;
         this.modelRef           = mv?.getModel()?.id;
         this.showCardinality    = mv?.showCardinality;
+        this.askForRelshipName  = mv?.askForRelshipName;
         this.viewstyleRef       = mv?.getViewStyle()?.getId();
         this.objectviews        = [];
         this.relshipviews       = [];
@@ -1380,6 +1388,7 @@ export class jsnObjectView {
     strokecolor:     string;
     strokewidth:     string;
     textcolor:       string;
+    textscale:       string;
     icon:            string;
     constructor(objview: akm.cxObjectView) {
         this.id              = objview?.id;
@@ -1399,6 +1408,7 @@ export class jsnObjectView {
         this.strokecolor     = objview?.strokecolor;
         this.strokewidth     = objview?.strokewidth;
         this.textcolor       = objview?.textcolor;
+        this.textscale       = objview?.textscale;
         this.icon            = objview?.icon;
         this.size            = objview?.size;
         this.scale           = Number(objview?.scale1);
@@ -1416,11 +1426,11 @@ export class jsnRelshipView {
     fromobjviewRef:  string;
     toobjviewRef:    string;
     template:        string;
-    textscale:       string;
     arrowscale:      string;
     strokecolor:     string;
     strokewidth:     string;
     textcolor:       string;
+    textscale:       string;
     dash:            string;
     fromArrow:       string;
     toArrow:         string;
@@ -1436,11 +1446,11 @@ export class jsnRelshipView {
         this.relshipRef      = "";
         this.typeviewRef     = "";
         this.template        = relview?.template;
-        this.textscale       = relview?.textscale;
         this.arrowscale      = relview?.arrowscale;
         this.strokecolor     = relview?.strokecolor;
         this.strokewidth     = relview?.strokewidth;
         this.textcolor       = relview?.textcolor;
+        this.textscale       = relview?.textscale;
         this.dash            = relview?.dash;
         this.fromArrow       = relview?.fromArrow;
         this.toArrow         = relview?.toArrow;
@@ -1701,6 +1711,7 @@ export class jsnImportMetis {
         const reltypeview = new akm.cxRelationshipTypeView(item.id, item.name, type, item.description);
         if (utils.objExists(type))
             reltypeview.setType(type);
+        reltypeview.setTemplate(item.template);
         reltypeview.setStrokecolor(item.strokecolor);
         reltypeview.setStrokewidth(item.strokewidth);
         reltypeview.setDash(item.dash);

@@ -694,7 +694,7 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
     }
     myGoModel.links = links;
     const link = myGoModel?.findLink(data.key) as gjs.goRelshipLink;
-    if (debug) console.log('632 deleteLink', link);
+    if (debug) console.log('697 link', link);
     if (link) {
         const relview = link.relshipview;
         const relship = relview.relship;
@@ -704,11 +704,11 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
             relship?.removeRelationshipView(relview);
             const delLink = new jsn.jsnRelshipView(relview);
             deletedLinks.push(delLink);
-            if (debug) console.log('642 deleteLink', relship, relview);
+            if (debug) console.log('707 deleteLink', relship, relview);
             return;
         }
         // Else handle delete relships AND relship views
-        // First delete object
+        // First delete relship
         if (relship) {
             relship.markedAsDeleted = deletedFlag;
             relview.markedAsDeleted = deletedFlag;
@@ -718,18 +718,19 @@ export function deleteLink(data: any, deletedFlag: boolean, deletedLinks: any[],
             if (rviews) {
                 for (let i = 0; i < rviews.length; i++) {
                     const rview = rviews[i];
+                    if (debug) console.log('721 rview', rview);
                     if (!rview.markedAsDeleted) {
                         rview.markedAsDeleted = deletedFlag;
                         const jsnRelview = new jsn.jsnRelshipView(rview);
                         deletedLinks.push(jsnRelview);
-                        if (debug) console.log('660 deleteLink', rview);
+                        if (debug) console.log('725 rview', rview);
                         // Handle relshiptypeview
                         deleteRelshipTypeView(rview, deletedFlag, deletedTypeviews);
                     }
                 }
            }
            const jsnRelship = new jsn.jsnRelationship(relship);
-           if (debug) console.log('667 jsnRelship', jsnRelship);
+           if (debug) console.log('732 jsnRelship', jsnRelship);
            deletedRelships.push(jsnRelship);
         }      
     }
@@ -1336,6 +1337,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         updateLink(data, relshipview.typeview, myDiagram, myGoModel);
         if (debug) console.log('1209 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
+        myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELATIONSHIP);
         myDiagram.requestUpdate();
         if (debug) console.log('1212 relshipview', relshipview);
         const id = relshipview.id;

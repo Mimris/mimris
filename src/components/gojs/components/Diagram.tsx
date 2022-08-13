@@ -450,7 +450,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 }
             }
             if (debug) console.log('430 myFromNodes', myFromNodes);
-            myMetis.fromNodes = myFromNodes;
+            const myModel = myMetis.currentModel;
+            myModel.args1 = myFromNodes;
+            const jsnModel = new jsn.jsnModel(myModel, true);
+            const modifiedModels = new Array();
+            modifiedModels.push(jsnModel);
+            modifiedModels.map(mn => {
+              let data = mn;
+              data = JSON.parse(JSON.stringify(data));
+              e.diagram.dispatch({ type: 'UPDATE_MODEL_PROPERTIES', data })
+            })
 
             selection = [];
             e.diagram.selection.each(function(sel) {
@@ -460,7 +469,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               selection.push(sel.data);
             });
             myMetis.currentSelection = selection;
-            if (debug) console.log('438 selection', myMetis.currentSelection);
+            if (debug) console.log('438 myMetis', myMetis);
             e.diagram.commandHandler.copySelection(); 
           },
           function (o: any) { 
@@ -470,6 +479,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Paste",
             function (e: any, obj: any) {
+              if (debug) console.log('473 myMetis', myMetis);
               const currentModel = myMetis.currentModel;
               myMetis.pasteViewsOnly = false;
               const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
@@ -480,6 +490,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Paste View",
             function (e: any, obj: any) {
+              if (debug) console.log('484 myMetis', myMetis);
               const currentModel = myMetis.currentModel;
               myMetis.pasteViewsOnly = true;
               let data = myMetis;
@@ -556,6 +567,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const node = o.part.data;
+              if (debug) console.log('570 node', node);
               if (node.category === constants.gojs.C_OBJECT) {
                 return true;
               }
@@ -1251,6 +1263,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             },
             function (o: any) { 
               const node = o.part.data;
+              if (debug) console.log('1265 node', node);
               if (node.category === constants.gojs.C_RELATIONSHIP) {
                 return true;
               }
@@ -1426,23 +1439,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (e, obj) {
               const myGoModel = myMetis.gojsModel;
               const link = obj.part.data;
-              if (debug) console.log('666 link', link, myDiagram, myGoModel);
+              if (debug) console.log('1440 link', link, myDiagram, myGoModel);
               let fromNode = myGoModel?.findNode(link.from);
               let toNode   = myGoModel?.findNode(link.to);
-              if (debug) console.log('669 from and toNode', fromNode, toNode);
+              if (debug) console.log('1443 from and toNode', fromNode, toNode);
               let fromType = fromNode?.objecttype;
               let toType   = toNode?.objecttype;
               fromType = myMetis.findObjectType(fromType?.id);
               toType   = myMetis.findObjectType(toType?.id);
               const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';
-              if (debug) console.log('672 link', fromType, toType);
+              if (debug) console.log('1449 link', fromType, toType);
               const myMetamodel = myMetis.currentMetamodel;
               const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
               let   defText  = "";
               link.choices = [];
               if (!appliesToLabel)
                 link.choices.push('isRelatedTo');
-              if (debug) console.log('675 createRelationship', reltypes, fromType, toType);
+              if (debug) console.log('1456 createRelationship', reltypes, fromType, toType);
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {
                       const rtype = reltypes[i];
@@ -1450,22 +1463,27 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                           continue;
                       link.choices.push(rtype.name);  
                   }
+                  let uniqueSet = utils.removeArrayDuplicates(link.choices);
+                  link.choices = uniqueSet;
               }
               const context = {
                 "myMetis":      myMetis,
                 "myDiagram":    e.diagram,
               }
+              const args = {
+                typeNames:  link.choices,
+              }
               const modalContext = {
                 what: "selectDropdown",
                 title: "Select Relationship Type",
                 case: "Change Relationship type",
-                myDiagram: myDiagram
+                myDiagram: myDiagram,
+                args: args,
               } 
               myMetis.currentLink = link;
               myMetis.myDiagram = myDiagram;
               myDiagram.handleOpenModal(link.choices, modalContext);
-              if (debug) console.log('511 myMetis', myMetis);
-
+              if (debug) console.log('1478 myMetis', myMetis);
             },
             function (o) {
               const link = o.part.data;
@@ -1618,6 +1636,23 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 return true;
               }
               return false; 
+            }),
+          makeButton("Reset to Typeview",
+            function (e: any, obj: any) { 
+
+              const myGoModel = myMetis.gojsModel;
+              myDiagram.selection.each(function(sel) {
+                const inst = sel.data;
+                if (inst.category === constants.gojs.C_RELATIONSHIP) {
+                  let link = myGoModel.findLink(inst.key);
+                  uid.resetToTypeview(link, myMetis, myDiagram); 
+                }
+              })
+            }, 
+            function (o: any) {
+                const link = o.part.data;
+                if (link.category === constants.gojs.C_RELATIONSHIP)
+                  return true;
             }),
           makeButton("----------"),
           makeButton("Generate Relationship Type",             
@@ -1806,6 +1841,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         $(go.Adornment, "Vertical",
           makeButton("Paste",
             function (e: any, obj: any) {
+              if (debug) console.log('1811 myMetis', myMetis);
               myMetis.pasteViewsOnly = false;
               const mySelection = [];
               e.diagram.selection.each(function(sel) {
@@ -1821,6 +1857,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             }),
           makeButton("Paste View",
             function (e: any, obj: any) {
+              if (debug) console.log('1827 myMetis', myMetis);
               myMetis.pasteViewsOnly = true;
               const selection = [];
               e.diagram.selection.each(function(sel) {
@@ -2518,6 +2555,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
+          makeButton("Toggle 'Ask for Relationship Name' On/Off",   
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              if (modelview.askForRelshipName == undefined)
+                modelview.askForRelshipName = false;
+              modelview.askForRelshipName = !modelview.askForRelshipName;
+              if (!modelview.askForRelshipName) {
+                alert("Relationship names will NOT be asked for!");
+              } else {
+                alert("Relationship names WILL be asked for!");
+              }
+              const jsnModelview = new jsn.jsnModelView(modelview);
+              if (debug) console.log('3236 jsnModelview', jsnModelview);
+              const modifiedModelviews = new Array();
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("Zoom All",
             function (e: any, obj: any) {
               e.diagram.commandHandler.zoomToFit();
@@ -2717,10 +2778,16 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
     function addFromNode(myFromNodes: any, n: any) {
       const myFromNode = { 
-        "key":     n.data.key, 
-        "name":    n.data.name,
-        "loc":     new String(n.data.loc),
-        "scale":   new String(n.scale)
+        "key":        n.data.key, 
+        "name":       n.data.name,
+        "objid":      n.data.object.id,
+        "objviewid":  n.data.objectview.id,
+        "group":      n.data.objectview.group,
+        "isGroup":    n.data.objectview.isGroup,
+        "toGroup":    "",
+        "loc":        new String(n.data.loc),
+        "scale":      new String(n.scale),
+        "size":       new String(n.data.size)
       }
       myFromNodes.push(myFromNode);
       if (n.data.isGroup) {
@@ -2877,7 +2944,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             comps ={ Option: CustomSelectOption, SingleValue: CustomSelectValue }
         } 
         else if (modalContext?.title === 'Select Relationship Type') {
-            if (debug) console.log('2882 choices', this.state.modalContext.choices);
+            if (debug) console.log('2923 modalContext', this.state.modalContext);
             const choices = this.state.modalContext.args.typeNames;
             let img;
             options = choices.map(tpname => {

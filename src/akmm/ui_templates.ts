@@ -207,7 +207,7 @@ function showSmallPorts(node, show) {
         port.fill = show ? "rgba(0,0,0,.3)" : null;
       }
     });
-  }
+}
 
 function addNodeTemplateName(name: string) {
     if (nodeTemplateNames.length == 0) {
@@ -1015,12 +1015,11 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
 
     nodeTemplateMap.add("textAndFigure", 
         $(go.Node, 'Auto',  // the Shape will go around the TextBlock
-            new go.Binding("stroke", "strokecolor"),
             new go.Binding("layerName", "layer"),
             new go.Binding("deletable"),
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
             new go.Binding("scale", "scale1").makeTwoWay(),
-            {
+            { // Tooltip
                 toolTip:
                 $(go.Adornment, "Auto",
                     $(go.Shape, { fill: "lightyellow" }),
@@ -1031,7 +1030,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             $(go.Shape, 'RoundedRectangle', // Rectangle for cursor alias
                 {
                 cursor: "alias",        // cursor: "pointer",
-                name: 'SHAPE', fill: 'red', stroke: "#000",  strokeWidth: 2, 
+                name: 'SHAPE', 
+                fill: 'red', 
+                stroke: "#000",  
+                strokeWidth: 2, 
                 margin: new go.Margin(1, 1, 1, 1),
                 shadowVisible: true,
                 desiredSize: new go.Size(198, 68), // outer Shape size with icon
@@ -1041,10 +1043,10 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true},
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
-                new go.Binding('stroke', 'strokecolor'), 
-                new go.Binding("stroke", "isHighlighted", function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; })
-                .ofObject(),
-                // new go.Binding('strokeWidth', 'strokewidth'), //sf:  the linking of relationships does not work if this is uncommented
+                // new go.Binding('stroke', 'strokecolor'), 
+                new go.Binding("stroke", "isHighlighted", 
+                    function(h, shape) { return h ? "lightblue" : shape.part.data.strokecolor || "black"; }
+                ).ofObject(),
                 { contextMenu: contextMenu },    
             ),
             $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
@@ -1079,9 +1081,9 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                                 shadowVisible: true,
                                 desiredSize: new go.Size(48, 48), // outer Shape size 
                             },
-                            new go.Binding('stroke', 'strokecolor'), 
-                            new go.Binding("fill", "fillcolor"),
-                            new go.Binding("template"),
+                            // new go.Binding('stroke', 'strokecolor'), 
+                            // new go.Binding("fill", "fillcolor"),
+                            // new go.Binding("template"),
                             new go.Binding("figure", "figure"), 
                         ),
                     ),

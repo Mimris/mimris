@@ -1334,18 +1334,25 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         for (let prop in  reltypeview?.data) {
             relshipview[prop] = reltypeview[prop];
         }        
-        updateLink(data, relshipview.typeview, myDiagram, myGoModel);
-        if (debug) console.log('1209 data', data);
+        // updateLink(data, relshipview.typeview, myDiagram, myGoModel);
+        if (debug) console.log('1337 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
-        myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELATIONSHIP);
         myDiagram.requestUpdate();
-        if (debug) console.log('1212 relshipview', relshipview);
+        if (debug) console.log('1340 relshipview', relshipview);
         const id = relshipview.id;
-        const name = relshipview.name;  
+        let name = data.name;  
+        if (context.myModelview.askForRelshipName){
+            name = prompt('Enter relationship name', name);
+            if (name.length == 0) name = " ";
+        }   
         relshipview = updateRelationshipView(relshipview);
         relshipview.id = id;
         relshipview.name = name;
-        if (debug) console.log('1214 myModelview, relshipview', myModelview, relshipview);
+        relship.name = name;
+        data.name = name;
+        if (debug) console.log('1351 data, relshipview', data, relshipview);
+        if (debug) console.log('1352 myModelview, relshipview', myModelview, relshipview);
+        updateLink(data, relshipview.typeview, myDiagram, myGoModel);
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
         myModel.addRelationship(relship);
@@ -1353,7 +1360,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         // Dispatch
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
-        if (debug) console.log('1226 jsnRelship', jsnRelship);
+        if (debug) console.log('1360 jsnRelship', jsnRelship);
         modifiedRelships.push(jsnRelship);
         modifiedRelships.map(mn => {
             let data = mn;
@@ -1362,12 +1369,12 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })      
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1217 jsnRelview', jsnRelview);
+        if (debug) console.log('1369 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('1220 data', data, myModelview);
+            if (debug) console.log('1374 data', data, myModelview);
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })              
         const modifiedModelviews = new Array();
@@ -1378,8 +1385,15 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
           data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
+        const link = myDiagram.findLinkForKey(data.key);
+        if (debug) console.log('1388 link', link);
+        myDiagram.model.setDataProperty(link, "name", name);
+        myDiagram.model.setDataProperty(link.data, "name", name);
+        myDiagram.model.setDataProperty(link.data, "category", "Relationship");
+        if (debug) console.log('1389 jsnRelship, jsnRelview, jsnModelview', jsnRelship, jsnRelview, jsnModelview);
     }        
-    if (debug) console.log('1234 relshipview, modelview', relshipview, myModelview);
+    if (debug) console.log('1393 data, relshipview, modelview', data, relshipview, myModelview);
+    myDiagram.requestUpdate();
     return relshipview;
 }
 

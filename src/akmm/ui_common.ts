@@ -1425,7 +1425,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const pasteViewsOnly = myMetis.pasteViewsOnly;
     if (debug) console.log('1134 pasteViewsOnly', pasteViewsOnly);
     if (debug) console.log('1135 myMetis', myMetis, myGoModel);
-    if (debug) console.log('1136 pasteRelationship', data);
+    if (!debug) console.log('1136 pasteRelationship', data);
     // Relationship type must exist
     let reltype = data.relshiptype;
     reltype = myMetis.findRelationshipType(reltype?.id);
@@ -1455,7 +1455,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
             relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
             relship.setModified();
             data.relship = relship;
-            relship.setName(reltype.name);
+            relship.setName(data.name);
             myMetis.currentModel.addRelationship(relship);
             myMetis.addRelationship(relship);
         }

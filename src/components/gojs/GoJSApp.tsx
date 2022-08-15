@@ -1182,9 +1182,9 @@ class GoJSApp extends React.Component<{}, AppState> {
           const data = it1.value.data;
           if (data.category === constants.gojs.C_RELATIONSHIP) {
             if (debug) console.log('1229 ClipboardPasted', data);
-            if (debug) console.log('1230 ClipboardPasted', data, pastedNodes);
+            if (!debug) console.log('1230 ClipboardPasted', data, pastedNodes);
             let relview = uic.pasteRelationship(data, pastedNodes, context);
-            if (debug) console.log('1232 relview', data, relview);
+            if (!debug) console.log('1232 relview', data, relview);
             if (relview) {
               const relid = relview.relship?.id;
               relview.relship = myMetis.findRelationship(relid);

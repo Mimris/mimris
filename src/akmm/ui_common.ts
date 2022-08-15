@@ -30,7 +30,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (debug) console.log('31 createObject', context, data);
+        if (!debug) console.log('31 createObject', context, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
@@ -82,30 +82,49 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setIsGroup(data.isGroup);
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
-                objview.setScale(data.scale);
+                objview.setScale(data.scale1);
                 objview.setMemberscale(data.memberscale);
                 objview.setTemplate(data.template);
                 objview.setFigure(data.figure);
+                let key = data.key.substr(0,36);
+                let node = myGoModel?.findNode(key);
+                if (!node) {
+                    node = new gjs.goObjectNode(key, objview);   
+                    if (node) {
+                        node.loc = data.loc;
+                        if (debug) console.log('97 node, data', node, data);
+                        const group = getGroupByLocation(myGoModel, node.loc);
+                        if (debug) console.log('99 group', group);
+                        if (group) { 
+                            const parentgroup = group;
+                            node.group = parentgroup.key;
+                            node.scale1 = new String(node.getMyScale(myGoModel));
+                            data.scale1 = Number(node.scale1);
+                        }
+                    }
+                }
+                if (debug) console.log('106 data, node, myGoModel', data, node, myGoModel);    
                 data.objectview = objview;
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
                 myModelview.addObjectView(objview);
                 myMetis.addObjectView(objview);
-                if (debug) console.log('86 data, objview', data, objview);
+                if (debug) console.log('112 data, objview', data, objview);
                 // Then update the node with its new properties
                 // First set name and reference to the objectview
                 myDiagram.model.setDataProperty(data, "type", data.name);
                 myDiagram.model.setDataProperty(data, "name", name);
+                myDiagram.model.setDataProperty(data, "scale", data.scale1);
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();
                 if (context.pasted) {
                     const id = data.typeview?.id;
                     objtypeView = myMetis.findObjectTypeView(id);
-                    if (debug) console.log('97 objtypeView', objtypeView);
+                    if (debug) console.log('124 objtypeView', objtypeView);
                 }
                 if (oview0) {
-                    if (debug) console.log('100 oview0', oview0);
+                    if (debug) console.log('127 oview0', oview0);
                     const otdata = objtypeView.data;
                     for (let prop in otdata) {
                         if (oview0[prop]) {
@@ -115,7 +134,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                             myDiagram.model.setDataProperty(data, prop, otdata[prop]);
                         }
                     }
-                    if (debug) console.log('110 objview', objview);
+                    if (debug) console.log('137 objview', objview);
                     const node = new gjs.goObjectNode(data.key, objview);
                     myGoModel.addNode(node);
                     updateNode(node, objtypeView, myDiagram, myGoModel);

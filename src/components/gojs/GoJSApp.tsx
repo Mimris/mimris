@@ -283,7 +283,7 @@ class GoJSApp extends React.Component<{}, AppState> {
         const data = sel.data;
         const textvalue = data.text;
         let field = e.subject.name;
-        if (debug) console.log('275 data', data, field, sel);
+        if (!debug) console.log('275 data', data, field, sel);
         // Object type or Object
           if (sel instanceof go.Node) {
             const key = data.key;
@@ -534,7 +534,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Object moved
             const key = data.key;
             if (debug) console.log('527 selcnt, data', selcnt, data);
-            let node = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedNodes) as gjs.goObjectNode;
+            let node;
+            node = uic.changeNodeSizeAndPos(data, fromloc, toloc, myGoModel, myDiagram, modifiedNodes) as gjs.goObjectNode;
             node = goModel?.findNode(data.key);
             if (node) {
               node.scale1 = node.getMyScale(myGoModel).toString();

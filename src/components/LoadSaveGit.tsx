@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
-import git from 'isomorphic-git'
+import git, { readTree } from 'isomorphic-git'
+import fs from 'fs'
 
 import FS from '@isomorphic-git/lightning-fs'
 import http from 'isomorphic-git/http/node'
 
+
 import TextInput from './utils/TextInput';
 import Select from './utils/Select';
-import { resolve } from 'url';
+
 
 
 const debug = false
@@ -17,12 +19,17 @@ const LoadSaveGit =(props: any) => {
 
     const dispatch = useDispatch();
 
-    console.log('11', window.location.href)
+    console.log('11', window.location.href, window.location.pathname, window?.parent  );
+    
 
+    // if (typeof window !== 'undefined') {
+    // window.fs = new LightningFS('fs')
+    // window.pfs = window.FileSystem.promises
+    // }
 
-    const fs = new FS('AKMM')
+    // const fs = new FS('fs')
+    // const pfs = fs.promises
 
-    const pfs = fs.promises
     const username = 'SnorreFossland'
     const url = `/Users/snorrefossland/GitHub/`
     const repository = 'akm-start-models'
@@ -43,15 +50,15 @@ const LoadSaveGit =(props: any) => {
     const toggle = () => setModal(!modal);
 
     const getLocalRepos = async () => {
+        console.log('51 ', git, readTree(fs, '.'))
         
-        const files = await git.listFiles({ fs, dir: __dirname })
-        // const files = await git.listFiles({ fs, dir: '/GitHub/akm-start-models/StartModels' })
+        // const files = await git.listFiles({ fFs, dir: __dirname })
+        const files = await git.listFiles({ fs, dir: '/GitHub/akm-start-models/StartModels' })
         console.log('46 files', files)
-        console.log('41 repos', __dirname, pfs)
-        console.log('42', await pfs.stat('/').then(resolve => repoText ))  // get all repos
+        // console.log('42', await pfs.stat('/?').then(stats => stats))
 
-        let status = await git.status({ fs, dir: '/akm-start-models', filepath: 'README.md' })
-        console.log(fs,  status, git)
+        // let status = await git.status({ fFs, dir: '/akm-start-models', filepath: 'README.md' })
+        // console.log('59', fFs,  status, git)
       
 
         // // get Readme.md from repo

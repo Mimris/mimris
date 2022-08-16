@@ -525,8 +525,10 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 if (selObj.viewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
                   defValue = '';
-                  fieldType = 'radio';                
-                } else if (selObj.category === constants.gojs.C_RELATIONSHIP) {
+                  fieldType = 'radio';    
+                }             
+              } else {
+                if (selObj.category === constants.gojs.C_RELATIONSHIP) {
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
@@ -534,10 +536,16 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                   values = uit.getLinkTemplateNames();
                   defValue = '';
                   fieldType = 'radio';
-                } else {             
-                  values = uit.getNodeTemplateNames();
-                  defValue = '';
-                  fieldType = 'radio';
+                } else if (selObj.category === constants.gojs.C_OBJECT) {
+                  if (selObj.viewkind === 'Object') {             
+                    values = uit.getNodeTemplateNames();
+                    defValue = '';
+                    fieldType = 'radio';
+                  } else if (selObj.viewkind === 'Container') {             
+                    values = uit.getGroupTemplateNames();
+                    defValue = '';
+                    fieldType = 'radio';
+                  }
                 }
               }
               break;

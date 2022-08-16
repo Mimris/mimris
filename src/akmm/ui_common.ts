@@ -30,7 +30,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (debug) console.log('31 createObject', context, data);
+        if (!debug) console.log('31 createObject', context, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
@@ -82,30 +82,49 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 objview.setIsGroup(data.isGroup);
                 objview.setLoc(data.loc);
                 objview.setSize(data.size);
-                objview.setScale(data.scale);
+                objview.setScale(data.scale1);
                 objview.setMemberscale(data.memberscale);
                 objview.setTemplate(data.template);
                 objview.setFigure(data.figure);
+                let key = data.key.substr(0,36);
+                let node = myGoModel?.findNode(key);
+                if (!node) {
+                    node = new gjs.goObjectNode(key, objview);   
+                    if (node) {
+                        node.loc = data.loc;
+                        if (debug) console.log('97 node, data', node, data);
+                        const group = getGroupByLocation(myGoModel, node.loc);
+                        if (debug) console.log('99 group', group);
+                        if (group) { 
+                            const parentgroup = group;
+                            node.group = parentgroup.key;
+                            node.scale1 = new String(node.getMyScale(myGoModel));
+                            data.scale1 = Number(node.scale1);
+                        }
+                    }
+                }
+                if (debug) console.log('106 data, node, myGoModel', data, node, myGoModel);    
                 data.objectview = objview;
                 // Include the object view in the current model view
                 obj.addObjectView(objview);
                 myModelview.addObjectView(objview);
                 myMetis.addObjectView(objview);
-                if (debug) console.log('86 data, objview', data, objview);
+                if (debug) console.log('112 data, objview', data, objview);
                 // Then update the node with its new properties
                 // First set name and reference to the objectview
                 myDiagram.model.setDataProperty(data, "type", data.name);
                 myDiagram.model.setDataProperty(data, "name", name);
+                myDiagram.model.setDataProperty(data, "scale", data.scale1);
                 myDiagram.model.setDataProperty(data, "objectview", objview);
                 // Then set the view properties
                 let objtypeView = objtype?.getDefaultTypeView();
                 if (context.pasted) {
                     const id = data.typeview?.id;
                     objtypeView = myMetis.findObjectTypeView(id);
-                    if (debug) console.log('97 objtypeView', objtypeView);
+                    if (debug) console.log('124 objtypeView', objtypeView);
                 }
                 if (oview0) {
-                    if (debug) console.log('100 oview0', oview0);
+                    if (debug) console.log('127 oview0', oview0);
                     const otdata = objtypeView.data;
                     for (let prop in otdata) {
                         if (oview0[prop]) {
@@ -115,7 +134,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                             myDiagram.model.setDataProperty(data, prop, otdata[prop]);
                         }
                     }
-                    if (debug) console.log('110 objview', objview);
+                    if (debug) console.log('137 objview', objview);
                     const node = new gjs.goObjectNode(data.key, objview);
                     myGoModel.addNode(node);
                     updateNode(node, objtypeView, myDiagram, myGoModel);
@@ -1334,18 +1353,25 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         for (let prop in  reltypeview?.data) {
             relshipview[prop] = reltypeview[prop];
         }        
-        updateLink(data, relshipview.typeview, myDiagram, myGoModel);
-        if (debug) console.log('1209 data', data);
+        // updateLink(data, relshipview.typeview, myDiagram, myGoModel);
+        if (debug) console.log('1337 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
-        myDiagram.model.setDataProperty(data, "category", constants.gojs.C_RELATIONSHIP);
         myDiagram.requestUpdate();
-        if (debug) console.log('1212 relshipview', relshipview);
+        if (debug) console.log('1340 relshipview', relshipview);
         const id = relshipview.id;
-        const name = relshipview.name;  
+        let name = data.name;  
+        if (context.myModelview.askForRelshipName){
+            name = prompt('Enter relationship name', name);
+            if (name.length == 0) name = " ";
+        }   
         relshipview = updateRelationshipView(relshipview);
         relshipview.id = id;
         relshipview.name = name;
-        if (debug) console.log('1214 myModelview, relshipview', myModelview, relshipview);
+        relship.name = name;
+        data.name = name;
+        if (debug) console.log('1351 data, relshipview', data, relshipview);
+        if (debug) console.log('1352 myModelview, relshipview', myModelview, relshipview);
+        updateLink(data, relshipview.typeview, myDiagram, myGoModel);
         myModelview.addRelationshipView(relshipview);
         myMetis.addRelationshipView(relshipview);
         myModel.addRelationship(relship);
@@ -1353,7 +1379,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         // Dispatch
         const modifiedRelships = new Array();
         const jsnRelship = new jsn.jsnRelationship(relship);
-        if (debug) console.log('1226 jsnRelship', jsnRelship);
+        if (debug) console.log('1360 jsnRelship', jsnRelship);
         modifiedRelships.push(jsnRelship);
         modifiedRelships.map(mn => {
             let data = mn;
@@ -1362,12 +1388,12 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         })      
         const modifiedRelviews = new Array();
         const jsnRelview = new jsn.jsnRelshipView(relshipview);
-        if (debug) console.log('1217 jsnRelview', jsnRelview);
+        if (debug) console.log('1369 jsnRelview', jsnRelview);
         modifiedRelviews.push(jsnRelview);
         modifiedRelviews.map(mn => {
             let data = mn;
             data = JSON.parse(JSON.stringify(data));
-            if (debug) console.log('1220 data', data, myModelview);
+            if (debug) console.log('1374 data', data, myModelview);
             (mn) && myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
         })              
         const modifiedModelviews = new Array();
@@ -1378,8 +1404,15 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
           data = JSON.parse(JSON.stringify(data));
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
+        const link = myDiagram.findLinkForKey(data.key);
+        if (debug) console.log('1388 link', link);
+        myDiagram.model.setDataProperty(link, "name", name);
+        myDiagram.model.setDataProperty(link.data, "name", name);
+        myDiagram.model.setDataProperty(link.data, "category", "Relationship");
+        if (debug) console.log('1389 jsnRelship, jsnRelview, jsnModelview', jsnRelship, jsnRelview, jsnModelview);
     }        
-    if (debug) console.log('1234 relshipview, modelview', relshipview, myModelview);
+    if (debug) console.log('1393 data, relshipview, modelview', data, relshipview, myModelview);
+    myDiagram.requestUpdate();
     return relshipview;
 }
 
@@ -1392,7 +1425,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const pasteViewsOnly = myMetis.pasteViewsOnly;
     if (debug) console.log('1134 pasteViewsOnly', pasteViewsOnly);
     if (debug) console.log('1135 myMetis', myMetis, myGoModel);
-    if (debug) console.log('1136 pasteRelationship', data);
+    if (!debug) console.log('1136 pasteRelationship', data);
     // Relationship type must exist
     let reltype = data.relshiptype;
     reltype = myMetis.findRelationshipType(reltype?.id);
@@ -1422,7 +1455,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
             relship = new akm.cxRelationship(utils.createGuid(), reltype, fromObj, toObj, "", "");
             relship.setModified();
             data.relship = relship;
-            relship.setName(reltype.name);
+            relship.setName(data.name);
             myMetis.currentModel.addRelationship(relship);
             myMetis.addRelationship(relship);
         }

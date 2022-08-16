@@ -1731,6 +1731,9 @@ export function updateRelationshipView(relview: akm.cxRelationshipView):  akm.cx
                 }
             }
         }
+        if (relview.strokewidth === "") {
+            relview.strokewidth = "1";
+        }
     }
     return relview;
 }

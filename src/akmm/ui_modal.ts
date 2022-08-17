@@ -181,8 +181,10 @@ export function handleSelectDropdownChange(selected, context) {
           // set the link attributes
           const rtviewdata = reltype.typeview.data;
           for (let prop in rtviewdata) {
-              if (prop === 'abstract') continue;
-              if (prop === 'class') continue;
+            if (prop === 'id') continue;
+            if (prop === 'name') continue;
+            if (prop === 'abstract') continue;
+            if (prop === 'class') continue;
               if (prop === 'relshipkind') continue;
               linkdata[prop] = rtviewdata[prop];
           }
@@ -812,7 +814,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const node = myDiagram.findNodeForKey(sel.data.key);
           if (node) {
             const data = node.data;
-            if (!debug) console.log('789 objview, data, node', objview, data, node);
+            if (debug) console.log('789 objview, data, node', objview, data, node);
             for (let prop in objtypeview?.data) {
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'fillcolor' && objview[prop] !== "") 

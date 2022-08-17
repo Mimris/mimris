@@ -30,7 +30,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         const myModelview = context.myModelview;
         const myGoModel = context.myGoModel;
         const myDiagram = context.myDiagram;
-        if (!debug) console.log('31 createObject', context, data);
+        if (debug) console.log('31 createObject', context, data);
         const otypeId = data.objecttype?.id;
         const objtype = myMetis.findObjectType(otypeId);
         if (!objtype)
@@ -1425,7 +1425,7 @@ export function pasteRelationship(data: any, nodes: any[], context: any) {
     const pasteViewsOnly = myMetis.pasteViewsOnly;
     if (debug) console.log('1134 pasteViewsOnly', pasteViewsOnly);
     if (debug) console.log('1135 myMetis', myMetis, myGoModel);
-    if (!debug) console.log('1136 pasteRelationship', data);
+    if (debug) console.log('1136 pasteRelationship', data);
     // Relationship type must exist
     let reltype = data.relshiptype;
     reltype = myMetis.findRelationshipType(reltype?.id);

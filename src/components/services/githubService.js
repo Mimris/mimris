@@ -52,3 +52,25 @@ export function searchModel(searchText, path) {
 }
 
 // export { searchRepos, searchModels };
+
+
+
+
+
+// export function searchRepos(searchText, path) {
+//   console.log('15 searchRepos', searchText, path);
+//   return axios.get(
+//     `search/repositories?q=${searchText}`,
+//     axiosConfig
+//   );
+// }
+
+// export function searchModels(searchText, path) {
+//   const query = `${searchText}`;
+//   console.log('31 searchRepos', query);
+
+//   return axios.get(
+//     `${query}`,
+//     axiosConfig
+//   );
+// }

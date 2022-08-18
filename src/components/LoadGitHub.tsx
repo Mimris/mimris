@@ -17,7 +17,7 @@ const LoadGitHub = (props: any) => {
 
   const username = 'SnorreFossland'
   const url = `https://api.github.com/users/${username}/repos/`
-  const repository = 'akm-start-models'
+  const repository = 'akm-models'
   const path = 'StartupModels'
   // // const path = 'StartupModels'
   // // console.log('26 url', url)
@@ -36,9 +36,9 @@ const LoadGitHub = (props: any) => {
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [modal, setModal] = useState(false);
 
   const { buttonLabel, className } = props;
-  const [modal, setModal] = useState(false);
   const toggle = () => setModal(!modal);
 
 

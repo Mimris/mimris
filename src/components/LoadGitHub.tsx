@@ -110,7 +110,7 @@ const LoadGitHub = (props: any) => {
 
   const loadModels = async (urlText, pathText) => {
     setLoading(true);
-    const rep = `https://github.com/repos/${usernameText}/${pathText}/contents/`;
+    const rep = `repos/${usernameText}/contents/`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     const path = `${pathText}`
     if (!debug) console.log('72', pathText, rep , path)

@@ -16,8 +16,8 @@ const LoadGitHub = (props: any) => {
   // console.log('11', props)
 
   const username = 'SnorreFossland'
-  const url = `https://api.github.com/users/${username}/repos/`
-  const repository = 'akm-start-models'
+  const url = `https://api.github.com/users/`
+  const repository = 'akm-models'
   const path = 'StartupModels'
   // // const path = 'StartupModels'
   // // console.log('26 url', url)
@@ -27,8 +27,11 @@ const LoadGitHub = (props: any) => {
   // const repository = 'cumulus-akm-pocc'
   // const path = 'Cumulus'
 
+  // The search string are: https://api.github.com/users/${username}/repos/
+  // const url = `https://github.com/repos/${username}/${repository}/contents/${path}`
+
   const [searchText, setSearchText] = useState('');
-  const [urlText, setUrlText] = useState(url);
+  const [usernameText, setUsernameText] = useState(username);
   const [pathText, setPathText] = useState(path);
   const [repoText, setRepoText] = useState(repository);
   const [repos, setRepos] = useState([]);
@@ -42,11 +45,12 @@ const LoadGitHub = (props: any) => {
   const toggle = () => setModal(!modal);
 
 
-  const onUrlChange = (text) => {
-    setUrlText(text);
+  const onUsernameChange = (text) => {
+    setUsernameText(text);
     const timer = setTimeout(() => {
     loadRepos(text, model);
     }, 5000);
+    return () => clearTimeout(timer);
   };
 
   const onPathChange = (text) => {
@@ -95,20 +99,21 @@ const LoadGitHub = (props: any) => {
 
   const loadRepos = async (repoText, pathText) => {
     setLoading(true);
-    if (!debug) console.log('76 loadRepos', repoText, pathText)
-    const res = await searchRepos(repoText, model);
+    if (!debug) console.log('76 loadRepos', repoText, pathText, model)
+    const res = await searchRepos(repoText, pathText);
     setLoading(false);
     setRepos(res.data.items);
     console.log('94', res.data.items, res)
-    if (debug) console.log('95', urlText, pathText, repoText, res.data, res.data.items, res)
+    if (debug) console.log('95', usernameText, pathText, repoText, res.data, res.data.items, res)
     // loadModels(repoText, pathText);
   };
 
   const loadModels = async (urlText, pathText) => {
     setLoading(true);
-    const rep = `repos/${username}/${repoText}/contents/${pathText}`;
+    const rep = `https://github.com/repos/${usernameText}/${pathText}/contents/`;
+    // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
     const path = `${pathText}`
-    if (debug) console.log('72', repoText, path, rep )
+    if (!debug) console.log('72', pathText, rep , path)
     const res = await searchModels(rep, path);
     if (debug) console.log('74',  res.data, res)
     // console.log('58', urlText, pathText, res.data, res.data.items, res)
@@ -117,9 +122,11 @@ const LoadGitHub = (props: any) => {
   };
 
   useEffect(() => {
-    setUrlText(url);
+    setUsernameText(username);
     setPathText(path);
+    const repoText = `${url}${username}/repos`;
     setRepoText(repoText);
+    console.log('125',repoText, pathText)
     // const timer = setTimeout(() => {
       loadRepos(repoText, pathText);
     // }, 1000);
@@ -144,40 +151,38 @@ const LoadGitHub = (props: any) => {
 
   return  (
     <>
-      <span><button className="btn btn-success text-white m-0 p-1" onClick={toggle}>{buttonLabel}</button>
+      <span><button className="btn-context btn-outline-primary text-dark ml-1" onClick={toggle}>{buttonLabel}</button>
       </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}>GitHub repo</ModalHeader>
         <ModalBody className='pt-0'>
         <div>
           <TextInput
-            label="Repositories URL (i.e. https/:api.github.com/users/'UserName'/repos/):"
-            value={urlText}
-            onChange={(value) => onUrlChange(value)}
-            placeholder="Repos Url:"
+            label="Repo UserName (i.e. https/:api.github.com/users/'UserName'/repos/):"
+            // label="Repos URL (i.e. https/:api.github.com/users/'UserName'/repos/):"
+            value={usernameText}
+            onChange={(value) => onUsernameChange(value)}
+            placeholder="Repos UserName:"
           />          
-          {loading ? 'Loading...' : (repos.length > 0) 
-            ? <div>Repos found: 
+          {loading ? 'Loading...' : 
+             <div> 
               {repos.map((repo) => (
                 <li key={repo.id} >{repo.name}</li>
               ))} 
               </div> 
-              : 'No repos found!'}
-            <hr className="bg-primary" />
+          }
+          <hr className="bg-primary" />
           <TextInput
-            label="Repository Name (i.e. akm-start-models):"
-            value={repoText}
+            label="Repository Name (i.e. akm-models):"
+            value={repository}
             onChange={(value) => onRepoChange(value)}
             placeholder="Repo name:"
           />          
-          {loading ? 'Loading...' : (repos.length > 0) 
-            ? <div>Repo found! 
-              {/* {repos.map((repo) => (
-                <li key={repo.id} >{repo.name}</li>
-              ))}  */}
-              </div> 
-              : 'No repo found!'}
-          Full url: {url+repoText}
+          Searching repo url: {repoText} <br />
+          {loading ? 'Loading...' : 
+            <div>{models.length > 0 ? <div> Models fond </div> : <div> No models found </div>}</div>
+          }
+  
           <hr className="bg-primary" />
           <TextInput 
             label="Model path"
@@ -185,9 +190,9 @@ const LoadGitHub = (props: any) => {
             onChange={(value) => onPathChange(value)}
             placeholder="Path to models"
           />
-            <hr className="bg-primary" />
-          <Button className="btn-primary text-black border-primary w-75 float-right mb-2 pb-0" onClick = {() => loadModels(repoText, pathText)}>Load Models</Button>
-            <div>Models found!</div>
+          <hr className="bg-primary" />
+          <Button className="btn-primary text-black border-primary w-75 float-right mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
+            {(models.length > 0) ? <div>Models found!</div> : <div>No models found!</div>}
             <hr className="bg-primary" />
 
           <div className="w-100">
@@ -199,14 +204,15 @@ const LoadGitHub = (props: any) => {
             />
           </div>
           <hr />
-          {loading ? 'Loading...' : (models?.length > 0) 
+          {/* {loading ? 'Loading...' : (models?.length > 0) 
             ? <div>Models found:
               {models?.map((mod) => (
                 <li key={mod.name} >{mod.name}</li>
               ))} </div> 
-            : 'No models found!'}
-
-            {/* {loading ? 'Loading...' : <div>{JSON.stringify(repos, null, 2)}</div>} */}
+            : 'No models found!'} */}
+          <hr className="bg-primary" />
+          <a href={url.replace(/repos\//,'').replace(/api.github.com\/users\//,'github.com/')+repoText+'/'} target="_blank" rel="noopener noreferrer"> <strong> Click here to open GitHub</strong></a>
+          <p>There you can learn how to upload your Model project.json files. <br />Check the README file for Guidence</p>
         </div>
         </ModalBody>
       </Modal>

@@ -99,7 +99,7 @@ const Modeller = (props: any) => {
 
 To change Model name, rigth click the background below and select 'Edit Model'.`
               }>
-            <Selector className="w-25 float-right" type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
+            <Selector className="w-50" type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
             </span>
             {/* </div>  */}
             {/* <button className="btn btn-primary btn-sm float-right" onClick={() => {genRoleTasks(mmodel, dispatch); toggleRefresh()}}>Set Role Task Filter</button> */}
@@ -274,12 +274,11 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
   return (
     (props.modelType === 'model') 
     ?
-      <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "390px"}}>
-        <h5 className="modeller-heading float-left text-dark m-0 mr-0 clearfix" 
-          style={{ margin: "2px", paddingLeft: "2px", paddingRight: "0px", zIndex: 99, position: "relative", overflow: "hidden" }}>Modeller
+      <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "190px"}}>
+        <h5 className="modeller-heading float-left text-dark m-0 mr-0" >Modeller
         </h5>
         <div>
-          {selector}
+          <div className="bg-warning">{selector}</div>
         </div><br />
         <div className="mt-2">
           {modelviewTabDiv} 

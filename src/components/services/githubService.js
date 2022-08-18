@@ -22,6 +22,7 @@ const axiosConfig = {
 // GITHUB_CLIENT_SECRET=1d72f2c53b60dd0f1166cf05e0f468279f663565
 
 export function searchRepos(searchText, path) {
+    // search/repositories?q=akm-models
   console.log('15 searchRepos', searchText, path);
   return axios.get(
     `search/repositories?q=${searchText}`,
@@ -30,6 +31,7 @@ export function searchRepos(searchText, path) {
 }
 
 export function searchModels(searchText, path) {
+  // repos/SnorreFossland/akm-models/contents/StartupModels
   const query = `${searchText}/${path}`;
   console.log('31 searchRepos', searchText, path, query);
 

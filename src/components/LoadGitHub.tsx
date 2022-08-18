@@ -103,18 +103,17 @@ const LoadGitHub = (props: any) => {
     const res = await searchRepos(repoText, pathText);
     setLoading(false);
     setRepos(res.data.items);
-    console.log('94', res.data.items, res)
+    console.log('94', await res.data.items, res)
     if (debug) console.log('95', usernameText, pathText, repoText, res.data, res.data.items, res)
     // loadModels(repoText, pathText);
   };
 
-  const loadModels = async (urlText, pathText) => {
+  const loadModels = async (usernameText, pathText) => {
     setLoading(true);
-    const rep = `repos/${usernameText}/contents/`;
+    const repos = `repos/${usernameText}/${repoText}/contents/${pathText}`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    const path = `${pathText}`
-    if (!debug) console.log('72', pathText, rep , path)
-    const res = await searchModels(rep, path);
+    if (!debug) console.log('72  u', usernameText , 'p', pathText, 'r', repoText, 'repos', repos)
+    const res = await searchModels(repos, pathText);
     if (debug) console.log('74',  res.data, res)
     // console.log('58', urlText, pathText, res.data, res.data.items, res)
     setLoading(false);

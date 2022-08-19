@@ -181,10 +181,12 @@ export function handleSelectDropdownChange(selected, context) {
           // set the link attributes
           const rtviewdata = reltype.typeview.data;
           for (let prop in rtviewdata) {
-              if (prop === 'abstract') continue;
-              if (prop === 'class') continue;
-              if (prop === 'relshipkind') continue;
-              linkdata[prop] = rtviewdata[prop];
+            if (prop === 'id') continue;
+            if (prop === 'name') continue;
+            if (prop === 'abstract') continue;
+            if (prop === 'class') continue;
+            if (prop === 'relshipkind') continue;
+            linkdata[prop] = rtviewdata[prop];
           }
           links.push(linkdata);
           if (debug) console.log('189 linkdata', linkdata);
@@ -812,7 +814,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           const node = myDiagram.findNodeForKey(sel.data.key);
           if (node) {
             const data = node.data;
-            if (!debug) console.log('789 objview, data, node', objview, data, node);
+            if (debug) console.log('789 objview, data, node', objview, data, node);
             for (let prop in objtypeview?.data) {
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'fillcolor' && objview[prop] !== "") 
@@ -855,7 +857,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
           }
           for (let prop in objview?.data) {
             if (prop === 'icon' && objview[prop] !== "") 
-            myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              myDiagram.model.setDataProperty(data, prop, objview[prop]);
           }
           
         } else if (selectedData.category === constants.gojs.C_OBJECTTYPE) {
@@ -988,6 +990,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (relview) {
           relview = myMetis.findRelationshipView(relview.id);
           for (let prop in reltypeview?.data) {
+            if (prop === 'class') continue;
             try {
               relview[prop] = selRel[prop];
             } catch {}
@@ -1071,6 +1074,8 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         typeview = myMetis.findObjectTypeView(objtypeview?.id);
         if (debug) console.log('936 objtypeview, typeview', objtypeview, typeview);
         for (let prop in objtypeview?.data) {
+          if (prop === 'id') continue;
+          if (prop === 'name') continue;
           if (prop === 'abstract') continue;
           if (prop === 'category') continue;
           if (prop === 'class') continue;

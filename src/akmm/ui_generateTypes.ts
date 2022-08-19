@@ -1168,7 +1168,8 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         if (
                             // obj.type.inherits(type, type.allRelationshiptypes)
                             // ||
-                            (obj.isOfSystemType(metaObject))
+                            //(obj.isOfSystemType(metaObject)
+                            (obj.type.name === 'EntityType')
                         ) {
                             if (debug) console.log('953 obj', obj.name, obj);
                             if (debug) console.log('956 obj, objview', obj, objview);                               
@@ -1530,3 +1531,5 @@ function addProperties(type: akm.cxType | akm.cxMethodType, proptypes: any, cont
         if (debug) console.log('1305 modifiedProps', modifiedProps);
     }
 }
+
+function isIRTVtype(objview: akm.cxObject) {}

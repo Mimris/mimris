@@ -128,9 +128,10 @@ export let types = {
          AKM_INPUTPATTERN      : "InputPattern",
          AKM_VIEWFORMAT        : "ViewFormat",
          AKM_FIELDTYPE         : "FieldType",
-         AKM_POINTS_TO         : "pointsTo",
          AKM_UNIT              : "Unit",
+         AKM_LABEL             : "Label",
          AKM_CONTAINS          : "contains",
+         AKM_ANNOTATES         : "annotates",
          AKM_HAS_COLLECTION    : "has",
          AKM_HAS_MEMBER        : "hasMember",
          AKM_HAS_PART          : "hasPart",
@@ -144,6 +145,7 @@ export let types = {
          AKM_HAS_INPUTPATTERN  : "has",
          AKM_HAS_VIEWFORMAT    : "has",
          AKM_HAS_FIELDTYPE     : "has",
+         AKM_POINTS_TO         : "pointsTo",
     
     // Type properties
          OBJECTTYPE_ID         : "objecttype",

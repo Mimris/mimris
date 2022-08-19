@@ -438,24 +438,63 @@ export function editTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
     myDiagram.handleOpenModal(node, modalContext);
 }    
 
-export function resetToTypeview(node: any, myMetis: akm.cxMetis, myDiagram: any) {
-    const n = myDiagram.findNodeForKey(node.key);
-    const oview = myMetis.findObjectView(node.objectview.id);
-    const otview = oview.typeview;
-    const otdata = otview.data;
-    for (let prop in otdata) {
+export function resetToTypeview(inst: any, myMetis: akm.cxMetis, myDiagram: any) {
+    const n = myDiagram.findNodeForKey(inst.key);
+    if (n) {
+        const oview = myMetis.findObjectView(inst.objectview.id);
+        const otview = oview.typeview;
+        const otdata = otview.data;
+        for (let prop in otdata) {
             oview[prop] = otdata[prop];
             myDiagram.model.setDataProperty(n.data, prop, oview[prop]);
+        }
+        // Dispatch
+        const jsnObjview = new jsn.jsnObjectView(oview);
+        const modifiedObjectViews = new Array();
+        modifiedObjectViews.push(jsnObjview);
+        modifiedObjectViews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
+        })
     }
-    // Dispatch
-    const jsnObjview = new jsn.jsnObjectView(oview);
-    const modifiedObjectViews = new Array();
-    modifiedObjectViews.push(jsnObjview);
-    modifiedObjectViews.map(mn => {
-        let data = mn;
-        data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
-    })
+    const l = myDiagram.findLinkForKey(inst.key);
+    if (l) {
+        if (debug) console.log('463 inst', inst);
+        const rview = myMetis.findRelationshipView(inst.relshipview.id);
+        const rtview = rview.typeview;
+        const rtdata = rtview.data;
+        if (debug) console.log('467 rview, rtview, rtdata', rview, rtview, rtdata);
+        for (let prop in rtdata) {
+            switch(prop) {
+                case 'name':
+                case 'nameId':
+                case 'description':
+                case 'fs_collection':
+                case 'markedAsDeleted':
+                case 'modified':
+                case 'sourceUri':
+                case 'typeRef':
+                case 'abstract':
+                case 'class':
+                case 'relshipkind':      
+                    continue;              
+            }
+            rview[prop] = "";
+            if (debug) console.log('471 prop, rview[prop]', prop, rview[prop]);
+            myDiagram.model.setDataProperty(l.data, prop, rtview[prop]);
+        }
+        // Dispatch
+        const jsnRelview = new jsn.jsnRelshipView(rview);
+        const modifiedRelViews = new Array();
+        modifiedRelViews.push(jsnRelview);
+        modifiedRelViews.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            if (debug) console.log('494 data', data);
+            myDiagram.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
+        })
+    }
 }
 
 export function addConnectedObjects(node: any, myMetis: akm.cxMetis, myDiagram: any) {

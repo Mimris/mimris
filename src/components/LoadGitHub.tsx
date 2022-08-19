@@ -17,7 +17,8 @@ const LoadGitHub = (props: any) => {
 
   const username = 'SnorreFossland'
 
-  const url = `https://api.github.com/users/${username}/repos`
+  const url = `https://api.github.com/users/${username}/repos/`
+
   const repository = 'akm-models'
   const path = 'StartupModels'
   // // const path = 'StartupModels'

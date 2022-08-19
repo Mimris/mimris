@@ -32,19 +32,19 @@ export function searchRepos(searchText, path) {
 
 export function searchModels(searchText, path) {
   // repos/SnorreFossland/akm-models/contents/StartupModels
-  const query = `${searchText}/${path}`;
-  console.log('31 searchRepos', searchText, path, query);
-
+  const query = `${searchText}`;
+  // console.log('36 searchRepos', searchText, 'p', path);
+  // console.log('37 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig
   );
 }
+
 export function searchModel(searchText, path) {
   const query = `${searchText}`;
   // const query =  `${searchText}/${path}`;
-  console.log('44 searchRepos', query);
-
+  // console.log('44 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig

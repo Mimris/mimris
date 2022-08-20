@@ -199,23 +199,26 @@ function conditionIsFulfilled(object, context): boolean {
     return retval;
 }
 
-export function traverse(object: akm.cxObject, context: any/*, args: any*/) {
+export function traverse(object: akm.cxObject, context: any) {
     const myMetis        = context.myMetis;
     const myMetamodel    = context.myMetamodel;
     const method         = context.args.method;
+    const objects        = context.objects;
+    const relships       = context.relships;
     const reldir         = method["reldir"];   // Either 'in' or 'out'
     const reltypename    = method["reltype"];
-    let preaction        = method["preaction"];
-    let postaction       = method["postaction"];
+    let pre_action       = method["preaction"];
+    let post_action      = method["postaction"];
 
+    if (debug) console.log('211 objects, relships', objects, relships);
     if (conditionIsFulfilled(object, context)) {
-        if (preaction) {
-            if (typeof(preaction === 'string')) {
+        if (pre_action) {
+            if (typeof(pre_action === 'string')) {
                 context.mode = "preaction";
-                context.action = preaction;
+                context.action = pre_action;
                 execMethod(object, context);
             } else 
-                preaction(object, context);
+                pre_action(object, context);
         }
     }    
     let reltype;
@@ -227,30 +230,66 @@ export function traverse(object: akm.cxObject, context: any/*, args: any*/) {
         }
     }
     const useinp = (reldir === 'in');
+    const useoutp = (reldir === 'out');
     let rels  = useinp ? object.inputrels : object.outputrels;
+    if (!rels) 
+        rels = object.inputrels;
+    if (rels) 
+        rels.concat(object.outputrels);
+    else
+        rels = object.outputrels;
     if (rels) {
+        if (debug) console.log('226 rels', rels);
+        let foundRel = false;
         for (let i=0; i<rels.length; i++) {
             const rel = rels[i];
             // Check if reltype is specified
             if (reltype && (rel?.type.id !== reltype?.id))
                 continue;
+            for (let i=0; i<relships.length; i++) {
+                const r = relships[i];
+                if (rel.id === r.id) {
+                    foundRel = true;
+                    break;
+                }
+            }
+            if (!foundRel)
+                relships.push(rel);
             let toObj;
-            if (useinp) 
+            if (rel.toObject.id === object.id) {
                 toObj = rel.fromObject as akm.cxObject;
-            else
+                if (debug) console.log('260 useinp: toObj', toObj);
+            } else if (rel.fromObject.id === object.id) {
                 toObj = rel.toObject as akm.cxObject;
-            if (debug) console.log('202 toObj', toObj);
-            toObj = myMetis.findObject(toObj.id);
-            // Recursive traverse        
-            traverse(toObj, context);
-            if (conditionIsFulfilled(toObj, context)) {
-                if (postaction) {
-                    if (typeof(preaction === 'string')) {
-                        context.mode = "postaction";
-                        context.action = postaction;
-                        execMethod(toObj, context);
-                    } else 
-                        postaction(toObj, context);
+                if (debug) console.log('263 useoutp: toObj', toObj);
+            }
+            if (debug) console.log('265 rel, toObj', rel, toObj);
+            let foundObj = false;
+            if (toObj) {
+                for (let i=0; i<objects.length; i++) {
+                    const obj = objects[i];
+                    if (obj.id === toObj.id) {
+                        foundObj = true;
+                        break;
+                    }
+                }
+            }
+            if (!foundObj && toObj) {
+                objects.push(toObj);
+            }           
+            if (debug) console.log('282 toObj, objects, relships', toObj, objects, relships);
+            // Recursive traverse       
+            if (!foundObj && toObj) {
+                traverse(toObj, context);
+                if (conditionIsFulfilled(toObj, context)) {
+                    if (post_action) {
+                        if (typeof(post_action === 'string')) {
+                            context.mode = "postaction";
+                            context.action = post_action;
+                            execMethod(toObj, context);
+                        } else 
+                            post_action(toObj, context);
+                    }
                 }
             }
         }
@@ -434,7 +473,7 @@ function substitutePropnamesInExpression(object: akm.cxInstance, expression: str
         if (debug) console.log('420 siz', siz);
         for (let j=siz-1; j>0; j--) {
             let px = pos[j]+len;
-            let endstr = expression.substr(px);
+            let endstr = expression.substring(px);
             let newExpr = expression.substring(0, pos[j]) + propval + endstr;
             expression = newExpr;
         }
@@ -469,6 +508,14 @@ export function askForMethod(context: any) {
 
 export function executeMethod(context: any) {
     const object = context.myObject;
+    let objects = context.objects;
+    if (!context.objects) 
+        context.objects = [];
+    if (!context.relships) 
+        context.relships = [];
+    if (objects?.length > 10)
+        return;
+    if (debug) console.log('501 context', context);
     traverse(object, context);                  
 }
 

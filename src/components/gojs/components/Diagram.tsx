@@ -1089,10 +1089,10 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (node.category === constants.gojs.C_OBJECT) {
                 let object = node.object;
                 if (!object) return;
+                object = myMetis.findObject(object.id);
                 const objects = new Array();
                 objects.push(object);
                 const relships = new Array();
-                object = myMetis.findObject(object.id);
                 const method = new akm.cxMethod(utils.createGuid(), 'selectConnected', "");
                 method["reltype"] = '';
                 method['reldir']  = '';
@@ -1173,6 +1173,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 let object = node.object;
                 if (!object) return;
                 object = myMetis.findObject(object.id);
+                const objects = new Array();
+                objects.push(object);
                 const args = {
                   "method":             ""
                 }
@@ -1180,6 +1182,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                     "myMetis":            myMetis,
                     "myMetamodel":        myMetis.currentMetamodel,
                     "myObject":           object,
+                    "objects":            objects,
                     "myDiagram":          myDiagram,
                     "case":               "Execute Method",
                     "title":              "Select Method",

@@ -30,7 +30,7 @@ const LoadGitHub = (props: any) => {
   // const [searchText, setSearchText] = useState('');
   const [usernameText, setUsernameText] = useState('Kavca');
   const [repoText, setRepoText] = useState('akm-models');
-  const [pathText, setPathText] = useState('Models');
+  const [pathText, setPathText] = useState('StartupModels');
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
   const [models, setModels] = useState([]);

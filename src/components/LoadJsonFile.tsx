@@ -150,7 +150,7 @@ const LoadJsonFile = (props: any) => { // loads the selected JSON file(s)
       
       return (
         <>
-          <button className="btn-context btn-success float-right mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+          <button className="btn-context btn-secondary float-right mr-1 mb-0 pr-2" onClick={toggle}>{buttonLabel}</button>
         {/* <Draggable handle=".handle"> */}
           <Modal size="lg" isOpen={modal} toggle={function noRefCheck(){}} >
             <ModalHeader className="handle" toggle={() => { toggle(); toggleRefresh(); function noRefCheck(){}} }>Export/Import: </ModalHeader>

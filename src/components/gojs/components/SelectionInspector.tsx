@@ -260,6 +260,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     if (debug) console.log('253 myMetis', myMetis);
     if (debug) console.log('249 item, inst, selObj, type', item, inst, selObj, type);
 
+    if (false) {
     // // Check if item has pointer properties
     // const pvalues = [];
     // for (let j= 0; j<pointerProps?.length; j++) {
@@ -277,6 +278,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
     //   }
     // }
     // if (debug) console.log('278 pvalues', pvalues);
+    }
     
     for (let k in item) {
       // Filter some system attributes

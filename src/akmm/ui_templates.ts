@@ -157,6 +157,26 @@ function selectionIncludesPorts(n, myDiagram) {
     return n.containingGroup !== null && !myDiagram?.selection.has(n.containingGroup);
 }
 
+function groupStyle() {  // common settings for both Lane and Pool Groups
+    return [
+      {
+        layerName: 'Background',  // all pools and lanes are always behind all nodes and links
+        background: 'transparent',  // can grab anywhere in bounds
+        movable: true, // allows users to re-order by dragging
+        copyable: false,  // can't copy lanes or pools
+        avoidable: false  // don't impede AvoidsNodes routed Links
+      },
+      new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify)
+    ];
+  }
+
+// hide links between lanes when either lane is collapsed
+function updateCrossLaneLinks(group: go.Group) {
+    group.findExternalLinksConnected().each((l) => {
+        l.visible = (l.fromNode !== null && l.fromNode.isVisible() && l.toNode !== null && l.toNode.isVisible());
+    });
+  }
+
 // let dotted = [3, 3];
 // let dashed = [5, 5];
 
@@ -2392,23 +2412,23 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
         $(go.Group, 'Spot', groupStyle(),
           {
             name: 'Lane',
-            contextMenu: laneEventMenu,
+            contextMenu: contextMenu,
             minLocation: new go.Point(NaN, -Infinity),  // only allow vertical movement
             maxLocation: new go.Point(NaN, Infinity),
             selectionObjectName: 'SHAPE',  // selecting a lane causes the body of the lane to be highlit, not the label
             resizable: true, resizeObjectName: 'SHAPE',  // the custom resizeAdornmentTemplate only permits two kinds of resizing
-            layout: $(go.LayeredDigraphLayout,  // automatically lay out the lane's subgraph
-              {
-                isInitial: false,  // don't even do initial layout
-                isOngoing: false,  // don't invalidate layout when nodes or links are added or removed
-                direction: 0,
-                columnSpacing: 10,
-                layeringOption: go.LayeredDigraphLayout.LayerLongestPathSource
-              }),
-            computesBoundsAfterDrag: true,  // needed to prevent recomputing Group.placeholder bounds too soon
-            computesBoundsIncludingLinks: false,  // to reduce occurrences of links going briefly outside the lane
-            computesBoundsIncludingLocation: true,  // to support empty space at top-left corner of lane
-            handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
+            // layout: $(go.LayeredDigraphLayout,  // automatically lay out the lane's subgraph
+            //   {
+            //     isInitial: false,  // don't even do initial layout
+            //     isOngoing: false,  // don't invalidate layout when nodes or links are added or removed
+            //     direction: 0,
+            //     columnSpacing: 10,
+            //     layeringOption: go.LayeredDigraphLayout.LayerLongestPathSource
+            //   }),
+            // computesBoundsAfterDrag: true,  // needed to prevent recomputing Group.placeholder bounds too soon
+            // computesBoundsIncludingLinks: false,  // to reduce occurrences of links going briefly outside the lane
+            // computesBoundsIncludingLocation: true,  // to support empty space at top-left corner of lane
+            // handlesDragDropForMembers: true,  // don't need to define handlers on member Nodes and Links
             mouseDrop: function (e: go.InputEvent, grp: go.GraphObject) {  // dropping a copy of some Nodes and Links onto this Group adds them to this Group
               // don't allow drag-and-dropping a mix of regular Nodes and Groups
               if (!e.diagram.selection.any((n) => (n instanceof go.Group && n.category !== 'subprocess') || n.category === 'privateProcess')) {
@@ -2452,7 +2472,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             $(go.TextBlock,  // the lane label
               { editable: true, margin: new go.Margin(2, 0, 0, 8) },
               new go.Binding('visible', 'isSubGraphExpanded').ofObject(),
-              new go.Binding('text', 'text').makeTwoWay()),
+              new go.Binding('text', 'name').makeTwoWay()),
             $('SubGraphExpanderButton', { margin: 4, angle: -270 })  // but this remains always visible!
           ),  // end Horizontal Panel
           $(go.Placeholder,
@@ -2465,7 +2485,7 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
                 angle: 0, margin: new go.Margin(6, 0, 0, 20)
               },
               new go.Binding('visible', 'isSubGraphExpanded', function (e) { return !e; }).ofObject(),
-              new go.Binding('text', 'text').makeTwoWay())
+              new go.Binding('text', 'name').makeTwoWay())
           )
         );  // end swimLanesGroupTemplate
     
@@ -2497,7 +2517,10 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             return ad.adornedPart.isSubGraphExpanded;
             }).ofObject())
         );
-    
+        groupTemplateMap.add("SwimLane", swimLanesGroupTemplate);
+        addGroupTemplateName('SwimLane'); 
+    }    
+    if (false) {
         const poolGroupTemplate =
         $(go.Group, 'Auto', groupStyle(),
         {
@@ -2521,8 +2544,6 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
             { background: 'darkgray', column: 1 })
         )
         ); // end poolGroupTemplate
-        groupTemplateMap.add("SwimLane", swimLanesGroupTemplate);
-        addGroupTemplateName('SwimLane'); 
         groupTemplateMap.add("SwimPool", poolGroupTemplate);
         addGroupTemplateName('SwimPool');    
     }

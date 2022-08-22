@@ -171,7 +171,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         if (debug) console.log('167 chosenType', chosenType);
         if (chosenType) {
           properties = chosenType.getProperties(false);
-          // if (debug) console.log('172 chosenType, properties', chosenType, properties);
+          if (debug) console.log('172 chosenType, properties', chosenType, properties);
           // pointerProps = chosenType.getPointerProperties(false);
         } 
         else if (type?.name === 'Method') {

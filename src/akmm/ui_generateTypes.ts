@@ -70,7 +70,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     const myModel     = context.myModel;
     const modifiedObjects = new Array();
     const modifiedTypeViews = new Array();
-    // object is the object defining the object type to be generated
+    // 'object' is the object defining the object type to be generated
     const currentObj = myMetis.findObject(object.id) as akm.cxObject;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (debug) console.log('65 object, objview', object, objview);
@@ -246,7 +246,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
         objtype.methods = methods;
-        if (debug) console.log('215 objtype', objtype);
+        if (debug) console.log('250 objtype', objtype);
     }
     { // Handle properties
         const proptypes = new Array();
@@ -818,7 +818,7 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
     for (let i=0; i<objectviews?.length; i++) {
         const objview = objectviews[i];
         let obj = objview.object as akm.cxObject;
-        if (debug) console.log('788 model, obj, objview', model, obj, objview);
+        if (debug) console.log('822 model, obj, objview', model, obj, objview);
         if (obj) {
             obj = model.findObject(obj.id);
             objlist.push(obj);
@@ -836,10 +836,10 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
             rellist.push(rel);
         }
     }
-    if (debug) console.log('833 rellist', rellist);
+    if (debug) console.log('841 rellist', rellist);
     uniquelist = [...new Set(rellist)];
     rellist = uniquelist;
-    if (debug) console.log('838 objlist, rellist', objlist, rellist);
+    if (debug) console.log('844 objlist, rellist', objlist, rellist);
     // Build tempModelview
     const tempModelview = new akm.cxModelView(utils.createGuid(), '_TEMPVIEW', model, 'Temporary modelview');
     // First handle the objects
@@ -1353,7 +1353,7 @@ function getPropertyTypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxMode
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
         const toObj = rel?.getToObject();
-        if (debug) console.log('1186 toObj', toObj);
+        if (debug) console.log('1186 obj, rel, toObj', obj, rel, toObj);
         if (toObj.type?.name === constants.types.AKM_PROPERTY) {
             const proptype = rel?.getToObject();
             // Check if property type already exists

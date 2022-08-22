@@ -370,7 +370,13 @@ function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
     const reltype   = context.reltype;
     const reldir    = context.reldir;
     const useinp    = reldir ? (reldir === 'in') : false;
-    const rels  = useinp ? object.inputrels : object.outputrels;
+    let rels  = useinp ? object.inputrels : object.outputrels;
+    if (!rels) 
+        rels = object.inputrels;
+    if (rels) 
+        rels.concat(object.outputrels);
+    else
+        rels = object.outputrels;
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
         let child;
@@ -415,6 +421,26 @@ export function aggregateValue(object: akm.cxObject, context: any) {
     return propval;
 }
 
+export function getConnectedObject(object: akm.cxObject, context: any): akm.cxObject | null {
+    if (debug) console.log('419 context', context);
+    const myMetis   = context.myMetis;
+    const method    = context.args.method;
+    const condition = context.args.condition;
+    const prop      = context.prop;
+    const children = getChildren(object, context);
+    if (debug) console.log('427 children', children);
+    for (let i=0; i<children?.length; i++) {
+        const child = children[i];
+        if (hasChildren(child, context)) {
+            // const test = expandPropScript(child, prop, myMetis);
+            // Find the first child that fullfills the condition
+            // if (test)
+            return child;
+        }
+    }
+    return null;
+}
+
 export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, myMetis: akm.cxMetis): string {
     let retval = "";
     if (!prop)
@@ -426,7 +452,7 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
     if (expression) { 
         const type = object.type;
         expression = substitutePropnamesInExpression(object, expression, myMetis);
-        if (debug) console.log('373 expression', expression);
+        if (debug) console.log('450 expression', expression);
         try {
             retval = eval(expression);
         } catch(e) {

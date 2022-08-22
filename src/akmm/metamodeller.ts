@@ -945,6 +945,7 @@ export class cxMetis {
     importRelship(item: any, model: cxModel | null) {
         if (model) {
             const rel = this.findRelationship(item.id);
+            if (debug) console.log('948 item, rel', item, rel);
             if (rel && item.typeRef) {
                 const reltype = this.findRelationshipType(item.typeRef);
                 const fromObj = this.findObject(item.fromobjectRef);
@@ -962,7 +963,7 @@ export class cxMetis {
                     rel.markedAsDeleted = item.markedAsDeleted;
                     rel.generatedTypeId = item.generatedTypeId;
                     model.addRelationship(rel);
-                    if (debug) console.log('610 fromObj, toObj, rel', fromObj, toObj, rel);
+                    if (debug) console.log('966 fromObj, toObj, rel', fromObj, toObj, rel);
                 }
             } else if (rel) {
                 rel.typeName = item.typeName;
@@ -6604,8 +6605,8 @@ export class cxInstance extends cxMetaObject {
             }
         }
         let properties = typeprops.concat(mtdprops);  
-        properties = properties.filter(function (el) {
-            return el != null;
+        properties = properties.filter(function (p) {
+            return p != null;
         });
         this.allProperties = properties;      
         if (debug) console.log('5739 properties', properties);
@@ -6839,7 +6840,7 @@ export class cxInstance extends cxMetaObject {
             const mtdtype = method.methodtype;
             let context;
             switch (mtdtype) {
-                case "AggregateValue":
+                case "AggregateValue": {
                     if (debug) console.log('6273 method', method);
                     const reltype = metis.findRelationshipTypeByName(method["reltype"]);
                     const otypename = method["objtype"];
@@ -6854,9 +6855,28 @@ export class cxInstance extends cxMetaObject {
                         "prop":         prop,
                     }
                     value = ui_mtd.aggregateValue(inst, context);
-                    break;
+                }
+                break;
+                case "GetConnectedObject": {
+                    if (debug) console.log('6860 method', method);
+                    const reltype = metis.findRelationshipTypeByName(method["reltype"]);
+                    const otypename = method["objtype"];
+                    let objtype = null;
+                    if (otypename !== 'any' && otypename !== 'null')
+                        objtype = metis.findObjectTypeByName(otypename);
+                    context = {
+                        "myMetis":      metis,
+                        "reltype":      reltype,
+                        "reldir":       method["reldir"],
+                        "objtype":      objtype,
+                        "prop":         prop,
+                    }
+                    value = ui_mtd.getConnectedObject(inst, context);
+                    if (debug) console.log('6874 inst, context, value', inst, context, value);
+                }
+                break;
                 case "CalculateValue":
-                default:
+                default: {
                     if (debug) console.log('6290 method', method);
                     context = {
                         "myMetis":   metis,
@@ -6864,7 +6884,8 @@ export class cxInstance extends cxMetaObject {
                     }
                     value = ui_mtd.calculateValue(inst, context);
                     inst[propname] = value;
-                    break;
+                }
+                break;
             }            
         } else {
             value = inst[propname];

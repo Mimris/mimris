@@ -78,7 +78,19 @@ const Modeller = (props: any) => {
     if (debug) console.log('69 Modeller: handleChange', e);
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } });
   }
-
+  const handleSelectModelChange = (event: any) => {
+    if (!debug) console.log('19 Selector', JSON.parse(event.value).name);
+    const id = JSON.parse(event.value).id
+    const name = JSON.parse(event.value).name
+    const selObj = models.find( (obj: any) => obj.id === id ) 
+    if (!debug) console.log('86 Selector', selObj);
+    // const workOnTypes = selObj.workOnTypes
+    // const focustype = { id: id, name: name, workOnTypes: workOnTypes }
+    const data = (selObj) ? { id: id, name: name} : { id: id, name: name }
+    if (debug) console.log('26 selector', JSON.parse(event.value), data, type);
+    dispatch({ type: type, data: data })
+    // setRefresh(!refresh)
+  }
   // const handleMVDoubleClick = (e) => {
   //   <input type="text" value={e.value} onChange={handleMVChange} />
   // }
@@ -117,7 +129,7 @@ The text 'Project_<currentdate>' will be added to the filename.`
                 
                 <span className="title mx-2" style={{ minWidth: "36%"}}>Model :
                   <select key='select-title' className="list-obj mx-2" style={{ minWidth: "32%"}}
-                  onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
+                  onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
                   {options}
                   </select>
                 </span> 

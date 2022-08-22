@@ -233,7 +233,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       <div className="modeller-workarea mt-2 ml-1 mb-1 " >
         <div className="modeller--topbar m-0 p-0" style={{ minWidth: "100%" }}>
           <span className="--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "10%"}} >Modeller </span>
-          <span className="modeller--heading-selector bg-warning" >{selector}</span>
+          <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
         </div>
         <div className="mt-2">
           {modelviewTabDiv} 
@@ -257,7 +257,7 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     : // palette
       <div className="mt-2 mb-2" style={{backgroundColor: "#7ac", minWidth: "100%" }}>
         <span className="--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Metamodeller</span>
-        {selector}
+        <div className="modeller--heading-selector" style={{ transform: "scale(0.9)", transformOrigin: "right", minWidth: "100%" }}>{selector}</div>
         {metamodelTabDiv} 
         <style jsx>{`
         // .diagram-component {

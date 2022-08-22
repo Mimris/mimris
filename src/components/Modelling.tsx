@@ -452,7 +452,7 @@ const page = (props:any) => {
 
   return  mount && (
     <>
-      <div className="header-buttons p-0 d-inline-flex float-right" style={{ transform: "scale(0.6)", transformOrigin: "center", backgroundColor: "#ddd" }}>
+      <div className="header-buttons mt-1 p-0 pt-1 d-inline-flex float-right" style={{ transform: "scale(0.6)", transformOrigin: "right", backgroundColor: "#ddd" }}>
         {/* <span className="spacer m-0 p-0 w-50"></span> */}
         <span className="buttonrow m-0 d-inline-flex" style={{ maxHeight: "9px" }}> 
           {/* <div className="loadmodel"  style={{ paddingBottom: "2px", backgroundColor: "#ccc", transform: "scale(0.7)",  fontWeight: "bolder"}}> */}
@@ -485,8 +485,8 @@ const page = (props:any) => {
         </span> 
   
       </div>
-      <div className="diagramtabs pt-0 pl-1 pb-0 " >
-        <div className="modellingContent pt-0 " >
+      <div className="diagramtabs pl-1 pb-0 " >
+        <div className="modellingContent mt-1 " >
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>
       </div>

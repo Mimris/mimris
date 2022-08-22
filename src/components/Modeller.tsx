@@ -87,72 +87,50 @@ const Modeller = (props: any) => {
   //   if (debug) console.log('69 Modeller: handleMVChange', e);
   //   dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data: { name: e.value } });
   // }
+  const  options = selmodels && ( //sf TODO:  modelview is mapped 2 times 
+    selmodels.map((m: any, index) => (m) && (m.name !== 'Select '+props.selName+'...') &&
+    <option key={m.id+index} value={JSON.stringify({id: m.id, name: m.name, type})}>{m.name}</option>)
+  )
+  const type='SET_FOCUS_MODEL'
 
 
-    const selector = (props.modelType === 'model' || props.modelType === 'modelview' ) 
-      ? <>
-          {/* <div className="modeller-selection" > */}
-            {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
-            <span className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-              title={
+  const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
+     <div className="m-0" className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
+            title={
 `Description: ${model?.description}
 
 To change Model name, rigth click the background below and select 'Edit Model'.`
-              }>
-            <Selector className="w-50" type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
-            </span>
-            {/* </div>  */}
-            {/* <button className="btn btn-primary btn-sm float-right" onClick={() => {genRoleTasks(mmodel, dispatch); toggleRefresh()}}>Set Role Task Filter</button> */}
-            <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-0 w-50" 
-                style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
-                <div className="w-100 float-left" >
-                  <label className="m-0 p-0 w-100"   
-                    data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                    title =  {
+            }>
+              <label className="Selector--menu-label "   
+                data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+                title =  {
 `Description : ${props.metis.description} 
 
-To change Project Name : 
-Edit this field and click on the Save button.
+  To change Project Name : 
+  Edit this field and click on the Save button.
 
-or Right-click the background below and select 'Edit Project Name'. 
+  or Right-click the background below and select 'Edit Project Name'. 
 
 The text 'Project_<currentdate>' will be added to the filename.`
-                    }> Project :  
-                    <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
-                  </label>
-                  {/* <label for="projName">Project :</label> 
-                  <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
-                </div>
-                {/* <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span>  */}
-          </div>
-        </>
-      : <>
-      {/* <div className="modeller-selection" > */}
-        {/* <Selector type='SET_FOCUS_MODELVIEW' selArray={selmodelviews} selName='Modelveiews' focusModelview={props.phFocus?.focusModelview} focustype='focusModelview' refresh={refresh} setRefresh={setRefresh} /> */}
-        <Selector type='SET_FOCUS_MODEL' selArray={selmodels} selName='Model' focusModel={props.phFocus?.focusModel} focustype='focusModel' refresh={refresh} setRefresh={setRefresh} />
-        {/* </div>  */}
-        <div className="modeller-heading float-right text-dark py-0 m-0 mr-0 px-2 w-50" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-            title="To change Project Name : Edit this field or Right-click the background below and select 'Edit Project Name'. The text 'Project_<currentdate>' will be added to the filename.'" 
-            style={{ margin: "0px", padding: "0px", paddingLeft: "0px", paddingRight: "0px" }}>
-            <div className="w-100 float-left" >
-              <label className="m-0 p-0 w-100" > Project :  
-                <input className="m-0 w-75" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })}/>
+                }> Project :  
+                <input className="ml-2"  type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
+                
+                <span className="title mx-2" style={{ minWidth: "36%"}}>Model :
+                  <select key='select-title' className="list-obj mx-2" style={{ minWidth: "32%"}}
+                  onChange={(event) => handleChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
+                  {options}
+                  </select>
+                </span> 
               </label>
-              {/* <label for="projName">Project :</label> 
-              <input id="projName" type="text"  onBlur={(event) => handleChange({ value: event.target.value })}/> */}
-            </div>
-            {/* <span className="projectname ml-2 px-1 bg-secondary"> {props.metis.name || '---- none ----'}</span>  */}
+      
       </div>
-    </>
-  // mx-auto h-25 d-inline-block
+
 
   activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
   // ToDo: remember last current modelview for each model, so that we can set focus to it when we come back to the that model 
   // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
   if (debug) console.log('78 Modeller', focusModel.name, focusModelview.name, activetabindex);
 
-  // (selmodviews && props.phSource === 'Model server') &&  
-  // (selmodviews) &&  
   useEffect(() =>  {
     if (selmodviews?.length>0)
       if (activeTab != undefined || 0) {
@@ -163,12 +141,6 @@ The text 'Project_<currentdate>' will be added to the filename.`
     }
     if (debug) console.log('89 Modeller useEffect 1', activeTab); 
   }, [focusModel])
-  
-  // useEffect(() => {
-  //   setActiveTab(activetabindex)
-  //   if (debug) console.log('94 Modeller useEffect 2', activeTab); 
-  //   // genGojsModel(props, dispatch);
-  // }, [activeTab])
 
   useEffect(() => {
     if (debug) console.log('172 Modeller useEffect 3', props, activeTab); 
@@ -199,17 +171,6 @@ The text 'Project_<currentdate>' will be added to the filename.`
     if (debug) console.log('195 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
-
-  //   useEffect(() => {
-  //     if (debug) console.log('81 Modeller useEffect 2', activeTab); 
-  //   // const data = {id: model.modelviews[0].id, name: model.modelviews[0].name}
-  //   // dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) 
-  //   setActiveTab(activetabindex)
-  //   // function refres() {
-  //     setRefresh(!refresh)
-  //   // }
-  //   // setTimeout(refres, 1000);
-  // }, [focusModelview?.id])
   
   const navitemDiv = (!selmodviews) ? <></> : selmodviews.map((mv, index) => {
     if (mv && !mv.markedAsDeleted) { 
@@ -258,7 +219,6 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
         </TabPane>
       </TabContent>
     </>
-
   const metamodelTabDiv = 
     <>
       <div className="workpad p-1 pt-2"> 
@@ -267,29 +227,24 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
       </div>         
     </>
 
-  // console.log('129', activetabindex, modelviewTabDiv);
-  // setDispatchdone(true)
-  // console.log('130 Modeller', focusModelview, props)
-
   return (
     (props.modelType === 'model') 
-    ?
-      <div className="mt-2 ml-1 mb-1" style={{backgroundColor: "#acc", minWidth: "190px"}}>
-        <h5 className="modeller-heading float-left text-dark m-0 mr-0" >Modeller
-        </h5>
-        <div>
-          <div className="bg-warning">{selector}</div>
-        </div><br />
+    ? // modelling
+      <div className="modeller-workarea mt-2 ml-1 mb-1 " >
+        <div className="modeller--topbar m-0 p-0" style={{ minWidth: "100%" }}>
+          <span className="--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "10%"}} >Modeller </span>
+          <span className="modeller--heading-selector bg-warning" >{selector}</span>
+        </div>
         <div className="mt-2">
           {modelviewTabDiv} 
         </div>
-        <div className="diagram-buttons">
-          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram&#013;">Zoom All</button>
-          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing&#013;">Toggle relationship layout</button>
-          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name&#013;">Toggle relationships name</button>
-          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus&#013;">Zoom to Focus</button>
+        <div className="modeller--footer-buttons">
+          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom all diagram">Zoom All</button>
+          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip layout routing">Toggle relationship layout</button>
+          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle relationhip show relship name">Toggle relationships name</button>
+          <button className="btn-sm bg-transparent text-muted py-0" data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Zoom to objectview in focus">Zoom to Focus</button>
           <button className="btn-sm  py-0" 
-            data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews&#013;" 
+            data-toggle="tooltip" data-placement="top" data-bs-html="true" title="Toggle show/ hide deleted objectviews" 
             onClick={() =>     { dispatch({ type: 'SET_USER_SHOWDELETED', data: !showDeleted }) ; dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'} })}} > {(showDeleted) ? ' Hide deleted' : 'Show deleted' }
             {/* onClick={() => { toggleShowDeleted(showDeleted); dispatch({ type: 'SET_USER_SHOWDELETED', data: showDeleted }) ; toggleRefresh() }}>{(showDeleted) ? 'Hide deleted' : 'Show deleted' } */}
           </button>
@@ -298,21 +253,12 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
             Current source:  {props.phSource} 
           </span> 
         </div>
-
       </div>
-    :
-      <div className="mt-2 mb-5" style={{backgroundColor: "#7ac"}}>
-        <h5 className="modeller-heading float-left text-dark mr-4 mb-4" style={{ margin: "2px", paddingLeft: "2px", paddingRight: "8px", position: "relative", overflow: "hidden" }}>Metamodeller</h5>
-        {/* <button className="btn-sm bg-info text-white py-0 mr-2 mb-0"  data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-          title="Start metamodelling:&#013;Insert an Type Object: Click on an Object Types in the Palette on the left side and drag and drop it into the Metamodelling area below.&#013; 
-          Connect two objects: Position the cursor on on the edge of one object (An arrow appears) and drag and drop to another object make a relationshop between them."
-          >i
-        </button> */}
-
-          {selector}
-        <div className="pt-5 mt-3">
-          {metamodelTabDiv} 
-        </div>
+    : // palette
+      <div className="mt-2 mb-2" style={{backgroundColor: "#7ac", minWidth: "100%" }}>
+        <span className="--heading float-left text-dark m-0 p-0 ml-2 mr-2 fs-6 fw-bold lh-2" style={{ minWidth: "8%"}}>Metamodeller</span>
+        {selector}
+        {metamodelTabDiv} 
         <style jsx>{`
         // .diagram-component {
         //   height: 80%;

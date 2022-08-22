@@ -21,7 +21,7 @@ import LoadFile from '../components/LoadFile'
 import LoadGitHub from '../components/LoadGitHub'
 // import LoadSaveGit from '../components/LoadSaveGit'
 import LoadJsonFile from '../components/LoadJsonFile'
-import { ReadModelFromFile, SaveAllToFileDate } from './utils/SaveModelToFile';
+import { ReadModelFromFile, SaveAllToFile, SaveAllToFileDate } from './utils/SaveModelToFile';
 
 // import ImpExpJSONFile from '../components/ImpExpJSONFile'
 import useLocalStorage  from '../hooks/use-local-storage'
@@ -175,6 +175,10 @@ const page = (props:any) => {
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name
       SaveAllToFileDate(data, projectname, 'Project')
+    }
+    function handleSaveAllToFile() {
+      const projectname = props.phData.metis.name
+      SaveAllToFile(data, projectname, 'Project')
     }
     
     const [activeTab, setActiveTab] = useState('2');
@@ -472,7 +476,7 @@ const page = (props:any) => {
               className="btn-secondary ml-2 mr-2 mb-3 " 
               data-toggle="tooltip" data-placement="top" data-bs-html="true" 
               title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
-              onClick={handleSaveAllToFileDate}>Save
+              onClick={handleSaveAllToFile}>Save
             </button >
           </span> 
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}

@@ -31,10 +31,10 @@ export function searchRepos(searchText, path) {
 }
 
 export function searchModels(searchText, path) {
-  // repos/SnorreFossland/akm-models/contents/StartupModels
+  // repos/kavca/akm-models/contents/StartupModels
   const query = `${searchText}`;
-  // console.log('36 searchRepos', searchText, 'p', path);
-  // console.log('37 searchRepos', query);
+  console.log('36 searchRepos', searchText, 'p', path);
+  console.log('37 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig

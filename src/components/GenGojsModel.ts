@@ -516,8 +516,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (!relview.markedAsDeleted && relview.relship) { 
           includeRelview = true;
         }
-        if (!includeDeleted && !includeNoObject && !includeNoType)
-          relcolor = relview.typeview.strokecolor;
+        if (!includeDeleted && !includeNoObject && !includeNoType && relview)
+          relcolor = relview?.typeview?.strokecolor;
           if (debug) console.log('521 rel, relview, relcolor:', rel, relview, relcolor);
           if (!relcolor) relcolor = 'black';
         if (debug) console.log('523 rel, relview, relcolor:', rel, relview, relcolor);

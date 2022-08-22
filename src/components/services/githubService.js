@@ -22,6 +22,7 @@ const axiosConfig = {
 // GITHUB_CLIENT_SECRET=1d72f2c53b60dd0f1166cf05e0f468279f663565
 
 export function searchRepos(searchText, path) {
+    // search/repositories?q=akm-models
   console.log('15 searchRepos', searchText, path);
   return axios.get(
     `search/repositories?q=${searchText}`,
@@ -30,19 +31,20 @@ export function searchRepos(searchText, path) {
 }
 
 export function searchModels(searchText, path) {
+  // repos/kavca/akm-models/contents/StartupModels
   const query = `${searchText}`;
-  console.log('31 searchRepos', query);
-
+  console.log('36 searchRepos', searchText, 'p', path);
+  console.log('37 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig
   );
 }
+
 export function searchModel(searchText, path) {
   const query = `${searchText}`;
   // const query =  `${searchText}/${path}`;
-  console.log('31 searchRepos', query);
-
+  // console.log('44 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig
@@ -50,3 +52,25 @@ export function searchModel(searchText, path) {
 }
 
 // export { searchRepos, searchModels };
+
+
+
+
+
+// export function searchRepos(searchText, path) {
+//   console.log('15 searchRepos', searchText, path);
+//   return axios.get(
+//     `search/repositories?q=${searchText}`,
+//     axiosConfig
+//   );
+// }
+
+// export function searchModels(searchText, path) {
+//   const query = `${searchText}`;
+//   console.log('31 searchRepos', query);
+
+//   return axios.get(
+//     `${query}`,
+//     axiosConfig
+//   );
+// }

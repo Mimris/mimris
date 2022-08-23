@@ -31,7 +31,7 @@ const LoadRecovery = (props: any) => {
   
   let optionsMemory = []
   if (Array.isArray(memoryTmp))  {optionsMemory = memoryTmp?.map((o, idx) => o && {value: idx, label: o.lastUpdate  +' | '+o.phSource}) } else {optionsMemory = []};
-  if (debug) console.log('25 LoadRecovery', optionsMemory);
+  if (!debug) console.log('25 LoadRecovery', optionsMemory);
   if (optionsMemory == undefined || optionsMemory?.length === 0) optionsMemory = [{value: 0, label: 'No recovery model'}]
 
   const [selected, setSelected] = useState(optionsMemory[0].value);

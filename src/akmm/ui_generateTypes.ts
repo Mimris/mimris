@@ -692,18 +692,18 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
     const myTargetMetamodel = context.myTargetMetamodel;
     let method   = myMetamodel?.findMethodByName(name);
     if (!method) {
-        if (debug) console.log('624 method name:', name);
+        if (debug) console.log('695 method name:', name);
         method = myMetis.findMethodByName(name);
         if (!method) 
             method = new akm.cxMethod(utils.createGuid(), name, descr);
         myMetamodel.addMethod(method);
         myTargetMetamodel.addMethod(method);
         myMetis.addMethod(method);  
-        if (debug) console.log('631 method:', method);
+        if (debug) console.log('702 method:', method);
     }
     const mtdtypename  = object.methodtype;
     const methodType = myMetamodel.findMethodTypeByName(mtdtypename);
-    if (debug) console.log('635 methodType', methodType);
+    if (debug) console.log('706 methodType', methodType);
     if (method && methodType) {
         method.methodtype = methodType.name;
         const props = methodType.properties;
@@ -711,10 +711,10 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
             const propname = props[i].name;
             method[propname] = object[propname];
         }
-        if (debug) console.log('643 method', method);
+        if (debug) console.log('714 method', method);
     }      
     
-    if (debug) console.log('646 method', method, myMetamodel);
+    if (debug) console.log('717 method', method, myMetamodel);
     // Update phData
     const jsnMethod = new jsn.jsnMethod(method);
     if (methodType) {
@@ -726,14 +726,14 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
     }
     const modifiedMethods = new Array();
     modifiedMethods.push(jsnMethod);
-    if (debug) console.log('658 jsnMethod, myMetis', jsnMethod, myMetis);
+    if (debug) console.log('729 jsnMethod, myMetis', jsnMethod, myMetis);
     modifiedMethods.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_METHOD_PROPERTIES', data })
     });
 
-    if (debug) console.log('665 generateMethod', method, myMetis);
+    if (debug) console.log('736 method, myMetis', method, myMetis);
     return method;
 }
 

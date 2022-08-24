@@ -156,7 +156,7 @@ const LoadGitHub = (props: any) => {
     } 
   });
 
-  const label = (models.length > 0) ? ' - - - - - - - - - - - Select Model - - - - - - - - - - - - ' : ' - - - - - - - - Click on "LIST MODELS" above! - - - - - - - - ' ;
+  const label = (models.length > 0) ? ' Select Model - - - ' : ' - - - Click on "LIST MODELS" above! - - - ' ;
   const  modeloptions = [{value: '', label: label}, ...modeloptionss] ;
   // const  modeloptions = (modeloptionss?.length > 1) ? [{value: '', label: 'Select Model...'}, ...modeloptionss] : [{value: '', label: 'No Model to select...'}]
   if (debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
@@ -211,7 +211,7 @@ const LoadGitHub = (props: any) => {
             />
           </span>
           <hr className="bg-light my-1 mx-4" />
-          <div className="w-100">Models found in: {githubLink} </div>
+          <div className=" text-secondary">Search in: {githubLink} </div>
             {/* -------- Select model ------------------------------------ */}
           {/* <hr className="bg-primary" /> */}
           <Button className="btn-primary text-black border-primary w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
@@ -239,7 +239,8 @@ const LoadGitHub = (props: any) => {
             {/* {(models.length > 0) ? <div className="text-success">Models found!</div> : <div className="text-warning">No models found!</div>} */}
 
           {/* -------------------------------------------------------- */}
-          <label className="w-100">
+                   <hr className="bg-primarypx-10 my-1" />
+          <label className="w-100 d-inline-flex justify-content-center"> 
             <Select
               label=" Select model: "
               value={(modeloptions) ? modeloptions[0] : 'no models'}

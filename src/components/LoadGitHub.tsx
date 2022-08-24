@@ -29,7 +29,7 @@ const LoadGitHub = (props: any) => {
   const [githubLink, setGithubLink] = useState('http://github.com/');
   // const [searchText, setSearchText] = useState('');
   const [usernameText, setUsernameText] = useState('Kavca');
-  const [repoText, setRepoText] = useState('akm-models');
+  const [repoText, setRepoText] = useState('kavca-akm-models');
   const [pathText, setPathText] = useState('StartupModels');
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});

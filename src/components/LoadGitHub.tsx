@@ -48,10 +48,10 @@ const LoadGitHub = (props: any) => {
 
   const onUsernameChange = (text) => {
     if (text?.length > 0) {
-      console.log('50 onUsernameChange', text)
+      if (debug) console.log('50 onUsernameChange', text)
       setUsernameText(text);
       setGithubLink(`http://github.com/${text}/${repoText}`);
-      console.log('55 onUsernameChange', usernameText)
+      if (debug) console.log('55 onUsernameChange', usernameText)
     }
   };
 
@@ -64,7 +64,7 @@ const LoadGitHub = (props: any) => {
   };
 
   const onModelChange = (text) => {
-    console.log('71 onModelChange', text)
+    if (debug) console.log('71 onModelChange', text)
     const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
     const filname = `/${text}`; // add slash
     loadModel(rep, filname);
@@ -74,14 +74,14 @@ const LoadGitHub = (props: any) => {
   const loadModel = async (rep, path) => {
     setLoading(true);
     const searchtext = `${rep}${path}`;
-    console.log('80 ', searchtext)
+    if (debug) console.log('80 ', searchtext)
     const res = await searchModel(searchtext, '')
     const content = res.data.content
-    console.log('83 ', res)
-    if (!debug) console.log('84 ', base64.decode(content))
+    if (debug) console.log('83 ', res)
+    if (debug) console.log('84 ', base64.decode(content))
     const model = JSON.parse(base64.decode(content));
     // const model = JSON.parse(base64.decode(content));
-    if (!debug) console.log('87', model)
+    if (debug) console.log('87', model)
     setLoading(false);
 
     if (debug) console.log('90 onModelChange', model)
@@ -107,14 +107,14 @@ const LoadGitHub = (props: any) => {
   const loadRepos = async (repoText, pathText) => {
     if (usernameText?.length > 0)  { 
       setLoading(true);
-      if (!debug) console.log('76 loadRepos', repoText, pathText, model)
+      if (debug) console.log('76 loadRepos', repoText, pathText, model)
       const res = await searchRepos(repoText, pathText);
       const repolist = await res.data.items?.filter(repo => repo.name === repoText);
       setLoading(false);
-      console.log('118 res.data.items: ', await res.data.items, repos)
+      if (debug) console.log('118 res.data.items: ', await res.data.items, repos)
       setRepos(await repolist);
       setModels(await res.data.items?.filter(repo => repo.name === repoText));
-      if (!debug) console.log('122', usernameText, pathText, repoText, res.data.items, repos)
+      if (debug) console.log('122', usernameText, pathText, repoText, res.data.items, repos)
       // loadModels(repoText, pathText);
     }
   };
@@ -123,13 +123,13 @@ const LoadGitHub = (props: any) => {
     setLoading(true);
     const repos = (pathText !== '') ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (!debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
+    if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
     const res = await searchModels(repos, pathText);
-    if (!debug) console.log('133 ', await res.data)
+    if (debug) console.log('133 ', await res.data)
     setLoading(false);
     const filteredDirs = await res.data?.filter(model => model.type === 'dir' && model.name !== 'img');
     const filteredModels = await res.data?.filter(model => model.name.endsWith('.json'));
-    console.log('136 ', filteredModels)
+    if (debug) console.log('136 ', filteredModels)
     setModels(filteredModels);
     setDirs(filteredDirs);
     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
@@ -157,7 +157,7 @@ const LoadGitHub = (props: any) => {
   });
   const  modeloptions = [{value: '', label: 'Select Model...'}, ...modeloptionss] ;
   // const  modeloptions = (modeloptionss?.length > 1) ? [{value: '', label: 'Select Model...'}, ...modeloptionss] : [{value: '', label: 'No Model to select...'}]
-  if (!debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
+  if (debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
 
   // console.log('160 githubLink', githubLink)
 

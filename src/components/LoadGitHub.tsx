@@ -113,7 +113,7 @@ const LoadGitHub = (props: any) => {
       setLoading(false);
       if (debug) console.log('118 res.data.items: ', await res.data.items, repos)
       setRepos(await repolist);
-      setModels(await res.data.items?.filter(repo => repo.name === repoText));
+      // setModels(await res.data.items?.filter(repo => repo.name === repoText));
       if (debug) console.log('122', usernameText, pathText, repoText, res.data.items, repos)
       // loadModels(repoText, pathText);
     }
@@ -127,7 +127,7 @@ const LoadGitHub = (props: any) => {
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);
-    const filteredDirs = await res.data?.filter(model => model.type === 'dir' && model.name !== 'img');
+    const filteredDirs = await res.data?.filter(model => model.type === 'dir' && model.name !== 'img' && model.name !== '.github' && model.name !== '.gitignore');
     const filteredModels = await res.data?.filter(model => model.name.endsWith('.json'));
     if (debug) console.log('136 ', filteredModels)
     setModels(filteredModels);
@@ -155,7 +155,9 @@ const LoadGitHub = (props: any) => {
       label: mod.name
     } 
   });
-  const  modeloptions = [{value: '', label: 'Select Model...'}, ...modeloptionss] ;
+
+  const label = (models.length > 0) ? ' - - - - - - - - - - - Select Model - - - - - - - - - - - - ' : ' - - - - - - - - Click on "LIST MODELS" above! - - - - - - - - ' ;
+  const  modeloptions = [{value: '', label: label}, ...modeloptionss] ;
   // const  modeloptions = (modeloptionss?.length > 1) ? [{value: '', label: 'Select Model...'}, ...modeloptionss] : [{value: '', label: 'No Model to select...'}]
   if (debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
 
@@ -221,7 +223,7 @@ const LoadGitHub = (props: any) => {
                   ))}
               </span>
               </div> 
-            : <div className='text-warning'> 'No model paths found!'</div>
+            : (!pathText) && <div className='text-warning'> 'No model paths found!'</div>
           } 
           {(models?.length > 0) 
             ? <div >Models found:
@@ -237,14 +239,14 @@ const LoadGitHub = (props: any) => {
             {/* {(models.length > 0) ? <div className="text-success">Models found!</div> : <div className="text-warning">No models found!</div>} */}
 
           {/* -------------------------------------------------------- */}
-          <div className="w-50">
-            <Select 
-              label="Select model:"
+          <label className="w-100">
+            <Select
+              label=" Select model: "
               value={(modeloptions) ? modeloptions[0] : 'no models'}
               options={(modeloptions) ? modeloptions : []}
               onChange={(value) => onModelChange(value)}
             />
-          </div>
+          </label>
           {/* <hr /> */}
           {/* {loading ? 'Loading...' : (models?.length > 0) 
             ? <div>Models found:

@@ -786,18 +786,17 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
       if (debug) console.log('766 selObj', selObj, myMetis);
       // Do a fix
       const oview = myMetis.findObjectView(selObj.objectview.id);
+      if (!oview)
+        break;
       oview.group = selObj.objectview?.group;
       myMetis.addObjectView(oview);
       // End fix
-      if (debug) console.log('772 selObj', selObj);
-      const objview = selObj.objectview;
-      if (!objview)
-        break;
-      const objtypeview = selObj.objectview.typeview;
+      const objtypeview = oview.typeview;
       myDiagram.selection.each(function(sel) {
         if (debug) console.log('789 sel, sel.data', sel, sel.data);
-          const objview = sel.data.objectview;
+          let objview = sel.data.objectview;
           if (objview) {
+            objview = myMetis.findObjectView(objview.id);
             if (debug) console.log('796 objview, objtypeview', objview, objtypeview);
             for (let prop in  objtypeview?.data) {
               if (prop === 'group') continue;
@@ -809,7 +808,7 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
               myMetis.addObjectView(objview);
             }
             const obj = objview.object;
-            obj.viewkind = objview.viewkind;
+            if (obj) obj.viewkind = objview.viewkind;
           }
           const node = myDiagram.findNodeForKey(sel.data.key);
           if (node) {

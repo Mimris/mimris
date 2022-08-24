@@ -1492,7 +1492,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             ),    // end Spot Panel
             $(go.TextBlock, textStyle(),  // the text -----------------------
                 { 
-                    margin: 3, 
+                    margin: 0, 
                     font: "bold 12px Georgia, sans-serif",
                     isMultiline: true,  // allow newlines in text
                     editable: true,  // allow in-place editing by user   

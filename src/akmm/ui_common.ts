@@ -44,7 +44,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         if (obj1) obj = obj1;
         let name = context.pasted ? data.name : "";
         if (!data.parentModel) name = data.name;
-        if (debug) console.log('44 createObject', context, name);
+        if (debug) console.log('44 context, name', context, name);
         if (myMetis.pasteViewsOnly) {
             const pastedobj = myMetis.findObject(obj.id);
             if (!pastedobj) {
@@ -58,7 +58,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
         } else {
             obj = new akm.cxObject(utils.createGuid(), name, objtype, data.description);
         }
-        if (debug) console.log('58 createObject', obj, myMetis);
+        if (debug) console.log('58 obj, myMetis', obj, myMetis);
         if (obj) {
             if (!myMetis.pasteViewsOnly) {
                 obj.objectviews = null;
@@ -188,6 +188,7 @@ export function createObject(data: any, context: any): akm.cxObjectView | null {
                 }
                 return objview;
             }
+            if (debug) console.log('191 myMetis', myMetis);
         }
     }
     return null;
@@ -304,29 +305,12 @@ export function updateObject(data: any, name: string, value: string, context: an
         return;
     } else {
         const myMetis         = context.myMetis;
-        const myModel         = context.myModel;
-        const myModelview     = context.myModelview;
-        const myDiagram       = context.myDiagram;
         let currentObject     = data.object;
-        currentObject         = myMetis.findObject(currentObject.id);
         let currentObjectView = data.objectview;
-        let otype             = data.objecttype;
-        if (currentObject?.name === otype?.name) {
-            // This is a new object - check if the new name already exists
-            const obj = myMetis.findObjectByTypeAndName(otype, data.name);
-            if (obj) {
-                // Existing object
-                utils.removeElementFromArray(myModel.getObjects(), currentObject.getId());
-                currentObject = obj;
-                currentObjectView?.setObject(currentObject);
-                myModelview?.addObjectView(currentObjectView);
-            } 
-        } else {
-            const obj = myMetis.findObject(currentObject.id);
-            if (obj) {
-                currentObject = obj;
-                currentObjectView = myMetis.findObjectView(currentObjectView.id);
-            }
+        const obj = myMetis.findObject(currentObject.id);
+        if (obj) {
+            currentObject = obj;
+            currentObjectView = myMetis.findObjectView(currentObjectView.id);
         }
         currentObject.setName(value);
         currentObject.setModified();

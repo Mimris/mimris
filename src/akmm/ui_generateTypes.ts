@@ -70,7 +70,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     const myModel     = context.myModel;
     const modifiedObjects = new Array();
     const modifiedTypeViews = new Array();
-    // object is the object defining the object type to be generated
+    // 'object' is the object defining the object type to be generated
     const currentObj = myMetis.findObject(object.id) as akm.cxObject;
     let parentRelType: akm.cxRelationshipType | null = null;
     if (debug) console.log('65 object, objview', object, objview);
@@ -246,7 +246,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             }
         }
         objtype.methods = methods;
-        if (debug) console.log('215 objtype', objtype);
+        if (debug) console.log('250 objtype', objtype);
     }
     { // Handle properties
         const proptypes = new Array();
@@ -268,6 +268,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         modifiedTypeNodes.map(mn => {
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
+            if (!debug) console.log('271 ui-gen... data', data);
             myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
         });
         if (debug) console.log('239 modifiedTypeNodes', modifiedTypeNodes, myMetis);
@@ -692,18 +693,18 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
     const myTargetMetamodel = context.myTargetMetamodel;
     let method   = myMetamodel?.findMethodByName(name);
     if (!method) {
-        if (debug) console.log('624 method name:', name);
+        if (debug) console.log('695 method name:', name);
         method = myMetis.findMethodByName(name);
         if (!method) 
             method = new akm.cxMethod(utils.createGuid(), name, descr);
         myMetamodel.addMethod(method);
         myTargetMetamodel.addMethod(method);
         myMetis.addMethod(method);  
-        if (debug) console.log('631 method:', method);
+        if (debug) console.log('702 method:', method);
     }
     const mtdtypename  = object.methodtype;
     const methodType = myMetamodel.findMethodTypeByName(mtdtypename);
-    if (debug) console.log('635 methodType', methodType);
+    if (debug) console.log('706 methodType', methodType);
     if (method && methodType) {
         method.methodtype = methodType.name;
         const props = methodType.properties;
@@ -711,10 +712,10 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
             const propname = props[i].name;
             method[propname] = object[propname];
         }
-        if (debug) console.log('643 method', method);
+        if (debug) console.log('714 method', method);
     }      
     
-    if (debug) console.log('646 method', method, myMetamodel);
+    if (debug) console.log('717 method', method, myMetamodel);
     // Update phData
     const jsnMethod = new jsn.jsnMethod(method);
     if (methodType) {
@@ -726,14 +727,15 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
     }
     const modifiedMethods = new Array();
     modifiedMethods.push(jsnMethod);
-    if (debug) console.log('658 jsnMethod, myMetis', jsnMethod, myMetis);
+    if (debug) console.log('729 jsnMethod, myMetis', jsnMethod, myMetis);
     modifiedMethods.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
-        myDiagram.dispatch({ type: 'UPDATE_METHOD_PROPERTIES', data })
+        if (!debug) console.log('734 data', data);
+        myDiagram.dispatch({ type: 'UPDATE_TARGETMETHOD_PROPERTIES', data })
     });
 
-    if (debug) console.log('665 generateMethod', method, myMetis);
+    if (debug) console.log('736 method, myMetis', method, myMetis);
     return method;
 }
 
@@ -818,7 +820,7 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
     for (let i=0; i<objectviews?.length; i++) {
         const objview = objectviews[i];
         let obj = objview.object as akm.cxObject;
-        if (debug) console.log('788 model, obj, objview', model, obj, objview);
+        if (debug) console.log('822 model, obj, objview', model, obj, objview);
         if (obj) {
             obj = model.findObject(obj.id);
             objlist.push(obj);
@@ -836,10 +838,10 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
             rellist.push(rel);
         }
     }
-    if (debug) console.log('833 rellist', rellist);
+    if (debug) console.log('841 rellist', rellist);
     uniquelist = [...new Set(rellist)];
     rellist = uniquelist;
-    if (debug) console.log('838 objlist, rellist', objlist, rellist);
+    if (debug) console.log('844 objlist, rellist', objlist, rellist);
     // Build tempModelview
     const tempModelview = new akm.cxModelView(utils.createGuid(), '_TEMPVIEW', model, 'Temporary modelview');
     // First handle the objects
@@ -1353,7 +1355,7 @@ function getPropertyTypes(obj: akm.cxObject, proptypes: any, myModel: akm.cxMode
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
         const toObj = rel?.getToObject();
-        if (debug) console.log('1186 toObj', toObj);
+        if (debug) console.log('1186 obj, rel, toObj', obj, rel, toObj);
         if (toObj.type?.name === constants.types.AKM_PROPERTY) {
             const proptype = rel?.getToObject();
             // Check if property type already exists

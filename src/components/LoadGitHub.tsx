@@ -6,13 +6,14 @@ import base64 from 'base-64';
 // import  Search  from './Search';
 import TextInput from './utils/TextInput';
 import Select from './utils/Select';
-import { searchRepos, searchModels, searchModel } from './services/githubService';
+import { searchRepos, searchBranches, searchModels, searchModel, searchCommit, searchRaw } from './services/githubService';
 import { loadDataModel } from '../actions/actions';
 
 const debug = false
 
 const LoadGitHub = (props: any) => {
   const dispatch = useDispatch();
+  const [refresh, setRefresh] = useState(true);
   // console.log('11', props)
 
   // const username = 'kavca'
@@ -32,6 +33,7 @@ const LoadGitHub = (props: any) => {
   const [usernameText, setUsernameText] = useState('Kavca');
   const [repoText, setRepoText] = useState('kavca-akm-models');
   const [pathText, setPathText] = useState('StartupModels');
+  const [branchText, setBranchText] = useState('main');
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
   const [models, setModels] = useState([]);
@@ -49,12 +51,17 @@ const LoadGitHub = (props: any) => {
 
   const onUsernameChange = (text) => {
     if (text?.length > 0) {
-      console.log('50 onUsernameChange', text)
+      if (debug) console.log('50 onUsernameChange', text)
       setUsernameText(text);
       setGithubLink(`http://github.com/${text}/${repoText}`);
-      console.log('55 onUsernameChange', usernameText)
+      if (debug) console.log('55 onUsernameChange', usernameText)
     }
   };
+
+  const onRepoChange = (text) => {
+    (text) ? setRepoText(text): setRepoText('');
+  };
+  
 
   const onPathChange = (text) => {
     if (text?.length < 2) {
@@ -65,58 +72,95 @@ const LoadGitHub = (props: any) => {
   };
 
   const onModelChange = (text) => {
-    console.log('71 onModelChange', text)
+    if (debug) console.log('71 onModelChange', text)
     const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
     const filname = `/${text}`; // add slash
     loadModel(rep, filname);
     if (debug) console.log('52', rep, filname, )
   }
 
+  // todo: loadModel should be loadProject or loadModelProject
   const loadModel = async (rep, path) => {
     setLoading(true);
     const searchtext = `${rep}${path}`;
-    console.log('80 ', searchtext)
+    if (debug) console.log('80 ', searchtext)
     const res = await searchModel(searchtext, '')
     const content = res.data.content
-    console.log('83 ', res)
-    if (!debug) console.log('84 ', base64.decode(content))
+    if (debug) console.log('83 ', searchtext, res)
+    if (debug) console.log('84 ', base64.decode(content))
     const model = JSON.parse(base64.decode(content));
     // const model = JSON.parse(base64.decode(content));
-    if (!debug) console.log('87', model)
+    if (debug) console.log('87', model)
     setLoading(false);
 
-    if (debug) console.log('90 onModelChange', model)
-      
-      const data = {
-        phData:   model.phData,
-        phFocus:  model.phFocus,
-        phUser:   model.phUser,
-        phSource: model.phSource,
-      }
+    if (debug) console.log('90 onModelChange', model, props) 
+    const data = {
+      phData:   model.phData,
+      phFocus:  model.phFocus,
+      phUser:   model.phUser,
+      phSource: model.phData.metis.name || model.phSource 
+      // phSource: model.phSource,
+    }
+    if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+    if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+    if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+    if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
 
-      if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-      if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-      if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
-   
+  
   }
-  const onRepoChange = (text) => {
-    (text) ? setRepoText(text): setRepoText('');
-    // loadRepos(searchText, model);
-  };
 
   const loadRepos = async (repoText, pathText) => {
     if (usernameText?.length > 0)  { 
       setLoading(true);
-      if (!debug) console.log('76 loadRepos', repoText, pathText, model)
+      if (debug) console.log('76 loadRepos', repoText, pathText, model)
       const res = await searchRepos(repoText, pathText);
       const repolist = await res.data.items?.filter(repo => repo.name === repoText);
       setLoading(false);
-      console.log('118 res.data.items: ', await res.data.items, repos)
+      if (debug) console.log('118 res.data.items: ', await res.data.items, repos)
       setRepos(await repolist);
-      setModels(await res.data.items?.filter(repo => repo.name === repoText));
-      if (!debug) console.log('122', usernameText, pathText, repoText, res.data.items, repos)
+      // setModels(await res.data.items?.filter(repo => repo.name === repoText));
+      if (debug) console.log('122', usernameText, pathText, repoText, res.data.items, repos)
       // loadModels(repoText, pathText);
+    }
+  };
+
+  const loadBranch = async (repoText, branchText) => {
+    if (usernameText?.length > 0)  { 
+      const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
+      const commits = `repos/${usernameText}/${repoText}/commits/`;
+      const ownerRepo = `${usernameText}/${repoText}`;
+      setLoading(true);
+      if (debug) console.log('133 loadRepos', repoText, 'branchtext', branchText)
+      const res = await searchBranches(ownerRepo, branchText);
+      setLoading(false);
+      const branches = await res.data;
+      const branch = await res.data?.find(branch => branch.name === branchText);
+      if (debug) console.log('138 res.data: ', await res.data, branches)
+      const sha = branch?.commit?.sha;
+      const commitbranch = await searchCommit(ownerRepo, sha)
+      const rawfileUrl = await commitbranch.data.files[0].raw_url.replace('raw\/','').replace('github.com', 'raw.githubusercontent.com');
+
+      console.log('138', commitbranch, rawfileUrl)
+      if (debug) console.log('137 branch: ', await branches, branch.name, branch.commit.sha, rawfileUrl); 
+      const content = await fetch(rawfileUrl).then(res => res.text());
+
+      const model = JSON.parse(content) // JSON.parse(base64.decode(content));
+  
+      console.log('151', model)
+      const data = {
+        phData:   model.phData,
+        phFocus:  model.phFocus,
+        phUser:   model.phUser,
+        phSource: model.phData.metis.name || model.phSource 
+        // phSource: model.phSource,
+      }
+      if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+      if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+      if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+      if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+      
+      dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
+
     }
   };
 
@@ -124,19 +168,26 @@ const LoadGitHub = (props: any) => {
     setLoading(true);
     const repos = (pathText !== '') ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (!debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
+    if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
     const res = await searchModels(repos, pathText);
-    if (!debug) console.log('133 ', await res.data)
+    if (debug) console.log('133 ', await res.data)
     setLoading(false);
-    const filteredDirs = await res.data?.filter(model => model.type === 'dir' && model.name !== 'img');
+    const filteredDirs = await res.data?.filter(model => 
+      model.type === 'dir' 
+      && model.name !== 'img' 
+      && model.name !== 'imgdocs' 
+      && model.name !== '.github' 
+      && model.name !== '.gitignore');
     const filteredModels = await res.data?.filter(model => model.name.endsWith('.json'));
-    console.log('136 ', filteredModels)
+    if (debug) console.log('136 ', filteredModels)
     setModels(filteredModels);
     setDirs(filteredDirs);
-    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
+    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
+    setRefresh(!refresh)
   };
 
   useEffect(() => {
+    setBranchText('')
     if (usernameText?.length > 0) {
       loadRepos(repoText, pathText);
     }
@@ -148,7 +199,13 @@ const LoadGitHub = (props: any) => {
     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
   }, [usernameText, repoText, pathText]);
 
-
+  useEffect(() => {
+    console.log('useEffect 3', model)
+    const  refres = () => {
+      setRefresh(!refresh)
+    }
+    setTimeout(refres, 2000);
+  } , [model]);
 
   let modeloptionss = models?.map((mod) => {
     return {
@@ -156,9 +213,11 @@ const LoadGitHub = (props: any) => {
       label: mod.name
     } 
   });
-  const  modeloptions = [{value: '', label: 'Select Model...'}, ...modeloptionss] ;
+
+  const label = (models.length > 0) ? ' Select Model - - - ' : ' - - - Click on "LIST MODELS" above! - - - ' ;
+  const  modeloptions = [{value: '', label: label}, ...modeloptionss] ;
   // const  modeloptions = (modeloptionss?.length > 1) ? [{value: '', label: 'Select Model...'}, ...modeloptionss] : [{value: '', label: 'No Model to select...'}]
-  if (!debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
+  if (debug) console.log('163 modeloptions', models, modeloptions, modeloptions?.length)
 
   // console.log('160 githubLink', githubLink)
 
@@ -167,96 +226,66 @@ const LoadGitHub = (props: any) => {
       <span><button className="btn-context btn-outline-primary text-dark ml-1" onClick={toggle}>{buttonLabel}</button>
       </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
-        <ModalHeader toggle={() => {toggle(); }}>GitHub repo</ModalHeader>
+        <ModalHeader toggle={() => {toggle(); }}>GitHub Model Repository</ModalHeader>
         <ModalBody className="pl-1 pt-1 ">
-        <div>
-          {/* ----Repository user name input------------------------------- */}
-          <TextInput // 
-            label="Repo UserName:"
-            value={usernameText}
-            onChange={(value) => onUsernameChange(value)}
-            placeholder="Repos UserName:"
-          />         
-          {/* {loading ? 'Loading...' : 
-            <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
-          } */}
-          {/* ----- Searching repos -------------------------------- */}
-          <div className="w-100 mt-1">Searching repos in: {githubLink} </div>
-          <hr className="bg-primary my-1 mx-4" />
-          {loading ? 'Loading...' : 
-             <div className="text-success m-1" > 
-              {repos.map((repo) => (
-                <span className="px-1" key={repo.id} > {repo.full_name}, </span>
-                ))} 
-              </div> 
-          }
-          {/* ----- Repository name input ----------------------------------- */}
-          <span className="">
-          <TextInput 
-            label="Repository Name:"
-            value={repoText}
-            onChange={(value) => onRepoChange(value)}
-            placeholder="Repo name:"
-            />      
-          </span>
-          <hr className="bg-primary my-1 mx-4" />
-            {/* ----- Path input ------------------------------------ */}
-          <span className="">  
-          <TextInput  // pathText input
-            label="Model path:"
-            value={pathText}
-            onChange={(value) => onPathChange(value)}
-            placeholder="Path to models"
-            />
-          </span>
-          <hr className="bg-light my-1 mx-4" />
-          <div className="w-100">Models found in: {githubLink} </div>
-            {/* -------- Select model ------------------------------------ */}
-          {/* <hr className="bg-primary" /> */}
-          <Button className="btn-primary text-black border-primary w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
-          {(dirs?.length > 0) 
-            ? <div >Model paths found:
-              <span className="text-success m-1">
-                {dirs?.map((dir) => (
-                  <span className="px-1" key={dir.name} >{dir.name}, </span>
-                  ))}
-              </span>
-              </div> 
-            : <div className='text-warning'> 'No model paths found!'</div>
-          } 
-          {(models?.length > 0) 
-            ? <div >Models found:
-              <span className="text-success m-1">
-                {models?.map((mod) => (
-                  <span className="px-1" key={mod.name} >{mod.name}, </span>
-                  ))}
-              </span>
-              </div> 
-            : <div className='text-warning'> 'No models found!'</div>
-          } 
-           
-            {/* {(models.length > 0) ? <div className="text-success">Models found!</div> : <div className="text-warning">No models found!</div>} */}
+        <div className="bg-light" >
+            
+          <div className="bg-secondary square border border-2 border-success p-1" ><strong>Download from a list of Models:</strong>
 
-          {/* -------------------------------------------------------- */}
-          <div className="w-50">
-            <Select 
-              label="Select model:"
-              value={(modeloptions) ? modeloptions[0] : 'no models'}
-              options={(modeloptions) ? modeloptions : []}
-              onChange={(value) => onModelChange(value)}
-            />
+            {/* ----Repository user name input------------------------------- */}
+            <TextInput label="RepoOwner:" value={usernameText} onChange={(value) => onUsernameChange(value)} placeholder="Repos UserName:" />         
+            {/* {loading ? 'Loading...' : 
+              <div>{models.length > 0 ? <div className="text-success"> Models fond </div> : <div className="text-warning"> No repos found </div>}</div>
+            } */}
+            {/* ----- Searching repos -------------------------------- */}
+            {/* <div className="w-100 mt-1 text-secondary"> {githubLink} </div> */}
+            <hr className="bg-primary my-1 mx-4" />
+            {loading ? 'Loading...' :  <div className="text-success m-1" > {repos.map((repo) => ( <span className="px-1" key={repo.id} > {repo.full_name}, </span> ))}  </div>  }
+
+            {/* ----- Repository name input ----------------------------------- */}
+            <span className=""><TextInput label="Repository:" value={repoText} onChange={(value) => onRepoChange(value)} placeholder="Repo name:" /> </span>
+            <hr className="bg-primary my-2 mx-4" />
+
+            {/* ----- Model Path input ------------------------------------ */}
+            <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span>
+            <hr className="bg-light my-1 mx-4" />
+
+            {/* -------- Select model ------------------------------------ */}
+            <Button className="btn-primary text-black border-success w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
+            {(dirs?.length > 0) 
+              ? <div >Model paths found: <span className="text-success m-1"> {dirs?.map((dir) => ( <span className="px-1" key={dir.name} >{dir.name}, </span> ))}</span> </div> 
+              : (!pathText) && <div className='text-warning'> 'No model paths found!'</div>
+            } 
+            {(models?.length > 0) 
+              ? <div >Models found: <span className="text-success m-1">{models?.map((mod) => ( <span className="px-1" key={mod.name} >{mod.name}, </span>))} </span></div> 
+              : <div className='text-warning'> 'No models found!'</div>
+            } 
+
+            {/* -------------------------------------------------------- */}
+            <hr className="bg-primarypx-10 my-1 mx-4" />
+            <label className="w-100 d-inline-flex justify-content-left"> 
+              <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
+            </label>
+            {/* <hr /> */}
+            {/* {loading ? 'Loading...' : (models?.length > 0) 
+              ? <div>Models found:
+                {models?.map((mod) => (
+                  <li key={mod.name} >{mod.name}</li>
+                ))} </div> 
+              : 'No models found!'} */}
           </div>
-          {/* <hr /> */}
-          {/* {loading ? 'Loading...' : (models?.length > 0) 
-            ? <div>Models found:
-              {models?.map((mod) => (
-                <li key={mod.name} >{mod.name}</li>
-              ))} </div> 
-            : 'No models found!'} */}
-          <hr className="bg-primary m-2" />
-          {/* githubLink: {githubLink} <br /> repoText: {repoText} <br />pathText: {pathText} <br /> usernameText: {usernameText}  <br /> */}
-          <a href={githubLink} target="_blank" rel="noopener noreferrer"> <strong> Click here to open GitHub</strong></a>
-          <p>You can learn how to upload your Model project.json files. <br />Check the README file for Guidence</p>
+          {/* <hr className="bg-primary m-2" />
+             {/* ----- Branch input default main ------------------------------------ */}
+             
+             {/* <div className="square border border-2 border-white p-1"><strong>Download a patch:</strong> (RepoOwner, Repository and Path must be filled in above)<br />
+              <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
+             </div> */}
+          <hr className="bg-primary my-1 mx-4" />
+          <div className="bg-secondary square border border-2 border-primary p-1"><strong>Upload model files:</strong> (RepoOwner, Repository and Path must be filled in)<br />
+            <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong> Click here to open GitHub </strong></a> (Check the README file for Guidance)
+          <div className=" text-secondary">{githubLink} </div>
+          </div>
+          <hr className="bg-primary my-1 mx-0" />
         </div>
         </ModalBody>
       </Modal>
@@ -265,3 +294,7 @@ const LoadGitHub = (props: any) => {
 }
 
 export default LoadGitHub;
+
+// onChange={(value) => onModelChange(value)}
+
+// onClick = {() => loadModels(usernameText, pathText)}

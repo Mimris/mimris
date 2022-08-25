@@ -98,20 +98,29 @@ const page = (props:any) => {
 
   if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
 
+  const data = {
+    phData:   props.phData,
+    phFocus:  props.phFocus,
+    phUser:   props.phUser,
+    // phSource: props.phSource,
+    phSource: (phSource === "") && phData.metis.name  || phSource,
+    lastUpdate: new Date().toISOString()
+  }
+
   useEffect(() => {
     if (debug) console.log('99 Modelling useEffect', props); 
-    const data = {
-      phData: props.phData,
-      phFocus: props.phFocus,
-      phUser: props.phUser,
-      phSource: props.phSource,
-      lastUpdate: new Date().toISOString()
-    };
-    if (debug) console.log('107 Modelling useEffect', data);
+    // const data = {
+    //   phData: props.phData,
+    //   phFocus: props.phFocus,
+    //   phUser: props.phUser,
+    //   phSource: props.phSource,
+    //   lastUpdate: new Date().toISOString()
+    // };
+    if (!debug) console.log('107 Modelling useEffect', data);
     genGojsModel(props, dispatch);
     
     const timer = setTimeout(() => {
-      genGojsModel(props, dispatch);
+      // genGojsModel(props, dispatch);
       setRefresh(!refresh)
     }, 1000);
     
@@ -120,14 +129,14 @@ const page = (props:any) => {
 
   useEffect(() => {
     if (debug) console.log('121 Modelling useEffect', props, memoryLocState); 
-    const currentdata = {
-      phData: props.phData,
-      phFocus: props.phFocus,
-      phUser: props.phUser,
-      phSource: props.phSource,
-      lastUpdate: new Date().toISOString()
-    };
-    if (debug) console.log('129 Modelling useEffect', memoryLocState, currentdata);
+    // const currentdata = {
+    //   phData: props.phData,
+    //   phFocus: props.phFocus,
+    //   phUser: props.phUser,
+    //   phSource: props.phSource,
+    //   lastUpdate: new Date().toISOString()
+    // };
+    if (!debug) console.log('129 Modelling useEffect', memoryLocState, data);
 
     genGojsModel(props, dispatch);
     
@@ -136,24 +145,24 @@ const page = (props:any) => {
     }
     setTimeout(refres, 1);
 
-  }, [props.phFocus?.focusRefresh?.id])
+  }, [props.phFocus?.focusRefresh?.id, props.phSource])
 
 
   function toggleRefresh() {
-    const currentdata = {
-      phData: props.phData,
-      phFocus: props.phFocus,
-      phUser: props.phUser,
-      phSource: (phSource === "") && phData.metis.name  || phSource,
-      lastUpdate: new Date().toISOString()
-    };
-    if (debug) console.log('152 Modelling', currentdata, memoryLocState, (Array.isArray(memoryLocState)));
-    let data = (Array.isArray(memoryLocState)) ? [currentdata, ...memoryLocState] : [currentdata];
+    // const currentdata = {
+    //   phData: props.phData,
+    //   phFocus: props.phFocus,
+    //   phUser: props.phUser,
+    //   phSource: (phSource === "") && phData.metis.name  || phSource,
+    //   lastUpdate: new Date().toISOString()
+    // };
+    if (!debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
+    let mdata = (Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
     // put currentdata in the first position of the array data
-    if (data.length > 9) { data.shift() }
-    if (debug) console.log('161 Modelling', data);
+    if (mdata.length > 9) { mdata.shift() }
+    if (!debug) console.log('161 Modelling refresh', mdata);
     // setTimeout(refres, 1);
-    (typeof window !== 'undefined') && setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+    (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
     function refres() {
       setRefresh(!refresh)
@@ -163,14 +172,6 @@ const page = (props:any) => {
   }
 
   if (debug) console.log('174 Modelling', curmod, curmodview);
-    
-    const data = {
-      phData:   props.phData,
-      phFocus:  props.phFocus,
-      phUser:   props.phUser,
-      phSource: props.phSource,
-      lastUpdate: new Date().toISOString()
-    }
 
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name

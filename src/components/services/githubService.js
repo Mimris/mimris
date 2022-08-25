@@ -30,16 +30,31 @@ export function searchRepos(searchText, path) {
   );
 }
 
+export function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-models
+  console.log('34 searchBranches', ownerRepo, path);
+  // https://api.github.com/repos/kavca/kavca-akm-models/contents/StartupModels 
+  // https://api.github.com/repos/Kavca/kavca-akm-models/branches/SnorreFossland-patch-2
+  // https://raw.githubusercontent.com/Kavca/kavca-akm-models/21387823876733/StudyDementia/Study-Dementia-Project%20(2).json
+  const query = `${ownerRepo}`;
+  console.log('36 searchRepos', ownerRepo, 'p', path);
+  console.log('37 searchRepos https://api.github.com/', query);
+  return axios.get(
+    `repos/${query}/branches`,
+    axiosConfig
+  );
+}
+
 export function searchModels(searchText, path) {
-  // repos/kavca/akm-models/contents/StartupModels
+  // https://api.github.com/repos/Kavca/kavca-akm-models/branches
   const query = `${searchText}`;
-  console.log('36 searchRepos', searchText, 'p', path);
-  console.log('37 searchRepos', query);
+  console.log('47 searchRepos', searchText, 'p', path);
+  console.log('48 searchRepos https://api.github.com/', query);
   return axios.get(
     `${query}`,
     axiosConfig
   );
 }
+
 
 export function searchModel(searchText, path) {
   const query = `${searchText}`;
@@ -50,6 +65,29 @@ export function searchModel(searchText, path) {
     axiosConfig
   );
 }
+
+export function searchCommit(searchText, path) {
+  const query = `${searchText}`;
+  // const query =  `${searchText}/${path}`;
+  // console.log('62 searchRepos', query);
+  console.log('63 searchRepos https://api.github.com/', `repos/${query}/commits/${path}`);
+  return axios.get(
+    `repos/${query}/commits/${path}`,
+    axiosConfig
+  );
+}
+
+export function searchRaw(searchText, path) {
+  const query = `${searchText}`;
+  // const query =  `${searchText}/${path}`;
+  // console.log('62 searchRepos', query);
+  console.log('63 searchRepos https://api.github.com/', `repos/${query}/commits/${path}`);
+  return axios.get(
+    `${query}`,
+    axiosConfig
+  );
+}
+
 
 // export { searchRepos, searchModels };
 

@@ -187,7 +187,7 @@ const LoadGitHub = (props: any) => {
   };
 
   useEffect(() => {
-    setBranchText('')
+    setBranchText('main')
     if (usernameText?.length > 0) {
       loadRepos(repoText, pathText);
     }
@@ -196,7 +196,7 @@ const LoadGitHub = (props: any) => {
   useEffect(() => {
     setModels([]);
     setDirs([]);
-    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
+    setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/${branchText}/${pathText}`)
   }, [usernameText, repoText, pathText]);
 
   useEffect(() => {

@@ -249,7 +249,8 @@ export class jsnMetaModel {
                 this.addMethod(mtd);
             }
         }
-
+        this.updateMethods(metamodel);
+        //
         // let units = metamodel.getUnits();
         // if (units) {
         //     let cnt = units.length;
@@ -366,8 +367,8 @@ export class jsnMetaModel {
         if (utils.objExists(mtd) &&
             !mtd.isDeleted()
         ) {
-            const gMtd = new jsnMethod(mtd);
-            this.methods.push(gMtd);
+            const jMtd = new jsnMethod(mtd);
+            this.methods.push(jMtd);
         }
     }
     addUnit(unit: akm.cxUnit) {

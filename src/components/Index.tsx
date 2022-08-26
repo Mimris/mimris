@@ -196,16 +196,25 @@ const page = (props) => {
                     </CardText>
                   </CardBody> */}
                   <CardBody className="card-body" >
+                    <CardTitle className="card-title-bold" >Release 2022.08.22</CardTitle>
+                    <CardText >
+                          &bull; New functionality for metamodelling of activity/task modelling.<br />
+                          &bull; More startup models on GitHub Kavca.<br />
+                          &bull; Procedure for uploading Models to GitHub is published in the README file on <a href="https://github.com/Kavca/akm-models/" target="_blank">https://github.com/Kavca/akm-models/</a><br />
+                          &bull; Bugfixes!<br />
+                    </CardText>
+                  </CardBody>
+                  <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.08.06</CardTitle>
                     <CardText >
-                          &bull; New button in the model top-bar for loading startmodels from GitHub".<br />
+                          &bull; New button in the model top-bar for loading StartupModels from GitHub".<br />
                           &bull; Bugfixes!<br />
                     </CardText>
                   </CardBody>
                   <CardBody className="card-body" >
                     <CardTitle className="card-title-bold" >Release 2022.07.11</CardTitle>
                     <CardText >
-                          &bull; New Recovery button in the model top-bar".<br />
+                          &bull; New Recovery button in the model top-bar.<br />
                           &bull; Enhancements! <br />
                           &bull; Bugfixes!<br />
                     </CardText>

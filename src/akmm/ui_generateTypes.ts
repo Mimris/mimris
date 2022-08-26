@@ -268,6 +268,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         modifiedTypeNodes.map(mn => {
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
+            if (!debug) console.log('271 ui-gen... data', data);
             myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
         });
         if (debug) console.log('239 modifiedTypeNodes', modifiedTypeNodes, myMetis);
@@ -714,6 +715,24 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
         if (debug) console.log('714 method', method);
     }      
     if (debug) console.log('717 method', method, myMetamodel);
+    // Update phData
+    const jsnMethod = new jsn.jsnMethod(method);
+    if (methodType) {
+        const props = methodType.properties;
+        for (let i=0; i<props?.length; i++) {
+            const propname = props[i].name;
+            jsnMethod[propname] = method[propname];
+        }
+    }
+    const modifiedMethods = new Array();
+    modifiedMethods.push(jsnMethod);
+    if (debug) console.log('729 jsnMethod, myMetis', jsnMethod, myMetis);
+    modifiedMethods.map(mn => {
+        let data = (mn) && mn;
+        data = JSON.parse(JSON.stringify(data));
+        if (!debug) console.log('734 data', data);
+        myDiagram.dispatch({ type: 'UPDATE_TARGETMETHOD_PROPERTIES', data })
+    });
     if (debug) console.log('736 method, myMetis', method, myMetis);
     return method;
 }

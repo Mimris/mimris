@@ -79,11 +79,11 @@ const Modeller = (props: any) => {
     dispatch({ type: 'UPDATE_PROJECT_PROPERTIES', data: { name: e.value } });
   }
   const handleSelectModelChange = (event: any) => {
-    if (!debug) console.log('19 Selector', JSON.parse(event.value).name);
+    if (debug) console.log('19 Selector', JSON.parse(event.value).name);
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
     const selObj = models.find( (obj: any) => obj.id === id ) 
-    if (!debug) console.log('86 Selector', selObj);
+    if (debug) console.log('86 Selector', selObj);
     // const workOnTypes = selObj.workOnTypes
     // const focustype = { id: id, name: name, workOnTypes: workOnTypes }
     const data = (selObj) ? { id: id, name: name} : { id: id, name: name }

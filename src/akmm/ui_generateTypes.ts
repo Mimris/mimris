@@ -268,7 +268,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
         modifiedTypeNodes.map(mn => {
             let data = (mn) && mn;
             data = JSON.parse(JSON.stringify(data));
-            if (!debug) console.log('271 ui-gen... data', data);
+            if (debug) console.log('271 ui-gen... data', data);
             myDiagram.dispatch({ type: 'UPDATE_TARGETOBJECTTYPE_PROPERTIES', data })
         });
         if (debug) console.log('239 modifiedTypeNodes', modifiedTypeNodes, myMetis);
@@ -730,7 +730,7 @@ export function generateMethod(obj: akm.cxObject, context: any): akm.cxMethod {
     modifiedMethods.map(mn => {
         let data = (mn) && mn;
         data = JSON.parse(JSON.stringify(data));
-        if (!debug) console.log('734 data', data);
+        if (debug) console.log('734 data', data);
         myDiagram.dispatch({ type: 'UPDATE_TARGETMETHOD_PROPERTIES', data })
     });
     if (debug) console.log('736 method, myMetis', method, myMetis);

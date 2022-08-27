@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 // this Kernel code
@@ -58,8 +58,11 @@ export class cxMetis {
     gojsModel:          gjs.goModel | null = null;
     currentProject:     cxProject | null = null;
     currentMetamodel:   cxMetaModel | null = null;
+    currentMetamodelRef: string | null = null;
     currentModel:       cxModel | null = null;
+    currentModelRef:    string | null = null;
     currentModelview:   cxModelView | null = null;
+    currentModelviewRef: string | null = null;
     currentTargetMetamodel:     cxMetaModel | null = null;
     currentTargetModel:         cxModel | null = null;
     currentTargetModelview:     cxModelView | null = null;
@@ -225,7 +228,7 @@ export class cxMetis {
         const objtypes = this.objecttypes;
         for (let i=0; i<objtypes.length; i++) {
             const otype = objtypes[i];
-            const stypes = otype.findSupertypes();
+            const stypes = otype.findSupertypes(0);
             for (let j=0; j<stypes?.length; j++) {
                 const stype = stypes[j];
                 otype.addSupertype(stype);
@@ -808,8 +811,8 @@ export class cxMetis {
             objtypeview.setStrokecolor(item.strokecolor);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
-            objtypeview.setGroup(item.group);
-            objtypeview.setIsGroup(item.isGroup);
+            // objtypeview.setGroup(item.group);
+            // objtypeview.setIsGroup(item.isGroup);
             if (debug) console.log('222 objtypeview', objtypeview, item);
             parent.addObjectTypeView(objtypeview);
             if (debug) console.log("Importing objtypeview: " + item.id + ", " + item.name);
@@ -1012,7 +1015,6 @@ export class cxMetis {
                     objview.setScale(item.scale);
                     objview.setTextscale(item.textscale);
                     objview.setGroup(item.group);
-                    // objview.isGroup = true;
                     objview.setIsGroup(item.isGroup);
                     objview.setMarkedAsDeleted(item.markedAsDeleted);
                     objview.isCollapsed = item.isCollapsed;
@@ -2824,7 +2826,7 @@ export class cxDatatype extends cxMetaObject {
         this.defaultValue  = "";
         this.value         = "";
         this.pointerType   = null;
-        this.PointerCriteria = "";
+        this.pointerCriteria = "";
 
         if (debug) console.log('1915 datatype: ', this);
     }
@@ -2887,10 +2889,10 @@ export class cxDatatype extends cxMetaObject {
         return this.pointerType;
     }
     setPointerCriteria(val: string) {
-        this.PointerCriteria = val;
+        this.pointerCriteria = val;
     }
     getPointerCriteria(): string {
-        return this.PointerCriteria;
+        return this.pointerCriteria;
     }
 }
 
@@ -4995,7 +4997,7 @@ export class cxObjectType extends cxType {
         }
         return objtypes;
     }
-    findSupertypes(level: int): cxObjectType[] | null {
+    findSupertypes(level: number): cxObjectType[] | null {
         if (!level) level = 0;
         const supertypes = new Array();
         const rtypes = this.outputreltypes;
@@ -5506,6 +5508,7 @@ export class cxViewStyle extends cxMetaObject {
 
 export class cxObjtypeviewData {
     abstract: boolean;
+    arrowscale: string;
     memberscale: string;
     viewkind: string;
     template: string;
@@ -5520,6 +5523,7 @@ export class cxObjtypeviewData {
     constructor() {
         this.abstract = false;
         this.memberscale = "1";
+        this.arrowscale = "1.3";
         this.viewkind = constants.viewkinds.OBJ;
         this.template = "textAndIcon";
         this.figure = "";
@@ -5618,7 +5622,7 @@ export class cxObjectTypeView extends cxMetaObject {
     }
     setViewKind(viewkind: string) {
         this.data.viewkind = viewkind;
-        this.setIsGroup(viewkind);
+        // this.setIsGroup(viewkind);
     }
     getViewKind(): string {
         if (utils.objExists(this.data.viewkind))
@@ -5632,30 +5636,30 @@ export class cxObjectTypeView extends cxMetaObject {
     getAbstract(): boolean {
         return this.data.abstract;
     }
-    setIsGroup1(flag: boolean) {
-        this.data.isGroup = flag;
-    }
-    setIsGroup(viewkind: string) {
-        if (viewkind == constants.viewkinds.CONT) {
-            this.data.isGroup = true;
-        } else
-            this.data.isGroup = false;
-    }
-    getIsGroup(): boolean {
-        if (utils.objExists(this.data.isGroup))
-            return this.data.isGroup;
-        else
-            return false;
-    }
-    getIsContainer(): boolean {
-        return this.getIsGroup();
-    }
-    setGroup(group: string) {
-        this.data.group = group;
-    }
-    getGroup(): string {
-        return this.data.group;
-    }
+    // setIsGroup1(flag: boolean) {
+    //     this.data.isGroup = flag;
+    // }
+    // setIsGroup(viewkind: string) {
+    //     if (viewkind == constants.viewkinds.CONT) {
+    //         this.data.isGroup = true;
+    //     } else
+    //         this.data.isGroup = false;
+    // }
+    // getIsGroup(): boolean {
+    //     if (utils.objExists(this.data.isGroup))
+    //         return this.data.isGroup;
+    //     else
+    //         return false;
+    // }
+    // getIsContainer(): boolean {
+    //     return this.getIsGroup();
+    // }
+    // setGroup(group: string) {
+    //     this.data.group = group;
+    // }
+    // getGroup(): string {
+    //     return this.data.group;
+    // }
     setTemplate(template: string) {
         this.data.template = template;
         this.template = template;
@@ -6830,7 +6834,7 @@ export class cxInstance extends cxMetaObject {
         return true;
     }
     getPropertyValue(prop: cxProperty, metis: cxMetis): any {
-        let value = 0;
+        let value;
         const inst: any = this;
         const mtdRef = prop.methodRef;
         const method = metis.findMethod(mtdRef);
@@ -6858,21 +6862,29 @@ export class cxInstance extends cxMetaObject {
                 }
                 break;
                 case "GetConnectedObject": {
-                    if (debug) console.log('6860 method', method);
-                    const reltype = metis.findRelationshipTypeByName(method["reltype"]);
+                    if (debug) console.log('6861 method', method);
+                    const rtypename = method["reltype"];
+                    const reldir = method["reldir"];
+                    let reltype = null;
+                    if (rtypename !== 'any' && rtypename !== 'null')
+                        reltype = metis.findRelationshipTypeByName(rtypename);
+                    if (debug) console.log('6866 rtypename, reltype', rtypename, reltype);
                     const otypename = method["objtype"];
                     let objtype = null;
                     if (otypename !== 'any' && otypename !== 'null')
                         objtype = metis.findObjectTypeByName(otypename);
+                    if (debug) console.log('6871 otypename, objtype', otypename, objtype);
                     context = {
                         "myMetis":      metis,
                         "reltype":      reltype,
-                        "reldir":       method["reldir"],
+                        "reldir":       reldir,
                         "objtype":      objtype,
                         "prop":         prop,
                     }
-                    value = ui_mtd.getConnectedObject(inst, context);
-                    if (debug) console.log('6874 inst, context, value', inst, context, value);
+                    if (debug) console.log('6879 inst, context', inst, context);
+                    const obj = ui_mtd.getConnectedObject(inst, context);
+                    if (debug) console.log('6881 inst, context, obj', inst, context, obj);
+                    value = obj?.name; 
                 }
                 break;
                 case "CalculateValue":

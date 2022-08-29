@@ -10,12 +10,19 @@ const axiosConfig = {
     password: process.env.GITHUB_CLIENT_SECRET
     // username: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
     // password: process.env.NEXT_PUBLIC_GITHUB_CLIENT_SECRET
+  }
+};
+const axiosConfigRaw = {
+  baseURL: 'https://raw.githubusercontent.com/',
+  auth: {
+    username: process.env.GITHUB_CLIENT_ID,
+    password: process.env.GITHUB_CLIENT_SECRET
   },
-  // headers: {
-  //   'Content-Type': 'application/vnd.github.v3.raw',
-  //   'Content-Type': 'application/json', 
-  //   'Authorization': 'Token +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'
-  // }
+  headers: {
+    'Content-Type': 'application/vnd.github.v3.raw',
+    // 'Content-Type': 'application/json',
+    // 'Authorization': 'Token +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'
+  }
 };
 // PersonalToken   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
 // GITHUB_CLIENT_ID=1904e9f7308632ae2ade
@@ -54,12 +61,22 @@ export function searchModels(searchText, path) {
     axiosConfig
   );
 }
+export function searchModelRaw(searchText, path) {
+  // https://raw.githubusercontent.com/Kavca/equinor-osdu-akmpoc/main/
+  const query = `${searchText}`;
+  console.log('68 searchRepos', searchText, 'p', path);
+  return axios.get(
+    `${query}`,
+    axiosConfigRaw
+  );
+}
 
 
 export function searchModel(searchText, path) {
+
   const query = `${searchText}`;
   // const query =  `${searchText}/${path}`;
-  // console.log('44 searchRepos', query);
+  console.log('44 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig

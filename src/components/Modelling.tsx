@@ -145,7 +145,7 @@ const page = (props:any) => {
     }
     setTimeout(refres, 1);
 
-  }, [props.phFocus?.focusRefresh?.id, props.phSource])
+  }, [props.phFocus?.focusRefresh?.id])
 
 
   function toggleRefresh() {

@@ -6,7 +6,7 @@ import base64 from 'base-64';
 // import  Search  from './Search';
 import TextInput from './utils/TextInput';
 import Select from './utils/Select';
-import { searchRepos, searchBranches, searchModels, searchModel, searchCommit, searchRaw } from './services/githubService';
+import { searchRepos, searchBranches, searchModels, searchModel, searchCommit, searchModelRaw } from './services/githubService';
 import { loadDataModel } from '../actions/actions';
 
 const debug = false
@@ -81,11 +81,17 @@ const LoadGitHub = (props: any) => {
   // todo: loadModel should be loadProject or loadModelProject
   const loadModel = async (rep, path) => {
     setLoading(true);
-    const searchtext = `${rep}${path}`;
+    const searchtexttmp = `${rep}${path}`;
+    const searchtext = searchtexttmp.replace(/\/\//g, '/');
     if (debug) console.log('80 ', searchtext)
     const res = await searchModel(searchtext, '')
+    // const download_url = res.data.download_url
+    // console.log('89 download_url', download_url)
+    // const resraw = await searchModelRaw(download_url)
+    // console.log('90 resraw', resraw)
+    // const content = resraw.data.content
     const content = res.data.content
-    if (debug) console.log('83 ', searchtext, res)
+    if (!debug) console.log('83 ', searchtext, res)
     if (debug) console.log('84 ', base64.decode(content))
     const model = JSON.parse(base64.decode(content));
     // const model = JSON.parse(base64.decode(content));
@@ -123,17 +129,17 @@ const LoadGitHub = (props: any) => {
     }
   };
 
-  const loadBranch = async (repoText, branchText) => {
+  const loadModel2 = async (repoText, pathText) => {
     if (usernameText?.length > 0)  { 
       const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
       const commits = `repos/${usernameText}/${repoText}/commits/`;
       const ownerRepo = `${usernameText}/${repoText}`;
       setLoading(true);
       if (debug) console.log('133 loadRepos', repoText, 'branchtext', branchText)
-      const res = await searchBranches(ownerRepo, branchText);
+      const res = await searchModels(ownerRepo, branchText);
       setLoading(false);
-      const branches = await res.data;
-      const branch = await res.data?.find(branch => branch.name === branchText);
+      const modelss = await res.data;
+      const modell = await res.data?.find(model => branch.name === branchText);
       if (debug) console.log('138 res.data: ', await res.data, branches)
       const sha = branch?.commit?.sha;
       const commitbranch = await searchCommit(ownerRepo, sha)
@@ -158,7 +164,7 @@ const LoadGitHub = (props: any) => {
       if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
       if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
       
-      dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
+      // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
 
     }
   };
@@ -297,3 +303,45 @@ export default LoadGitHub;
 // onChange={(value) => onModelChange(value)}
 
 // onClick = {() => loadModels(usernameText, pathText)}
+
+
+
+// const loadBranch = async (repoText, branchText) => {
+//   if (usernameText?.length > 0)  { 
+//     const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
+//     const commits = `repos/${usernameText}/${repoText}/commits/`;
+//     const ownerRepo = `${usernameText}/${repoText}`;
+//     setLoading(true);
+//     if (debug) console.log('133 loadRepos', repoText, 'branchtext', branchText)
+//     const res = await searchBranches(ownerRepo, branchText);
+//     setLoading(false);
+//     const branches = await res.data;
+//     const branch = await res.data?.find(branch => branch.name === branchText);
+//     if (debug) console.log('138 res.data: ', await res.data, branches)
+//     const sha = branch?.commit?.sha;
+//     const commitbranch = await searchCommit(ownerRepo, sha)
+//     const rawfileUrl = await commitbranch.data.files[0].raw_url.replace('raw\/','').replace('github.com', 'raw.githubusercontent.com');
+
+//     console.log('138', commitbranch, rawfileUrl)
+//     if (debug) console.log('137 branch: ', await branches, branch.name, branch.commit.sha, rawfileUrl); 
+//     const content = await fetch(rawfileUrl).then(res => res.text());
+
+//     const model = JSON.parse(content) // JSON.parse(base64.decode(content));
+
+//     console.log('151', model)
+//     const data = {
+//       phData:   model.phData,
+//       phFocus:  model.phFocus,
+//       phUser:   model.phUser,
+//       phSource: model.phData.metis.name || model.phSource 
+//       // phSource: model.phSource,
+//     }
+//     if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+//     if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+//     if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+//     if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+    
+//     // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
+
+//   }
+// };

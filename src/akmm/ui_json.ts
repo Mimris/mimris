@@ -249,7 +249,8 @@ export class jsnMetaModel {
                 this.addMethod(mtd);
             }
         }
-
+        this.updateMethods(metamodel);
+        //
         // let units = metamodel.getUnits();
         // if (units) {
         //     let cnt = units.length;
@@ -366,8 +367,8 @@ export class jsnMetaModel {
         if (utils.objExists(mtd) &&
             !mtd.isDeleted()
         ) {
-            const gMtd = new jsnMethod(mtd);
-            this.methods.push(gMtd);
+            const jMtd = new jsnMethod(mtd);
+            this.methods.push(jMtd);
         }
     }
     addUnit(unit: akm.cxUnit) {
@@ -676,8 +677,6 @@ export class jsnObjectTypeView {
     description:     string;
     typeRef:         string;
     viewkind:        string;
-    isGroup:         boolean;
-    group:           string;
     template:        string;
     figure:          string;
     geometry:        string;
@@ -696,8 +695,6 @@ export class jsnObjectTypeView {
         this.name            = objtypeview.name;
         this.description     = "";
         this.typeRef         = objtypeview.typeRef;
-        this.isGroup         = objtypeview.getIsGroup();
-        this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
         this.figure          = objtypeview.getFigure();

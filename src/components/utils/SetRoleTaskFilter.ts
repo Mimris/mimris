@@ -17,7 +17,6 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
         return {id: ot.id, name: ot.name, description: ot.description, icon: ot.icon, color: ot.color, type: ot.type}
     }
     )
-
     
       const datarole = {
         focusRole: {
@@ -27,8 +26,22 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
             {
                 id: "Task0",
                 name: "Modelling",
-                workOnTypes:  
-                oTypes0?.map((t: { name: any; }) => t.name)
+                workOnTypes:  [
+                    "Container",    
+                    "EntityType",
+                    "Information",
+                    "Role",
+                    "Task",
+                    "View",
+                    ... oTypes0?.map((t: { name: any; }) => 
+                        (t.name !== "Container") ||
+                        (t.name !== "EntityType") ||
+                        (t.name !== "Information") ||
+                        (t.name !== "Role") ||
+                        (t.name !== "Task") ||
+                        (t.name !== "View")
+                        && t.name)
+                ]
             },
             {
                 id: "task1",

@@ -31,7 +31,7 @@ const LoadGitHub = (props: any) => {
   // const [searchText, setSearchText] = useState('');
   const [usernameText, setUsernameText] = useState('Kavca');
   const [repoText, setRepoText] = useState('kavca-akm-models');
-  const [pathText, setPathText] = useState('Models');
+  const [pathText, setPathText] = useState('models');
   const [branchText, setBranchText] = useState('main');
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
@@ -74,9 +74,15 @@ const LoadGitHub = (props: any) => {
     if (debug) console.log('71 onModelChange', text)
     const rep = `${usernameText}/${repoText}`;
     // const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
-    const filname = `${text}`; // add slash
-    loadModel(rep, filname);
-    if (debug) console.log('52', rep, filname, )
+    const filename = `${text}`; // add slash
+
+    loadModel(rep, filename);
+
+    if (debug) console.log('52', rep, filename, )
+    const  refres = () => {
+      setRefresh(!refresh)
+    }
+    setTimeout(refres, 3000);
   }
 
   const loadRepos = async (repoText, pathText) => {
@@ -108,26 +114,50 @@ const LoadGitHub = (props: any) => {
 
     const content = res2.data.content
 
-    console.log('113 res', res2, res2.data, content)
+    if (!debug) console.log('113 res', res2, res2.data)
 
     if (debug) console.log('115 ', searchtext, res)
     if (debug) console.log('116 ', base64.decode(content))
     const model = JSON.parse(base64.decode(content));
+
     if (debug) console.log('119 ', model)
+    setModel(model);
     setLoading(false);
-    if (debug) console.log('90 onModelChange', model, props) 
+    if (!debug) console.log('90 onModelChange', model, props) 
     if (model) {
-      const data = {
-        phData:   model.phData,
-        phFocus:  model.phFocus,
-        phUser:   model.phUser,
-        phSource: model.phData.metis.name || model.phSource 
-        // phSource: model.phSource,
+      if (filename.includes('_MM.json')) { // it is a Metamodel and will be loaded into current project
+        let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === model?.id) // current model index
+        const mmlength = props.ph.phData?.metis?.metamodels.length
+        if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
+        const data = {
+          phData: {
+              ...props.ph.phData,
+              metis: {
+                  ...props.ph.phData.metis,
+                  metamodels: [
+                      ...props.ph.phData.metis.metamodels.slice(0, mmindex),     
+                      model,
+                      ...props.ph.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
+                  ],
+                  models: props.ph.phData.metis.models,   
+              },
+          }, 
+        };
+        if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+      } else {
+        const data = {
+          phData:   model.phData,
+          phFocus:  model.phFocus,
+          phUser:   model.phUser,
+          // phSource: model.phData.metis.name || model.phSource 
+          phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
+        }
+        console.log('154', data)
+        if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+        if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+        if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
       }
-      if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-      if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-      if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
     }
   }
 
@@ -167,11 +197,11 @@ const LoadGitHub = (props: any) => {
   }, [usernameText, repoText, pathText]);
 
   useEffect(() => {
-    console.log('useEffect 3', model)
+    console.log('170 useEffect 3', model)
     const  refres = () => {
       setRefresh(!refresh)
     }
-    setTimeout(refres, 2000);
+    setTimeout(refres, 3000);
   } , [model]);
 
   let modeloptionss = models?.map((mod) => {
@@ -190,7 +220,7 @@ const LoadGitHub = (props: any) => {
 
   return  (
     <>
-      <span><button className="btn-context btn-outline-primary text-dark ml-1" onClick={toggle}>{buttonLabel}</button>
+      <span><button className="btn-context btn-outline-primary font-weight-bold text-primary ml-1" onClick={toggle}>{buttonLabel}</button>
       </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}>GitHub Model Repository</ModalHeader>

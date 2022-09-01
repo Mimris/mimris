@@ -130,13 +130,6 @@ const page = (props:any) => {
 
 
   function toggleRefresh() {
-    // const currentdata = {
-    //   phData: props.phData,
-    //   phFocus: props.phFocus,
-    //   phUser: props.phUser,
-    //   phSource: (phSource === "") && phData.metis.name  || phSource,
-    //   lastUpdate: new Date().toISOString()
-    // };
     if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
     let mdata = (Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
     // put currentdata in the first position of the array data

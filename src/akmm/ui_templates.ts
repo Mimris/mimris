@@ -20,11 +20,16 @@ let myDiagram: go.Diagram;
 
 go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
     var len = Math.min(w, 10);
+    var maxlen = Math.max(w, 10);
     return new go.Geometry()
       .add(new go.PathFigure(len, 0)
            .add(new go.PathSegment(go.PathSegment.Line, 0, 0))
            .add(new go.PathSegment(go.PathSegment.Line, 0, h))
-           .add(new go.PathSegment(go.PathSegment.Line, len, h)));
+           .add(new go.PathSegment(go.PathSegment.Line, len, h))
+           .add(new go.PathSegment(go.PathSegment.Move, maxlen-len, 0))
+           .add(new go.PathSegment(go.PathSegment.Line, maxlen, 0))
+           .add(new go.PathSegment(go.PathSegment.Line, maxlen, h))
+           .add(new go.PathSegment(go.PathSegment.Line, maxlen-len, h)));
   });
 
 export function getRouting(r: string): any {

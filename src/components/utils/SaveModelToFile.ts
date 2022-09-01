@@ -116,14 +116,14 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
         if (debug) console.log('60 SaveModelToFile', mvindex, mvlength);
 
         let data
-        if (modelff.phData) {
+        if (modelff.phData) { // if modelff has phData, then it is a project file
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,
                 phUser:   modelff.phUser,
                 phSource: filename,
               }
-        } else if (modelff.modelview) {
+        } else if (modelff.modelview) { // if modelff has modelview, then it is a modelview file
             data = {
                 phData: {
                     ...props.phData,
@@ -148,7 +148,7 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
                     },
                 }, 
             };
-        } else {
+        } else { // then it is a model file
             data = {
                 phData: {
                     ...props.phData,

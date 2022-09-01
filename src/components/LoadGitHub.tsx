@@ -100,18 +100,18 @@ const LoadGitHub = (props: any) => {
     const searchtexttmp = `${rep}`;
     console.log('101 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename)
     const searchtext = searchtexttmp.replace(/\/\//g, '/');
-    if (!debug) console.log('102 ', searchtext, pathText, filename, branchText, 'file')
+    if (debug) console.log('102 ', searchtext, pathText, filename, branchText, 'file')
     const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
     const sha = await res.data.sha;
-    if (!debug) console.log('105 res', res, res.data, sha)
+    if (debug) console.log('105 res', res, res.data, sha)
     const res2 = await searchGithub(searchtext, pathText, sha, branchText, 'fileSHA');
 
     const content = res2.data.content
 
     console.log('113 res', res2, res2.data, content)
 
-    if (!debug) console.log('115 ', searchtext, res)
-    if (!debug) console.log('116 ', base64.decode(content))
+    if (debug) console.log('115 ', searchtext, res)
+    if (debug) console.log('116 ', base64.decode(content))
     const model = JSON.parse(base64.decode(content));
     if (debug) console.log('119 ', model)
     setLoading(false);
@@ -135,7 +135,7 @@ const LoadGitHub = (props: any) => {
     setLoading(true);
     const repos = (pathText !== '') ?`repos/${usernameText}/${repoText}/contents/${pathText}` : `repos/${usernameText}/${repoText}/contents`;
     // const rep = `repos/${username}/${repoText}/contents/${pathText}`;
-    if (!debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
+    if (debug) console.log('131  u', usernameText, 'r', repoText,'p', pathText,'repos', repos)
     const res = await searchModels(repos, pathText);
     if (debug) console.log('133 ', await res.data)
     setLoading(false);
@@ -314,21 +314,21 @@ export default LoadGitHub;
 //     // const commits = `repos/${usernameText}/${repoText}/commits/`;
 //     console.log('137 ownerRepo', repoText, filename)
 //     setLoading(true);
-//     if (!debug) console.log('133 RepoText', repoText, 'branchText', branchText) // hardcoded branch = main
+//     if (debug) console.log('133 RepoText', repoText, 'branchText', branchText) // hardcoded branch = main
 //     const searchtexttmp = `${repoText}`;
 //     const searchtext = searchtexttmp.replace(/\/\//g, '/');
-//     if (!debug) console.log('142 searchtext', searchtext)
+//     if (debug) console.log('142 searchtext', searchtext)
 //     const res = await searchBranches(searchtext, branchText)
 //     setLoading(false);
 //     const branches = await res.data;
 //     const branch = await res.data?.find(branch => branch.name === branchText);
-//     if (!debug) console.log('147 res.data: ', await res, branches, branch)
+//     if (debug) console.log('147 res.data: ', await res, branches, branch)
 
 
 //     const sha = branch?.commit?.sha;
-//     if (!debug) console.log('150 sha', repoText, sha)
+//     if (debug) console.log('150 sha', repoText, sha)
 //     const commitbranch = await searchModelRaw(repoText, sha)
-//     if (!debug) console.log('152 commitbranch', commitbranch)
+//     if (debug) console.log('152 commitbranch', commitbranch)
 //     // const selmodel = await commitbranch.data.;
 
 //     const rawfileUrl = await commitbranch?.data?.files(file => file.filename === model).raw_url.replace('raw\/','').replace('github.com', 'raw.githubusercontent.com');

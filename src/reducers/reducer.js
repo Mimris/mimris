@@ -1284,7 +1284,7 @@ function reducer(state = InitialStateStr, action) {
       },
       }
     case UPDATE_TARGETMETHOD_PROPERTIES:
-      if (!debug) console.log('1287 UPDATE_TARGETMETHOD_PROPERTIES', action);
+      if (debug) console.log('1287 UPDATE_TARGETMETHOD_PROPERTIES', action);
       curmoddtot     = state.phData?.metis?.models?.find(m => m.id === state.phFocus?.focusModel?.id) // current model
       if (debug) console.log('1627', curmoddtot)
       let targetcurmmddot    = state.phData?.metis?.metamodels?.find(m => m.id === curmoddtot.targetMetamodelRef) // current model's target metamodel
@@ -1318,7 +1318,7 @@ function reducer(state = InitialStateStr, action) {
           },
         },
       }
-      if (!debug) console.log('1321 retval', retval_UPDATE_TARGETMETHOD_PROPERTIES);
+      if (debug) console.log('1321 retval', retval_UPDATE_TARGETMETHOD_PROPERTIES);
       return retval_UPDATE_TARGETMETHOD_PROPERTIES;
 
     case UPDATE_OBJECTTYPEVIEW_PROPERTIES:

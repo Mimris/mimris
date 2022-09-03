@@ -22,6 +22,7 @@ const constants = require('./constants');
 
 import * as gjs from './ui_gojs';
 import akmmGraphql from '../pages/akmm-graphql';
+import { setMyMetisParameter } from '../actions/actions';
 
 // cxMetis
 
@@ -5001,6 +5002,7 @@ export class cxObjectType extends cxType {
         if (!level) level = 0;
         const supertypes = new Array();
         const rtypes = this.outputreltypes;
+        if (debug) console.log('5005 this, rtypes', this, rtypes);
         if (rtypes) {
             for (let i=0; i<rtypes?.length; i++) {
                 const rtype = rtypes[i];
@@ -5010,14 +5012,14 @@ export class cxObjectType extends cxType {
                         supertypes.push(stype);
                         if (level > 5) 
                             return supertypes;
-                        if (debug) console.log('3805 this, supertype', this, supertypes);
+                        if (debug) console.log('5015 this, supertypes', this, supertypes);
                         const stypes = stype.findSupertypes(++level);
                         if (stypes) {
                             for (let j=0; j<stypes.length; j++) {
                                 const stype = stypes[j];
                                 supertypes.push(stype);
                             }
-                            if (debug) console.log('3809 this, supertype', this, supertypes);
+                            if (debug) console.log('5022 this, supertype', this, supertypes);
                         }
                     }
                 }
@@ -6228,6 +6230,19 @@ export class cxModel extends cxMetaObject {
         }
         return relships;
     }
+    getRelationshipsByTypeName(reltypeName: string, kind: string): cxRelationship[] | null {
+        let relships = new Array();
+        if (this.relships) {
+            for (let i = 0; i < this.relships.length; i++) {
+                let rel = this.relships[i];
+                if (rel.name === reltypeName && !rel.markedAsDeleted) {
+                    if (rel.relshipkind === kind)
+                        relships.push(rel);
+                }
+            }
+        }
+        return relships;
+    }
     getSubmodels(): cxModel[] | null {
         return this.submodels;
     }
@@ -6678,19 +6693,20 @@ export class cxInstance extends cxMetaObject {
     getInheritedTypes(): cxType[] | null {
         const typelist = [];
         const type = this.getType();
-        const types = type?.getSupertypes();
+        const types = type?.findSupertypes(0);
+        if (debug) console.log('6697 types', types);
         for (let i=0; i<types?.length; i++) {
             const tname = types[i]?.name;
             if (tname !== 'Element') 
                 typelist.push(types[i]);
         }
-        if (debug) console.log('6113 typelist', typelist);
+        if (debug) console.log('6703 typelist', typelist);
         return typelist;
     }
     getInheritedTypeNames(): string[] {
         const namelist = [];
         const type = this.getType();
-        const types = type?.getSupertypes();
+        const types = type?.findSupertypes(0);
         for (let i=0; i<types?.length; i++) {
             const tname = types[i]?.name;
             if (tname !== 'Element') 
@@ -7073,6 +7089,68 @@ export class cxObject extends cxInstance {
         if (debug) console.log('6472 typelist', typelist);
         return typelist;
     }
+    getConnectedObject(prop: cxProperty, metis: cxMetis): cxObject {
+        let obj = null;
+        const inst: any = this;
+        const mtdRef = prop.methodRef;
+        const method = metis.findMethod(mtdRef);
+        const propname = prop.name;
+        if (debug) console.log('7083 prop, method', prop, method);
+        if (method) {
+            const mtdtype = method.methodtype;
+            let context;
+            if (debug) console.log('7087 method', method);
+            const rtypename = method["reltype"];
+            const reldir = method["reldir"];
+            let reltype = null;
+            if (rtypename !== 'any' && rtypename !== 'null')
+                reltype = metis.findRelationshipTypeByName(rtypename);
+            if (debug) console.log('7093 rtypename, reltype', rtypename, reltype);
+            const otypename = method["objtype"];
+            let objtype = null;
+            if (otypename !== 'any' && otypename !== 'null')
+                objtype = metis.findObjectTypeByName(otypename);
+            if (debug) console.log('7098 otypename, objtype', otypename, objtype);
+            context = {
+                "myMetis":      metis,
+                "reltype":      reltype,
+                "reldir":       reldir,
+                "objtype":      objtype,
+                "prop":         prop,
+            }
+            obj = ui_mtd.getConnectedObject(this, context);
+            if (debug) console.log('7107 inst, context, obj', inst, context, obj);
+        }
+        return obj;
+    }
+    getConnectedObjects(metis: cxMetis) {
+        const type = this.type;
+        const properties = type?.properties;
+        const objlist = [];
+        for (let i=0; i<properties?.length; i++) {
+            const prop = properties[i];
+            if (prop) {
+                const obj = this.getConnectedObject(prop, metis);
+                if (obj)
+                    objlist.push(obj);
+             }
+        } 
+        return objlist;           
+    }
+    getConnectedObjectRoles(metis: cxMetis) {
+        const type = this.type;
+        const properties = type?.properties;
+        const rolelist = [];
+        for (let i=0; i<properties?.length; i++) {
+            const prop = properties[i];
+            if (prop) {
+                const obj = this.getConnectedObject(prop, metis);
+                if (obj)
+                    rolelist.push(prop.name);
+             }
+        } 
+        return rolelist;           
+    }
     hasInheritedProperties(model: cxModel): boolean {
         let retval = false;
         let types = this.getInheritedTypes();
@@ -7106,6 +7184,7 @@ export class cxObject extends cxInstance {
     getInheritedProperties(model: cxModel): cxProperty[] {
         const properties = new Array();
         let objects = this.getInheritanceObjects(model);
+        if (debug) console.log('7159 inheritanceObjects', objects);
         for (let i=0; i<objects?.length; i++) {
             const obj = objects[i];
             const type = obj?.type;
@@ -7117,6 +7196,7 @@ export class cxObject extends cxInstance {
                 }
             }
         }  
+        if (debug) console.log('7171 inherited Porperties', properties);
         return properties;  
     }
     isOfType(typeName: string): boolean {

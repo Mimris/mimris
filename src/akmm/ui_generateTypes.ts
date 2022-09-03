@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 const debug = false;
 
 import * as utils from './utilities';
@@ -121,7 +121,7 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
             let name = objname;
             // Handle local inheritance
             const inheritanceObjects = currentObj.getInheritanceObjects(myModel);
-            if (debug) console.log('116 inheritedTypes', inheritanceObjects);
+            if (debug) console.log('116 inheritanceObjects', inheritanceObjects);
 
             objtype = new akm.cxObjectType(utils.createGuid(), name, currentObj.description);
             { // Handle special attributes
@@ -251,18 +251,11 @@ export function generateObjectType(object: akm.cxObject, objview: akm.cxObjectVi
     { // Handle properties
         const proptypes = new Array();
         getPropertyTypes(object, proptypes, myModel);
-        if (debug) console.log('220 object, proptypes, myMetis', object, proptypes, myMetis);
+        if (debug) console.log('254 objtype, object, proptypes', objtype, object, proptypes);
         addProperties(objtype, proptypes, context);
-        // const properties = new Array();
-        // getInheritedProperties(object, properties, myModel);
-        // for (let i=0; i<properties?.length; i++) {
-        //     const prop = properties[i];
-        //     objtype.properties.push(prop);
-        // }
-        // if (debug) console.log('228 object, properties', object, properties);
-        if (debug) console.log('229 objtype', objtype);
+        if (debug) console.log('256 objtype', objtype);
         const jsnObjectType = new jsn.jsnObjectType(objtype, true);
-        if (debug) console.log('231 jsnObjectType', jsnObjectType);
+        if (debug) console.log('266 jsnObjectType', jsnObjectType);
         const modifiedTypeNodes = new Array();
         modifiedTypeNodes.push(jsnObjectType);
         modifiedTypeNodes.map(mn => {
@@ -1176,10 +1169,10 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                         // Check if obj inherits one of the specified types - otherwise do not generate type
                         let objtype;
                         if (
-                            // obj.type.inherits(type, type.allRelationshiptypes)
+                            // (obj.type.inherits(type, type.allRelationshiptypes))
                             // ||
-                            //(obj.isOfSystemType(metaObject)
-                            (obj.type.name === 'EntityType')
+                            // (obj.isOfSystemType(metaObject))
+                            (obj.type.name === metaObject)
                         ) {
                             if (debug) console.log('953 obj', obj.name, obj);
                             if (debug) console.log('956 obj, objview', obj, objview);                               
@@ -1307,6 +1300,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }  
             { // Handle properties
                 const proptypes = new Array();
+                getPropertyTypes(obj, proptypes, context);
                 getAllPropertytypes(obj, proptypes, model);
                 if (debug) console.log('1309 proptypes, myMetis', proptypes, myMetis);
                 addProperties(reltype, proptypes, context);
@@ -1328,7 +1322,43 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     //     }
     // }
     }
-
+    { // Then handle inheritance between entity types
+        const rels = model?.getRelationshipsByTypeName('Is', constants.relkinds.GEN);
+        if (rels) {
+            for (let i=0; i<rels.length; i++) {
+                const rel = rels[i];
+                const fromObj = rel.fromObject;
+                const toObj = rel.toObject;
+                if (fromObj && toObj) {
+                    const fromType = metamodel.findObjectTypeByName(fromObj.name);
+                    const toType = metamodel.findObjectTypeByName(toObj.name);
+                    if (fromType && toType) {
+                        // We want to add an Is relationship between fromType and toType
+                        // First check if this relationship type already exists
+                        let found = false;
+                        const reltypes = metamodel.findRelationshipTypesBetweenTypes(fromType, toType, false);
+                        if (reltypes) {
+                            for (let i=0; i<reltypes.length; i++) {
+                                const reltype = reltypes[i];
+                                if (reltype.name === 'Is') {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!found) {
+                            const reltype = new akm.cxRelationshipType(utils.createGuid(), 'Is', fromType, toType, "");
+                            reltype.relshipkind = constants.relkinds.GEN;
+                            fromType.addOutputreltype(reltype);
+                            if (debug) console.log('1358 fromType, toType, reltype', fromType, toType, reltype);
+                            metamodel.addRelationshipType(reltype);
+                            myMetis.addRelationshipType(reltype);
+                       }
+                    }
+                }
+            }
+        }            
+    }
     myMetis.currentTargetMetamodel = metamodel;
     myMetis.currentTargetModel = model;
     if (debug) console.log('1332 metamodel', metamodel);
@@ -1415,9 +1445,9 @@ function getInheritedProperties(obj: akm.cxObject, properties: any, myModel: akm
                 const prop = props[j];
                 properties.push(prop);
             }
+            getInheritedProperties(toObj, properties, myModel);
         }
     }
-    // getInheritedProperties(obj, properties, myModel);
 }
 
 function getPropertiesInGroup(groupId: string, proptypes: any, myModel: akm.cxModel) {

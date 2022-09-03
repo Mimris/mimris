@@ -335,6 +335,7 @@ export class goNode extends goMetaObject {
     text:            string;
     loc:             string;
     size:            string;
+    scale:           string;
     scale1:          string;
     memberscale:     string;
     strokecolor:     string;
@@ -348,6 +349,7 @@ export class goNode extends goMetaObject {
         this.text = "";
         this.loc = "";
         this.size = "";
+        this.scale = "";
         this.scale1 = "";
         this.memberscale = "";
         this.strokecolor = "";
@@ -369,6 +371,7 @@ export class goNode extends goMetaObject {
         return this.size;
     }
     setScale(scale: string) {
+        this.scale = scale;
         this.scale1 = scale;
     }
     getScale(): string {
@@ -492,6 +495,7 @@ export class goObjectNode extends goNode {
                 this.setName(this.objectview.getName());
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
+                this.setScale(this.objectview.getScale())
                 // this.isCollapsed = this.objectview.isCollapsed;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;

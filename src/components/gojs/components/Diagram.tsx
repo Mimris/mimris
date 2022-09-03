@@ -2860,36 +2860,57 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
 
   public render() {
     let useTabs = true;
-    if (debug) console.log('2560 Diagram: ', this.props.nodeDataArray);
-    if (debug) console.log('2561 Diagram: ', this.props.linkDataArray);
+    if (debug) console.log('2863 Diagram: ', this.props.nodeDataArray);
+    if (debug) console.log('2864 Diagram: ', this.props.linkDataArray);
     const selObj = this.state.selectedData;
-    if (debug) console.log('2563 selObj: ', selObj);
-    const myModel = this.myMetis.currentModel;
+    if (debug) console.log('2866 selObj: ', selObj);
+    const myMetis = this.myMetis;
+    const myModel = myMetis.currentModel;
+    const myMetamodel = myModel.metamodel;
     let modalContent, inspector, selector, header, category, typename;
     const modalContext = this.state.modalContext;
-    if (debug) console.log('2800 modalContext ', modalContext);
+    if (debug) console.log('2872 modalContext ', modalContext);
     let selpropgroup = [  {tabName: 'Default'} ];
     if (modalContext?.what === 'editObject') {
+      let includeInherited = false;
+      let includeConnected = false;
       let obj = this.state.selectedData?.object;
       const obj1 = this.myMetis.findObject(obj?.id);
-      // if (!obj) obj = selObj;
-      if (debug) console.log('2572 obj, obj1', obj, obj1);
+      if (debug) console.log('2879 obj, obj1', obj, obj1);
       if (obj?.type?.name === 'Method')
         useTabs = false;
-      if (!obj1?.hasInheritedProperties(myModel)) {
-        useTabs = false;
+      if (obj1?.hasInheritedProperties(myModel)) {
+        includeInherited = true;
+        useTabs = true;
       }
-      let namelist = useTabs ? uic.getNameList(myModel, obj1, true) : [];
-      if (debug) console.log('2619 namelist', namelist);
+      const connectedObjects = obj1?.getConnectedObjects(myMetis);
+      if (connectedObjects?.length > 0) {
+        includeConnected = true;
+        useTabs = true;
+      }
+      const context = {
+        myMetis: myMetis,
+        myModel: myModel,
+        myMetamodel: myMetamodel,
+        includeConnected: includeConnected,
+        includeInherited: includeInherited,
+      }
+      let namelist = useTabs ? uic.getNameList(obj1, context, true) : [];
+      const connectedRoles = obj1.getConnectedObjectRoles(myMetis);
+      if (debug) console.log('2900 context, obj1, namelist', context, obj1, namelist);
       selpropgroup = [];
       for (let i=0; i<namelist.length; i++) {
         let name = namelist[i];
         if (name === 'Element') 
           continue; // name = 'Default';
+        if (i>0) {
+          let role = connectedRoles[i-1];
+          if (role) name = role;
+        }
         const proptab = { tabName: name };
         selpropgroup.push(proptab);
       }
-      if (debug) console.log('2601 selpropgroup, namelist', selpropgroup, namelist);
+      if (debug) console.log('2913 selpropgroup, namelist', selpropgroup, namelist);
       // selpropgroup = [  {tabName: 'Default'}, {tabName: 'Properties'}, {tabName: 'OSDU'} ];
     }
     switch (modalContext?.what) {      
@@ -2986,7 +3007,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         header = modalContext.title;
         category = this.state.selectedData.category;
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('2692 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          if (debug) console.log('3010 selectedData, modalContext: ', this.state.selectedData, modalContext);
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
@@ -2997,7 +3018,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 activeTab     ={this.state.currentActiveTab}
               />
             </div>
-          if (debug) console.log('2704 selectedData, modalContent: ', this.state.selectedData, modalContent);
+          if (debug) console.log('3021 selectedData, modalContent: ', this.state.selectedData, modalContent);
         }
         break;
       case 'editRelationshipType':
@@ -3075,6 +3096,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       </>  
 
 if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
+if (debug) console.log('3099 nodeDataArray, linkDataArray, modelData: ', 
+this.props.nodeDataArray, this.props.linkDataArray, this.props.modelData);
 return (
       <div>
         <ReactDiagram 

@@ -3,6 +3,7 @@
 import axios from 'axios';
 import { axiosGetCancellable } from './axios.helper';
 
+const debug = false
 const axiosConfig = {
   baseURL: 'https://api.github.com/',
   auth: {
@@ -10,20 +11,50 @@ const axiosConfig = {
     password: process.env.GITHUB_CLIENT_SECRET
     // username: process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID,
     // password: process.env.NEXT_PUBLIC_GITHUB_CLIENT_SECRET
+  }
+};
+const axiosConfigRaw = {
+  baseURL: 'https://raw.githubusercontent.com/',
+  auth: {
+    username: process.env.GITHUB_CLIENT_ID,
+    password: process.env.GITHUB_CLIENT_SECRET
   },
-  // headers: {
-  //   'Content-Type': 'application/vnd.github.v3.raw',
-  //   'Content-Type': 'application/json', 
-  //   'Authorization': 'Token +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'
-  // }
+  headers: {
+    'Content-Type': 'application/vnd.github.v3.raw',
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"
+
+    // 'Content-Type': 'application/json',
+    // 'Authorization': 'Token +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'
+  }
 };
 // PersonalToken   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
 // GITHUB_CLIENT_ID=1904e9f7308632ae2ade
 // GITHUB_CLIENT_SECRET=1d72f2c53b60dd0f1166cf05e0f468279f663565
 
-export function searchRepos(searchText, path) {
-    // search/repositories?q=akm-models
-  console.log('15 searchRepos', searchText, path);
+export function searchGithub(searchText, path, filename, branch, searchtype) { // searchtype: 'repo', 'branches', 'models' or 'files'
+  if (!debug) console.log('36 searchRepos', searchText, path, filename, searchtype);
+  // search/repositories?q=akm-models
+  let query = ''
+  if (searchtype == 'repos') {
+    query = `search/repositories?q=${searchText}`
+  } else if (searchtype == 'branches') {
+    query = `repos/${searchText}/branches`
+  } else if (searchtype == 'models') {
+    query = `repos/${searchText}/contents/${path}`
+  } else if (searchtype == 'file') {
+    query = `repos/${searchText}/contents/${path}/${filename}?ref=${branch}`
+  } else if (searchtype == 'fileSHA') {
+    query = `repos/${searchText}/git/blobs/${filename}`
+  }
+  console.log('46 searchRepos ', query);
+  return axios.get(
+    `${query}`,
+    axiosConfig
+  );
+}
+export function searchRepos(searchText, path) {  // search/repositories?q=akm-models
+    console.log('15 searchRepos search/repositories', searchText, path);
   return axios.get(
     `search/repositories?q=${searchText}`,
     axiosConfig
@@ -54,39 +85,51 @@ export function searchModels(searchText, path) {
     axiosConfig
   );
 }
+export function searchModelRaw(searchText, sha) {
+  // https://raw.githubusercontent.com/Kavca/equinor-osdu-akmpoc/main/
+  const query = `repos/${searchText}/commits/${sha}`;
+  console.log('68 searchRepos', query);
+  return axios.get(
+    `${query}`,
+    axiosConfig
+  );
+}
 
 
 export function searchModel(searchText, path) {
+
   const query = `${searchText}`;
   // const query =  `${searchText}/${path}`;
-  // console.log('44 searchRepos', query);
+  console.log('44 searchRepos', query);
   return axios.get(
     `${query}`,
     axiosConfig
   );
 }
 
-export function searchCommit(searchText, path) {
-  const query = `${searchText}`;
-  // const query =  `${searchText}/${path}`;
-  // console.log('62 searchRepos', query);
-  console.log('63 searchRepos https://api.github.com/', `repos/${query}/commits/${path}`);
-  return axios.get(
-    `repos/${query}/commits/${path}`,
-    axiosConfig
-  );
-}
+// export function searchCommit(searchText, sha) {
+//    // https://raw.githubusercontent.com/Kavca/kavca-akm-models/21387823876733/StudyDementia/Study-Dementia-Project%20(2).json
 
-export function searchRaw(searchText, path) {
-  const query = `${searchText}`;
-  // const query =  `${searchText}/${path}`;
-  // console.log('62 searchRepos', query);
-  console.log('63 searchRepos https://api.github.com/', `repos/${query}/commits/${path}`);
-  return axios.get(
-    `${query}`,
-    axiosConfig
-  );
-}
+//   const query = `${searchText}/${sha}`;
+//   // const query =  `${searchText}/${path}`;
+//   // console.log('62 searchRepos', query);
+//   console.log('63 searchCommit https://api.github.com/', `repos/${query}/${sha}`);
+//   return axios.get(
+//     `repos/${query}`,
+//     axiosConfig
+//   );
+// }
+
+// export function searchRaw(searchText, path) {
+//   const query = `${searchText}`;
+//   // const query =  `${searchText}/${path}`;
+//   // console.log('62 searchRepos', query);
+//   console.log('63 searchRepos https://api.github.com/', `repos/${query}/commits/${path}`);
+//   return axios.get(
+//     `${query}`,
+//     axiosConfig
+//   );
+// }
 
 
 // export { searchRepos, searchModels };

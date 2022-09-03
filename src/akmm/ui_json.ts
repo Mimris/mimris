@@ -677,12 +677,15 @@ export class jsnObjectTypeView {
     description:     string;
     typeRef:         string;
     viewkind:        string;
+    isGroup:         boolean;
+    group:           string;
     template:        string;
     figure:          string;
     geometry:        string;
     fillcolor:       string;
     strokecolor:     string;
     strokecolor1:    string;
+    strokecolor2:    string;
     strokewidth:     string;
     textcolor:       string;
     textscale:       string;
@@ -702,6 +705,7 @@ export class jsnObjectTypeView {
         this.fillcolor       = objtypeview.getFillcolor();
         this.strokecolor     = objtypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor;
+        this.strokecolor2    = objtypeview.getStrokecolor2();
         this.strokewidth     = objtypeview.getStrokewidth();
         this.textcolor       = objtypeview.getTextcolor();
         this.textscale       = objtypeview.getTextscale();
@@ -1382,7 +1386,9 @@ export class jsnObjectView {
     figure:          string;
     geometry:        string;
     fillcolor:       string;
+    fillcolor2:      string;
     strokecolor:     string;
+    strokecolor2:    string;
     strokewidth:     string;
     textcolor:       string;
     textscale:       string;
@@ -1402,7 +1408,9 @@ export class jsnObjectView {
         this.figure          = objview?.figure;
         this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
+        this.fillcolor2      = objview?.fillcolor2;
         this.strokecolor     = objview?.strokecolor;
+        this.strokecolor2    = objview?.strokecolor2;
         this.strokewidth     = objview?.strokewidth;
         this.textcolor       = objview?.textcolor;
         this.textscale       = objview?.textscale;
@@ -1678,7 +1686,9 @@ export class jsnImportMetis {
         objtypeview.setFigure(item.figure);
         objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
+        objtypeview.setFillcolor2(item.fillcolor2);
         objtypeview.setStrokecolor(item.strokecolor);
+        objtypeview.setStrokecolor2(item.strokecolor2);
         objtypeview.setStrokewidth(item.strokewidth);
         objtypeview.setIcon(item.icon);
         jsnMetis.addObjectTypeView(objtypeview);

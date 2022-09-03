@@ -290,6 +290,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
       case "editObjectview":
       case "editRelshipview":
       case "editTypeview":
+        chosenType = null;
         if (selObj.category === constants.gojs.C_RELATIONSHIP) {
           item = reltypeview?.data;
         } else if (selObj.category === constants.gojs.C_RELSHIPTYPE) {
@@ -504,8 +505,12 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
         }
         // Handle color values
         {
-          if ((useFillColor && k === 'fillcolor') ||
-             (useStrokeColor && k === 'strokecolor')) {
+          if (
+            (useFillColor && k === 'fillcolor') ||
+            (useFillColor && k === 'fillcolor2') ||
+            (useStrokeColor && k === 'strokecolor') ||
+            (useStrokeColor && k === 'strokecolor2')
+          ) {
             if (val === "" && what === "editObjectview") {
               val = instview.typeview.fillcolor;
             }
@@ -632,6 +637,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               fieldType = 'select';
               break;
             case 'fillcolor':
+            case 'fillcolor2':
               if (!useFillColor) {
                 values = colornames;
                 defValue = 'white';
@@ -639,7 +645,8 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               }
               break;
             case 'strokecolor':
-              if (!useStrokeColor) {
+            case 'strokecolor2':
+                if (!useStrokeColor) {
                 values = colornames;
                 defValue = 'black';
                 fieldType = 'select';

@@ -807,9 +807,11 @@ export class cxMetis {
             objtypeview.setGeometry(item.geometry);
             objtypeview.setFigure(item.figure);
             objtypeview.setFillcolor(item.fillcolor);
+            objtypeview.setFillcolor2(item.fillcolor2);
             objtypeview.setTextcolor(item.textcolor);
             objtypeview.setTextscale(item.textscale);
             objtypeview.setStrokecolor(item.strokecolor);
+            objtypeview.setStrokecolor2(item.strokecolor2);
             objtypeview.setStrokewidth(item.strokewidth);
             objtypeview.setIcon(item.icon);
             // objtypeview.setGroup(item.group);
@@ -5517,7 +5519,9 @@ export class cxObjtypeviewData {
     figure: string;
     geometry: string;
     fillcolor: string;
+    fillcolor2: string;
     strokecolor: string;
+    strokecolor2: string;
     strokewidth: string;
     textcolor: string;
     textscale: string;
@@ -5531,7 +5535,9 @@ export class cxObjtypeviewData {
         this.figure = "";
         this.geometry = "";
         this.fillcolor = "";
+        this.fillcolor2 = "";
         this.strokecolor = "black";
+        this.strokecolor2 = "black";
         this.strokewidth = "1";
         this.textcolor = "black";
         this.textscale = "1";
@@ -5549,7 +5555,9 @@ export class cxObjectTypeView extends cxMetaObject {
     memberscale: string;
     geometry: string;
     fillcolor: string;
+    fillcolor2: string;
     strokecolor: string;
+    strokecolor2: string;
     strokewidth: string;
     textcolor: string;
     textscale: string;
@@ -5567,7 +5575,9 @@ export class cxObjectTypeView extends cxMetaObject {
         this.arrowscale  = "";
         this.memberscale = "";
         this.fillcolor   = "";
+        this.fillcolor2   = "";
         this.strokecolor = "";
+        this.strokecolor2 = "";
         this.strokewidth = "";
         this.textcolor   = "";
         this.textscale   = "";
@@ -5592,7 +5602,9 @@ export class cxObjectTypeView extends cxMetaObject {
                 if (prop === 'geometry')        data[prop] = objview[prop];
                 if (prop === 'figure')          data[prop] = objview[prop];
                 if (prop === 'fillcolor')       data[prop] = objview[prop];
+                if (prop === 'fillcolor2')       data[prop] = objview[prop];
                 if (prop === 'strokecolor')     data[prop] = objview[prop];
+                if (prop === 'strokecolor2')     data[prop] = objview[prop];
                 if (prop === 'strokewidth')     data[prop] = objview[prop];
                 if (prop === 'icon')            data[prop] = objview[prop];
             }
@@ -5706,6 +5718,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.fillcolor;
         return "white";
     }
+    setFillcolor2(fillcolor: string) {
+        this.data.fillcolor2 = fillcolor;
+        this.fillcolor2 = fillcolor;
+    }
+    getFillcolor2(): string {
+        if (this.data.fillcolor2)
+            return this.data.fillcolor2;
+        else if (this.fillcolor2)
+            return this.fillcolor2;
+        return "white";
+    }
     setTextcolor(color: string) {
         this.data.textcolor = color;
         this.textcolor = color;
@@ -5737,6 +5760,17 @@ export class cxObjectTypeView extends cxMetaObject {
             return this.data.strokecolor;
         else if (this.strokecolor)
             return this.strokecolor;
+        return "black";
+    }
+    setStrokecolor2(strokecolor: string) {
+        this.data.strokecolor2 = strokecolor;
+        this.strokecolor2 = strokecolor;
+    }
+    getStrokecolor2(): string {
+        if (this.data.strokecolor2)
+            return this.data.strokecolor2;
+        else if (this.strokecolor2)
+            return this.strokecolor2;
         return "black";
     }
     setStrokewidth(strokewidth: string) {
@@ -7778,7 +7812,9 @@ export class cxObjectView extends cxMetaObject {
     figure: string;
     geometry: string;
     fillcolor: string;
+    fillcolor2: string;
     strokecolor: string;
+    strokecolor2: string;
     strokewidth: string;
     textcolor: string;
     icon: string;
@@ -7808,7 +7844,9 @@ export class cxObjectView extends cxMetaObject {
         this.figure = "";
         this.geometry = "";
         this.fillcolor = "";
+        this.fillcolor2 = "";
         this.strokecolor = "";
+        this.strokecolor2 = "";
         this.strokewidth = "1";
         this.textcolor = "";
         this.icon = "";

@@ -339,7 +339,9 @@ export class goNode extends goMetaObject {
     scale1:          string;
     memberscale:     string;
     strokecolor:     string;
+    strokecolor2:    string;
     fillcolor:       string;
+    fillcolor2:      string;
     viewkind:        string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
@@ -353,7 +355,9 @@ export class goNode extends goMetaObject {
         this.scale1 = "";
         this.memberscale = "";
         this.strokecolor = "";
+        this.strokecolor2 = "";
         this.fillcolor = "";
+        this.fillcolor2 = "";
         this.viewkind = "";
         this.markedAsDeleted = false;
     }
@@ -375,6 +379,9 @@ export class goNode extends goMetaObject {
         this.scale1 = scale;
     }
     getScale(): string {
+        return this.scale;
+    }
+    getScale1(): string {
         return this.scale1;
     }
     setViewkind(kind: string) {
@@ -395,8 +402,6 @@ export class goObjectNode extends goNode {
     template: string;
     figure: string;
     geometry: string;
-    fillcolor: string;
-    strokecolor: string;
     strokewidth: string;
     textcolor: string;
     textscale: string;
@@ -417,7 +422,9 @@ export class goObjectNode extends goNode {
         this.figure         = objview.figure;
         this.geometry       = objview.geometry;
         this.fillcolor      = objview.fillcolor;
+        this.fillcolor2      = objview.fillcolor2;
         this.strokecolor    = objview.strokecolor;
+        this.strokecolor2   = objview.strokecolor2;
         this.strokewidth    = objview.strokewidth;
         this.textcolor      = objview.textcolor;
         this.textscale      = objview.textscale;
@@ -932,7 +939,6 @@ export class goRelshipTypeLink extends goLink {
     cardinalityTo: string;
     nameFrom:   string;
     nameTo:     string;
-    strokecolor: string;
     strokewidth: string;
     textcolor:      string;
     arrowscale:     string;

@@ -72,6 +72,7 @@ const Palette = (props: any) => {
         return (i?.typename === wot) && i 
       })
     )
+    if (debug) console.log('73 taskNodeDataArray', taskNodeDataArray)
   } 
 
   useEffect(() => {
@@ -92,7 +93,7 @@ const Palette = (props: any) => {
         })
       )
       seltasks = props.phFocus.focusRole?.tasks
-      if (!debug) console.log('151 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
+      if (debug) console.log('151 seltasks', props.phFocus.focusRole, props.phFocus.focusRole?.tasks, seltasks)
       const timer = setTimeout(() => {
         toggleRefreshPalette() 
       }, 1000);

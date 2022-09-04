@@ -18,7 +18,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
     }
     )
     
-      const datarole = {
+      const datarole = (oTypes0) && {
         focusRole: {
           id: "Modeller1",
           name: "Modeller 1",
@@ -33,14 +33,14 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                     "Role",
                     "Task",
                     "View",
-                    ... oTypes0?.map((t: { name: any; }) => 
-                        (t.name !== "Container") ||
-                        (t.name !== "EntityType") ||
-                        (t.name !== "Information") ||
-                        (t.name !== "Role") ||
-                        (t.name !== "Task") ||
-                        (t.name !== "View")
-                        && t.name)
+                        ...oTypes0?.map((t: { name: any; }) => 
+                            (t.name !== "Container") &&
+                            (t.name !== "EntityType") &&
+                            (t.name !== "Information") &&
+                            (t.name !== "Role") &&
+                            (t.name !== "Task") &&
+                            (t.name !== "View")
+                            && t.name)
                 ]
             },
             {
@@ -96,15 +96,32 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
       }
     }
     
-      dispatch({ type: 'SET_FOCUS_ROLE', data: datarole.focusRole })
+      if (oTypes0) dispatch({ type: 'SET_FOCUS_ROLE', data: datarole.focusRole })
 
       let datatask = (oTypes0?.length > 0) ? {
             focusTask: {
             id: "Task4",  
             name: "Modelling",
             description: "Modelling",
-            workOnTypes:
-            ["Container"].concat(...oTypes0?.map((t: { name: any; }) => t.name))
+            workOnTypes: [
+                "Container",
+                "EntityType",
+                "Information",
+                "Role",
+                "Task",
+                "View",
+                "Label",
+                ...oTypes0?.map((t: { name: any; }) => 
+                    (t.name !== "Container") &&
+                    (t.name !== "EntityType") &&
+                    (t.name !== "Information") &&
+                    (t.name !== "Role") &&
+                    (t.name !== "Task") &&
+                    (t.name !== "View") &&
+                    (t.name !== "Label")
+                    && t.name)
+            ]
+            // .concat(...oTypes0?.map((t: { name: any; }) => t.name))
             }
         } : 
         {

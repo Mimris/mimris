@@ -3074,7 +3074,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         </TabContent>
       </>  
 
-if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
+if (debug) console.log('3077 Active tab: ', this.state.currentActiveTab);
+if (debug) console.log('3078 nodeDataArray : ', this.props.nodeDataArray);
+if (debug) console.log('3079 linkDataArray : ', this.props.linkDataArray);
 return (
       <div>
         <ReactDiagram 

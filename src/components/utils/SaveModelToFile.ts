@@ -173,7 +173,6 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     reader.readAsText(e.target.files[0])
   }
 
-
 export const ReadMetamodelFromFile = async (props, dispatch, e) => {
     e.preventDefault()
     const reader = new FileReader()

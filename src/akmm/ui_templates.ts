@@ -966,8 +966,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     $(go.Panel, "Vertical", // Panel for Geometry  ------------------------
                         { contextMenu: contextMenu , cursor: "move" },
                         $(go.Shape, 
-                            // new go.Binding("stroke", "strokecolor"),
                             // new go.Binding("fill", "fillcolor"),
+                            new go.Binding('stroke', 'strokecolor2'), 
                             new go.Binding("template"),
                             new go.Binding("geometryString", "geometry"),
                             // "M30 100 C 50 50, 70 20, 100 100, 110, 130, 45, 150, 65, 100"
@@ -1106,9 +1106,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                                 shadowVisible: true,
                                 desiredSize: new go.Size(48, 48), // outer Shape size 
                             },
-                            // new go.Binding('stroke', 'strokecolor'), 
-                            // new go.Binding("fill", "fillcolor"),
-                            // new go.Binding("template"),
+                            new go.Binding('stroke', 'strokecolor2'), 
+                            new go.Binding("fill", "fillcolor2"),
                             new go.Binding("figure", "figure"), 
                         ),
                     ),

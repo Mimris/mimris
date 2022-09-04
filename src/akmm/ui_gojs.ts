@@ -335,10 +335,13 @@ export class goNode extends goMetaObject {
     text:            string;
     loc:             string;
     size:            string;
+    scale:           string;
     scale1:          string;
     memberscale:     string;
     strokecolor:     string;
+    strokecolor2:    string;
     fillcolor:       string;
+    fillcolor2:      string;
     viewkind:        string;
     markedAsDeleted: boolean;
     constructor(key: string, model: goModel | null) {
@@ -348,10 +351,13 @@ export class goNode extends goMetaObject {
         this.text = "";
         this.loc = "";
         this.size = "";
+        this.scale = "";
         this.scale1 = "";
         this.memberscale = "";
         this.strokecolor = "";
+        this.strokecolor2 = "";
         this.fillcolor = "";
+        this.fillcolor2 = "";
         this.viewkind = "";
         this.markedAsDeleted = false;
     }
@@ -369,9 +375,13 @@ export class goNode extends goMetaObject {
         return this.size;
     }
     setScale(scale: string) {
+        this.scale = scale;
         this.scale1 = scale;
     }
     getScale(): string {
+        return this.scale;
+    }
+    getScale1(): string {
         return this.scale1;
     }
     setViewkind(kind: string) {
@@ -392,8 +402,6 @@ export class goObjectNode extends goNode {
     template: string;
     figure: string;
     geometry: string;
-    fillcolor: string;
-    strokecolor: string;
     strokewidth: string;
     textcolor: string;
     textscale: string;
@@ -414,7 +422,9 @@ export class goObjectNode extends goNode {
         this.figure         = objview.figure;
         this.geometry       = objview.geometry;
         this.fillcolor      = objview.fillcolor;
+        this.fillcolor2      = objview.fillcolor2;
         this.strokecolor    = objview.strokecolor;
+        this.strokecolor2   = objview.strokecolor2;
         this.strokewidth    = objview.strokewidth;
         this.textcolor      = objview.textcolor;
         this.textscale      = objview.textscale;
@@ -492,6 +502,7 @@ export class goObjectNode extends goNode {
                 this.setName(this.objectview.getName());
                 this.setLoc(this.objectview.getLoc());
                 this.setSize(this.objectview.getSize());
+                this.setScale(this.objectview.getScale())
                 // this.isCollapsed = this.objectview.isCollapsed;
                 if (debug) console.log('415 goObjectNode', this);
                 return true;
@@ -928,7 +939,6 @@ export class goRelshipTypeLink extends goLink {
     cardinalityTo: string;
     nameFrom:   string;
     nameTo:     string;
-    strokecolor: string;
     strokewidth: string;
     textcolor:      string;
     arrowscale:     string;

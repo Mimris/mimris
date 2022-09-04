@@ -18,7 +18,7 @@
       "name": "Container",
       "description": "",
       "abstract": false,
-      "viewkind": "",
+      "viewkind": "Container",
       "typename": "Object type",
       "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
       "properties": [],
@@ -395,19 +395,7 @@
       "id": "5718b4c7-3aa1-4ee3-0a9d-5e7cdcd18a24",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "04896bc0-a3ea-4db1-ba1f-1715906fc320",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -425,19 +413,7 @@
       "id": "5c58ee46-38af-49e3-c2e0-cb58166cf9c7",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "117494e5-e4f4-4a69-7800-e58b970a94b2",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -455,19 +431,7 @@
       "id": "69a15677-c416-46c1-f1a6-ba51c6819d30",
       "name": "isRelatedTo",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "419ab8e9-d839-45d4-e432-a335457ab2e0",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -485,19 +449,7 @@
       "id": "32f941fb-51df-431b-ffbb-5a3a75218862",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "fd2c9b20-e153-49de-ec3a-7b8e3b8780a9",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -515,19 +467,7 @@
       "id": "22f50fa8-90be-4738-8f71-670a19668fe0",
       "name": "has",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "c3032bc9-77f9-4d7f-76a4-c660ec597877",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -545,19 +485,7 @@
       "id": "1839b2e5-4b21-434d-8ee1-f88745d396da",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "b72faa15-a176-464a-7ade-9f1234a55355",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -575,19 +503,7 @@
       "id": "c1716ead-9945-44d8-b7a8-f699ccaae48b",
       "name": "has",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "54199f9a-b78b-4964-2f4e-417ab8654ae5",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -605,19 +521,7 @@
       "id": "b1706580-fc46-41b2-2339-7fea9eba9634",
       "name": "isOf",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "b19d27a5-b0a3-44e3-c94c-471c8dac5110",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -635,19 +539,7 @@
       "id": "443a5498-5f4b-4870-aae7-367445e4cd1b",
       "name": "has",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "2effa280-bfdc-414f-0e07-151ebe8be432",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -665,19 +557,7 @@
       "id": "89116b67-d68e-4d41-b69e-6f679e3a5ec2",
       "name": "has",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "b33a39b0-6383-47dd-1368-ed09af851b70",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -695,19 +575,7 @@
       "id": "dd48d94f-bfd9-4785-14a4-540f9334a85e",
       "name": "has",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "70d343f6-7365-4989-80da-77906b4c037e",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -725,19 +593,7 @@
       "id": "2898265c-33b9-4a5b-87b7-a913805f58bf",
       "name": "hasAllowed",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "ebc6e80a-fc2f-410d-5d75-892f97fe113a",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -755,19 +611,7 @@
       "id": "54e8e8e8-5138-45ec-9ef9-93b6b391235f",
       "name": "isDefault",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "f27e16ba-3403-449e-4897-bf0cb439207f",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -785,19 +629,7 @@
       "id": "6e8fa497-32c2-4d0f-91b6-25c4b2dee58b",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "f35bed3b-ee51-4bf7-703c-d707b28f53c4",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -815,19 +647,7 @@
       "id": "0192a5a5-8e40-49d3-8bad-e4daeb785e81",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "ed922a55-411f-44d2-2dad-c6080e3d6143",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -845,19 +665,7 @@
       "id": "3e1bc24d-7b52-4de1-258f-64e2f6dfe697",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "516ddc01-d729-49b0-370b-8a1430af5a43",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -875,19 +683,7 @@
       "id": "8397f4a4-f8f5-4958-cf78-e99f506e0792",
       "name": "has",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "3c894ead-d596-4a5e-aea3-d54a158c43fc",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -905,19 +701,7 @@
       "id": "6200a1f1-90e4-4e40-5215-56a277780666",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "abdec6d5-2924-4f3f-5016-c041c6d8fc08",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -935,19 +719,7 @@
       "id": "1ef01bf6-c3d6-4a6e-1354-d4d833199052",
       "name": "isOf",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "b950b0e3-148f-41f9-e381-e8615d8315e1",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -965,19 +737,7 @@
       "id": "f91bc898-4d25-4617-8ed6-bb9d071c468c",
       "name": "isOf",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "e60cde4d-d23a-4913-d7dc-aa6b65268946",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -995,19 +755,7 @@
       "id": "01529391-f452-40b0-9b0a-965171169881",
       "name": "Is",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "3cd6f310-335e-4503-3594-b6ab80fc0489",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
@@ -1025,19 +773,7 @@
       "id": "2c019c92-ca60-47fb-c5c2-daaeed8e9c03",
       "name": "has",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "98a8007f-e5a7-4cad-8ebb-88d973cd6d77",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -1055,19 +791,7 @@
       "id": "c441a883-b9df-4f08-e447-20a1ff13cbab",
       "name": "hasContent",
       "description": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "typeviewRef": "22edf076-061a-4088-a271-6fa4152e277c",
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -1082,150 +806,33 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
       "name": "relationshipType",
       "description": "",
       "typeviewRef": "10fd4ca9-e86b-4d2d-2c7b-93a8548fc15c",
-=======
-      "id": "3f739100-23e2-4582-1bb4-f55a1ae0b286",
-      "name": "hasLabel",
-      "description": "",
-      "typeviewRef": "567cfe6b-e051-4fad-cdc3-c799ca061881",
->>>>>>> Stashed changes
-=======
-      "id": "3f739100-23e2-4582-1bb4-f55a1ae0b286",
-      "name": "hasLabel",
-      "description": "",
-      "typeviewRef": "567cfe6b-e051-4fad-cdc3-c799ca061881",
->>>>>>> Stashed changes
-=======
-      "id": "3f739100-23e2-4582-1bb4-f55a1ae0b286",
-      "name": "hasLabel",
-      "description": "",
-      "typeviewRef": "567cfe6b-e051-4fad-cdc3-c799ca061881",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-=======
-      "toobjtypeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
->>>>>>> Stashed changes
-=======
-      "toobjtypeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
->>>>>>> Stashed changes
-=======
-      "toobjtypeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
->>>>>>> Stashed changes
       "cardinality": "",
       "cardinalityFrom": "",
       "cardinalityTo": "",
       "nameFrom": "",
       "nameTo": "",
-      "markedAsDeleted": true,
+      "markedAsDeleted": false,
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "a4fbd9fa-a018-487d-0d9f-3c7787a507f9",
       "name": "Is",
       "description": "",
       "typeviewRef": "0a74f49f-5bdb-46b8-9621-722022d28444",
-=======
-      "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
-      "name": "relationshipType",
-      "description": "",
-      "typeviewRef": "",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-<<<<<<< Updated upstream
-      "fromobjtypeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-      "toobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
-=======
-      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-=======
-      "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
-      "name": "relationshipType",
-      "description": "",
-      "typeviewRef": "",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-=======
-      "id": "9c2f4dd9-297a-4221-c694-76a7c18ab04d",
-      "name": "relationshipType",
-      "description": "",
-      "typeviewRef": "",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
->>>>>>> Stashed changes
-      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-      "cardinality": "",
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
-      "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "ffba4fe9-bace-4bd3-0734-619f1c6e5c7a",
-      "name": "from",
-      "description": "",
-      "typeviewRef": "1788e3c9-98a4-4168-8ebc-c0fd35eb63b6",
-=======
-      "id": "a4fbd9fa-a018-487d-0d9f-3c7787a507f9",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-=======
->>>>>>> Stashed changes
-      "id": "a4fbd9fa-a018-487d-0d9f-3c7787a507f9",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "",
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
       "fromobjtypeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-=======
       "toobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
->>>>>>> Stashed changes
-=======
-      "toobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
->>>>>>> Stashed changes
-=======
-      "toobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
->>>>>>> Stashed changes
       "cardinality": "",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1235,30 +842,28 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+      "id": "ffba4fe9-bace-4bd3-0734-619f1c6e5c7a",
+      "name": "from",
+      "description": "",
+      "typeviewRef": "1788e3c9-98a4-4168-8ebc-c0fd35eb63b6",
+      "properties": [],
+      "relshipkind": "Association",
+      "viewkind": "",
+      "fromobjtypeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
+      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
+      "cardinality": "",
+      "cardinalityFrom": "",
+      "cardinalityTo": "",
+      "nameFrom": "",
+      "nameTo": "",
+      "markedAsDeleted": false,
+      "modified": false
+    },
+    {
       "id": "38be5614-3a23-4193-0aec-311c45f1f6a3",
       "name": "to",
       "description": "",
       "typeviewRef": "7fa0013e-aa12-4cb4-e407-3d92fe97d500",
-=======
-=======
->>>>>>> Stashed changes
-      "id": "ffba4fe9-bace-4bd3-0734-619f1c6e5c7a",
-      "name": "from",
-      "description": "",
-      "typeviewRef": "",
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
-      "id": "ffba4fe9-bace-4bd3-0734-619f1c6e5c7a",
-      "name": "from",
-      "description": "",
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -1273,48 +878,15 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "1165d437-5ae7-4af4-8afb-37ae3430fd93",
       "name": "has",
       "description": "",
       "typeviewRef": "13ac59fd-d745-4f29-9632-19cb9f2f73d0",
-=======
-      "id": "38be5614-3a23-4193-0aec-311c45f1f6a3",
-      "name": "to",
-      "description": "",
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "id": "38be5614-3a23-4193-0aec-311c45f1f6a3",
-      "name": "to",
-      "description": "",
-      "typeviewRef": "",
->>>>>>> Stashed changes
-=======
-      "id": "38be5614-3a23-4193-0aec-311c45f1f6a3",
-      "name": "to",
-      "description": "",
-      "typeviewRef": "",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "toobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
-=======
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-=======
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-=======
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
       "cardinality": "",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1324,46 +896,15 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "4e15d68d-8e3f-4de0-cf51-51ebfd363cb7",
       "name": "hasContent",
       "description": "",
       "typeviewRef": "19a3a865-07ca-4c14-3a5c-67135a45f361",
-=======
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-      "id": "1165d437-5ae7-4af4-8afb-37ae3430fd93",
-      "name": "has",
-      "description": "",
-      "typeviewRef": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-=======
-      "toobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
->>>>>>> Stashed changes
-=======
-      "toobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
->>>>>>> Stashed changes
-=======
-      "toobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
->>>>>>> Stashed changes
       "cardinality": "",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1373,9 +914,6 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "4d07da8b-ecc6-4920-15e8-b0905d0a9cd0",
       "name": "contains",
       "description": "",
@@ -1385,28 +923,6 @@
       "viewkind": "",
       "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-=======
-      "id": "4e15d68d-8e3f-4de0-cf51-51ebfd363cb7",
-      "name": "hasContent",
-=======
-      "id": "4e15d68d-8e3f-4de0-cf51-51ebfd363cb7",
-      "name": "hasContent",
-      "description": "",
-      "typeviewRef": "",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-=======
-      "id": "4e15d68d-8e3f-4de0-cf51-51ebfd363cb7",
-      "name": "hasContent",
-      "description": "",
-      "typeviewRef": "",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
->>>>>>> Stashed changes
-      "fromobjtypeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-      "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
       "cardinality": "",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1416,80 +932,14 @@
       "modified": false
     },
     {
-      "id": "4d07da8b-ecc6-4920-15e8-b0905d0a9cd0",
-      "name": "contains",
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-      "description": "",
-      "typeviewRef": "",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "fromobjtypeRef": "4beef970-06ed-4f54-6589-5804e358a8a6",
-      "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
->>>>>>> Stashed changes
-=======
-      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-=======
-      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-      "cardinality": "",
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
-      "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "313e813b-a1fb-4180-0d64-ee8c5ec0e0b8",
       "name": "Is",
       "description": "",
       "typeviewRef": "32115191-6e0a-47fa-6b28-5fbd00fa68c6",
-=======
-      "id": "4d07da8b-ecc6-4920-15e8-b0905d0a9cd0",
-      "name": "contains",
-      "description": "",
-      "typeviewRef": "",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Generalization",
-      "viewkind": "",
-<<<<<<< Updated upstream
-      "fromobjtypeRef": "257e1f72-51d0-455b-7d78-b47b42d874a9",
-=======
-      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-=======
-      "id": "313e813b-a1fb-4180-0d64-ee8c5ec0e0b8",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "7e748221-2bdd-4d00-948d-44dd6a538599",
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
       "fromobjtypeRef": "257e1f72-51d0-455b-7d78-b47b42d874a9",
->>>>>>> Stashed changes
-=======
-      "id": "313e813b-a1fb-4180-0d64-ee8c5ec0e0b8",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "7e748221-2bdd-4d00-948d-44dd6a538599",
-      "properties": [],
-      "relshipkind": "Generalization",
-      "viewkind": "",
-      "fromobjtypeRef": "257e1f72-51d0-455b-7d78-b47b42d874a9",
->>>>>>> Stashed changes
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "cardinality": "",
       "cardinalityFrom": "",
@@ -1500,44 +950,14 @@
       "modified": true
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "2782e53e-5e66-4842-a4d4-d3d936af503c",
       "name": "Is",
       "description": "",
       "typeviewRef": "b0bb365c-4e45-4145-c191-1b9a4c161577",
-=======
-=======
->>>>>>> Stashed changes
-      "id": "2782e53e-5e66-4842-a4d4-d3d936af503c",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "8e4eea01-c279-4e39-7e82-b2ef50bf0a03",
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
       "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-      "id": "313e813b-a1fb-4180-0d64-ee8c5ec0e0b8",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "7e748221-2bdd-4d00-948d-44dd6a538599",
-      "properties": [],
-      "relshipkind": "Generalization",
-      "viewkind": "",
-      "fromobjtypeRef": "257e1f72-51d0-455b-7d78-b47b42d874a9",
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "cardinality": "",
       "cardinalityFrom": "",
@@ -1548,44 +968,14 @@
       "modified": true
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "ae6b780c-fb23-4905-e3da-4673a5fd43a5",
       "name": "Is",
       "description": "",
       "typeviewRef": "474da67f-002e-4775-73e0-6e5ca9589517",
-=======
-=======
->>>>>>> Stashed changes
-      "id": "ae6b780c-fb23-4905-e3da-4673a5fd43a5",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "8ab67f03-cdc9-477a-0eb4-ad25fb1ccc49",
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
       "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-      "id": "2782e53e-5e66-4842-a4d4-d3d936af503c",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "8e4eea01-c279-4e39-7e82-b2ef50bf0a03",
-      "properties": [],
-      "relshipkind": "Generalization",
-      "viewkind": "",
-      "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "cardinality": "",
       "cardinalityFrom": "",
@@ -1596,44 +986,14 @@
       "modified": true
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "id": "49906e17-c286-4604-7dab-e8dbc05e2781",
       "name": "Is",
       "description": "",
       "typeviewRef": "f92a94d3-e080-4cc2-186c-1ba4e6f9ec7b",
-=======
-=======
->>>>>>> Stashed changes
-      "id": "49906e17-c286-4604-7dab-e8dbc05e2781",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "0225a847-c511-46c5-1a6f-5491b28d180b",
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Generalization",
       "viewkind": "",
       "fromobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-      "id": "ae6b780c-fb23-4905-e3da-4673a5fd43a5",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "8ab67f03-cdc9-477a-0eb4-ad25fb1ccc49",
-      "properties": [],
-      "relshipkind": "Generalization",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "cardinality": "",
       "cardinalityFrom": "",
@@ -1642,46 +1002,6 @@
       "nameTo": "",
       "markedAsDeleted": false,
       "modified": true
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    },
-    {
-<<<<<<< Updated upstream
-      "id": "cbbcea6d-e147-4094-6dcc-b45c24317caf",
-      "name": "uses",
-      "description": "",
-      "typeviewRef": "ad0c720b-b1c5-4c53-d6e2-ed990e567012",
-=======
-      "id": "49906e17-c286-4604-7dab-e8dbc05e2781",
-      "name": "Is",
-      "description": "",
-      "typeviewRef": "0225a847-c511-46c5-1a6f-5491b28d180b",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-<<<<<<< Updated upstream
-      "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "cardinality": "n-n",
-=======
-      "fromobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "cardinality": "",
->>>>>>> Stashed changes
-=======
-    },
-    {
-      "id": "cbbcea6d-e147-4094-6dcc-b45c24317caf",
-      "name": "uses",
-      "description": "",
-      "typeviewRef": "ad0c720b-b1c5-4c53-d6e2-ed990e567012",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-=======
     },
     {
       "id": "cbbcea6d-e147-4094-6dcc-b45c24317caf",
@@ -1729,7 +1049,6 @@
       "viewkind": "",
       "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
       "toobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
->>>>>>> Stashed changes
       "cardinality": "n-n",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1739,69 +1058,33 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-      "id": "07c39b71-6e95-4dda-36fb-fe5764b6f949",
-      "name": "applies",
-      "description": "",
-      "typeviewRef": "e88585ce-e484-4928-6ead-ccabd13ec9ef",
-=======
       "id": "5dcc416f-0e33-4b40-5517-69b16afc5975",
       "name": "manages",
       "description": "",
       "typeviewRef": "16a85817-e442-4cff-a1f5-4de3e69a1cc1",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-<<<<<<< Updated upstream
-      "toobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
-      "cardinality": "n-n",
->>>>>>> Stashed changes
-=======
       "toobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
       "cardinality": "n-n",
->>>>>>> Stashed changes
       "cardinalityFrom": "",
       "cardinalityTo": "",
       "nameFrom": "",
       "nameTo": "",
       "markedAsDeleted": false,
-      "modified": true
+      "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "cbbcea6d-e147-4094-6dcc-b45c24317caf",
-      "name": "uses",
-      "description": "",
-      "typeviewRef": "ad0c720b-b1c5-4c53-d6e2-ed990e567012",
-=======
       "id": "e2c21c11-f4df-4671-7af4-1305a1ca6178",
       "name": "performs",
       "description": "",
       "typeviewRef": "8a84e2d3-eea4-4f8f-1d03-8768302bd252",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-<<<<<<< Updated upstream
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-=======
-      "id": "ada94196-fa40-4dfb-cfdb-a4100462dad3",
-      "name": "applies",
-      "description": "",
-      "typeviewRef": "dca6b124-abac-4854-5467-3d48a7f877d0",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-      "toobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
->>>>>>> Stashed changes
-=======
       "toobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
->>>>>>> Stashed changes
       "cardinality": "n-n",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1811,28 +1094,6 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "07c39b71-6e95-4dda-36fb-fe5764b6f949",
-      "name": "applies",
-      "description": "",
-      "typeviewRef": "e88585ce-e484-4928-6ead-ccabd13ec9ef",
-=======
-      "id": "5dcc416f-0e33-4b40-5517-69b16afc5975",
-      "name": "manages",
-      "description": "",
-      "typeviewRef": "16a85817-e442-4cff-a1f5-4de3e69a1cc1",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-<<<<<<< Updated upstream
-      "toobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
-=======
-      "toobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
->>>>>>> Stashed changes
-=======
       "id": "826155d3-ff9e-4098-df2d-fb31de0719af",
       "name": "includes",
       "description": "",
@@ -1842,7 +1103,6 @@
       "viewkind": "",
       "fromobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
       "cardinality": "n-n",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1852,38 +1112,15 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "ada94196-fa40-4dfb-cfdb-a4100462dad3",
-      "name": "applies",
-      "description": "",
-      "typeviewRef": "dca6b124-abac-4854-5467-3d48a7f877d0",
-=======
       "id": "15e4e31a-3e2d-43db-ba6d-12a5a61caea5",
       "name": "hasInput",
       "description": "",
       "typeviewRef": "9effe89f-e3fb-4f01-cca6-96b7da4b805c",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-<<<<<<< Updated upstream
-      "toobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
-=======
-      "id": "e2c21c11-f4df-4671-7af4-1305a1ca6178",
-      "name": "performs",
-      "description": "",
-      "typeviewRef": "8a84e2d3-eea4-4f8f-1d03-8768302bd252",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-      "toobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
->>>>>>> Stashed changes
-=======
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
       "cardinality": "n-n",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1893,29 +1130,6 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "5dcc416f-0e33-4b40-5517-69b16afc5975",
-      "name": "manages",
-      "description": "",
-      "typeviewRef": "16a85817-e442-4cff-a1f5-4de3e69a1cc1",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-      "toobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-=======
-      "id": "826155d3-ff9e-4098-df2d-fb31de0719af",
-      "name": "includes",
-      "description": "",
-      "typeviewRef": "1cae836a-4aac-4618-1014-29ce3811bdad",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-=======
       "id": "b0770f11-23a5-4667-2b15-4b50f9a742c9",
       "name": "hasOutput",
       "description": "",
@@ -1925,7 +1139,6 @@
       "viewkind": "",
       "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
       "cardinality": "n-n",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1935,29 +1148,6 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "e2c21c11-f4df-4671-7af4-1305a1ca6178",
-      "name": "performs",
-      "description": "",
-      "typeviewRef": "8a84e2d3-eea4-4f8f-1d03-8768302bd252",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-      "toobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-=======
-      "id": "15e4e31a-3e2d-43db-ba6d-12a5a61caea5",
-      "name": "hasInput",
-      "description": "",
-      "typeviewRef": "9effe89f-e3fb-4f01-cca6-96b7da4b805c",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-=======
       "id": "7df3162b-9772-4ac8-b0f5-ee8aac8050b1",
       "name": "hasParameter",
       "description": "",
@@ -1967,7 +1157,6 @@
       "viewkind": "",
       "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
       "cardinality": "n-n",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -1977,27 +1166,6 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "826155d3-ff9e-4098-df2d-fb31de0719af",
-      "name": "includes",
-      "description": "",
-      "typeviewRef": "1cae836a-4aac-4618-1014-29ce3811bdad",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
-=======
-      "id": "b0770f11-23a5-4667-2b15-4b50f9a742c9",
-      "name": "hasOutput",
-      "description": "",
-      "typeviewRef": "73035535-b192-486d-0b92-802d91a91eb9",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
->>>>>>> Stashed changes
-=======
       "id": "3f2522a0-86ba-40ea-9053-8e1e763c3ee6",
       "name": "worksOn",
       "description": "",
@@ -2006,7 +1174,6 @@
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
->>>>>>> Stashed changes
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "cardinality": "n-n",
       "cardinalityFrom": "",
@@ -2017,25 +1184,6 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "15e4e31a-3e2d-43db-ba6d-12a5a61caea5",
-      "name": "hasInput",
-      "description": "",
-      "typeviewRef": "9effe89f-e3fb-4f01-cca6-96b7da4b805c",
-=======
-      "id": "7df3162b-9772-4ac8-b0f5-ee8aac8050b1",
-      "name": "hasParameter",
-      "description": "",
-      "typeviewRef": "fa4b9cec-25ff-4c3f-708f-38e712e560d9",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "cardinality": "n-n",
-=======
       "id": "7292a384-0dc4-4725-7200-60c7f42fa554",
       "name": "fills",
       "description": "",
@@ -2046,7 +1194,6 @@
       "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "toobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
       "cardinality": "",
->>>>>>> Stashed changes
       "cardinalityFrom": "",
       "cardinalityTo": "",
       "nameFrom": "",
@@ -2055,35 +1202,16 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "b0770f11-23a5-4667-2b15-4b50f9a742c9",
-      "name": "hasOutput",
-      "description": "",
-      "typeviewRef": "73035535-b192-486d-0b92-802d91a91eb9",
-=======
-      "id": "3f2522a0-86ba-40ea-9053-8e1e763c3ee6",
-      "name": "worksOn",
-      "description": "",
-      "typeviewRef": "c0cec654-badb-4aad-967f-4f18477b4849",
->>>>>>> Stashed changes
-=======
       "id": "f872f3fd-f42a-46cd-eb81-5270dbc932bc",
       "name": "hasInput",
       "description": "",
       "typeviewRef": "d1324865-33ab-4760-c083-fdcac4d3873b",
->>>>>>> Stashed changes
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-<<<<<<< Updated upstream
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "cardinality": "n-n",
-=======
       "toobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
       "cardinality": "",
->>>>>>> Stashed changes
       "cardinalityFrom": "",
       "cardinalityTo": "",
       "nameFrom": "",
@@ -2092,100 +1220,6 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "7df3162b-9772-4ac8-b0f5-ee8aac8050b1",
-      "name": "hasParameter",
-      "description": "",
-      "typeviewRef": "fa4b9cec-25ff-4c3f-708f-38e712e560d9",
-=======
-      "id": "abf62204-26cd-487e-1d55-0222b0500c2a",
-      "name": "worksOn",
-      "description": "",
-      "typeviewRef": "a1411325-f7c5-4b33-7679-ce40e369b75e",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-<<<<<<< Updated upstream
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "cardinality": "n-n",
-=======
-      "id": "7292a384-0dc4-4725-7200-60c7f42fa554",
-      "name": "fills",
-      "description": "",
-      "typeviewRef": "af122259-3101-4c3b-8987-dbd7259fdfea",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "toobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-=======
-      "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
->>>>>>> Stashed changes
-      "cardinality": "",
->>>>>>> Stashed changes
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
-      "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "3f2522a0-86ba-40ea-9053-8e1e763c3ee6",
-      "name": "worksOn",
-      "description": "",
-      "typeviewRef": "c0cec654-badb-4aad-967f-4f18477b4849",
-=======
-      "id": "f872f3fd-f42a-46cd-eb81-5270dbc932bc",
-      "name": "hasInput",
-      "description": "",
-      "typeviewRef": "d1324865-33ab-4760-c083-fdcac4d3873b",
->>>>>>> Stashed changes
-=======
-      "id": "766242be-b3d8-4f40-ae1f-fc07bb13712c",
-      "name": "hasOutput",
-      "description": "",
-      "typeviewRef": "d1a47db9-4a4a-45bd-5f0b-b531c8a09b4d",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "cardinality": "n-n",
-=======
-=======
->>>>>>> Stashed changes
-      "toobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
-      "cardinality": "",
->>>>>>> Stashed changes
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
-      "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "7292a384-0dc4-4725-7200-60c7f42fa554",
-      "name": "fills",
-      "description": "",
-      "typeviewRef": "af122259-3101-4c3b-8987-dbd7259fdfea",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
-      "toobjtypeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
-=======
       "id": "abf62204-26cd-487e-1d55-0222b0500c2a",
       "name": "worksOn",
       "description": "",
@@ -2195,18 +1229,6 @@
       "viewkind": "",
       "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
       "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
->>>>>>> Stashed changes
-=======
-      "id": "3a64d655-64f7-4cea-bc4e-c4355356bbd5",
-      "name": "represents",
-      "description": "",
-      "typeviewRef": "5d6195cd-f0cc-403e-7d1f-2efe234f77a6",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "257e1f72-51d0-455b-7d78-b47b42d874a9",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
       "cardinality": "",
       "cardinalityFrom": "",
       "cardinalityTo": "",
@@ -2216,112 +1238,6 @@
       "modified": false
     },
     {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-      "id": "f872f3fd-f42a-46cd-eb81-5270dbc932bc",
-      "name": "hasInput",
-      "description": "",
-      "typeviewRef": "d1324865-33ab-4760-c083-fdcac4d3873b",
-=======
-      "id": "766242be-b3d8-4f40-ae1f-fc07bb13712c",
-      "name": "hasOutput",
-      "description": "",
-      "typeviewRef": "d1a47db9-4a4a-45bd-5f0b-b531c8a09b4d",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-      "toobjtypeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
-=======
-      "id": "5f0b4b82-dbda-44d5-0254-894e7824a9fd",
-      "name": "annotates",
-      "description": "",
-      "typeviewRef": "c2d4d40e-5e3c-497b-34f9-6cb70b47e6f0",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-      "cardinality": "",
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
-      "markedAsDeleted": true,
-      "modified": true
-    },
-    {
-      "id": "2ab14ebe-9ca7-42a1-3c6e-842d3403bb3e",
-      "name": "annotates",
-      "description": "",
-      "typeviewRef": "8202934e-e61f-4902-b69f-68741b66e5d9",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
-      "toobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
-      "cardinality": "",
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
-      "markedAsDeleted": false,
-<<<<<<< Updated upstream
-      "modified": false
-=======
-      "modified": true
-    }
-  ],
-  "objecttypes0": [
-    {
-      "id": "257e1f72-51d0-455b-7d78-b47b42d874a9",
-      "name": "Information",
-      "description": "",
-      "abstract": false,
-      "viewkind": "",
-      "typename": "Object type",
-      "typeviewRef": "b6a49273-ce5c-4c48-1bc2-5e560342b3e0",
-      "properties": [],
-      "attributes": [],
-      "methods": [],
-      "markedAsDeleted": false,
-      "modified": true
->>>>>>> Stashed changes
-    },
-    {
-<<<<<<< Updated upstream
-      "id": "abf62204-26cd-487e-1d55-0222b0500c2a",
-      "name": "worksOn",
-      "description": "",
-      "typeviewRef": "a1411325-f7c5-4b33-7679-ce40e369b75e",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
-      "toobjtypeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-=======
-      "id": "3a64d655-64f7-4cea-bc4e-c4355356bbd5",
-      "name": "represents",
-      "description": "",
-      "typeviewRef": "5d6195cd-f0cc-403e-7d1f-2efe234f77a6",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "257e1f72-51d0-455b-7d78-b47b42d874a9",
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-      "cardinality": "",
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
-      "markedAsDeleted": false,
-      "modified": false
-    },
-    {
-<<<<<<< Updated upstream
       "id": "766242be-b3d8-4f40-ae1f-fc07bb13712c",
       "name": "hasOutput",
       "description": "",
@@ -2348,78 +1264,20 @@
       "relshipkind": "Association",
       "viewkind": "",
       "fromobjtypeRef": "257e1f72-51d0-455b-7d78-b47b42d874a9",
-=======
-      "id": "5f0b4b82-dbda-44d5-0254-894e7824a9fd",
-      "name": "annotates",
-      "description": "",
-      "typeviewRef": "c2d4d40e-5e3c-497b-34f9-6cb70b47e6f0",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
->>>>>>> Stashed changes
       "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "cardinality": "",
       "cardinalityFrom": "",
       "cardinalityTo": "",
       "nameFrom": "",
       "nameTo": "",
-      "markedAsDeleted": true,
-      "modified": true
-    },
-    {
-      "id": "2ab14ebe-9ca7-42a1-3c6e-842d3403bb3e",
-      "name": "annotates",
-      "description": "",
-      "typeviewRef": "8202934e-e61f-4902-b69f-68741b66e5d9",
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
-      "toobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
-      "cardinality": "",
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
       "markedAsDeleted": false,
-<<<<<<< Updated upstream
       "modified": false
     },
     {
-<<<<<<< Updated upstream
       "id": "a4fea123-cea6-4529-2c31-a38dab476e04",
       "name": "annotates",
       "description": "",
       "typeviewRef": "8503a5ef-2f0f-49eb-1ac4-610871cb1508",
-=======
-      "id": "5f0b4b82-dbda-44d5-0254-894e7824a9fd",
-      "name": "annotates",
-      "description": "",
-      "typeviewRef": "c2d4d40e-5e3c-497b-34f9-6cb70b47e6f0",
->>>>>>> Stashed changes
-      "properties": [],
-      "relshipkind": "Association",
-      "viewkind": "",
-      "fromobjtypeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
-<<<<<<< Updated upstream
-      "toobjtypeRef": "c0de4b48-0220-424a-dd07-e620e27bd3c8",
-=======
-      "toobjtypeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
->>>>>>> Stashed changes
-      "cardinality": "",
-      "cardinalityFrom": "",
-      "cardinalityTo": "",
-      "nameFrom": "",
-      "nameTo": "",
-      "markedAsDeleted": true,
-      "modified": true
-    },
-    {
-      "id": "2ab14ebe-9ca7-42a1-3c6e-842d3403bb3e",
-      "name": "annotates",
-      "description": "",
-      "typeviewRef": "8202934e-e61f-4902-b69f-68741b66e5d9",
       "properties": [],
       "relshipkind": "Association",
       "viewkind": "",
@@ -2431,8 +1289,6 @@
       "nameFrom": "",
       "nameTo": "",
       "markedAsDeleted": false,
-=======
->>>>>>> Stashed changes
       "modified": true
     }
   ],
@@ -2526,7 +1382,7 @@
       "name": "Container",
       "description": "",
       "abstract": false,
-      "viewkind": "",
+      "viewkind": "Container",
       "typename": "Object type",
       "typeviewRef": "a3112875-e4fe-4100-b290-5634d8b8acfc",
       "properties": [],
@@ -3350,21 +2206,9 @@
       "name": "a3112875-e4fe-4100-b290-5634d8b8acfc",
       "description": "",
       "typeRef": "5f1fa0f1-d89f-4a62-5b93-3a433acb833e",
-      "viewkind": "Object",
+      "viewkind": "Container",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "Container1",
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "white",
@@ -3385,17 +2229,7 @@
       "typeRef": "c30f6e2c-d04b-4360-fc17-002d1c4162f8",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#d1ffee",
@@ -3437,19 +2271,7 @@
       "typeRef": "31a18ce8-66cf-4b95-79e4-673746867ac3",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "white",
@@ -3470,17 +2292,7 @@
       "typeRef": "e07dbd76-f1ec-492e-cfce-c8cb5a2fab3c",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#d1ffee",
@@ -3501,17 +2313,7 @@
       "typeRef": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#96c5b9",
@@ -3532,17 +2334,7 @@
       "typeRef": "b5cd30a2-6213-402a-a64a-85c6eff312f5",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#d1ffee",
@@ -3584,17 +2376,7 @@
       "typeRef": "4f1e3080-24b0-4e9f-f8cc-f13e469232a2",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#ead6f0",
@@ -3615,17 +2397,7 @@
       "typeRef": "e0708fcb-4dab-44fb-312d-7685ea332985",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#d6e6e1",
@@ -3646,19 +2418,7 @@
       "typeRef": "7e9386c9-75bc-4239-c040-d328f1c91e1b",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "lightgreen",
@@ -3680,17 +2440,7 @@
       "viewkind": "Object",
       "isGroup": false,
       "group": "",
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#f4e6e8",
@@ -3711,17 +2461,7 @@
       "typeRef": "8977588c-e5fb-4ba0-ebb7-2905c0477ac5",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#ccffcc",
@@ -3729,10 +2469,7 @@
       "strokecolor1": "black",
       "strokewidth": "1",
       "textcolor": "black",
-<<<<<<< Updated upstream
       "textscale": "1",
-=======
->>>>>>> Stashed changes
       "memberscale": "1",
       "icon": "https://img.icons8.com/color/2x/type.png",
       "markedAsDeleted": false,
@@ -3745,19 +2482,7 @@
       "typeRef": "91c27596-9910-49c3-9088-44da75085f14",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
->>>>>>> Stashed changes
-=======
-      "template": "",
->>>>>>> Stashed changes
-=======
-      "template": "",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#d1ffee",
@@ -3765,13 +2490,7 @@
       "strokecolor1": "black",
       "strokewidth": "1",
       "textcolor": "black",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "textscale": "1",
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "memberscale": "1",
       "icon": "https://img.icons8.com/color/2x/variable.png",
       "markedAsDeleted": false,
@@ -3784,19 +2503,7 @@
       "typeRef": "1b6ba1b5-f716-4777-deab-cf91b0f53218",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "",
->>>>>>> Stashed changes
-=======
-      "template": "",
->>>>>>> Stashed changes
-=======
-      "template": "",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#d1ffee",
@@ -3804,13 +2511,7 @@
       "strokecolor1": "black",
       "strokewidth": "1",
       "textcolor": "black",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "textscale": "1",
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "memberscale": "1",
       "icon": "",
       "markedAsDeleted": false,
@@ -3823,19 +2524,7 @@
       "typeRef": "257e1f72-51d0-455b-7d78-b47b42d874a9",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "white",
@@ -3843,15 +2532,9 @@
       "strokecolor1": "black",
       "strokewidth": "1",
       "textcolor": "black",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "textscale": "1",
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "memberscale": "1",
-      "icon": "",
+      "icon": "./../images/info.svg",
       "markedAsDeleted": false,
       "modified": false
     },
@@ -3862,19 +2545,7 @@
       "typeRef": "5237d07b-38e0-407d-1deb-4ed4e09c5e15",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#ffcc99",
@@ -3882,15 +2553,9 @@
       "strokecolor1": "black",
       "strokewidth": "1",
       "textcolor": "black",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "textscale": "1",
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "memberscale": "1",
-      "icon": "",
+      "icon": "https://img.icons8.com/color/2x/admin-settings-male.png",
       "markedAsDeleted": false,
       "modified": false
     },
@@ -3901,19 +2566,7 @@
       "typeRef": "8da42b14-08ac-4616-046f-f13dbba6d166",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "#ffffe0",
@@ -3921,15 +2574,9 @@
       "strokecolor1": "black",
       "strokewidth": "1",
       "textcolor": "black",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "textscale": "1",
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
       "memberscale": "1",
-      "icon": "",
+      "icon": "https://img.icons8.com/color/2x/task.png",
       "markedAsDeleted": false,
       "modified": false
     },
@@ -3940,19 +2587,7 @@
       "typeRef": "d7de8950-a1c6-4137-3eb4-4f94fbdd8e1a",
       "viewkind": "Object",
       "isGroup": false,
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "template": "textAndIcon",
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
-=======
-      "template": "textOnly",
->>>>>>> Stashed changes
       "figure": "",
       "geometry": "",
       "fillcolor": "white",
@@ -3960,57 +2595,11 @@
       "strokecolor1": "black",
       "strokewidth": "1",
       "textcolor": "black",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "textscale": "1",
       "memberscale": "1",
       "icon": "https://img.icons8.com/color/2x/view-file.png",
-=======
-      "memberscale": "1",
-      "icon": "",
->>>>>>> Stashed changes
-=======
-      "memberscale": "1",
-      "icon": "",
->>>>>>> Stashed changes
       "markedAsDeleted": false,
       "modified": false
-    },
-    {
-      "id": "567cfe6b-e051-4fad-cdc3-c799ca061881",
-      "name": "567cfe6b-e051-4fad-cdc3-c799ca061881",
-      "description": "",
-      "typeRef": "3f739100-23e2-4582-1bb4-f55a1ae0b286",
-      "template": "linkTemplate1",
-      "strokecolor": "black",
-      "strokewidth": "1",
-      "textcolor": "black",
-      "dash": "None",
-      "fromArrow": "",
-      "toArrow": "OpenTriangle",
-      "fromArrowColor": "",
-      "toArrowColor": "white",
-      "markedAsDeleted": false,
-      "modified": false,
-      "geometry": ""
-    },
-    {
-      "id": "c2d4d40e-5e3c-497b-34f9-6cb70b47e6f0",
-      "name": "c2d4d40e-5e3c-497b-34f9-6cb70b47e6f0",
-      "description": "",
-      "typeRef": "5f0b4b82-dbda-44d5-0254-894e7824a9fd",
-      "template": "AnnotationLink",
-      "strokecolor": "lightgrey",
-      "strokewidth": "1",
-      "textcolor": "lightgrey",
-      "dash": "Dashed",
-      "fromArrow": "",
-      "toArrow": "OpenTriangle",
-      "fromArrowColor": "",
-      "toArrowColor": "white",
-      "markedAsDeleted": false,
-      "modified": true,
-      "geometry": ""
     }
   ],
   "objtypegeos": [
@@ -4075,10 +2664,10 @@
       "description": "",
       "typeRef": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
       "metamodelRef": "c25488d8-087c-4d96-2137-91ad04663b41",
-      "loc": "-250 420",
+      "loc": "300 310",
       "size": "",
       "markedAsDeleted": false,
-      "modified": true
+      "modified": false
     },
     {
       "id": "0f7ac47c-1674-4d2c-dfa1-ed2a2c193432",
@@ -4097,22 +2686,10 @@
       "description": "",
       "typeRef": "c7b60c43-cb91-4e92-a4b6-53d2aba052f3",
       "metamodelRef": "c25488d8-087c-4d96-2137-91ad04663b41",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "loc": "270 410",
-=======
-      "loc": "400 330",
->>>>>>> Stashed changes
-=======
-      "loc": "400 330",
->>>>>>> Stashed changes
-=======
-      "loc": "400 330",
->>>>>>> Stashed changes
       "size": "",
       "markedAsDeleted": false,
-      "modified": true
+      "modified": false
     },
     {
       "id": "a5361a05-2909-4c39-fee9-a9a9996910ce",
@@ -4164,15 +2741,7 @@
       "description": "",
       "typeRef": "8977588c-e5fb-4ba0-ebb7-2905c0477ac5",
       "metamodelRef": "c25488d8-087c-4d96-2137-91ad04663b41",
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       "loc": "-210 350",
-=======
-      "loc": "30 390",
->>>>>>> Stashed changes
-=======
-      "loc": "30 390",
->>>>>>> Stashed changes
       "size": "",
       "markedAsDeleted": false,
       "modified": false
@@ -4246,7 +2815,6 @@
   ],
   "relshiptypeviews": [
     {
-<<<<<<< Updated upstream
       "id": "8503a5ef-2f0f-49eb-1ac4-610871cb1508",
       "name": "8503a5ef-2f0f-49eb-1ac4-610871cb1508",
       "description": "",
@@ -4265,8 +2833,6 @@
       "modified": false
     },
     {
-=======
->>>>>>> Stashed changes
       "id": "ad0c720b-b1c5-4c53-d6e2-ed990e567012",
       "name": "ad0c720b-b1c5-4c53-d6e2-ed990e567012",
       "description": "",
@@ -4535,40 +3101,6 @@
       "toArrowColor": "white",
       "markedAsDeleted": false,
       "modified": false
-    },
-    {
-      "id": "c2d4d40e-5e3c-497b-34f9-6cb70b47e6f0",
-      "name": "c2d4d40e-5e3c-497b-34f9-6cb70b47e6f0",
-      "description": "",
-      "typeRef": "5f0b4b82-dbda-44d5-0254-894e7824a9fd",
-      "template": "AnnotationLink",
-      "strokecolor": "lightgrey",
-      "strokewidth": "1",
-      "textcolor": "lightgrey",
-      "dash": "Dashed",
-      "fromArrow": "",
-      "toArrow": "OpenTriangle",
-      "fromArrowColor": "",
-      "toArrowColor": "white",
-      "markedAsDeleted": false,
-      "modified": true
-    },
-    {
-      "id": "8202934e-e61f-4902-b69f-68741b66e5d9",
-      "name": "8202934e-e61f-4902-b69f-68741b66e5d9",
-      "description": "",
-      "typeRef": "2ab14ebe-9ca7-42a1-3c6e-842d3403bb3e",
-      "template": "AnnotationLink",
-      "strokecolor": "lightgrey",
-      "strokewidth": "1",
-      "textcolor": "lightgrey",
-      "dash": "Dashed",
-      "fromArrow": "",
-      "toArrow": "OpenTriangle",
-      "fromArrowColor": "",
-      "toArrowColor": "white",
-      "markedAsDeleted": false,
-      "modified": true
     }
   ],
   "generatedFromModelRef": "7f400ca1-76fe-40cd-f70f-9040581387eb",

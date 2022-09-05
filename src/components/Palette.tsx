@@ -72,6 +72,7 @@ const Palette = (props: any) => {
         return (i?.typename === wot) && i 
       })
     )
+    if (debug) console.log('73 taskNodeDataArray', taskNodeDataArray)
   } 
 
   useEffect(() => {

@@ -33,7 +33,7 @@ const axiosConfigRaw = {
 // GITHUB_CLIENT_SECRET=1d72f2c53b60dd0f1166cf05e0f468279f663565
 
 export function searchGithub(searchText, path, filename, branch, searchtype) { // searchtype: 'repo', 'branches', 'models' or 'files'
-  if (!debug) console.log('36 searchRepos', searchText, path, filename, searchtype);
+  if (!debug) console.log('36 searchGithub', searchText, path, filename, searchtype);
   // search/repositories?q=akm-models
   let query = ''
   if (searchtype == 'repos') {
@@ -47,7 +47,7 @@ export function searchGithub(searchText, path, filename, branch, searchtype) { /
   } else if (searchtype == 'fileSHA') {
     query = `repos/${searchText}/git/blobs/${filename}`
   }
-  console.log('46 searchRepos ', query);
+  console.log('50 searcGithub ', query);
   return axios.get(
     `${query}`,
     axiosConfig
@@ -78,7 +78,6 @@ export function searchBranches(ownerRepo, path) { // ownerRepo Kavca/kavca-akm-m
 export function searchModels(searchText, path) {
   // https://api.github.com/repos/Kavca/kavca-akm-models/branches
   const query = `${searchText}`;
-  console.log('47 searchRepos', searchText, 'p', path);
   console.log('48 searchRepos https://api.github.com/', query);
   return axios.get(
     `${query}`,

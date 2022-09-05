@@ -678,7 +678,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                       node.scale1 = Number(toScale.valueOf());
                       data.scale1 = node.scale1;
                       myDiagram.model.setDataProperty(n, "scale", data.scale1);
-                      myDiagram.model.setDataProperty(n.data, "scale", data.scale1);
+                      myDiagram.model.setDataProperty(n?.data, "scale", data.scale1);
                     }
               }            
               if (debug) console.log('665 node, data,', node, data);

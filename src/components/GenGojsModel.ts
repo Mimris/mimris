@@ -25,7 +25,7 @@ let includeNoType = false;
 const systemtypes = ['Property', 'Method', 'MethodType', 'Datatype', 'Value', 'FieldType', 'InputPattern', 'ViewFormat'];
 
 const GenGojsModel = async (props: any, dispatch: any) =>  {
-  if (!debug) console.log('28 GenGojsModel started', props);
+  if (debug) console.log('28 GenGojsModel started', props);
   const includeDeleted = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeNoObject = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
   const includeInstancesOnly = (props.phUser?.focusUser) ? props.phUser?.focusUser?.diagram?.showDeleted : false;
@@ -36,13 +36,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
-    if (!debug) clog('33 GenGojsModel:', props);
+    if (debug) clog('33 GenGojsModel:', props);
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: myMetis', tempMetis);
     myMetis.importData(metis, true);
     adminModel = buildAdminModel(myMetis);
-    if (!debug) clog('39 GenGojsModel: myMetis', myMetis);
+    if (debug) clog('39 GenGojsModel: myMetis', myMetis);
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     if (debug) console.log('43 focusModel, focusModelview', focusModel, focusModelview)

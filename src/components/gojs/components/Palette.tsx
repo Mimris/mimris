@@ -81,12 +81,13 @@ export class PaletteWrapper extends React.Component<DiagramProps, {}> {
           $(go.Palette,       // must name or refer to the DIV HTML element
             {
               initialContentAlignment: go.Spot.Top,       // center the content
-              initialAutoScale: go.Diagram.Uniform,
+              // initialAutoScale: go.Diagram.Uniform,
               maxSelectionCount: 6,
               layout: $(go.GridLayout,
                 {
-                  sorting: go.GridLayout.Ascending,
-                  //sorting: go.GridLayout.Forward,
+                  // sorting: go.GridLayout.Ascending,
+                  sorting: go.GridLayout.Forward,
+                  // sorting: go.GridLayout.Descending,   
                   wrappingColumn: 1
                 }),
 

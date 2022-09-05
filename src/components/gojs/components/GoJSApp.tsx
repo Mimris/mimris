@@ -503,6 +503,8 @@ class GoJSApp extends React.Component<{}, AppState> {
             // Object moved
             const myNode = myGoModel.findNode(data.key);
             let fromloc, fromLoc;
+            console.log('506 ', myFromLocs);
+            if (myFromLocs) {
             for (let j=0; j<myFromLocs.length; j++) {
                 const floc = myFromLocs[j];
                 if (floc.key === data.key) {
@@ -511,6 +513,7 @@ class GoJSApp extends React.Component<{}, AppState> {
                   break;
                 }
             }
+          }
             let toloc, toLoc;
             for (let j=0; j<myToLocs.length; j++) {
                 const tloc = myToLocs[j];
@@ -1437,8 +1440,9 @@ class GoJSApp extends React.Component<{}, AppState> {
     }
     
     if (this.state.myMetis) { this.state.myMetis.dispatch = this.state.dispatch };
-    if (debug) console.log('1089 dispatch', this.state.myMetis.dispatch);
-    if (debug) console.log('1090 linkdataarray:', this.state.linkDataArray);
+    if (debug) console.log('1443 dispatch', this.state.myMetis.dispatch);
+    if (debug) console.log('1444 nodedataarray:', this.state.nodeDataArray);
+    if (debug) console.log('1445 linkdataarray:', this.state.linkDataArray);
     return ( (this.state) &&
       <div className="diagramwrapper">
         <DiagramWrapper

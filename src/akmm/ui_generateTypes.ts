@@ -991,7 +991,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 const method = generateMethod(obj, context);
                 const jsnMethod = new jsn.jsnMethod(method);
                 if (debug) console.log('1322 method, jsnMethod', method, jsnMethod);
-                const mtdtypename  = obj.methodtype;
+                const mtdtypename  = method.methodtype;
                 const methodType = myMetamodel.findMethodTypeByName(mtdtypename);
                 if (debug) console.log('1325 methodType', methodType);
                 if (method && methodType) {

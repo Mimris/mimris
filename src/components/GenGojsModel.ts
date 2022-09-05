@@ -553,10 +553,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('552 modifiedRelviews', modifiedRelviews);
     }
     modelview.relshipviews = relshipviews;
-    if (debug) console.log('539 buildGoModel - myGoModel', myGoModel);
+    if (!debug) console.log('539 buildGoModel - myGoModel', myGoModel);
     // In some cases some of the links were not shown in the goModel (i.e. the modelview), so ...
     uic.repairGoModel(myGoModel, modelview);
-    if (debug) console.log('558 myGoModel.links', myGoModel.links);
+    if (!debug) console.log('558 myGoModel.links', myGoModel.links);
     return myGoModel;
   }
 

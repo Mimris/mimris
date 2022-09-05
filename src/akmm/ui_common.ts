@@ -3058,4 +3058,16 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
             goModel.addLink(link);
         }
     }
+    const objviews = modelview.objviews;
+    for (let i=0; i<objviews?.length; i++) {
+        const oview = objviews[i];
+        if (oview.markedAsDeleted)
+            continue;
+        const nodes = goModel.nodes as gjs.goObjectNode[];
+        let found = false;
+        for (let j=0; j<nodes.length; j++) {
+            const node = nodes[j];
+            if (!debug) console.log('3073 node', node);
+        }
+    }
 }

@@ -577,7 +577,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Objectview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (debug) console.log('542 node', node);
+              if (!debug) console.log('542 node', node);
               uid.editObjectview(node, myMetis, myDiagram); 
             }, 
             function (o: any) { 
@@ -888,7 +888,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object Type",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              const icon = uit.findImage(node.icon);
+              const icon = uit.findImage(node.icon);        s
               const modalContext = {
                 what:       "editObjectType",
                 title:      "Edit Object Type",
@@ -3005,41 +3005,45 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectType':
       case 'editObject':
       case 'editObjectview':
-        // let selectedData = this.state.selectedData;
+        let selectedData = this.state.selectedData;
         header = modalContext.title;
         category = this.state.selectedData.category;
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (this.state.selectedData.geometry?.includes('<svg')) {
-            const svgString = this.state.selectedData.geometry;
-            console.log('3012 svgString', svgString);
-            const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
-            // get g element
-            const g = svg?.getElementsByTagName('g')[0];
-            // get path elements
-            const paths = g?.getElementsByTagName('path');
-            console.log('3018 g', g, 'paths ', paths);
-            // get all paths path data
-            const pathData = [];
-            for (let i = 0; i < paths.length; i++) {
-              pathData.push(paths[i].getAttribute('d'));
-            }
-            console.log('3025 pathData', pathData);
-            // concatinating of the paths in array
-            const pathD =  
-              pathData.reduce((acc, val) => {
-                return acc + val;
-              }, '');
-            console.log('3028 pathD', pathD);
-            // selectedData = { ...this.state.selectedData, geometry: pathD };
-            this.setState({ selectedData:{geometry: pathD }});
-            if (!debug) console.log('3015 selectedData, modalContext: ', this.state.selectedData, modalContext);
-          }
+          // code for extracting the g element from the svg
+          // if (this.state.selectedData.icon?.includes('<svg')) {
+          //   const svgString = this.state.selectedData.icon;
+          //   console.log('3012 svgString', svgString);
+          //   const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+          //   // get g element
+          //   const g = svg?.getElementsByTagName('g')[0];
+          //   // get path elements
+          //   const paths = g?.getElementsByTagName('path');
+          //   console.log('3018 g', g, 'paths ', paths);
+          //   // get all paths path data
+          //   const pathData = [];
+          //   for (let i = 0; i < paths?.length; i++) {
+          //     pathData.push(paths[i].getAttribute('d'));
+          //   }
+          //   console.log('3025 pathData', pathData);
+          //   // concatinating of the paths in array
+          //   const pathD =  
+          //     pathData.reduce((acc, val) => {
+          //       return acc + val;
+          //     }, '');
+          //   console.log('3028 pathD', pathD);
+          //   // selectedData = { ...this.state.selectedData, geometry: pathD };
+          //   // this.setState({ selectedData });
+          //   // if (this.state.selectedData.geometry === '') {
+          //   selectedData = { selectedData:{...this.state.selectedData, objectview: { ...this.state.selectedData.objectview, geometry: pathD} }};
+          //   // }
+          //   if (!debug) console.log('3038 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          // }
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
                 myMetis       ={this.myMetis}
-                // selectedData  ={selectedData}
-                selectedData  ={this.state.selectedData}
+                selectedData  ={selectedData}
+                // selectedData  ={this.state.selectedData}
                 context       ={this.state.modalContext}
                 onInputChange ={this.handleInputChange}
                 activeTab     ={this.state.currentActiveTab}

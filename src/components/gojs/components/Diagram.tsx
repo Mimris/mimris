@@ -297,6 +297,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
    */
 
   private initDiagram(): go.Diagram {
+    go.Diagram.licenseKey = "73f944e5b16131b700ca0d2b113f69ee1bb37b609e861ea35e5141a3ef5f68402bc9ec7e03d48f95d4ff4ffd1d74c6db8ec66d7cc34d0639e039da8c16e782aee13773b1150b42ddf40a71c18bea2cf5ac7071f295e023abd87e8dfae2a1c79d55bcf7d44cc80eb92e7d0463057cab4fe4a9da2cfe57c44c797d9ef2aaefaf1baa6d65949de5548bf0516edd";
     if (debug) console.log('282 this', this);
     this.diagramRef.current?.clear();
     const $ = go.GraphObject.make;
@@ -3004,21 +3005,47 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       case 'editObjectType':
       case 'editObject':
       case 'editObjectview':
+        // let selectedData = this.state.selectedData;
         header = modalContext.title;
         category = this.state.selectedData.category;
         if (this.state.selectedData !== null && this.myMetis != null) {
-          if (debug) console.log('3010 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          if (this.state.selectedData.geometry?.includes('<svg')) {
+            const svgString = this.state.selectedData.geometry;
+            console.log('3012 svgString', svgString);
+            const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
+            // get g element
+            const g = svg?.getElementsByTagName('g')[0];
+            // get path elements
+            const paths = g?.getElementsByTagName('path');
+            console.log('3018 g', g, 'paths ', paths);
+            // get all paths path data
+            const pathData = [];
+            for (let i = 0; i < paths.length; i++) {
+              pathData.push(paths[i].getAttribute('d'));
+            }
+            console.log('3025 pathData', pathData);
+            // concatinating of the paths in array
+            const pathD =  
+              pathData.reduce((acc, val) => {
+                return acc + val;
+              }, '');
+            console.log('3028 pathD', pathD);
+            // selectedData = { ...this.state.selectedData, geometry: pathD };
+            this.setState({ selectedData:{geometry: pathD }});
+            if (!debug) console.log('3015 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          }
           modalContent = 
             <div className="modal-prop">
               <SelectionInspector 
                 myMetis       ={this.myMetis}
+                // selectedData  ={selectedData}
                 selectedData  ={this.state.selectedData}
                 context       ={this.state.modalContext}
                 onInputChange ={this.handleInputChange}
                 activeTab     ={this.state.currentActiveTab}
               />
             </div>
-          if (debug) console.log('3021 selectedData, modalContent: ', this.state.selectedData, modalContent);
+          if (!debug) console.log('3021 selectedData, modalContent: ', this.state.selectedData, modalContent);  
         }
         break;
       case 'editRelationshipType':
@@ -3096,7 +3123,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
       </>  
 
 if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
-if (debug) console.log('3099 nodeDataArray, linkDataArray, modelData: ', 
+if (!debug) console.log('3099 nodeDataArray, linkDataArray, modelData: ', 
 this.props.nodeDataArray, this.props.linkDataArray, this.props.modelData);
 
 return (

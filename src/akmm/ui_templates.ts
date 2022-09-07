@@ -1189,7 +1189,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),    
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
-                new go.Binding('stroke', 'strokecolor'), 
+                new go.Binding('stroke', 'strokecolor2'), 
             ),
             $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
                 {
@@ -1245,7 +1245,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             new go.Binding("deletable"),
             { contextMenu: contextMenu },  
             { 
-                background: GradientLightGray, 
+                background: "transparent", 
+                // background: GradientLightGray, 
                 locationSpot: go.Spot.Center, 
             },            
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -1260,21 +1261,25 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     fromSpot: go.Spot.AllSides,
                     // fromSpot: go.Spot.Left,
                     strokeWidth: 2, 
-                    stroke: 'gray', 
-                    fill: 'transparent',
+                    // stroke: 'gray', 
                 },
+                new go.Binding('fill', 'fillcolor'),
+                new go.Binding('background', 'fillcolor'),   
             ),  
             $(go.TextBlock,
                 { 
                     margin: 5, 
+                    cursor: 'move',
                     editable: true, 
                     text: 'Annotation',
                     alignment: go.Spot.Left,
-                    scale: 1,
+                    scale: 1,                    
                 },
                 new go.Binding('text', 'text').makeTwoWay(),
-                new go.Binding('scale', 'textscale').makeTwoWay()
-            ),
+                new go.Binding('scale', 'textscale').makeTwoWay(),
+                new go.Binding('stroke', 'strokecolor'),   
+                // new go.Binding('background', 'fillcolor'),      
+                ),
         )
     );
     addNodeTemplateName('Annotation');

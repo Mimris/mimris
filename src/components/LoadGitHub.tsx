@@ -9,6 +9,8 @@ import Select from './utils/Select';
 import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from './services/githubService';
 import { loadDataModel } from '../actions/actions';
 
+import { SaveAllToFile } from './utils/SaveModelToFile';
+
 const debug = false
 
 const LoadGitHub = (props: any) => {
@@ -27,6 +29,11 @@ const LoadGitHub = (props: any) => {
   // const repository = 'cumulus-akm-pocc'
   // const path = 'Cumulus'
 
+  let phFocus = props.phFocus;
+  let phData = props.phData
+  let phUser = props.phUser
+  let phSource = props.phSource
+
   const [githubLink, setGithubLink] = useState('http://github.com/');
   // const [searchText, setSearchText] = useState('');
   const [usernameText, setUsernameText] = useState('Kavca');
@@ -43,6 +50,15 @@ const LoadGitHub = (props: any) => {
 
   const { buttonLabel, className } = props;
   const toggle = () => setModal(!modal);
+
+  const data = {
+    phData:   props.ph.phData,
+    phFocus:  props.ph.phFocus,
+    phUser:   props.ph.phUser,
+    // phSource: props.phSource,
+    phSource: (phSource === "") && phData.metis.name  || phSource,
+    lastUpdate: new Date().toISOString()
+  }
 
   useEffect(() => {
     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
@@ -218,6 +234,12 @@ const LoadGitHub = (props: any) => {
 
   // console.log('160 githubLink', githubLink)
 
+  function handleSaveAllToFile() {
+    const projectname = props.ph.phData.metis.name
+    SaveAllToFile(data, projectname, 'Project')
+  }
+
+
   return  (
     <>
       <span><button className="btn-context btn-outline-primary font-weight-bold text-primary ml-1" onClick={toggle}>{buttonLabel}</button>
@@ -278,10 +300,19 @@ const LoadGitHub = (props: any) => {
               <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
              </div> */}
           <hr className="bg-primary my-1 mx-4" />
-          <div className="bg-secondary square border border-2 border-primary p-1"><strong>Upload model files:</strong> (RepoOwner, Repository and Path must be filled in)<br />
-            <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong> Click here to open GitHub </strong></a> (Check the README file for Guidance)
-          <div className=" text-secondary">{githubLink} </div>
+          <div className="bg-secondary square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
+          <div className="bg-secondary square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
+            <button 
+              className="btn-primary ml-2 mr-2 mb-3 float-right" 
+              data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+              onClick={handleSaveAllToFile}>Save
+            </button >
+            <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
           </div>
+              <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
+              <div className=" text-secondary">{githubLink} </div>
+            </div>
           <hr className="bg-primary my-1 mx-0" />
         </div>
         </ModalBody>

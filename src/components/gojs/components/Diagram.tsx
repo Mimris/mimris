@@ -577,7 +577,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Objectview",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              if (!debug) console.log('542 node', node);
+              if (debug) console.log('542 node', node);
               uid.editObjectview(node, myMetis, myDiagram); 
             }, 
             function (o: any) { 
@@ -3039,7 +3039,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           //   // if (this.state.selectedData.geometry === '') {
           //   selectedData = { selectedData:{...this.state.selectedData, objectview: { ...this.state.selectedData.objectview, geometry: pathD} }};
           //   // }
-          //   if (!debug) console.log('3038 selectedData, modalContext: ', this.state.selectedData, modalContext);
+          //   if (debug) console.log('3038 selectedData, modalContext: ', this.state.selectedData, modalContext);
           // }
           modalContent = 
             <div className="modal-prop">
@@ -3052,7 +3052,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 activeTab     ={this.state.currentActiveTab}
               />
             </div>
-          if (!debug) console.log('3021 selectedData, modalContent: ', this.state.selectedData, modalContent);  
+          if (debug) console.log('3021 selectedData, modalContent: ', this.state.selectedData, modalContent);  
         }
         break;
       case 'editRelationshipType':
@@ -3129,9 +3129,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         </TabContent>
       </>  
 
-if (debug) console.log('3132 Active tab: ', this.state.currentActiveTab);
-if (!debug) console.log('3133 nodeDataArray ', this.props.nodeDataArray, 'linkDataArray', this.props.linkDataArray, 'modelData ', this.props.modelData);
-// if (this.props.nodeDataArray.length === 0) return null;
+if (debug) console.log('2825 Active tab: ', this.state.currentActiveTab);
+if (debug) console.log('3099 nodeDataArray, linkDataArray, modelData: ', 
+this.props.nodeDataArray, this.props.linkDataArray, this.props.modelData);
 
 return (
       <div>

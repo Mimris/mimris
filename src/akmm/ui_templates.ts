@@ -2555,19 +2555,20 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
 
 // Function to identify images related to an image id
 export function findImage(image: string) {
+    console.log("2561 findImage: " + image);
     if (!image)
         return "";
     // if (image.substring(0,4) === 'http') { // its an URL
     if (image.includes('//')) { // its an URL   
-        // if (debug) console.log('1269 Diagram', image);
+        if (!debug) console.log('2563 Diagram', image);
         return image
     } else if (image.includes('/')) { // its a local image
-        if (debug) console.log('1270 Diagram', image);   
+        if (!debug) console.log('2566 Diagram', image);   
         return image
     } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
         const firstcharacter = image.substring(0, 1)
         const secondcharacter = image.substring(1, 2)
-        if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
+        if (!debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
         // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
         //   const letter = image.substring(0, image.length - 4)
         //   // const lettersvg = letter
@@ -2579,11 +2580,11 @@ export function findImage(image: string) {
         //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
     } else if (image.includes('<svg')) { // its an icon font
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
-        console.log('3585', img);
+        console.log('2585', img);
         return img
 
     } else { 
-        if (debug) console.log('1283 Diagram', image);
+        if (!debug) console.log('2586 Diagram', image);
         return "./../images/" + image //its an image in public/images
     }
     return "";

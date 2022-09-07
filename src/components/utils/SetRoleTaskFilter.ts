@@ -24,6 +24,14 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
           name: "Modeller 1",
           tasks: [
             {
+                id: "task00",
+                name: "All types",
+                description: "All types modelling",
+                workOnTypes: [
+                    oTypes.map((t: { name: any; }) => t.name)
+                ]
+            },
+            {
                 id: "Task0",
                 name: "Modelling",
                 workOnTypes:  [
@@ -82,14 +90,6 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                 "Role",
                 "Task",
                 "View"
-                ]
-            },
-            {
-                id: "task4",
-                name: "All types",
-                description: "All types modelling",
-                workOnTypes: [
-                    oTypes.map((t: { name: any; }) => t.name)
                 ]
             }
         ]

@@ -107,35 +107,33 @@ const Modeller = (props: any) => {
 
 
   const selector = //(props.modelType === 'model' || props.modelType === 'modelview' ) 
-     <div className="m-0" className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
-            title={
-`Description: ${model?.description}
-
-To change Model name, rigth click the background below and select 'Edit Model'.`
-            }>
-              <label className="Selector--menu-label "   
-                data-toggle="tooltip" data-placement="top" data-bs-html="true" 
-                title =  {
+    <div >
+      <label className="Selector--menu-label "   
+        data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+        title =  {
 `Description : ${props.metis.description} 
 
-  To change Project Name : 
-  Edit this field and click on the Save button.
+To change Project Name : 
+Edit this field and click on the Save button.
 
-  or Right-click the background below and select 'Edit Project Name'. 
+or Right-click the background below and select 'Edit Project Name'. 
 
 The text 'Project_<currentdate>' will be added to the filename.`
-                }> Project :  
-                <input className="ml-2"  type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
-                
-                <span className="title mx-2" style={{ minWidth: "36%"}}>Model :
-                  <select key='select-title' className="list-obj mx-2" style={{ minWidth: "32%"}}
-                  onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
-                  {options}
-                  </select>
-                </span> 
-              </label>
-      
-      </div>
+        }> Project :  
+        <input className="ml-2" type="text" defaultValue={props.metis.name} onBlur={(event) => handleChange({ value: event.target.value })} style={{ minWidth: "36%"}} />
+        <span className="model-selection" data-toggle="tooltip" data-placement="top" data-bs-html="true"  style={{width: "100%"}}
+        title={
+`Description: ${model?.description}
+    
+To change Model name, rigth click the background below and select 'Edit Model'.`
+        }>Model :
+          <select key='select-title' className="list-obj mx-2" style={{ minWidth: "32%"}}
+          onChange={(event) => handleSelectModelChange({ value: event.target.value })} name={`Focus ${props.selName} ...`}>
+          {options}
+          </select>
+        </span> 
+      </label>
+    </div>
 
 
   activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0

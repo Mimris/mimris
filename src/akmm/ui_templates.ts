@@ -1257,7 +1257,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     toLinkableSelfNode: false, 
                     toLinkableDuplicates: false,
                     cursor: 'alias', 
-                    fromSpot: go.Spot.Left,
+                    fromSpot: go.Spot.AllSides,
+                    // fromSpot: go.Spot.Left,
                     strokeWidth: 2, 
                     stroke: 'gray', 
                     fill: 'transparent',
@@ -1945,6 +1946,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
         {
             reshapable: true, 
             relinkableFrom: true, relinkableTo: true,
+            fromSpot: go.Spot.AllSides,
             toSpot: go.Spot.AllSides,
             toEndSegmentLength: 20, fromEndSegmentLength: 40
         },

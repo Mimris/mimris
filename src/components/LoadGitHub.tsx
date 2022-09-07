@@ -244,15 +244,15 @@ const LoadGitHub = (props: any) => {
             <hr className="bg-primary my-2 mx-4" />
 
             {/* ----- Model Path input ------------------------------------ */}
+            {(dirs?.length > 0) 
+              ? <div >Model paths (folders) found: <span className="text-success m-1"> {dirs?.map((dir) => ( <span className="px-1" key={dir.name} >{dir.name}, </span> ))}</span> </div> 
+              : (!pathText) && <div className='text-warning'> 'No model paths (folders) found!'</div>
+            } 
             <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span>
             <hr className="bg-light my-1 mx-4" />
 
             {/* -------- Select model ------------------------------------ */}
             <Button className="btn-primary text-black border-success w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
-            {(dirs?.length > 0) 
-              ? <div >Model paths found: <span className="text-success m-1"> {dirs?.map((dir) => ( <span className="px-1" key={dir.name} >{dir.name}, </span> ))}</span> </div> 
-              : (!pathText) && <div className='text-warning'> 'No model paths found!'</div>
-            } 
             {(models?.length > 0) 
               ? <div >Models found: <span className="text-success m-1">{models?.map((mod) => ( <span className="px-1" key={mod.name} >{mod.name}, </span>))} </span></div> 
               : <div className='text-warning'> 'No models found!'</div>

@@ -5440,7 +5440,7 @@ export class cxMethod extends cxMetaObject {
     constructor(id: string, name: string, description: string) {
         super(id, name, description);
         this.category   = constants.gojs.C_METHOD;
-        this.methodtype = "CalculateValue";
+        this.methodtype = constants.types.MTD_CALCULATEVALUE;
         this.expression = "";
         this.allProperties = null;
     }
@@ -6894,7 +6894,7 @@ export class cxInstance extends cxMetaObject {
             const mtdtype = method.methodtype;
             let context;
             switch (mtdtype) {
-                case "AggregateValue": {
+                case constants.types.MTD_AGGREGATEVALUE: {
                     if (debug) console.log('6273 method', method);
                     const reltype = metis.findRelationshipTypeByName(method["reltype"]);
                     const otypename = method["objtype"];
@@ -6911,7 +6911,7 @@ export class cxInstance extends cxMetaObject {
                     value = ui_mtd.aggregateValue(inst, context);
                 }
                 break;
-                case "GetConnectedObject": {
+                case constants.types.MTD_GETCONNECTEDOBJECT: {
                     if (debug) console.log('6861 method', method);
                     const rtypename = method["reltype"];
                     const reldir = method["reldir"];
@@ -6937,7 +6937,7 @@ export class cxInstance extends cxMetaObject {
                     value = obj?.name; 
                 }
                 break;
-                case "CalculateValue":
+                case constants.types.MTD_CALCULATEVALUE:
                 default: {
                     if (debug) console.log('6290 method', method);
                     context = {
@@ -7132,31 +7132,33 @@ export class cxObject extends cxInstance {
         if (debug) console.log('7083 prop, method', prop, method);
         if (method) {
             const mtdtype = method.methodtype;
-            let context;
-            if (debug) console.log('7087 method', method);
-            const rtypename = method["reltype"];
-            const reldir = method["reldir"];
-            let reltype = null;
-            if (rtypename !== 'any' && rtypename !== 'null')
-                reltype = metis.findRelationshipTypeByName(rtypename);
-            if (debug) console.log('7093 rtypename, reltype', rtypename, reltype);
-            const otypename = method["objtype"];
-            let objtype = null;
-            if (otypename !== 'any' && otypename !== 'null')
-                objtype = metis.findObjectTypeByName(otypename);
-            if (debug) console.log('7098 otypename, objtype', otypename, objtype);
-            context = {
-                "myMetis":      metis,
-                "reltype":      reltype,
-                "reldir":       reldir,
-                "objtype":      objtype,
-                "prop":         prop,
+            if ( mtdtype === constants.types.MTD_GETCONNECTEDOBJECT) {
+                let context;
+                if (debug) console.log('7087 method', method);
+                const rtypename = method["reltype"];
+                const reldir = method["reldir"];
+                let reltype = null;
+                if (rtypename !== 'any' && rtypename !== 'null')
+                    reltype = metis.findRelationshipTypeByName(rtypename);
+                if (debug) console.log('7093 rtypename, reltype', rtypename, reltype);
+                const otypename = method["objtype"];
+                let objtype = null;
+                if (otypename !== 'any' && otypename !== 'null')
+                    objtype = metis.findObjectTypeByName(otypename);
+                if (debug) console.log('7098 otypename, objtype', otypename, objtype);
+                context = {
+                    "myMetis":      metis,
+                    "reltype":      reltype,
+                    "reldir":       reldir,
+                    "objtype":      objtype,
+                    "prop":         prop,
+                }
+                obj = ui_mtd.getConnectedObject(this, context);
+                if (debug) console.log('7107 inst, context, obj', inst, context, obj);
             }
-            obj = ui_mtd.getConnectedObject(this, context);
-            if (debug) console.log('7107 inst, context, obj', inst, context, obj);
         }
         return obj;
-    }
+        }
     getConnectedObjects(metis: cxMetis) {
         const type = this.type;
         const properties = type?.properties;

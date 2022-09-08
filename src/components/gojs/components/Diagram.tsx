@@ -3009,15 +3009,18 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
         header = modalContext.title;
         category = this.state.selectedData.category;
         if (this.state.selectedData !== null && this.myMetis != null) {
-          // code for extracting the g element from the svg
+          // // code for extracting the g element from the svg
+          // https://github.com/NorthwoodsSoftware/GoJS/blob/master/samples/tiger.html
           // if (this.state.selectedData.icon?.includes('<svg')) {
           //   const svgString = this.state.selectedData.icon;
           //   console.log('3012 svgString', svgString);
+          //   // const xmldoc = new DOMParser().parseFromString(svgString, 'text/xml');
           //   const svg = new DOMParser().parseFromString(svgString, 'image/svg+xml');
           //   // get g element
           //   const g = svg?.getElementsByTagName('g')[0];
           //   // get path elements
           //   const paths = g?.getElementsByTagName('path');
+
           //   console.log('3018 g', g, 'paths ', paths);
           //   // get all paths path data
           //   const pathData = [];
@@ -3042,8 +3045,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             <div className="modal-prop">
               <SelectionInspector 
                 myMetis       ={this.myMetis}
-                selectedData  ={selectedData}
-                // selectedData  ={this.state.selectedData}
+                // selectedData  ={selectedData}
+                selectedData  ={this.state.selectedData}
                 context       ={this.state.modalContext}
                 onInputChange ={this.handleInputChange}
                 activeTab     ={this.state.currentActiveTab}

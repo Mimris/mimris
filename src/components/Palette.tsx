@@ -67,21 +67,21 @@ const Palette = (props: any) => {
   let taskNodeDataArray: any[] = ndarr
 
   if (focusTask) {
-     taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
+     const taskNodeDataArray0 = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => 
       ndarr?.find((i: { typename: any; }) => {
         return (i?.typename === wot) && i 
       })
     )
-    if (debug) console.log('73 taskNodeDataArray', taskNodeDataArray)
+    taskNodeDataArray = taskNodeDataArray0?.filter((i: any) => (i)) // remove undefined
+    if (!debug) console.log('73 taskNodeDataArray', taskNodeDataArray)
   } 
 
   useEffect(() => {
     isRendered = true;
     if (isRendered) {
-    genRoleTasks(mmodel, dispatch)
-
-  }
-  return () => { isRendered = false; }
+    (mmodel) && genRoleTasks(mmodel, dispatch)
+    }
+    return () => { isRendered = false; }
   }, [])
 
   

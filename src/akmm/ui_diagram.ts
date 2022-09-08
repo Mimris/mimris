@@ -706,22 +706,26 @@ function askForMetamodel(context: any) {
     const myDiagram = context.myDiagram;
     const metaModels = [];
     const allMetaModels = myMetis.metamodels;
+    if (debug) console.log('709 allMetaModels', allMetaModels, myMetamodel);
     for (let i=0; i<allMetaModels.length; i++) {
         const metaModel = allMetaModels[i];
+        if (!metaModel)
+            continue;
         if (metaModel.markedAsDeleted)
             continue;
         if (metaModel.name === constants.admin.AKM_ADMIN_MM)
             continue;
-        if (metaModel.id === myMetamodel.id) {
+        if (myMetamodel && (metaModel.id === myMetamodel?.id)) {
             if (context.case !== 'New Model')
             continue;
         }
+
         switch (context.case) {
             case "Delete Metamodel":
             case "Clear Metamodel":
             case "Replace Metamodel":
             case "Generate Target Metamodel":
-                if (metaModel.id === myMetamodel.id)
+                if (metaModel.id === myMetamodel?.id)
                     continue;
                 break;
         }

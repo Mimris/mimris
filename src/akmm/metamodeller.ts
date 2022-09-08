@@ -594,7 +594,7 @@ export class cxMetis {
             objecttypes0.forEach(objtype0 => {
                 if (objtype0) {
                     let objtype = this.findObjectType(objtype0.id);
-                    metamodel.addObjectType0(objtype);
+                    if (objtype) metamodel.addObjectType0(objtype);
                 }
             });
         }

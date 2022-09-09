@@ -888,7 +888,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object Type",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              const icon = uit.findImage(node.icon);        s
+              const icon = uit.findImage(node.icon);
               const modalContext = {
                 what:       "editObjectType",
                 title:      "Edit Object Type",

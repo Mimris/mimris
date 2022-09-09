@@ -314,9 +314,11 @@ export function updateObject(data: any, name: string, value: string, context: an
         }
         currentObject.setName(value);
         currentObject.setModified();
-        currentObjectView.setName(value);
-        currentObjectView.setModified();
-        currentObject.addObjectView(currentObjectView);
+        if (currentObjectView) {
+            currentObjectView.setName(value);
+            currentObjectView.setModified();
+            currentObject.addObjectView(currentObjectView);
+        }
         return currentObject;
     }
 }

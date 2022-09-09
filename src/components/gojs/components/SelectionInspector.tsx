@@ -118,7 +118,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
           break;       
       }
     }
-    if (debug) console.log('121 this.props', this.props);
+    if (debug) console.log('121 selObj, this.props', selObj, this.props);
     // Set chosenType
     let typename = "";
     let includeInherited = false;
@@ -592,6 +592,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
               break;
             case 'template':
               if (selObj.isGroup) {
+                if(debug) console.log('595 selObj', selObj);
                 if (selObj.viewkind === 'Container') {
                   values = uit.getGroupTemplateNames();
                   defValue = '';

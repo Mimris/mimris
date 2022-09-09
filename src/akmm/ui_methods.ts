@@ -210,7 +210,7 @@ export function traverse(object: akm.cxObject, context: any) {
     let pre_action       = method["preaction"];
     let post_action      = method["postaction"];
 
-    if (!debug) console.log('211 objects, relships', objects, relships);
+    if (debug) console.log('211 objects, relships', objects, relships);
     if (conditionIsFulfilled(object, context)) {
         if (pre_action) {
             if (typeof(pre_action === 'string')) {
@@ -277,7 +277,7 @@ export function traverse(object: akm.cxObject, context: any) {
             if (!foundObj && toObj) {
                 objects.push(toObj);
             }           
-            if (!debug) console.log('282 toObj, objects, relships', toObj, objects, relships);
+            if (debug) console.log('282 toObj, objects, relships', toObj, objects, relships);
             // Recursive traverse       
             if (!foundObj && toObj) {
                 traverse(toObj, context);
@@ -546,12 +546,12 @@ export function executeMethod(context: any) {
         context.relships = [];
     if (objects?.length > 10)
         return;
-    if (!debug) console.log('501 context', context);
+    if (debug) console.log('501 context', context);
     traverse(object, context);                  
 }
 
 function execMethod(object: akm.cxObject, context: any) {
-    if (!debug) console.log("462: Calling execMethod '" + context.action + "': on " + object.name);
+    if (debug) console.log("462: Calling execMethod '" + context.action + "': on " + object.name);
     const myDiagram = context.myDiagram;
     const myMetis = context.myMetis;
     if (debug) console.log('465 myMetis', myMetis);

@@ -2567,15 +2567,15 @@ export function findImage(image: string) {
         return "";
     // if (image.substring(0,4) === 'http') { // its an URL
     if (image.includes('//')) { // its an URL   
-        if (!debug) console.log('2563 Diagram', image);
+        if (debug) console.log('2563 Diagram', image);
         return image
     } else if (image.includes('/')) { // its a local image
-        if (!debug) console.log('2566 Diagram', image);   
+        if (debug) console.log('2566 Diagram', image);   
         return image
     } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
         const firstcharacter = image.substring(0, 1)
         const secondcharacter = image.substring(1, 2)
-        if (!debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
+        if (debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
         // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
         //   const letter = image.substring(0, image.length - 4)
         //   // const lettersvg = letter
@@ -2591,7 +2591,7 @@ export function findImage(image: string) {
         return img
 
     } else { 
-        if (!debug) console.log('2586 Diagram', image);
+        if (debug) console.log('2586 Diagram', image);
         return "./../images/" + image //its an image in public/images
     }
     return "";

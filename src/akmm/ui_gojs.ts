@@ -908,7 +908,9 @@ export class goRelshipLink extends goLink {
             this.cardinalityTo = "";
         }
         if (!this.fromArrow && !this.toArrow)
-        this.toArrow = 'OpenTriangle';
+            this.toArrow = 'OpenTriangle';
+        if (this.toArrow && this.toArrow === 'None')
+            this.toArrow = '';
         if (debug) console.log('764 goRelshipLink, this: ', this);
     }
     

@@ -1447,7 +1447,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       )
       options = this.state.selectedData.map(o => o && {'label': o, 'value': o});
       comps = null
-      if (!debug) console.log('1138 options', options, this.state);
+      if (debug) console.log('1138 options', options, this.state);
       const { selectedOption } = this.state;
       if (debug) console.log('1139 selectedOption', selectedOption, this.state);
 

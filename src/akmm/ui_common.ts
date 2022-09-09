@@ -3069,7 +3069,7 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
         let found = false;
         for (let j=0; j<nodes.length; j++) {
             const node = nodes[j];
-            if (!debug) console.log('3073 node', node);
+            if (debug) console.log('3073 node', node);
         }
     }
 }

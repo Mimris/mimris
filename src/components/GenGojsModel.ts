@@ -677,226 +677,245 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       if (debug) console.log('590 No Admin Metamodel found!');
       return;
     }
-    let firstTime = false;
-    let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
-    let adminModelview;
-    if (!adminModel) {
-      firstTime = true;
-      adminModel = new akm.cxModel(utils.createGuid(), constants.admin.AKM_ADMIN_MODEL, adminMetamodel, "");
-      myMetis.addModel(adminModel);
-      // Add modelview
-      adminModelview = new akm.cxModelView(utils.createGuid(), '_ADMIN', adminModel, '');
-      adminModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
-      adminModel.addModelView(adminModelview);
-      myMetis.addModelView(adminModelview);
-    }
-    if (adminModel) {
-      adminModel.objects = null;
-      adminModel.relships = null;
-      adminModelview = adminModel.modelviews ? adminModel.modelviews[0] : null;
-      if (adminModelview) {
-        adminModelview.objectviews = null;
-        adminModelview.relshipviews = null;
+    // Correct some errors in the Admin Metamodel
+    let generatedTypeview;
+    {
+      const reltype = adminMetamodel.findRelationshipTypeByName(constants.admin.AKM_GENERATEDFROM_MODEL);
+      if (reltype) {
+        generatedTypeview = reltype.typeview;
+        if (generatedTypeview) {
+          generatedTypeview.toArrow = "";
+          generatedTypeview.strokecolor = "red";
+          generatedTypeview.fromArrow = "BackwardOpenTriangle";
+          generatedTypeview.toArrow = "None";
+        }
       }
-      
-      const projectType = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
-      const metamodelType = myMetis.findObjectTypeByName(constants.admin.AKM_METAMODEL);
-      const modelType = myMetis.findObjectTypeByName(constants.admin.AKM_MODEL);
-      const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
-      const hasMetamodelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_HAS_METAMODEL);
-      const hasModelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_HAS_MODEL);
-      const hasModelviewType = myMetis.findRelationshipTypeByName(constants.admin.AKM_HAS_MODELVIEW);
-      const refersToMetamodelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_REFERSTO_METAMODEL);
-      const generatedFromModelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_GENERATEDFROM_MODEL);
-      let projectview;
-      if (debug) console.log('598 adminModel', adminModel);
-      let project; 
-      if (!project) {
-        project = new akm.cxObject(utils.createGuid(), myMetis.name, projectType, myMetis.description);
-        project.metisId = myMetis.id;
-        adminModel.addObject(project);
-        myMetis.addObject(project);
-        projectview = new akm.cxObjectView(utils.createGuid(), project.name, project, '');
-        projectview.fillcolor = "lightgrey";
-        project.addObjectView(projectview);
-        adminModelview.addObjectView(projectview);
-        myMetis.addObjectView(projectview);
+      let firstTime = false;
+      let adminModel = myMetis.findModelByName(constants.admin.AKM_ADMIN_MODEL);
+      let adminModelview;
+      if (!adminModel) {
+        firstTime = true;
+        adminModel = new akm.cxModel(utils.createGuid(), constants.admin.AKM_ADMIN_MODEL, adminMetamodel, "");
+        myMetis.addModel(adminModel);
+        // Add modelview
+        adminModelview = new akm.cxModelView(utils.createGuid(), '_ADMIN', adminModel, '');
+        adminModelview.layout = 'LayeredDigraph'; // 'Grid', 'Circular', 'ForceDirected', 'LayeredDigraph', 'Tree'
+        adminModel.addModelView(adminModelview);
+        myMetis.addModelView(adminModelview);
       }
-      // Handle metamodels
-      const metamodels = myMetis.metamodels;
-      for (let i=0; i<metamodels.length; i++) {
-        const mm = metamodels[i];
-        if (mm) {
-          if (mm.name === constants.admin.AKM_ADMIN_MM)
-            continue;
-          let mmObj; 
-          if (!mmObj) { // Metamodel object
-            mmObj = new akm.cxObject(utils.createGuid(), mm.name, metamodelType, mm.description);
-            mmObj.metamodelId = mm.id;
-            adminModel.addObject(mmObj);
-            myMetis.addObject(mmObj);
-            // Add relship from Project to Metamodel
-            const mmRel = new akm.cxRelationship(utils.createGuid(),hasMetamodelType, project, mmObj, constants.admin.AKM_HAS_METAMODEL, '');
-            adminModel.addRelationship(mmRel);
-            myMetis.addRelationship(mmRel);
-            // Create objectview of metamodel object
-            const mmObjview = new akm.cxObjectView(utils.createGuid(), mmObj.name, mmObj, '');
-            mmObjview.fillcolor = "lightblue";
-            mmObj.addObjectView(mmObjview);
-            adminModelview.addObjectView(mmObjview);
-            myMetis.addObjectView(mmObjview);
-            // Create relshipview from Project to Metamodel
-            const mmRelview = new akm.cxRelationshipView(utils.createGuid(), mmRel.name, mmRel, '');
-            mmRelview.setFromObjectView(projectview);
-            mmRelview.setToObjectView(mmObjview);
-            mmRel.addRelationshipView(mmRelview);
-            adminModelview.addRelationshipView(mmRelview);
-            myMetis.addRelationshipView(mmRelview);
-            
-            // Handle models based on this metamodel
-            const models = myMetis.models;
-            if (debug) console.log('640 models', models);
-            for (let j=0; j<models.length; j++) {
-              const m = models[j];
-              if (m && m.metamodel?.id === mm.id) { 
-                let mObj; 
-                if (!mObj) { // Model object
-                  mObj = new akm.cxObject(utils.createGuid(), m.name, modelType, m.description);
-                  mObj.modelId = m.id;
-                  adminModel.addObject(mObj);
-                  myMetis.addObject(mObj);
+      if (adminModel) {
+        adminModel.objects = null;
+        adminModel.relships = null;
+        adminModelview = adminModel.modelviews ? adminModel.modelviews[0] : null;
+        if (adminModelview) {
+          adminModelview.objectviews = null;
+          adminModelview.relshipviews = null;
+        }
+        
+        const projectType = myMetis.findObjectTypeByName(constants.admin.AKM_PROJECT);
+        const metamodelType = myMetis.findObjectTypeByName(constants.admin.AKM_METAMODEL);
+        const modelType = myMetis.findObjectTypeByName(constants.admin.AKM_MODEL);
+        const modelviewType = myMetis.findObjectTypeByName(constants.admin.AKM_MODELVIEW);
+        const hasMetamodelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_HAS_METAMODEL);
+        const hasModelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_HAS_MODEL);
+        const hasModelviewType = myMetis.findRelationshipTypeByName(constants.admin.AKM_HAS_MODELVIEW);
+        const refersToMetamodelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_REFERSTO_METAMODEL);
+        const generatedFromModelType = myMetis.findRelationshipTypeByName(constants.admin.AKM_GENERATEDFROM_MODEL);
+        let projectview;
+        if (debug) console.log('598 adminModel', adminModel);
+        let project; 
+        if (!project) {
+          project = new akm.cxObject(utils.createGuid(), myMetis.name, projectType, myMetis.description);
+          project.metisId = myMetis.id;
+          adminModel.addObject(project);
+          myMetis.addObject(project);
+          projectview = new akm.cxObjectView(utils.createGuid(), project.name, project, '');
+          projectview.fillcolor = "lightgrey";
+          project.addObjectView(projectview);
+          adminModelview.addObjectView(projectview);
+          myMetis.addObjectView(projectview);
+        }
+        // Handle metamodels
+        const metamodels = myMetis.metamodels;
+        for (let i=0; i<metamodels.length; i++) {
+          const mm = metamodels[i];
+          if (mm) {
+            if (mm.name === constants.admin.AKM_ADMIN_MM)
+              continue;
+            let mmObj; 
+            if (!mmObj) { // Metamodel object
+              mmObj = new akm.cxObject(utils.createGuid(), mm.name, metamodelType, mm.description);
+              mmObj.metamodelId = mm.id;
+              adminModel.addObject(mmObj);
+              myMetis.addObject(mmObj);
+              // Add relship from Project to Metamodel
+              const mmRel = new akm.cxRelationship(utils.createGuid(),hasMetamodelType, project, mmObj, constants.admin.AKM_HAS_METAMODEL, '');
+              adminModel.addRelationship(mmRel);
+              myMetis.addRelationship(mmRel);
+              // Create objectview of metamodel object
+              const mmObjview = new akm.cxObjectView(utils.createGuid(), mmObj.name, mmObj, '');
+              mmObjview.fillcolor = "lightblue";
+              mmObj.addObjectView(mmObjview);
+              adminModelview.addObjectView(mmObjview);
+              myMetis.addObjectView(mmObjview);
+              // Create relshipview from Project to Metamodel
+              const mmRelview = new akm.cxRelationshipView(utils.createGuid(), mmRel.name, mmRel, '');
+              mmRelview.setFromObjectView(projectview);
+              mmRelview.setToObjectView(mmObjview);
+              mmRel.addRelationshipView(mmRelview);
+              adminModelview.addRelationshipView(mmRelview);
+              myMetis.addRelationshipView(mmRelview);
+              
+              // Handle models based on this metamodel
+              const models = myMetis.models;
+              if (debug) console.log('640 models', models);
+              for (let j=0; j<models.length; j++) {
+                const m = models[j];
+                if (m && m.metamodel?.id === mm.id) { 
+                  let mObj; 
+                  if (!mObj) { // Model object
+                    mObj = new akm.cxObject(utils.createGuid(), m.name, modelType, m.description);
+                    mObj.modelId = m.id;
+                    adminModel.addObject(mObj);
+                    myMetis.addObject(mObj);
 
-                  if (debug) console.log('654 mObj', mObj);
-                  
-                  // Create objectview
-                  const mObjview = new akm.cxObjectView(utils.createGuid(), mObj.name, mObj, '');
-                  mObjview.fillcolor = "lightgreen";
-                  mObj.addObjectView(mObjview);
-                  adminModelview.addObjectView(mObjview);
-                  myMetis.addObjectView(mObjview);
+                    if (debug) console.log('654 mObj', mObj);
+                    
+                    // Create objectview
+                    const mObjview = new akm.cxObjectView(utils.createGuid(), mObj.name, mObj, '');
+                    mObjview.fillcolor = "lightgreen";
+                    mObj.addObjectView(mObjview);
+                    adminModelview.addObjectView(mObjview);
+                    myMetis.addObjectView(mObjview);
 
-                  // Refer to metamodel
-                  let mMeta = m.metamodel;
-                  let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta.name);
-                  if (mmRef) {
-                    const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, constants.admin.AKM_REFERSTO_METAMODEL, '');
-                    adminModel.addRelationship(relToMM);
-                    myMetis.addRelationship(relToMM);
+                    // Refer to metamodel
+                    let mMeta = m.metamodel;
+                    let mmRef = adminModel.findObjectByTypeAndName(metamodelType, mMeta.name);
+                    if (mmRef) {
+                      const relToMM = new akm.cxRelationship(utils.createGuid(), refersToMetamodelType, mObj, mmObj, constants.admin.AKM_REFERSTO_METAMODEL, '');
+                      adminModel.addRelationship(relToMM);
+                      myMetis.addRelationship(relToMM);
 
-                    // Create relshipview from Model to Metamodel
-                    const rvToMMv = new akm.cxRelationshipView(utils.createGuid(), relToMM.name, relToMM, '');
-                    rvToMMv.setFromObjectView(mObjview);
-                    rvToMMv.setToObjectView(mmObjview);
-                    relToMM.addRelationshipView(rvToMMv);
-                    rvToMMv.strokecolor = 'blue';
-                    adminModelview.addRelationshipView(rvToMMv);
-                    myMetis.addRelationshipView(rvToMMv);
+                      // Create relshipview from Model to Metamodel
+                      const rvToMMv = new akm.cxRelationshipView(utils.createGuid(), relToMM.name, relToMM, '');
+                      rvToMMv.setFromObjectView(mObjview);
+                      rvToMMv.setToObjectView(mmObjview);
+                      relToMM.addRelationshipView(rvToMMv);
+                      rvToMMv.strokecolor = 'blue';
+                      adminModelview.addRelationshipView(rvToMMv);
+                      myMetis.addRelationshipView(rvToMMv);
 
-                  }
+                    }
 
-                  // Add relship from Project object to Model object
-                  const mRelPtoM = new akm.cxRelationship(utils.createGuid(),hasModelType, project, mObj, constants.admin.AKM_HAS_MODEL, '');
-                  adminModel.addRelationship(mRelPtoM);
-                  myMetis.addRelationship(mRelPtoM);
+                    // Add relship from Project object to Model object
+                    const mRelPtoM = new akm.cxRelationship(utils.createGuid(),hasModelType, project, mObj, constants.admin.AKM_HAS_MODEL, '');
+                    adminModel.addRelationship(mRelPtoM);
+                    myMetis.addRelationship(mRelPtoM);
 
-                  // Create relshipview from Project view to Model view
-                  const mRvPtoM = new akm.cxRelationshipView(utils.createGuid(), mRelPtoM.name, mRelPtoM, '');
-                  mRvPtoM.setFromObjectView(projectview);
-                  mRvPtoM.setToObjectView(mObjview);
-                  mRelPtoM.addRelationshipView(mRvPtoM);
-                  adminModelview.addRelationshipView(mRvPtoM);
-                  myMetis.addRelationshipView(mRvPtoM);
+                    // Create relshipview from Project view to Model view
+                    const mRvPtoM = new akm.cxRelationshipView(utils.createGuid(), mRelPtoM.name, mRelPtoM, '');
+                    mRvPtoM.setFromObjectView(projectview);
+                    mRvPtoM.setToObjectView(mObjview);
+                    mRelPtoM.addRelationshipView(mRvPtoM);
+                    adminModelview.addRelationshipView(mRvPtoM);
+                    myMetis.addRelationshipView(mRvPtoM);
 
-                  // Handle modelviews
-                  const modelviews = m.modelviews;
-                  for (let k=0; k<modelviews?.length; k++) {
-                    const mv = modelviews[k];
-                    if (mv) {
-                      let mvObj; 
-                      if (!mvObj) {
-                        mvObj = new akm.cxObject(utils.createGuid(), mv.name, modelviewType, mv.description);
-                        mvObj.modelviewId = mv.id;
-                        adminModel.addObject(mvObj);
-                        myMetis.addObject(mvObj);
+                    // Handle modelviews
+                    const modelviews = m.modelviews;
+                    for (let k=0; k<modelviews?.length; k++) {
+                      const mv = modelviews[k];
+                      if (mv) {
+                        let mvObj; 
+                        if (!mvObj) {
+                          mvObj = new akm.cxObject(utils.createGuid(), mv.name, modelviewType, mv.description);
+                          mvObj.modelviewId = mv.id;
+                          adminModel.addObject(mvObj);
+                          myMetis.addObject(mvObj);
 
-                        // Create objectview of Modelview object
-                        const mvObjview = new akm.cxObjectView(utils.createGuid(), mvObj.name, mvObj, '');
-                        mvObjview.fillcolor = "pink";
-                        mvObj.addObjectView(mvObjview);
-                        adminModelview.addObjectView(mvObjview);
-                        myMetis.addObjectView(mvObjview);
+                          // Create objectview of Modelview object
+                          const mvObjview = new akm.cxObjectView(utils.createGuid(), mvObj.name, mvObj, '');
+                          mvObjview.fillcolor = "pink";
+                          mvObj.addObjectView(mvObjview);
+                          adminModelview.addObjectView(mvObjview);
+                          myMetis.addObjectView(mvObjview);
 
-                        // Add relship from Model object to Modelview object
-                        const mvRel = new akm.cxRelationship(utils.createGuid(), hasModelviewType, mObj, mvObj, constants.admin.AKM_HAS_MODELVIEW, '');
-                        mvRel.setFromObject(mObj);
-                        mvRel.setToObject(mvObj);
-                        adminModel.addRelationship(mvRel);
-                        myMetis.addRelationship(mvRel);
+                          // Add relship from Model object to Modelview object
+                          const mvRel = new akm.cxRelationship(utils.createGuid(), hasModelviewType, mObj, mvObj, constants.admin.AKM_HAS_MODELVIEW, '');
+                          mvRel.setFromObject(mObj);
+                          mvRel.setToObject(mvObj);
+                          adminModel.addRelationship(mvRel);
+                          myMetis.addRelationship(mvRel);
 
-                        // Create relshipview from Model view to Modelview view
-                        const mvRelview = new akm.cxRelationshipView(utils.createGuid(), mvRel.name, mvRel, '');
-                        mvRelview.setFromObjectView(mObjview);
-                        mvRelview.setToObjectView(mvObjview);
-                        mvRel.addRelationshipView(mvRelview);
-                        adminModelview.addRelationshipView(mvRelview);
-                        myMetis.addRelationshipView(mvRelview);
-            
+                          // Create relshipview from Model view to Modelview view
+                          const mvRelview = new akm.cxRelationshipView(utils.createGuid(), mvRel.name, mvRel, '');
+                          mvRelview.setFromObjectView(mObjview);
+                          mvRelview.setToObjectView(mvObjview);
+                          mvRel.addRelationshipView(mvRelview);
+                          adminModelview.addRelationshipView(mvRelview);
+                          myMetis.addRelationshipView(mvRelview);
+              
+                        }
                       }
                     }
                   }
                 }
+              }          
+            }
+          }  
+        }
+        // Handle metamodels generated from models
+        for (let i=0; i<metamodels.length; i++) {
+          const mmodel = metamodels[i];
+          if (mmodel.generatedFromModelRef) {
+            const modelRef = mmodel.generatedFromModelRef;
+            const model = myMetis.findModel(modelRef);
+            if (model) {
+              // Find metamodelObj
+              const mmObj = adminModel.findObjectByTypeAndName(metamodelType, mmodel.name);
+              // Find modelObj
+              const mObj = adminModel.findObjectByTypeAndName(modelType, model.name);
+              // Add relship from Metamodel object to Model object
+              const genRel = new akm.cxRelationship(utils.createGuid(), generatedFromModelType, mmObj, mObj, constants.admin.AKM_GENERATEDFROM_MODEL, '');
+              genRel.setFromObject(mmObj);
+              genRel.setToObject(mObj);
+              adminModel.addRelationship(genRel);
+              myMetis.addRelationship(genRel);
+              // Create relshipview from Metamodel view to Model view
+              const genRelview = new akm.cxRelationshipView(utils.createGuid(), genRel.name, genRel, '');
+              genRelview.typeview = generatedTypeview;
+              if (debug) console.log('886 genRelview', genRelview);
+              // Find mmObj->objectview
+              if (mmObj && mObj && genRel && genRelview) {
+                const mmObjview = mmObj.objectviews[0];
+                const mObjview = mObj.objectviews[0];
+                genRelview.setFromObjectView(mmObjview);
+                genRelview.setToObjectView(mObjview);
+                genRelview.strokecolor = 'red';
+                genRelview.toArrow = "None";
+                genRelview.toArrowColor = "black";
+                genRelview.fromArrow = "BackwardOpenTriangle";
+                genRel.addRelationshipView(genRelview);
+                adminModelview.addRelationshipView(genRelview);
+                if (debug) console.log('899 adminModelview', adminModelview);
+                myMetis.addRelationshipView(genRelview);
               }
-            }          
-          }
-        }  
-      }
-      // Handle metamodels generated from models
-      for (let i=0; i<metamodels.length; i++) {
-        const mmodel = metamodels[i];
-        if (mmodel.generatedFromModelRef) {
-          const modelRef = mmodel.generatedFromModelRef;
-          const model = myMetis.findModel(modelRef);
-          if (model) {
-            // Find metamodelObj
-            const mmObj = adminModel.findObjectByTypeAndName(metamodelType, mmodel.name);
-            // Find modelObj
-            const mObj = adminModel.findObjectByTypeAndName(modelType, model.name);
-            // Add relship from Metamodel object to Model object
-            const genRel = new akm.cxRelationship(utils.createGuid(), generatedFromModelType, mmObj, mObj, constants.admin.AKM_GENERATEDFROM_MODEL, '');
-            genRel.setFromObject(mmObj);
-            genRel.setToObject(mObj);
-            adminModel.addRelationship(genRel);
-            myMetis.addRelationship(genRel);
-            // Create relshipview from Metamodel view to Model view
-            const genRelview = new akm.cxRelationshipView(utils.createGuid(), genRel.name, genRel, '');
-            // Find mmObj->objectview
-            if (mmObj && mObj && genRel && genRelview) {
-              const mmObjview = mmObj.objectviews[0];
-              const mObjview = mObj.objectviews[0];
-              genRelview.setFromObjectView(mmObjview);
-              genRelview.setToObjectView(mObjview);
-              genRelview.strokecolor = 'red';
-              genRel.addRelationshipView(genRelview);
-              adminModelview.addRelationshipView(genRelview);
-              myMetis.addRelationshipView(genRelview);
             }
           }
         }
       }
+      if (firstTime) {
+        // Do a dispatch 
+        const jsnModel = new jsn.jsnModel(adminModel, true);
+        const modifiedModels = []
+        modifiedModels.push(jsnModel);
+        modifiedModels.map(mn => {
+            let data = mn;
+            data = JSON.parse(JSON.stringify(data));
+            dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
+        });
+      }
+      return adminModel;
     }
-    if (firstTime) {
-      // Do a dispatch 
-      const jsnModel = new jsn.jsnModel(adminModel, true);
-      const modifiedModels = []
-      modifiedModels.push(jsnModel);
-      modifiedModels.map(mn => {
-          let data = mn;
-          data = JSON.parse(JSON.stringify(data));
-          dispatch({ type: 'LOAD_TOSTORE_NEWMODEL', data });
-      });
-    }
-    return adminModel;
   }
 }
-
 export default GenGojsModel;

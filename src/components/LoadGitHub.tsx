@@ -130,7 +130,7 @@ const LoadGitHub = (props: any) => {
 
     const content = res2.data.content
 
-    if (!debug) console.log('113 res', res2, res2.data)
+    if (debug) console.log('113 res', res2, res2.data)
 
     if (debug) console.log('115 ', searchtext, res)
     if (debug) console.log('116 ', base64.decode(content))
@@ -139,7 +139,7 @@ const LoadGitHub = (props: any) => {
     if (debug) console.log('119 ', model)
     setModel(model);
     setLoading(false);
-    if (!debug) console.log('90 onModelChange', model, props) 
+    if (debug) console.log('90 onModelChange', model, props) 
     if (model) {
       if (filename.includes('_MM.json')) { // it is a Metamodel and will be loaded into current project
         let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === model?.id) // current model index

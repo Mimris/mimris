@@ -4844,6 +4844,19 @@ export class cxObjectType extends cxType {
         }
         this.outputreltypes = reltypes;
     }
+    getOutputReltypes(kind: string): cxRelationshipType[] | null {
+        if (!this.outputreltypes)
+            return null;
+        const reltypes = new Array();
+        const len = this.outputreltypes.length;
+        for (let i=0; i<len; i++) {
+            const rtype = this.outputreltypes[i];
+            if (rtype.relshipkind === kind) {
+                reltypes.push(rtype);
+            }
+        }
+        return reltypes;
+    }
     getLoc(metamodel: cxMetaModel): string {
         if (metamodel?.objtypegeos) {
             let geos = metamodel.objtypegeos;

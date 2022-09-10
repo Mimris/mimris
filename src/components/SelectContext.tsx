@@ -9,15 +9,15 @@ import { FaJoint } from 'react-icons/fa';
 const debug = false;
 
 const SelectContext = (props: any) => {
-  console.log('12 ', props);
+  if (debug) console.log('12 ', props);
   const dispatch = useDispatch()
   let state = useSelector((state:any) => state) // Selecting the whole redux store
   // set timeout to allow for redux store to be updated
   // setTimeout(() => {
-  //   console.log('17 SelectContext', state);
+  //   if (debug) console.log('17 SelectContext', state);
   // }, 1000);
   
-  if (!debug) console.log('15 state', state);
+  if (debug) console.log('15 state', state);
   // if no state then exit
   if (!state.phData?.metis?.models) return null
   const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
@@ -27,7 +27,7 @@ const SelectContext = (props: any) => {
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
   
   // const [model, setModel] = useState(focusModel)
-  console.log('23 focusModel', focusModel, models);
+  if (debug) console.log('23 focusModel', focusModel, models);
   
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)
@@ -36,7 +36,7 @@ const SelectContext = (props: any) => {
   
   // find object with type
   const objectviews = modelviews?.find(mv => mv.id === focusModelview?.id)?.objectviews || []
-  // console.log('25 Sel', curmodel, modelviews, objects, objectviews);
+  // if (debug) console.log('25 Sel', curmodel, modelviews, objects, objectviews);
   
   // remove duplicate objects
   const uniqueovs = objectviews?.filter((ov, index, self) =>
@@ -50,9 +50,9 @@ const SelectContext = (props: any) => {
   const type = (metamodels, model, objects, curov) => {                                                                                                                                                                                          
     const mmod = metamodels?.find(mm => (mm) && mm.id === model.metamodelRef)
     const o = objects.find(o => o.id === curov.objectRef)
-    // console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
+    // if (debug) console.log('37 SelectContext :', curov.objectRef, objects, o, mmod.objecttypes.find(ot => ot.id === o?.typeRef === ot.id));
     const type = mmod?.objecttypes?.find(ot => ot.name && o?.typeRef === ot.id)?.name
-    // console.log('43 SelectContext', mmod.objecttypes.name, o, type);
+    // if (debug) console.log('43 SelectContext', mmod.objecttypes.name, o, type);
     return type
   }
 
@@ -68,7 +68,7 @@ const SelectContext = (props: any) => {
   // const emailDivMailto = <a href={hrefEmail} target="_blank">Email: Send Context (using your Email)</a>
   // const emailDiv = <a href="mailto:${emailAddress}?subject=${subject}&body=${body}">Send mail with Link to  context</a>
   //https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&to=target@email.com&subject=MISSED%20CALL%20EZTRADER&body=Hello%2C%0A%0AI%20tried%20contacting%20you%20today%20but%20you%20seem%20to%20have%20missed%20my%20call.%20%0A%0APlease%20return%20my%20call%20as%20soon%20as%20you%E2%80%99re%20available.%20%0A%0AIn%20any%20case%2C%20I%20will%20try%20ringing%20you%20at%20a%20later%20time.%0A%0A%0ATy%2C%0A%0A%0A%0A
-  // console.log('51 SelectContext', emailDivMailto);
+  // if (debug) console.log('51 SelectContext', emailDivMailto);
   // }
   // const buttonSaveModelStoreDiv = <button className="btn-primary btn-sm ml-2 float-right" onClick={handleSendContextAsEmail} > Save to Server</button >
 
@@ -87,30 +87,30 @@ const SelectContext = (props: any) => {
   const handlePhDataChange = (event:any) => {
     // const id = JSON.parse(event.value).id
     // const name = JSON.parse(event.value).name
-    // console.log('25 selcon', id, name);
+    // if (debug) console.log('25 selcon', id, name);
     const phData = JSON.parse(event.value)
     const data = phData
-    // console.log('38 sel', data);
+    // if (debug) console.log('38 sel', data);
     (data) && dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
   }
   const handleSessionChange = (event:any) => {
     const id = JSON.parse(event.value).id
     const name = JSON.parse(event.value).name
-    // console.log('25 selcon', id, name);
+    // if (debug) console.log('25 selcon', id, name);
     
     const focusSession = {id: id, name: name}
     const data = focusSession
-    // console.log('38 sel', data);
+    // if (debug) console.log('38 sel', data);
     (data) && dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
   }
 
   useEffect(() => {
     const fU = async () => await focusUser;
     testsession = fU().session;
-    // console.log('69', focusUser, testsession);
+    // if (debug) console.log('69', focusUser, testsession);
     try {
       usession =  (testsession) && JSON.parse(testsession);
-      // console.log('71', usession);
+      // if (debug) console.log('71', usession);
     } catch (error) {
       {console.error('parserror');}
     }
@@ -124,7 +124,7 @@ const SelectContext = (props: any) => {
     const phFocus = {phFocus: session}
     function handleSetSession() {
       const data = phFocus.phFocus
-      // console.log('87', data);
+      // if (debug) console.log('87', data);
       dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
       dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', sourceFlag })  
     }
@@ -133,7 +133,7 @@ const SelectContext = (props: any) => {
   // */
   // const optionModel = models && [<option key={991011} value='Select Model ...' disabled > Select Model ...</option>, ...models.map((m: any) => <option key={m.id} value={JSON.stringify(m)} > {m.name} </option>)]
   // const model = models?.find((m: any) => m?.id === focusModel?.id)
-  // // console.log('79', modelviews);
+  // // if (debug) console.log('79', modelviews);
 
   // // const modelviews = (model) && model.modelviews.map((o: any) => o)
   // const optionModelviews = modelviews && [<option key={991012} value='Select Modelview ...'  > Select Modelview ...</option>, ...modelviews.map((m: any) => <option key={m.id} value={JSON.stringify(m)}  > {m.name} </option>)]
@@ -284,11 +284,11 @@ export default SelectContext
 
 
 // // const genGojsModel =  async () => {
-// console.log('44', focusModel);
+// if (debug) console.log('44', focusModel);
 
 // const curmod = models.find((m: any) => m.id === focusModel.id)
 // // const curmodview= curmod.modelviews.find((mv:any) => mv.id === focusModelview.id)
-// console.log('47 sel', curmod, focusModelview.id);
+// if (debug) console.log('47 sel', curmod, focusModelview.id);
 // const nodedataarray = await(curmod.objects) && curmod.objects.map((mv: any, index: any) =>
 //   // const nodedataarray = await (curmodview.objectviews) && curmodview.objectviews.map((mv:any, index:any) => 
 //   ({ key: index, text: mv.name, color: 'orange', loc: `${index} ${-index * 38}` }
@@ -298,6 +298,6 @@ export default SelectContext
 //   nodeDataArray: nodedataarray,
 //   linkDataArray: []
 // }
-// console.log('49', gojsModel);
+// if (debug) console.log('49', gojsModel);
 // dispatch({ type: 'SET_GOJS_MODEL', gojsModel })
 //   // }

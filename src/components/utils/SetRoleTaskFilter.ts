@@ -7,8 +7,8 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
     // const dispatch = dispatch
     // const mmodel = mmodel?.mmodel;
 
-    if (!debug) console.log("7 genRoleTasks",  mmodel);
-    if (!debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
+    if (debug) console.log("7 genRoleTasks",  mmodel);
+    if (debug) console.log("11 genRoleTasks", mmodel.objecttypes0, mmodel.objecttypes);
     if (mmodel?.objecttypes0) {
         const  oTypes0 = mmodel?.objecttypes0?.map((ot: { id: any; name: any; description: any; icon: any; color: any; type: any; }) => {
         return {id: ot.id, name: ot.name, description: ot.description, icon: ot.icon, color: ot.color, type: ot.type}
@@ -18,7 +18,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
             return {id: ot.id, name: ot.name, description: ot.description, icon: ot.icon, color: ot.color, type: ot.type}
         }
         )
-        // if (!debug) console.log("21  oTyp", oTypes, oTypes0);
+        // if (debug) console.log("21  oTyp", oTypes, oTypes0);
         // console.log('22 ', JSON.stringify(oTypes.map( t => {return t.name})))
 
         const datarole = (oTypes0) && {
@@ -166,7 +166,7 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                 }
             }
 
-        if (!debug) console.log("105 genDataTasks", datatask);
+        if (debug) console.log("105 genDataTasks", datatask);
         dispatch({ type: 'SET_FOCUS_TASK', data: datatask.focusTask })
     }
  }

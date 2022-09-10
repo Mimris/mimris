@@ -1379,13 +1379,28 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }            
     }
-    myMetis.currentTargetMetamodel = metamodel;
-    myMetis.currentTargetModel = model;
-    if (debug) console.log('1385 metamodel', metamodel);
-    if (debug) console.log('1387 metamodel', metamodel);
+    { // Try to remove duplicate relationship types
+        myMetis.currentTargetMetamodel = metamodel;
+        myMetis.currentTargetModel = model;
+        const rels = metamodel.relshiptypes;
+        for (let j=0; j<rels?.length; j++) {
+            const rel = rels[j];
+            for (let k=j+1; k<rels?.length; k++) {
+                const rel2 = rels[k];
+                if (rel.fromObjtype?.id === rel2.fromObjtype?.id 
+                    && rel.toObjtype?.id === rel2.toObjtype?.id
+                    && rel.name === rel2.name) {
+                    if (debug) console.log('Removing duplicate relship type', rel, rel2);
+                    rels.splice(k, 1);
+                    k--;
+                }
+            }
+        }
+    }
+    if (debug) console.log('1399 metamodel', metamodel);
     // Dispatch metis
     const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-    if (debug) console.log('1388 jsnMetis: ', jsnMetis);
+    if (debug) console.log('1402 jsnMetis: ', jsnMetis);
     let data = {metis: jsnMetis}
     data = JSON.parse(JSON.stringify(data));
     myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })

@@ -494,12 +494,6 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               if (debug) console.log('484 myMetis', myMetis);
               const currentModel = myMetis.currentModel;
               myMetis.pasteViewsOnly = true;
-              let data = myMetis;
-              data = JSON.parse(JSON.stringify(data));
-              e.diagram.dispatch ({ type: 'SET_MYMETIS_MODEL', data });
-              data = myDiagram.myGoModel;
-              data = JSON.parse(JSON.stringify(data));
-              e.diagram.dispatch({ type: 'SET_MY_GOMODEL', data });
               const point = e.diagram.toolManager.contextMenuTool.mouseDownPoint;
               e.diagram.commandHandler.pasteSelection(point);
               if (debug) console.log('560 Paste View', myMetis);
@@ -888,7 +882,7 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Edit Object Type",
             function (e: any, obj: any) { 
               const node = obj.part.data;
-              const icon = uit.findImage(node.icon);        s
+              const icon = uit.findImage(node.icon);
               const modalContext = {
                 what:       "editObjectType",
                 title:      "Edit Object Type",

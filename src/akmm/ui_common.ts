@@ -314,9 +314,11 @@ export function updateObject(data: any, name: string, value: string, context: an
         }
         currentObject.setName(value);
         currentObject.setModified();
-        currentObjectView.setName(value);
-        currentObjectView.setModified();
-        currentObject.addObjectView(currentObjectView);
+        if (currentObjectView) {
+            currentObjectView.setName(value);
+            currentObjectView.setModified();
+            currentObject.addObjectView(currentObjectView);
+        }
         return currentObject;
     }
 }
@@ -2469,6 +2471,24 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             i--;
         }
         msg += "A corrupt metamodel has been removed\n";
+    }
+    // Check for duplicate relship types in the metamodels
+    for (let i=0; i<metamodels?.length; i++) {
+        const mm = metamodels[i];
+        const rels = mm.relshiptypes;
+        for (let j=0; j<rels?.length; j++) {
+            const rel = rels[j];
+            for (let k=j+1; k<rels?.length; k++) {
+                const rel2 = rels[k];
+                if (rel.fromObjtype?.id === rel2.fromObjtype?.id 
+                    && rel.toObjtype?.id === rel2.toObjtype?.id
+                    && rel.name === rel2.name) {
+                    if (debug) console.log('Removing duplicate relship type', rel, rel2);
+                    rels.splice(k, 1);
+                    k--;
+                }
+            }
+        }
     }
     if (debug) console.log('2437 metamodels', metamodels);
     // Check if the referenced type exists - otherwse find a type that corresponds

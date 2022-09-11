@@ -594,6 +594,9 @@ export class cxMetis {
             objecttypes0.forEach(objtype0 => {
                 if (objtype0) {
                     let objtype = this.findObjectType(objtype0.id);
+                    if (!objtype) {
+                        this.addObjectType(objtype0);
+                    }
                     metamodel.addObjectType0(objtype);
                 }
             });
@@ -3505,7 +3508,7 @@ export class cxMetaModel extends cxMetaObject {
     }
     addObjectType0(objType: cxObjectType) {
         // Check if input is of correct category and not already in list (TBD)
-        if (objType.category === constants.gojs.C_OBJECTTYPE) {
+        if (objType && objType.category === constants.gojs.C_OBJECTTYPE) {
             if (this.objecttypes0 == null)
                 this.objecttypes0 = new Array();
             if (!this.findObjectType0(objType.id))
@@ -4840,6 +4843,19 @@ export class cxObjectType extends cxType {
             }
         }
         this.outputreltypes = reltypes;
+    }
+    getOutputReltypes(kind: string): cxRelationshipType[] | null {
+        if (!this.outputreltypes)
+            return null;
+        const reltypes = new Array();
+        const len = this.outputreltypes.length;
+        for (let i=0; i<len; i++) {
+            const rtype = this.outputreltypes[i];
+            if (rtype.relshipkind === kind) {
+                reltypes.push(rtype);
+            }
+        }
+        return reltypes;
     }
     getLoc(metamodel: cxMetaModel): string {
         if (metamodel?.objtypegeos) {

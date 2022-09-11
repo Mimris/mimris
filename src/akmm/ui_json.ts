@@ -249,7 +249,8 @@ export class jsnMetaModel {
                 this.addMethod(mtd);
             }
         }
-
+        this.updateMethods(metamodel);
+        //
         // let units = metamodel.getUnits();
         // if (units) {
         //     let cnt = units.length;
@@ -366,8 +367,8 @@ export class jsnMetaModel {
         if (utils.objExists(mtd) &&
             !mtd.isDeleted()
         ) {
-            const gMtd = new jsnMethod(mtd);
-            this.methods.push(gMtd);
+            const jMtd = new jsnMethod(mtd);
+            this.methods.push(jMtd);
         }
     }
     addUnit(unit: akm.cxUnit) {
@@ -684,6 +685,7 @@ export class jsnObjectTypeView {
     fillcolor:       string;
     strokecolor:     string;
     strokecolor1:    string;
+    strokecolor2:    string;
     strokewidth:     string;
     textcolor:       string;
     textscale:       string;
@@ -696,8 +698,6 @@ export class jsnObjectTypeView {
         this.name            = objtypeview.name;
         this.description     = "";
         this.typeRef         = objtypeview.typeRef;
-        this.isGroup         = objtypeview.getIsGroup();
-        this.group           = objtypeview.getGroup();
         this.viewkind        = objtypeview.getViewKind();
         this.template        = objtypeview.getTemplate();
         this.figure          = objtypeview.getFigure();
@@ -705,6 +705,7 @@ export class jsnObjectTypeView {
         this.fillcolor       = objtypeview.getFillcolor();
         this.strokecolor     = objtypeview.getStrokecolor();
         this.strokecolor1    = this.strokecolor;
+        this.strokecolor2    = objtypeview.getStrokecolor2();
         this.strokewidth     = objtypeview.getStrokewidth();
         this.textcolor       = objtypeview.getTextcolor();
         this.textscale       = objtypeview.getTextscale();
@@ -1385,7 +1386,9 @@ export class jsnObjectView {
     figure:          string;
     geometry:        string;
     fillcolor:       string;
+    fillcolor2:      string;
     strokecolor:     string;
+    strokecolor2:    string;
     strokewidth:     string;
     textcolor:       string;
     textscale:       string;
@@ -1405,7 +1408,9 @@ export class jsnObjectView {
         this.figure          = objview?.figure;
         this.geometry        = objview?.geometry;
         this.fillcolor       = objview?.fillcolor;
+        this.fillcolor2      = objview?.fillcolor2;
         this.strokecolor     = objview?.strokecolor;
+        this.strokecolor2    = objview?.strokecolor2;
         this.strokewidth     = objview?.strokewidth;
         this.textcolor       = objview?.textcolor;
         this.textscale       = objview?.textscale;
@@ -1681,7 +1686,9 @@ export class jsnImportMetis {
         objtypeview.setFigure(item.figure);
         objtypeview.setGeometry(item.geometry);
         objtypeview.setFillcolor(item.fillcolor);
+        objtypeview.setFillcolor2(item.fillcolor2);
         objtypeview.setStrokecolor(item.strokecolor);
+        objtypeview.setStrokecolor2(item.strokecolor2);
         objtypeview.setStrokewidth(item.strokewidth);
         objtypeview.setIcon(item.icon);
         jsnMetis.addObjectTypeView(objtypeview);

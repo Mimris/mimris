@@ -314,9 +314,11 @@ export function updateObject(data: any, name: string, value: string, context: an
         }
         currentObject.setName(value);
         currentObject.setModified();
-        currentObjectView.setName(value);
-        currentObjectView.setModified();
-        currentObject.addObjectView(currentObjectView);
+        if (currentObjectView) {
+            currentObjectView.setName(value);
+            currentObjectView.setModified();
+            currentObject.addObjectView(currentObjectView);
+        }
         return currentObject;
     }
 }
@@ -1327,20 +1329,21 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
     let relshipview: akm.cxRelationshipView;
     data.relshiptype = reltype;
     const reltypeview = reltype.typeview;
+    reltypeview.setFromArrow2(reltype.relshipkind);
+    reltypeview.setToArrow2(reltype.relshipkind);
     if (debug) console.log('1198 args, data, reltypeview', args, data, reltypeview);
     relshipview = createLink(data, context); 
     if (debug) console.log('1200 data, relshipview', data, relshipview);
     if (relshipview) {
         relshipview.setTypeView(reltypeview);
         const relship = relshipview.relship; 
+        relship.relshipkind = reltype.relshipkind;
+        relshipview.setFromArrow2(rel?.relshipkind);
+        relshipview.setToArrow2(rel?.relshipkind);
+        relshipview = updateRelationshipView(relshipview);
         relship.addRelationshipView(relshipview);
-        for (let prop in  reltypeview?.data) {
-            relshipview[prop] = reltypeview[prop];
-        }        
-        // updateLink(data, relshipview.typeview, myDiagram, myGoModel);
         if (debug) console.log('1337 data', data);
         myDiagram.model.setDataProperty(data, "name", new String(typename).valueOf());
-        myDiagram.requestUpdate();
         if (debug) console.log('1340 relshipview', relshipview);
         const id = relshipview.id;
         let name = data.name;  
@@ -1389,7 +1392,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
           myMetis.myDiagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
         })
         const link = myDiagram.findLinkForKey(data.key);
-        if (debug) console.log('1388 link', link);
+        if (debug) console.log('1388 link, relshipview', link, relshipview);
         myDiagram.model.setDataProperty(link, "name", name);
         myDiagram.model.setDataProperty(link.data, "name", name);
         myDiagram.model.setDataProperty(link.data, "category", "Relationship");
@@ -2456,8 +2459,8 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
     let msg = "Verification report\n";
     msg += "First do some initial checks";
     let report = printf(format, msg);
-    // Before doing the actual check of the model, 
-    // go through the metamodels and remove corrupt ones
+    // First go through the metamodels and remove corrupt ones
+    // before doing the actual check of the model, 
     const metamodels = myMetis.metamodels;
     if (debug) console.log('2423 metamodels', metamodels);
     for (let i=0; i<metamodels?.length; i++) {
@@ -2468,6 +2471,24 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             i--;
         }
         msg += "A corrupt metamodel has been removed\n";
+    }
+    // Check for duplicate relship types in the metamodels
+    for (let i=0; i<metamodels?.length; i++) {
+        const mm = metamodels[i];
+        const rels = mm.relshiptypes;
+        for (let j=0; j<rels?.length; j++) {
+            const rel = rels[j];
+            for (let k=j+1; k<rels?.length; k++) {
+                const rel2 = rels[k];
+                if (rel.fromObjtype?.id === rel2.fromObjtype?.id 
+                    && rel.toObjtype?.id === rel2.toObjtype?.id
+                    && rel.name === rel2.name) {
+                    if (debug) console.log('Removing duplicate relship type', rel, rel2);
+                    rels.splice(k, 1);
+                    k--;
+                }
+            }
+        }
     }
     if (debug) console.log('2437 metamodels', metamodels);
     // Check if the referenced type exists - otherwse find a type that corresponds
@@ -2587,6 +2608,8 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
             if (!oview.name)
                 continue;
             if (!oview.typeview) 
+                continue;
+            if (!oview.objectRef)
                 continue;
             objviews.push(oview);
         }
@@ -2883,21 +2906,22 @@ function updateNode(node: any, objtypeView: akm.cxObjectTypeView, diagram: any, 
 export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, diagram: any, goModel: gjs.goModel) {
     let relview;
     if (reltypeView) {
-        if (debug) console.log('2823 data', data);
         let viewdata: any = reltypeView.getData();
+        if (debug) console.log('2891 data, viewdata', data, viewdata);
         relview = data.relshipview;
         if (relview) {
             for (let prop in viewdata) {
                 if (prop === 'abstract') continue;
                 if (prop === 'relshipkind') continue;
                 if (prop === 'class') continue;
+                relview[prop] = viewdata[prop];
                 if (propIsColor(prop)) {
                     if (viewdata[prop] != null)
                         diagram.model.setDataProperty(data, prop, viewdata[prop]);
                     if (relview && relview[prop] && relview[prop] !== "") {
                         diagram.model.setDataProperty(data, prop, relview[prop]);
                     }
-                    if (debug) console.log('2836 updateLink', prop, viewdata[prop], relview[prop]);
+                    if (debug) console.log('2904 updateLink', prop, viewdata[prop], relview[prop]);
                 }
                 if (prop === 'toArrow') {
                     if (relview[prop] === "")
@@ -2909,7 +2933,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                         viewdata[prop] = "";
                 }
                 diagram.model.setDataProperty(data, prop, viewdata[prop]);
-                if (debug) console.log('2848 updateLink', prop, viewdata[prop], relview[prop]);
+                if (debug) console.log('2916 updateLink', prop, viewdata[prop], relview[prop]);
             }
         }
     }
@@ -2995,28 +3019,40 @@ function selectNameFromNameList(question, namelist, defText): string {
     }
 }
 
-export function getNameList(myModel: akm.cxModel, obj: akm.cxObject, onlyWithProperties: boolean): string[] {
+export function getNameList(obj: akm.cxObject, context: any, onlyWithProperties: boolean): string[] {
     let namelist =[];
     if (obj) {
-        namelist.push('All');
-        try {
-        const inheritedObjTypes = obj?.getInheritedObjectTypes(myModel);
-        for (let i=0; i<inheritedObjTypes?.length; i++) {
-            const type = inheritedObjTypes[i];
-            if (onlyWithProperties) {
-                 if (type.properties?.length>0)
-                 namelist.push(type.name);
-            } else 
-                namelist.push(type.name);
-        } 
-        namelist.push(obj.type?.name);
-      } catch {}
-      let uniquelist = [...new Set(namelist)];
-      uniquelist.reverse();
-      namelist = uniquelist;
-      if (debug) console.log('2590 namelist', namelist);
-    } else
-      namelist = ['All'];
+        if (context.includeConnected) {
+            namelist.push(obj.name);
+            const connectedObjects = obj.getConnectedObjects(context.myMetis);
+            if (debug) console.log('3006 connectedObjects', connectedObjects);
+            for (let i=0; i<connectedObjects?.length; i++) {
+                const connectedObj = connectedObjects[i];
+                namelist.push(connectedObj?.name);
+            }
+        }
+        if (context.includeInherited) {
+            namelist.push('All');
+            try {
+                const inheritedTypes = obj?.getInheritedTypes();
+                if (debug) console.log('3015 inheritedTypes', inheritedTypes);
+                for (let i=0; i<inheritedTypes?.length; i++) {
+                    const type = inheritedTypes[i];
+                    if (onlyWithProperties) {
+                        if (type.properties?.length>0)
+                        namelist.push(type.name);
+                    } else 
+                        namelist.push(type.name);
+                } 
+                namelist.push(obj.type?.name);
+            } catch {
+            }
+            let uniquelist = [...new Set(namelist)];
+            uniquelist.reverse();
+            namelist = uniquelist;
+        }
+    }
+    if (debug) console.log('3031 namelist', namelist);
     return namelist;
 }
 
@@ -3040,6 +3076,18 @@ export function repairGoModel(goModel: gjs.goModel, modelview: akm.cxModelView) 
         if (!found) {
             const link = new gjs.goRelshipLink(utils.createGuid(), goModel, rview);
             goModel.addLink(link);
+        }
+    }
+    const objviews = modelview.objviews;
+    for (let i=0; i<objviews?.length; i++) {
+        const oview = objviews[i];
+        if (oview.markedAsDeleted)
+            continue;
+        const nodes = goModel.nodes as gjs.goObjectNode[];
+        let found = false;
+        for (let j=0; j<nodes.length; j++) {
+            const node = nodes[j];
+            if (debug) console.log('3073 node', node);
         }
     }
 }

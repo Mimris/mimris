@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts- nocheck
 /*
 *  Copyright (C) 1998-2020 by Northwoods Software Corporation. All Rights Reserved.
 */
@@ -366,17 +366,20 @@ function hasChildren(object: akm.cxObject, context: any): boolean {
 }
 
 function getChildren(object: akm.cxObject, context: any): akm.cxObject[] {
+    if (debug) console.log('369 object, context', object, context);
     const objects: akm.cxObject[] = [];
     const reltype   = context.reltype;
     const reldir    = context.reldir;
     const useinp    = reldir ? (reldir === 'in') : false;
     let rels  = useinp ? object.inputrels : object.outputrels;
+    if (debug) console.log('375 object, rels', object, rels);
     if (!rels) 
         rels = object.inputrels;
     if (rels) 
         rels.concat(object.outputrels);
     else
         rels = object.outputrels;
+    if (debug) console.log('382 object, rels', object, rels);
     for (let i=0; i<rels?.length; i++) {
         const rel = rels[i];
         let child;
@@ -422,21 +425,17 @@ export function aggregateValue(object: akm.cxObject, context: any) {
 }
 
 export function getConnectedObject(object: akm.cxObject, context: any): akm.cxObject | null {
-    if (debug) console.log('419 context', context);
     const myMetis   = context.myMetis;
-    const method    = context.args.method;
-    const condition = context.args.condition;
-    const prop      = context.prop;
+     const prop      = context.prop;
     const children = getChildren(object, context);
-    if (debug) console.log('427 children', children);
+    if (debug) console.log('431 children', children);
     for (let i=0; i<children?.length; i++) {
         const child = children[i];
-        if (hasChildren(child, context)) {
-            // const test = expandPropScript(child, prop, myMetis);
-            // Find the first child that fullfills the condition
-            // if (test)
-            return child;
-        }
+        const test = expandPropScript(child, prop, myMetis);
+        if (debug) console.log('435 child, prop, test', child, prop, test);
+        // Find the first child that fullfills the condition
+        if (test)
+            return child;   
     }
     return null;
 }
@@ -452,14 +451,16 @@ export function expandPropScript(object: akm.cxInstance, prop: akm.cxProperty, m
     if (expression) { 
         const type = object.type;
         expression = substitutePropnamesInExpression(object, expression, myMetis);
-        if (debug) console.log('450 expression', expression);
+        if (debug) console.log('458 expression', expression);
         try {
             retval = eval(expression);
         } catch(e) {
             retval = expression;
         }
+        if (debug) console.log('464 retval', retval);
     } else {
         retval = object[prop.name];
+        if (debug) console.log('467 retval', retval);
     }
     return retval;
 }
@@ -468,10 +469,14 @@ function substitutePropnamesInExpression(object: akm.cxInstance, expression: str
     let retval = "";
     const type = object.type;
     const props = type.properties;
+    if (debug) console.log('472 props', props);
     for (let i=0; i<props.length; i++) {
         const prop = props[i];
-        if (expression.indexOf(prop.name) == -1)
+        if (expression.indexOf(prop.name) == -1) {
+            if (debug) console.log('475 expression, prop', expression, prop);
             continue;
+        }
+        if (debug) console.log('478 prop', prop);
         const len = prop.name.length;
         const propval = object.getPropertyValue(prop, metis);
         let pos = [];
@@ -493,10 +498,10 @@ function substitutePropnamesInExpression(object: akm.cxInstance, expression: str
                 pos.push(p);
             indx = p+1;
         }
-        if (debug) console.log('417 pos', pos);
+        if (debug) console.log('500 pos', pos);
         // Substitute all prop.names starting with the last one
         let siz = pos.length;
-        if (debug) console.log('420 siz', siz);
+        if (debug) console.log('503 siz', siz);
         for (let j=siz-1; j>0; j--) {
             let px = pos[j]+len;
             let endstr = expression.substring(px);
@@ -504,7 +509,7 @@ function substitutePropnamesInExpression(object: akm.cxInstance, expression: str
             expression = newExpr;
         }
     }
-    if (debug) console.log('428 expression', expression);
+    if (debug) console.log('511 expression', expression);
     return expression;
 }
 

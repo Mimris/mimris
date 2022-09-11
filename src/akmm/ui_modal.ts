@@ -585,33 +585,34 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
   switch(what) {
     case "editObjectType": {
       const selObj = selectedData;
-      if (debug) console.log('417 selObj', selObj);
+      if (debug) console.log('588 selObj', selObj);
       // selObj is a node representing an objecttype
       let node = selObj;
       node = myDiagram.findNodeForKey(node.key);
       let type = selObj.objecttype;
       type = myMetis.findObjectType(type.id);
-      if (debug) console.log('423 selObj', selObj, type);
+      if (debug) console.log('594 selObj', selObj, type);
       const data = node.data;
-      if (debug) console.log('425 node, type', data, type);
+      if (debug) console.log('596 node, type', data, type);
       for (let k in type) {
         if (k === 'id') continue;
         if (typeof(type[k]) === 'object')    continue;
         if (typeof(type[k]) === 'function')  continue;
         if (!uic.isPropIncluded(k, type))    continue;
         type[k] = selObj[k];
+        if (debug) console.log('603 k, selObj[k]', k, selObj[k]);
         myDiagram.model.setDataProperty(data, k, type[k]);
       }
       // Do the dispatches
       const jsnObjtype = new jsn.jsnObjectType(type, true);
-      if (debug) console.log('435 jsnObjtype', jsnObjtype);
+      if (debug) console.log('608 jsnObjtype', jsnObjtype);
       modifiedObjtypes.push(jsnObjtype);
       modifiedObjtypes.map(mn => {
         let data = mn;
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPE_PROPERTIES', data })
       })
-      if (debug) console.log('441 selObj', selObj);
+      if (debug) console.log('615 type, selObj', type, selObj);
       break;
     }
     case "editRelationshipType": {

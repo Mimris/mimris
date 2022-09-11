@@ -1,4 +1,4 @@
-// @ts-snocheck
+// @ts- nocheck
 import { useState, useEffect } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Tooltip } from 'reactstrap';
 import { useDispatch } from 'react-redux'
@@ -6,10 +6,12 @@ import Select from "react-select"
 // import { loadData } from '../actions/actions'
 // import { loadState, saveState } from './utils/LocalStorage'
 import useLocalStorage  from '../hooks/use-local-storage'
+import { i } from './utils/SvgLetters';
 // import { FaJoint } from 'react-icons/fa';
 // import DispatchLocal  from './utils/SetStoreFromLocalStorage'
 
 const LoadRecovery = (props: any) => {
+
   const dispatch = useDispatch()
   const debug = false
   const refresh = props.refresh
@@ -17,89 +19,108 @@ const LoadRecovery = (props: any) => {
   const today = new Date().toISOString()
   // today as year, month and day
   // const dd = String(today.getDate()).padStart(2, '0')
-  function toggleRefresh() { setRefresh(!refresh); }
+
+  const { buttonLabel, className } = props;
+  const [modal, setModal] = useState(false);
+  const toggle = () => setModal(!modal);
   
   if (typeof window === 'undefined') return
 
-  const [memoryState] = useLocalStorage('memorystate', null);
+  const [memoryState, setMemoryLocState] = useLocalStorage('memorystate', null);
+  const [inputValue, setInputValue] = useState('');
+  function toggleRefresh() { setRefresh(!refresh); }
+
+  // if memorytState is an object
   let memoryTmp = memoryState
+  if (!Array.isArray(memoryState)) { memoryTmp = [memoryState] } else { memoryTmp = memoryState }
+  if (debug) console.log('31 memoryTmp', memoryTmp.map((item: any) => {return { value: item.phSource, label: item.lastUpdate }}))
 
   // if memoryState is not an array then make it one
 
   // if memorytState is an object
-  if (typeof memoryTmp === 'object') memoryTmp = [memoryState]
+  // if (typeof memoryTmp === 'object') memoryTmp = [memoryState] || 
+  // console.log('31 memoryTmp', Array.isArray(memoryTmp))
   
-  let optionsMemory = []
-  if (Array.isArray(memoryTmp))  {optionsMemory = memoryTmp?.map((o, idx) => o && {value: idx, label: o.lastUpdate  +' | '+o.phSource}) } else {optionsMemory = []};
-  if (!debug) console.log('25 LoadRecovery', optionsMemory);
-  if (optionsMemory == undefined || optionsMemory?.length === 0) optionsMemory = [{value: 0, label: 'No recovery model'}]
+  const optionsMemory = memoryTmp.map((item: any, idx) =>  {return {  value: item.lastUpdate, label: idx+ ' '+item.phSource+ ' Saved : ' + item.lastUpdate }})
 
-  const [selected, setSelected] = useState(optionsMemory[0].value);
+  // if memoryState is not an array then make it one
+
+  if (debug) console.log('46 LoadRecovery',memoryState, optionsMemory);
+
+  // if (optionsMemory == undefined || optionsMemory?.length === 0) optionsMemory = [{value: 0, label: 'No recovery model'}]
 
   //
-  // load to Redux-store from memoryState in localStorage. This is save for every refresh)
+  // load to Redux-store from memoryState in localStorage. This is saved for every refresh)
   //
-  function handleChange(e: any) {  
-    // memoryStatus = true
+  function onChangeHandler(e: any) {  
+    // setInputValue(e.target.value)
+    const inputValue = e.target.value
 
-    if (debug) console.log('35 LoadRecovery', e, memoryState[e.target.value]);
-    if (debug) console.log('36 LoadRecovery', props, );
+    function cleanMemoryState(memState) { // if metis name is undefined then remove from localStorage
+      const cleanMemState =  memState.filter((item: any) => item.phSource !== undefined)
+      setMemoryLocState(cleanMemState) 
+    } 
+    // if (!debug) console.log('57 LoadRecovery', inputValue, e.target.value , e);
+    if (debug) console.log('58 LoadRecovery',  inputValue, 'memval ', memoryState[inputValue], 'mem ', memoryState);
 
-    if (memoryState) {
-  
-
-      const ph = memoryState[e.target.value]
-      const phData = ph?.phData
-      const phFocus = ph?.phFocus
-      const phUser = ph?.phUser
-      const phSource = (ph?.phSource === "") && phData.metis.name  || ph?.phSource 
-      // console.log('91 SelectSource', locState);
-      let data = phData
-      dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
-      data = phFocus
-      dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data })
-      data = phUser
-      dispatch({ type: 'LOAD_TOSTORE_PHUSER', data })
-      data = (phSource === "") ? phData.metis.name : phSource
-      dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data })
-      console.log('99 LoadRecovery', ph);
+   
+    function  dispatchToStore() {
+      if (debug) console.log('62 LoadRecovery', inputValue);
+      if (inputValue !== '') {
+        if (memoryState[inputValue] !== undefined) {
+          if (inputValue > memoryState.length) return;
+          const ipVal= inputValue
+          const ph = memoryState[ipVal]
+          const phData = ph?.phData
+          const phFocus = ph?.phFocus
+          const phUser = ph?.phUser
+          const phSource = (ph?.phSource === "") && phData.metis.name  || ph?.phSource 
+          // console.log('91 SelectSource', locState);
+          dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
+          dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
+          dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: phUser })
+          let data = (phSource === "") ? phData.metis.name : phSource
+          dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+        }
+      }
     }
-    function refres() {
-      setRefresh(!refresh)
-    }
-    setTimeout(refres, 100);
+    
+    cleanMemoryState(memoryState)
+    dispatchToStore()
+
+    // setTimeout(waitforInputValue, 1)
+
+    // function refres() {
+    //   setRefresh(!refresh)
+    // }
+    // setTimeout(refres, 1000);
   }
-
 
   let loadSelectedFromMemoryStoreDiv = <></>
-  if (optionsMemory) {
+
+  // if (optionsMemory) {
+    // console.log('92 LoadRecovery', optionsMemory);
     loadSelectedFromMemoryStoreDiv = 
       <div className="loadstore selection d-flex justify-content-center border border-dark  ">
-        {/* <p className='py-2 pr-4'>Select Model to recover:</p> */}
         <select className="modal-select w-100"  
-            // defaultValue={optionsMemory[0].value}
-            // style={{ color: selected === defaultSelectValue ? "gray" : "black" }}
-            placeholder='Select Model to recover : '
-            // onChange={event => console.log('67',optionsMemory, (event))}>
-            onChange={handleChange}>
-            <option>Select model to recover from last refresh</option>
-            {optionsMemory.map(option => (
-                <option key={option.value} value={option.value} title={option.label}>
-                  {option.label} 
-                </option>))}
+          placeholder='Select Model to recover : '
+          onChange={onChangeHandler}>
+          <option>Select model to recover from last refresh</option>
+          {optionsMemory.map((option, idx) => (
+            <option key={idx} value={idx} title={option.label}>
+              {option.label} 
+            </option>))}
         </select>
       </div>
-  } else {
-    loadSelectedFromMemoryStoreDiv = <></>  
-  }
+  // } else {
+  //   loadSelectedFromMemoryStoreDiv = <></>  
+  // }
  
-  const { buttonLabel, className } = props;
-  const [modal, setModal] = useState(false);
-  const toggle = () => setModal(!modal);
+ 
 
   return (
     <>
-      <button className="btn-dark float-right ml-2 mr-2 mb-0 pr-2" color="link" onClick={toggle}>{buttonLabel}</button>
+      <button className="btn-transparent text-warning float-right ml-2 mr-2 mb-0 pr-2" onClick={toggle}>{buttonLabel}</button>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader className="bg-warning pl-2" toggle={() => { toggle(); toggleRefresh() }}> Recover from last refresh: </ModalHeader>
         <ModalBody className="pt-0 bg-warning">

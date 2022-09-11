@@ -20,11 +20,16 @@ let myDiagram: go.Diagram;
 
 go.Shape.defineFigureGenerator('Annotation', function (shape, w, h) {
     var len = Math.min(w, 10);
+    var maxlen = Math.max(w, 10);
     return new go.Geometry()
       .add(new go.PathFigure(len, 0)
            .add(new go.PathSegment(go.PathSegment.Line, 0, 0))
            .add(new go.PathSegment(go.PathSegment.Line, 0, h))
-           .add(new go.PathSegment(go.PathSegment.Line, len, h)));
+           .add(new go.PathSegment(go.PathSegment.Line, len, h))
+           .add(new go.PathSegment(go.PathSegment.Move, maxlen-len, 0))
+           .add(new go.PathSegment(go.PathSegment.Line, maxlen, 0))
+           .add(new go.PathSegment(go.PathSegment.Line, maxlen, h))
+           .add(new go.PathSegment(go.PathSegment.Line, maxlen-len, h)));
   });
 
 export function getRouting(r: string): any {
@@ -961,8 +966,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     $(go.Panel, "Vertical", // Panel for Geometry  ------------------------
                         { contextMenu: contextMenu , cursor: "move" },
                         $(go.Shape, 
-                            // new go.Binding("stroke", "strokecolor"),
                             // new go.Binding("fill", "fillcolor"),
+                            new go.Binding('stroke', 'strokecolor2'), 
                             new go.Binding("template"),
                             new go.Binding("geometryString", "geometry"),
                             // "M30 100 C 50 50, 70 20, 100 100, 110, 130, 45, 150, 65, 100"
@@ -1101,9 +1106,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                                 shadowVisible: true,
                                 desiredSize: new go.Size(48, 48), // outer Shape size 
                             },
-                            // new go.Binding('stroke', 'strokecolor'), 
-                            // new go.Binding("fill", "fillcolor"),
-                            // new go.Binding("template"),
+                            new go.Binding('stroke', 'strokecolor2'), 
+                            new go.Binding("fill", "fillcolor2"),
                             new go.Binding("figure", "figure"), 
                         ),
                     ),
@@ -1185,7 +1189,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 new go.Binding("desiredSize", "size", go.Size.parse).makeTwoWay(go.Size.stringify),    
                 // Shape bindings
                 new go.Binding('fill', 'fillcolor'),
-                new go.Binding('stroke', 'strokecolor'), 
+                new go.Binding('stroke', 'strokecolor2'), 
             ),
             $(go.Shape, 'RoundedRectangle',  //smaller transparent rectangle to set cursor to move
                 {
@@ -1241,7 +1245,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             new go.Binding("deletable"),
             { contextMenu: contextMenu },  
             { 
-                background: GradientLightGray, 
+                background: "transparent", 
+                // background: GradientLightGray, 
                 locationSpot: go.Spot.Center, 
             },            
             new go.Binding('location', 'loc', go.Point.parse).makeTwoWay(go.Point.stringify),
@@ -1253,23 +1258,28 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                     toLinkableSelfNode: false, 
                     toLinkableDuplicates: false,
                     cursor: 'alias', 
-                    fromSpot: go.Spot.Left,
+                    fromSpot: go.Spot.AllSides,
+                    // fromSpot: go.Spot.Left,
                     strokeWidth: 2, 
-                    stroke: 'gray', 
-                    fill: 'transparent',
+                    // stroke: 'gray', 
                 },
+                new go.Binding('fill', 'fillcolor'),
+                new go.Binding('background', 'fillcolor'),   
             ),  
             $(go.TextBlock,
                 { 
                     margin: 5, 
+                    cursor: 'move',
                     editable: true, 
                     text: 'Annotation',
                     alignment: go.Spot.Left,
-                    scale: 1,
+                    scale: 1,                    
                 },
                 new go.Binding('text', 'text').makeTwoWay(),
-                new go.Binding('scale', 'textscale').makeTwoWay()
-            ),
+                new go.Binding('scale', 'textscale').makeTwoWay(),
+                new go.Binding('stroke', 'strokecolor'),   
+                // new go.Binding('background', 'fillcolor'),      
+                ),
         )
     );
     addNodeTemplateName('Annotation');
@@ -1319,7 +1329,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
               portId: '', 
               fromLinkable: true, 
               toLinkable: true, 
-              cursor: 'pointer',
+              cursor: 'alias',
               fromSpot: go.Spot.RightSide, 
               toSpot: go.Spot.LeftSide
             },
@@ -1329,15 +1339,27 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
           ),
           ), // end Task Icon
         ),  // end main body rectangles spot panel
-
+        
+        $(go.Panel, 'Auto',  // make an area around text for move cursor
+            $(go.Shape, 'Rectangle',  // area around the text
+                {
+                    fill: 'transparent', stroke: null, strokeWidth: 0,
+                    cursor: 'move',
+                    desiredSize: new go.Size(100, 60),
+                },
+            ),
+        ),
         $(go.TextBlock,  // the center text
           {
             alignment: go.Spot.Center, 
+            // background: 'gray',
+            cursor: 'move',
             textAlign: 'center', 
-            margin: 12,
-            editable: true
+            margin: 2,
+            editable: true,
           },
-          new go.Binding("text", "name").makeTwoWay())
+          new go.Binding("text", "name").makeTwoWay(),
+        )
       )  // end Auto Panel
     );
     addNodeTemplateName('ActivityNode');
@@ -1941,6 +1963,7 @@ export function addLinkTemplates(linkTemplateMap: string, contextMenu: any, myMe
         {
             reshapable: true, 
             relinkableFrom: true, relinkableTo: true,
+            fromSpot: go.Spot.AllSides,
             toSpot: go.Spot.AllSides,
             toEndSegmentLength: 20, fromEndSegmentLength: 40
         },
@@ -2551,19 +2574,20 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
 
 // Function to identify images related to an image id
 export function findImage(image: string) {
+    if (debug) console.log("2561 findImage: " + image);
     if (!image)
         return "";
     // if (image.substring(0,4) === 'http') { // its an URL
     if (image.includes('//')) { // its an URL   
-        // if (debug) console.log('1269 Diagram', image);
+        if (debug) console.log('2563 Diagram', image);
         return image
     } else if (image.includes('/')) { // its a local image
-        if (debug) console.log('1270 Diagram', image);   
+        if (debug) console.log('2566 Diagram', image);   
         return image
     } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
         const firstcharacter = image.substring(0, 1)
         const secondcharacter = image.substring(1, 2)
-        if (debug) console.log('1099 Diagram', firstcharacter, secondcharacter)    
+        if (debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
         // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
         //   const letter = image.substring(0, image.length - 4)
         //   // const lettersvg = letter
@@ -2575,11 +2599,11 @@ export function findImage(image: string) {
         //   return "./../images/" + image.replace(/C:\\fakepath\\/,'') //its an image in public/images
     } else if (image.includes('<svg')) { // its an icon font
         const img = {image:'data:image/svg+xml;charset=UTF-8,image'}
-        console.log('3585', img);
+        if (debug) console.log('2585', img);
         return img
 
     } else { 
-        if (debug) console.log('1283 Diagram', image);
+        if (debug) console.log('2586 Diagram', image);
         return "./../images/" + image //its an image in public/images
     }
     return "";

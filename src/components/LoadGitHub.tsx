@@ -6,8 +6,10 @@ import base64 from 'base-64';
 // import  Search  from './Search';
 import TextInput from './utils/TextInput';
 import Select from './utils/Select';
-import { searchRepos, searchBranches, searchModels, searchModel, searchCommit, searchRaw } from './services/githubService';
+import { searchRepos, searchBranches, searchModels, searchModel, searchGithub, searchModelRaw } from './services/githubService';
 import { loadDataModel } from '../actions/actions';
+
+import { SaveAllToFile } from './utils/SaveModelToFile';
 
 const debug = false
 
@@ -27,12 +29,17 @@ const LoadGitHub = (props: any) => {
   // const repository = 'cumulus-akm-pocc'
   // const path = 'Cumulus'
 
+  let phFocus = props.phFocus;
+  let phData = props.phData
+  let phUser = props.phUser
+  let phSource = props.phSource
+
   const [githubLink, setGithubLink] = useState('http://github.com/');
   
   // const [searchText, setSearchText] = useState('');
   const [usernameText, setUsernameText] = useState('Kavca');
   const [repoText, setRepoText] = useState('kavca-akm-models');
-  const [pathText, setPathText] = useState('StartupModels');
+  const [pathText, setPathText] = useState('models');
   const [branchText, setBranchText] = useState('main');
   const [repos, setRepos] = useState([]);
   const [model, setModel] = useState({});
@@ -44,6 +51,15 @@ const LoadGitHub = (props: any) => {
 
   const { buttonLabel, className } = props;
   const toggle = () => setModal(!modal);
+
+  const data = {
+    phData:   props.ph.phData,
+    phFocus:  props.ph.phFocus,
+    phUser:   props.ph.phUser,
+    // phSource: props.phSource,
+    phSource: (phSource === "") && phData.metis.name  || phSource,
+    lastUpdate: new Date().toISOString()
+  }
 
   useEffect(() => {
     setGithubLink(`https://github.com/${usernameText}/${repoText}/tree/main/${pathText}`)
@@ -73,40 +89,17 @@ const LoadGitHub = (props: any) => {
 
   const onModelChange = (text) => {
     if (debug) console.log('71 onModelChange', text)
-    const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
-    const filname = `/${text}`; // add slash
-    loadModel(rep, filname);
-    if (debug) console.log('52', rep, filname, )
-  }
+    const rep = `${usernameText}/${repoText}`;
+    // const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
+    const filename = `${text}`; // add slash
 
-  // todo: loadModel should be loadProject or loadModelProject
-  const loadModel = async (rep, path) => {
-    setLoading(true);
-    const searchtext = `${rep}${path}`;
-    if (debug) console.log('80 ', searchtext)
-    const res = await searchModel(searchtext, '')
-    const content = res.data.content
-    if (debug) console.log('83 ', searchtext, res)
-    if (debug) console.log('84 ', base64.decode(content))
-    const model = JSON.parse(base64.decode(content));
-    // const model = JSON.parse(base64.decode(content));
-    if (debug) console.log('87', model)
-    setLoading(false);
+    loadModel(rep, filename);
 
-    if (debug) console.log('90 onModelChange', model, props) 
-    const data = {
-      phData:   model.phData,
-      phFocus:  model.phFocus,
-      phUser:   model.phUser,
-      phSource: model.phData.metis.name || model.phSource 
-      // phSource: model.phSource,
+    if (debug) console.log('52', rep, filename, )
+    const  refres = () => {
+      setRefresh(!refresh)
     }
-    if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-    if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-    if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-    if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
-
-  
+    setTimeout(refres, 3000);
   }
 
   const loadRepos = async (repoText, pathText) => {
@@ -124,45 +117,66 @@ const LoadGitHub = (props: any) => {
     }
   };
 
-  const loadBranch = async (repoText, branchText) => {
-    if (usernameText?.length > 0)  { 
-      const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
-      const commits = `repos/${usernameText}/${repoText}/commits/`;
-      const ownerRepo = `${usernameText}/${repoText}`;
-      setLoading(true);
-      if (debug) console.log('133 loadRepos', repoText, 'branchtext', branchText)
-      const res = await searchBranches(ownerRepo, branchText);
-      setLoading(false);
-      const branches = await res.data;
-      const branch = await res.data?.find(branch => branch.name === branchText);
-      if (debug) console.log('138 res.data: ', await res.data, branches)
-      const sha = branch?.commit?.sha;
-      const commitbranch = await searchCommit(ownerRepo, sha)
-      const rawfileUrl = await commitbranch.data.files[0].raw_url.replace('raw\/','').replace('github.com', 'raw.githubusercontent.com');
+  // todo: loadModel should be loadProject or loadModelProject
+  const loadModel = async (rep, filename) => {
+    setLoading(true);
+    const searchtexttmp = `${rep}`;
+    console.log('101 searchtexttmp', rep, repoText, pathText, searchtexttmp, filename)
+    const searchtext = searchtexttmp.replace(/\/\//g, '/');
+    if (debug) console.log('102 ', searchtext, pathText, filename, branchText, 'file')
+    const res = await searchGithub(searchtext, pathText, filename, branchText, 'file');
+    const sha = await res.data.sha;
+    if (debug) console.log('105 res', res, res.data, sha)
+    const res2 = await searchGithub(searchtext, pathText, sha, branchText, 'fileSHA');
 
-      console.log('138', commitbranch, rawfileUrl)
-      if (debug) console.log('137 branch: ', await branches, branch.name, branch.commit.sha, rawfileUrl); 
-      const content = await fetch(rawfileUrl).then(res => res.text());
+    const content = res2.data.content
 
-      const model = JSON.parse(content) // JSON.parse(base64.decode(content));
-  
-      console.log('151', model)
-      const data = {
-        phData:   model.phData,
-        phFocus:  model.phFocus,
-        phUser:   model.phUser,
-        phSource: model.phData.metis.name || model.phSource 
-        // phSource: model.phSource,
+    if (debug) console.log('113 res', res2, res2.data)
+
+    if (debug) console.log('115 ', searchtext, res)
+    if (debug) console.log('116 ', base64.decode(content))
+    const model = JSON.parse(base64.decode(content));
+
+    if (debug) console.log('119 ', model)
+    setModel(model);
+    setLoading(false);
+    if (debug) console.log('90 onModelChange', model, props) 
+    if (model) {
+      if (filename.includes('_MM.json')) { // it is a Metamodel and will be loaded into current project
+        let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === model?.id) // current model index
+        const mmlength = props.ph.phData?.metis?.metamodels.length
+        if ( mmindex < 0) { mmindex = mmlength } // ovindex = -1, i.e.  not fond, which means adding a new model
+        const data = {
+          phData: {
+              ...props.ph.phData,
+              metis: {
+                  ...props.ph.phData.metis,
+                  metamodels: [
+                      ...props.ph.phData.metis.metamodels.slice(0, mmindex),     
+                      model,
+                      ...props.ph.phData.metis.metamodels.slice(mmindex + 1, props.ph.phData.metis.metamodels.length),
+                  ],
+                  models: props.ph.phData.metis.models,   
+              },
+          }, 
+        };
+        if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+      } else {
+        const data = {
+          phData:   model.phData,
+          phFocus:  model.phFocus,
+          phUser:   model.phUser,
+          // phSource: model.phData.metis.name || model.phSource 
+          phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
+        }
+        if (debug) console.log('154', data)
+        if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+        if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+        if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+        if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
       }
-      if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
-      if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
-      if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
-      if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
-      
-      dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
-
     }
-  };
+  }
 
   const loadModels = async (usernameText, pathText) => {
     setLoading(true);
@@ -187,7 +201,7 @@ const LoadGitHub = (props: any) => {
   };
 
   useEffect(() => {
-    setBranchText('main')
+    // setBranchText('')
     if (usernameText?.length > 0) {
       loadRepos(repoText, pathText);
     }
@@ -200,11 +214,11 @@ const LoadGitHub = (props: any) => {
   }, [usernameText, repoText, pathText]);
 
   useEffect(() => {
-    console.log('useEffect 3', model)
+    if (debug) console.log('170 useEffect 3', model)
     const  refres = () => {
       setRefresh(!refresh)
     }
-    setTimeout(refres, 2000);
+    setTimeout(refres, 3000);
   } , [model]);
 
   let modeloptionss = models?.map((mod) => {
@@ -221,9 +235,15 @@ const LoadGitHub = (props: any) => {
 
   // console.log('160 githubLink', githubLink)
 
+  function handleSaveAllToFile() {
+    const projectname = props.ph.phData.metis.name
+    SaveAllToFile(data, projectname, 'Project')
+  }
+
+
   return  (
     <>
-      <span><button className="btn-context btn-outline-primary text-dark ml-1" onClick={toggle}>{buttonLabel}</button>
+      <span><button className="btn-context btn-outline-primary font-weight-bold text-primary ml-1" onClick={toggle}>{buttonLabel}</button>
       </span>
       <Modal isOpen={modal} toggle={toggle} className={className} >
         <ModalHeader toggle={() => {toggle(); }}>GitHub Model Repository</ModalHeader>
@@ -247,15 +267,15 @@ const LoadGitHub = (props: any) => {
             <hr className="bg-primary my-2 mx-4" />
 
             {/* ----- Model Path input ------------------------------------ */}
+            {(dirs?.length > 0) 
+              ? <div >Model paths (folders) found: <span className="text-success m-1"> {dirs?.map((dir) => ( <span className="px-1" key={dir.name} >{dir.name}, </span> ))}</span> </div> 
+              : (!pathText) && <div className='text-warning'> 'No model paths (folders) found!'</div>
+            } 
             <span className=""> <TextInput label="Path:" value={pathText} onChange={(value) => onPathChange(value)} placeholder="Path to models" /> </span>
             <hr className="bg-light my-1 mx-4" />
 
             {/* -------- Select model ------------------------------------ */}
             <Button className="btn-primary text-black border-success w-100 float-right mt-2 mb-2 pb-0" onClick = {() => loadModels(usernameText, pathText)}>List Models</Button>
-            {(dirs?.length > 0) 
-              ? <div >Model paths found: <span className="text-success m-1"> {dirs?.map((dir) => ( <span className="px-1" key={dir.name} >{dir.name}, </span> ))}</span> </div> 
-              : (!pathText) && <div className='text-warning'> 'No model paths found!'</div>
-            } 
             {(models?.length > 0) 
               ? <div >Models found: <span className="text-success m-1">{models?.map((mod) => ( <span className="px-1" key={mod.name} >{mod.name}, </span>))} </span></div> 
               : <div className='text-warning'> 'No models found!'</div>
@@ -281,10 +301,19 @@ const LoadGitHub = (props: any) => {
               <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
              </div> */}
           <hr className="bg-primary my-1 mx-4" />
-          <div className="bg-secondary square border border-2 border-primary p-1"><strong>Upload model files:</strong> (RepoOwner, Repository and Path must be filled in)<br />
-            <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong> Click here to open GitHub </strong></a> (Check the README file for Guidance)
-          <div className=" text-secondary">{githubLink} </div>
+          <div className="bg-secondary square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
+          <div className="bg-secondary square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
+            <button 
+              className="btn-primary ml-2 mr-2 mb-3 float-right" 
+              data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
+              onClick={handleSaveAllToFile}>Save
+            </button >
+            <br /> NB! The file must have the same name as on GitHub.<br /> Rename the file before uploading if necessary.
           </div>
+              <a href={githubLink} target="_blank" rel="noopener noreferrer"><strong> Click here to open GitHub </strong></a> (RepoOwner, Repository and Path must be filled in)<br />(On GitHub: Check the README file for Guidance)
+              <div className=" text-secondary">{githubLink} </div>
+            </div>
           <hr className="bg-primary my-1 mx-0" />
         </div>
         </ModalBody>
@@ -298,3 +327,94 @@ export default LoadGitHub;
 // onChange={(value) => onModelChange(value)}
 
 // onClick = {() => loadModels(usernameText, pathText)}
+
+
+
+// const loadBranch = async (repoText, branchText) => {
+//   if (usernameText?.length > 0)  { 
+//     const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
+//     const commits = `repos/${usernameText}/${repoText}/commits/`;
+//     const ownerRepo = `${usernameText}/${repoText}`;
+//     setLoading(true);
+//     if (debug) console.log('133 loadRepos', repoText, 'branchtext', branchText)
+//     const res = await searchBranches(ownerRepo, branchText);
+//     setLoading(false);
+//     const branches = await res.data;
+//     const branch = await res.data?.find(branch => branch.name === branchText);
+//     if (debug) console.log('138 res.data: ', await res.data, branches)
+//     const sha = branch?.commit?.sha;
+//     const commitbranch = await searchCommit(ownerRepo, sha)
+//     const rawfileUrl = await commitbranch.data.files[0].raw_url.replace('raw\/','').replace('github.com', 'raw.githubusercontent.com');
+
+//     console.log('138', commitbranch, rawfileUrl)
+//     if (debug) console.log('137 branch: ', await branches, branch.name, branch.commit.sha, rawfileUrl); 
+//     const content = await fetch(rawfileUrl).then(res => res.text());
+
+//     const model = JSON.parse(content) // JSON.parse(base64.decode(content));
+
+//     console.log('151', model)
+//     const data = {
+//       phData:   model.phData,
+//       phFocus:  model.phFocus,
+//       phUser:   model.phUser,
+//       phSource: model.phData.metis.name || model.phSource 
+//       // phSource: model.phSource,
+//     }
+//     if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+//     if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+//     if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+//     if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+    
+//     // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
+
+//   }
+// };
+
+// const loadModel2 = async (repoText, filename) => {
+//   if (usernameText?.length > 0)  { 
+//     // const rep = `repos/${usernameText}/${repoText}/contents/${pathText}`;
+//     // const commits = `repos/${usernameText}/${repoText}/commits/`;
+//     console.log('137 ownerRepo', repoText, filename)
+//     setLoading(true);
+//     if (debug) console.log('133 RepoText', repoText, 'branchText', branchText) // hardcoded branch = main
+//     const searchtexttmp = `${repoText}`;
+//     const searchtext = searchtexttmp.replace(/\/\//g, '/');
+//     if (debug) console.log('142 searchtext', searchtext)
+//     const res = await searchBranches(searchtext, branchText)
+//     setLoading(false);
+//     const branches = await res.data;
+//     const branch = await res.data?.find(branch => branch.name === branchText);
+//     if (debug) console.log('147 res.data: ', await res, branches, branch)
+
+
+//     const sha = branch?.commit?.sha;
+//     if (debug) console.log('150 sha', repoText, sha)
+//     const commitbranch = await searchModelRaw(repoText, sha)
+//     if (debug) console.log('152 commitbranch', commitbranch)
+//     // const selmodel = await commitbranch.data.;
+
+//     const rawfileUrl = await commitbranch?.data?.files(file => file.filename === model).raw_url.replace('raw\/','').replace('github.com', 'raw.githubusercontent.com');
+
+//     console.log('138', commitbranch, rawfileUrl)
+//     if (debug) console.log('137 branch: ', await branches, branch.name, branch.commit.sha, rawfileUrl); 
+//     const content = await fetch(rawfileUrl).then(res => res.text());
+
+//     const model = JSON.parse(content) // JSON.parse(base64.decode(content));
+
+//     console.log('151', model)
+//     const data = {
+//       phData:   model.phData,
+//       phFocus:  model.phFocus,
+//       phUser:   model.phUser,
+//       phSource: model.phData.metis.name || model.phSource 
+//       // phSource: model.phSource,
+//     }
+//     if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
+//     if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
+//     if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
+//     if (data.phSource)  dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data.phSource })
+    
+//     // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: 1, name: 'name'}})
+
+//   }
+// };

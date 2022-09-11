@@ -71,6 +71,7 @@ const LoadRecovery = (props: any) => {
           if (inputValue > memoryState.length) return;
           const ipVal= inputValue
           const ph = memoryState[ipVal]
+          if (!debug) console.log('74 LoadRecovery', ipVal, memoryState[ipVal]);
           const phData = ph?.phData
           const phFocus = ph?.phFocus
           const phUser = ph?.phUser

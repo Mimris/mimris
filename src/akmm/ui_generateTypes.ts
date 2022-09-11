@@ -1379,6 +1379,13 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }            
     }
+    { // Dispatch metis
+        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+        if (debug) console.log('1402 jsnMetis: ', jsnMetis);
+        let data = {metis: jsnMetis}
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+    }
     { // Try to remove duplicate relationship types
         myMetis.currentTargetMetamodel = metamodel;
         myMetis.currentTargetModel = model;
@@ -1396,16 +1403,15 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                 }
             }
         }
+        if (debug) console.log('1399 metamodel', metamodel);
+        // Dispatch metis
+        const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+        if (debug) console.log('1402 jsnMetis: ', jsnMetis);
+        let data = {metis: jsnMetis}
+        data = JSON.parse(JSON.stringify(data));
+        myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     }
-    if (debug) console.log('1399 metamodel', metamodel);
-    // Dispatch metis
-    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
-    if (debug) console.log('1402 jsnMetis: ', jsnMetis);
-    let data = {metis: jsnMetis}
-    data = JSON.parse(JSON.stringify(data));
-    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     alert("Target metamodel has been successfully generated!");
-
     return metamodel;
 }
 

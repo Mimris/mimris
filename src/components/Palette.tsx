@@ -73,7 +73,7 @@ const Palette = (props: any) => {
       })
     )
     taskNodeDataArray = taskNodeDataArray0?.filter((i: any) => (i)) // remove undefined
-    if (!debug) console.log('73 taskNodeDataArray', taskNodeDataArray)
+    if (debug) console.log('73 taskNodeDataArray', taskNodeDataArray)
   } 
 
   useEffect(() => {

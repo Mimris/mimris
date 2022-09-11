@@ -33,7 +33,7 @@ const axiosConfigRaw = {
 // GITHUB_CLIENT_SECRET=1d72f2c53b60dd0f1166cf05e0f468279f663565
 
 export function searchGithub(searchText, path, filename, branch, searchtype) { // searchtype: 'repo', 'branches', 'models' or 'files'
-  if (!debug) console.log('36 searchGithub', searchText, path, filename, searchtype);
+  if (debug) console.log('36 searchGithub', searchText, path, filename, searchtype);
   // search/repositories?q=akm-models
   let query = ''
   if (searchtype == 'repos') {
@@ -54,7 +54,7 @@ export function searchGithub(searchText, path, filename, branch, searchtype) { /
   );
 }
 export function searchRepos(searchText, path) {  // search/repositories?q=akm-models
-    console.log('15 searchRepos search/repositories', searchText, path);
+  if (debug)  console.log('1 7searchRepos search/repositories', searchText, path);
   return axios.get(
     `search/repositories?q=${searchText}`,
     axiosConfig

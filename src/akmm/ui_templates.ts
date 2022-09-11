@@ -1329,7 +1329,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
               portId: '', 
               fromLinkable: true, 
               toLinkable: true, 
-              cursor: 'pointer',
+              cursor: 'alias',
               fromSpot: go.Spot.RightSide, 
               toSpot: go.Spot.LeftSide
             },
@@ -1339,15 +1339,27 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
           ),
           ), // end Task Icon
         ),  // end main body rectangles spot panel
-
+        
+        $(go.Panel, 'Auto',  // make an area around text for move cursor
+            $(go.Shape, 'Rectangle',  // area around the text
+                {
+                    fill: 'transparent', stroke: null, strokeWidth: 0,
+                    cursor: 'move',
+                    desiredSize: new go.Size(100, 60),
+                },
+            ),
+        ),
         $(go.TextBlock,  // the center text
           {
             alignment: go.Spot.Center, 
+            // background: 'gray',
+            cursor: 'move',
             textAlign: 'center', 
-            margin: 12,
-            editable: true
+            margin: 2,
+            editable: true,
           },
-          new go.Binding("text", "name").makeTwoWay())
+          new go.Binding("text", "name").makeTwoWay(),
+        )
       )  // end Auto Panel
     );
     addNodeTemplateName('ActivityNode');
@@ -2562,20 +2574,20 @@ export function addGroupTemplates(groupTemplateMap: any, contextMenu: any, myMet
 
 // Function to identify images related to an image id
 export function findImage(image: string) {
-    console.log("2561 findImage: " + image);
+    if (debug)console.log("2561 findImage: " + image);
     if (!image)
         return "";
     // if (image.substring(0,4) === 'http') { // its an URL
     if (image.includes('//')) { // its an URL   
-        if (!debug) console.log('2563 Diagram', image);
+        if (debug) console.log('2563 Diagram', image);
         return image
     } else if (image.includes('/')) { // its a local image
-        if (!debug) console.log('2566 Diagram', image);   
+        if (debug) console.log('2566 Diagram', image);   
         return image
     } else if (image.includes('.') === false) { // its a 2character icon 1st with 2nd as subscript
         const firstcharacter = image.substring(0, 1)
         const secondcharacter = image.substring(1, 2)
-        if (!debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
+        if (debug) console.log('2571 Diagram', firstcharacter, secondcharacter)    
         // } else if (image.substring(image.length - 4) === '.svg') { //sf tried to use svg data but did not work
         //   const letter = image.substring(0, image.length - 4)
         //   // const lettersvg = letter
@@ -2591,7 +2603,7 @@ export function findImage(image: string) {
         return img
 
     } else { 
-        if (!debug) console.log('2586 Diagram', image);
+        if (debug) console.log('2586 Diagram', image);
         return "./../images/" + image //its an image in public/images
     }
     return "";

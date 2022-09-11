@@ -9,7 +9,7 @@ import { FaJoint } from 'react-icons/fa';
 const debug = false;
 
 const SelectContext = (props: any) => {
-  console.log('12 ', props);
+  if (debug) console.log('12 ', props);
   const dispatch = useDispatch()
   let state = useSelector((state:any) => state) // Selecting the whole redux store
   // set timeout to allow for redux store to be updated
@@ -17,7 +17,7 @@ const SelectContext = (props: any) => {
   //   console.log('17 SelectContext', state);
   // }, 1000);
   
-  if (!debug) console.log('15 state', state);
+  if (debug) console.log('15 state', state);
   // if no state then exit
   if (!state.phData?.metis?.models) return null
   const metamodels = useSelector(metamodels => state.phData?.metis?.metamodels)  // selecting the models array
@@ -27,7 +27,7 @@ const SelectContext = (props: any) => {
   const focusModelview = useSelector(focusModelview => state.phFocus?.focusModelview)
   
   // const [model, setModel] = useState(focusModel)
-  console.log('23 focusModel', focusModel, models);
+  if (debug) console.log('23 focusModel', focusModel, models);
   
   const curmodel = models?.find((m: any) => m?.id === focusModel?.id) || models[0]
   const modelviews = curmodel?.modelviews //.map((mv: any) => mv)

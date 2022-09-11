@@ -130,7 +130,7 @@ const LoadGitHub = (props: any) => {
 
     const content = res2.data.content
 
-    if (!debug) console.log('113 res', res2, res2.data)
+    if (debug) console.log('113 res', res2, res2.data)
 
     if (debug) console.log('115 ', searchtext, res)
     if (debug) console.log('116 ', base64.decode(content))
@@ -139,7 +139,7 @@ const LoadGitHub = (props: any) => {
     if (debug) console.log('119 ', model)
     setModel(model);
     setLoading(false);
-    if (!debug) console.log('90 onModelChange', model, props) 
+    if (debug) console.log('90 onModelChange', model, props) 
     if (model) {
       if (filename.includes('_MM.json')) { // it is a Metamodel and will be loaded into current project
         let  mmindex = props.ph.phData?.metis?.metamodels?.findIndex(m => m.id === model?.id) // current model index
@@ -168,7 +168,7 @@ const LoadGitHub = (props: any) => {
           // phSource: model.phData.metis.name || model.phSource 
           phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
-        console.log('154', data)
+        if (debug) console.log('154', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
@@ -213,7 +213,7 @@ const LoadGitHub = (props: any) => {
   }, [usernameText, repoText, pathText]);
 
   useEffect(() => {
-    console.log('170 useEffect 3', model)
+    if (debug) console.log('170 useEffect 3', model)
     const  refres = () => {
       setRefresh(!refresh)
     }

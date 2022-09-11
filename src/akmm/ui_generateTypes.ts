@@ -914,12 +914,12 @@ export function generateTargetMetamodel2(context: any) {
 
     let mergeMetamodel = false;
 
-    if (confirm('Do you want to MERGE into (NOT CLEAR) the Target Metamodel?')) {
-        mergeMetamodel = true;
-    }    
-    if (!mergeMetamodel) {
-        targetmetamodel.clearContent();
-    }
+    // if (confirm('Do you want to MERGE into (NOT CLEAR) the Target Metamodel?')) {
+    //     mergeMetamodel = true;
+    // }    
+    // if (!mergeMetamodel) {
+    //     targetmetamodel.clearContent();
+    // }
 
     const myMetis = context.myMetis;
     let currentNode = context.myCurrentNode;

@@ -1386,7 +1386,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         data = JSON.parse(JSON.stringify(data));
         myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     }
-    { // Try to remove duplicate relationship types
+    { // Remove duplicate relationship types
         myMetis.currentTargetMetamodel = metamodel;
         myMetis.currentTargetModel = model;
         const rels = metamodel.relshiptypes;

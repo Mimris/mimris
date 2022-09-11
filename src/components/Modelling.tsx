@@ -101,6 +101,7 @@ const page = (props:any) => {
   }
 
   function  dispatchToStore() {   // when reloading the page, the state is lost, so we need to dispatch the memoryLocState, if exist to the store
+    console.log('104 dispatchToStore', memoryLocState);
       if (memoryLocState[0] !== undefined) {
         const ipVal= 0
         const ph = memoryLocState[ipVal]
@@ -155,21 +156,24 @@ const page = (props:any) => {
       setRefresh(!refresh)
     }
     setTimeout(refres, 100);
-    if (debug) console.log('145 Modelling refresh', data);
+    if (!debug) console.log('145 Modelling refresh', data);
   }
 
   let mdata = null;
   const  saveMemoryLocState = (data) => {
-    if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
+    if (!debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
     if (data.phSource == 'INIT-Startup_Project.json') return;  // do not save the startup project
-    if (debug) console.log('143 Modelling', memoryLocState.map(mls => mls.phSource));
-    const mlsTmp =  memoryLocState.map(mls => ((mls.lastUpdate !== undefined) || (mls.phSource !== data.phSource)) && mls)  // remove previous if already in the list
-    if (debug) console.log('144 Modelling', mlsTmp, data);
-    mdata = (Array.isArray(memoryLocState)) ? [data, ...mlsTmp] : [data];
-    mdata = mdata.slice(0, 4);
-    if (!debug) console.log('161 Modelling refresh', mdata);
+    if (data.phSource == undefined) return;  // do not save 
+    if (data.phSource === '') return;  // do not save the project
+    if (!Array.isArray(memoryLocState)) return; // do not save the project
+    if (!debug) console.log('169 Modelling refresh', data, memoryLocState, );
+    mdata = memoryLocState.filter(m => m.phSource !== data.phSource)
+    if (!debug) console.log('171 Modelling refresh', mdata);
+    mdata = [data, ...mdata] // add the new data to the beginning of the array
+    if (!debug) console.log('173 Modelling refresh', mdata);
+    mdata = mdata.slice(0, 4); // keep only the last 4 projects
+    if (!debug) console.log('175 Modelling refresh', mdata);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-    
   }
 
   if (debug) console.log('174 Modelling', curmod, curmodview);
@@ -478,7 +482,7 @@ const page = (props:any) => {
             </button >
           </span> 
           {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Save and Load models (download/upload) from Local Repo" > {loadgitlocal} </span> */}
-          <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span>
+          {/* <span data-bs-toggle="tooltip" data-bs-placement="top" title="Recover project from last refresh" > {loadrecovery} </span> */}
           <span className="btn btn-link float-right"  onClick={toggleRefresh} data-toggle="tooltip" data-placement="top" title="Refresh the modelview" > {refresh ? 'refresh' : 'refresh'} </span>
         </span> 
   

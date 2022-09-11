@@ -50,6 +50,7 @@ const LoadGitHub = (props: any) => {
 
   const { buttonLabel, className } = props;
   const toggle = () => setModal(!modal);
+  function toggleRefresh() { setRefresh(!refresh); }
 
   const data = {
     phData:   props.ph.phData,
@@ -279,12 +280,15 @@ const LoadGitHub = (props: any) => {
               ? <div >Models found: <span className="text-success m-1">{models?.map((mod) => ( <span className="px-1" key={mod.name} >{mod.name}, </span>))} </span></div> 
               : <div className='text-warning'> 'No models found!'</div>
             } 
-
+            <hr className="bg-primary px-10 my-1 mx-4" />
+            <Button className="btn-primary modal--footer mr-4 py-0 px-1 float-right" color="primary" data-toggle="tooltip" data-placement="top" data-bs-html="true" 
+              title="Click here when done!" onClick={() => {toggle(); toggleRefresh()}}>Done
+            </Button>
             {/* -------------------------------------------------------- */}
-            <hr className="bg-primarypx-10 my-1 mx-4" />
-            <label className="w-100 d-inline-flex justify-content-left"> 
+            <label className="w-70 d-inline-flex justify-content-left"> 
               <Select label=" Select model : " value={(modeloptions) ? modeloptions[0] : 'no models'} options={(modeloptions) ? modeloptions : []} onChange={(value) => onModelChange(value)} />
             </label>
+  
             {/* <hr /> */}
             {/* {loading ? 'Loading...' : (models?.length > 0) 
               ? <div>Models found:
@@ -292,18 +296,20 @@ const LoadGitHub = (props: any) => {
                   <li key={mod.name} >{mod.name}</li>
                 ))} </div> 
               : 'No models found!'} */}
-          </div>
-          {/* <hr className="bg-primary m-2" />
+
+            </div>
+
+             {/* <hr className="bg-primary m-2" />
              {/* ----- Branch input default main ------------------------------------ */}
              
              {/* <div className="square border border-2 border-white p-1"><strong>Download a patch:</strong> (RepoOwner, Repository and Path must be filled in above)<br />
               <Button className="w-100" onClick={() => loadBranch(repoText, branchText)}> <TextInput label="Download  " value={branchText} onChange={(value) => setBranchText(value)} placeholder="Branch" /> </Button>
              </div> */}
-          <hr className="bg-primary my-1 mx-4" />
+          <hr className="bg-secondary py-1 my-1 mx-4" />
           <div className="bg-secondary square border border-2 border-primary p-2"><strong>Upload model files:</strong> <br />
           <div className="bg-secondary square border border-2 border-primary p-2"><strong>First save the project.json file:</strong> (It will be saved to Download folder)
             <button 
-              className="btn-primary ml-2 mr-2 mb-3 float-right" 
+              className="btn-primary modal--footer mr-2 py-0 px-1 float-right" 
               data-toggle="tooltip" data-placement="top" data-bs-html="true" 
               title="Click here to Save the Project&#013;(all models and metamodels) to file &#013;(in Downloads folder)"
               onClick={handleSaveAllToFile}>Save

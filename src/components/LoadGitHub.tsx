@@ -168,7 +168,7 @@ const LoadGitHub = (props: any) => {
           // phSource: model.phData.metis.name || model.phSource 
           phSource: `GitHub: ${repoText}/${pathText}/${filename}`,
         }
-        console.log('154', data)
+        if (debug) console.log('154', data)
         if (data.phData)    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: data.phData })
         if (data.phFocus)   dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: data.phFocus })
         if (data.phUser)    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: data.phUser })
@@ -213,7 +213,7 @@ const LoadGitHub = (props: any) => {
   }, [usernameText, repoText, pathText]);
 
   useEffect(() => {
-    console.log('170 useEffect 3', model)
+    if (debug) console.log('170 useEffect 3', model)
     const  refres = () => {
       setRefresh(!refresh)
     }

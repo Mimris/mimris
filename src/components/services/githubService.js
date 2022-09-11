@@ -54,7 +54,7 @@ export function searchGithub(searchText, path, filename, branch, searchtype) { /
   );
 }
 export function searchRepos(searchText, path) {  // search/repositories?q=akm-models
-    console.log('15 searchRepos search/repositories', searchText, path);
+  if (debug)  console.log('1 7searchRepos search/repositories', searchText, path);
   return axios.get(
     `search/repositories?q=${searchText}`,
     axiosConfig

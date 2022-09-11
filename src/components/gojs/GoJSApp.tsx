@@ -275,7 +275,7 @@ class GoJSApp extends React.Component<{}, AppState> {
     if (debug) console.log('265 handleDiagramEvent - context', name, this.state, context);
     if (debug) console.log('266 handleEvent', myMetis);
     if (debug) console.log('267 this', this);
-    console.log('268 event name', name);
+    if (debug) console.log('268 event name', name);
 
     switch (name) {
       case 'TextEdited': {
@@ -1016,7 +1016,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         const data = sel.data;
-        console.log('998 selected', data, sel);
+        if (debug) console.log('998 selected', data, sel);
         for (let it = sel.memberParts; it?.next();) {
             var n = it.value;
             if (!(n instanceof go.Node)) continue;

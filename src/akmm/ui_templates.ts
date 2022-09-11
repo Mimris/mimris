@@ -1329,7 +1329,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
               portId: '', 
               fromLinkable: true, 
               toLinkable: true, 
-              cursor: 'pointer',
+              cursor: 'alias',
               fromSpot: go.Spot.RightSide, 
               toSpot: go.Spot.LeftSide
             },
@@ -1339,15 +1339,27 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
           ),
           ), // end Task Icon
         ),  // end main body rectangles spot panel
-
+        
+        $(go.Panel, 'Auto',  // make an area around text for move cursor
+            $(go.Shape, 'Rectangle',  // area around the text
+                {
+                    fill: 'transparent', stroke: null, strokeWidth: 0,
+                    cursor: 'move',
+                    desiredSize: new go.Size(100, 60),
+                },
+            ),
+        ),
         $(go.TextBlock,  // the center text
           {
             alignment: go.Spot.Center, 
+            // background: 'gray',
+            cursor: 'move',
             textAlign: 'center', 
-            margin: 12,
-            editable: true
+            margin: 2,
+            editable: true,
           },
-          new go.Binding("text", "name").makeTwoWay())
+          new go.Binding("text", "name").makeTwoWay(),
+        )
       )  // end Auto Panel
     );
     addNodeTemplateName('ActivityNode');

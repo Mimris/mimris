@@ -45,18 +45,11 @@ const page = (props:any) => {
   const [mount, setMount] = useState(false)
   const [refresh, setRefresh] = useState(true);
 
-
-
-  useEffect(() => {
+  useEffect(() => { // make sure its mounted before rendering
     setMount(true)
   }, [])
 
-  let isRendered = useRef(false);
-
   if (debug) console.log('33 Modelling', props, props.phUser.focusUser.diagram);
-
-  // const refresh = props.refresh
-  // const setRefresh = props.setRefresh
  
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
   if (!memoryLocState && (typeof window != 'undefined')) {setMemoryLocState([props])}
@@ -87,7 +80,7 @@ const page = (props:any) => {
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
-  const curmod = metis.models.find(m => m.i === focusModel?.id)
+  const curmod = metis.models.find(m => m.id === focusModel?.id)
   const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
   const curobjviews = curmodview?.objectviews
 
@@ -107,8 +100,31 @@ const page = (props:any) => {
     lastUpdate: new Date().toISOString()
   }
 
-  useEffect(() => {
-    if (debug) console.log('111 Modelling useEffect', data);
+  function  dispatchToStore() {   // when reloading the page, the state is lost, so we need to dispatch the memoryLocState, if exist to the store
+      if (memoryLocState[0] !== undefined) {
+        const ipVal= 0
+        const ph = memoryLocState[ipVal]
+        const phData = ph?.phData
+        const phFocus = ph?.phFocus
+        const phUser = ph?.phUser
+        const phSource = (ph?.phSource === "") && phData.metis.name  || ph?.phSource 
+        // console.log('91 SelectSource', locState);
+        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
+        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
+        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: phUser })
+        let data = (phSource === "") ? phData.metis.name : phSource
+        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+      }
+    }
+  
+  useEffect(() => { // load local storage if it exists and dispatch the first model project
+    // if (saveMemoryLocState[0]) {
+      dispatchToStore()
+    // }
+  }, []) 
+
+  useEffect(() => {  // refresh the diagram when the focus changes
+    if (debug) console.log('111 Modelling useEffect focus', data);
     genGojsModel(props, dispatch);
     
     const timer = setTimeout(() => {
@@ -117,10 +133,14 @@ const page = (props:any) => {
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [focusModelview?.id, focusModel?.id, props.phFocus.focusTargetMetamodel?.id, curmod])
+  }, [focusModelview?.id, focusModel?.id, props.phFocus.focusTargetMetamodel?.id])
+
+  useEffect(() => {  // save to local storage when the focus changes
+    saveMemoryLocState(data)    
+  }, [focusModelview?.id])
 
   useEffect(() => { // refresch the model when the focusRefresch changes
-    if (debug) console.log('123 Modelling useEffect', memoryLocState, data);
+    if (debug) console.log('123 Modelling useEffect  refresh', memoryLocState, data);
     genGojsModel(props, dispatch);
     function refres() {
       setRefresh(!refresh)
@@ -128,25 +148,31 @@ const page = (props:any) => {
     setTimeout(refres, 1);
   }, [props.phFocus?.focusRefresh?.id])
 
-
   function toggleRefresh() {
-    if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
-    let mdata = (Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
-    // put currentdata in the first position of the array data
-    if (mdata.length > 9) { mdata.shift() }
-    if (debug) console.log('161 Modelling refresh', mdata);
-    // setTimeout(refres, 1);
-    (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
+    saveMemoryLocState(data)
     genGojsModel(props, dispatch)
     function refres() {
       setRefresh(!refresh)
     }
     setTimeout(refres, 100);
-    setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+    if (debug) console.log('145 Modelling refresh', data);
+  }
+
+  let mdata = null;
+  const  saveMemoryLocState = (data) => {
+    if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
+    if (data.phSource == 'INIT-Startup_Project.json') return;  // do not save the startup project
+    if (debug) console.log('143 Modelling', memoryLocState.map(mls => mls.phSource));
+    const mlsTmp =  memoryLocState.map(mls => ((mls.lastUpdate !== undefined) || (mls.phSource !== data.phSource)) && mls)  // remove previous if already in the list
+    if (debug) console.log('144 Modelling', mlsTmp, data);
+    mdata = (Array.isArray(memoryLocState)) ? [data, ...mlsTmp] : [data];
+    mdata = mdata.slice(0, 4);
+    if (!debug) console.log('161 Modelling refresh', mdata);
+    (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
+    
   }
 
   if (debug) console.log('174 Modelling', curmod, curmodview);
-
     function handleSaveAllToFileDate() {
       const projectname = props.phData.metis.name
       SaveAllToFileDate(data, projectname, 'Project')
@@ -155,17 +181,14 @@ const page = (props:any) => {
       const projectname = props.phData.metis.name
       SaveAllToFile(data, projectname, 'Project')
     }
-    
     const [activeTab, setActiveTab] = useState('2');
     const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
       const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
       // console.log('159', data, dispatch({ type: 'SET_FOCUS_TAB', data }));
       dispatch({ type: 'SET_FOCUS_TAB', data })
     }
-
     const [tooltipOpen, setTooltipOpen] = useState(false);
     const toggleTip = () => setTooltipOpen(!tooltipOpen);
-    
     const [visibleTasks, setVisibleTasks] = useState(true)
     function toggleTasks() {
       setVisibleTasks(!visibleTasks);
@@ -469,3 +492,5 @@ const page = (props:any) => {
   )
 } 
 export default Page(connect(state => state)(page));
+
+

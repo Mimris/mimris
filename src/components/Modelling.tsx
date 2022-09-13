@@ -100,8 +100,9 @@ const page = (props:any) => {
     lastUpdate: new Date().toISOString()
   }
 
-  function  dispatchToStore() {   // when reloading the page, the state is lost, so we need to dispatch the memoryLocState, if exist to the store
-    console.log('104 dispatchToStore', memoryLocState);
+  function  dispatchToStore() {  
+    if (false) { // when reloading the page, the state is lost, so we need to dispatch the memoryLocState, if exist to the store
+      console.log('104 dispatchToStore', memoryLocState);
       if (memoryLocState[0] !== undefined) {
         const ipVal= 0
         const ph = memoryLocState[ipVal]
@@ -117,6 +118,7 @@ const page = (props:any) => {
         dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
       }
     }
+  }
   
   useEffect(() => { // load local storage if it exists and dispatch the first model project
     // if (saveMemoryLocState[0]) {

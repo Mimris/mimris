@@ -161,7 +161,7 @@ const page = (props:any) => {
 
   let mdata = null;
   const  saveMemoryLocState = (data) => {
-    if (debug) { 
+    if (false) { 
     if (!debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
     if (data.phSource == 'INIT-Startup_Project.json') return;  // do not save the startup project
     if (data.phSource == undefined) return;  // do not save 

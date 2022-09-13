@@ -42,7 +42,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) console.log('36 GenGojsModel: myMetis', tempMetis);
     myMetis.importData(metis, true);
     adminModel = buildAdminModel(myMetis);
-    clog('39 GenGojsModel: myMetis', myMetis);
+    clog('39 GenGojsModel: metis, ', metis, 'myMetis', myMetis, 'tempMetis',tempMetis);
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     if (debug) console.log('43 focusModel, focusModelview', focusModel, focusModelview)

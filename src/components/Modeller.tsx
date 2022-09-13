@@ -178,7 +178,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   }, [activeTab && (activeTab) && (activeTab !== activetabindex)])
 
   useEffect(() => {
-    if (debug) console.log('195 Modeller useEffect 5', props); 
+    if (!debug) console.log('195 Modeller useEffect 5', props); 
     genGojsModel(props, dispatch)
   }, [refresh])
   

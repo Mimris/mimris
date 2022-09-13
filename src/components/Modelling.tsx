@@ -161,6 +161,7 @@ const page = (props:any) => {
 
   let mdata = null;
   const  saveMemoryLocState = (data) => {
+    if (debug) { 
     if (!debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
     if (data.phSource == 'INIT-Startup_Project.json') return;  // do not save the startup project
     if (data.phSource == undefined) return;  // do not save 
@@ -174,6 +175,7 @@ const page = (props:any) => {
     mdata = mdata.slice(0, 4); // keep only the last 4 projects
     if (!debug) console.log('175 Modelling refresh', mdata);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
+    }
   }
 
   if (debug) console.log('174 Modelling', curmod, curmodview);

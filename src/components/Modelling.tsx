@@ -88,8 +88,22 @@ const page = (props:any) => {
   let phFocus = props.phFocus;
   let phData = props.phData
   let phUser = props.phUser
+  let ph = props
 
   if (debug) console.log('90 Modelling', metis.metamodels, metis.models, curmod, curmodview, focusModel);
+
+  const [activeTab, setActiveTab] = useState('2');
+  const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
+    const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
+    // console.log('159', data, dispatch({ type: 'SET_FOCUS_TAB', data }));
+    dispatch({ type: 'SET_FOCUS_TAB', data })
+  }
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const toggleTip = () => setTooltipOpen(!tooltipOpen);
+  const [visibleTasks, setVisibleTasks] = useState(true)
+  function toggleTasks() {
+    setVisibleTasks(!visibleTasks);
+  }
 
   const data = {
     phData:   props.phData,
@@ -99,85 +113,86 @@ const page = (props:any) => {
     phSource: (phSource === "") && phData.metis.name  || phSource,
     lastUpdate: new Date().toISOString()
   }
-
-  function  dispatchToStore() {  
-    if (false) { // when reloading the page, the state is lost, so we need to dispatch the memoryLocState, if exist to the store
-      console.log('104 dispatchToStore', memoryLocState);
-      if (memoryLocState[0] !== undefined) {
-        const ipVal= 0
-        const ph = memoryLocState[ipVal]
-        const phData = ph?.phData
-        const phFocus = ph?.phFocus
-        const phUser = ph?.phUser
-        const phSource = (ph?.phSource === "") && phData.metis.name  || ph?.phSource 
-        // console.log('91 SelectSource', locState);
-        dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
-        dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
-        dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: phUser })
-        let data = (phSource === "") ? phData.metis.name : phSource
-        dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
-      }
-    }
-  }
-  
+  // ask the user if he wants to reload the last state
   useEffect(() => { // load local storage if it exists and dispatch the first model project
-    // if (saveMemoryLocState[0]) {
-      dispatchToStore()
-    // }
+    if (window.confirm("Do you want to reload your last model project?")) {
+      ph = memoryLocState[0]
+    }
+    // set the first modelview  as the focus
+    const id = curmod.modelviews[0].id
+    const name = curmod.modelviews[0].name
+    dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: id, name: name}  })
+    genGojsModel(props, dispatch);
   }, []) 
 
+  function  dispatchToStore() {  
+   if (debug) console.log('104 dispatchToStore memoryLocState ', memoryLocState);
+    const phData = ph?.phData
+    const phFocus = ph?.phFocus
+    const phUser = ph?.phUser
+    const phSource = (ph?.phSource === "") && phData.metis.name  || ph?.phSource 
+    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
+    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
+    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: phUser })
+    let data = (phSource === "") ? phData.metis.name : phSource
+    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+  }
+
   useEffect(() => {  // refresh the diagram when the focus changes
-    if (debug) console.log('111 Modelling useEffect focus', data);
-    genGojsModel(props, dispatch);
     
     const timer = setTimeout(() => {
-      // genGojsModel(props, dispatch);
-      setRefresh(!refresh)
-    }, 1000);
-    
+      if (!debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
+      genGojsModel(props, dispatch);
+    }, 1000); 
     return () => clearTimeout(timer);
-  }, [focusModelview?.id, focusModel?.id, props.phFocus.focusTargetMetamodel?.id])
+  }, [focusModelview?.id])
+  // }, [focusModelview?.id, focusModel?.id, props.phFocus.focusTargetMetamodel?.id])
 
   useEffect(() => {  // save to local storage when the focus changes
-    saveMemoryLocState(data)    
+    dispatchToStore()  
   }, [focusModelview?.id])
 
-  useEffect(() => { // refresch the model when the focusRefresch changes
-    if (debug) console.log('123 Modelling useEffect  refresh', memoryLocState, data);
-    genGojsModel(props, dispatch);
-    function refres() {
-      setRefresh(!refresh)
-    }
-    setTimeout(refres, 1);
-  }, [props.phFocus?.focusRefresh?.id])
+  // useEffect(() => { // refresch the model when the focusRefresch changes
+  //   if (!debug) console.log('151 Modelling useEffect refreshid', props.phFocus.focusModel, props.phFocus.focusModelview);
+  //   if (!debug) console.log('159 Modelling useEffect refreshid', props.phData.metis.models);
+  //   saveMemoryLocState()
+  //   genGojsModel(props, dispatch)
+  //   function refres() {
+  //     setRefresh(!refresh)
+  //   }
+  //   setTimeout(refres, 1000);
+
+  //   genGojsModel(props, dispatch);
+  // }, [props.phFocus?.focusRefresh?.id])
 
   function toggleRefresh() {
-    saveMemoryLocState(data)
-    genGojsModel(props, dispatch)
+    // genGojsModel(props, dispatch)
     function refres() {
       setRefresh(!refresh)
     }
-    setTimeout(refres, 100);
-    if (!debug) console.log('145 Modelling refresh', data);
+    setTimeout(refres, 1000);
+
+    // saveMemoryLocState()
+    if (debug) console.log('167 Modelling refresh', props.phFocus.focusModel, props.phFocus.focusModelview);
   }
 
   let mdata = null;
-  const  saveMemoryLocState = (data) => {
-    if (false) { 
-    if (!debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
+  const  saveMemoryLocState = () => {
+    // if (true) { 
+    if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
     if (data.phSource == 'INIT-Startup_Project.json') return;  // do not save the startup project
     if (data.phSource == undefined) return;  // do not save 
     if (data.phSource === '') return;  // do not save the project
     if (!Array.isArray(memoryLocState)) return; // do not save the project
-    if (!debug) console.log('169 Modelling refresh', data, memoryLocState, );
+    if (debug) console.log('169 Modelling refresh', data, memoryLocState, );
     mdata = memoryLocState.filter(m => m.phSource !== data.phSource)
-    if (!debug) console.log('171 Modelling refresh', mdata);
+    if (debug) console.log('171 Modelling refresh', mdata);
     mdata = [data, ...mdata] // add the new data to the beginning of the array
-    if (!debug) console.log('173 Modelling refresh', mdata);
+    if (debug) console.log('173 Modelling refresh', mdata);
     mdata = mdata.slice(0, 4); // keep only the last 4 projects
-    if (!debug) console.log('175 Modelling refresh', mdata);
+    if (debug) console.log('175 Modelling refresh', mdata);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
-    }
+    // }
   }
 
   if (debug) console.log('174 Modelling', curmod, curmodview);
@@ -189,18 +204,7 @@ const page = (props:any) => {
       const projectname = props.phData.metis.name
       SaveAllToFile(data, projectname, 'Project')
     }
-    const [activeTab, setActiveTab] = useState('2');
-    const toggleTab = tab => { if (activeTab !== tab) setActiveTab(tab);
-      const data = (tab === '1') ? 'Metamodelling' : 'Modelling'
-      // console.log('159', data, dispatch({ type: 'SET_FOCUS_TAB', data }));
-      dispatch({ type: 'SET_FOCUS_TAB', data })
-    }
-    const [tooltipOpen, setTooltipOpen] = useState(false);
-    const toggleTip = () => setTooltipOpen(!tooltipOpen);
-    const [visibleTasks, setVisibleTasks] = useState(true)
-    function toggleTasks() {
-      setVisibleTasks(!visibleTasks);
-    }
+
 
   // ===================================================================
   // Divs

@@ -60,7 +60,7 @@ const LoadRecovery = (props: any) => {
       const cleanMemState =  memState.filter((item: any) => item.phSource !== undefined)
       setMemoryLocState(cleanMemState) 
     } 
-    // if (!debug) console.log('57 LoadRecovery', inputValue, e.target.value , e);
+    // if (debug) console.log('57 LoadRecovery', inputValue, e.target.value , e);
     if (debug) console.log('58 LoadRecovery',  inputValue, 'memval ', memoryState[inputValue], 'mem ', memoryState);
 
    
@@ -71,7 +71,7 @@ const LoadRecovery = (props: any) => {
           if (inputValue > memoryState.length) return;
           const ipVal= inputValue
           const ph = memoryState[ipVal]
-          if (!debug) console.log('74 LoadRecovery', ipVal, memoryState[ipVal]);
+          if (debug) console.log('74 LoadRecovery', ipVal, memoryState[ipVal]);
           const phData = ph?.phData
           const phFocus = ph?.phFocus
           const phUser = ph?.phUser

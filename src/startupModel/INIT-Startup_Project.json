@@ -5905,7 +5905,24 @@
           ],
           "modelviews": [
             {
-              "id": "25369779-7e2d-4731-3d54-415f3c10da5d",
+              "id": "0237125b-2f1c-46d3-eb4e-520614917263",
+              "name": "2-Modelview",
+              "description": "",
+              "layout": "Tree",
+              "routing": "Normal",
+              "linkcurve": "None",
+              "showCardinality": false,
+              "askForRelshipName": false,
+              "modelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
+              "objectviews": [],
+              "relshipviews": [],
+              "objecttypeviews": [],
+              "relshiptypeviews": [],
+              "markedAsDeleted": false,
+              "modified": false
+            },
+            {
+              "id": "1237125b-2f1c-46d3-eb4e-520614917262",
               "name": "Main",
               "description": "",
               "layout": "Tree",
@@ -5935,9 +5952,12 @@
                   "figure": "",
                   "geometry": "",
                   "fillcolor": "",
+                  "fillcolor2": "",
                   "strokecolor": "",
+                  "strokecolor2": "",
                   "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": "1",
                   "icon": "./../images/car.png"
                 },
                 {
@@ -5960,9 +5980,12 @@
                   "figure": "",
                   "geometry": "",
                   "fillcolor": "",
+                  "fillcolor2": "",
                   "strokecolor": "",
+                  "strokecolor2": "",
                   "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": "1",
                   "icon": "https://img.icons8.com/color/2x/person-male.png"
                 },
                 {
@@ -5985,9 +6008,12 @@
                   "figure": "",
                   "geometry": "",
                   "fillcolor": "",
+                  "fillcolor2": "",
                   "strokecolor": "",
+                  "strokecolor2": "",
                   "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": "1",
                   "icon": ""
                 },
                 {
@@ -6010,9 +6036,12 @@
                   "figure": "",
                   "geometry": "",
                   "fillcolor": "",
+                  "fillcolor2": "",
                   "strokecolor": "",
+                  "strokecolor2": "",
                   "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": "1",
                   "icon": ""
                 },
                 {
@@ -6035,9 +6064,12 @@
                   "figure": "",
                   "geometry": "",
                   "fillcolor": "",
+                  "fillcolor2": "",
                   "strokecolor": "",
+                  "strokecolor2": "",
                   "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": "1",
                   "icon": ""
                 }
               ],
@@ -6050,11 +6082,11 @@
                   "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
                   "fromobjviewRef": "dbfe4d78-6ff9-46bf-e132-c063c992bfee",
                   "toobjviewRef": "48ed0ca0-1552-4c3a-37a6-b1a74605f5a8",
-                  "textscale": 1,
-                  "arrowscale": "1.3",
-                  "strokecolor": "black",
-                  "strokewidth": "",
+                  "arrowscale": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": 1,
                   "dash": "",
                   "toArrow": "",
                   "fromArrowColor": "",
@@ -6089,11 +6121,11 @@
                   "typeviewRef": "32adedbc-a6db-4bd9-ce39-977921b1cd50",
                   "fromobjviewRef": "6a13e6eb-8931-41d5-ed17-4cfd9efe999f",
                   "toobjviewRef": "5a2505d3-4eaa-44e2-9d53-bfe7146b8e79",
-                  "textscale": 1,
-                  "arrowscale": "1.3",
-                  "strokecolor": "black",
-                  "strokewidth": "",
+                  "arrowscale": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": 1,
                   "dash": "",
                   "toArrow": "",
                   "fromArrowColor": "",
@@ -6128,11 +6160,11 @@
                   "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
                   "fromobjviewRef": "dbfe4d78-6ff9-46bf-e132-c063c992bfee",
                   "toobjviewRef": "6a13e6eb-8931-41d5-ed17-4cfd9efe999f",
-                  "textscale": 1,
-                  "arrowscale": "1.3",
-                  "strokecolor": "black",
-                  "strokewidth": "",
+                  "arrowscale": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": 1,
                   "dash": "",
                   "fromArrow": "",
                   "toArrow": "",
@@ -6173,11 +6205,11 @@
                   "typeviewRef": "70e7b709-bd91-4b7c-f390-553914e10430",
                   "fromobjviewRef": "dbfe4d78-6ff9-46bf-e132-c063c992bfee",
                   "toobjviewRef": "6a13e6eb-8931-41d5-ed17-4cfd9efe999f",
-                  "textscale": 1,
-                  "arrowscale": "1.3",
-                  "strokecolor": "black",
-                  "strokewidth": "",
+                  "arrowscale": "",
+                  "strokecolor": "",
+                  "strokewidth": "1",
                   "textcolor": "",
+                  "textscale": 1,
                   "dash": "",
                   "fromArrow": "",
                   "toArrow": "",
@@ -6219,8 +6251,8 @@
           ],
           "markedAsDeleted": false,
           "modified": false
-        },
-        {
+            },
+            {
           "id": "2a73cc5f-8c0f-4c91-56b0-46090f03e945",
           "name": "TEST_Model",
           "description": "",
@@ -6970,7 +7002,7 @@
       "name": "INIT_MODEL"
     },
     "focusModelview": {
-      "id": "25369779-7e2d-4731-3d54-415f3c10da5d",
+      "id": "0237125b-2f1c-46d3-eb4e-520614917262",
       "name": "Main"
     },
     "focusObject": {
@@ -7026,9 +7058,44 @@
       "name": "Modeller 1",
       "tasks": [
         {
+          "id": "task00",
+          "name": "All types",
+          "description": "All types modelling",
+          "workOnTypes": [
+            "Container",
+            "EntityType",
+            "Information",
+            "Role",
+            "Task",
+            "View",
+            false,
+            "Datatype",
+            "Element",
+            false,
+            "FieldType",
+            "Generic",
+            "InputPattern",
+            "Label",
+            "Method",
+            "MethodType",
+            "Property",
+            "RelshipType",
+            "Unittype",
+            "Value",
+            "ViewFormat"
+          ]
+        },
+        {
           "id": "Task0",
           "name": "Modelling",
-          "workOnTypes": []
+          "workOnTypes": [
+            "Container",
+            "EntityType",
+            "Information",
+            "Role",
+            "Task",
+            "View"
+          ]
         },
         {
           "id": "task1",
@@ -7070,30 +7137,6 @@
             "Task",
             "View"
           ]
-        },
-        {
-          "id": "task4",
-          "name": "All types",
-          "description": "All types modelling",
-          "workOnTypes": [
-            [
-              "Container",
-              "Datatype",
-              "Element",
-              "EntityType",
-              "FieldType",
-              "Generic",
-              "InputPattern",
-              "Label",
-              "Method",
-              "MethodType",
-              "Property",
-              "RelshipType",
-              "Unittype",
-              "Value",
-              "ViewFormat"
-            ]
-          ]
         }
       ]
     },
@@ -7102,24 +7145,28 @@
       "name": "All types",
       "description": "All types modelling",
       "workOnTypes": [
-        [
-          "Container",
-          "Container",
-          "Datatype",
-          "Element",
-          "EntityType",
-          "FieldType",
-          "Generic",
-          "InputPattern",
-          "Label",
-          "Method",
-          "MethodType",
-          "Property",
-          "RelshipType",
-          "Unittype",
-          "Value",
-          "ViewFormat"
-        ]
+        "Container",
+        "EntityType",
+        "Information",
+        "Role",
+        "Task",
+        "View",
+        "Label",
+        false,
+        "Datatype",
+        "Element",
+        false,
+        "FieldType",
+        "Generic",
+        "InputPattern",
+        false,
+        "Method",
+        "MethodType",
+        "Property",
+        "RelshipType",
+        "Unittype",
+        "Value",
+        "ViewFormat"
       ]
     }
   },
@@ -7136,5 +7183,5 @@
     }
   },
   "phSource": "INIT-Startup_Project.json",
-  "lastUpdate": "2022-07-29T07:09:08.724Z"
+  "lastUpdate": "2022-09-14T15:28:04.547Z"
 }

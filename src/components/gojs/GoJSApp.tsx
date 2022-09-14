@@ -1016,11 +1016,11 @@ class GoJSApp extends React.Component<{}, AppState> {
       case "ObjectSingleClicked": {
         const sel = e.subject.part;
         const data = sel.data;
-        if (debug) console.log('998 selected', data, sel);
+        console.log('1019 selected', data, sel);
         for (let it = sel.memberParts; it?.next();) {
             var n = it.value;
             if (!(n instanceof go.Node)) continue;
-            console.log('1002 n', n.data);
+            console.log('1023 n', n.data);
         }
       }
       break;

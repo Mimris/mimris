@@ -1,6 +1,6 @@
-// modelling
 // @ts- nocheck
-// Diagram.tsx
+// modelling
+
 const debug = false;
 
 // import React from "react";
@@ -45,7 +45,7 @@ const page = (props:any) => {
   const dispatch = useDispatch();
   const [mount, setMount] = useState(false)
   const [refresh, setRefresh] = useState(true);
-
+  let ph
 
 
   useEffect(() => {
@@ -107,6 +107,34 @@ const page = (props:any) => {
     phSource: (phSource === "") && phData.metis.name  || phSource,
     lastUpdate: new Date().toISOString()
   }
+  
+
+  // ask the user if he wants to reload the last state
+  useEffect(() => { // load local storage if it exists and dispatch the first model project
+    if (window.confirm("Do you want to reload your last model project?")) {
+      ph = memoryLocState[0]
+      // dispatchToStore(ph)
+    }
+    // set the first modelview  as the focus
+    // const id = ph.phData.models[0]?.modelviews[0].id
+    // const name = ph.phData.models[0]?.modelviews[0].name
+    // dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: id, name: name}  })
+    // genGojsModel(props, dispatch);
+  }, []) 
+
+  function  dispatchToStore(ph) {  
+   if (debug) console.log('104 dispatchToStore memoryLocState ', memoryLocState);
+    const phData = ph?.phData
+    const phFocus = ph?.phFocus
+    const phUser = ph?.phUser
+    const phSource = (ph?.phSource === "") && phData.metis.name  || ph?.phSource 
+    dispatch({ type: 'LOAD_TOSTORE_PHDATA', data: phData })
+    dispatch({ type: 'LOAD_TOSTORE_PHFOCUS', data: phFocus })
+    dispatch({ type: 'LOAD_TOSTORE_PHUSER', data: phUser })
+    let data = (phSource === "") ? phData.metis.name : phSource
+    dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
+  }
+
 
   useEffect(() => {
     if (debug) console.log('111 Modelling useEffect', data);

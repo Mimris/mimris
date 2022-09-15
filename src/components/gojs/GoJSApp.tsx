@@ -977,6 +977,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('955 part, objview', part, objview);
             if (objview) {
               const object = objview.object;
+              object.name = part.name;
               let otype = object.type;
               if (!otype) {
                 otype = myMetis.findObjectType(objview.object.typeRef);

@@ -28,8 +28,10 @@ const LoadRecovery = (props: any) => {
 
   const [memoryState, setMemoryLocState] = useLocalStorage('memorystate', null);
   const [inputValue, setInputValue] = useState('');
-  function toggleRefresh() { setRefresh(!refresh); }
+  console.log('31 memoryState', memoryState)
 
+  function toggleRefresh() { setRefresh(!refresh); }
+  
   // if memorytState is an object
   let memoryTmp = memoryState
   if (!Array.isArray(memoryState)) { memoryTmp = [memoryState] } else { memoryTmp = memoryState }

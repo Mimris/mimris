@@ -259,7 +259,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_MODELVIEW:
-      if (!debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
+      if (debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
         ...state,
         phFocus: {

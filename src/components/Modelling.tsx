@@ -45,8 +45,7 @@ const page = (props:any) => {
   const dispatch = useDispatch();
   const [mount, setMount] = useState(false)
   const [refresh, setRefresh] = useState(true);
-  let ph
-
+ 
 
   useEffect(() => {
     setMount(true)
@@ -88,7 +87,7 @@ const page = (props:any) => {
   let myMetis = props.phMymetis?.myMetis
   let myGoModel = props.phMyGoModel?.myGoModel
   let myGoMetamodel = props.phMyGoMetamodel?.myGoMetamodel
-  const curmod = metis.models.find(m => m.i === focusModel?.id)
+  const curmod = metis?.models.find(m => m.i === focusModel?.id)
   const curmodview = curmod?.modelviews.find(mv => mv.id = focusModelview?.id)
   const curobjviews = curmodview?.objectviews
 
@@ -107,23 +106,23 @@ const page = (props:any) => {
     phSource: (phSource === "") && phData.metis.name  || phSource,
     lastUpdate: new Date().toISOString()
   }
-  
 
   // ask the user if he wants to reload the last state
   useEffect(() => { // load local storage if it exists and dispatch the first model project
+    let ph
     if (window.confirm("Do you want to reload your last model project?")) {
       ph = memoryLocState[0]
-      // dispatchToStore(ph)
+      // genGojsModel(props, dispatch);
+      dispatchToStore(ph)
+    } else {
+      ph = props
+      // genGojsModel(props, dispatch);
+      dispatchToStore(ph)
     }
-    // set the first modelview  as the focus
-    // const id = ph.phData.models[0]?.modelviews[0].id
-    // const name = ph.phData.models[0]?.modelviews[0].name
-    // dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: id, name: name}  })
-    // genGojsModel(props, dispatch);
   }, []) 
 
   function  dispatchToStore(ph) {  
-   if (debug) console.log('104 dispatchToStore memoryLocState ', memoryLocState);
+  if (debug) console.log('104 dispatchToStore memoryLocState ', memoryLocState);
     const phData = ph?.phData
     const phFocus = ph?.phFocus
     const phUser = ph?.phUser
@@ -135,7 +134,6 @@ const page = (props:any) => {
     dispatch({ type: 'LOAD_TOSTORE_PHSOURCE', data: data })
   }
 
-
   useEffect(() => {
     if (debug) console.log('111 Modelling useEffect', data);
     genGojsModel(props, dispatch);
@@ -146,7 +144,7 @@ const page = (props:any) => {
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [focusModelview?.id, focusModel?.id, props.phFocus.focusTargetMetamodel?.id, curmod])
+  }, [focusModelview?.id, focusModel?.id, props.phFocus?.focusTargetMetamodel?.id, curmod])
 
   useEffect(() => { // refresch the model when the focusRefresch changes
     if (debug) console.log('123 Modelling useEffect', memoryLocState, data);
@@ -163,7 +161,7 @@ const page = (props:any) => {
     let mdata = (Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
     // put currentdata in the first position of the array data
     if (mdata.length > 9) { mdata.shift() }
-    if (debug) console.log('161 Modelling refresh', mdata);
+    if (!debug) console.log('161 Modelling refresh', mdata);
     // setTimeout(refres, 1);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
@@ -171,7 +169,7 @@ const page = (props:any) => {
       setRefresh(!refresh)
     }
     setTimeout(refres, 100);
-    setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+    // setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
   }
 
   if (debug) console.log('174 Modelling', curmod, curmodview);

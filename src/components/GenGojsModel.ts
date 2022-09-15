@@ -36,7 +36,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
-    clog('33 GenGojsModel:', props);
+    clog('33 GenGojsModel: props', props);
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: tempMetis', tempMetis);
@@ -89,16 +89,11 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
       const myPalette = (myMetamodel) && buildGoPalette(myMetamodel, myMetis);
         if (debug) console.log('85 myPalette', myPalette);
       let myModelview = (curmodview) && myMetis?.findModelView(curmodview?.id);
-        if (!debug) console.log('87 focusModelview, myModelview', focusModelview, myModelview);
+        if (debug) console.log('87 focusModelview, myModelview', focusModelview, myModelview);
         // if (!myModelview) myModelview = myMetis?.findModelView(focusModelview?.id);
         if (!debug) console.log('88 GenGojsModel  myModel', myMetis, myModel, myModelview);
-
-
-
-
-
       const myGoModel = buildGoModel(myMetis, myModel, myModelview);
-        if (!debug) console.log('91 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
+        if (debug) console.log('91 GenGojsModel myGoModel', myGoModel, myGoModel?.nodes);
       const myGoTargetModel = buildGoModel(myMetis, myTargetModel, myTargetModelview);
         if (debug) console.log('92 GenGojsModel myGoModel', myMetis, myGoTargetModel, myTargetModel, myTargetModelview);
       myMetis?.setGojsModel(myGoModel);
@@ -361,7 +356,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   }
 
   function buildGoModel(metis: akm.cxMetis, model: akm.cxModel, modelview: akm.cxModelView): gjs.goModel {
-    if (!debug) console.log('357 GenGojsModel', metis, model, modelview);
+    if (debug) console.log('357 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
@@ -375,13 +370,15 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           continue;
         if (objview.name === objview.id)
           continue;
+        const obj = objview.object;
+        if (!model.findObject(obj?.id)) 
+          continue;
         if (!objview.typeview && !objview.object) {
           objview.markedAsDeleted = true;
           if (!objview.textcolor)
             objview.textcolor = "black";
         }
         let objtype;
-        const obj = objview.object;
         objtype = obj?.type;
         if (debug) console.log('379 obj, objview', obj, objview);
         if (!objtype) {

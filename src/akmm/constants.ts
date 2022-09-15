@@ -166,8 +166,6 @@ export const fs = {
           FS_C_VALUES           : "values"
 };
 
-
-
 export let admin = {
      AKM_ADMIN_MM:            "AKM-ADMIN_MM",
      AKM_ADMIN_MODEL:         "_ADMIN_MODEL",

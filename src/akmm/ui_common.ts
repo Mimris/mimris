@@ -1660,18 +1660,21 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
         const reltypeview = reltype.getDefaultTypeView();
         const currentRelship = myMetis.findRelationship(data.relship.id);
         if (currentRelship) {
-            const nameIsChanged = (currentRelship.name !== currentRelship.type.name);
+            let name = data.name;
+            const nameIsChanged = (name !== currentRelship.type.name);
+            if (debug) console.log('1665 data, nameIsChanged, name, currentRelship', data, nameIsChanged, name, currentRelship);
             currentRelship.setType(reltype);
-            currentRelship.setName(reltype.name);
+            if (!nameIsChanged) {
+                name = reltype.name;
+                currentRelship.setName(name);
+            }
             currentRelship.setModified();
             const currentRelshipView = myMetis.findRelationshipView(data.relshipview.id);
             if (currentRelshipView) {
                 currentRelshipView.setTypeView(reltypeview);
-                currentRelshipView.setName(reltype.name);
+                currentRelshipView.setName(name);
                 currentRelshipView.setModified();
                 currentRelshipView.setRelationship(currentRelship);
-                if (!nameIsChanged)
-                    myDiagram.model.setDataProperty(data, "name", reltype.name);
                 data.relshiptype = reltype;
                 // Clear local overrides
                 currentRelshipView['strokecolor'] = reltypeview['strokecolor'];
@@ -1680,9 +1683,9 @@ export function setRelationshipType(data: any, reltype: akm.cxRelationshipType, 
                 currentRelshipView['fromArrow']   = reltypeview['fromArrow'];
                 currentRelshipView['toArrow']     = reltypeview['toArrow'];
                 updateLink(data, reltypeview, myDiagram, myGoMetamodel);
-
+                myDiagram.model.setDataProperty(data, 'name', name);
                 const jsnRelView = new jsn.jsnRelshipView(currentRelshipView);
-                if (debug) console.log('1408 SetReltype', jsnRelView);
+                if (debug) console.log('1687 SetReltype', jsnRelView);
                 const modifiedRelshipViews = new Array();
                 modifiedRelshipViews.map(mn => {
                     let data = mn;
@@ -2914,6 +2917,7 @@ export function updateLink(data: any, reltypeView: akm.cxRelationshipTypeView, d
                 if (prop === 'abstract') continue;
                 if (prop === 'relshipkind') continue;
                 if (prop === 'class') continue;
+                if (prop === 'name') continue;
                 relview[prop] = viewdata[prop];
                 if (propIsColor(prop)) {
                     if (viewdata[prop] != null)

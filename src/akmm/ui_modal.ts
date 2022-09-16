@@ -817,9 +817,19 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             if (debug) console.log('789 objview, data, node', objview, data, node);
             for (let prop in objtypeview?.data) {
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'template' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'geometry' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'figure' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'fillcolor' && objview[prop] !== "") 
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'fillcolor2' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'strokecolor' && objview[prop] !== "")
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'strokecolor2' && objview[prop] !== "")
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'strokewidth' && objview[prop] !== "")
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);

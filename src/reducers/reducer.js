@@ -259,7 +259,7 @@ function reducer(state = InitialStateStr, action) {
         }
       }
     case SET_FOCUS_MODELVIEW:
-      if (debug) console.log('223 SET_FOCUS_MODELVIEW', state, action.data); 
+      if (debug) console.log('262 SET_FOCUS_MODELVIEW', state, action.data); 
       return {
         ...state,
         phFocus: {
@@ -335,14 +335,14 @@ function reducer(state = InitialStateStr, action) {
       }
    
     // case SET_MYMETIS_METAMODEL:
-        //   if (debug) console.log('269 SET_MYMETIS_METAMODEL', action);
-        //   return {
-        //     ...state,
-        //     phMymetis: {
-        //       ...state.phMymetis,
-        //       myMetis: action.myMetis
-        //     }
-        //   }
+    //   if (debug) console.log('269 SET_MYMETIS_METAMODEL', action);
+    //   return {
+    //     ...state,
+    //     phMymetis: {
+    //       ...state.phMymetis,
+    //       myMetis: action.myMetis
+    //     }
+    //   }
 
     case SET_FOCUS_OBJECT:
       if (debug) console.log('235 SET_FOCUS_OBJECT', state, action.data);
@@ -557,7 +557,7 @@ function reducer(state = InitialStateStr, action) {
           }
         }
       case SET_GOJS_MODEL:
-        // if (debug) console.log('255 SET_GOJS_MODEL', action);
+        if (debug) console.log('560 SET_GOJS_MODEL', action);
         return {
           ...state,
           phGojs: {

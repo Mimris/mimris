@@ -28,8 +28,10 @@ const LoadRecovery = (props: any) => {
 
   const [memoryState, setMemoryLocState] = useLocalStorage('memorystate', null);
   const [inputValue, setInputValue] = useState('');
-  function toggleRefresh() { setRefresh(!refresh); }
+  console.log('31 memoryState', memoryState)
 
+  function toggleRefresh() { setRefresh(!refresh); }
+  
   // if memorytState is an object
   let memoryTmp = memoryState
   if (!Array.isArray(memoryState)) { memoryTmp = [memoryState] } else { memoryTmp = memoryState }
@@ -38,14 +40,14 @@ const LoadRecovery = (props: any) => {
   // if memoryState is not an array then make it one
 
   // if memorytState is an object
-  // if (typeof memoryTmp === 'object') memoryTmp = [memoryState] || 
+  // if (typeof memoryTmp === 'object') memoryTmp = [memoryState] 
   // console.log('31 memoryTmp', Array.isArray(memoryTmp))
   
   const optionsMemory = memoryTmp.map((item: any, idx) =>  {return {  value: item.lastUpdate, label: idx+ ' '+item.phSource+ ' Saved : ' + item.lastUpdate }})
 
   // if memoryState is not an array then make it one
 
-  if (debug) console.log('46 LoadRecovery',memoryState, optionsMemory);
+  if (!debug) console.log('46 LoadRecovery',memoryState, optionsMemory);
 
   // if (optionsMemory == undefined || optionsMemory?.length === 0) optionsMemory = [{value: 0, label: 'No recovery model'}]
 
@@ -57,21 +59,22 @@ const LoadRecovery = (props: any) => {
     const inputValue = e.target.value
 
     function cleanMemoryState(memState) { // if metis name is undefined then remove from localStorage
-      const cleanMemState =  memState.filter((item: any) => item.phSource !== undefined)
+      console.log('59 cleanMemoryState', memState)
+      const cleanMemState =  memState?.filter((item: any) => item.phSource !== undefined)
       setMemoryLocState(cleanMemState) 
     } 
-    // if (!debug) console.log('57 LoadRecovery', inputValue, e.target.value , e);
+    // if (debug) console.log('57 LoadRecovery', inputValue, e.target.value , e);
     if (debug) console.log('58 LoadRecovery',  inputValue, 'memval ', memoryState[inputValue], 'mem ', memoryState);
 
    
     function  dispatchToStore() {
-      if (debug) console.log('62 LoadRecovery', inputValue);
+      if (!debug) console.log('62 LoadRecovery', inputValue, memoryState);
       if (inputValue !== '') {
         if (memoryState[inputValue] !== undefined) {
           if (inputValue > memoryState.length) return;
           const ipVal= inputValue
           const ph = memoryState[ipVal]
-          if (!debug) console.log('74 LoadRecovery', ipVal, memoryState[ipVal]);
+          if (!debug) console.log('74 LoadRecovery', ipVal, memoryState[ipVal], memoryState);
           const phData = ph?.phData
           const phFocus = ph?.phFocus
           const phUser = ph?.phUser
@@ -86,7 +89,7 @@ const LoadRecovery = (props: any) => {
       }
     }
     
-    cleanMemoryState(memoryState)
+    cleanMemoryState(memoryTmp)
     dispatchToStore()
 
     // setTimeout(waitforInputValue, 1)

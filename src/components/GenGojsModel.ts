@@ -706,6 +706,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         myMetis.addModelView(adminModelview);
       }
       if (adminModel) {
+        if (debug) console.log('709 adminModel', adminModel);
         adminModel.objects = null;
         adminModel.relships = null;
         adminModelview = adminModel.modelviews ? adminModel.modelviews[0] : null;
@@ -737,6 +738,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           adminModelview.addObjectView(projectview);
           myMetis.addObjectView(projectview);
         }
+        if (debug) console.log('741 project', project);
         // Handle metamodels
         const metamodels = myMetis.metamodels;
         for (let i=0; i<metamodels.length; i++) {
@@ -905,6 +907,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
           }
         }
       }
+      if (debug) console.log('910 adminModel, adminModelview', adminModel, adminModelview);
       if (firstTime) {
         // Do a dispatch 
         const jsnModel = new jsn.jsnModel(adminModel, true);

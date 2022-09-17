@@ -161,7 +161,7 @@ const page = (props:any) => {
     let mdata = (Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
     // put currentdata in the first position of the array data
     if (mdata.length > 9) { mdata.shift() }
-    if (!debug) console.log('161 Modelling refresh', mdata);
+    if (debug) console.log('161 Modelling refresh', mdata);
     // setTimeout(refres, 1);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)

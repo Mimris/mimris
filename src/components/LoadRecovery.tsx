@@ -28,7 +28,7 @@ const LoadRecovery = (props: any) => {
 
   const [memoryState, setMemoryLocState] = useLocalStorage('memorystate', null);
   const [inputValue, setInputValue] = useState('');
-  console.log('31 memoryState', memoryState)
+  if (debug) console.log('31 memoryState', memoryState)
 
   function toggleRefresh() { setRefresh(!refresh); }
   
@@ -47,7 +47,7 @@ const LoadRecovery = (props: any) => {
 
   // if memoryState is not an array then make it one
 
-  if (!debug) console.log('46 LoadRecovery',memoryState, optionsMemory);
+  if (debug) console.log('46 LoadRecovery',memoryState, optionsMemory);
 
   // if (optionsMemory == undefined || optionsMemory?.length === 0) optionsMemory = [{value: 0, label: 'No recovery model'}]
 
@@ -68,13 +68,13 @@ const LoadRecovery = (props: any) => {
 
    
     function  dispatchToStore() {
-      if (!debug) console.log('62 LoadRecovery', inputValue, memoryState);
+      if (debug) console.log('62 LoadRecovery', inputValue, memoryState);
       if (inputValue !== '') {
         if (memoryState[inputValue] !== undefined) {
           if (inputValue > memoryState.length) return;
           const ipVal= inputValue
           const ph = memoryState[ipVal]
-          if (!debug) console.log('74 LoadRecovery', ipVal, memoryState[ipVal], memoryState);
+          if (debug) console.log('74 LoadRecovery', ipVal, memoryState[ipVal], memoryState);
           const phData = ph?.phData
           const phFocus = ph?.phFocus
           const phUser = ph?.phUser

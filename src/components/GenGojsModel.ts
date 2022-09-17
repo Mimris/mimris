@@ -36,13 +36,13 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
-    if (debug) clog('33 GenGojsModel: props', props);
+    clog('33 GenGojsModel: props', props);
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: tempMetis', tempMetis);
     myMetis.importData(metis, true);
     adminModel = buildAdminModel(myMetis);
-    if (!debug) clog('39 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
+    clog('39 GenGojsModel :', '\n currentModelview :', myMetis.currentModelview?.name, ',\n props :', props, '\n myMetis :', myMetis);
     const focusModel = (props.phFocus) && props.phFocus.focusModel
     const focusModelview = (props.phFocus) && props.phFocus.focusModelview
     if (debug) console.log('43 focusModel, focusModelview', focusModel, focusModelview)
@@ -271,9 +271,12 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         if (debug) console.log('264 obj, objtype', obj, objtype);
         const objview = new akm.cxObjectView(utils.createGuid(), obj.name, obj, "");
         let typeview = objtype.getDefaultTypeView() as akm.cxObjectTypeView;
+        if (typeview.data.viewkind === 'Container') {
+          objtype.viewkind = 'Container';
+        }        
         // Hack
+        const otype = metis.findObjectTypeByName(objtype.name);
         if (!typeview) {
-            const otype = metis.findObjectTypeByName(objtype.name);
             if (otype) {
               typeview = otype.getDefaultTypeView() as akm.cxObjectTypeView;
             } else

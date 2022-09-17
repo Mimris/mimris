@@ -344,7 +344,7 @@ export class SelectionInspector extends React.PureComponent<SelectionInspectorPr
                 continue;
         }      
         if (k === 'viewkind') {
-          if (what !== 'editObjectview' && what !== 'editTypeview')
+          if (what !== 'editObjectview' && what !== 'editTypeview' && what !== 'editObjectType')
             continue;
           if (isLabel)
             continue;

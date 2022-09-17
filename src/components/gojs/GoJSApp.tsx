@@ -266,6 +266,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "pasted":           pasted,
       "done":             done,
       "askForRelshipName":    myModelview.askForRelshipName,
+      "includeInheritedReltypes": myModelview.includeInheritedReltypes,
       "handleOpenModal":  this.handleOpenModal,
       "modifiedLinks":    null,
       "modifiedRelships": null,

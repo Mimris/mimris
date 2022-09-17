@@ -2577,6 +2577,30 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             function (o: any) { 
               return true; 
             }),
+          makeButton("Toggle 'Include Inherited Relshiptypes' On/Off",   
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              if (modelview.includeInheritedReltypes == undefined)
+                modelview.includeInheritedReltypes = false;
+              modelview.includeInheritedReltypes = !modelview.includeInheritedReltypes;
+              if (!modelview.includeInheritedReltypes) {
+                alert("Inherited Relationship types are NOT included!");
+              } else {
+                alert("Inherited Relationship types are included!");
+              }
+              const jsnModelview = new jsn.jsnModelView(modelview);
+              if (debug) console.log('3236 jsnModelview', jsnModelview);
+              const modifiedModelviews = new Array();
+              modifiedModelviews.push(jsnModelview);
+              modifiedModelviews.map(mn => {
+                let data = mn;
+                data = JSON.parse(JSON.stringify(data));
+                e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              })
+            },
+            function (o: any) { 
+              return true; 
+            }),
           makeButton("Zoom All",
             function (e: any, obj: any) {
               e.diagram.commandHandler.zoomToFit();

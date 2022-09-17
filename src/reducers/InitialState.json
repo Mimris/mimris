@@ -5913,6 +5913,7 @@
               "linkcurve": "None",
               "showCardinality": false,
               "askForRelshipName": false,
+              "includeInheritedReltypes": false,
               "modelRef": "05d5b929-b985-49ac-cf92-cc095a03889d",
               "objectviews": [],
               "relshipviews": [],

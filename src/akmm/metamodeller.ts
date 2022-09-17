@@ -452,6 +452,7 @@ export class cxMetis {
                                         mv.linkcurve = item.linkcurve;
                                         mv.showCardinality = item.showCardinality;
                                         mv.askForRelshipName = item.askForRelshipName;
+                                        mv.includeInheritedReltypes = item.includeInheritedReltypes;
                                         model.addModelView(mv);
                                         this.addModelView(mv);
                                         mv.setModel(model);
@@ -641,7 +642,21 @@ export class cxMetis {
                 }
             });
         }
-        if (debug) console.log('636 metamodel', metamodel);
+        let relshiptypes0: any[] = item.relshiptypes0;
+        if (debug) console.log('361 relshiptypes0', relshiptypes0);
+        if (relshiptypes && relshiptypes.length) {
+            relshiptypes0.forEach(reltype0 => {
+                if (debug) console.log('371 reltype0', reltype0);
+                if (reltype0) {
+                    let reltype = this.findRelationshipType(reltype0.id);
+                    if (!reltype) {
+                        this.addRelationshipType(reltype0);
+                    }
+                    metamodel.addRelationshipType0(reltype);
+                }
+            });
+        }
+        if (debug) console.log('658 metamodel', metamodel);
         let relshiptypeviews = item.relshiptypeviews;
         if (relshiptypeviews && relshiptypeviews.length) {
             relshiptypeviews.forEach(reltypeview => {
@@ -986,6 +1001,7 @@ export class cxMetis {
                 modelview.layout = item.layout;
                 modelview.showCardinality = item.showCardinality;
                 modelview.askForRelshipName = item.askForRelshipName;
+                modelview.includeInheritedReltypes = item.includeInheritedReltypes;
                 modelview.viewstyle = this.findViewStyle(item.viewstyleRef);
                 model.addModelView(modelview);
                 const objectviews: any[] = (item) && item.objectviews;
@@ -3670,7 +3686,7 @@ export class cxMetaModel extends cxMetaObject {
         if (relType.category === constants.gojs.C_RELSHIPTYPE) {
             if (this.relshiptypes0 == null)
                 this.relshiptypes0 = new Array();
-            if (!this.findRelationshipType(relType.id)) 
+            if (!this.findRelationshipType0(relType.id)) 
                 this.relshiptypes0.push(relType);
             else {
                 const types = this.relshiptypes0;
@@ -4047,6 +4063,23 @@ export class cxMetaModel extends cxMetaObject {
         }
         return null;
     }
+    findRelationshipType0(id: string): cxRelationshipType | null {
+        const types = this.getRelshipTypes0();
+        if (!types) return null;
+        let i = 0;
+        let reltype: cxRelationshipType | null = null;
+        for (i = 0; i < types.length; i++) {
+            reltype = types[i];
+            if (reltype) {
+                if (reltype.isDeleted()) continue;
+                if (reltype.id === id)
+                    return reltype;
+                else if (reltype.getFirestoreId() === id)
+                    return reltype;
+            }
+        }
+        return null;
+    }
     findRelationshipTypeByName(name: string): cxRelationshipType | null {
         const types = this.getRelshipTypes();
         if (!types) return null;
@@ -4189,6 +4222,41 @@ export class cxMetaModel extends cxMetaObject {
                         }
                     }
                 }
+        }
+        return reltypes;
+    }
+    findRelationshipTypes0BetweenTypes(fromType: cxObjectType, toType: cxObjectType): cxRelationshipType[] | null {
+        if (!fromType || !toType) return null;
+        const types = this.getRelshipTypes0();
+        if (debug) console.log('2939 reltypes, objtypes', types, this.objecttypes);
+        if (!types) return null;
+        const reltypes = new Array();
+        let i = 0;
+        let reltype = null;
+        for (i = 0; i < types.length; i++) {
+            reltype = types[i];
+            if (reltype.isDeleted()) continue;
+            if (!reltype.fromObjtype) {
+                const objtype = this.findObjectType(reltype.fromobjtypeRef);
+                if (objtype)
+                    reltype.fromObjtype = objtype;
+                else
+                    continue;
+            }
+            if (!reltype.toObjtype) {
+                const objtype = this.findObjectType(reltype.toobjtypeRef);
+                if (objtype)
+                    reltype.toObjtype = objtype;
+                else
+                    continue;
+            }
+            if (reltype.getRelshipKind() !== constants.relkinds.GEN) {
+                if (reltype.isAllowedFromType(fromType, this.objecttypes, this.relshiptypes)) {
+                    if (reltype.isAllowedToType(toType)) {
+                        reltypes.push(reltype);
+                    }
+                }
+            }
         }
         return reltypes;
     }
@@ -7512,6 +7580,7 @@ export class cxModelView extends cxMetaObject {
     linkcurve: string;
     showCardinality: boolean;
     askForRelshipName: boolean;
+    includeInheritedReltypes: boolean;
     template: any;
     isTemplate: boolean;
     diagrams: cxDiagram[] | null;
@@ -7533,6 +7602,7 @@ export class cxModelView extends cxMetaObject {
         this.linkcurve = "None";
         this.showCardinality = false;
         this.askForRelshipName = false;
+        this.includeInheritedReltypes = false;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;

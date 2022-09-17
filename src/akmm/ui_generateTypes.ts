@@ -1248,13 +1248,13 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     toObj?.isOfSystemType(metaObject)) {
                     if (debug) console.log('1250 rel.name, relview', rel.name, relview);
                     const reltype = generateRelshipType(rel, relview, context);
-                    if (!debug) console.log('1252 rel, reltype', rel, reltype);                    
+                    if (debug) console.log('1252 rel, reltype', rel, reltype);                    
                     // Prepare dispatches
                     if (reltype) {
                         metamodel.addRelationshipType(reltype);
                         metamodel.addRelationshipType0(reltype);
                         const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
-                        if (!debug) console.log('1257 Generate Relationship Type', reltype, jsnRelshipType);
+                        if (debug) console.log('1257 Generate Relationship Type', reltype, jsnRelshipType);
                         const modifiedTypeLinks = new Array();
                         modifiedTypeLinks.push(jsnRelshipType);
                         const relTypeview = reltype.typeview;

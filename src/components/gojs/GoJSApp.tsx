@@ -1016,22 +1016,22 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "ObjectSingleClicked": {
-        const sel = e.subject.part;
-        const data = sel.data;
-        console.log('1019 selected', data, sel);
-        for (let it = sel.memberParts; it?.next();) {
-            var n = it.value;
-            if (!(n instanceof go.Node)) continue;
-            console.log('1023 n', n.data);
+          const sel = e.subject.part;
+          const data = sel.data;
+          console.log('1019 selected', data, sel);
+          for (let it = sel.memberParts; it?.next();) {
+              var n = it.value;
+              if (!(n instanceof go.Node)) continue;
+              console.log('1023 n', n.data);
+          }
         }
-      }
-      break;
+        break;
       case "ObjectContextClicked": {
-        const sel = e.subject.part;
-        const data = sel.data;
-        // console.log('1009 selected', data, sel);
-      }
-      break;
+          const sel = e.subject.part;
+          const data = sel.data;
+          // console.log('1009 selected', data, sel);
+        }
+        break;
       case "PartResized": {
         const part = e.subject.part;
         const data = e.subject.part.data;
@@ -1216,78 +1216,78 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case 'LinkDrawn': {
-      const link = e.subject;
-      const data = link.data;
-      if (debug) console.log('1171 link', link.data, link.fromNode, link.toNode);
+        const link = e.subject;
+        const data = link.data;
+        if (debug) console.log('1171 link', link.data, link.fromNode, link.toNode);
 
-      if (false) { // Prepare for linkToLink
-        if (linkToLink) {
-          let labels = link.labelNodes;
-          for (let it = labels.iterator; it?.next();) {     
-            if (debug) console.log('1177 it.value', it.value);
-            const linkLabel = it.value;
-            // Connect linkLabel to relview
-          }
-          if (data.category === 'linkToLink') {
-            // This is a link from a relationship between fromNode and toNode to an object
-            // The link from rel to object is link.data
-            // Todo: Handle this situation
+        if (false) { // Prepare for linkToLink
+          if (linkToLink) {
+            let labels = link.labelNodes;
+            for (let it = labels.iterator; it?.next();) {     
+              if (debug) console.log('1177 it.value', it.value);
+              const linkLabel = it.value;
+              // Connect linkLabel to relview
+            }
+            if (data.category === 'linkToLink') {
+              // This is a link from a relationship between fromNode and toNode to an object
+              // The link from rel to object is link.data
+              // Todo: Handle this situation
+            }
           }
         }
-      }
-      if (debug) console.log('1188 data', data);
-      const fromNode = myDiagram.findNodeForKey(data.from);
-      const toNode = myDiagram.findNodeForKey(data.to);
+        if (debug) console.log('1188 data', data);
+        const fromNode = myDiagram.findNodeForKey(data.from);
+        const toNode = myDiagram.findNodeForKey(data.to);
 
-      if (debug) console.log('1192 LinkDrawn', fromNode, toNode, data);
-      // Handle relationship types
-      if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
-        data.category = constants.gojs.C_RELSHIPTYPE;
-        if (debug) console.log('1196 link', fromNode, toNode);
-        link.category = constants.gojs.C_RELSHIPTYPE;
-        const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
-        if (reltype) {
-          if (debug) console.log('1200 reltype', reltype);
-          const jsnType = new jsn.jsnRelationshipType(reltype, true);
-          modifiedTypeLinks.push(jsnType);
-          if (debug) console.log('1203 jsnType', jsnType);
-          const reltypeview = reltype.typeview;
-          if (reltypeview) {
-            const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
-            modifiedLinkTypeViews.push(jsnTypeView);
-            if (debug) console.log('1208 jsnTypeView', jsnTypeView);
+        if (debug) console.log('1192 LinkDrawn', fromNode, toNode, data);
+        // Handle relationship types
+        if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
+          data.category = constants.gojs.C_RELSHIPTYPE;
+          if (debug) console.log('1196 link', fromNode, toNode);
+          link.category = constants.gojs.C_RELSHIPTYPE;
+          const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
+          if (reltype) {
+            if (debug) console.log('1200 reltype', reltype);
+            const jsnType = new jsn.jsnRelationshipType(reltype, true);
+            modifiedTypeLinks.push(jsnType);
+            if (debug) console.log('1203 jsnType', jsnType);
+            const reltypeview = reltype.typeview;
+            if (reltypeview) {
+              const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
+              modifiedLinkTypeViews.push(jsnTypeView);
+              if (debug) console.log('1208 jsnTypeView', jsnTypeView);
 
-            const myGoModel = myMetis.gojsModel;
-            let link = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
-            link.fromNode = fromNode.data;
-            link.toNode = toNode.data
-            link.loadLinkContent(myGoModel);
-            myGoModel.addLink(link);
-            if (debug) console.log('1261 link, myGoModel', link, myGoModel);
+              const myGoModel = myMetis.gojsModel;
+              let link = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
+              link.fromNode = fromNode.data;
+              link.toNode = toNode.data
+              link.loadLinkContent(myGoModel);
+              myGoModel.addLink(link);
+              if (debug) console.log('1261 link, myGoModel', link, myGoModel);
 
-            myDiagram.model.addLinkData(link);
+              myDiagram.model.addLinkData(link);
+            }
           }
+          // Handle relationships
+          if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
+            data.category = 'Relationship';
+            context.handleOpenModal = this.handleOpenModal;
+            // Creation is done in a callback function (uic.createRelshipCallback)
+            if (debug) console.log('1215 data, context', data, context);
+            uic.createRelationship(data, context);
+        }
+        myDiagram.requestUpdate();
         }
         // Handle relationships
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
-          data.category = 'Relationship';
+          data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
-          // Creation is done in a callback function (uic.createRelshipCallback)
-          if (debug) console.log('1215 data, context', data, context);
+          if (debug) console.log('1225 data, context', data, context);
           uic.createRelationship(data, context);
-       }
-       myDiagram.requestUpdate();
+        }
+        myDiagram.requestUpdate(); 
       }
-      // Handle relationships
-      if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
-        data.category = constants.gojs.C_RELATIONSHIP;
-        context.handleOpenModal = this.handleOpenModal;
-        if (debug) console.log('1225 data, context', data, context);
-        uic.createRelationship(data, context);
-      }
-      myDiagram.requestUpdate(); 
-    }
-    break;
+      break;
       case "LinkRelinked": {
         const link = e.subject;
         const fromNode = link.fromNode?.data;

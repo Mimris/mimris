@@ -159,9 +159,9 @@ const page = (props:any) => {
     if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
     let mdata = (Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
     // put currentdata in the first position of the array data
-    if (!debug) console.log('161 Modelling refresh', mdata);
+    if (debug) console.log('161 Modelling refresh', mdata);
     if (mdata.length > 6) { mdata.pop() }
-    if (!debug) console.log('164 Modelling refresh', mdata);
+    if (debug) console.log('164 Modelling refresh', mdata);
     // setTimeout(refres, 1);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
@@ -646,7 +646,7 @@ export default Page(connect(state => state)(page));
     
 //     genGojsModel(props, dispatch);
 //     const timer = setTimeout(() => {
-//       if (!debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
+//       if (debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
 //     }, 1000); 
 //     return () => clearTimeout(timer);
 //   }, [focusModelview?.id])
@@ -657,8 +657,8 @@ export default Page(connect(state => state)(page));
 //   }, [focusModelview?.id])
 
 //   useEffect(() => { // refresch the model when the focusRefresch changes
-//   //   if (!debug) console.log('151 Modelling useEffect refreshid', props.phFocus.focusModel, props.phFocus.focusModelview);
-//   //   if (!debug) console.log('159 Modelling useEffect refreshid', props.phData.metis.models);
+//   //   if (debug) console.log('151 Modelling useEffect refreshid', props.phFocus.focusModel, props.phFocus.focusModelview);
+//   //   if (debug) console.log('159 Modelling useEffect refreshid', props.phData.metis.models);
 //   //   saveMemoryLocState()
 //     genGojsModel(props, dispatch)
 //     function refres() {

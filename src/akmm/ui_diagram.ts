@@ -1150,7 +1150,7 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
     msg += printf(format2, "Descr.", breakString(d.object.description, 64));
     // msg += "-------------------\n";
     // msg = "Object \Type props:\n";
-    msg += printf(format3, "Type", d.object.type.name);
+    msg += printf(format2, "Type", d.object.type.name);
     // msg += ")";
     // msg += printf(format2, "-Title", d.object.type.title);
     //   msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
@@ -1166,7 +1166,7 @@ export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a 
         const group = myMetis.gojsModel.findNode(d.group);
         msg += "------parent-------\n";
         msg += printf(format2, "Name", group.name);
-        msg += printf(format3, "Type", group.typename);
+        msg += printf(format2, "Type", group.typename);
         msg += "\n";
     }
     // if (debug) console.log('1119 msg', msg);

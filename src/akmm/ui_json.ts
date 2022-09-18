@@ -148,6 +148,7 @@ export class jsnMetaModel {
     objtypegeos:        jsnObjectTypegeo[];
     relshiptypeviews:   jsnRelshipTypeView[];
     generatedFromModelRef: string;
+    includeInheritedReltypes: boolean;
     layout:             string;
     routing:            string;
     linkcurve:          string;
@@ -172,6 +173,7 @@ export class jsnMetaModel {
         this.objtypegeos = [];
         this.relshiptypeviews = []; 
         this.generatedFromModelRef = metamodel.generatedFromModelRef;
+        this.includeInheritedReltypes = metamodel.includeInheritedReltypes;
         this.layout           = metamodel.layout;
         this.routing          = metamodel.routing;
         this.linkcurve        = metamodel.linkcurve;

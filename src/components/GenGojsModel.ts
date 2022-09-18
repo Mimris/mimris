@@ -36,7 +36,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
   const metamodels = (metis) && metis.metamodels
   let adminModel;
   if (metis != null) {
-    clog('33 GenGojsModel: props', props);
+    if (debug) clog('33 GenGojsModel: props', props);
     const myMetis = new akm.cxMetis();
     const tempMetis = myMetis
     if (debug) console.log('36 GenGojsModel: tempMetis', tempMetis);
@@ -362,6 +362,7 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) console.log('357 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
+    modelview.includeInheritedReltypes = model.metamodel.includeInheritedReltypes;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {

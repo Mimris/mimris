@@ -287,6 +287,7 @@ function exportTaskModelCallback(context: any) {
 }
 
 export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
+    const metamodel = myMetis.currentMetamodel;
     const model = myMetis.currentModel;
     const modelviewName = prompt("Enter Modelview name:", "");
     if (modelviewName == null || modelviewName === "") {

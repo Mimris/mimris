@@ -1248,7 +1248,7 @@ export function createRelationship(data: any, context: any) {
         }
         if (debug) console.log('1007 includeInherited', myModelview.includeInheritedReltypes);
         if (fromType && toType) {
-            let defText = "";
+            let defText = "isRelatedTo";
             let includeInherited = false;
             if (myModelview.includeInheritedReltypes) {
                 const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';            

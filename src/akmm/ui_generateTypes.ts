@@ -1055,6 +1055,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;
+        metamodel.includeInheritedReltypes = true;
     } else {
         objtypes = [];
         const otypes = myMetamodel.objecttypes;
@@ -1381,6 +1382,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }            
     }
+    metamodel.includeInheritedReltypes = model.includeSystemtypes;
+    myMetis.currentTargetMetamodel = metamodel;
+    myMetis.currentTargetModel = model;
     { // Dispatch metis
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         if (debug) console.log('1402 jsnMetis: ', jsnMetis);
@@ -1389,8 +1393,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     }
     { // Remove duplicate relationship types
-        myMetis.currentTargetMetamodel = metamodel;
-        myMetis.currentTargetModel = model;
         const rels = metamodel.relshiptypes;
         for (let j=0; j<rels?.length; j++) {
             const rel = rels[j];

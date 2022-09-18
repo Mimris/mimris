@@ -252,6 +252,7 @@ export class cxMetis {
                     metamodel.routing = item.routing;
                     metamodel.linkcurve = item.linkcurve;
                     metamodel.generatedFromModelRef = item.generatedFromModelRef;
+                    metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
                     if (!metamodel) continue;
                     this.addMetamodel(metamodel);
                     if (debug) console.log('198 item, metamodel', item, metamodel);
@@ -538,6 +539,7 @@ export class cxMetis {
         const metamodel = this.findMetamodel(item.id);
         if (!metamodel) 
             return;
+        metamodel.includeInheritedReltypes = item.includeInheritedReltypes;
         let datatypes: any[] = item.datatypes;
         if (datatypes && datatypes.length) {
             datatypes.forEach(datatype => {
@@ -3092,6 +3094,7 @@ export class cxMetaModel extends cxMetaObject {
     inputpatterns: cxInputPattern[] | null;
     categories:    cxUnitCategory[] | null;
     generatedFromModelRef: string;
+    includeInheritedReltypes: boolean;
     layout:     string;
     routing:    string;
     linkcurve:  string;
@@ -3120,7 +3123,7 @@ export class cxMetaModel extends cxMetaObject {
             this.layout = "ForceDirected";
             this.routing = "Normal";
             this.linkcurve = "None";  
-            
+            this.includeInheritedReltypes = false;
             this.objecttypes  = null;
             this.objecttypes0 = null;
             this.objtypegeos  = null;
@@ -7602,7 +7605,7 @@ export class cxModelView extends cxMetaObject {
         this.linkcurve = "None";
         this.showCardinality = false;
         this.askForRelshipName = false;
-        this.includeInheritedReltypes = false;
+        this.includeInheritedReltypes = model?.metamodel?.includeInheritedReltypes;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;

@@ -667,13 +667,16 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     uniqueSet = utils.removeArrayDuplicates(objtypes);
     objtypes = uniqueSet;
     if (debug) console.log('626 objtypes', objtypes);
+    if (debug) console.log('627 myMetis', myMetis);
+    const myModelview = myMetis.currentModelview;
+    const includeInheritedReltypes = myModelview.includeInheritedReltypes;
     let reltypes = [];
     // Walk through selected object's types (objtypes)
     for (let i=0; i<objtypes.length; i++) {
         let toType = objtypes[i];
         toType = myMetis.findObjectType(toType.id);
         if (debug) console.log('632 fromType, toType', fromType, toType);
-        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
+        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
         if (i == 0) {
             // First time
             reltypes = rtypes;

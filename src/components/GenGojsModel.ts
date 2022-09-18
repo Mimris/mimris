@@ -362,7 +362,8 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
     if (debug) console.log('357 GenGojsModel', metis, model, modelview);
     if (!model) return;
     if (!modelview) return;
-    modelview.includeInheritedReltypes = model.metamodel.includeInheritedReltypes;
+    if (!modelview.includeInheritedReltypes)
+      modelview.includeInheritedReltypes = model.metamodel.includeInheritedReltypes;
     const myGoModel = new gjs.goModel(utils.createGuid(), "myModel", modelview);
     let objviews = modelview?.getObjectViews();
     if (objviews) {

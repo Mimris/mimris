@@ -7583,7 +7583,7 @@ export class cxModelView extends cxMetaObject {
     linkcurve: string;
     showCardinality: boolean;
     askForRelshipName: boolean;
-    includeInheritedReltypes: boolean;
+    includeInheritedReltypes: boolean | null;
     template: any;
     isTemplate: boolean;
     diagrams: cxDiagram[] | null;
@@ -7605,7 +7605,7 @@ export class cxModelView extends cxMetaObject {
         this.linkcurve = "None";
         this.showCardinality = false;
         this.askForRelshipName = false;
-        this.includeInheritedReltypes = model?.metamodel?.includeInheritedReltypes;
+        this.includeInheritedReltypes = null; // model?.metamodel?.includeInheritedReltypes;
         this.template = null;
         this.isTemplate = false;
         this.diagrams = null;

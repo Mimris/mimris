@@ -148,6 +148,7 @@ export class jsnMetaModel {
     objtypegeos:        jsnObjectTypegeo[];
     relshiptypeviews:   jsnRelshipTypeView[];
     generatedFromModelRef: string;
+    includeInheritedReltypes: boolean;
     layout:             string;
     routing:            string;
     linkcurve:          string;
@@ -172,6 +173,7 @@ export class jsnMetaModel {
         this.objtypegeos = [];
         this.relshiptypeviews = []; 
         this.generatedFromModelRef = metamodel.generatedFromModelRef;
+        this.includeInheritedReltypes = metamodel.includeInheritedReltypes;
         this.layout           = metamodel.layout;
         this.routing          = metamodel.routing;
         this.linkcurve        = metamodel.linkcurve;
@@ -214,6 +216,28 @@ export class jsnMetaModel {
                     }
                 }
                 this.addRelationshipType(reltype, includeViews);
+            }
+            if (debug) console.log('200 jsnMetaModel', this);
+        }
+        const reltypes0 = metamodel.getRelshipTypes0();
+        if (reltypes0) {
+            if (debug) console.log('195 reltypes0', reltypes0);
+            const cnt = reltypes0.length;
+            for (let i = 0; i < cnt; i++) {
+                const reltype = reltypes[i];
+                if (!reltype.fromObjtype) {
+                    if (reltype.fromobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.fromobjtypeRef);
+                        reltype.fromObjtype = objtype;
+                    }
+                }
+                if (!reltype.toObjtype) {
+                    if (reltype.toobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.toobjtypeRef);
+                        reltype.toObjtype = objtype;
+                    }
+                }
+                this.addRelationshipType0(reltype, includeViews);
             }
             if (debug) console.log('200 jsnMetaModel', this);
         }
@@ -425,6 +449,16 @@ export class jsnMetaModel {
     }
     findRelationshipType(id: string): jsnRelationshipType {
         const reltypes = this.relshiptypes;
+        for (let i=0; i<reltypes.length; i++) {
+            const reltype = reltypes[i];
+            if (reltype.id === id) {
+                return reltype;
+            }
+        }
+        return null;
+    }
+    findRelationshipType0(id: string): jsnRelationshipType {
+        const reltypes = this.relshiptypes0;
         for (let i=0; i<reltypes.length; i++) {
             const reltype = reltypes[i];
             if (reltype.id === id) {
@@ -1277,6 +1311,7 @@ export class jsnModelView {
     linkcurve:          string;
     showCardinality:    boolean;
     askForRelshipName:  boolean;
+    includeInheritedReltypes: boolean;
     modelRef:           string;
     viewstyleRef:       string;
     objectviews:        jsnObjectView[];
@@ -1295,6 +1330,7 @@ export class jsnModelView {
         this.modelRef           = mv?.getModel()?.id;
         this.showCardinality    = mv?.showCardinality;
         this.askForRelshipName  = mv?.askForRelshipName;
+        this.includeInheritedReltypes = mv?.includeInheritedReltypes;
         this.viewstyleRef       = mv?.getViewStyle()?.getId();
         this.objectviews        = [];
         this.relshipviews       = [];

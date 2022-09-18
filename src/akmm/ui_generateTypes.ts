@@ -1055,6 +1055,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
     let objtypes;
     if (model.includeSystemtypes) {
         objtypes = myMetamodel.objecttypes;
+        metamodel.includeInheritedReltypes = true;
     } else {
         objtypes = [];
         const otypes = myMetamodel.objecttypes;
@@ -1252,6 +1253,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
                     // Prepare dispatches
                     if (reltype) {
                         metamodel.addRelationshipType(reltype);
+                        metamodel.addRelationshipType0(reltype);
                         const jsnRelshipType = new jsn.jsnRelationshipType(reltype, true);
                         if (debug) console.log('1257 Generate Relationship Type', reltype, jsnRelshipType);
                         const modifiedTypeLinks = new Array();
@@ -1269,6 +1271,7 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }
     }
+    if (debug) console.log('1216 metamodel ', metamodel);
     { // Then handle objects of type "RelshipType"
         for (let i=0; i<objectviews?.length; i++) {
             const objview = objectviews[i];
@@ -1379,6 +1382,9 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             }
         }            
     }
+    metamodel.includeInheritedReltypes = model.includeSystemtypes;
+    myMetis.currentTargetMetamodel = metamodel;
+    myMetis.currentTargetModel = model;
     { // Dispatch metis
         const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
         if (debug) console.log('1402 jsnMetis: ', jsnMetis);
@@ -1387,8 +1393,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
         myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
     }
     { // Remove duplicate relationship types
-        myMetis.currentTargetMetamodel = metamodel;
-        myMetis.currentTargetModel = model;
         const rels = metamodel.relshiptypes;
         for (let j=0; j<rels?.length; j++) {
             const rel = rels[j];

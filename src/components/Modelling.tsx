@@ -646,7 +646,7 @@ export default Page(connect(state => state)(page));
     
 //     genGojsModel(props, dispatch);
 //     const timer = setTimeout(() => {
-//       if (!debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
+//       if (debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
 //     }, 1000); 
 //     return () => clearTimeout(timer);
 //   }, [focusModelview?.id])
@@ -657,8 +657,8 @@ export default Page(connect(state => state)(page));
 //   }, [focusModelview?.id])
 
 //   useEffect(() => { // refresch the model when the focusRefresch changes
-//   //   if (!debug) console.log('151 Modelling useEffect refreshid', props.phFocus.focusModel, props.phFocus.focusModelview);
-//   //   if (!debug) console.log('159 Modelling useEffect refreshid', props.phData.metis.models);
+//   //   if (debug) console.log('151 Modelling useEffect refreshid', props.phFocus.focusModel, props.phFocus.focusModelview);
+//   //   if (debug) console.log('159 Modelling useEffect refreshid', props.phData.metis.models);
 //   //   saveMemoryLocState()
 //     genGojsModel(props, dispatch)
 //     function refres() {

@@ -1217,8 +1217,10 @@ export function createRelationship(data: any, context: any) {
     const myMetis = context.myMetis; 
     const myMetamodel = myMetis.currentMetamodel;
     const myModel = context.myModel;
+    const myModelview = context.myModelview;
     const fromNode = myGoModel.findNode(data.from);
-    if (debug) console.log('998 fromNode, data.from', fromNode, data.from);
+    if (debug) console.log('980 myMetis', myMetis);
+    if (debug) console.log('981 fromNode, data.from', fromNode, data.from);
     let nodeFrom = myDiagram.findNodeForKey(fromNode?.key)
     const toNode = myGoModel.findNode(data.to);
     let nodeTo   = myDiagram.findNodeForKey(toNode?.key)
@@ -1244,14 +1246,21 @@ export function createRelationship(data: any, context: any) {
             toType.allObjecttypes = myMetamodel.objecttypes;
             toType.allRelationshiptypes = myMetamodel.relshiptypes;
         }
+        if (debug) console.log('1007 includeInherited', myModelview.includeInheritedReltypes);
         if (fromType && toType) {
-            const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';            
-            let defText = appliesToLabel ? "" : 'isRelatedTo';
-            const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
-            if (debug) console.log('1010 createRelationship', reltypes, fromType, toType);
+            // let defText = "isRelatedTo";
+            let defText = "";
+            let includeInherited = false;
+            if (myModelview.includeInheritedReltypes) {
+                const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';            
+                defText = appliesToLabel ? "" : 'isRelatedTo';
+                includeInherited = true;
+            }
+            const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
+            if (debug) console.log('1017 reltypes, includeInherited', reltypes, includeInherited);
             if (reltypes) {
                 const choices1: string[] = [];
-                choices1.push(defText);
+                if (defText.length > 0) choices1.push(defText);
                 let choices2: string[]  = [];
                 for (let i=0; i<reltypes.length; i++) {
                     const rtype = reltypes[i];

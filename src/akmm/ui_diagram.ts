@@ -763,8 +763,8 @@ function replaceCurrentMetamodel2(context: any) {
     const myMetis = context.myMetis;
     const myModel = context.myCurrentModel;
     const myDiagram = context.myDiagram;
-    const otypeDefault = myMetis.findObjectTypeByName('Generic');
-    const rtypeDefault = myMetis.findRelationshipTypeByName('isRelatedTo');
+    const otypeDefault = myMetis.findObjectTypeByName(constants.types.AKM_GENERIC);
+    const rtypeDefault = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
     if (debug) console.log('634 context', context);
     myModel.metamodel = newMetamodel;
     const objects = myModel.objects;

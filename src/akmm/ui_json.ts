@@ -3,6 +3,7 @@ const debug = false;
 
 const utils = require('./utilities');
 import * as akm from './metamodeller';
+const constants = require('./constants');
 // import { goRelshipTypeLink } from './ui_gojs';
 
 let jsnMetis = null;
@@ -1876,7 +1877,7 @@ export class jsnImportMetis {
             if (!reltype) {
                 reltype = metamodel.findRelationshipTypeByName(item.name);
                 if (!reltype) {
-                    reltype = metamodel.findRelationshipTypeByName('isRelatedTo');
+                    reltype = metamodel.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
                 }
             }
             const fromObj = jsnMetis.findObject(item.fromObjectRef);

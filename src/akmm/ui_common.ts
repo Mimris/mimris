@@ -1227,7 +1227,7 @@ export function createRelationship(data: any, context: any) {
     if (debug) console.log('985 createRelationship', myGoModel, fromNode, toNode);
     const fromObj = fromNode?.object;
     const toObj = toNode?.object;
-    let typename = 'isRelatedTo' as string | null;
+    let typename = constants.types.AKM_GENERIC_REL;
     let reltype;
     if (!reltype) {
         let fromType = fromNode?.objecttype;
@@ -1248,12 +1248,11 @@ export function createRelationship(data: any, context: any) {
         }
         if (debug) console.log('1007 includeInherited', myModelview.includeInheritedReltypes);
         if (fromType && toType) {
-            // let defText = "isRelatedTo";
-            let defText = "";
+            let defText = constants.types.AKM_GENERIC_REL;
             let includeInherited = false;
             if (myModelview.includeInheritedReltypes) {
                 const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';            
-                defText = appliesToLabel ? "" : 'isRelatedTo';
+                defText = appliesToLabel ? "" : constants.types.AKM_GENERIC_REL;
                 includeInherited = true;
             }
             const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInherited);
@@ -1358,6 +1357,7 @@ export function createRelshipCallback(args:any): akm.cxRelationshipView {
         let name = data.name;  
         if (context.myModelview.askForRelshipName){
             name = prompt('Enter relationship name', name);
+            if (!name) name = data.name;
             if (name.length == 0) name = " ";
         }   
         relshipview = updateRelationshipView(relshipview);
@@ -2697,7 +2697,7 @@ export function verifyAndRepairModel(model: akm.cxModel, metamodel: akm.cxMetaMo
         }
     }
     // Check if the referenced type exists - otherwse find a type that corresponds
-    const defRelTypename = 'isRelatedTo';
+    const defRelTypename = constants.types.AKM_GENERIC_REL;
     if (relships) { // sf added
         for (let i=0; i<relships?.length; i++) {
             const rel = relships[i];

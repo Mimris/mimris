@@ -768,7 +768,7 @@ class GoJSApp extends React.Component<{}, AppState> {
           const key  = data.key;
           const typename = data.type;
           if (data.category === constants.gojs.C_RELSHIPTYPE) {
-            const defRelType = myMetis.findRelationshipTypeByName('isRelatedTo');
+            const defRelType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
             const reltype = myMetis.findRelationshipType(data.reltype?.id);
             if (debug) console.log('749 reltype', reltype);
             if (reltype) {

@@ -66,7 +66,7 @@
     },
     {
       "id": "5cc540c0-ea91-4401-74bb-4f7cb52a2366",
-      "name": "Generic",
+      "name": "generic",
       "description": "",
       "abstract": false,
       "viewkind": "Object",
@@ -230,7 +230,7 @@
     },
     {
       "id": "69a15677-c416-46c1-f1a6-ba51c6819d30",
-      "name": "isRelatedTo",
+      "name": "generic",
       "description": "",
       "typeviewRef": "e1193385-321b-459c-5565-76d501baaf6f",
       "properties": [],

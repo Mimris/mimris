@@ -225,14 +225,14 @@ export class jsnMetaModel {
             const cnt = reltypes0.length;
             for (let i = 0; i < cnt; i++) {
                 const reltype = reltypes[i];
-                if (!reltype.fromObjtype) {
-                    if (reltype.fromobjtypeRef) {
+                if (!reltype?.fromObjtype) { // SF: added ?
+                    if (reltype?.fromobjtypeRef) { // SF: added ?
                         const objtype = metamodel.findObjectType(reltype.fromobjtypeRef);
                         reltype.fromObjtype = objtype;
                     }
                 }
-                if (!reltype.toObjtype) {
-                    if (reltype.toobjtypeRef) {
+                if (!reltype?.toObjtype) { // SF: added ?
+                    if (reltype?.toobjtypeRef) { // SF: added ?
                         const objtype = metamodel.findObjectType(reltype.toobjtypeRef);
                         reltype.toObjtype = objtype;
                     }

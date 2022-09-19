@@ -379,7 +379,7 @@
             },
             {
               "id": "69a15677-c416-46c1-f1a6-ba51c6819d30",
-              "name": "isRelatedTo",
+              "name": "generic",
               "description": "",
               "typeviewRef": "c4190b47-3a82-4032-f6e1-8cd7259e93b6",
               "properties": [],
@@ -7860,5 +7860,5 @@
     }
   },
   "phSource": "INIT-Startup_Project.json",
-  "lastUpdate": "2022-09-14T21:59:09.923Z"
+  "lastUpdate": "2022-09-19T09:54:24.501Z"
 }

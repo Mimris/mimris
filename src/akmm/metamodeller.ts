@@ -67,12 +67,14 @@ export class cxMetis {
     currentTargetMetamodel:     cxMetaModel | null = null;
     currentTargetModel:         cxModel | null = null;
     currentTargetModelview:     cxModelView | null = null;
-    currentTargetMetamodelRef:     string;
-    currentTargetModelRef:         string;
-    currentTargetModelviewRef:     string;
+    currentTargetMetamodelRef:  string;
+    currentTargetModelRef:      string;
+    currentTargetModelviewRef:  string;
     currentTemplateMetamodel:   cxMetaModel | null = null;
     currentTemplateModel:       cxModel | null = null;
     currentTemplateModelview:   cxModelView | null = null;
+    currentTaskModel:           cxModel | null = null;
+    currentTaskModelRef:        string;
     currentNode:        any;
     currentLink:        any;
     myDiagram:          any;
@@ -206,22 +208,27 @@ export class cxMetis {
         if (importedData.currentTemplateModelRef) {
             const model = this.findModel(importedData.currentTemplateModelRef);
             if (model)
-                this.currentTemplateModel = model;
+                this.setCurrentTemplateModel(model);
         }
         if (importedData.currentTargetMetamodelRef) {
             const metamodel = this.findMetamodel(importedData.currentTargetMetamodelRef);
             if (metamodel)
-                this.currentTargetMetamodel = metamodel;
+                this.setCurrentTargetMetamodel(metamodel);
         }
         if (importedData.currentTargetModelRef) {
             const model = this.findModel(importedData.currentTargetModelRef);
             if (model)
-                this.currentTargetModel = model;
+                this.setCurrentTargetModel(model);
         }
         if (importedData.currentModelviewRef) {
             const modelview = this.findModelView(importedData.currentTargetModelviewRef);
             if (modelview)
                 this.currentTargetModelview = modelview;
+        }
+        if (importedData.currentTaskModelRef) {
+            const model = this.findModel(importedData.currentTaskModelRef);
+            if (model) 
+                this.setCurrentTaskModel(model);
         }
         if (debug) console.log('211 this', this);
 
@@ -2616,18 +2623,21 @@ export class cxMetis {
     }
     setCurrentMetamodel(metamodel: cxMetaModel) {
         this.currentMetamodel = metamodel;
+        this.currentMetamodelRef = metamodel.id;
     }
     getCurrentMetamodel(): cxMetaModel | null {
         return this.currentMetamodel;
     }
     setCurrentTargetMetamodel(metamodel: cxMetaModel) {
         this.currentTargetMetamodel = metamodel;
+        this.currentTargetMetamodelRef = metamodel.id;
     }
     getcurrentTargetMetamodel(): cxMetaModel | null {
         return this.currentTargetMetamodel;
     }
     setCurrentTargetModel(model: cxModel) {
         this.currentTargetModel = model;
+        this.currentTargetModelRef = model.id;
     }
     getCurrentTargetModel(): cxModel | null {
         return this.currentTargetModel;
@@ -2637,6 +2647,13 @@ export class cxMetis {
     }
     getCurrentTargetModelview(): cxModelView | null {
         return this.currentTargetModelview;
+    }
+    setCurrentTaskModel(model: cxModel) {
+        this.currentTaskModel = model;
+        this.currentTaskModelRef = model.id;
+    }
+    getCurrentTaskModel(): cxModel | null {
+        return this.currentTaskModel;
     }
     isAdminType(type: cxObjectType) {
         if (!type)
@@ -6321,11 +6338,11 @@ export class cxModel extends cxMetaObject {
         return objects;
     }
     getCopiedFromObject(fromId: string): cxObject {
-        console.log('5972 this.objects, fromId', this.objects, fromId);
+        if (debug) console.log('5972 this.objects, fromId', this.objects, fromId);
         for (let i=0; i<this.objects.length; i++) {
             const obj = this.objects[i];
             if (obj.copiedFromId === fromId) {
-                console.log('5977 obj, fromId', obj, fromId);
+                if (debug) console.log('5977 obj, fromId', obj, fromId);
                 return obj;
             }
         }

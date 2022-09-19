@@ -240,6 +240,7 @@ function exportTaskModelCallback(context: any) {
     fromModel = myMetis.findModel(fromModel.id);
     let toModel   = context.args.model;
     toModel = myMetis.findModel(toModel.id);
+    myMetis.setCurrentTaskModel(toModel);
     const containerView = context.args.objectview;
     const modelView = containerView.getParentModelView(fromModel);
     const members = containerView.getGroupMembers(modelView);
@@ -278,11 +279,20 @@ function exportTaskModelCallback(context: any) {
         }
     }
     if (debug) console.log('220 toModel', toModel);
-    let mdata = new jsn.jsnModel(toModel, true);
-    mdata = JSON.parse(JSON.stringify(mdata));
-    mdata.targetModelRef = toModel.id;
-    if (debug) console.log('224 Diagram', mdata);        
-    myDiagram.dispatch({ type: 'UPDATE_TARGETMODEL_PROPERTIES', data: mdata })
+    // let mdata = new jsn.jsnModel(toModel, true);
+    // mdata = JSON.parse(JSON.stringify(mdata));
+    // mdata.targetModelRef = toModel.id;
+    // mdata.taskModelRef = fromModel.id;
+    // if (debug) console.log('224 Diagram', mdata);        
+    // myDiagram.dispatch({ type: 'UPDATE_TARGETMODEL_PROPERTIES', data: mdata })
+
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    if (debug) console.log('1402 jsnMetis: ', jsnMetis);
+    let data = {metis: jsnMetis}
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+
+
     alert("The task model has been successfully exported!");
 }
 

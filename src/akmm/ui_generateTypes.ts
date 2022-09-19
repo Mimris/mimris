@@ -1110,7 +1110,6 @@ export function generateMetamodel(objectviews: akm.cxObjectView[], relshipviews:
             let rtype = rtypes[i];
             rtype = myMetis.findRelationshipType(rtype.id);
             const typename = rtype.name;
-
             // Filter types not to be generated
             const objtypes = metamodel.objecttypes;
             const fromtype = rtype.fromObjtype;

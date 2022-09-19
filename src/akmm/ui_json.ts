@@ -21,6 +21,7 @@ export class jsnExportMetis {
     currentTargetMetamodelRef:  string;
     currentTargetModelRef:      string;
     currentTargetModelviewRef:  string;
+    currentTaskModelRef:        string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
         this.name                       = metis.name;
@@ -34,6 +35,7 @@ export class jsnExportMetis {
         this.currentTargetMetamodelRef  = "";
         this.currentTargetModelRef      = "";
         this.currentTargetModelviewRef  = "";
+        this.currentTaskModelRef        = "";
         // Code
         if (metis) {
             jsnMetis = metis;
@@ -67,6 +69,8 @@ export class jsnExportMetis {
                 this.currentTargetModelviewRef = metis.currentTargetModelview.id;
             if (metis.currentTemplateModel)
                 this.currentTemplateModelRef = metis.currentTemplateModel.id;  
+            if (metis.currentTaskModel)
+                this.currentTaskModelRef = metis.currentTaskModel.id;
         }
     }
     // Functions
@@ -225,8 +229,14 @@ export class jsnMetaModel {
             const cnt = reltypes0.length;
             for (let i = 0; i < cnt; i++) {
                 const reltype = reltypes[i];
+<<<<<<< HEAD
                 if (!reltype?.fromObjtype) { // SF: added ?
                     if (reltype?.fromobjtypeRef) { // SF: added ?
+=======
+                if (!reltype) continue;
+                if (!reltype.fromObjtype) {
+                    if (reltype.fromobjtypeRef) {
+>>>>>>> bad52e5db50f25ac01d4c7fa40e6ac3a08f74213
                         const objtype = metamodel.findObjectType(reltype.fromobjtypeRef);
                         reltype.fromObjtype = objtype;
                     }

@@ -340,9 +340,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
-              "category": "Relationship",
-              "type": "isRelatedTo",
-              "name": "",
+              "category":    "Relationship",
+              "type":        constants.types.AKM_GENERIC_REL,
+              "name":        "",
               "description": "",
               "relshipkind": constants.relkinds.REL,
             },                
@@ -1454,12 +1454,12 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               let   defText  = "";
               link.choices = [];
               // if (!appliesToLabel)
-              //   link.choices.push('isRelatedTo');
+              //   link.choices.push(constants.types.AKM_GENERIC_REL);
               if (debug) console.log('1456 reltypes, fromType, toType', reltypes, fromType, toType);
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {
                       const rtype = reltypes[i];
-                      if (rtype.name === 'isRelatedTo')
+                      if (rtype.name === constants.types.AKM_GENERIC_REL)
                           continue;
                       link.choices.push(rtype.name);  
                   }

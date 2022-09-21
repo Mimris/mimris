@@ -59,7 +59,7 @@ const page = (props:any) => {
   // const setRefresh = props.setRefresh
  
   const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null); //props);
-  if (!memoryLocState && (typeof window != 'undefined')) {setMemoryLocState([props])}
+  // if (!memoryLocState && (typeof window != 'undefined')) {setMemoryLocState([props])}
   
 
   /**  * Get the state from the store  */
@@ -109,15 +109,12 @@ const page = (props:any) => {
 
   // ask the user if he wants to reload the last state
   useEffect(() => { // load local storage if it exists and dispatch the first model project
-    let ph
-    if (window.confirm("Do you want to reload your last model project?")) {
-      ph = memoryLocState[0]
-      // genGojsModel(props, dispatch);
-      dispatchToStore(ph)
-    } else {
-      ph = props
-      // genGojsModel(props, dispatch);
-      dispatchToStore(ph)
+    if ((window.confirm("Do you want to reload your last model project?")) && (memoryLocState)) {
+      if (Array.isArray(memoryLocState)) {
+        dispatchToStore(memoryLocState[0]) 
+      } else {
+        dispatchToStore([data])
+      }
     }
   }, []) 
 
@@ -156,20 +153,21 @@ const page = (props:any) => {
   }, [props.phFocus?.focusRefresh?.id])
 
   function toggleRefresh() {
-    if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
-    let mdata = (Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
+    if (!debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
     // put currentdata in the first position of the array data
+    let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
     if (debug) console.log('161 Modelling refresh', mdata);
-    if (mdata.length > 6) { mdata.pop() }
+    // if mdata is longer than 10, remove the last 2 elements
+    if (mdata.length > 3) {mdata = mdata.slice(0, 3)}
+    if (mdata.length > 3) { mdata.pop() }
     if (debug) console.log('164 Modelling refresh', mdata);
-    // setTimeout(refres, 1);
     (typeof window !== 'undefined') && setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
     genGojsModel(props, dispatch)
     function refres() {
       setRefresh(!refresh)
     }
     setTimeout(refres, 100);
-    // setMemoryLocState(data) // Save Project to Memorystate in LocalStorage at every refresh
+    setMemoryLocState(mdata) // Save Project to Memorystate in LocalStorage at every refresh
   }
 
   if (debug) console.log('174 Modelling', curmod, curmodview);

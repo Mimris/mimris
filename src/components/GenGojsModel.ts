@@ -636,6 +636,10 @@ const GenGojsModel = async (props: any, dispatch: any) =>  {
         for (let i = 0; i < relshiptypes.length; i++) {
           let includeReltype = false;
           let reltype = relshiptypes[i];
+          if (reltype.name === 'isRelatedTo')
+            reltype.name = 'generic';
+          if (reltype.name === 'contains')
+            reltype.markedAsDeleted = true;
           let strokecolor = reltype.typeview?.strokecolor;
           if (reltype.cardinality.length > 0) {
             reltype.cardinalityFrom = reltype.getCardinalityFrom(); 

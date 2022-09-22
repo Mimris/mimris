@@ -27,6 +27,7 @@ import { ReadModelFromFile, SaveAllToFile, SaveAllToFileDate } from './utils/Sav
 // import ImpExpJSONFile from '../components/ImpExpJSONFile'
 import useLocalStorage  from '../hooks/use-local-storage'
 import EditFocusModal from '../components/EditFocusModal'
+import GoJSPaletteApp from "./gojs/GoJSPaletteApp";
 // import EditFocusMetamodel from '../components/EditFocusMetamodel'
 // import Tab from '../components/Tab'
 // import {loadDiagram} from './akmm/diagram/loadDiagram'
@@ -45,6 +46,7 @@ const page = (props:any) => {
   const dispatch = useDispatch();
   const [mount, setMount] = useState(false)
   const [refresh, setRefresh] = useState(true);
+
  
 
   useEffect(() => {
@@ -197,6 +199,8 @@ const page = (props:any) => {
       setVisibleTasks(!visibleTasks);
     }
 
+
+
   // ===================================================================
   // Divs
   if (debug) console.log('Modelling: gojsmodel', gojsmodelobjects);
@@ -247,6 +251,9 @@ const page = (props:any) => {
       />
     : <></>;
 
+
+ 
+
   const modellingtabs =  (<>
       <Nav tabs style={{ minWidth: "170px" }}>
         {/* <NavItem className="text-danger" >
@@ -284,6 +291,7 @@ const page = (props:any) => {
         </NavItem> */}
       </Nav>
       <TabContent  activeTab={activeTab} >  
+        <>
         {/* Template ------------------------------------------*/}
         {/* <TabPane tabId="0">
           <Tab /> */}
@@ -323,8 +331,10 @@ const page = (props:any) => {
               </Row>
             </div>          */}
         {/* </TabPane>  */}
-        {/* Metamodelling --------------------------------*/}
-        <TabPane  tabId="1">
+
+        </>
+
+        <TabPane  tabId="1">   {/* Metamodelling --------------------------------*/}
           <div className="workpad p-1 pt-2 bg-white" >
             <Row className="row" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
               <Col className="col1 m-0 p-0 pl-3" xs="auto">
@@ -340,11 +350,11 @@ const page = (props:any) => {
             </Row>
           </div>         
         </TabPane>
-        {/* Modelling ---------------------------------------*/}
-        <TabPane tabId="2">
+
+        <TabPane tabId="2">   {/* Modelling ---------------------------------------*/}
           <div className="workpad p-1 pt-2 bg-white">
             <Row className="row d-flex flex-nowrap h-100">
-              <Col className="col1 m-0 p-0 pl-3" xs="auto">
+              <Col className="col1 m-0 p-0 pl-3" xs="auto"> {/* Types */}
                 <div className="myPalette px-1 mt-0 mb-0 pt-0 pb-1" style={{ height: "100%", marginRight: "2px", backgroundColor: "#7ac", border: "solid 1px black" }}>
                  <Palette
                     gojsModelObjects={gojsmodelobjects}
@@ -362,11 +372,30 @@ const page = (props:any) => {
                   {instances}
                   </div> */}
                 </div>
+                <div>
+                
+                </div>
               </Col>
-              <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                {/* <Col style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}>
+                  <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div>
+                  <div className="myModeller mb-1 pl-1 pr-1" style={{ backgroundColor: "#ddd", width: "100%", height: "100%", border: "solid 1px black" }}>
+                    <GoJSPaletteApp // this is the Objects list
+                     nodeDataArray={gojsobjects.nodeDataArray}
+                     linkDataArray={[]}
+                     metis={props.metis}
+                     myMetis={props.myMetis}
+                     myGoModel={props.myGoModel}
+                     phFocus={props.phFocus}
+                     dispatch={props.dispatch}
+                    />
+                  </div>
+              </Col> */}
+
+              <Col className="col2" style={{ paddingLeft: "1px", marginLeft: "1px",paddingRight: "1px", marginRight: "1px"}}> {/* Modelling area */}
                 <div className="myModeller pl-0 mb-0 pr-1" style={{ backgroundColor: "#acc", minHeight: "7vh", width: "100%", height: "100%", border: "solid 1px black" }}>
+                {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{objectsnamediv}</div> */}
                 {/* <div className="myModeller m-0 pl-1 pr-1" style={{ width: "100%", height: "100%", border: "solid 1px black" }}> */}              
-                  <Modeller
+                  <Modeller // this is the Modeller ara
                     gojsModel={gojsmodel}
                     gojsMetamodel={gojsmetamodel}
                     myMetis={myMetis}
@@ -381,7 +410,7 @@ const page = (props:any) => {
                   />
                 </div>
               </Col>
-              <Col className="col3 mr-0 p-0 " xs="auto">
+              <Col className="col3 mr-0 p-0 " xs="auto"> {/* Targetmodel area */}
                 <div className="myTargetMeta px-0 mb-1 mr-3 pt-0 float-right" style={{ minHeight: "7vh", height: "100%", marginRight: "0px", backgroundColor: "#8ce", border: "solid 1px black" }}>
                   {targetmetamodelDiv}
                 </div>
@@ -389,6 +418,7 @@ const page = (props:any) => {
             </Row>
           </div>         
         </TabPane>
+        
         {/* Solution Modelling ------------------------------------*/}
         {/* <TabPane tabId="3">
           <div className="workpad p-1 pt-2 bg-white">
@@ -486,7 +516,7 @@ const page = (props:any) => {
         </span> 
   
       </div>
-      <div className="diagramtabs pl-1 pb-0 " >
+      <div className="diagramtabs pl-1 pb-0" >
         <div className="modellingContent mt-1 " >
           {refresh ? <> {modellingtabs} </> : <>{modellingtabs}</>}
         </div>

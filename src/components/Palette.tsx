@@ -23,7 +23,7 @@ const Palette = (props: any) => {
   let isRendered = useRef(false);
 
   const [visiblePalette, setVisiblePalette] = useState(true)
-  const [ofilter, setOfilter] = useState('All')
+
   const [refreshPalette, setRefreshPalette] = useState(true)
   const [refresh, setRefresh] = useState(true)
   const [activeTab, setActiveTab] = useState('1');
@@ -111,60 +111,60 @@ const Palette = (props: any) => {
   
   
   // ================================================================================================
-  // ================================================================================================
-  // Show all the objects in this model
-  // const gojsmodelObjects = props.gojsModelObjects
+  // // ================================================================================================
+  // // Show all the objects in this model
+  // // const gojsmodelObjects = props.gojsModelObjects
 
-  // Hack: if viewkind === 'Container' then set isGroup to true
-  let objArr = props.gojsModelObjects?.nodeDataArray
-  for (let i = 0; i < objArr?.length; i++) {
-    if (objArr[i]?.viewkind === 'Container') {
-      objArr[i].isGroup = true;
-    }
-  }
+  // // Hack: if viewkind === 'Container' then set isGroup to true
+  // let objArr = props.gojsModelObjects?.nodeDataArray
+  // for (let i = 0; i < objArr?.length; i++) {
+  //   if (objArr[i]?.viewkind === 'Container') {
+  //     objArr[i].isGroup = true;
+  //   }
+  // }
 
-  // let objArr = props.myMetis.gojsModel?.model.objects
+  // // let objArr = props.myMetis.gojsModel?.model.objects
 
-  const nodeArray_all = objArr 
-  if (debug) console.log('120 nodeArray_all', nodeArray_all, objArr);
-  // filter out the objects that are marked as deleted
-  const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
+  // const nodeArray_all = objArr 
+  // if (debug) console.log('120 nodeArray_all', nodeArray_all, objArr);
+  // // filter out the objects that are marked as deleted
+  // const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
   
-  // // filter out all objects of type Property
-  const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'Task' || node.typename === 'Role'))
-  const noPropertyObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
-  const noAbstractObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
-  if (debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
+  // // // filter out all objects of type Property
+  // const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'Task' || node.typename === 'Role'))
+  // const noPropertyObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Property' && node.typename !== 'PropLink'))
+  // const noAbstractObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename !== 'Abstract' && node.typename !== 'Property' && node.typename !== 'PropLink'))
+  // if (debug) console.log('185 Palette noPropertyObj', noPropertyObj, noAbstractObj);
 
-  const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
-    if (debug) console.log('Palette handleSetOfilter', filter);
-    setOfilter(filter)
-    // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
-    toggleRefreshPalette()
-  }
+  // const handleSetObjFilter = (filter: React.SetStateAction<string>) => {
+  //   if (debug) console.log('Palette handleSetOfilter', filter);
+  //   setOfilter(filter)
+  //   // gojstypes =  {nodeDataArray: filteredArr, linkDataArray: ldarr}
+  //   toggleRefreshPalette()
+  // }
   
-  {/* <div style={{transform: "scale(0.9)" }}> */}
-  const selectedObjDiv = (
-    <div >
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Tasks') }}>Task</button>}
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROP</button>}
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABS</button>}
-      { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button> }
-    </div>
-  )
+  // {/* <div style={{transform: "scale(0.9)" }}> */}
+  // const selectedObjDiv = (
+  //   <div >
+  //     { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('Tasks') }}>Task</button>}
+  //     { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Property') }}>!PROP</button>}
+  //     { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('!Abstract') }}>!ABS</button>}
+  //     { <button className= "btn bg-light btn-sm " onClick={() => { handleSetObjFilter('All') }}>ALL</button> }
+  //   </div>
+  // )
 
-  // // filter out all objects of type Property
-  let ofilteredArr = objectsNotDeleted
-  if (ofilter === 'Tasks') ofilteredArr = roleTaskObj
-  if (ofilter === '!Property') ofilteredArr = noPropertyObj
-  if (ofilter === '!Abstract') ofilteredArr = noAbstractObj
-  if (ofilter === 'All') ofilteredArr = objectsNotDeleted
+  // // // filter out all objects of type Property
+  // let ofilteredArr = objectsNotDeleted
+  // if (ofilter === 'Tasks') ofilteredArr = roleTaskObj
+  // if (ofilter === '!Property') ofilteredArr = noPropertyObj
+  // if (ofilter === '!Abstract') ofilteredArr = noAbstractObj
+  // if (ofilter === 'All') ofilteredArr = objectsNotDeleted
 
-  // const oNodeDataArray = nodeArray_all
-  // const oNodeDataArray = ofilteredArr
-  let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
+  // // const oNodeDataArray = nodeArray_all
+  // // const oNodeDataArray = ofilteredArr
+  // let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
   
-  if (debug) console.log('165 Palette gojsobjects', filteredOtNodeDataArray, gojsobjects.nodeDataArray);
+  // if (debug) console.log('165 Palette gojsobjects', filteredOtNodeDataArray, gojsobjects.nodeDataArray);
 
   const mmnamediv = (mmodel) ? <span className="metamodel-name">{mmodel?.name}</span> : <span>No metamodel</span> 
   const mnamediv = (mmodel) ? <span className="metamodel-name">{model?.name}</span> : <span>No model</span> 
@@ -195,14 +195,14 @@ const Palette = (props: any) => {
               Types
             </NavLink>
           </NavItem>
-          <NavItem >
+          {/* <NavItem >
             <NavLink style={{ paddingTop: "0px", paddingBottom: "0px", paddingLeft: "1px", borderColor: "#eee gray white #eee", color: "black"}}
               className={classnames({ active: activeTab === '2' })}
               onClick={() => { toggleTab('2'); toggleRefresh() }}
             >
               Objects
             </NavLink>
-          </NavItem>
+          </NavItem> */}
         </Nav>
         <TabContent activeTab={activeTab} >
           {/* TYPES this is the tab for Objecttypes */}
@@ -222,7 +222,8 @@ const Palette = (props: any) => {
                 />
               </div>
           </TabPane>
-          {/* OBJECTS  this is the tab for Object instances*/}
+          {/* OBJECTS  this is the tab for Object instances */}
+          {/*}
           <TabPane tabId="2">
             <div className="workpad p-1 pt-2 bg-white">
               {selectedObjDiv}
@@ -236,7 +237,8 @@ const Palette = (props: any) => {
                 dispatch={props.dispatch}
               />
             </div>
-          </TabPane>
+          </TabPane> 
+          */}
         </TabContent>
       </>
 

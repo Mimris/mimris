@@ -155,7 +155,7 @@ const page = (props:any) => {
   }, [props.phFocus?.focusRefresh?.id])
 
   function toggleRefresh() {
-    if (!debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
+    if (debug) console.log('152 Modelling', data, memoryLocState, (Array.isArray(memoryLocState)));
     // put currentdata in the first position of the array data
     let mdata = (memoryLocState && Array.isArray(memoryLocState)) ? [data, ...memoryLocState] : [data];
     if (debug) console.log('161 Modelling refresh', mdata);

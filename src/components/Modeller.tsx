@@ -16,7 +16,7 @@ const debug = false;
 const Modeller = (props: any) => {
 
   const dispatch = useDispatch();
-  if (!debug) console.log('19 Modeller: props', props);
+  if (debug) console.log('19 Modeller: props', props);
 
   // if (!props.gojsModel)  return <></>
 
@@ -208,7 +208,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   const nodeArray_all = ndArr 
   // filter out the objects that are marked as deleted
   const objectsNotDeleted = nodeArray_all?.filter((node: { markedAsDeleted: boolean; }) => node && node.markedAsDeleted === false)
-  if (!debug) console.log('209 nodeArray_all', nodeArray_all, objectsNotDeleted);
+  if (debug) console.log('209 nodeArray_all', nodeArray_all, objectsNotDeleted);
   
   // // filter out all objects of type Property
   const roleTaskObj = objectsNotDeleted?.filter((node: { typename: string; }) => node && (node.typename === 'EntityType' ))
@@ -252,7 +252,7 @@ To change Model name, rigth click the background below and select 'Edit Model'.`
   let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
   // let gojsobjects =  {nodeDataArray: ofilteredArr, linkDataArray: []}
   
-  if (!debug) console.log('165  gojsobjects',  gojsobjects.nodeDataArray);
+  if (debug) console.log('165  gojsobjects',  gojsobjects.nodeDataArray);
   
 
   useEffect(() => { // -----------------------------------------------------------------------------
@@ -340,17 +340,17 @@ To change Modelview name, rigth click the background below and select 'Edit Mode
     <>
       {/* <div className="mmname mx-0 px-1 mb-1" style={{fontSize: "16px", minWidth: "184px", maxWidth: "212px"}}>{selectedObjDiv}</div> */}
       <div className="workpad p-1 pt-2 bg-white">
-          {/* {selectTaskDiv} */}
-          <GoJSPaletteApp // this is the Objects list
-            divClassName="diagram-component-objects"
-            nodeDataArray={gojsobjects.nodeDataArray}
-            linkDataArray={[]}
-            metis={props.metis}
-            myMetis={props.myMetis}
-            myGoModel={props.myGoModel}
-            phFocus={props.phFocus}
-            dispatch={props.dispatch}
-          />
+        {/* {selectTaskDiv} */}
+        <GoJSPaletteApp // this is the Objects list
+          divClassName="diagram-component-objects"
+          nodeDataArray={gojsobjects.nodeDataArray}
+          linkDataArray={[]}
+          metis={props.metis}
+          myMetis={props.myMetis}
+          myGoModel={props.myGoModel}
+          phFocus={props.phFocus}
+          dispatch={props.dispatch}
+        />
       </div>
     </>
   
@@ -516,14 +516,14 @@ export default Modeller;
 //   // ToDo: remember last current modelview for each model, so that we can set focus to it when we come back to the that model 
 //   // activetabindex = (modelviewindex < 0) ? 0 : (modelviewindex) ? modelviewindex : focusModelviewIndex //selmodelviews?.findIndex(mv => mv.name === modelview?.name)
 //   // useEffect(() => {
-//   //   if (!debug) console.log('65 Modeller', focusModel.name, focusModelview.name);
+//   //   if (debug) console.log('65 Modeller', focusModel.name, focusModelview.name);
 //   //   // activetabindex = (modelviewindex < 0) ? 0 : modelviewindex  // if no focus modelview, then set to 0
 
 //   //   setActiveTab(activeTab)
 //   // }, [activeTab])
 
 //   // useEffect(() => {
-//   //   if (!debug) console.log('78 Modeller', focusModel.name, focusModelview.name, props.phFocus);
+//   //   if (debug) console.log('78 Modeller', focusModel.name, focusModelview.name, props.phFocus);
 //   //   const mv = modelviews[0]
 //   //   if (focusModelview.id !== modelview[0]?.id) return
 //   //   dispatchFocusModelview( { id: mv.id, name: mv.name })
@@ -532,13 +532,13 @@ export default Modeller;
 //   //     setRefresh(!refresh)
 //   //   }, 1000);
   
-//   //   if (!debug) console.log('88 Modeller', focusModel.name, focusModelview.name, props.phFocus);
+//   //   if (debug) console.log('88 Modeller', focusModel.name, focusModelview.name, props.phFocus);
 //   //   return () => clearTimeout(timer);
 //   // },[])
 //   useEffect(() =>  {
 //     // if (selmodviews?.length>0)
 //     if (activeTab != undefined || 0) {
-//       if (!debug) console.log('111 Modeller useEffect focusModel', activeTab); 
+//       if (debug) console.log('111 Modeller useEffect focusModel', activeTab); 
 //       const data = {id: selmodviews[0].id, name: selmodviews[0].name}
 //       dispatch({ type: 'SET_FOCUS_MODELVIEW', data }) ;
 //       // setActiveTab(0)
@@ -552,19 +552,19 @@ export default Modeller;
 //   }
 
 //   const dispatchFocusModelview = (id: string, name: string, tabidx) => {
-//     if (!debug) console.log('86 Selector', name, props.phFocus.focusModelview.name, activetabindex, activeTab);
+//     if (debug) console.log('86 Selector', name, props.phFocus.focusModelview.name, activetabindex, activeTab);
 //      dispatch({ type: 'SET_FOCUS_MODELVIEW', data: {id: id, name: name}  })
 //      setFocusModelview({id: id, name: name})
 //      setActiveTab(tabidx)
 
-//     if (!debug) console.log('89 Selector', name, props.phFocus.focusModelview, tabidx);
+//     if (debug) console.log('89 Selector', name, props.phFocus.focusModelview, tabidx);
 //     const timer = setTimeout(() => {
       
 //       genGojsModel(props, dispatch);
 //       setRefresh(!refresh)
 //     }, 1000);
     
-//     if (!debug) console.log('98 Selector', name, props.phFocus.focusModelview, tabidx);
+//     if (debug) console.log('98 Selector', name, props.phFocus.focusModelview, tabidx);
 //     // dispatch({ type: 'SET_FOCUS_REFRESH', data: {id: Math.random().toString(36).substring(7), name: 'name'}})
 //     return () => clearTimeout(timer);
 //     // setActiveTab(tabidx)
@@ -579,7 +579,7 @@ export default Modeller;
 //     const id = JSON.parse(event.value).id
 //     const name = JSON.parse(event.value).name
 //     const selObj = models.find( (obj: any) => obj.id === id ) // check if exists
-//     if (!debug) console.log('98 Mmodeller', id, name, activeTab);
+//     if (debug) console.log('98 Mmodeller', id, name, activeTab);
 //     // dispatch both model and modelview[0] for the selected model
 //     if (selObj) dispatchFocusModel(id, name)
 //     // if (selObj) dispatchFocusModelview(selObj.modelviews[0].id, selObj.modelviews[0].name)

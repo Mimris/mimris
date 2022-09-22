@@ -71,22 +71,22 @@ const Palette = (props: any) => {
       })
     ).filter(Boolean)
     taskNodeDataArray = taskNodeDataArray0 || []
-    if (!debug) console.log('73 taskNodeDataArray',  taskNodeDataArray0)
+    if (debug) console.log('73 taskNodeDataArray',  taskNodeDataArray0)
   } 
 
   useEffect(() => {
     isRendered = true;
     if (isRendered) {
-      if (!debug) clog('80Palette useEffect', props);
+      if (debug) clog('80Palette useEffect', props);
     (mmodel) && genRoleTasks(mmodel, dispatch)
     }
     return () => { isRendered = false; }
   }, [])
 
   
-  if (!debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+  if (debug) console.log('86 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
   useEffect(() => { // -------------  Find focusTask.workOnTypes  -----------------------
-    if (!debug) console.log('88 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
+    if (debug) console.log('88 Palette useEffect 2', props.phFocus.focusTask.workOnTypes);
   
       if (props.phFocus.focusTask.workOnTypes) {
         taskNodeDataArray = props.phFocus.focusTask?.workOnTypes?.map((wot: any) => // list of types for this focusTask (string)
@@ -97,7 +97,7 @@ const Palette = (props: any) => {
         if (debug) console.log('93 taskNodeDataArray', taskNodeDataArray);
       
     console.log('91 taskNodeDataArray', taskNodeDataArray, taskNodeDataArray)
-    if (!debug) console.log('94 seltasks', props.phFocus.focusTask)
+    if (debug) console.log('94 seltasks', props.phFocus.focusTask)
     }
   }, [props.phFocus.focusTask?.id])
 

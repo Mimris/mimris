@@ -111,13 +111,17 @@ const page = (props:any) => {
 
   // ask the user if he wants to reload the last state
   useEffect(() => { // load local storage if it exists and dispatch the first model project
-    if ((window.confirm("Do you want to reload your last model project?")) && (memoryLocState)) {
-      if (Array.isArray(memoryLocState)) {
-        dispatchToStore(memoryLocState[0]) 
-      } else {
-        dispatchToStore([data])
-      }
-    }
+        const timer = setTimeout(() => {
+            if (debug) console.log('142 Modelling useEffect focus', props.phFocus.focusModel, props.phFocus.focusModelview );
+            if ((window.confirm("Do you want to recover your last model project?")) && (memoryLocState)) {
+              if (Array.isArray(memoryLocState)) {
+                dispatchToStore(memoryLocState[0]) 
+              } else {
+                dispatchToStore([data])
+              }
+            }
+          }, 1000); 
+          return () => clearTimeout(timer);
   }, []) 
 
   function  dispatchToStore(ph) {  

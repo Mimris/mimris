@@ -1285,7 +1285,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
     addNodeTemplateName('Annotation');
 
     nodeTemplateMap.add("ActivityNode",
-    $(go.Node, 'Auto',
+    $(go.Node, 'Spot',
         new go.Binding("stroke", "strokecolor"),
         new go.Binding("layerName", "layer"),
         new go.Binding("deletable"),
@@ -1332,7 +1332,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
               toLinkable: true, 
               fromSpot: go.Spot.RightSide, 
               toSpot: go.Spot.LeftSide,
-            //   toLinkableSelfNode: true,
+              toLinkableSelfNode: true,
             //   toLinkableDuplicates: true,
             },
             new go.Binding('fill', 'color'),
@@ -1420,7 +1420,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         fill: "transparent",
                         stroke: "transparent",
                         strokeWidth: 1,
-                        cursor: "pointer",        // cursor: "pointer",
+                        cursor: "move",        // cursor: "pointer",
                         minSize: new go.Size(40, 40), 
                         desiredSize: new go.Size(40, 40), // outer Shape size 
                     },
@@ -1429,8 +1429,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             // end Spot Panel
             $(go.TextBlock, textStyle(),  // the text -----------------------
                 { 
-                    margin: 3, 
-                    font: "bold 12px Georgia, sans-serif",
+                    margin: 0, 
+                    // font: "bold 12px Georgia, sans-serif",
                     isMultiline: true,  // allow newlines in text
                     editable: true,  // allow in-place editing by user   
                 },
@@ -1470,7 +1470,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                 $(go.Shape,
                     { 
                         figure: "Diamond", 
-                        fill: "lightyellow",
+                        // fill: "lightyellow",
                         stroke: "black",
                         strokeWidth: 1,
                         cursor: "alias",                    // To draw a link,
@@ -1485,8 +1485,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         toLinkableSelfNode: true,
                         toLinkableDuplicates: false,
                     },
-                    // new go.Binding('fill', 'fillcolor'),
-                    // new go.Binding('stroke', 'strokecolor'), 
+                    new go.Binding('fill', 'fillcolor'),
+                    new go.Binding('stroke', 'strokecolor'), 
                 ),
                       
                 $(go.Shape,  // Plus line
@@ -1508,7 +1508,7 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
                         fill: "transparent",
                         stroke: "transparent",
                         strokeWidth: 1,
-                        cursor: "pointer",                    // To move a node,
+                        cursor: "move",                    // To move a node,
                         minSize: new go.Size(50, 50), 
                         desiredSize: new go.Size(50, 50),  // outer Shape size 
                     },
@@ -1516,8 +1516,8 @@ export function addNodeTemplates(nodeTemplateMap: any, contextMenu: any, myMetis
             ),    // end Spot Panel
             $(go.TextBlock, textStyle(),  // the text -----------------------
                 { 
-                    margin: 0, 
-                    font: "bold 12px Georgia, sans-serif",
+                    margin: -16, 
+                    // font: "bold 12px Georgia, sans-serif",
                     isMultiline: true,  // allow newlines in text
                     editable: true,  // allow in-place editing by user   
                 },

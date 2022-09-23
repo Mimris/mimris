@@ -48,7 +48,7 @@ const strokewidths = ['1', '2', '3', '4', '5'];
 
 const useTabs = true;
 
-const booleanAsCheckbox = false;
+const booleanAsCheckbox = true;
 
 export class SelectionInspector extends React.PureComponent<SelectionInspectorProps, {}> {
   /**

@@ -105,10 +105,10 @@ const TargetMeta = (props) => {
       {/* {refresh ? <> {palette} </> : <>{palette}</>} */}
       {palette} 
       <style jsx>{`
-        .diagram-component {
-          height: 101%;
-          width: 98%;
-        }
+        // .diagram-component {
+        //   height: 101%;
+        //   width: 98%;
+        // }
        `}</style>
     </>
   )

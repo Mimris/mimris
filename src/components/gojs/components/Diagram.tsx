@@ -340,9 +340,9 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
             "linkingTool.portGravity": 0,  // no snapping while drawing new links
             "linkingTool.archetypeLinkData": {
               "key": utils.createGuid(),
-              "category": "Relationship",
-              "type": "isRelatedTo",
-              "name": "",
+              "category":    "Relationship",
+              "type":        constants.types.AKM_GENERIC_REL,
+              "name":        "",
               "description": "",
               "relshipkind": constants.relkinds.REL,
             },                
@@ -652,13 +652,15 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               } 
               myMetis.currentNode = node;
               myMetis.myDiagram = myDiagram;
+              if (debug) console.log('655 myMetis', myMetis);
               myDiagram.handleOpenModal(node, modalContext);
-              if (debug) console.log('730 myMetis', myMetis);
             },
             function (o: any) {
               const node = o.part.data;
               if (node.category === constants.gojs.C_OBJECT) {
                 return true;
+              // } else if (node.category === constants.gojs.C_OBJECTTYPE) {
+              //     return true;
               } else {
                 return false;
               }
@@ -1436,6 +1438,8 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
           makeButton("Change Relationship Type",
             function (e, obj) {
               const myGoModel = myMetis.gojsModel;
+              const myModelview = myMetis.currentModelview;
+              const includeInheritedReltypes = myModelview.includeInheritedReltypes;
               const link = obj.part.data;
               if (debug) console.log('1440 link', link, myDiagram, myGoModel);
               let fromNode = myGoModel?.findNode(link.from);
@@ -1448,25 +1452,21 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
               const appliesToLabel = fromType.name === 'Label' || toType.name === 'Label';
               if (debug) console.log('1449 link', fromType, toType);
               const myMetamodel = myMetis.currentMetamodel;
-              const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
+              const reltypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
               let   defText  = "";
               link.choices = [];
-              if (!appliesToLabel)
-                link.choices.push('isRelatedTo');
-              if (debug) console.log('1456 createRelationship', reltypes, fromType, toType);
+              // if (!appliesToLabel)
+              //   link.choices.push(constants.types.AKM_GENERIC_REL);
+              if (debug) console.log('1456 reltypes, fromType, toType', reltypes, fromType, toType);
               if (reltypes) {
                   for (let i=0; i<reltypes.length; i++) {
                       const rtype = reltypes[i];
-                      if (rtype.name === 'isRelatedTo')
+                      if (rtype.name === constants.types.AKM_GENERIC_REL)
                           continue;
                       link.choices.push(rtype.name);  
                   }
                   let uniqueSet = utils.removeArrayDuplicates(link.choices);
                   link.choices = uniqueSet;
-              }
-              const context = {
-                "myMetis":      myMetis,
-                "myDiagram":    e.diagram,
               }
               const args = {
                 typeNames:  link.choices,
@@ -2573,6 +2573,36 @@ export class DiagramWrapper extends React.Component<DiagramProps, DiagramState> 
                 data = JSON.parse(JSON.stringify(data));
                 e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
               })
+            },
+            function (o: any) { 
+              return true; 
+            }),
+          makeButton("Toggle 'Include Inherited Relshiptypes' On/Off",   
+            function (e: any, obj: any) {
+              const modelview = myMetis.currentModelview;
+              if (modelview.includeInheritedReltypes == undefined)
+                modelview.includeInheritedReltypes = false;
+              modelview.includeInheritedReltypes = !modelview.includeInheritedReltypes;
+              if (!modelview.includeInheritedReltypes) {
+                alert("Inherited Relationship types are NOT included!");
+              } else {
+                alert("Inherited Relationship types are included!");
+              }
+              const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+              let data = {metis: jsnMetis}
+              data = JSON.parse(JSON.stringify(data));
+              if (debug) console.log('2398 jsnMetis', jsnMetis, metis);
+              e.diagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+          
+              // const jsnModelview = new jsn.jsnModelView(modelview);
+              // if (debug) console.log('3236 jsnModelview', jsnModelview);
+              // const modifiedModelviews = new Array();
+              // modifiedModelviews.push(jsnModelview);
+              // modifiedModelviews.map(mn => {
+              //   let data = mn;
+              //   data = JSON.parse(JSON.stringify(data));
+              //   e.diagram.dispatch({ type: 'UPDATE_MODELVIEW_PROPERTIES', data })
+              // })
             },
             function (o: any) { 
               return true; 

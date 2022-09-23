@@ -84,6 +84,7 @@ export let types = {
           AKM_FIELDTYPE         : "FieldType",
           AKM_UNIT              : "Unit",
           AKM_LABEL             : "Label",
+          AKM_GENERIC           : "Generic",
           AKM_CONTAINS          : "contains",
           AKM_ANNOTATES         : "annotates",
           AKM_HAS_COLLECTION    : "has",
@@ -99,7 +100,8 @@ export let types = {
           AKM_HAS_INPUTPATTERN  : "has",
           AKM_HAS_VIEWFORMAT    : "has",
           AKM_HAS_FIELDTYPE     : "has",
-          AKM_POINTS_TO            : "pointsTo",
+          AKM_POINTS_TO         : "pointsTo",
+          AKM_GENERIC_REL       : "generic",
     
      // Type properties
           OBJECTTYPE_ID            : "objecttype",
@@ -165,8 +167,6 @@ export const fs = {
           FS_C_PROPVALUES       : "propertyvalues",
           FS_C_VALUES           : "values"
 };
-
-
 
 export let admin = {
      AKM_ADMIN_MM:            "AKM-ADMIN_MM",

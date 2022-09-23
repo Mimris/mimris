@@ -199,6 +199,17 @@ class GoJSApp extends React.Component<{}, AppState> {
     return false;
   }
 
+  private isMetamodelType(category) {
+      let retval = false;
+      if (
+          (category === constants.types.OBJECTTYPE)
+          ||
+          (category === constants.types.RELATIONSHIPTYPE)
+      ) 
+          retval = true;    
+      return retval;
+  }
+
   /**
    * Handle any relevant DiagramEvents, in this case just selection changes.
    * On ChangedSelection, find the corresponding data and set the selectedData state.
@@ -266,6 +277,7 @@ class GoJSApp extends React.Component<{}, AppState> {
       "pasted":           pasted,
       "done":             done,
       "askForRelshipName":    myModelview.askForRelshipName,
+      "includeInheritedReltypes": myModelview.includeInheritedReltypes,
       "handleOpenModal":  this.handleOpenModal,
       "modifiedLinks":    null,
       "modifiedRelships": null,
@@ -751,183 +763,186 @@ class GoJSApp extends React.Component<{}, AppState> {
         const deletedFlag = true;
         let renameTypes = false;
         const selection = e.subject;
+        if (debug) console.log('738 selection', selection);
         const data = selection.first().data;
         if (debug) console.log('732 data, selection', data, selection);
-        if (data.category === constants.gojs.C_OBJECTTYPE || data.category === constants.gojs.C_RELSHIPTYPE) {
+        if (this.isMetamodelType(data.category)) {
           if (confirm("If instances exists, do you want to change their types instead of deleting?")) {
-            renameTypes = true;
-          }
-        }
-        if (debug) console.log('738 selection', selection);
-        // Handle relationship types
-        for (let it = selection?.iterator; it?.next();) {
-          const sel  = it.value;
-          const data = sel.data;
-          if (debug) console.log('743 sel, data', sel, data);
-          const key  = data.key;
-          const typename = data.type;
-          if (data.category === constants.gojs.C_RELSHIPTYPE) {
-            const defRelType = myMetis.findRelationshipTypeByName('isRelatedTo');
-            const reltype = myMetis.findRelationshipType(data.reltype?.id);
-            if (debug) console.log('749 reltype', reltype);
-            if (reltype) {
-              // Check if reltype instances exist
-              const rels = myMetis.getRelationshipsByType(reltype, false);
-              if (debug) console.log('753 reltype, rels, myMetis', reltype, rels, myMetis);
-              if (rels.length > 0) {
-                if (renameTypes) {
-                  for (let i=0; i<rels.length; i++) {
-                    const rel = rels[i];
-                    rel.type = defRelType;
-                    rel.typeview = defRelType.typeview;
-                    const jsnRel = new jsn.jsnRelationship(rel);
-                    modifiedRelships.push(jsnRel);
+              renameTypes = true;
+          }   
+          // If an object type, identify connected relationship types
+          const reltypes = [];
+          for (let it = selection?.iterator; it?.next();) {
+            const sel  = it.value;
+            const data = sel.data;
+            if (data.category === constants.gojs.C_OBJECTTYPE) {
+              const objtype = myMetis.findObjectType(data.objecttype?.id);
+              if (objtype) {
+                const inputReltypes = objtype.inputreltypes;
+                for (let i=0; i<inputReltypes?.length; i++) {
+                  const reltype = inputReltypes[i];
+                  if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
+                }
+                const outputReltypes = objtype.outputreltypes;
+                for (let i=0; i<outputReltypes?.length; i++) {
+                  const reltype = outputReltypes[i];
+                  if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
+                }
+              }
+            }
+            else if (data.category === constants.gojs.C_RELSHIPTYPE) {
+              const reltype = myMetis.findRelationshipType(data.reltype?.id);
+              if (reltype) {
+                if (reltypes.indexOf(reltype) === -1) reltypes.push(reltype);
+              }
+            }
+            // Handle relationship types
+            for (let it = selection?.iterator; it?.next();) {
+              const sel  = it.value;
+              const data = sel.data;
+              if (debug) console.log('743 sel, data', sel, data);
+              const key  = data.key;
+              const typename = data.type;
+              if (data.category === constants.gojs.C_RELSHIPTYPE) {
+                const defRelType = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
+                const reltype = myMetis.findRelationshipType(data.reltype?.id);
+                if (debug) console.log('749 reltype', reltype);
+                if (reltype) {
+                  // Check if reltype instances exist
+                  const rels = myMetis.getRelationshipsByType(reltype, false);
+                  if (debug) console.log('753 reltype, rels, myMetis', reltype, rels, myMetis);
+                  if (rels.length > 0) {
+                    if (renameTypes) {
+                      for (let i=0; i<rels.length; i++) {
+                        const rel = rels[i];
+                        rel.type = defRelType;
+                        rel.typeview = defRelType.typeview;
+                        const jsnRel = new jsn.jsnRelationship(rel);
+                        modifiedRelships.push(jsnRel);
+                      }
+                    } else { // delete the corresponding relationships
+                      for (let i=0; i<rels.length; i++) {
+                        const rel = rels[i];
+                        rel.markedAsDeleted = deletedFlag;
+                      }
+                    }
                   }
-                } else { // delete the corresponding relationships
-                  for (let i=0; i<rels.length; i++) {
-                    const rel = rels[i];
-                    rel.markedAsDeleted = deletedFlag;
-                    const jsnRel = new jsn.jsnRelationship(rel);
-                    modifiedRelships.push(jsnRel);
+                  // Check if reltype comes from or goes to a systemtype
+                  // If so, ask if you really wants to delete
+                  // const fromObjtype = reltype.fromObjtype;
+                  // const toObjtype   = reltype.toObjtype;
+                  // if (debug) console.log('777 fromObjtype, toObjtype', fromObjtype, toObjtype);
+                  // if (!this.isSystemType(fromObjtype)) {
+                  //   if (!this.isSystemType(toObjtype)) {
+                  //     if (!confirm("This is a relationship type between system types. Do you really want to delete?")) {
+                  //       continue;
+                  //     }
+                  //   }
+                  // }
+                  if (debug) console.log('785 reltype', reltype);
+                  reltype.markedAsDeleted = deletedFlag;
+                  uic.deleteRelationshipType(reltype, deletedFlag);
+                  let reltypeview = reltype.typeview as akm.cxRelationshipTypeView;
+                  if (reltypeview) {
+                      reltypeview.markedAsDeleted = deletedFlag;
                   }
                 }
               }
-              // Check if reltype comes from or goes to a systemtype
-              // If so, ask if you really wants to delete
-              const fromObjtype = reltype.fromObjtype;
-              const toObjtype   = reltype.toObjtype;
-              if (debug) console.log('777 fromObjtype, toObjtype', fromObjtype, toObjtype);
-              if (!this.isSystemType(fromObjtype)) {
-                if (!this.isSystemType(toObjtype)) {
-                  if (!confirm("This is a relationship type between system types. Do you really want to delete?")) {
-                    continue;
+            }
+            // Handle objecttypes
+            for (let it = selection?.iterator; it?.next();) {
+              const sel  = it.value;
+              const data = sel.data;
+              if (debug) console.log('805 sel, data', sel, data);
+              const key  = data.key;
+              const typename = data.type;
+              if (data.category === constants.gojs.C_OBJECTTYPE) {
+                const defObjType = myMetis.findObjectTypeByName('Generic');
+                const objtype = myMetis.findObjectType(data.objecttype?.id);
+                if (objtype) {
+                  if (debug) console.log('835 objtype to be removed ??', objtype);
+                  // Check if objtype instances exist
+                  const objects = myMetis.getObjectsByType(objtype, true);
+                  if (debug) console.log('814 objtype, objects, myMetis', objtype, objects, myMetis);
+                  if (objects.length > 0) {
+                    if (renameTypes) {
+                      for (let i=0; i<objects.length; i++) {
+                        const obj = objects[i];
+                        obj.type = defObjType;
+                        obj.typeview = defObjType.typeview;
+                        // const jsnObj = new jsn.jsnObject(obj);
+                        // modifiedObjects.push(jsnObj);
+                      }
+                    } else { // delete the corresponding objects
+                      for (let i=0; i<objects.length; i++) {
+                        const obj = objects[i];
+                        obj.markedAsDeleted = deletedFlag;
+                      }
+                    }
                   }
-                }
-              }
-              if (debug) console.log('785 reltype', reltype);
-              reltype.markedAsDeleted = deletedFlag;
-              uic.deleteRelationshipType(reltype, deletedFlag);
-              const jsnReltype = new jsn.jsnRelationshipType(reltype, true);
-              modifiedTypeLinks.push(jsnReltype);
-              if (debug) console.log('790 modifiedTypeLinks', modifiedTypeLinks);
-              let reltypeview = reltype.typeview as akm.cxRelationshipTypeView;
-              if (reltypeview) {
-                  // reltypeview.markedAsDeleted = deletedFlag;
-                  const jsnReltypeView = new jsn.jsnRelshipTypeView(reltypeview);
-                  modifiedTypeViews.push(jsnReltypeView);
-                  if (debug) console.log('796 modifiedTypeViews', modifiedTypeViews);
+                  objtype.markedAsDeleted = deletedFlag;
+                  let objtypeview = objtype.typeview as akm.cxObjectTypeView;
+                  if (objtypeview) {
+                      objtypeview.markedAsDeleted = deletedFlag;
+                  }
+                  const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
+                  if (geo) {
+                      geo.markedAsDeleted = deletedFlag;
+                  }  
+                }          
               }
             }
           }
-        }
-        // Handle objecttypes
-        for (let it = selection?.iterator; it?.next();) {
-          const sel  = it.value;
-          const data = sel.data;
-          if (debug) console.log('805 sel, data', sel, data);
-          const key  = data.key;
-          const typename = data.type;
-          if (data.category === constants.gojs.C_OBJECTTYPE) {
-            const defObjType = myMetis.findObjectTypeByName('Generic');
-            const objtype = myMetis.findObjectType(data.objecttype?.id);
-            if (objtype) {
-              // Check if objtype instances exist
-              const objects = myMetis.getObjectsByType(objtype, true);
-              if (debug) console.log('814 objtype, objects, myMetis', objtype, objects, myMetis);
-              if (objects.length > 0) {
-                if (renameTypes) {
-                  for (let i=0; i<objects.length; i++) {
-                    const obj = objects[i];
-                    obj.type = defObjType;
-                    obj.typeview = defObjType.typeview;
-                    const jsnObj = new jsn.jsnObject(obj);
-                    modifiedObjects.push(jsnObj);
-                  }
-                } else { // delete the corresponding objects
-                  for (let i=0; i<objects.length; i++) {
-                    const obj = objects[i];
-                    obj.markedAsDeleted = deletedFlag;
-                    const jsnObj = new jsn.jsnObject(obj);
-                    modifiedObjects.push(jsnObj);
-                  }
-                }
-              }
-              // If systemtypes, just remove them from metamodel
-              if (this.isSystemType(objtype)) {
-                context.myMetamodel.removeObjectType(objtype);
-                continue;
-              }
-              // If other types, delete them
-              objtype.markedAsDeleted = deletedFlag;
-              const jsnObjtype = new jsn.jsnObjectType(objtype, true);
-              modifiedTypeNodes.push(jsnObjtype);
-              if (debug) console.log('842 modifiedTypeNodes', modifiedTypeNodes);
-              let objtypeview = objtype.typeview as akm.cxObjectTypeView;
-              if (objtypeview) {
-                  objtypeview.markedAsDeleted = deletedFlag;
-                  const jsnObjtypeView = new jsn.jsnObjectTypeView(objtypeview);
-                  modifiedTypeViews.push(jsnObjtypeView);
-                  if (debug) console.log('848 modifiedTypeViews', modifiedTypeViews);
-              }
-              const geo = context.myMetamodel.findObjtypeGeoByType(objtype);
-              if (geo) {
-                  geo.markedAsDeleted = deletedFlag;
-                  const jsnObjtypegeo = new jsn.jsnObjectTypegeo(geo);
-                  modifiedTypeGeos.push(jsnObjtypegeo);
-                  if (debug) console.log('855 modifiedTypeGeos', modifiedTypeGeos);
-              }  
-            }          
-          }
-        }
-        // Handle objects
-        for (let it = selection?.iterator; it?.next();) {
-          const sel  = it.value;
-          const data = sel.data;
-          const key  = data.key;
-          if (data.category === constants.gojs.C_OBJECT) {
-            if (debug) console.log('866 sel, data', sel, data);
+        } else {
+          // Handle objects
+          for (let it = selection?.iterator; it?.next();) {
+            const sel  = it.value;
+            const data = sel.data;
             const key  = data.key;
-            const myNode = this.getNode(context.myGoModel, key);
-            if (myNode) {
-              if (debug) console.log('870 delete node', data, myNode);
-              uic.deleteNode(myNode, deletedFlag, modifiedNodes, modifiedObjects, modifiedLinks, modifiedRelships, modifiedTypeViews, context);
-              if (debug) console.log('872 modifiedNodes', modifiedNodes);
-              if (debug) console.log('873 modifiedObjects', modifiedObjects);
-              if (debug) console.log('874 modifiedTypeViews', modifiedTypeViews);
-              if (debug) console.log('875 modifiedLinks', modifiedLinks);
-              if (debug) console.log('876 modifiedRelships', modifiedRelships);
-              if (debug) console.log('877 myGoModel', context.myGoModel);
+            if (data.category === constants.gojs.C_OBJECT) {
+              if (debug) console.log('866 sel, data', sel, data);
+              const key  = data.key;
+              const myNode = this.getNode(context.myGoModel, key);
+              if (myNode) {
+                if (debug) console.log('870 delete node', data, myNode);
+                uic.deleteNode(myNode, deletedFlag, context);
+                if (debug) console.log('872 delete node', data, myNode);
+              }
             }
           }
-        }
-        // Handle relationships
-        for (let it = selection?.iterator; it?.next();) {
-          const sel  = it.value;
-          const data = sel.data;
-          const key  = data.key;
-          if (data.category === constants.gojs.C_RELATIONSHIP) {
-            const myLink = this.getLink(context.myGoModel, key);
-            if (debug) console.log('888 myLink, data', myLink, data);
-            uic.deleteLink(data, deletedFlag, modifiedLinks, modifiedRelships, modifiedLinkTypeViews, context);
-            const relview = data.relshipview;
-            if (relview && relview.category === constants.gojs.C_RELATIONSHIP) {
-              relview.markedAsDeleted = deletedFlag;
-              relview.relship = myMetis.findRelationship(relview.relship.id);
-              const jsnRelview = new jsn.jsnRelshipView(relview);
-              modifiedLinks.push(jsnRelview);
-              if (debug) console.log('896 modifiedLinks', modifiedLinks);
-              if (!myMetis.deleteViewsOnly) {
-                const relship = relview.relship;
-                relship.markedAsDeleted = deletedFlag;
-                const jsnRel = new jsn.jsnRelationship(relship);
-                modifiedRelships.push(jsnRel);
-                if (debug) console.log('902 modifiedRelships', modifiedRelships);
+          // Handle relationships
+          for (let it = selection?.iterator; it?.next();) {
+            const sel  = it.value;
+            const data = sel.data;
+            const key  = data.key;
+            if (data.category === constants.gojs.C_RELATIONSHIP) {
+              const myLink = this.getLink(context.myGoModel, key);
+              if (debug) console.log('888 myLink, data', myLink, data);
+              uic.deleteLink(data, deletedFlag, context);
+              const relview = data.relshipview;
+              if (relview && relview.category === constants.gojs.C_RELATIONSHIP) {
+                relview.markedAsDeleted = deletedFlag;
+                relview.relship = myMetis.findRelationship(relview.relship.id);
+                if (!myMetis.deleteViewsOnly) {
+                  const relship = relview.relship;
+                  relship.markedAsDeleted = deletedFlag;
+                }
               }
             }
           }
         }
         if (debug) console.log('906 myMetis', myMetis); 
       }
+      if (debug) console.log('932 Deletion completed', myMetis);
+
+      const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+      let data = {metis: jsnMetis}
+      data = JSON.parse(JSON.stringify(data));
+      if (debug) console.log('932 PhData', data);
+      myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })       
+
+      return;
+
       break;
       case 'ExternalObjectsDropped': {
         e.subject.each(function(n) {
@@ -977,6 +992,7 @@ class GoJSApp extends React.Component<{}, AppState> {
             if (debug) console.log('955 part, objview', part, objview);
             if (objview) {
               const object = objview.object;
+              object.name = part.name;
               let otype = object.type;
               if (!otype) {
                 otype = myMetis.findObjectType(objview.object.typeRef);
@@ -1014,22 +1030,22 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case "ObjectSingleClicked": {
-        const sel = e.subject.part;
-        const data = sel.data;
-        if (debug) console.log('998 selected', data, sel);
-        for (let it = sel.memberParts; it?.next();) {
-            var n = it.value;
-            if (!(n instanceof go.Node)) continue;
-            console.log('1002 n', n.data);
+          const sel = e.subject.part;
+          const data = sel.data;
+          console.log('1019 selected', data, sel);
+          for (let it = sel.memberParts; it?.next();) {
+              var n = it.value;
+              if (!(n instanceof go.Node)) continue;
+              console.log('1023 n', n.data);
+          }
         }
-      }
-      break;
+        break;
       case "ObjectContextClicked": {
-        const sel = e.subject.part;
-        const data = sel.data;
-        // console.log('1009 selected', data, sel);
-      }
-      break;
+          const sel = e.subject.part;
+          const data = sel.data;
+          // console.log('1009 selected', data, sel);
+        }
+        break;
       case "PartResized": {
         const part = e.subject.part;
         const data = e.subject.part.data;
@@ -1214,78 +1230,80 @@ class GoJSApp extends React.Component<{}, AppState> {
       }
       break;
       case 'LinkDrawn': {
-      const link = e.subject;
-      const data = link.data;
-      if (debug) console.log('1171 link', link.data, link.fromNode, link.toNode);
+        const link = e.subject;
+        const data = link.data;
+        if (debug) console.log('1171 link', link.data, link.fromNode, link.toNode);
 
-      if (false) { // Prepare for linkToLink
-        if (linkToLink) {
-          let labels = link.labelNodes;
-          for (let it = labels.iterator; it?.next();) {     
-            if (debug) console.log('1177 it.value', it.value);
-            const linkLabel = it.value;
-            // Connect linkLabel to relview
-          }
-          if (data.category === 'linkToLink') {
-            // This is a link from a relationship between fromNode and toNode to an object
-            // The link from rel to object is link.data
-            // Todo: Handle this situation
+        if (false) { // Prepare for linkToLink
+          if (linkToLink) {
+            let labels = link.labelNodes;
+            for (let it = labels.iterator; it?.next();) {     
+              if (debug) console.log('1177 it.value', it.value);
+              const linkLabel = it.value;
+              // Connect linkLabel to relview
+            }
+            if (data.category === 'linkToLink') {
+              // This is a link from a relationship between fromNode and toNode to an object
+              // The link from rel to object is link.data
+              // Todo: Handle this situation
+            }
           }
         }
-      }
-      if (debug) console.log('1188 data', data);
-      const fromNode = myDiagram.findNodeForKey(data.from);
-      const toNode = myDiagram.findNodeForKey(data.to);
+        if (debug) console.log('1188 data', data);
+        const fromNode = myDiagram.findNodeForKey(data.from);
+        const toNode = myDiagram.findNodeForKey(data.to);
 
-      if (debug) console.log('1192 LinkDrawn', fromNode, toNode, data);
-      // Handle relationship types
-      if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
-        data.category = constants.gojs.C_RELSHIPTYPE;
-        if (debug) console.log('1196 link', fromNode, toNode);
-        link.category = constants.gojs.C_RELSHIPTYPE;
-        const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
-        if (reltype) {
-          if (debug) console.log('1200 reltype', reltype);
-          const jsnType = new jsn.jsnRelationshipType(reltype, true);
-          modifiedTypeLinks.push(jsnType);
-          if (debug) console.log('1203 jsnType', jsnType);
-          const reltypeview = reltype.typeview;
-          if (reltypeview) {
-            const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
-            modifiedLinkTypeViews.push(jsnTypeView);
-            if (debug) console.log('1208 jsnTypeView', jsnTypeView);
-
-            const myGoModel = myMetis.gojsModel;
-            let link = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
-            link.fromNode = fromNode.data;
-            link.toNode = toNode.data
-            link.loadLinkContent(myGoModel);
-            myGoModel.addLink(link);
-            if (debug) console.log('1261 link, myGoModel', link, myGoModel);
-
-            myDiagram.model.addLinkData(link);
+        if (debug) console.log('1192 LinkDrawn', fromNode, toNode, data);
+        // Handle relationship types
+        if (fromNode?.data?.category === constants.gojs.C_OBJECTTYPE) {
+          data.category = constants.gojs.C_RELSHIPTYPE;
+          if (debug) console.log('1196 link', fromNode, toNode);
+          // link.category = constants.gojs.C_RELSHIPTYPE;
+          const reltype = uic.createRelationshipType(fromNode.data, toNode.data, data, context);
+          if (reltype) {
+            if (debug) console.log('1200 reltype', reltype);
+            const jsnType = new jsn.jsnRelationshipType(reltype, true);
+            modifiedTypeLinks.push(jsnType);
+            if (debug) console.log('1203 jsnType', jsnType);
+            const reltypeview = reltype.typeview;
+            if (reltypeview) {
+              const jsnTypeView = new jsn.jsnRelshipTypeView(reltypeview);
+              modifiedLinkTypeViews.push(jsnTypeView);
+              if (debug) console.log('1208 jsnTypeView', jsnTypeView);
+              const myGoModel = myMetis.gojsModel;
+              let gjsLink = new gjs.goRelshipTypeLink(utils.createGuid(), myGoModel, reltype);
+              gjsLink.fromNode = fromNode.data;
+              gjsLink.toNode = toNode.data
+              gjsLink.loadLinkContent(myGoModel);
+              myGoModel.addLink(gjsLink);
+              gjsLink.name = reltype.name;
+              if (debug) console.log('1261 link, myGoModel, reltype', gjsLink, myGoModel, reltype);
+              myDiagram.model.addLinkData(gjsLink);
+              const lnk = myDiagram.findLinkForKey(gjsLink.key);
+              if (debug) console.log('1264 lnk, reltype', lnk, reltype);
+              myDiagram.model.setDataProperty(lnk.data, 'name', reltype.name);
+            }
           }
+          // Handle relationships
+          if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
+            data.category = 'Relationship';
+            context.handleOpenModal = this.handleOpenModal;
+            // Creation is done in a callback function (uic.createRelshipCallback)
+            if (debug) console.log('1215 data, context', data, context);
+            uic.createRelationship(data, context);
+        }
+        myDiagram.requestUpdate();
         }
         // Handle relationships
         if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
-          data.category = 'Relationship';
+          data.category = constants.gojs.C_RELATIONSHIP;
           context.handleOpenModal = this.handleOpenModal;
-          // Creation is done in a callback function (uic.createRelshipCallback)
-          if (debug) console.log('1215 data, context', data, context);
+          if (debug) console.log('1225 data, context', data, context);
           uic.createRelationship(data, context);
-       }
-       myDiagram.requestUpdate();
+        }
+        myDiagram.requestUpdate(); 
       }
-      // Handle relationships
-      if (fromNode?.data?.category === constants.gojs.C_OBJECT) {
-        data.category = constants.gojs.C_RELATIONSHIP;
-        context.handleOpenModal = this.handleOpenModal;
-        if (debug) console.log('1225 data, context', data, context);
-        uic.createRelationship(data, context);
-      }
-      myDiagram.requestUpdate(); 
-    }
-    break;
+      break;
       case "LinkRelinked": {
         const link = e.subject;
         const fromNode = link.fromNode?.data;
@@ -1383,10 +1401,11 @@ class GoJSApp extends React.Component<{}, AppState> {
         context.dispatch({ type: 'UPDATE_RELSHIPVIEW_PROPERTIES', data })
       })
 
-      if (debug) console.log('1326 modifiedLinkTypes', modifiedLinkTypes);
+      if (debug) console.log('1326 modifiedTypeLinks', modifiedTypeLinks);
       modifiedTypeLinks?.map(mn => {
         let data = (mn) && mn
         data = JSON.parse(JSON.stringify(data));
+        if (debug) console.log('1330 data', data);
         context.dispatch({ type: 'UPDATE_RELSHIPTYPE_PROPERTIES', data })
       })
 

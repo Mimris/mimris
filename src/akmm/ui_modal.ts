@@ -130,8 +130,8 @@ export function handleSelectDropdownChange(selected, context) {
   modalContext.selected = selected;
   modalContext.myMetamodel = myMetamodel;
   const selectedOption = selected.value;
-  if (debug) console.log('131 selected, context:', selected, context);
-  if (debug) console.log('132 modalContext', modalContext);
+  if (debug) console.log('133 selected, context:', selected, context);
+  if (debug) console.log('134 modalContext', modalContext);
   switch(modalContext.case) {
     case "Change Object type": {
       if (debug) console.log('133 selection', myDiagram.selection);
@@ -205,13 +205,13 @@ export function handleSelectDropdownChange(selected, context) {
         const inst = sel.data;
         if (inst.category === constants.gojs.C_OBJECT) {
           node = myGoModel.findNode(inst.key);
-          if (debug) console.log('162 node', node);
+          if (debug) console.log('208 node', node);
           let objview = node.objectview;
-          if (debug) console.log('164 objview', objview, node, myMetis);
-          const icn = myMetis.myDiagram.findNodeForKey(node.key);
+          if (debug) console.log('210 objview', objview, node, myMetis);
+          const icn = myDiagram.findNodeForKey(node.key);
           const idata = icn.data;
-          myMetis.myDiagram.model.setDataProperty(idata, "icon", icon);
-          myMetis.myDiagram.requestUpdate();
+          myDiagram.model.setDataProperty(idata, "icon", icon);
+          myDiagram.requestUpdate();
           if (objview) {
             objview = myMetis.findObjectView(objview.id);
             objview.icon = icon;
@@ -220,34 +220,41 @@ export function handleSelectDropdownChange(selected, context) {
             modifiedObjviews.push(jsnObjview);
             modifiedObjviews.map(mn => {
               let data = mn;
-              if (debug) console.log('177 data', data);
+              if (debug) console.log('223 data', data);
               data = JSON.parse(JSON.stringify(data));
-              if (debug) console.log('179 data, jsnObjview', data, jsnObjview);
+              if (debug) console.log('225 data, jsnObjview', data, jsnObjview);
               myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTVIEW_PROPERTIES', data })
             });
           }
         }
         else if (inst.category === constants.gojs.C_OBJECTTYPE) {
-          if (debug) console.log('230 inst, icon', inst, icon);
-          let objtypeview = inst.typeview;
-          if (debug) console.log('232 objtypeview', objtypeview);
+          let node = myMetis.currentNode;
+          const icn = myDiagram.findNodeForKey(node.key);
+          let idata = icn.data;
+          myDiagram.model.setDataProperty(idata, "icon", icon);
+          myDiagram.requestUpdate();
+          if (debug) console.log('236 node, data', node, idata);
+          let objtypeview = node.typeview;
+          objtypeview = myMetis.findObjectTypeView(objtypeview?.id);
+          if (debug) console.log('239 objtypeview', objtypeview);
+          myDiagram.model.setDataProperty(node, "icon", icon);
+          if (debug) console.log('241 objtypeview', objtypeview);
           if (objtypeview) {
-            objtypeview = myMetis.findObjectTypeView(objtypeview.id);
             objtypeview.icon = icon;
             objtypeview.data.icon = icon;
-            if (debug) console.log('236 objtypeview, icon', objtypeview, icon);
+            if (debug) console.log('245 objtypeview, icon', objtypeview, icon);
             const jsnObjtypeview = new jsn.jsnObjectTypeView(objtypeview);
             const modifiedObjtypeviews = [];
             modifiedObjtypeviews.push(jsnObjtypeview);
             modifiedObjtypeviews.map(mn => {
               let data = mn;
-              if (debug) console.log('245 data', data);
+              if (debug) console.log('251 data', data);
               data = JSON.parse(JSON.stringify(data));
-              if (debug) console.log('247 data, jsnObjtypeview', data, jsnObjtypeview);
-              myMetis.myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
+              if (debug) console.log('253 data, jsnObjtypeview', data, jsnObjtypeview);
+              myDiagram.dispatch({ type: 'UPDATE_OBJECTTYPEVIEW_PROPERTIES', data })
             });
           }
-          myMetis.myDiagram.requestUpdate();
+          myDiagram.requestUpdate();
         }
       });
       break;
@@ -635,8 +642,10 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
         if (debug) console.log('461 cardinalities', cardinalityFrom, cardinalityTo);
         type.cardinalityFrom = cardinalityFrom;
         type.cardinalityTo = cardinalityTo;
-        if (reltypeview)
+        if (reltypeview) {
           reltypeview.setRelshipKind(type.relshipkind);
+          reltypeview.setTemplate(data.template);
+        }
         if (debug) console.log('467 link', link, type);
         if (debug) console.log('468 link, type', data, type);
       } else 
@@ -817,9 +826,19 @@ export function handleCloseModal(selectedData: any, props: any, modalContext: an
             if (debug) console.log('789 objview, data, node', objview, data, node);
             for (let prop in objtypeview?.data) {
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'template' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'geometry' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'figure' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'fillcolor' && objview[prop] !== "") 
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'fillcolor2' && objview[prop] !== "") 
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'strokecolor' && objview[prop] !== "")
+                myDiagram.model.setDataProperty(data, prop, objview[prop]);
+              if (prop === 'strokecolor2' && objview[prop] !== "")
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);
               if (prop === 'strokewidth' && objview[prop] !== "")
                 myDiagram.model.setDataProperty(data, prop, objview[prop]);

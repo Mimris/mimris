@@ -279,6 +279,7 @@ class GoJSPaletteTargetApp extends React.Component<{}, AppState> {
       <div>
 
         <PaletteWrapper
+          divClassName      = 'diagram-component-target'
           nodeDataArray     ={this.state.nodeDataArray}
           linkDataArray     ={this.state.linkDataArray}
           modelData         ={this.state.modelData}

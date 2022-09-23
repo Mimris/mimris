@@ -18,8 +18,10 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
             return {id: ot.id, name: ot.name, description: ot.description, icon: ot.icon, color: ot.color, type: ot.type}
         }
         )
-        // if (debug) console.log("21  oTyp", oTypes, oTypes0);
+        if (debug) console.log("21  oTyp", oTypes, oTypes0);
         // console.log('22 ', JSON.stringify(oTypes.map( t => {return t.name})))
+        // sort oTypes
+        const oTypesSorted = oTypes.sort((a: { name: string; }, b: { name: string; }) => (a.name > b.name) ? 1 : -1)
 
         const datarole = (oTypes0) && {
             focusRole: {
@@ -111,11 +113,11 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
             ]
         }
         }
-        
+        if (debug) console.log("114 datarole", oTypes0, datarole);
         if (oTypes0) dispatch({ type: 'SET_FOCUS_ROLE', data: datarole.focusRole })
 
-        let datatask = (oTypes0?.length > 0) ? {
-                focusTask: {
+        let datatask = {
+            focusTask: {
                 id: "Task4",  
                 name: "Modelling",
                 description: "Modelling",
@@ -127,46 +129,62 @@ const genRoleTasks = (mmodel, dispatch: Dispatch<any>) => {
                     "Task",
                     "View",
                     "Label",
-                    ...oTypes0?.map((t: { name: any; }) => 
+                    "Property",
+                    "Generic",
+                    "Label",
+                    ...oTypesSorted?.map((t: { name: any; }) => 
                         (t.name !== "Container") &&
                         (t.name !== "EntityType") &&
                         (t.name !== "Information") &&
                         (t.name !== "Role") &&
                         (t.name !== "Task") &&
                         (t.name !== "View") &&
-                        (t.name !== "Label")
-                        && t.name)
+                        (t.name !== "Label") &&
+                        (t.name !== "Property") &&
+                        (t.name !== "Generic") &&
+                        (t.name !== "Datatype") &&
+                        (t.name !== "InputPattern") &&
+                        (t.name !== "FieldType") &&
+                        (t.name !== "Unittype") &&
+                        (t.name !== "Value") &&
+                        (t.name !== "ViewFormat") &&
+                        (t.name !== "Method") &&
+                        (t.name !== "MethodType") &&
+                        (t.name !== "View") &&
+                        (t.name !== "RelshipType") &&
+                        (t.name !== "ExclusiveGate") &&
+                        (t.name !== "Process") &&
+                        (t.name !== "Function") &&
+                        (t.name !== "Activity") &&
+                        (t.name !== "Start") &&
+                        (t.name !== "End") &&
+                        (t.name !== "ExclusiveGate") &&
+                        (t.name !== "InclusiveGate") &&
+                        (t.name !== "ParallelGate")
+                        && t.name).filter(Boolean),
+                        "Process",
+                        "Function",
+                        "Activity",
+                        "Start",
+                        "End",
+                        "ExclusiveGate",
+                        "InclusiveGate",
+                        "ParallelGate",
+                        "Datatype",
+                        "InputPattern",
+                        "FieldType",
+                        "Unittype",
+                        "Value",
+                        "ViewFormat",
+                        "Method",
+                        "MethodType",
+                        "RelshipType"
                 ]
-                // .concat(...oTypes0?.map((t: { name: any; }) => t.name))
-                }
-            } : 
-            {
-                focusTask: {
-                    id: "Task4",
-                    name: "All types",
-                    description: "All types modelling",
-                    workOnTypes: [
-                        "Container",
-                        "EntityType",
-                        "Information",
-                        "Role",
-                        "Task",
-                        "View",
-                        "Label",
-                        ...oTypes?.map((t: { name: any; }) => 
-                            (t.name !== "Container") &&
-                            (t.name !== "EntityType") &&
-                            (t.name !== "Information") &&
-                            (t.name !== "Role") &&
-                            (t.name !== "Task") &&
-                            (t.name !== "View") &&
-                            (t.name !== "Label")
-                            && t.name)
-                    ]
-                }
             }
+        }
+            
 
-        if (debug) console.log("105 genDataTasks", datatask);
+        if (debug) console.log("105 focusTasks", datatask);
         dispatch({ type: 'SET_FOCUS_TASK', data: datatask.focusTask })
     }
  }

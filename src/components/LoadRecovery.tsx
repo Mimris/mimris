@@ -25,53 +25,57 @@ const LoadRecovery = (props: any) => {
   const toggle = () => setModal(!modal);
   
   if (typeof window === 'undefined') return
-
-  const [memoryState, setMemoryLocState] = useLocalStorage('memorystate', null);
+  
+  const [memoryLocState, setMemoryLocState] = useLocalStorage('memorystate', null);
   const [inputValue, setInputValue] = useState('');
-  function toggleRefresh() { setRefresh(!refresh); }
+  if (debug) console.log('31 memoryLocState', memoryLocState)
+  if (!memoryLocState) setMemoryLocState([])
 
+  function toggleRefresh() { setRefresh(!refresh); }
+  
   // if memorytState is an object
-  let memoryTmp = memoryState
-  if (!Array.isArray(memoryState)) { memoryTmp = [memoryState] } else { memoryTmp = memoryState }
+  let memoryTmp = memoryLocState
+  if (!Array.isArray(memoryLocState)) { memoryTmp = [memoryLocState] } else { memoryTmp = memoryLocState }
   if (debug) console.log('31 memoryTmp', memoryTmp.map((item: any) => {return { value: item.phSource, label: item.lastUpdate }}))
 
-  // if memoryState is not an array then make it one
+  // if memoryLocState is not an array then make it one
 
   // if memorytState is an object
-  // if (typeof memoryTmp === 'object') memoryTmp = [memoryState] || 
+  // if (typeof memoryTmp === 'object') memoryTmp = [memoryLocState] 
   // console.log('31 memoryTmp', Array.isArray(memoryTmp))
   
   const optionsMemory = memoryTmp.map((item: any, idx) =>  {return {  value: item.lastUpdate, label: idx+ ' '+item.phSource+ ' Saved : ' + item.lastUpdate }})
 
-  // if memoryState is not an array then make it one
+  // if memoryLocState is not an array then make it one
 
-  if (debug) console.log('46 LoadRecovery',memoryState, optionsMemory);
+  if (debug) console.log('46 LoadRecovery',memoryLocState, optionsMemory);
 
   // if (optionsMemory == undefined || optionsMemory?.length === 0) optionsMemory = [{value: 0, label: 'No recovery model'}]
 
   //
-  // load to Redux-store from memoryState in localStorage. This is saved for every refresh)
+  // load to Redux-store from memoryLocState in localStorage. This is saved for every refresh)
   //
   function onChangeHandler(e: any) {  
     // setInputValue(e.target.value)
     const inputValue = e.target.value
 
     function cleanMemoryState(memState) { // if metis name is undefined then remove from localStorage
-      const cleanMemState =  memState.filter((item: any) => item.phSource !== undefined)
+      console.log('59 cleanMemoryState', memState)
+      const cleanMemState =  memState?.filter((item: any) => item.phSource !== undefined)
       setMemoryLocState(cleanMemState) 
     } 
-    // if (!debug) console.log('57 LoadRecovery', inputValue, e.target.value , e);
-    if (debug) console.log('58 LoadRecovery',  inputValue, 'memval ', memoryState[inputValue], 'mem ', memoryState);
+    // if (debug) console.log('57 LoadRecovery', inputValue, e.target.value , e);
+    if (debug) console.log('58 LoadRecovery',  inputValue, 'memval ', memoryLocState[inputValue], 'mem ', memoryLocState);
 
    
     function  dispatchToStore() {
-      if (debug) console.log('62 LoadRecovery', inputValue);
+      if (debug) console.log('62 LoadRecovery', inputValue, memoryLocState);
       if (inputValue !== '') {
-        if (memoryState[inputValue] !== undefined) {
-          if (inputValue > memoryState.length) return;
+        if (memoryLocState[inputValue] !== undefined) {
+          if (inputValue > memoryLocState.length) return;
           const ipVal= inputValue
-          const ph = memoryState[ipVal]
-          if (!debug) console.log('74 LoadRecovery', ipVal, memoryState[ipVal]);
+          const ph = memoryLocState[ipVal]
+          if (debug) console.log('74 LoadRecovery', ipVal, memoryLocState[ipVal], memoryLocState);
           const phData = ph?.phData
           const phFocus = ph?.phFocus
           const phUser = ph?.phUser
@@ -86,7 +90,7 @@ const LoadRecovery = (props: any) => {
       }
     }
     
-    cleanMemoryState(memoryState)
+    cleanMemoryState(memoryTmp)
     dispatchToStore()
 
     // setTimeout(waitforInputValue, 1)

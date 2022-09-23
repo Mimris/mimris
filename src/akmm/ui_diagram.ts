@@ -240,6 +240,7 @@ function exportTaskModelCallback(context: any) {
     fromModel = myMetis.findModel(fromModel.id);
     let toModel   = context.args.model;
     toModel = myMetis.findModel(toModel.id);
+    myMetis.setCurrentTaskModel(toModel);
     const containerView = context.args.objectview;
     const modelView = containerView.getParentModelView(fromModel);
     const members = containerView.getGroupMembers(modelView);
@@ -278,15 +279,25 @@ function exportTaskModelCallback(context: any) {
         }
     }
     if (debug) console.log('220 toModel', toModel);
-    let mdata = new jsn.jsnModel(toModel, true);
-    mdata = JSON.parse(JSON.stringify(mdata));
-    mdata.targetModelRef = toModel.id;
-    if (debug) console.log('224 Diagram', mdata);        
-    myDiagram.dispatch({ type: 'UPDATE_TARGETMODEL_PROPERTIES', data: mdata })
+    // let mdata = new jsn.jsnModel(toModel, true);
+    // mdata = JSON.parse(JSON.stringify(mdata));
+    // mdata.targetModelRef = toModel.id;
+    // mdata.taskModelRef = fromModel.id;
+    // if (debug) console.log('224 Diagram', mdata);        
+    // myDiagram.dispatch({ type: 'UPDATE_TARGETMODEL_PROPERTIES', data: mdata })
+
+    const jsnMetis = new jsn.jsnExportMetis(myMetis, true);
+    if (debug) console.log('1402 jsnMetis: ', jsnMetis);
+    let data = {metis: jsnMetis}
+    data = JSON.parse(JSON.stringify(data));
+    myDiagram.dispatch({ type: 'LOAD_TOSTORE_PHDATA', data })
+
+
     alert("The task model has been successfully exported!");
 }
 
 export function newModelview(myMetis: akm.cxMetis, myDiagram: any) {
+    const metamodel = myMetis.currentMetamodel;
     const model = myMetis.currentModel;
     const modelviewName = prompt("Enter Modelview name:", "");
     if (modelviewName == null || modelviewName === "") {
@@ -666,13 +677,16 @@ export function getConnectToSelectedTypes(node: any, selection: any, myMetis: ak
     uniqueSet = utils.removeArrayDuplicates(objtypes);
     objtypes = uniqueSet;
     if (debug) console.log('626 objtypes', objtypes);
+    if (debug) console.log('627 myMetis', myMetis);
+    const myModelview = myMetis.currentModelview;
+    const includeInheritedReltypes = myModelview.includeInheritedReltypes;
     let reltypes = [];
     // Walk through selected object's types (objtypes)
     for (let i=0; i<objtypes.length; i++) {
         let toType = objtypes[i];
         toType = myMetis.findObjectType(toType.id);
         if (debug) console.log('632 fromType, toType', fromType, toType);
-        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, true);
+        const rtypes = myMetamodel.findRelationshipTypesBetweenTypes(fromType, toType, includeInheritedReltypes);
         if (i == 0) {
             // First time
             reltypes = rtypes;
@@ -749,8 +763,8 @@ function replaceCurrentMetamodel2(context: any) {
     const myMetis = context.myMetis;
     const myModel = context.myCurrentModel;
     const myDiagram = context.myDiagram;
-    const otypeDefault = myMetis.findObjectTypeByName('Generic');
-    const rtypeDefault = myMetis.findRelationshipTypeByName('isRelatedTo');
+    const otypeDefault = myMetis.findObjectTypeByName(constants.types.AKM_GENERIC);
+    const rtypeDefault = myMetis.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
     if (debug) console.log('634 context', context);
     myModel.metamodel = newMetamodel;
     const objects = myModel.objects;
@@ -1132,35 +1146,44 @@ const breakString = (str, limit) => {
 }
 
 export function nodeInfo(d: any, myMetis: akm.cxMetis) {  // Tooltip info for a node data object
-    if (debug) console.log('1092 nodeInfo', d, d.object);
+    if (debug) console.log('1035 nodeInfo', d, d.object);
+    if (debug) console.log('1136 nodeInfo', myMetis.gojsModel.findNode(d.group));
 
     const format1 = "%s\n";
     const format2 = "%-10s: %s\n";
+    const format3 = "%-10s: (%s)\n";
 
     let msg = "";
-    // let msg = "Object Type props:\n";
-    // msg += "-------------------\n";
-    msg += printf(format2, "-Type", d.object.type.name);
+    // msg += printf(format2, "-Type", d.object.type.name);
     // msg += printf(format2, "-Title", d.object.type.title);
-    msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
+    // msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
     // // msg += printf(format2, "-Descr", d.object.type.description);
     // msg += "\n";
-    msg += "Attributes :\n";
-    msg += "---------------------\n";
-    msg += printf(format2, "-Name", d.name);
+    msg += printf(format2, "Name", d.name);
     // msg += printf(format2, "-Title", d.object.title);
-    msg += printf(format2, "-Description", breakString(d.object.description, 64));
+    msg += printf(format2, "Descr.", breakString(d.object.description, 64));
+    // msg += "-------------------\n";
+    // msg = "Object \Type props:\n";
+    msg += printf(format2, "Type", d.object.type.name);
+    // msg += ")";
+    // msg += printf(format2, "-Title", d.object.type.title);
+    //   msg += printf(format2, "-Descr", breakString(d.object.type.description, 64));
+    
+    
     // msg += printf(format2, "-ViewFormat", d.object.viewFormat);
     // msg += printf(format2, "-FieldType", d.object.fieldType);
     // msg += printf(format2, "-Inputpattern", d.object.inputPattern);
     // msg += printf(format2, "-InputExample", d.object.inputExample);
     // msg += printf(format2, "-Value", d.object.value);
-    if (debug) console.log('1115 msg', msg);
+    // if (debug) console.log('1115 msg', msg);
     if (d.group) {
-      const group = myMetis.gojsModel.findNode(d.group);
-      msg += printf(format2, "member of", group.name);
+        const group = myMetis.gojsModel.findNode(d.group);
+        msg += "------parent-------\n";
+        msg += printf(format2, "Name", group.name);
+        msg += printf(format2, "Type", group.typename);
+        msg += "\n";
     }
-    if (debug) console.log('1119 msg', msg);
+    // if (debug) console.log('1119 msg', msg);
     // let str = "Attributes:"; 
     // msg += printf(format1, str);      
     // const obj = d.object;

@@ -88,7 +88,10 @@ export const SaveAllToFileDate = (data, name, type) => {
 export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project from file
     e.preventDefault()
     const reader = new FileReader()
+    reader.fileName = '' // reset fileName
     reader.fileName = (e.target.files[0]?.name)
+    console.log('92 ReadModelFromFile', reader.fileName)
+    if (!reader.fileName) return null
     reader.onload = async (e) => { 
         const text = (e.target.result)
         const modelff = JSON.parse(text)
@@ -100,8 +103,20 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
     
         let mindex = props.phData?.metis?.models?.findIndex(m => m.id === modelff?.id) // current model index
         let mlength = props.phData?.metis?.models.length
-        if (mindex < 0) { mindex = mlength } // mindex = -1, i.e.  not fond, which means adding a new model
-        
+        console.log('104 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+        if (mindex < 0) { mindex = mlength  // mindex = -1, i.e.  not fond, which means adding a new model
+        } else { // model already exists, ask if to replace
+            console.log('104 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+
+            const r = window.confirm("Model already exists! Existing: "+props.phData?.metis?.models[mindex].name+" New: "+modelff?.name+" Do you want to replacen and overwrite it?")
+            // const r = window.confirm("Model already exists, do you want to replace it?")
+            if (r === false) { //  add model
+                // change model id
+                modelff.id = modelff.id + mlength
+                mindex = mlength
+                console.log('104 SaveModelToFile', mindex, mlength, modelff?.id, props.phData?.metis?.models[mindex]?.id)
+            }
+        }
         let fmindex = props.phData?.metis?.models?.findIndex(m => m.id === props.phFocus.focusModel?.id) // current focusmodel index
         // if (fmindex < 0) { fmindex = mlength } // mvindex = -1, i.e.  not fond, which means adding a new modelview
         
@@ -115,8 +130,12 @@ export const ReadModelFromFile = async (props, dispatch, e) => { // Read Project
 
         if (debug) console.log('60 SaveModelToFile', mvindex, mvlength);
 
+
+        // ---------------------  load Project ---------------------
+        console.log('134 SaveModelToFile',  props.phData?.metis, modelff.phData?.metis)
         let data
         if (modelff.phData) { // if modelff has phData, then it is a project file
+            console.log('136 SaveModelToFile',  props.phData?.metis, modelff.phData?.metis)
             data = {
                 phData:   modelff.phData,
                 phFocus:  modelff.phFocus,

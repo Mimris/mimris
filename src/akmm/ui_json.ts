@@ -3,6 +3,7 @@ const debug = false;
 
 const utils = require('./utilities');
 import * as akm from './metamodeller';
+const constants = require('./constants');
 // import { goRelshipTypeLink } from './ui_gojs';
 
 let jsnMetis = null;
@@ -21,6 +22,7 @@ export class jsnExportMetis {
     currentTargetMetamodelRef:  string;
     currentTargetModelRef:      string;
     currentTargetModelviewRef:  string;
+    currentTaskModelRef:        string;
     // Constructor
     constructor(metis: akm.cxMetis, includeViews: boolean) {
         this.name                       = metis.name;
@@ -34,6 +36,7 @@ export class jsnExportMetis {
         this.currentTargetMetamodelRef  = "";
         this.currentTargetModelRef      = "";
         this.currentTargetModelviewRef  = "";
+        this.currentTaskModelRef        = "";
         // Code
         if (metis) {
             jsnMetis = metis;
@@ -67,6 +70,8 @@ export class jsnExportMetis {
                 this.currentTargetModelviewRef = metis.currentTargetModelview.id;
             if (metis.currentTemplateModel)
                 this.currentTemplateModelRef = metis.currentTemplateModel.id;  
+            if (metis.currentTaskModel)
+                this.currentTaskModelRef = metis.currentTaskModel.id;
         }
     }
     // Functions
@@ -148,6 +153,7 @@ export class jsnMetaModel {
     objtypegeos:        jsnObjectTypegeo[];
     relshiptypeviews:   jsnRelshipTypeView[];
     generatedFromModelRef: string;
+    includeInheritedReltypes: boolean;
     layout:             string;
     routing:            string;
     linkcurve:          string;
@@ -172,6 +178,7 @@ export class jsnMetaModel {
         this.objtypegeos = [];
         this.relshiptypeviews = []; 
         this.generatedFromModelRef = metamodel.generatedFromModelRef;
+        this.includeInheritedReltypes = metamodel.includeInheritedReltypes;
         this.layout           = metamodel.layout;
         this.routing          = metamodel.routing;
         this.linkcurve        = metamodel.linkcurve;
@@ -214,6 +221,29 @@ export class jsnMetaModel {
                     }
                 }
                 this.addRelationshipType(reltype, includeViews);
+            }
+            if (debug) console.log('200 jsnMetaModel', this);
+        }
+        const reltypes0 = metamodel.getRelshipTypes0();
+        if (reltypes0) {
+            if (debug) console.log('195 reltypes0', reltypes0);
+            const cnt = reltypes0.length;
+            for (let i = 0; i < cnt; i++) {
+                const reltype = reltypes[i];
+                if (!reltype) continue;
+                if (!reltype.fromObjtype) {
+                    if (reltype.fromobjtypeRef) {
+                        const objtype = metamodel.findObjectType(reltype.fromobjtypeRef);
+                        reltype.fromObjtype = objtype;
+                    }
+                }
+                if (!reltype?.toObjtype) { // SF: added ?
+                    if (reltype?.toobjtypeRef) { // SF: added ?
+                        const objtype = metamodel.findObjectType(reltype.toobjtypeRef);
+                        reltype.toObjtype = objtype;
+                    }
+                }
+                this.addRelationshipType0(reltype, includeViews);
             }
             if (debug) console.log('200 jsnMetaModel', this);
         }
@@ -425,6 +455,16 @@ export class jsnMetaModel {
     }
     findRelationshipType(id: string): jsnRelationshipType {
         const reltypes = this.relshiptypes;
+        for (let i=0; i<reltypes.length; i++) {
+            const reltype = reltypes[i];
+            if (reltype.id === id) {
+                return reltype;
+            }
+        }
+        return null;
+    }
+    findRelationshipType0(id: string): jsnRelationshipType {
+        const reltypes = this.relshiptypes0;
         for (let i=0; i<reltypes.length; i++) {
             const reltype = reltypes[i];
             if (reltype.id === id) {
@@ -1277,6 +1317,7 @@ export class jsnModelView {
     linkcurve:          string;
     showCardinality:    boolean;
     askForRelshipName:  boolean;
+    includeInheritedReltypes: boolean;
     modelRef:           string;
     viewstyleRef:       string;
     objectviews:        jsnObjectView[];
@@ -1295,6 +1336,7 @@ export class jsnModelView {
         this.modelRef           = mv?.getModel()?.id;
         this.showCardinality    = mv?.showCardinality;
         this.askForRelshipName  = mv?.askForRelshipName;
+        this.includeInheritedReltypes = mv?.includeInheritedReltypes;
         this.viewstyleRef       = mv?.getViewStyle()?.getId();
         this.objectviews        = [];
         this.relshipviews       = [];
@@ -1835,7 +1877,7 @@ export class jsnImportMetis {
             if (!reltype) {
                 reltype = metamodel.findRelationshipTypeByName(item.name);
                 if (!reltype) {
-                    reltype = metamodel.findRelationshipTypeByName('isRelatedTo');
+                    reltype = metamodel.findRelationshipTypeByName(constants.types.AKM_GENERIC_REL);
                 }
             }
             const fromObj = jsnMetis.findObject(item.fromObjectRef);

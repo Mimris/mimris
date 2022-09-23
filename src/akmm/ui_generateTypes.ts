@@ -845,6 +845,7 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
     // First handle the objects
     for (let i=0; i<objlist.length; i++) {
         const obj = objlist[i];
+        if (!obj) continue;
         const noObjviews = obj.objectviews?.length;
         let objview;
         if (noObjviews>0)
@@ -857,6 +858,7 @@ function buildTemporaryModelView(context: any): akm.cxModelView {
     // Then handle the relationships
     for (let i=0; i<rellist.length; i++) {
         const rel = rellist[i];
+        if (!rel) continue;
         const fromObj = rel.fromObject;
         const toObj   = rel.toObject;
         if (fromObj && toObj) { // changed
